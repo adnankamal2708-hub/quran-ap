@@ -45,11 +45,11 @@ function initQuiz() {
     quizTotal = 0;
     quizAnswered = false;
     quizFinished = true;
-    var wordEl = document.getElementById('quiz-word');
+    var wordEl = DOM.get('quiz-word');
     if (wordEl) wordEl.textContent = '📚';
-    var optionsEl = document.getElementById('quiz-options');
+    var optionsEl = DOM.get('quiz-options');
     if (optionsEl) optionsEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No words available for quiz.</div>';
-    document.getElementById('quiz-score-display').textContent = '';
+    DOM.get('quiz-score-display').textContent = '';
     return;
   }
 
@@ -59,7 +59,7 @@ function initQuiz() {
   quizTotal = 0;
   quizAnswered = false;
   quizFinished = false;
-  document.getElementById('quiz-score-display').textContent = '';
+  DOM.get('quiz-score-display').textContent = '';
   showQuizQ();
 }
 
@@ -68,11 +68,11 @@ function initQuiz() {
  */
 function showQuizQ() {
   quizAnswered = false;
-  document.getElementById('btn-next-quiz').style.display = 'none';
-  document.getElementById('quiz-feedback').textContent = '';
+  DOM.get('btn-next-quiz').style.display = 'none';
+  DOM.get('quiz-feedback').textContent = '';
 
-  const wordIndex = quizIndex % quizWords.length;
-  const currentWord = quizWords[wordIndex];
+  var wordIndex = quizIndex % quizWords.length;
+  var currentWord = quizWords[wordIndex];
   renderQuizQuestion(currentWord, ALL_WORDS);
 }
 
@@ -84,33 +84,55 @@ function answerQuiz(btn, chosen, correct, arabic) {
   quizAnswered = true;
   quizTotal++;
 
-  const allOpts = document.querySelectorAll('.quiz-opt');
-  allOpts.forEach((b) => {
-    b.disabled = true;
-    b.setAttribute('aria-disabled', 'true');
-  });
+  var allOpts = document.querySelectorAll('.quiz-opt');
+  for (var i = 0; i < allOpts.length; i++) {
+    allOpts[i].disabled = true;
+    allOpts[i].setAttribute('aria-disabled', 'true');
+  }
 
-  const feedback = document.getElementById('quiz-feedback');
+  var feedback = DOM.get('quiz-feedback');
 
   if (chosen === correct) {
     btn.classList.add('correct');
     quizCorrect++;
     rateSRSWord(arabic, 2);
-    feedback.textContent = '✓ Correct!';
+    feedback.textContent = '\u2713 Correct!';
     feedback.style.color = 'var(--green)';
   } else {
     btn.classList.add('wrong');
     rateSRSWord(arabic, 0);
-    allOpts.forEach((b) => {
-      if (b.textContent === correct) b.classList.add('correct');
-    });
-    feedback.textContent = `✗ Answer: ${correct}`;
+    for (var bi = 0; bi < allOpts.length; bi++) {
+      if (allOpts[bi].textContent === correct) allOpts[bi].classList.add('correct');
+    }
+    feedback.textContent = '\u2717 Answer: ' + correct;
     feedback.style.color = 'var(--red)';
   }
 
   updateQuizScoreDisplay(quizCorrect, quizTotal);
-  document.getElementById('btn-next-quiz').style.display = 'inline-block';
+  DOM.get('btn-next-quiz').style.display = 'inline-block';
   updateStatsDisplay();
+}
+
+/**
+ * Show quiz completion feedback.
+ */
+function renderQuizCompletion(score, total) {
+  var pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  DOM.get('quiz-word').textContent = '\uD83C\uDF89';
+  DOM.get('quiz-options').innerHTML = '';
+  var feedback = DOM.get('quiz-feedback');
+  var msg = pct >= 80 ? 'Excellent, mashAllah!' : pct >= 60 ? 'Good effort \u2014 review the harder ones.' : "Keep going, you'll get there!";
+  feedback.textContent = 'Done! ' + pct + '% \u2014 ' + msg;
+  feedback.style.color = 'var(--gold)';
+  DOM.get('btn-next-quiz').style.display = 'none';
+}
+
+/**
+ * Update the quiz score display.
+ */
+function updateQuizScoreDisplay(correct, total) {
+  DOM.get('stat-score').textContent = total > 0 ? Math.round((correct / total) * 100) + '%' : '\u2014';
+  DOM.get('quiz-score-display').textContent = correct + '/' + total + ' correct';
 }
 
 /**

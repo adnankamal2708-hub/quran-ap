@@ -3,8 +3,20 @@
 // All DOM manipulation functions — no application state here
 // ═══════════════════════════════════════════════════════════════
 
+// ── DOM element cache ─────────────────────────────────────────
+// Cache frequently accessed DOM elements to avoid repeated getElementById calls
+const DOM = {
+  _cache: {},
+  get: function(id) {
+    if (!this._cache[id]) {
+      this._cache[id] = document.getElementById(id);
+    }
+    return this._cache[id];
+  }
+};
+
 /**
- * Force CSS reflow for animation restart.
+ * Force CSS reflow for animation restart. Uses requestAnimationFrame for smoother restart.
  */
 function reflow(element) {
   void element.offsetWidth;
@@ -24,17 +36,18 @@ function getShortMeaning(meaning) {
 function setView(viewName) {
   // All possible views — both main content and overlay views
   const views = ['learn', 'quiz', 'list', 'stats', 'auth', 'profile', 'settings'];
-  views.forEach((name) => {
-    const viewEl = document.getElementById('view-' + name);
+  for (var i = 0; i < views.length; i++) {
+    var name = views[i];
+    var viewEl = DOM.get('view-' + name);
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
     // Only toggle tab highlights for main nav tabs
-    if (['learn', 'quiz', 'list', 'stats'].indexOf(name) >= 0) {
-      const tabEl = document.getElementById('tab-' + name);
+    if (name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats') {
+      var tabEl = DOM.get('tab-' + name);
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
-  });
-  const content = document.getElementById('content');
+  }
+  var content = DOM.get('content');
   if (content) content.scrollTop = 0;
 }
 
@@ -44,13 +57,13 @@ function setView(viewName) {
 function renderWordCard(w, currentIndex, total, isReview) {
   if (!w) return;
 
-  document.getElementById('word-num').textContent = `${isReview ? 'Review' : 'Word'} ${currentIndex + 1} of ${total}`;
-  document.getElementById('arabic-word').textContent = w.arabic;
-  document.getElementById('transliteration').textContent = w.translit;
-  document.getElementById('word-type').textContent = w.type;
+  DOM.get('word-num').textContent = (isReview ? 'Review' : 'Word') + ' ' + (currentIndex + 1) + ' of ' + total;
+  DOM.get('arabic-word').textContent = w.arabic;
+  DOM.get('transliteration').textContent = w.translit;
+  DOM.get('word-type').textContent = w.type;
 
   // Pattern display
-  var patternEl = document.getElementById('word-pattern');
+  var patternEl = DOM.get('word-pattern');
   if (patternEl) {
     if (w.pattern && w.pattern !== '\u2014') {
       patternEl.textContent = 'Pattern: ' + w.pattern;
@@ -60,65 +73,66 @@ function renderWordCard(w, currentIndex, total, isReview) {
     }
   }
 
-  document.getElementById('meaning').textContent = w.meaning;
-  document.getElementById('occurrences').textContent = `\u2726 Appears ${w.occ.toLocaleString()} times`;
+  DOM.get('meaning').textContent = w.meaning;
+  DOM.get('occurrences').textContent = '\u2726 Appears ' + w.occ.toLocaleString() + ' times';
 
-  document.getElementById('progress-fill').style.width = `${((currentIndex + 1) / total) * 100}%`;
-  document.getElementById('progress-text').textContent = `${currentIndex + 1} / ${total}`;
+  DOM.get('progress-fill').style.width = Math.round(((currentIndex + 1) / total) * 100) + '%';
+  DOM.get('progress-text').textContent = (currentIndex + 1) + ' / ' + total;
 
-  var prevBtn = document.getElementById('btn-prev');
+  var prevBtn = DOM.get('btn-prev');
   if (prevBtn) prevBtn.disabled = currentIndex === 0;
 
-  var nextBtn = document.getElementById('btn-next');
+  var nextBtn = DOM.get('btn-next');
   if (nextBtn) {
     nextBtn.textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Done \u2713' : 'Quiz \u270F\uFE0F';
   }
 
-  // SRS pill — shows stage info
+  // SRS pill
   renderSRSStatusPill(w.arabic);
 
   // Root box
   renderRootBox(w);
 
-  // Word network: similar & opposite
+  // Word network
   renderWordNetwork(w);
 
   // Hide ayah & tafsir on navigation
-  const ayahBox = document.getElementById('ayah-box');
-  const tafsirBox = document.getElementById('tafsir-box');
-  const tafsirBtn = document.getElementById('tafsir-btn');
+  var ayahBox = DOM.get('ayah-box');
+  var tafsirBox = DOM.get('tafsir-box');
+  var tafsirBtn = DOM.get('tafsir-btn');
   if (ayahBox) ayahBox.classList.remove('visible');
   if (tafsirBox) tafsirBox.classList.remove('visible');
   if (tafsirBtn) tafsirBtn.style.display = 'block';
 
-  // SRS buttons
-  const srs = getSRSStatus(w.arabic);
-  const showSRS = srs.status !== 'new' || currentIndex > 0;
-  var srsRow = document.getElementById('srs-row');
-  var srsLabel = document.getElementById('srs-label');
+  // SRS buttons only show if word has been seen or not first word
+  var srs = getSRSStatus(w.arabic);
+  var showSRS = srs.status !== 'new' || currentIndex > 0;
+  var srsRow = DOM.get('srs-row');
+  var srsLabel = DOM.get('srs-label');
   if (srsRow) srsRow.style.display = showSRS ? 'grid' : 'none';
   if (srsLabel) srsLabel.style.display = showSRS ? 'block' : 'none';
 
-  // Bookmark + notes
   updateBookmarkButton(w.arabic);
-  var notesBox = document.getElementById('notes-box');
-  var notesInput = document.getElementById('notes-input');
+  var notesBox = DOM.get('notes-box');
+  var notesInput = DOM.get('notes-input');
   if (notesBox) notesBox.style.display = 'block';
   if (notesInput) notesInput.value = getNote(w.arabic);
 
-  // Animate card
-  const card = document.getElementById('word-card');
-  card.classList.remove('fade-in');
-  reflow(card);
-  card.classList.add('fade-in');
+  // Animate card with forced reflow for reliable animation restart
+  var card = DOM.get('word-card');
+  if (card) {
+    card.classList.remove('fade-in');
+    void card.offsetWidth; // force reflow
+    card.classList.add('fade-in');
+  }
 }
 
 /**
  * Render the SRS status pill with stage, retention, and leech info.
  */
 function renderSRSStatusPill(arabic) {
-  const srs = getSRSStatus(arabic);
-  var pill = document.getElementById('sr-pill');
+  var srs = getSRSStatus(arabic);
+  var pill = DOM.get('sr-pill');
   if (!pill) return;
   var stageLabels = ['', '\uD83D\uDD0D', '\uD83C\uDF31', '\uD83D\uDCA1'];
   var stageNames = ['', 'Learning', 'Young', 'Mature'];
@@ -146,13 +160,11 @@ function renderSRSStatusPill(arabic) {
 
   pill.textContent = label;
 
-  // Special styling for leeched words
+  // Special styling for leeched words — set class name instead of inline styles
   if (srs.isLeech) {
-    pill.style.borderColor = 'rgba(194, 80, 80, 0.5)';
-    pill.style.background = 'rgba(194, 80, 80, 0.08)';
+    pill.classList.add('sr-leech');
   } else {
-    pill.style.borderColor = '';
-    pill.style.background = '';
+    pill.classList.remove('sr-leech');
   }
 }
 
@@ -305,16 +317,14 @@ function highlightRootBox() {
  * Update the bookmark button state.
  */
 function updateBookmarkButton(arabic) {
-  const btn = document.getElementById('qa-bookmark');
+  var btn = DOM.get('qa-bookmark');
   if (!btn) return;
   if (isFavorite(arabic)) {
     btn.textContent = '\u2B50 Bookmarked';
-    btn.style.borderColor = 'var(--gold-dim)';
-    btn.style.color = 'var(--gold)';
+    btn.classList.add('active-qa');
   } else {
     btn.textContent = '\u2606 Bookmark';
-    btn.style.borderColor = '';
-    btn.style.color = '';
+    btn.classList.remove('active-qa');
   }
 }
 
@@ -322,13 +332,14 @@ function updateBookmarkButton(arabic) {
  * Update the daily goal progress ring based on reviews done today.
  */
 function updateGoalRing() {
-  var ringFill = document.getElementById('goal-ring-fill');
-  var ringText = document.getElementById('goal-ring-text');
-  var ringWrap = document.getElementById('goal-ring-wrap');
+  var ringFill = DOM.get('goal-ring-fill');
+  var ringText = DOM.get('goal-ring-text');
+  var ringWrap = DOM.get('goal-ring-wrap');
   if (!ringFill || !ringText || !ringWrap) return;
 
   // Get stats and compute progress
-  var stats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
+  var srsObj = window.__srs;
+  var stats = (srsObj && srsObj.getStats) ? srsObj.getStats() : null;
   if (!stats) {
     ringFill.setAttribute('stroke-dasharray', '0, 100');
     ringText.textContent = '0';
@@ -336,11 +347,10 @@ function updateGoalRing() {
     return;
   }
 
-  var dailyLimit = (window.__srs && window.__srs.getDailyReviewLimit)
-    ? window.__srs.getDailyReviewLimit()
+  var dailyLimit = (srsObj && srsObj.getDailyReviewLimit)
+    ? srsObj.getDailyReviewLimit()
     : 25;
   var reviewsToday = stats.reviewsToday || 0;
-  // Guard against division by zero (shouldn't happen but be safe)
   if (dailyLimit <= 0) dailyLimit = 25;
   var pct = Math.min(100, Math.round((reviewsToday / dailyLimit) * 100));
   var circumference = 100;
@@ -348,7 +358,7 @@ function updateGoalRing() {
 
   ringFill.setAttribute('stroke-dasharray', offset + ', ' + circumference);
   ringText.textContent = pct;
-  ringWrap.setAttribute('aria-valuenow', pct.toString());
+  ringWrap.setAttribute('aria-valuenow', String(pct));
   ringWrap.title = 'Daily review goal: ' + reviewsToday + ' of ' + dailyLimit + ' (' + pct + '%)';
 }
 
@@ -357,25 +367,19 @@ function updateGoalRing() {
  */
 function updateStatsDisplay() {
   var data = loadSRS();
-  var totalWords = document.getElementById('stat-total');
+  var totalWords = DOM.get('stat-total');
   if (totalWords) {
     totalWords.textContent = ALL_WORDS.length;
   }
   var learned = 0;
   var lessonWords = typeof getActiveLessonWords === 'function' ? getActiveLessonWords() : ALL_WORDS.slice(0, 20);
-  lessonWords.forEach(function (w) {
-    var entry = data[w.arabic];
+  for (var i = 0; i < lessonWords.length; i++) {
+    var entry = data[lessonWords[i].arabic];
     if (entry && entry.stage && entry.stage > 0) learned++;
-  });
-  var due = getDueReviews().length;
-  document.getElementById('stat-learned').textContent = learned;
-  document.getElementById('stat-review').textContent = due;
-
-  // Also update quiz score in stats if available
-  var quizScore = document.getElementById('stat-score');
-  if (quizScore && window.__quiz) {
-    // Score is updated via quiz module directly
   }
+  var due = getDueReviews().length;
+  DOM.get('stat-learned').textContent = learned;
+  DOM.get('stat-review').textContent = due;
 
   // Update the goal ring
   updateGoalRing();
@@ -386,8 +390,9 @@ function updateStatsDisplay() {
  */
 function updateReviewBanner() {
   var due = getDueReviews();
-  var banner = document.getElementById('review-banner');
-  var bannerText = document.getElementById('review-banner-text');
+  var banner = DOM.get('review-banner');
+  var bannerText = DOM.get('review-banner-text');
+  if (!banner || !bannerText) return;
   if (due.length > 0) {
     banner.classList.add('visible');
     bannerText.textContent = due.length + ' word' + (due.length !== 1 ? 's' : '') + ' due for review today';
@@ -400,21 +405,16 @@ function updateReviewBanner() {
  * Render the word list with filtering and search applied.
  */
 function renderWordList() {
-  var searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value : '';
+  var searchInput = DOM.get('search-input');
+  var searchQuery = searchInput ? searchInput.value : '';
   var activeType = document.querySelector('#filter-type-chips .chip-active');
   var activeStatus = document.querySelector('#filter-status-chips .chip-active');
   var typeFilter = activeType ? activeType.getAttribute('data-value') : 'all';
   var statusFilter = activeStatus ? activeStatus.getAttribute('data-value') : 'all';
 
-  var words = ALL_WORDS;
-
-  // Apply search
-  words = searchWords(searchQuery);
-
-  // Apply type filter
+  // Apply all filters in sequence
+  var words = searchWords(searchQuery);
   words = filterByCategory(words, typeFilter);
-
-  // Apply status filter
   if (statusFilter === 'favorites') {
     words = filterByFavorites(words);
   } else {
@@ -422,11 +422,11 @@ function renderWordList() {
   }
 
   // Update count
-  var countEl = document.getElementById('list-count');
+  var countEl = DOM.get('list-count');
   if (countEl) countEl.textContent = words.length + ' word' + (words.length !== 1 ? 's' : '');
 
-  // Render list
-  const container = document.getElementById('wordlist-container');
+  // Use DocumentFragment for batch insertion to reduce reflows
+  var container = DOM.get('wordlist-container');
   container.innerHTML = '';
 
   if (words.length === 0) {
@@ -434,17 +434,24 @@ function renderWordList() {
     return;
   }
 
-  words.forEach((w) => {
-    var srs = getSRSStatus(w.arabic);
+  var fragment = document.createDocumentFragment();
+  var srsData = loadSRS();
+  var favs = loadFavorites();
+
+  for (var i = 0; i < words.length; i++) {
+    var w = words[i];
+    var entry = srsData[w.arabic];
     var badge = '';
-    if (srs.status === 'mastered') {
-      badge = srs.stage >= 3 ? '\uD83D\uDCA1' : srs.stage >= 2 ? '\uD83C\uDF31' : '\u2713';
-    } else if (srs.status === 'review') {
-      badge = srs.isLeech ? '\uD83D\uDCA2' : '\uD83D\uDD01';
+    if (entry && entry.stage >= 3) {
+      badge = '\uD83D\uDCA1';
+    } else if (entry && entry.stage >= 2) {
+      badge = '\uD83C\uDF31';
+    } else if (entry && entry.stage >= 1 && Date.now() >= entry.dueDate) {
+      badge = entry.isLeech ? '\uD83D\uDCA2' : '\uD83D\uDD01';
     } else {
       badge = '\uD83C\uDD95';
     }
-    var favStar = isFavorite(w.arabic) ? '\u2B50' : '';
+    var favStar = favs[w.arabic] ? '\u2B50' : '';
     var d = document.createElement('div');
     d.className = 'wordlist-item';
     d.setAttribute('role', 'button');
@@ -458,65 +465,100 @@ function renderWordList() {
         '<div class="wordlist-sub">' + w.translit + ' \u00B7 ' + w.root + ' \u00B7 ' + w.type + '</div>' +
       '</div>' +
       '<div class="wordlist-badge">' + favStar + badge + '</div>';
-    d.onclick = () => navigateToWord(w);
-    d.onkeydown = (e) => {
+    // Use closure-free inline handlers to avoid function creation per item
+    d._word = w;
+    d.onclick = function() { navigateToWord(this._word); };
+    d.onkeydown = function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        navigateToWord(w);
+        navigateToWord(this._word);
       }
     };
-    container.appendChild(d);
-  });
+    fragment.appendChild(d);
+  }
+
+  container.appendChild(fragment);
 }
 
 /**
  * Render the statistics dashboard.
  */
+var _typeCountCache = null;
+
+function getTypeCounts() {
+  if (_typeCountCache) return _typeCountCache;
+  var counts = {};
+  var typeLabels = { noun: 'Nouns', verb: 'Verbs', particle: 'Particles', adjective: 'Adjectives', pronoun: 'Pronouns', exclamation: 'Exclamations' };
+  Object.keys(typeLabels).forEach(function (key) { counts[key] = 0; });
+  for (var i = 0; i < ALL_WORDS.length; i++) {
+    var cat = ALL_WORDS[i].typeCategory;
+    if (counts[cat] !== undefined) counts[cat]++;
+  }
+  _typeCountCache = counts;
+  return counts;
+}
+
+var _difficultyCountCache = null;
+
+function getDifficultyCounts() {
+  if (_difficultyCountCache) return _difficultyCountCache;
+  var counts = {};
+  for (var i = 0; i < ALL_WORDS.length; i++) {
+    var d = ALL_WORDS[i].difficulty;
+    counts[d] = (counts[d] || 0) + 1;
+  }
+  _difficultyCountCache = counts;
+  return counts;
+}
+
+function invalidateStatsCaches() {
+  _typeCountCache = null;
+  _difficultyCountCache = null;
+}
+
 function renderStats() {
   // Use cached stats if available
-  var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : getSRSStats();
+  var srsObj = window.__srs;
+  var srsStats = (srsObj && srsObj.getStats) ? srsObj.getStats() : getSRSStats();
   var srsData = loadSRS();
   var now = Date.now();
 
   // Core stats grid
-  document.getElementById('stat-total').textContent = srsStats.total;
-  document.getElementById('stat-mastered').textContent = srsStats.mature;
-  document.getElementById('stat-new-count').textContent = srsStats.newCount;
-  document.getElementById('stat-learning-count').textContent = srsStats.dueToday;
+  DOM.get('stat-total').textContent = srsStats.total;
+  DOM.get('stat-mastered').textContent = srsStats.mature;
+  DOM.get('stat-new-count').textContent = srsStats.newCount;
+  DOM.get('stat-learning-count').textContent = srsStats.dueToday;
 
   // Streak
   updateStreakDisplay();
 
-  // By type chart
-  var typeContainer = document.getElementById('stats-by-type');
+  // By type chart — use cached type counts
+  var typeContainer = DOM.get('stats-by-type');
   typeContainer.innerHTML = '';
   var typeLabels = { noun: 'Nouns', verb: 'Verbs', particle: 'Particles', adjective: 'Adjectives', pronoun: 'Pronouns', exclamation: 'Exclamations' };
+  var typeCounts = getTypeCounts();
+  var totalWords = srsStats.total || 1;
   Object.keys(typeLabels).forEach(function (key) {
-    var count = 0;
-    ALL_WORDS.forEach(function (w) {
-      if (w.typeCategory === key) count++;
-    });
+    var count = typeCounts[key] || 0;
     if (count === 0) return;
-    var pct = Math.round((count / srsStats.total) * 100);
+    var pct = Math.round((count / totalWords) * 100);
     typeContainer.appendChild(createBarRow(typeLabels[key], count, pct));
   });
 
-  // By difficulty chart
-  var diffContainer = document.getElementById('stats-by-difficulty');
+  // By difficulty chart — use cached difficulty counts
+  var diffContainer = DOM.get('stats-by-difficulty');
   diffContainer.innerHTML = '';
+  var diffCounts = getDifficultyCounts();
+  var diffLabels = { 1: 'Easy (\u2605)', 2: 'Medium (\u2605\u2605)', 3: 'Hard (\u2605\u2605\u2605)', 4: 'Complex (\u2605\u2605\u2605\u2605)', 5: 'Advanced (\u2605\u2605\u2605\u2605\u2605)' };
   for (var d = 1; d <= 5; d++) {
-    var count = 0;
-    ALL_WORDS.forEach(function (w) {
-      if (w.difficulty === d) count++;
-    });
+    var count = diffCounts[d] || 0;
     if (count === 0) continue;
-    var pct = Math.round((count / srsStats.total) * 100);
-    var diffLabels = { 1: 'Easy (\u2605)', 2: 'Medium (\u2605\u2605)', 3: 'Hard (\u2605\u2605\u2605)', 4: 'Complex (\u2605\u2605\u2605\u2605)', 5: 'Advanced (\u2605\u2605\u2605\u2605\u2605)' };
+    var pct = Math.round((count / totalWords) * 100);
     diffContainer.appendChild(createBarRow(diffLabels[d] || 'Level ' + d, count, pct));
   }
 
   // Learning stage breakdown
-  var stageContainer = document.getElementById('stats-stages');
+  var stageContainer = DOM.get('stats-stages');
   if (stageContainer) {
     stageContainer.innerHTML = '';
     var stageLabels = [
@@ -525,10 +567,11 @@ function renderStats() {
       { key: 'young', label: '\uD83C\uDF31 Young', color: 'var(--gold-dim)' },
       { key: 'mature', label: '\uD83D\uDCA1 Mature', color: 'var(--green)' },
     ];
-    stageLabels.forEach(function (sl) {
+    for (var si = 0; si < stageLabels.length; si++) {
+      var sl = stageLabels[si];
       var count = srsStats[sl.key] || 0;
-      if (count === 0) return;
-      var pct = Math.round((count / srsStats.total) * 100);
+      if (count === 0) continue;
+      var pct = Math.round((count / totalWords) * 100);
       var row = document.createElement('div');
       row.className = 'stats-bar-row';
       row.innerHTML =
@@ -536,40 +579,21 @@ function renderStats() {
         '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + pct + '%;background:' + sl.color + '"></div></div>' +
         '<span class="stats-bar-value">' + count + '</span>';
       stageContainer.appendChild(row);
-    });
+    }
   }
 
   // SRS Health section
-  var healthContainer = document.getElementById('stats-health');
+  var healthContainer = DOM.get('stats-health');
   if (healthContainer) {
     healthContainer.innerHTML = '';
     var healthItems = [
-      {
-        label: 'Avg Retention',
-        value: srsStats.avgRetention + '%',
-        pct: srsStats.avgRetention,
-        color: 'var(--green)',
-      },
-      {
-        label: 'Avg Ease',
-        value: srsStats.avgEaseFactor.toFixed(2),
-        pct: Math.round((srsStats.avgEaseFactor / 3) * 100),
-        color: 'var(--blue)',
-      },
-      {
-        label: 'Overdue',
-        value: srsStats.overdue,
-        pct: srsStats.dueToday > 0 ? Math.round((srsStats.overdue / srsStats.dueToday) * 100) : 0,
-        color: srsStats.overdue > 0 ? 'var(--red)' : 'var(--green)',
-      },
-      {
-        label: 'Reviews Today',
-        value: srsStats.reviewsToday,
-        pct: Math.min(100, Math.round((srsStats.reviewsToday / DAILY_REVIEW_LIMIT) * 100)),
-        color: 'var(--gold)',
-      },
+      { label: 'Avg Retention', value: srsStats.avgRetention + '%', pct: srsStats.avgRetention, color: 'var(--green)' },
+      { label: 'Avg Ease', value: String(srsStats.avgEaseFactor.toFixed(2)), pct: Math.round((srsStats.avgEaseFactor / 3) * 100), color: 'var(--blue)' },
+      { label: 'Overdue', value: srsStats.overdue, pct: srsStats.dueToday > 0 ? Math.round((srsStats.overdue / srsStats.dueToday) * 100) : 0, color: srsStats.overdue > 0 ? 'var(--red)' : 'var(--green)' },
+      { label: 'Reviews Today', value: srsStats.reviewsToday, pct: Math.min(100, Math.round((srsStats.reviewsToday / DAILY_REVIEW_LIMIT) * 100)), color: 'var(--gold)' },
     ];
-    healthItems.forEach(function (item) {
+    for (var hi = 0; hi < healthItems.length; hi++) {
+      var item = healthItems[hi];
       var row = document.createElement('div');
       row.className = 'stats-bar-row';
       row.innerHTML =
@@ -577,11 +601,11 @@ function renderStats() {
         '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + item.pct + '%;background:' + item.color + '"></div></div>' +
         '<span class="stats-bar-value">' + item.value + '</span>';
       healthContainer.appendChild(row);
-    });
+    }
   }
 
   // Leeches
-  var leechContainer = document.getElementById('stats-leeches');
+  var leechContainer = DOM.get('stats-leeches');
   if (leechContainer) {
     leechContainer.innerHTML = '';
     if (srsStats.leechCount > 0) {
@@ -606,7 +630,7 @@ function createBarRow(label, count, pct) {
 }
 
 function renderReviewForecast(srsData, now) {
-  var container = document.getElementById('stats-forecast');
+  var container = DOM.get('stats-forecast');
   container.innerHTML = '';
   var intervals = [
     { label: 'Today', days: 0 },
@@ -615,18 +639,19 @@ function renderReviewForecast(srsData, now) {
     { label: '14 days', days: 14 },
     { label: '30 days', days: 30 },
   ];
-  var totalWords = ALL_WORDS.length;
+  var totalWords = ALL_WORDS.length || 1;
 
-  intervals.forEach(function (interval) {
+  for (var ii = 0; ii < intervals.length; ii++) {
+    var interval = intervals[ii];
     var cutoff = now + interval.days * DAY_MS;
     var count = 0;
-    ALL_WORDS.forEach(function (w) {
-      var entry = srsData[w.arabic];
+    for (var wi = 0; wi < ALL_WORDS.length; wi++) {
+      var entry = srsData[ALL_WORDS[wi].arabic];
       if (entry && entry.dueDate <= cutoff) count++;
-    });
+    }
     var pct = Math.round((count / totalWords) * 100);
     container.appendChild(createBarRow(interval.label, count, pct));
-  });
+  }
 }
 
 /**
@@ -637,17 +662,19 @@ function updateStreakDisplay() {
   var streak = data.streak || 0;
   var today = getDateKey();
 
-  document.getElementById('streak-count').textContent = streak;
+  DOM.get('streak-count').textContent = streak;
+  var streakToday = DOM.get('streak-today');
+  if (!streakToday) return;
 
   if (data.lastDate === today) {
-    document.getElementById('streak-today').textContent = '\u2713 Reviewed today! Come back tomorrow.';
-    document.getElementById('streak-today').style.color = 'var(--green)';
+    streakToday.textContent = '\u2713 Reviewed today! Come back tomorrow.';
+    streakToday.style.color = 'var(--green)';
   } else if (data.lastDate === getYesterdayKey()) {
-    document.getElementById('streak-today').textContent = '\uD83D\uDD25 ' + streak + ' day streak! Review today to continue.';
-    document.getElementById('streak-today').style.color = 'var(--gold)';
+    streakToday.textContent = '\uD83D\uDD25 ' + streak + ' day streak! Review today to continue.';
+    streakToday.style.color = 'var(--gold)';
   } else {
-    document.getElementById('streak-today').textContent = 'Start your streak by reviewing a word today!';
-    document.getElementById('streak-today').style.color = '';
+    streakToday.textContent = 'Start your streak by reviewing a word today!';
+    streakToday.style.color = '';
   }
 }
 

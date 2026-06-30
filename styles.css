@@ -200,6 +200,7 @@ body::before {
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  contain: layout style;
 }
 
 .word-card::before {
@@ -570,6 +571,11 @@ body::before {
   background: rgba(74, 158, 107, 0.08);
 }
 
+.sr-leech {
+  border-color: rgba(194, 80, 80, 0.5) !important;
+  background: rgba(194, 80, 80, 0.08) !important;
+}
+
 /* ── Quick Actions ─────────────────────────────────────────── */
 .quick-actions {
   display: flex;
@@ -896,6 +902,7 @@ body::before {
   margin-bottom: 7px;
   cursor: pointer;
   transition: border-color 0.15s;
+  contain: layout style;
 }
 
 .wordlist-item:hover {
@@ -990,6 +997,7 @@ body::before {
 
 .fade-in {
   animation: fadeIn 0.35s ease forwards;
+  will-change: opacity, transform;
 }
 
 /* ── Responsive: Compact top bar on narrow screens ──────────── */
@@ -1060,6 +1068,8 @@ body::before {
   font-family: var(--body);
   outline: none;
   transition: border-color 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .search-input:focus {
@@ -1153,6 +1163,8 @@ body::before {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 14px;
+  content-visibility: auto;
+  contain-intrinsic-size: 200px;
 }
 
 .stat-card {
@@ -1622,6 +1634,8 @@ body::before {
   max-width: 420px;
   margin: 0 auto;
   padding: 10px 0;
+  content-visibility: auto;
+  contain-intrinsic-size: 600px;
 }
 
 .profile-header {
@@ -1979,6 +1993,37 @@ body::before {
 
 .srs-days {
   font-size: 9px;
+}
+
+/* ── Font display optimization ────────────────────────────── */
+@font-face {
+  font-family: 'Amiri';
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lora';
+  font-display: swap;
+}
+
+/* ── Reduced motion preference ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .fade-in {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .goal-ring-fill {
+    transition: none !important;
+  }
 }
 
 /* ── Skip Link ─────────────────────────────────────────────── */

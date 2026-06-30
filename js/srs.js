@@ -553,11 +553,15 @@ function getSRSStatsCached() {
 }
 
 /**
- * Invalidate the stats cache (call after SRS ratings).
+ * Invalidate all stats caches (call after SRS ratings).
+ * Also invalidates the type/difficulty count caches in ui.js.
  */
 function invalidateStatsCache() {
   _cachedStats = null;
   _lastStatsTime = 0;
+  if (typeof invalidateStatsCaches === 'function') {
+    invalidateStatsCaches();
+  }
 }
 
 // ── Export ────────────────────────────────────────────────────

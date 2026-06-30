@@ -190,37 +190,36 @@ function updateLessonProgressDisplay() {
   var completed = getCompletedLessonCount();
   var current = activeLessonIndex + 1;
 
-  var lessonLabel = document.getElementById('lesson-label');
+  var lessonLabel = DOM.get('lesson-label');
   if (lessonLabel) {
     lessonLabel.textContent = 'Lesson ' + current + ' of ' + total;
   }
 
-  var lessonProgress = document.getElementById('lesson-progress');
+  var lessonProgress = DOM.get('lesson-progress');
   if (lessonProgress) {
     var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
     lessonProgress.style.width = pct + '%';
   }
 
-  var lessonProgressText = document.getElementById('lesson-progress-text');
+  var lessonProgressText = DOM.get('lesson-progress-text');
   if (lessonProgressText) {
     lessonProgressText.textContent = completed + ' of ' + total + ' lessons complete';
   }
 
-  var continueBtn = document.getElementById('continue-learning-btn');
+  var continueBtn = DOM.get('continue-learning-btn');
   if (continueBtn) {
     var nextIncomplete = getNextIncompleteLesson();
     if (nextIncomplete === 0 && isLessonCompleted(0) && getLessonCount() > 1) {
-      // All lessons completed
-      continueBtn.textContent = '🎉 All Lessons Complete!';
+      continueBtn.textContent = '\uD83C\uDF89 All Lessons Complete!';
       continueBtn.disabled = true;
     } else if (nextIncomplete === activeLessonIndex) {
-      continueBtn.textContent = '📖 Continue Lesson ' + (nextIncomplete + 1);
+      continueBtn.textContent = '\uD83D\uDCD6 Continue Lesson ' + (nextIncomplete + 1);
       continueBtn.disabled = false;
     } else if (isLessonCompleted(activeLessonIndex) && nextIncomplete < getLessonCount()) {
-      continueBtn.textContent = '🔓 Unlock Lesson ' + (nextIncomplete + 1) + '!';
+      continueBtn.textContent = '\uD83D\uDD13 Unlock Lesson ' + (nextIncomplete + 1) + '!';
       continueBtn.disabled = false;
     } else {
-      continueBtn.textContent = '📖 Continue Lesson ' + (nextIncomplete + 1);
+      continueBtn.textContent = '\uD83D\uDCD6 Continue Lesson ' + (nextIncomplete + 1);
       continueBtn.disabled = false;
     }
   }
@@ -433,66 +432,61 @@ function wireEvents() {
   // Review banner
   document.getElementById('review-start-btn').onclick = startReview;
 
-  // Search input (debounced)
-  var searchInput = document.getElementById('search-input');
+  // Search input (debounced with requestAnimationFrame for performance)
+  var searchInput = DOM.get('search-input');
   if (searchInput) {
     var searchTimer = null;
     searchInput.oninput = function () {
-      if (searchTimer) clearTimeout(searchTimer);
-      searchTimer = setTimeout(handleSearchInput, 150);
+      if (searchTimer) {
+        cancelAnimationFrame(searchTimer);
+      }
+      searchTimer = requestAnimationFrame(function() {
+        searchTimer = null;
+        handleSearchInput();
+      });
     };
   }
 
-  // Filter chips
+  // Filter chips (use delegated event for better performance)
   wireFilterChips('type');
   wireFilterChips('status');
 
   // Continue Learning button
-  var continueBtn = document.getElementById('continue-learning-btn');
-  if (continueBtn) {
-    continueBtn.onclick = continueLearning;
-  }
+  DOM.get('continue-learning-btn').onclick = continueLearning;
 
   // Quick mode toggle
-  var quickBtn = document.getElementById('qa-quick-mode');
-  if (quickBtn) {
-    quickBtn.onclick = toggleQuickMode;
-  }
+  DOM.get('qa-quick-mode').onclick = toggleQuickMode;
 
   // Session summary close
-  var summaryClose = document.getElementById('session-summary-close');
-  if (summaryClose) {
-    summaryClose.onclick = function () {
-      closeSessionSummary();
-      switchView('learn');
-    };
-  }
+  DOM.get('session-summary-close').onclick = function () {
+    closeSessionSummary();
+    switchView('learn');
+  };
 
   // Lesson navigation (prev/next lesson)
-  var prevLessonBtn = document.getElementById('prev-lesson-btn');
-  if (prevLessonBtn) {
-    prevLessonBtn.onclick = function () {
-      if (activeLessonIndex > 0) goToLesson(activeLessonIndex - 1);
-    };
-  }
-  var nextLessonBtn = document.getElementById('next-lesson-btn');
-  if (nextLessonBtn) {
-    nextLessonBtn.onclick = function () {
-      var nextIdx = activeLessonIndex + 1;
-      if (nextIdx < getLessonCount() && isLessonUnlocked(nextIdx)) {
-        goToLesson(nextIdx);
-      }
-    };
-  }
+  DOM.get('prev-lesson-btn').onclick = function () {
+    if (activeLessonIndex > 0) goToLesson(activeLessonIndex - 1);
+  };
+  DOM.get('next-lesson-btn').onclick = function () {
+    var nextIdx = activeLessonIndex + 1;
+    if (nextIdx < getLessonCount() && isLessonUnlocked(nextIdx)) {
+      goToLesson(nextIdx);
+    }
+  };
 }
 
 function wireFilterChips(filterType) {
-  var selector = '#filter-' + filterType + '-chips .chip';
-  document.querySelectorAll(selector).forEach(function (chip) {
-    chip.onclick = function () {
-      handleFilterClick(filterType, chip.getAttribute('data-value'));
+  var selector = '#filter-' + filterType + '-chips';
+  var container = document.querySelector(selector);
+  if (container) {
+    // Use event delegation on the container instead of per-chip handlers
+    container.onclick = function (e) {
+      var chip = e.target.closest('.chip');
+      if (chip) {
+        handleFilterClick(filterType, chip.getAttribute('data-value'));
+      }
     };
-  });
+  }
 }
 
 var _reviewOriginalMastered = 0;
@@ -503,13 +497,13 @@ function startReview() {
   _reviewOriginalMastered = 0;
   // Count how many are already mastered in the review queue
   var srsData = loadSRS();
-  reviewQueue.forEach(function (w) {
-    var entry = srsData[w.arabic];
+  for (var ri = 0; ri < reviewQueue.length; ri++) {
+    var entry = srsData[reviewQueue[ri].arabic];
     if (entry && entry.stage >= 2) _reviewOriginalMastered++;
-  });
+  }
   reviewMode = true;
   currentWord = 0;
-  document.getElementById('review-banner').classList.remove('visible');
+  DOM.get('review-banner').classList.remove('visible');
   updateWordCard();
 }
 
@@ -517,15 +511,12 @@ function endReview() {
   // Compute session summary stats
   var srsData = loadSRS();
   var newMastered = 0;
-  reviewQueue.forEach(function (w) {
-    var entry = srsData[w.arabic];
+  for (var ri = 0; ri < reviewQueue.length; ri++) {
+    var entry = srsData[reviewQueue[ri].arabic];
     if (entry && entry.stage >= 2) {
-      // Check if this word was not already mastered
-      // We can count it as newly mastered if its stage was 1 before
-      // Simple heuristic: count words that are now young/mature
       newMastered++;
     }
-  });
+  }
   newMastered = Math.max(0, newMastered - _reviewOriginalMastered);
 
   var streakData = loadStreakData();
@@ -578,8 +569,9 @@ function registerServiceWorker() {
 }
 
 function init() {
-  // 0. Ensure lessons are built
+  // 0. Ensure lessons and word index are built
   if (LESSONS.length === 0) buildLessons();
+  if (typeof buildWordIndex === 'function') buildWordIndex();
 
   // Set active lesson from saved progress
   activeLessonIndex = getCurrentLessonIndex();

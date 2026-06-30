@@ -17,12 +17,24 @@ const TYPE_CATEGORIES = {
 
 // ── Word Lookup ────────────────────────────────────────────────
 
+// ── Word lookup cache ─────────────────────────────────────────
+// Build an index of ALL_WORDS by arabic key for O(1) lookups
+var _wordIndex = null;
+
+function buildWordIndex() {
+  _wordIndex = {};
+  for (var i = 0; i < ALL_WORDS.length; i++) {
+    _wordIndex[ALL_WORDS[i].arabic] = ALL_WORDS[i];
+  }
+}
+
 /**
- * Find a word object by its Arabic text (exact match).
+ * Find a word object by its Arabic text (exact match) using cached index.
  * Returns the word object or undefined.
  */
 function findWordByArabic(arabic) {
-  return ALL_WORDS.find(function (w) { return w.arabic === arabic; });
+  if (!_wordIndex) buildWordIndex();
+  return _wordIndex[arabic];
 }
 
 /**
@@ -32,10 +44,10 @@ function findWordByArabic(arabic) {
 function findWordsByArabicList(arabicList) {
   var result = [];
   if (!arabicList || !arabicList.length) return result;
-  arabicList.forEach(function (a) {
-    var w = findWordByArabic(a);
+  for (var i = 0; i < arabicList.length; i++) {
+    var w = findWordByArabic(arabicList[i]);
     if (w) result.push(w);
-  });
+  }
   return result;
 }
 

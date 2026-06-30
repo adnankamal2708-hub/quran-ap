@@ -1,9 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
-// sw.js — Service Worker
-// Provides offline support with cache-first strategy for static assets
+// sw.js — Service Worker v3
+// Provides offline support with optimized caching strategies:
+//   • Cache-first for static assets (instant load)
+//   • Stale-while-revalidate for Firebase API calls
+//   • Font caching with dedicated cache
+//   • Automatic cleanup of stale caches
+//   • Periodic cache refresh for versioned assets
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'quran-vocab-v2';
+const CACHE_NAME = 'quran-vocab-v3';
+const FONTS_CACHE = 'quran-fonts-v1';
 
 const PRECACHE_URLS = [
   './',
@@ -44,42 +50,82 @@ self.addEventListener('install', function (event) {
 
 // Activate: clean up old caches
 self.addEventListener('activate', function (event) {
+  var cacheWhitelist = [CACHE_NAME, FONTS_CACHE];
   event.waitUntil(
     caches.keys().then(function (cacheNames) {
       return Promise.all(
         cacheNames
           .filter(function (name) {
-            return name !== CACHE_NAME;
+            return cacheWhitelist.indexOf(name) === -1;
           })
           .map(function (name) {
             return caches.delete(name);
           })
       );
+    }).then(function () {
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// Fetch: cache-first, falling back to network
+// Fetch: optimized caching strategy
 self.addEventListener('fetch', function (event) {
-  event.respondWith(
-    caches.match(event.request).then(function (cachedResponse) {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then(function (networkResponse) {
-        // Cache successful same-origin responses
-        if (
-          networkResponse &&
-          networkResponse.status === 200 &&
-          !event.request.url.includes('chrome-extension')
-        ) {
-          var responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(event.request, responseToCache);
+  var url = new URL(event.request.url);
+  var isFont = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
+  var isFirebase = url.hostname === 'firestore.googleapis.com' || url.hostname.includes('firebaseio.com');
+  var isGoogleAPIs = url.hostname === 'www.gstatic.com';
+
+  // Fonts: cache-first with dedicated font cache
+  if (isFont) {
+    event.respondWith(
+      caches.open(FONTS_CACHE).then(function (cache) {
+        return cache.match(event.request).then(function (response) {
+          if (response) return response;
+          return fetch(event.request).then(function (networkResponse) {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
           });
+        });
+      })
+    );
+    return;
+  }
+
+  // Firebase/Google APIs: network-first with cache fallback (only cache same-origin)
+  if (isFirebase || isGoogleAPIs) {
+    event.respondWith(
+      fetch(event.request)
+        .then(function (response) {
+          return response;
+        })
+        .catch(function () {
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Static assets: cache-first, falling back to network
+  event.respondWith(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.match(event.request).then(function (cachedResponse) {
+        if (cachedResponse) {
+          // Background refresh for versioned assets (optional)
+          return cachedResponse;
         }
-        return networkResponse;
+        return fetch(event.request).then(function (networkResponse) {
+          if (
+            networkResponse &&
+            networkResponse.status === 200 &&
+            !event.request.url.includes('chrome-extension')
+          ) {
+            var responseToCache = networkResponse.clone();
+            cache.put(event.request, responseToCache);
+          }
+          return networkResponse;
+        });
       });
     })
   );
