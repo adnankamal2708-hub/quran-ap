@@ -27,6 +27,12 @@ function getActiveLessonWords() {
   return getLessonWords(activeLessonIndex);
 }
 
+/** Get the word count for the currently active lesson/surah */
+function getActiveLessonWordCount() {
+  var words = getActiveLessonWords();
+  return words ? words.length : 0;
+}
+
 /** Navigate to a specific lesson. Optional wordIndex to jump to a specific word. */
 function goToSurah(surahId, wordIndex) {
   if (!surahId || !SURAH_INFO[surahId]) return;
@@ -232,7 +238,6 @@ function updateLessonProgressDisplay() {
       lessonLabel.textContent = surahInfo.name + ' - ' + surahInfo.english;
     }
     
-    var total = getSurahWords(surahId).length;
     var completed = getCompletedSurahCount();
     
     var lessonProgress = DOM.get('lesson-progress');
@@ -797,7 +802,9 @@ function populateSurahSelector() {
 window.__getCurrentWord = getCurrentWord;
 
 window.__navigateToWordIndex = function (idx) {
-  currentWord = Math.min(idx, getActiveLessonWordCount() - 1);
+  var count = getActiveLessonWordCount();
+  if (count === 0) return;
+  currentWord = Math.min(idx, count - 1);
   reviewMode = false;
   switchView('learn');
   updateWordCard();
