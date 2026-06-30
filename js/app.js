@@ -114,22 +114,6 @@ function updateWordCard() {
 
 // ── Review System (priority-scheduled via SRS engine) ──────────
 
-function startReview() {
-  reviewQueue = getDueReviews();
-  if (!reviewQueue.length) return;
-  reviewMode = true;
-  currentWord = 0;
-  document.getElementById('review-banner').classList.remove('visible');
-  updateWordCard();
-}
-
-function endReview() {
-  reviewMode = false;
-  currentWord = 0;
-  updateReviewBanner();
-  updateWordCard();
-}
-
 // ── SRS ────────────────────────────────────────────────────────
 
 function rateSRS(rating) {
@@ -145,7 +129,7 @@ function rateSRS(rating) {
   // Track streak on review
   updateStreak();
 
-  updateStatsDisplay();
+  updateStatsDisplay(); // also updates goal ring
 
   // Queue cloud sync (if authenticated)
   var user = getCurrentUser ? getCurrentUser() : null;
@@ -242,6 +226,168 @@ function updateLessonProgressDisplay() {
   }
 }
 
+// ── Quick Flashcard Mode ──────────────────────────────────────
+
+let quickMode = false;
+
+function toggleQuickMode() {
+  quickMode = !quickMode;
+  var view = document.getElementById('view-learn');
+  if (view) {
+    view.classList.toggle('quick-mode', quickMode);
+  }
+  var btn = document.getElementById('qa-quick-mode');
+  if (btn) {
+    if (quickMode) {
+      btn.classList.add('active-qa');
+      btn.textContent = '⚡ Quick: ON';
+    } else {
+      btn.classList.remove('active-qa');
+      btn.textContent = '⚡ Quick';
+    }
+  }
+  // Scroll word card into view in quick mode
+  if (quickMode) {
+    var card = document.getElementById('word-card');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// ── Session Review Summary ─────────────────────────────────────
+
+function showSessionSummary(stats) {
+  var modal = document.getElementById('session-summary-modal');
+  if (!modal) return;
+
+  document.getElementById('session-words-reviewed').textContent = stats.wordsReviewed || 0;
+  document.getElementById('session-streak-earned').textContent = stats.streakDays || 0;
+  document.getElementById('session-mastered-new').textContent = stats.newMastered || 0;
+
+  var encouragement = document.getElementById('session-encouragement');
+  var msgs = [
+    '🌟 MashAllah! Excellent progress!',
+    '📖 Keep going — every word brings you closer!',
+    '💪 Strong effort! Consistency is key.',
+    '🎯 Focused review makes perfect. Well done!',
+    '🌙 Beautiful work! The Quran rewards persistence.',
+  ];
+  if (stats.wordsReviewed >= 10) {
+    encouragement.textContent = msgs[0];
+  } else if (stats.wordsReviewed >= 5) {
+    encouragement.textContent = msgs[1];
+  } else {
+    encouragement.textContent = msgs[2];
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeSessionSummary() {
+  document.getElementById('session-summary-modal').style.display = 'none';
+}
+
+// ── Keyboard Shortcuts ────────────────────────────────────────
+
+let _kbdHintsTimer = null;
+
+function showKeyboardHints() {
+  var hint = document.getElementById('kbd-hints');
+  if (!hint) return;
+  hint.classList.add('visible');
+  if (_kbdHintsTimer) clearTimeout(_kbdHintsTimer);
+  _kbdHintsTimer = setTimeout(function () {
+    hint.classList.remove('visible');
+  }, 4000);
+}
+
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', function (e) {
+    // Ignore if user is typing in an input/textarea
+    var tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    // Check if any modal is open
+    var passwordModal = document.getElementById('password-change-modal');
+    var sessionModal = document.getElementById('session-summary-modal');
+    var anyModalOpen = (passwordModal && passwordModal.style.display === 'flex') ||
+                       (sessionModal && sessionModal.style.display === 'flex');
+
+    if (anyModalOpen) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSessionSummary();
+        document.getElementById('password-change-modal').style.display = 'none';
+      }
+      return;
+    }
+
+    // Show hints on ? key
+    if (e.key === '?' && !e.shiftKey) {
+      e.preventDefault();
+      showKeyboardHints();
+      return;
+    }
+
+    switch (currentView) {
+      case 'learn':
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+          e.preventDefault();
+          // Navigate next
+          var btnNext = document.getElementById('btn-next');
+          if (btnNext && !btnNext.disabled) btnNext.click();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          var btnPrev = document.getElementById('btn-prev');
+          if (btnPrev && !btnPrev.disabled) btnPrev.click();
+        } else if (e.key >= '1' && e.key <= '4') {
+          e.preventDefault();
+          var srsBtns = ['srs-again', 'srs-hard', 'srs-good', 'srs-easy'];
+          var btn = document.getElementById(srsBtns[parseInt(e.key) - 1]);
+          if (btn && btn.style.display !== 'none') btn.click();
+        } else if (e.key === 'q' || e.key === 'Q') {
+          e.preventDefault();
+          toggleQuickMode();
+        }
+        break;
+
+      case 'quiz':
+        if (e.key >= '1' && e.key <= '4') {
+          e.preventDefault();
+          var opts = document.querySelectorAll('.quiz-opt:not(:disabled)');
+          var idx = parseInt(e.key) - 1;
+          if (opts[idx]) opts[idx].click();
+        } else if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          var nextBtn = document.getElementById('btn-next-quiz');
+          if (nextBtn && nextBtn.style.display !== 'none') nextBtn.click();
+        }
+        break;
+
+      case 'list':
+        if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          var searchInput = document.getElementById('search-input');
+          if (searchInput) searchInput.focus();
+        }
+        break;
+    }
+
+    // Global navigation shortcuts (Shift+key or Ctrl+key)
+    if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.key === 'l' || e.key === 'L') { e.preventDefault(); switchView('learn'); }
+      else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); switchView('quiz'); }
+      else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); switchView('list'); }
+      else if (e.key === 's' || e.key === 'S') { e.preventDefault(); switchView('stats'); }
+    }
+
+    // Show hints on first few presses
+    if (!window._kbdHintsShown) {
+      window._kbdHintsShown = true;
+      showKeyboardHints();
+    }
+  });
+}
+
 // ── Event Wiring ───────────────────────────────────────────────
 
 function wireEvents() {
@@ -307,6 +453,21 @@ function wireEvents() {
     continueBtn.onclick = continueLearning;
   }
 
+  // Quick mode toggle
+  var quickBtn = document.getElementById('qa-quick-mode');
+  if (quickBtn) {
+    quickBtn.onclick = toggleQuickMode;
+  }
+
+  // Session summary close
+  var summaryClose = document.getElementById('session-summary-close');
+  if (summaryClose) {
+    summaryClose.onclick = function () {
+      closeSessionSummary();
+      switchView('learn');
+    };
+  }
+
   // Lesson navigation (prev/next lesson)
   var prevLessonBtn = document.getElementById('prev-lesson-btn');
   if (prevLessonBtn) {
@@ -332,6 +493,57 @@ function wireFilterChips(filterType) {
       handleFilterClick(filterType, chip.getAttribute('data-value'));
     };
   });
+}
+
+var _reviewOriginalMastered = 0;
+
+function startReview() {
+  reviewQueue = getDueReviews();
+  if (!reviewQueue.length) return;
+  _reviewOriginalMastered = 0;
+  // Count how many are already mastered in the review queue
+  var srsData = loadSRS();
+  reviewQueue.forEach(function (w) {
+    var entry = srsData[w.arabic];
+    if (entry && entry.stage >= 2) _reviewOriginalMastered++;
+  });
+  reviewMode = true;
+  currentWord = 0;
+  document.getElementById('review-banner').classList.remove('visible');
+  updateWordCard();
+}
+
+function endReview() {
+  // Compute session summary stats
+  var srsData = loadSRS();
+  var newMastered = 0;
+  reviewQueue.forEach(function (w) {
+    var entry = srsData[w.arabic];
+    if (entry && entry.stage >= 2) {
+      // Check if this word was not already mastered
+      // We can count it as newly mastered if its stage was 1 before
+      // Simple heuristic: count words that are now young/mature
+      newMastered++;
+    }
+  });
+  newMastered = Math.max(0, newMastered - _reviewOriginalMastered);
+
+  var streakData = loadStreakData();
+  var stats = {
+    wordsReviewed: reviewQueue.length,
+    streakDays: streakData.streak || 0,
+    newMastered: newMastered,
+  };
+
+  reviewMode = false;
+  currentWord = 0;
+  updateReviewBanner();
+  updateWordCard();
+
+  // Show session summary (only if words were actually reviewed)
+  if (reviewQueue.length > 0) {
+    showSessionSummary(stats);
+  }
 }
 
 // ── Window Bridge ──────────────────────────────────────────────
@@ -387,19 +599,22 @@ function init() {
   // 3. Wire application events
   wireEvents();
 
-  // 4. Show the first word card
+  // 4. Set up keyboard shortcuts
+  setupKeyboardShortcuts();
+
+  // 5. Show the first word card
   updateWordCard();
   updateReviewBanner();
   updateStatsDisplay();
   updateLessonProgressDisplay();
 
-  // 5. Register service worker
+  // 6. Register service worker
   registerServiceWorker();
 
-  // 6. Set up online/offline sync listener
+  // 7. Set up online/offline sync listener
   setupOnlineSync();
 
-  // 7. Check if user is already signed in (session restored from persistence)
+  // 8. Check if user is already signed in (session restored from persistence)
   var user = getCurrentUser();
   if (user) {
     if (!user.emailVerified) {
@@ -407,7 +622,7 @@ function init() {
     }
   }
 
-  // 8. Apply user settings for daily review limit (if available)
+  // 9. Apply user settings for daily review limit (if available)
   if (user && window.__user) {
     window.__user.loadProfile(user.uid).then(function (profile) {
       if (profile && profile.settings && profile.settings.dailyReviewLimit) {

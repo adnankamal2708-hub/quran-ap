@@ -299,6 +299,38 @@ function updateBookmarkButton(arabic) {
 }
 
 /**
+ * Update the daily goal progress ring based on reviews done today.
+ */
+function updateGoalRing() {
+  var ringFill = document.getElementById('goal-ring-fill');
+  var ringText = document.getElementById('goal-ring-text');
+  var ringWrap = document.getElementById('goal-ring-wrap');
+  if (!ringFill || !ringText || !ringWrap) return;
+
+  // Get stats and compute progress
+  var stats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
+  if (!stats) {
+    ringFill.setAttribute('stroke-dasharray', '0, 100');
+    ringText.textContent = '0';
+    ringWrap.setAttribute('aria-valuenow', '0');
+    return;
+  }
+
+  var dailyLimit = (window.__srs && window.__srs.getDailyReviewLimit)
+    ? window.__srs.getDailyReviewLimit()
+    : 25;
+  var reviewsToday = stats.reviewsToday || 0;
+  var pct = Math.min(100, Math.round((reviewsToday / dailyLimit) * 100));
+  var circumference = 100; // stroke-dasharray works on a 0-100 scale
+  var offset = Math.round((pct / 100) * circumference);
+
+  ringFill.setAttribute('stroke-dasharray', offset + ', ' + circumference);
+  ringText.textContent = pct;
+  ringWrap.setAttribute('aria-valuenow', pct.toString());
+  ringWrap.title = 'Daily review goal: ' + reviewsToday + ' of ' + dailyLimit + ' (' + pct + '%)';
+}
+
+/**
  * Update the top stats bar and total word count.
  */
 function updateStatsDisplay() {
@@ -322,6 +354,9 @@ function updateStatsDisplay() {
   if (quizScore && window.__quiz) {
     // Score is updated via quiz module directly
   }
+
+  // Update the goal ring
+  updateGoalRing();
 }
 
 /**

@@ -45,6 +45,14 @@
             <div class="top-stat-num" id="stat-score" aria-describedby="stat-score-label">—</div>
             <div class="top-stat-label" id="stat-score-label">Quiz</div>
           </div>
+          <!-- Daily Goal Progress Ring -->
+          <div class="goal-ring-wrap" id="goal-ring-wrap" title="Daily review goal progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <svg class="goal-ring" viewBox="0 0 36 36">
+              <path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path class="goal-ring-fill" id="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="0, 100" />
+              <text class="goal-ring-text" id="goal-ring-text" x="18" y="20.5">0</text>
+            </svg>
+          </div>
         </div>
       </div>
       <div class="progress-row" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Session progress">
@@ -113,6 +121,7 @@
           <button class="qa-btn" type="button" id="qa-show-more">📚 Show full tafsir</button>
           <button class="qa-btn" type="button" id="qa-root-family">🌱 Root system</button>
           <button class="qa-btn" type="button" id="qa-bookmark">⭐ Bookmark</button>
+          <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)">⚡ Quick</button>
         </div>
 
         <!-- ── Notes ── -->
@@ -509,6 +518,29 @@
         </div>
       </section>
 
+      <!-- ── SESSION REVIEW SUMMARY MODAL ── -->
+      <div class="modal-overlay" id="session-summary-modal" style="display:none">
+        <div class="modal-content session-summary">
+          <div class="modal-title" id="session-summary-title">📊 Session Complete</div>
+          <div class="session-summary-stats">
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-words-reviewed">0</div>
+              <div class="session-stat-label">Words Reviewed</div>
+            </div>
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-streak-earned">0</div>
+              <div class="session-stat-label">Streak Days</div>
+            </div>
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-mastered-new">0</div>
+              <div class="session-stat-label">Now Mastered</div>
+            </div>
+          </div>
+          <div class="session-summary-encouragement" id="session-encouragement">Keep up the great work! 🌟</div>
+          <button class="btn" id="session-summary-close" type="button" style="width:100%;margin-top:16px">Continue Learning</button>
+        </div>
+      </div>
+
       <!-- ── PASSWORD CHANGE MODAL ── -->
       <div class="modal-overlay" id="password-change-modal" style="display:none">
         <div class="modal-content">
@@ -534,6 +566,17 @@
         </div>
       </div>
 
+      <!-- Keyboard Hints -->
+      <div class="kbd-hint" id="kbd-hints" role="tooltip" aria-label="Keyboard shortcuts">
+        <span class="kbd-group"><kbd>←</kbd><kbd>→</kbd> Navigate</span>
+        <span class="kbd-group"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> Rate</span>
+        <span class="kbd-group"><kbd>Q</kbd> Quick</span>
+        <span class="kbd-group"><kbd>L</kbd> Learn</span>
+        <span class="kbd-group"><kbd>Z</kbd> Quiz</span>
+        <span class="kbd-group"><kbd>W</kbd> Words</span>
+        <span class="kbd-group"><kbd>S</kbd> Stats</span>
+        <span class="kbd-group"><kbd>?</kbd> Hints</span>
+      </div>
     </main>
 
     <!-- BOTTOM NAV -->
