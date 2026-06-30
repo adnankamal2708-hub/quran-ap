@@ -67,6 +67,19 @@ function renderWordCard(w, currentIndex, total, isReview) {
   DOM.get('transliteration').textContent = w.translit;
   DOM.get('word-type').textContent = w.type;
 
+  // Surah reference badge
+  var surahBadge = DOM.get('surah-badge');
+  if (surahBadge) {
+    if (w.surahId && SURAH_INFO) {
+      var si = SURAH_INFO[w.surahId];
+      var verseRef = w.verseKey ? w.surahId + ':' + w.verseKey.split(':')[1] : '';
+      surahBadge.textContent = '📖 ' + (si ? si.name : 'Surah ' + w.surahId) + (verseRef ? ' · Verse ' + verseRef : '');
+      surahBadge.style.display = 'block';
+    } else {
+      surahBadge.style.display = 'none';
+    }
+  }
+
   // Pattern display
   var patternEl = DOM.get('word-pattern');
   if (patternEl) {
@@ -809,22 +822,37 @@ function updateQuizScoreDisplay(correct, total) {
 
 /**
  * Navigate to a word in the learn view.
+ * Supports both lesson mode and surah mode.
  */
 function navigateToWord(w) {
-  // Find word in the current lesson first, then fall back to ALL_WORDS
-  var lessonWords = typeof getActiveLessonWords === 'function' ? getActiveLessonWords() : ALL_WORDS;
-  var idx = lessonWords.indexOf(w);
+  // Find word in the current active set (lesson or surah words)
+  var activeWords = typeof getActiveLessonWords === 'function' ? getActiveLessonWords() : ALL_WORDS;
+  var idx = activeWords.indexOf(w);
   if (idx >= 0) {
     window.__navigateToWordIndex(idx);
-  } else {
-    // Word not in current lesson — switch to its lesson with word index
-    var globalIdx = ALL_WORDS.indexOf(w);
-    if (globalIdx >= 0) {
-      var wordLesson = Math.floor(globalIdx / WORDS_PER_LESSON);
-      var wordInLesson = globalIdx % WORDS_PER_LESSON;
-      if (wordLesson >= 0 && typeof goToLesson === 'function') {
-        goToLesson(wordLesson, wordInLesson);
-      }
+    return;
+  }
+  
+  // Word not in current lesson/surah — find where it belongs
+  var globalIdx = ALL_WORDS.indexOf(w);
+  if (globalIdx < 0) return;
+  
+  // If word belongs to a surah and we have goToSurah, navigate by surah
+  if (w.surahId && typeof goToSurah === 'function') {
+    var surahWords = getSurahWords(w.surahId);
+    var surahIdx = surahWords.indexOf(w);
+    if (surahIdx >= 0) {
+      goToSurah(w.surahId, surahIdx);
+      return;
+    }
+  }
+  
+  // Fall back to lesson-based navigation
+  if (typeof goToLesson === 'function') {
+    var wordLesson = Math.floor(globalIdx / WORDS_PER_LESSON);
+    var wordInLesson = globalIdx % WORDS_PER_LESSON;
+    if (wordLesson >= 0) {
+      goToLesson(wordLesson, wordInLesson);
     }
   }
 }

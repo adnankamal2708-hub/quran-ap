@@ -117,6 +117,12 @@ function exportLocalData() {
     if (lessonRaw) data.lessonProgress = JSON.parse(lessonRaw);
   } catch (e) { /* skip */ }
 
+  // Surah progress
+  try {
+    var surahRaw = localStorage.getItem('quran_surah_progress');
+    if (surahRaw) data.surahProgress = JSON.parse(surahRaw);
+  } catch (e) { /* skip */ }
+
   data._exportedAt = new Date().toISOString();
   return data;
 }
@@ -148,6 +154,7 @@ function importLocalData(data) {
   if (data.quiz) trySet('quiz', 'quran_quiz', data.quiz);
   if (data.settings) trySet('settings', 'quran_settings', data.settings);
   if (data.lessonProgress) trySet('lessonProgress', 'quran_lesson_progress', data.lessonProgress);
+  if (data.surahProgress) trySet('surahProgress', 'quran_surah_progress', data.surahProgress);
 
   return { imported: imported, skipped: skipped };
 }
@@ -302,6 +309,13 @@ function mergeData(localData, cloudData) {
       correct: Math.max(localQuiz.correct || 0, cloudQuiz.correct || 0),
       total: Math.max(localQuiz.total || 0, cloudQuiz.total || 0),
     };
+  }
+
+  // Surah progress: take the one with more completed surahs
+  if (localData.surahProgress || cloudData.surahProgress) {
+    var localSP = localData.surahProgress || { completedSurahs: [], quizPassed: {} };
+    var cloudSP = cloudData.surahProgress || { completedSurahs: [], quizPassed: {} };
+    merged.surahProgress = (localSP.completedSurahs.length >= cloudSP.completedSurahs.length) ? localSP : cloudSP;
   }
 
   return merged;

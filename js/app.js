@@ -20,19 +20,42 @@ let activeLessonIndex = 0;
 
 /** Get the words for the currently active lesson */
 function getActiveLessonWords() {
-  var words = getLessonWords(activeLessonIndex);
-  if (!words || words.length === 0) return ALL_WORDS.slice(0, WORDS_PER_LESSON);
-  return words;
-}
-
-/** Get total words in the active lesson */
-function getActiveLessonWordCount() {
-  return getActiveLessonWords().length;
+  // If in surah mode, return surah words
+  if (getOrganizationMode() === 'surah' && getActiveSurahId()) {
+    return getSurahWords(getActiveSurahId());
+  }
+  return getLessonWords(activeLessonIndex);
 }
 
 /** Navigate to a specific lesson. Optional wordIndex to jump to a specific word. */
+function goToSurah(surahId, wordIndex) {
+  if (!surahId || !SURAH_INFO[surahId]) return;
+  setOrganizationMode('surah');
+  setActiveSurahId(surahId);
+  activeLessonIndex = 0;
+  currentWord = (wordIndex !== undefined && wordIndex >= 0) ? wordIndex : 0;
+  reviewMode = false;
+  switchView('learn');
+  updateWordCard();
+}
+
+/** Switch back to lesson mode */
+function goToLessonMode() {
+  setOrganizationMode('lesson');
+  setActiveSurahId(null);
+  activeLessonIndex = getCurrentLessonIndex();
+  currentWord = 0;
+  reviewMode = false;
+  switchView('learn');
+  updateWordCard();
+}
 function goToLesson(lessonIndex, wordIndex) {
   if (lessonIndex < 0 || lessonIndex >= getLessonCount()) return;
+  // Switch to lesson mode if we were in surah mode
+  if (getOrganizationMode() !== 'lesson') {
+    setOrganizationMode('lesson');
+    setActiveSurahId(null);
+  }
   // Check if lesson is unlocked (allow navigation to locked lessons from Continue button context)
   // but prevent direct navigation to locked lessons from nav buttons
   if (!isLessonUnlocked(lessonIndex) && lessonIndex !== activeLessonIndex) {
@@ -56,7 +79,11 @@ function continueLearning() {
 // ── Core word accessor ────────────────────────────────────────
 
 function getCurrentWord() {
-  return reviewMode ? reviewQueue[currentWord] : getActiveLessonWords()[currentWord];
+  if (reviewMode) return reviewQueue[currentWord];
+  var words = getActiveLessonWords();
+  if (!words || words.length === 0) return null;
+  if (currentWord >= words.length) currentWord = 0;
+  return words[currentWord];
 }
 
 // ── View Switching ─────────────────────────────────────────────
@@ -192,11 +219,57 @@ function saveNote() {
 // ── Lesson Progress Display ────────────────────────────────────
 
 function updateLessonProgressDisplay() {
+  var lessonLabel = DOM.get('lesson-label');
+  
+  if (getOrganizationMode() === 'surah') {
+    // Surah mode display
+    var surahId = getActiveSurahId();
+    var surahInfo = getSurahInfo(surahId);
+    var surahIds = getSurahsWithVocabulary();
+    var curIdx = surahIds.indexOf(surahId);
+    
+    if (lessonLabel && surahInfo) {
+      lessonLabel.textContent = surahInfo.name + ' - ' + surahInfo.english;
+    }
+    
+    var total = getSurahWords(surahId).length;
+    var completed = getCompletedSurahCount();
+    
+    var lessonProgress = DOM.get('lesson-progress');
+    if (lessonProgress) {
+      var pct = surahIds.length > 0 ? Math.round((completed / surahIds.length) * 100) : 0;
+      lessonProgress.style.width = pct + '%';
+    }
+
+    var lessonProgressText = DOM.get('lesson-progress-text');
+    if (lessonProgressText) {
+      lessonProgressText.textContent = completed + ' of ' + surahIds.length + ' surahs complete';
+    }
+
+    var continueBtn = DOM.get('continue-learning-btn');
+    if (continueBtn) {
+      if (completed >= surahIds.length) {
+        continueBtn.textContent = '🎉 All Surahs Complete!';
+        continueBtn.disabled = true;
+      } else {
+        var nextIncomplete = -1;
+        for (var si = 0; si < surahIds.length; si++) {
+          if (!isSurahCompleted(surahIds[si])) { nextIncomplete = si; break; }
+        }
+        if (nextIncomplete >= 0) {
+          continueBtn.textContent = '📖 Continue ' + getSurahNameSimple(surahIds[nextIncomplete]);
+          continueBtn.disabled = false;
+        }
+      }
+    }
+    return;
+  }
+  
+  // Lesson mode (original behavior)
   var total = getLessonCount();
   var completed = getCompletedLessonCount();
   var current = activeLessonIndex + 1;
 
-  var lessonLabel = DOM.get('lesson-label');
   if (lessonLabel) {
     lessonLabel.textContent = 'Lesson ' + current + ' of ' + total;
   }
@@ -480,8 +553,23 @@ function wireEvents() {
   wireFilterChips('type');
   wireFilterChips('status');
 
-  // Continue Learning button
-  DOM.get('continue-learning-btn').onclick = continueLearning;
+  // Continue Learning button (works for both surah and lesson mode)
+  DOM.get('continue-learning-btn').onclick = function () {
+    if (getOrganizationMode() === 'surah') {
+      // In surah mode, go to next incomplete surah
+      var surahIds = getSurahsWithVocabulary();
+      for (var si = 0; si < surahIds.length; si++) {
+        if (!isSurahCompleted(surahIds[si])) {
+          goToSurah(surahIds[si]);
+          return;
+        }
+      }
+      // All complete
+      goToSurah(surahIds[0] || 1);
+    } else {
+      continueLearning();
+    }
+  };
 
   // Quick mode toggle
   DOM.get('qa-quick-mode').onclick = toggleQuickMode;
@@ -498,16 +586,43 @@ function wireEvents() {
     }
   };
 
-  // Lesson navigation (prev/next lesson)
+  // Lesson navigation (prev/next lesson or surah)
   DOM.get('prev-lesson-btn').onclick = function () {
-    if (activeLessonIndex > 0) goToLesson(activeLessonIndex - 1);
-  };
-  DOM.get('next-lesson-btn').onclick = function () {
-    var nextIdx = activeLessonIndex + 1;
-    if (nextIdx < getLessonCount() && isLessonUnlocked(nextIdx)) {
-      goToLesson(nextIdx);
+    if (getOrganizationMode() === 'surah') {
+      // In surah mode, find previous surah with vocabulary
+      var surahIds = getSurahsWithVocabulary();
+      var curIdx = surahIds.indexOf(getActiveSurahId());
+      if (curIdx > 0) goToSurah(surahIds[curIdx - 1]);
+    } else if (activeLessonIndex > 0) {
+      goToLesson(activeLessonIndex - 1);
     }
   };
+  DOM.get('next-lesson-btn').onclick = function () {
+    if (getOrganizationMode() === 'surah') {
+      // In surah mode, find next surah with vocabulary
+      var surahIds = getSurahsWithVocabulary();
+      var curIdx = surahIds.indexOf(getActiveSurahId());
+      if (curIdx >= 0 && curIdx < surahIds.length - 1) goToSurah(surahIds[curIdx + 1]);
+    } else {
+      var nextIdx = activeLessonIndex + 1;
+      if (nextIdx < getLessonCount() && isLessonUnlocked(nextIdx)) {
+        goToLesson(nextIdx);
+      }
+    }
+  };
+  
+  // Surah selector from lesson header (wire the surah selector)
+  var surahSelector = DOM.get('surah-select');
+  if (surahSelector) {
+    surahSelector.onchange = function () {
+      var val = parseInt(this.value, 10);
+      if (val) {
+        goToSurah(val);
+      } else {
+        goToLessonMode();
+      }
+    };
+  }
 }
 
 function wireFilterChips(filterType) {
@@ -644,6 +759,39 @@ function closePasswordModal() {
   if (appEl) appEl.removeAttribute('aria-hidden');
 }
 
+// ── Surah Selector Populator ───────────────────────────────────
+
+function populateSurahSelector() {
+  var select = DOM.get('surah-select');
+  if (!select) return;
+  
+  // Clear existing options (keep the first "lessons" option)
+  while (select.options.length > 1) {
+    select.remove(1);
+  }
+  
+  // Get surah IDs that have vocabulary
+  var surahIds = getSurahsWithVocabulary();
+  if (surahIds.length === 0) return;
+  
+  // Add a separator option
+  var separator = document.createElement('option');
+  separator.disabled = true;
+  separator.textContent = '─── Surahs ───';
+  select.appendChild(separator);
+  
+  // Add each surah with vocabulary
+  for (var i = 0; i < surahIds.length; i++) {
+    var sid = surahIds[i];
+    var info = getSurahInfo(sid);
+    if (!info) continue;
+    var opt = document.createElement('option');
+    opt.value = sid;
+    opt.textContent = sid + '. ' + info.name + ' — ' + info.english;
+    select.appendChild(opt);
+  }
+}
+
 // ── Window Bridge ──────────────────────────────────────────────
 
 window.__getCurrentWord = getCurrentWord;
@@ -701,19 +849,22 @@ function init() {
   // 4. Set up keyboard shortcuts
   setupKeyboardShortcuts();
 
-  // 5. Show the first word card
+  // 5. Populate surah selector
+  populateSurahSelector();
+
+  // 6. Show the first word card
   updateWordCard();
   updateReviewBanner();
   updateStatsDisplay();
   updateLessonProgressDisplay();
 
-  // 6. Register service worker
+  // 7. Register service worker
   registerServiceWorker();
 
-  // 7. Set up online/offline sync listener
+  // 8. Set up online/offline sync listener
   setupOnlineSync();
 
-  // 8. Show keyboard shortcut hints on first load (briefly)
+  // 9. Show keyboard shortcut hints on first load (briefly)
   setTimeout(function() {
     if (!window._kbdHintsShown) {
       window._kbdHintsShown = true;
@@ -722,7 +873,7 @@ function init() {
     }
   }, 1000);
 
-  // 9. Check if user is already signed in (session restored from persistence)
+  // 10. Check if user is already signed in (session restored from persistence)
   var user = getCurrentUser();
   if (user) {
     if (!user.emailVerified) {
@@ -730,7 +881,7 @@ function init() {
     }
   }
 
-  // 10. Apply user settings for daily review limit (if available)
+  // 11. Apply user settings for daily review limit (if available)
   if (user && window.__user) {
     window.__user.loadProfile(user.uid).then(function (profile) {
       if (profile && profile.settings && profile.settings.dailyReviewLimit) {

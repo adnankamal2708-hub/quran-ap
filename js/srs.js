@@ -410,14 +410,15 @@ function computeLearningInterval(rating, prevInterval, entry) {
  * 3. Due today
  * 4. Due within 3 days
  * Respects daily review limit.
+ * Supports both lesson mode and surah mode.
  */
 function getDueReviews() {
   var data = loadSRS();
   var now = Date.now();
   var due = [];
 
-  var lessonIndex = getCurrentLessonIndex();
-  var words = getLessonWords(lessonIndex);
+  // Use active words (respects surah mode and lesson mode)
+  var words = (typeof getActiveLessonWords === 'function') ? getActiveLessonWords() : ALL_WORDS;
   if (!words || words.length === 0) words = ALL_WORDS;
 
   words.forEach(function (w) {
@@ -448,11 +449,12 @@ function getDueReviews() {
 
 /**
  * Get all session words that have not been reviewed yet.
+ * Supports both lesson mode and surah mode.
  */
 function getNewWords() {
   var data = loadSRS();
-  var lessonIndex = getCurrentLessonIndex();
-  var words = getLessonWords(lessonIndex);
+  // Use active words (respects surah mode and lesson mode)
+  var words = (typeof getActiveLessonWords === 'function') ? getActiveLessonWords() : ALL_WORDS;
   if (!words || words.length === 0) words = ALL_WORDS;
   return words.filter(function (w) {
     var entry = data[w.arabic];

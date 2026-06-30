@@ -54,13 +54,16 @@ function findWordsByArabicList(arabicList) {
 // ── Search ─────────────────────────────────────────────────────
 
 /**
- * Search all words by Arabic text, English meaning, root, tags, pattern, or type.
+ * Search all words by Arabic text, English meaning, root, tags, pattern, type, or surah.
  * Returns words matching the query string.
  */
 function searchWords(query) {
   if (!query || query.trim() === '') return ALL_WORDS;
   const q = query.trim().toLowerCase();
   return ALL_WORDS.filter(function (w) {
+    // Also search by surah name
+    var surahName = w.surahId ? getSurahEnglishName(w.surahId).toLowerCase() : '';
+    var surahNameSimple = w.surahId ? getSurahNameSimple(w.surahId).toLowerCase() : '';
     return (
       w.arabic.includes(q) ||
       w.translit.toLowerCase().includes(q) ||
@@ -69,7 +72,9 @@ function searchWords(query) {
       w.root.includes(q) ||
       (w.pattern && w.pattern.includes(q)) ||
       (w.tags || []).some(function (t) { return t.includes(q); }) ||
-      w.type.toLowerCase().includes(q)
+      w.type.toLowerCase().includes(q) ||
+      surahName.includes(q) ||
+      surahNameSimple.includes(q)
     );
   });
 }
@@ -90,6 +95,14 @@ function filterByCategory(words, category) {
 function filterByDifficulty(words, difficulty) {
   if (!difficulty) return words;
   return words.filter(function (w) { return w.difficulty === difficulty; });
+}
+
+/**
+ * Filter words by Surah ID.
+ */
+function filterBySurah(words, surahId) {
+  if (!surahId || surahId === 'all') return words;
+  return words.filter(function (w) { return w.surahId === surahId; });
 }
 
 /**

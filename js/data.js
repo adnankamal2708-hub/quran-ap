@@ -25,7 +25,9 @@
 //   frequency      — "very-high"|"high"|"medium"|"low"
 //   difficulty     — 1 (easiest) to 5 (hardest)
 //   tags           — Array of category tags
-//   lesson         — Suggested surah/lesson grouping
+//   lesson         — Suggested surah/lesson grouping (legacy, kept for backward compat)
+//   surahId        — Surah number (1-114). Optional: if set, word belongs to this Surah.
+//   verseKey       — Verse reference like "1:1" (Surah:Verse). Optional.
 //   ayahA          — Example ayah in Arabic (with <span> highlights)
 //   ayahT          — Example ayah translation
 //   ayahR          — Example ayah reference (Surah X:Y)
@@ -44,6 +46,57 @@ const WORDS_PER_LESSON = 10;
 
 /** Master word list — populated by individual files in js/data/ */
 const ALL_WORDS = [];
+
+// ── Surah-based Organization ────────────────────────────────────
+// Words can be organized by Surah (surahId) or by sequential lessons.
+// The system supports both modes: users can study by Surah or by
+// traditional sequential lessons.
+
+/** @type {'surah'|'lesson'} Current organization mode */
+let _orgMode = 'lesson';
+
+/**
+ * Set the organization mode.
+ */
+function setOrganizationMode(mode) {
+  if (mode === 'surah' || mode === 'lesson') {
+    _orgMode = mode;
+  }
+}
+
+/**
+ * Get the current organization mode.
+ */
+function getOrganizationMode() {
+  return _orgMode;
+}
+
+/** @type {number|null} Current active Surah ID (when in surah mode) */
+let _activeSurahId = null;
+
+/**
+ * Set the active Surah ID for study.
+ */
+function setActiveSurahId(surahId) {
+  _activeSurahId = surahId;
+}
+
+/**
+ * Get the active Surah ID.
+ */
+function getActiveSurahId() {
+  return _activeSurahId;
+}
+
+// ── Surah-based Word Functions ──────────────────────────────────
+
+/**
+ * Get all words belonging to a specific Surah.
+ */
+function getSurahWords(surahId) {
+  if (!surahId) return [];
+  return ALL_WORDS.filter(function (w) { return w.surahId === surahId; });
+}
 
 // ── Lesson System ───────────────────────────────────────────────
 // Lessons are computed from ALL_WORDS after all data files load.
@@ -224,4 +277,75 @@ function importLessonProgress(data) {
     current.currentLesson = data.currentLesson;
   }
   saveLessonProgress(current);
+}
+
+// ── Surah Progress Tracking ─────────────────────────────────────
+
+const SURAH_PROGRESS_KEY = 'quran_surah_progress';
+
+function getDefaultSurahProgress() {
+  return {
+    completedSurahs: [],
+    quizPassed: {},
+  };
+}
+
+function loadSurahProgress() {
+  try {
+    var raw = localStorage.getItem(SURAH_PROGRESS_KEY);
+    if (!raw) return getDefaultSurahProgress();
+    return JSON.parse(raw);
+  } catch (e) {
+    return getDefaultSurahProgress();
+  }
+}
+
+function saveSurahProgress(data) {
+  try {
+    localStorage.setItem(SURAH_PROGRESS_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Could not save surah progress:', e.message);
+  }
+}
+
+function isSurahCompleted(surahId) {
+  var progress = loadSurahProgress();
+  return progress.completedSurahs.indexOf(surahId) >= 0;
+}
+
+function completeSurah(surahId) {
+  var progress = loadSurahProgress();
+  if (progress.completedSurahs.indexOf(surahId) < 0) {
+    progress.completedSurahs.push(surahId);
+  }
+  progress.quizPassed[String(surahId)] = true;
+  saveSurahProgress(progress);
+  // Queue cloud sync
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (user && window.__sync && window.__sync.queueSync) {
+    window.__sync.queueSync(user.uid);
+  }
+}
+
+function getCompletedSurahCount() {
+  var progress = loadSurahProgress();
+  return progress.completedSurahs.length;
+}
+
+function exportSurahProgress() {
+  return loadSurahProgress();
+}
+
+function importSurahProgress(data) {
+  if (!data || typeof data !== 'object') return;
+  var current = loadSurahProgress();
+  if (data.completedSurahs && data.completedSurahs.length > current.completedSurahs.length) {
+    current.completedSurahs = data.completedSurahs;
+  }
+  if (data.quizPassed) {
+    Object.keys(data.quizPassed).forEach(function (k) {
+      if (data.quizPassed[k]) current.quizPassed[k] = true;
+    });
+  }
+  saveSurahProgress(current);
 }

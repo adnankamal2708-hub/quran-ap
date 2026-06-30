@@ -146,24 +146,44 @@ function nextQuiz() {
     renderQuizCompletion(quizCorrect, quizTotal);
     updateStatsDisplay();
 
-    // Check if lesson should be completed (>60% = pass)
+    // Check if quiz should be completed (>60% = pass)
     var pct = quizTotal > 0 ? Math.round((quizCorrect / quizTotal) * 100) : 0;
     if (pct >= 60) {
-      // Mark this lesson as completed
-      completeLesson(activeLessonIndex);
-      // Update lesson display
+      // Check if we're in surah mode
+      var isSurahMode = (typeof getOrganizationMode === 'function' && getOrganizationMode() === 'surah');
+      
+      if (isSurahMode) {
+        // Mark this surah as completed
+        var activeSurahId = getActiveSurahId ? getActiveSurahId() : null;
+        if (activeSurahId) {
+          completeSurah(activeSurahId);
+        }
+      } else {
+        // Mark this lesson as completed
+        completeLesson(activeLessonIndex);
+      }
+      
+      // Update lesson/surah display
       if (typeof updateLessonProgressDisplay === 'function') {
         updateLessonProgressDisplay();
       }
-      // Auto-navigate to next lesson after brief celebration pause
-      // Guard against stale callback if user has navigated elsewhere
+      
+      // Auto-navigate to next item after brief celebration pause
       var autoNavTimer = setTimeout(function() {
         // Only navigate if user is still on the quiz view
         if (typeof currentView !== 'undefined' && currentView === 'quiz') {
-          var nextIncomplete = getNextIncompleteLesson();
-          if (nextIncomplete < getLessonCount() && nextIncomplete !== activeLessonIndex) {
-            if (typeof goToLesson === 'function') {
-              goToLesson(nextIncomplete);
+          if (isSurahMode) {
+            var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+            var curIdx = surahIds.indexOf(activeSurahId);
+            if (curIdx >= 0 && curIdx < surahIds.length - 1 && typeof goToSurah === 'function') {
+              goToSurah(surahIds[curIdx + 1]);
+            }
+          } else {
+            var nextIncomplete = getNextIncompleteLesson();
+            if (nextIncomplete < getLessonCount() && nextIncomplete !== activeLessonIndex) {
+              if (typeof goToLesson === 'function') {
+                goToLesson(nextIncomplete);
+              }
             }
           }
         }
