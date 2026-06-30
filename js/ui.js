@@ -11,6 +11,14 @@ function reflow(element) {
 }
 
 /**
+ * Extract the short meaning from a full meaning string.
+ * Many meanings follow the format "Short meaning — Additional context".
+ */
+function getShortMeaning(meaning) {
+  return (meaning || '').split('\u2014')[0].trim();
+}
+
+/**
  * Set active view, switching visible tab content and nav tab highlight.
  */
 function setView(viewName) {
@@ -43,11 +51,13 @@ function renderWordCard(w, currentIndex, total, isReview) {
 
   // Pattern display
   var patternEl = document.getElementById('word-pattern');
-  if (w.pattern && w.pattern !== '\u2014') {
-    patternEl.textContent = 'Pattern: ' + w.pattern;
-    patternEl.style.display = 'block';
-  } else {
-    patternEl.style.display = 'none';
+  if (patternEl) {
+    if (w.pattern && w.pattern !== '\u2014') {
+      patternEl.textContent = 'Pattern: ' + w.pattern;
+      patternEl.style.display = 'block';
+    } else {
+      patternEl.style.display = 'none';
+    }
   }
 
   document.getElementById('meaning').textContent = w.meaning;
@@ -56,10 +66,15 @@ function renderWordCard(w, currentIndex, total, isReview) {
   document.getElementById('progress-fill').style.width = `${((currentIndex + 1) / total) * 100}%`;
   document.getElementById('progress-text').textContent = `${currentIndex + 1} / ${total}`;
 
-  document.getElementById('btn-prev').disabled = currentIndex === 0;
-  document.getElementById('btn-next').textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Done \u2713' : 'Quiz \u270F\uFE0F';
+  var prevBtn = document.getElementById('btn-prev');
+  if (prevBtn) prevBtn.disabled = currentIndex === 0;
 
-  // SRS pill — now shows stage info
+  var nextBtn = document.getElementById('btn-next');
+  if (nextBtn) {
+    nextBtn.textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Done \u2713' : 'Quiz \u270F\uFE0F';
+  }
+
+  // SRS pill — shows stage info
   renderSRSStatusPill(w.arabic);
 
   // Root box
@@ -79,13 +94,17 @@ function renderWordCard(w, currentIndex, total, isReview) {
   // SRS buttons
   const srs = getSRSStatus(w.arabic);
   const showSRS = srs.status !== 'new' || currentIndex > 0;
-  document.getElementById('srs-row').style.display = showSRS ? 'grid' : 'none';
-  document.getElementById('srs-label').style.display = showSRS ? 'block' : 'none';
+  var srsRow = document.getElementById('srs-row');
+  var srsLabel = document.getElementById('srs-label');
+  if (srsRow) srsRow.style.display = showSRS ? 'grid' : 'none';
+  if (srsLabel) srsLabel.style.display = showSRS ? 'block' : 'none';
 
   // Bookmark + notes
   updateBookmarkButton(w.arabic);
-  document.getElementById('notes-box').style.display = 'block';
-  document.getElementById('notes-input').value = getNote(w.arabic);
+  var notesBox = document.getElementById('notes-box');
+  var notesInput = document.getElementById('notes-input');
+  if (notesBox) notesBox.style.display = 'block';
+  if (notesInput) notesInput.value = getNote(w.arabic);
 
   // Animate card
   const card = document.getElementById('word-card');
@@ -99,7 +118,8 @@ function renderWordCard(w, currentIndex, total, isReview) {
  */
 function renderSRSStatusPill(arabic) {
   const srs = getSRSStatus(arabic);
-  const pill = document.getElementById('sr-pill');
+  var pill = document.getElementById('sr-pill');
+  if (!pill) return;
   var stageLabels = ['', '\uD83D\uDD0D', '\uD83C\uDF31', '\uD83D\uDCA1'];
   var stageNames = ['', 'Learning', 'Young', 'Mature'];
 
@@ -429,11 +449,12 @@ function renderWordList() {
     d.className = 'wordlist-item';
     d.setAttribute('role', 'button');
     d.setAttribute('tabindex', '0');
-    d.setAttribute('aria-label', `Study ${w.arabic} - ${w.meaning.split('\u2014')[0].trim()}`);
+    var shortMeaning = getShortMeaning(w.meaning);
+    d.setAttribute('aria-label', 'Study ' + w.arabic + ' - ' + shortMeaning);
     d.innerHTML =
       '<div class="wordlist-arabic">' + w.arabic + '</div>' +
       '<div class="wordlist-info">' +
-        '<div class="wordlist-meaning">' + w.meaning.split('\u2014')[0].trim() + '</div>' +
+        '<div class="wordlist-meaning">' + shortMeaning + '</div>' +
         '<div class="wordlist-sub">' + w.translit + ' \u00B7 ' + w.root + ' \u00B7 ' + w.type + '</div>' +
       '</div>' +
       '<div class="wordlist-badge">' + favStar + badge + '</div>';
@@ -688,13 +709,13 @@ function renderQuizQuestion(currentWordObj, allWords) {
 
   wordEl.textContent = currentWordObj.arabic;
 
-  const correct = currentWordObj.meaning.split('\u2014')[0].trim();
+  const correct = getShortMeaning(currentWordObj.meaning);
 
   // Use educational distractors from vocabulary service
   var distractors = getDistractors(currentWordObj, 3);
   var opts = [correct];
   distractors.forEach(function (d) {
-    var label = d.meaning.split('\u2014')[0].trim();
+    var label = getShortMeaning(d.meaning);
     if (label !== correct && opts.indexOf(label) === -1) {
       opts.push(label);
     }
@@ -703,7 +724,7 @@ function renderQuizQuestion(currentWordObj, allWords) {
   if (opts.length < 4) {
     allWords.forEach(function (w) {
       if (w !== currentWordObj && opts.length < 4) {
-        var label = w.meaning.split('\u2014')[0].trim();
+        var label = getShortMeaning(w.meaning);
         if (label !== correct && opts.indexOf(label) === -1) {
           opts.push(label);
         }
