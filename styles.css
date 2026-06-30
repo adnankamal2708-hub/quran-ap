@@ -1091,10 +1091,15 @@ body::before {
 /* ── View Toggle ───────────────────────────────────────────── */
 .mode-view {
   display: none;
+  animation: none;
 }
 
 .mode-view.active {
   display: block;
+}
+
+.mode-view.active.view-animate {
+  animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* ── Offline Badge ─────────────────────────────────────────── */
@@ -1168,13 +1173,14 @@ body::before {
     gap: 3px;
   }
   .lesson-progress-info {
-    flex-direction: column;
-    gap: 4px;
-    align-items: stretch;
+    gap: 2px;
   }
-  .lesson-progress-text {
-    order: -1;
-    text-align: center;
+  .lesson-header-top {
+    gap: 4px;
+  }
+  .continue-lesson-btn {
+    padding: 8px 14px;
+    font-size: 12px;
   }
 }
 
@@ -2032,16 +2038,16 @@ body::before {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-section);
-  padding: 12px 14px;
-  margin-bottom: 12px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
   box-shadow: var(--shadow-glow-gold);
 }
 
-.lesson-progress-row {
+.lesson-header-top {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .lesson-nav-btn {
@@ -2085,9 +2091,8 @@ body::before {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .lesson-progress-text {
@@ -2096,6 +2101,7 @@ body::before {
   letter-spacing: 0.04em;
   white-space: nowrap;
   flex-shrink: 0;
+  margin-bottom: 3px;
 }
 
 .lesson-progress-track {
@@ -2119,7 +2125,7 @@ body::before {
   color: var(--bg);
   border: none;
   border-radius: var(--radius-btn);
-  padding: 12px 18px;
+  padding: 10px 18px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;

@@ -62,6 +62,12 @@ function getCurrentWord() {
 // ── View Switching ─────────────────────────────────────────────
 
 function switchView(viewName) {
+  // Clear any pending quiz auto-navigation timer when user switches views
+  if (window.__autoNavTimer) {
+    clearTimeout(window.__autoNavTimer);
+    window.__autoNavTimer = null;
+  }
+
   currentView = viewName;
   setView(viewName);
   if (viewName === 'learn') {
@@ -379,10 +385,14 @@ function setupKeyboardShortcuts() {
       else if (e.key === 's' || e.key === 'S') { e.preventDefault(); switchView('stats'); }
     }
 
-    // Show hints on first few presses
-    if (!window._kbdHintsShown) {
-      window._kbdHintsShown = true;
-      showKeyboardHints();
+    // Dismiss auto-shown hints on first interaction
+    if (window._kbdHintsAutoShown) {
+      window._kbdHintsAutoShown = false;
+      var hint = document.getElementById('kbd-hints');
+      if (hint) {
+        clearTimeout(_kbdHintsTimer);
+        hint.classList.remove('visible');
+      }
     }
   });
 }
@@ -606,7 +616,16 @@ function init() {
   // 7. Set up online/offline sync listener
   setupOnlineSync();
 
-  // 8. Check if user is already signed in (session restored from persistence)
+  // 8. Show keyboard shortcut hints on first load (briefly)
+  setTimeout(function() {
+    if (!window._kbdHintsShown) {
+      window._kbdHintsShown = true;
+      window._kbdHintsAutoShown = true;
+      showKeyboardHints();
+    }
+  }, 1000);
+
+  // 9. Check if user is already signed in (session restored from persistence)
   var user = getCurrentUser();
   if (user) {
     if (!user.emailVerified) {
@@ -614,7 +633,7 @@ function init() {
     }
   }
 
-  // 9. Apply user settings for daily review limit (if available)
+  // 10. Apply user settings for daily review limit (if available)
   if (user && window.__user) {
     window.__user.loadProfile(user.uid).then(function (profile) {
       if (profile && profile.settings && profile.settings.dailyReviewLimit) {

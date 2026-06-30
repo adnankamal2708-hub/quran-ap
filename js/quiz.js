@@ -138,6 +138,7 @@ function updateQuizScoreDisplay(correct, total) {
 /**
  * Advance to the next quiz question or show completion.
  * When quiz is complete, check if the lesson should be marked as passed.
+ * On pass, auto-navigate to next lesson after celebration pause.
  */
 function nextQuiz() {
   quizIndex++;
@@ -154,6 +155,21 @@ function nextQuiz() {
       if (typeof updateLessonProgressDisplay === 'function') {
         updateLessonProgressDisplay();
       }
+      // Auto-navigate to next lesson after brief celebration pause
+      // Guard against stale callback if user has navigated elsewhere
+      var autoNavTimer = setTimeout(function() {
+        // Only navigate if user is still on the quiz view
+        if (typeof currentView !== 'undefined' && currentView === 'quiz') {
+          var nextIncomplete = getNextIncompleteLesson();
+          if (nextIncomplete < getLessonCount() && nextIncomplete !== activeLessonIndex) {
+            if (typeof goToLesson === 'function') {
+              goToLesson(nextIncomplete);
+            }
+          }
+        }
+      }, 3000);
+      // Store timer so it can be cancelled if user navigates away
+      window.__autoNavTimer = autoNavTimer;
     }
   } else {
     showQuizQ();

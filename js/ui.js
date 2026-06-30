@@ -16,13 +16,6 @@ const DOM = {
 };
 
 /**
- * Force CSS reflow for animation restart. Uses requestAnimationFrame for smoother restart.
- */
-function reflow(element) {
-  void element.offsetWidth;
-}
-
-/**
  * Extract the short meaning from a full meaning string.
  * Many meanings follow the format "Short meaning — Additional context".
  */
@@ -47,6 +40,18 @@ function setView(viewName) {
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
   }
+  // Animate the newly activated view (skip on first render to avoid flicker)
+  if (window.__viewHasBeenSet) {
+    var viewEl = DOM.get('view-' + viewName);
+    if (viewEl) {
+      viewEl.classList.remove('view-animate');
+      void viewEl.offsetHeight;
+      viewEl.classList.add('view-animate');
+    }
+  } else {
+    window.__viewHasBeenSet = true;
+  }
+
   var content = DOM.get('content');
   if (content) content.scrollTop = 0;
 }
@@ -118,11 +123,11 @@ function renderWordCard(w, currentIndex, total, isReview) {
   if (notesBox) notesBox.style.display = 'block';
   if (notesInput) notesInput.value = getNote(w.arabic);
 
-  // Animate card with forced reflow for reliable animation restart
+  // Animate card with faster, smoother transition
   var card = DOM.get('word-card');
   if (card) {
     card.classList.remove('fade-in');
-    void card.offsetWidth; // force reflow
+    void card.offsetHeight; // force reflow for animation restart
     card.classList.add('fade-in');
   }
 }
@@ -670,6 +675,9 @@ function updateStreakDisplay() {
     streakToday.textContent = '\u2713 Reviewed today! Come back tomorrow.';
     streakToday.style.color = 'var(--green)';
   } else if (data.lastDate === getYesterdayKey()) {
+    streakToday.textContent = '\uD83D\uDD25 ' + streak + ' day streak! Review today to continue.';
+    streakToday.style.color = 'var(--gold)';
+  } else if (streak > 0) {
     streakToday.textContent = '\uD83D\uDD25 ' + streak + ' day streak! Review today to continue.';
     streakToday.style.color = 'var(--gold)';
   } else {
