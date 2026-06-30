@@ -285,10 +285,24 @@ function showSessionSummary(stats) {
   }
 
   modal.style.display = 'flex';
+  // Backdrop click to close
+  modal.onclick = function(e) {
+    if (e.target === modal) closeSessionSummary();
+  };
+  // Manage aria-hidden on app container and trap focus
+  var appEl = document.querySelector('.app');
+  if (appEl) appEl.setAttribute('aria-hidden', 'true');
+  trapFocus(modal);
 }
 
 function closeSessionSummary() {
-  document.getElementById('session-summary-modal').style.display = 'none';
+  var modal = document.getElementById('session-summary-modal');
+  modal.style.display = 'none';
+  modal.onclick = null;
+  releaseFocusTrap(modal);
+  var appEl = document.querySelector('.app');
+  if (appEl) appEl.removeAttribute('aria-hidden');
+  __sessionSummaryModalQueuedSwitch = false;
 }
 
 // ── Keyboard Shortcuts ────────────────────────────────────────
@@ -299,9 +313,14 @@ function showKeyboardHints() {
   var hint = document.getElementById('kbd-hints');
   if (!hint) return;
   hint.classList.add('visible');
+  // Announce to screen readers
+  hint.setAttribute('role', 'status');
+  hint.setAttribute('aria-live', 'polite');
   if (_kbdHintsTimer) clearTimeout(_kbdHintsTimer);
   _kbdHintsTimer = setTimeout(function () {
     hint.classList.remove('visible');
+    hint.removeAttribute('role');
+    hint.removeAttribute('aria-live');
   }, 4000);
 }
 
@@ -321,7 +340,7 @@ function setupKeyboardShortcuts() {
       if (e.key === 'Escape') {
         e.preventDefault();
         closeSessionSummary();
-        document.getElementById('password-change-modal').style.display = 'none';
+        closePasswordModal();
       }
       return;
     }
@@ -471,6 +490,12 @@ function wireEvents() {
   DOM.get('session-summary-close').onclick = function () {
     closeSessionSummary();
     switchView('learn');
+    // Focus word card for keyboard users
+    var wordCard = DOM.get('word-card');
+    if (wordCard && typeof wordCard.focus === 'function') {
+      wordCard.setAttribute('tabindex', '-1');
+      wordCard.focus();
+    }
   };
 
   // Lesson navigation (prev/next lesson)
@@ -545,6 +570,78 @@ function endReview() {
   if (reviewQueue.length > 0) {
     showSessionSummary(stats);
   }
+}
+
+// ── Modal Focus Trap Utilities ─────────────────────────────────
+
+/**
+ * Trap focus within a modal element for accessibility.
+ * Cycles Tab and Shift+Tab through all focusable children.
+ */
+function trapFocus(modalEl) {
+  if (!modalEl) return;
+  // Find all focusable elements inside the modal
+  var focusableSelector = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  var focusable = modalEl.querySelectorAll(focusableSelector);
+  if (focusable.length === 0) return;
+
+  var firstFocusable = focusable[0];
+  var lastFocusable = focusable[focusable.length - 1];
+
+  // Store the previously focused element so we can restore it
+  window.__lastFocusedEl = document.activeElement;
+
+  // Focus the first focusable element in the modal
+  if (firstFocusable) firstFocusable.focus();
+
+  // Listen for Tab key to keep focus within the modal
+  modalEl._focusTrapHandler = function (e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        // Shift+Tab: if focus is on first element, wrap to last
+        if (document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        }
+      } else {
+        // Tab: if focus is on last element, wrap to first
+        if (document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    }
+  };
+
+  document.addEventListener('keydown', modalEl._focusTrapHandler);
+}
+
+/**
+ * Release a focus trap and restore focus to the previously focused element.
+ */
+function releaseFocusTrap(modalEl) {
+  if (!modalEl) return;
+  if (modalEl._focusTrapHandler) {
+    document.removeEventListener('keydown', modalEl._focusTrapHandler);
+    delete modalEl._focusTrapHandler;
+  }
+  // Restore focus
+  if (window.__lastFocusedEl && window.__lastFocusedEl.focus) {
+    window.__lastFocusedEl.focus();
+  }
+}
+
+/**
+ * Close the password change modal and manage aria-hidden.
+ */
+function closePasswordModal() {
+  var modal = document.getElementById('password-change-modal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  modal.onclick = null;
+  releaseFocusTrap(modal);
+  var appEl = document.querySelector('.app');
+  if (appEl) appEl.removeAttribute('aria-hidden');
 }
 
 // ── Window Bridge ──────────────────────────────────────────────

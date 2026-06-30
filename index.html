@@ -117,19 +117,19 @@
         <!-- ── SRS Rating ── -->
         <div class="srs-label" id="srs-label" style="display:none">How well did you know this word?</div>
         <div class="srs-row" id="srs-row" style="display:none" role="group" aria-label="Rate your recall">
-          <button class="srs-btn again" id="srs-again" type="button">😓<br />Again<br /><span style="font-size:9px">Tomorrow</span></button>
-          <button class="srs-btn hard" id="srs-hard" type="button">😐<br />Hard<br /><span style="font-size:9px">3 days</span></button>
-          <button class="srs-btn good" id="srs-good" type="button">🙂<br />Good<br /><span style="font-size:9px">7 days</span></button>
-          <button class="srs-btn easy" id="srs-easy" type="button">😊<br />Easy<br /><span style="font-size:9px">14 days</span></button>
+          <button class="srs-btn again" id="srs-again" type="button" aria-label="Rate Again — forgot the word">😓<br />Again<br /><span style="font-size:9px">Tomorrow</span></button>
+          <button class="srs-btn hard" id="srs-hard" type="button" aria-label="Rate Hard — difficult to recall">😐<br />Hard<br /><span style="font-size:9px">3 days</span></button>
+          <button class="srs-btn good" id="srs-good" type="button" aria-label="Rate Good — remembered correctly">🙂<br />Good<br /><span style="font-size:9px">7 days</span></button>
+          <button class="srs-btn easy" id="srs-easy" type="button" aria-label="Rate Easy — effortless recall">😊<br />Easy<br /><span style="font-size:9px">14 days</span></button>
         </div>
 
         <!-- ── Quick Actions ── -->
         <div class="quick-actions">
-          <button class="qa-btn" type="button" id="qa-show-ayah">📖 Show in ayah</button>
-          <button class="qa-btn" type="button" id="qa-show-more">📚 Show full tafsir</button>
+          <button class="qa-btn" type="button" id="qa-show-ayah" aria-expanded="false" aria-controls="ayah-box">📖 Show in ayah</button>
+          <button class="qa-btn" type="button" id="qa-show-more" aria-expanded="false" aria-controls="ayah-box tafsir-box">📚 Show full tafsir</button>
           <button class="qa-btn" type="button" id="qa-root-family">🌱 Root system</button>
           <button class="qa-btn" type="button" id="qa-bookmark">⭐ Bookmark</button>
-          <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)">⚡ Quick</button>
+          <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)">⚡ <span class="sr-only">Toggle quick flashcard mode</span><span aria-hidden="true">Quick</span></button>
         </div>
 
         <!-- ── Notes ── -->
@@ -172,7 +172,7 @@
             <div class="tafsir-header">📚 Ibn Kathir — Tafsir</div>
             <div class="tafsir-text" id="tafsir-text"></div>
           </div>
-          <button class="qa-btn w-full text-center mt-10" id="tafsir-btn" type="button">📚 Load Ibn Kathir Tafsir</button>
+          <button class="qa-btn w-full text-center mt-10" id="tafsir-btn" type="button" aria-expanded="false" aria-controls="tafsir-box">📚 Load Ibn Kathir Tafsir</button>
         </section>
       </section>
 

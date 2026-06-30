@@ -346,7 +346,18 @@ async function saveSettingsChanges() {
 
 function showPasswordChangeModal() {
   var modal = document.getElementById('password-change-modal');
-  if (modal) modal.style.display = 'flex';
+  if (modal) {
+    modal.style.display = 'flex';
+    // Backdrop click to close
+    modal.onclick = function(e) {
+      if (e.target === modal) closePasswordModal();
+    };
+  }
+
+  // Manage aria-hidden on app container and trap focus
+  var appEl = document.querySelector('.app');
+  if (appEl) appEl.setAttribute('aria-hidden', 'true');
+  trapFocus(modal);
 
   // Clear previous
   document.getElementById('password-change-error').style.display = 'none';
@@ -367,21 +378,35 @@ async function handlePasswordChangeSubmit() {
   hideProfileMessage(errorEl);
   hideProfileMessage(successEl);
 
+  // Link validation errors to form inputs for screen readers
+  var currentInput = document.getElementById('password-change-current');
+  var newInput = document.getElementById('password-change-new');
+  var confirmInput = document.getElementById('password-change-confirm');
+
   if (!currentPwd || !newPwd || !confirmPwd) {
     errorEl.textContent = 'Please fill in all fields.';
     errorEl.style.display = 'block';
+    errorEl.id = 'password-change-error';
+    if (currentInput) currentInput.setAttribute('aria-describedby', 'password-change-error');
+    if (newInput) newInput.setAttribute('aria-describedby', 'password-change-error');
+    if (confirmInput) confirmInput.setAttribute('aria-describedby', 'password-change-error');
     return;
   }
 
   if (newPwd !== confirmPwd) {
     errorEl.textContent = 'New passwords do not match.';
     errorEl.style.display = 'block';
+    errorEl.id = 'password-change-error';
+    if (newInput) newInput.setAttribute('aria-describedby', 'password-change-error');
+    if (confirmInput) confirmInput.setAttribute('aria-describedby', 'password-change-error');
     return;
   }
 
   if (newPwd.length < 6) {
     errorEl.textContent = 'Password must be at least 6 characters.';
     errorEl.style.display = 'block';
+    errorEl.id = 'password-change-error';
+    if (newInput) newInput.setAttribute('aria-describedby', 'password-change-error');
     return;
   }
 
@@ -397,7 +422,7 @@ async function handlePasswordChangeSubmit() {
 
     // Close modal after delay
     setTimeout(function () {
-      document.getElementById('password-change-modal').style.display = 'none';
+      closePasswordModal();
     }, 2000);
   } catch (e) {
     errorEl.textContent = e.message;

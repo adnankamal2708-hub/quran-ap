@@ -176,6 +176,11 @@ async function handleLogin() {
   // Validate
   if (!email || !password) {
     showAuthError(errorEl, 'Please fill in all fields.');
+    // Link error to form inputs for screen readers
+    var emailInput = document.getElementById('auth-login-email');
+    var pwdInput = document.getElementById('auth-login-password');
+    if (emailInput) emailInput.setAttribute('aria-describedby', 'auth-login-error');
+    if (pwdInput) pwdInput.setAttribute('aria-describedby', 'auth-login-error');
     return;
   }
 
@@ -217,14 +222,21 @@ async function handleSignUp() {
   // Validate
   if (!name || !email || !password || !confirm) {
     showAuthError(errorEl, 'Please fill in all fields.');
+    document.getElementById('auth-signup-name').setAttribute('aria-describedby', 'auth-signup-error');
+    document.getElementById('auth-signup-email').setAttribute('aria-describedby', 'auth-signup-error');
+    document.getElementById('auth-signup-password').setAttribute('aria-describedby', 'auth-signup-error');
+    document.getElementById('auth-signup-confirm').setAttribute('aria-describedby', 'auth-signup-error');
     return;
   }
   if (password !== confirm) {
     showAuthError(errorEl, 'Passwords do not match.');
+    document.getElementById('auth-signup-password').setAttribute('aria-describedby', 'auth-signup-error');
+    document.getElementById('auth-signup-confirm').setAttribute('aria-describedby', 'auth-signup-error');
     return;
   }
   if (password.length < 6) {
     showAuthError(errorEl, 'Password must be at least 6 characters.');
+    document.getElementById('auth-signup-password').setAttribute('aria-describedby', 'auth-signup-error');
     return;
   }
 
@@ -266,6 +278,7 @@ async function handleForgotPassword() {
 
   if (!email) {
     showAuthError(errorEl, 'Please enter your email address.');
+    document.getElementById('auth-forgot-email').setAttribute('aria-describedby', 'auth-forgot-error');
     return;
   }
 
@@ -295,14 +308,19 @@ async function handleResetPassword() {
 
   if (!password || !confirm) {
     showAuthError(errorEl, 'Please fill in all fields.');
+    document.getElementById('auth-reset-password').setAttribute('aria-describedby', 'auth-reset-error');
+    document.getElementById('auth-reset-confirm').setAttribute('aria-describedby', 'auth-reset-error');
     return;
   }
   if (password !== confirm) {
     showAuthError(errorEl, 'Passwords do not match.');
+    document.getElementById('auth-reset-password').setAttribute('aria-describedby', 'auth-reset-error');
+    document.getElementById('auth-reset-confirm').setAttribute('aria-describedby', 'auth-reset-error');
     return;
   }
   if (password.length < 6) {
     showAuthError(errorEl, 'Password must be at least 6 characters.');
+    document.getElementById('auth-reset-password').setAttribute('aria-describedby', 'auth-reset-error');
     return;
   }
 
