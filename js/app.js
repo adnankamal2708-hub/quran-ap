@@ -21,7 +21,7 @@ let activeLessonIndex = 0;
 /** Get the words for the currently active lesson */
 function getActiveLessonWords() {
   var words = getLessonWords(activeLessonIndex);
-  if (!words || words.length === 0) return ALL_WORDS.slice(0, 10);
+  if (!words || words.length === 0) return ALL_WORDS.slice(0, WORDS_PER_LESSON);
   return words;
 }
 
@@ -136,6 +136,11 @@ function rateSRS(rating) {
   const w = getCurrentWord();
   if (!w) return;
   rateSRSWord(w.arabic, rating);
+
+  // Invalidate stats cache after rating
+  if (window.__srs && window.__srs.invalidateStatsCache) {
+    window.__srs.invalidateStatsCache();
+  }
 
   // Track streak on review
   updateStreak();
@@ -285,7 +290,11 @@ function wireEvents() {
   // Search input (debounced)
   var searchInput = document.getElementById('search-input');
   if (searchInput) {
-    searchInput.oninput = handleSearchInput;
+    var searchTimer = null;
+    searchInput.oninput = function () {
+      if (searchTimer) clearTimeout(searchTimer);
+      searchTimer = setTimeout(handleSearchInput, 150);
+    };
   }
 
   // Filter chips
@@ -396,6 +405,19 @@ function init() {
     if (!user.emailVerified) {
       console.log('[app] Email not verified — user can continue.');
     }
+  }
+
+  // 8. Apply user settings for daily review limit (if available)
+  if (user && window.__user) {
+    window.__user.loadProfile(user.uid).then(function (profile) {
+      if (profile && profile.settings && profile.settings.dailyReviewLimit) {
+        if (window.__srs && window.__srs.updateDailyReviewLimit) {
+          window.__srs.updateDailyReviewLimit(profile.settings.dailyReviewLimit);
+        }
+      }
+    }).catch(function () {
+      // Silently ignore — use default limit
+    });
   }
 }
 

@@ -15,8 +15,21 @@
 
 const SRS_STORAGE_KEY = 'quran_srs_data';
 
-/** Maximum reviews per day */
-const DAILY_REVIEW_LIMIT = 25;
+/** Default maximum reviews per day (can be overridden by user settings) */
+const DEFAULT_DAILY_REVIEW_LIMIT = 25;
+
+/** Used as the active limit — may be updated from user settings */
+var DAILY_REVIEW_LIMIT = DEFAULT_DAILY_REVIEW_LIMIT;
+
+/**
+ * Update the daily review limit from user settings.
+ * Call this after auth is initialized and settings are loaded.
+ */
+function updateDailyReviewLimit(limit) {
+  if (typeof limit === 'number' && limit >= 5 && limit <= 1000) {
+    DAILY_REVIEW_LIMIT = limit;
+  }
+}
 
 /** Minimum ease factor (SM-2 standard) */
 const MIN_EASE = 1.3;
@@ -519,3 +532,47 @@ function getSRSStats() {
 
   return stats;
 }
+
+// ── Performance: SRS stats caching ────────────────────────────
+
+let _cachedStats = null;
+let _lastStatsTime = 0;
+const STATS_CACHE_TTL = 2000; // 2 seconds
+
+/**
+ * Get SRS stats with caching to avoid recomputing on every word card update.
+ */
+function getSRSStatsCached() {
+  var now = Date.now();
+  if (_cachedStats && (now - _lastStatsTime) < STATS_CACHE_TTL) {
+    return _cachedStats;
+  }
+  _cachedStats = getSRSStats();
+  _lastStatsTime = now;
+  return _cachedStats;
+}
+
+/**
+ * Invalidate the stats cache (call after SRS ratings).
+ */
+function invalidateStatsCache() {
+  _cachedStats = null;
+  _lastStatsTime = 0;
+}
+
+// ── Export ────────────────────────────────────────────────────
+
+window.__srs = {
+  loadSRS: loadSRS,
+  saveSRS: saveSRS,
+  getSRSStatus: getSRSStatus,
+  rateWord: rateSRSWord,
+  getDueReviews: getDueReviews,
+  getNewWords: getNewWords,
+  getStats: getSRSStatsCached,
+  getRetention: getRetentionPercent,
+  estimateRetention: estimateRetention,
+  updateDailyReviewLimit: updateDailyReviewLimit,
+  getDailyReviewLimit: function() { return DAILY_REVIEW_LIMIT; },
+  invalidateStatsCache: invalidateStatsCache,
+};

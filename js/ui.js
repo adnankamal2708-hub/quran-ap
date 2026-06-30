@@ -199,6 +199,7 @@ function createWordNetworkChip(wordObj, type) {
 
 /**
  * Render the root system box for a word.
+ * Root family words are clickable — clicking navigates directly to that word.
  */
 function renderRootBox(w) {
   if (!w) return;
@@ -216,14 +217,19 @@ function renderRootBox(w) {
     d.setAttribute('tabindex', '0');
     d.setAttribute('aria-label', `Show details for ${rf.a} (${rf.e})`);
     d.onclick = function () {
-      var current = window.__getCurrentWord ? window.__getCurrentWord() : null;
-      if (current) showWordContent(current);
+      // Navigate to the root family word if it exists in the vocabulary
+      var target = findWordByArabic(rf.a);
+      if (target) {
+        navigateToWord(target);
+      }
     };
     d.onkeydown = function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        var current = window.__getCurrentWord ? window.__getCurrentWord() : null;
-        if (current) showWordContent(current);
+        var target = findWordByArabic(rf.a);
+        if (target) {
+          navigateToWord(target);
+        }
       }
     };
     fam.appendChild(d);
@@ -310,6 +316,12 @@ function updateStatsDisplay() {
   var due = getDueReviews().length;
   document.getElementById('stat-learned').textContent = learned;
   document.getElementById('stat-review').textContent = due;
+
+  // Also update quiz score in stats if available
+  var quizScore = document.getElementById('stat-score');
+  if (quizScore && window.__quiz) {
+    // Score is updated via quiz module directly
+  }
 }
 
 /**
@@ -403,7 +415,8 @@ function renderWordList() {
  * Render the statistics dashboard.
  */
 function renderStats() {
-  var srsStats = getSRSStats();
+  // Use cached stats if available
+  var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : getSRSStats();
   var srsData = loadSRS();
   var now = Date.now();
 

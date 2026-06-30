@@ -80,6 +80,7 @@
           <button class="btn btn-sm" id="review-start-btn" type="button">Review</button>
         </div>
 
+        <!-- ── Word Card ── -->
         <article class="word-card fade-in" id="word-card" aria-label="Current word">
           <div class="word-num" id="word-num">Word 1 of 20</div>
           <div class="arabic-word" id="arabic-word" lang="ar" dir="rtl">اللَّهُ</div>
@@ -91,6 +92,36 @@
           <div class="occurrence-tag" id="occurrences">✦ Appears 2,699 times</div>
         </article>
 
+        <!-- ── Navigation row — right after word card, always visible ── -->
+        <div class="nav-row" id="nav-row">
+          <button class="btn btn-outline btn-sm" id="btn-prev" type="button">← Prev</button>
+          <button class="btn btn-sm" id="btn-next" type="button">Next →</button>
+        </div>
+
+        <!-- ── SRS Rating ── -->
+        <div class="srs-label" id="srs-label" style="display:none">How well did you know this word?</div>
+        <div class="srs-row" id="srs-row" style="display:none" role="group" aria-label="Rate your recall">
+          <button class="srs-btn again" id="srs-again" type="button">😓<br />Again<br /><span style="font-size:9px">Tomorrow</span></button>
+          <button class="srs-btn hard" id="srs-hard" type="button">😐<br />Hard<br /><span style="font-size:9px">3 days</span></button>
+          <button class="srs-btn good" id="srs-good" type="button">🙂<br />Good<br /><span style="font-size:9px">7 days</span></button>
+          <button class="srs-btn easy" id="srs-easy" type="button">😊<br />Easy<br /><span style="font-size:9px">14 days</span></button>
+        </div>
+
+        <!-- ── Quick Actions ── -->
+        <div class="quick-actions">
+          <button class="qa-btn" type="button" id="qa-show-ayah">📖 Show in ayah</button>
+          <button class="qa-btn" type="button" id="qa-show-more">📚 Show full tafsir</button>
+          <button class="qa-btn" type="button" id="qa-root-family">🌱 Root system</button>
+          <button class="qa-btn" type="button" id="qa-bookmark">⭐ Bookmark</button>
+        </div>
+
+        <!-- ── Notes ── -->
+        <div class="notes-box" id="notes-box" style="display:none">
+          <div class="notes-header">📝 Personal Notes</div>
+          <textarea class="notes-input" id="notes-input" placeholder="Write your notes about this word…" rows="2"></textarea>
+        </div>
+
+        <!-- ── Details sections (below the fold) ── -->
         <section class="root-box" id="root-box" aria-label="Arabic root system">
           <div class="root-box-title">🌱 Root System</div>
           <div class="root-main">
@@ -126,33 +157,6 @@
           </div>
           <button class="qa-btn" type="button" style="margin-top:10px;width:100%;text-align:center" id="tafsir-btn">📚 Load Ibn Kathir Tafsir</button>
         </section>
-
-        <div class="quick-actions">
-          <button class="qa-btn" type="button" id="qa-show-ayah">📖 Show in ayah</button>
-          <button class="qa-btn" type="button" id="qa-show-more">📚 Show full tafsir</button>
-          <button class="qa-btn" type="button" id="qa-root-family">🌱 Root system</button>
-          <!-- Bookmark toggle -->
-          <button class="qa-btn" type="button" id="qa-bookmark">⭐ Bookmark</button>
-        </div>
-
-        <!-- Notes -->
-        <div class="notes-box" id="notes-box" style="display:none">
-          <div class="notes-header">📝 Personal Notes</div>
-          <textarea class="notes-input" id="notes-input" placeholder="Write your notes about this word…" rows="2"></textarea>
-        </div>
-
-        <div class="srs-label" id="srs-label" style="display:none">How well did you know this word?</div>
-        <div class="srs-row" id="srs-row" style="display:none" role="group" aria-label="Rate your recall">
-          <button class="srs-btn again" id="srs-again" type="button">😓<br />Again<br /><span style="font-size:9px">Tomorrow</span></button>
-          <button class="srs-btn hard" id="srs-hard" type="button">😐<br />Hard<br /><span style="font-size:9px">3 days</span></button>
-          <button class="srs-btn good" id="srs-good" type="button">🙂<br />Good<br /><span style="font-size:9px">7 days</span></button>
-          <button class="srs-btn easy" id="srs-easy" type="button">😊<br />Easy<br /><span style="font-size:9px">14 days</span></button>
-        </div>
-
-        <div class="nav-row">
-          <button class="btn btn-outline btn-sm" id="btn-prev" type="button">← Prev</button>
-          <button class="btn btn-sm" id="btn-next" type="button">Next →</button>
-        </div>
       </section>
 
       <!-- ── QUIZ VIEW ── -->

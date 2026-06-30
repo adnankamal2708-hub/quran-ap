@@ -18,16 +18,47 @@ let quizTotal = 0;
 /** @type {boolean} Whether the current question has been answered */
 let quizAnswered = false;
 
+/** @type {boolean} Whether the quiz has finished (prevent re-init) */
+let quizFinished = false;
+
 /**
  * Initialize a new quiz session with shuffled words.
+ * If the quiz is already in progress and hasn't finished, preserve state.
  */
 function initQuiz() {
+  // Preserve quiz state if already in progress and not finished
+  if (quizWords.length > 0 && !quizFinished && quizIndex < quizWords.length) {
+    // If we already have a question displayed, just make sure it's visible
+    var currentWord = quizWords[quizIndex % quizWords.length];
+    if (currentWord) {
+      // Quiz is mid-progress — show current question
+      showQuizQ();
+      return;
+    }
+  }
+
   var lessonWords = getActiveLessonWords();
-  quizWords = [...lessonWords].sort(() => Math.random() - 0.5);
+  if (!lessonWords || lessonWords.length === 0) {
+    quizWords = [];
+    quizIndex = 0;
+    quizCorrect = 0;
+    quizTotal = 0;
+    quizAnswered = false;
+    quizFinished = true;
+    var wordEl = document.getElementById('quiz-word');
+    if (wordEl) wordEl.textContent = '📚';
+    var optionsEl = document.getElementById('quiz-options');
+    if (optionsEl) optionsEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No words available for quiz.</div>';
+    document.getElementById('quiz-score-display').textContent = '';
+    return;
+  }
+
+  quizWords = shuffleArray(lessonWords);
   quizIndex = 0;
   quizCorrect = 0;
   quizTotal = 0;
   quizAnswered = false;
+  quizFinished = false;
   document.getElementById('quiz-score-display').textContent = '';
   showQuizQ();
 }
