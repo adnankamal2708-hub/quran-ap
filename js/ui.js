@@ -320,8 +320,10 @@ function updateGoalRing() {
     ? window.__srs.getDailyReviewLimit()
     : 25;
   var reviewsToday = stats.reviewsToday || 0;
+  // Guard against division by zero (shouldn't happen but be safe)
+  if (dailyLimit <= 0) dailyLimit = 25;
   var pct = Math.min(100, Math.round((reviewsToday / dailyLimit) * 100));
-  var circumference = 100; // stroke-dasharray works on a 0-100 scale
+  var circumference = 100;
   var offset = Math.round((pct / 100) * circumference);
 
   ringFill.setAttribute('stroke-dasharray', offset + ', ' + circumference);
@@ -708,7 +710,13 @@ function renderQuizQuestion(currentWordObj, allWords) {
       }
     });
   }
-  opts.sort(function () { return Math.random() - 0.5; });
+  // Fisher-Yates shuffle for unbiased ordering
+  for (var si = opts.length - 1; si > 0; si--) {
+    var sj = Math.floor(Math.random() * (si + 1));
+    var tmp = opts[si];
+    opts[si] = opts[sj];
+    opts[sj] = tmp;
+  }
 
   optionsEl.innerHTML = '';
   opts.forEach(function (opt) {

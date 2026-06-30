@@ -321,8 +321,8 @@ function setupKeyboardShortcuts() {
       return;
     }
 
-    // Show hints on ? key
-    if (e.key === '?' && !e.shiftKey) {
+    // Show hints on ? key (works with or without Shift)
+    if (e.key === '?') {
       e.preventDefault();
       showKeyboardHints();
       return;
@@ -372,7 +372,7 @@ function setupKeyboardShortcuts() {
         break;
     }
 
-    // Global navigation shortcuts (Shift+key or Ctrl+key)
+    // Global navigation shortcuts (no modifier keys)
     if (!e.ctrlKey && !e.metaKey && !e.altKey) {
       if (e.key === 'l' || e.key === 'L') { e.preventDefault(); switchView('learn'); }
       else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); switchView('quiz'); }

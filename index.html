@@ -20,33 +20,36 @@
 
   <div class="app" role="application" aria-label="Quranic Vocabulary Learning App">
 
-    <!-- TOP BAR -->
+    <!-- TOP BAR (Redesigned: cleaner, less cluttered, better hierarchy) -->
     <header class="top-bar" role="banner">
-      <div class="top-row">
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+      <!-- Row 1: Brand identity + user controls -->
+      <div class="top-primary-row">
+        <div class="top-left-group">
           <div class="bismillah" aria-hidden="true">بِسْمِ اللَّهِ</div>
-          <span class="lesson-label" id="lesson-label">Lesson 1 of 16</span>
-          <span class="offline-badge" id="offline-badge" aria-live="polite">✓ Offline</span>
+          <span class="offline-badge" id="offline-badge" aria-live="polite">✓ Offline ready</span>
           <span class="guest-badge" id="guest-badge" style="display:none">👤 Guest</span>
-          <button class="user-btn" id="user-btn" type="button" title="Sign in" aria-label="Account">
+        </div>
+        <div class="top-right-group">
+          <button class="user-btn" id="user-btn" type="button" title="Account" aria-label="Account">
             <span class="user-avatar-small">👤</span>
           </button>
         </div>
-        <div class="top-stats" role="status" aria-label="Learning statistics">
-          <div class="top-stat">
-            <div class="top-stat-num" id="stat-learned" aria-describedby="stat-learned-label">0</div>
-            <div class="top-stat-label" id="stat-learned-label">Learned</div>
-          </div>
-          <div class="top-stat">
-            <div class="top-stat-num" id="stat-review" aria-describedby="stat-review-label">0</div>
-            <div class="top-stat-label" id="stat-review-label">Review</div>
-          </div>
-          <div class="top-stat">
-            <div class="top-stat-num" id="stat-score" aria-describedby="stat-score-label">—</div>
-            <div class="top-stat-label" id="stat-score-label">Quiz</div>
-          </div>
-          <!-- Daily Goal Progress Ring -->
-          <div class="goal-ring-wrap" id="goal-ring-wrap" title="Daily review goal progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      </div>
+
+      <!-- Row 2: Lesson context + learning stats (compact, inline) -->
+      <div class="top-meta-row">
+        <div class="top-info-group" role="status" aria-label="Learning statistics">
+          <span class="lesson-label" id="lesson-label">Lesson 1 of 16</span>
+          <span class="top-meta-sep" aria-hidden="true">·</span>
+          <span class="top-meta-stat" id="stat-learned">0</span>
+          <span class="top-meta-stat-label">Learned</span>
+          <span class="top-meta-sep" aria-hidden="true">·</span>
+          <span class="top-meta-stat" id="stat-review">0</span>
+          <span class="top-meta-stat-label">Due</span>
+          <span class="top-meta-sep" aria-hidden="true">·</span>
+          <span class="top-meta-stat" id="stat-score">—</span>
+          <span class="top-meta-stat-label">Quiz</span>
+          <div class="goal-ring-wrap" id="goal-ring-wrap" title="Daily review goal" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
             <svg class="goal-ring" viewBox="0 0 36 36">
               <path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
               <path class="goal-ring-fill" id="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="0, 100" />
@@ -55,6 +58,8 @@
           </div>
         </div>
       </div>
+
+      <!-- Row 3: Session progress (thin, secondary) -->
       <div class="progress-row" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Session progress">
         <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
         <span class="progress-label" id="progress-text">Word 1 / 20</span>
@@ -67,15 +72,15 @@
       <!-- ── LEARN VIEW ── -->
       <section class="mode-view active" id="view-learn" aria-label="Learn words">
 
-        <!-- Lesson Progress Bar -->
+        <!-- Lesson Progress Bar (simplified, less redundant) -->
         <div class="lesson-header">
           <div class="lesson-progress-row">
             <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous lesson" aria-label="Previous lesson">◀</button>
             <div class="lesson-progress-info">
-              <div class="lesson-progress-text" id="lesson-progress-text">0 of 16 lessons complete</div>
               <div class="lesson-progress-track">
                 <div class="lesson-progress-fill" id="lesson-progress" style="width:0%"></div>
               </div>
+              <div class="lesson-progress-text" id="lesson-progress-text">3 of 16 lessons</div>
             </div>
             <button class="lesson-nav-btn" id="next-lesson-btn" type="button" title="Next lesson" aria-label="Next lesson">▶</button>
           </div>
@@ -519,7 +524,7 @@
       </section>
 
       <!-- ── SESSION REVIEW SUMMARY MODAL ── -->
-      <div class="modal-overlay" id="session-summary-modal" style="display:none">
+      <div class="modal-overlay" id="session-summary-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="session-summary-title">
         <div class="modal-content session-summary">
           <div class="modal-title" id="session-summary-title">📊 Session Complete</div>
           <div class="session-summary-stats">
@@ -542,9 +547,9 @@
       </div>
 
       <!-- ── PASSWORD CHANGE MODAL ── -->
-      <div class="modal-overlay" id="password-change-modal" style="display:none">
+      <div class="modal-overlay" id="password-change-modal" style="display:none" role="dialog" aria-modal="true" aria-label="Change password">
         <div class="modal-content">
-          <div class="modal-title">🔑 Change Password</div>
+          <div class="modal-title" id="password-change-title">🔑 Change Password</div>
           <form id="password-change-form" autocomplete="on">
             <label class="auth-label" for="password-change-current">Current password</label>
             <input class="auth-input" id="password-change-current" type="password" placeholder="••••••••" autocomplete="current-password" required />
