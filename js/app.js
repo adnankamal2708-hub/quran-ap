@@ -628,6 +628,9 @@ function wireEvents() {
       }
     };
   }
+
+  // Wire occurrence navigation for canonical words
+  wireOccurrenceNav();
 }
 
 function wireFilterChips(filterType) {

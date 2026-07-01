@@ -1,9 +1,6 @@
+const SESSION_SIZE = 20;
 const WORDS_PER_LESSON = 10;
 const ALL_WORDS = [];
-let CANONICAL_WORDS = [];
-let OLD_ID_TO_CANONICAL = {};
-let _canonicalIndex = {};
-let _canonicalIdCounter = 0;
 let _wordIdCounter = 0;
 function assignWordIds() {
 for (var i = 0; i < ALL_WORDS.length; i++) {
@@ -11,6 +8,343 @@ if (!ALL_WORDS[i].id) {
 ALL_WORDS[i].id = 'w_' + (_wordIdCounter++);
 }
 }
+}
+const CANONICAL_WORDS = [];
+const OLD_ID_TO_CANONICAL = {};
+let _canonicalIdCounter = 0;
+function _wordUniquenessKey(w) {
+var coreMeaning = (w.meaning || w.english || '').split('\u2014')[0].trim().toLowerCase();
+return (w.arabic || '') + '|' + (w.root || '') + '|' + (w.typeCategory || '') + '|' + coreMeaning;
+}
+function deduplicateVocabulary() {
+CANONICAL_WORDS.length = 0;
+Object.keys(OLD_ID_TO_CANONICAL).forEach(function(k) { delete OLD_ID_TO_CANONICAL[k]; });
+_canonicalIdCounter = 0;
+if (ALL_WORDS.length === 0) return;
+var groups = {};
+for (var i = 0; i < ALL_WORDS.length; i++) {
+var w = ALL_WORDS[i];
+var key = _wordUniquenessKey(w);
+if (!groups[key]) groups[key] = [];
+groups[key].push(w);
+}
+var keys = Object.keys(groups).sort();
+for (var gi = 0; gi < keys.length; gi++) {
+var group = groups[keys[gi]];
+var base = group[0];
+var occurrences = [];
+var surahIds = [];
+var seenKeys = {};
+for (var wj = 0; wj < group.length; wj++) {
+var gw = group[wj];
+if (gw.surahId && surahIds.indexOf(gw.surahId) < 0) {
+surahIds.push(gw.surahId);
+}
+var occKey = gw.surahId + ':' + (gw.verseKey || '');
+if (!seenKeys[occKey] && (gw.ayahA || gw.ayahT || gw.verseKey)) {
+seenKeys[occKey] = true;
+occurrences.push({
+surahId: gw.surahId || 0,
+verseKey: gw.verseKey || '',
+ayahA: gw.ayahA || '',
+ayahT: gw.ayahT || '',
+ayahR: gw.ayahR || '',
+tafsir: gw.tafsir || ''
+});
+}
+if (gw.id) {
+OLD_ID_TO_CANONICAL[gw.id] = null;
+}
+}
+var totalOcc = 0;
+group.forEach(function(gw) { totalOcc += (gw.occ || 0); });
+totalOcc = Math.max(totalOcc, occurrences.length);
+var canonicalId = 'cw_' + (_canonicalIdCounter++);
+var canonical = {
+id: canonicalId,
+arabic: base.arabic,
+translit: base.translit,
+type: base.type,
+typeCategory: base.typeCategory,
+pattern: base.pattern,
+english: base.english,
+meaning: base.meaning,
+root: base.root,
+rootMeaning: base.rootMeaning,
+rootPattern: base.rootPattern,
+rootFamily: base.rootFamily,
+occ: totalOcc,
+frequency: base.frequency,
+difficulty: base.difficulty,
+tags: base.tags,
+lesson: base.lesson,
+surahIds: surahIds,
+occurrences: occurrences,
+similarWords: base.similarWords,
+oppositeWords: base.oppositeWords,
+relatedWords: base.relatedWords,
+};
+CANONICAL_WORDS.push(canonical);
+group.forEach(function(gw) {
+if (gw.id) {
+OLD_ID_TO_CANONICAL[gw.id] = canonicalId;
+}
+});
+}
+console.log('[canonical] Deduplicated ' + ALL_WORDS.length + ' words into ' + CANONICAL_WORDS.length + ' canonical entries.');
+console.log('[canonical] ' + Object.keys(groups).filter(function(k) { return groups[k].length > 1; }).length + ' groups had duplicates merged.');
+}
+function getCanonicalWordById(canonicalId) {
+if (!CANONICAL_WORDS || CANONICAL_WORDS.length === 0) {
+deduplicateVocabulary();
+}
+for (var ci = 0; ci < CANONICAL_WORDS.length; ci++) {
+if (CANONICAL_WORDS[ci].id === canonicalId) return CANONICAL_WORDS[ci];
+}
+return null;
+}
+function getCanonicalWords() {
+if (!CANONICAL_WORDS || CANONICAL_WORDS.length === 0) {
+deduplicateVocabulary();
+}
+return CANONICAL_WORDS;
+}
+function getCanonicalWordCount() {
+return getCanonicalWords().length;
+}
+function getCanonicalIdForOldId(oldId) {
+if (CANONICAL_WORDS.length === 0) {
+deduplicateVocabulary();
+}
+return OLD_ID_TO_CANONICAL[oldId] || null;
+}
+function getCanonicalIdsForOldIds(oldIds) {
+if (!oldIds || !oldIds.length) return [];
+var result = {};
+for (var i = 0; i < oldIds.length; i++) {
+var cid = getCanonicalIdForOldId(oldIds[i]);
+if (cid) result[cid] = true;
+}
+return Object.keys(result);
+}
+let _orgMode = 'lesson';
+function setOrganizationMode(mode) {
+if (mode === 'surah' || mode === 'lesson') {
+_orgMode = mode;
+}
+}
+function getOrganizationMode() {
+return _orgMode;
+}
+let _activeSurahId = null;
+function setActiveSurahId(surahId) {
+_activeSurahId = surahId;
+}
+function getActiveSurahId() {
+return _activeSurahId;
+}
+function getSurahWords(surahId) {
+if (!surahId) return [];
+var words = getCanonicalWords();
+return words.filter(function (w) {
+return (
+w.surahId === surahId ||
+(w.surahIds && w.surahIds.indexOf(surahId) >= 0)
+);
+});
+}
+function getSurahsWithVocabulary() {
+var surahIds = {};
+var words = CANONICAL_WORDS.length > 0 ? CANONICAL_WORDS : ALL_WORDS;
+for (var si = 0; si < words.length; si++) {
+var w = words[si];
+if (w.surahIds) {
+w.surahIds.forEach(function(sid) { surahIds[sid] = true; });
+} else if (w.surahId) {
+surahIds[w.surahId] = true;
+}
+}
+return Object.keys(surahIds).map(Number).sort(function(a,b) { return a - b; });
+}
+let LESSONS = [];
+function buildLessons() {
+assignWordIds();
+deduplicateVocabulary();
+var wordPool = CANONICAL_WORDS.length > 0 ? CANONICAL_WORDS : ALL_WORDS;
+LESSONS = [];
+var total = wordPool.length;
+if (total === 0) return;
+var lessonNum = 1;
+for (var i = 0; i < total; i += WORDS_PER_LESSON) {
+var end = Math.min(i + WORDS_PER_LESSON, total);
+LESSONS.push({
+id: lessonNum,
+label: 'Lesson ' + lessonNum,
+start: i,
+end: end,
+wordCount: end - i,
+});
+lessonNum++;
+}
+console.log('[lessons] Built ' + LESSONS.length + ' lessons from ' + total + ' canonical words.');
+}
+function getLessonWords(lessonIndex) {
+if (!LESSONS || LESSONS.length === 0) return [];
+if (lessonIndex < 0 || lessonIndex >= LESSONS.length) return [];
+var lesson = LESSONS[lessonIndex];
+var wordPool = CANONICAL_WORDS.length > 0 ? CANONICAL_WORDS : ALL_WORDS;
+return wordPool.slice(lesson.start, lesson.end);
+}
+function getLessonCount() {
+return LESSONS.length;
+}
+const LESSON_PROGRESS_KEY = 'quran_lesson_progress';
+function getDefaultLessonProgress() {
+return {
+currentLesson: 0,
+completedLessons: [],
+quizPassed: {},
+};
+}
+function loadLessonProgress() {
+try {
+var raw = localStorage.getItem(LESSON_PROGRESS_KEY);
+if (!raw) return getDefaultLessonProgress();
+return JSON.parse(raw);
+} catch (e) {
+return getDefaultLessonProgress();
+}
+}
+function saveLessonProgress(data) {
+try {
+localStorage.setItem(LESSON_PROGRESS_KEY, JSON.stringify(data));
+} catch (e) {
+console.warn('Could not save lesson progress:', e.message);
+}
+}
+function isLessonCompleted(lessonIndex) {
+var progress = loadLessonProgress();
+return progress.completedLessons.indexOf(lessonIndex) >= 0;
+}
+function isLessonUnlocked(lessonIndex) {
+if (lessonIndex === 0) return true;
+return isLessonCompleted(lessonIndex - 1);
+}
+function getNextIncompleteLesson() {
+var total = getLessonCount();
+for (var i = 0; i < total; i++) {
+if (!isLessonCompleted(i)) return i;
+}
+return 0;
+}
+function completeLesson(lessonIndex) {
+var progress = loadLessonProgress();
+if (progress.completedLessons.indexOf(lessonIndex) < 0) {
+progress.completedLessons.push(lessonIndex);
+}
+progress.quizPassed[String(lessonIndex)] = true;
+var next = getNextIncompleteLesson();
+progress.currentLesson = next;
+saveLessonProgress(progress);
+var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+if (user && window.__sync && window.__sync.queueSync) {
+window.__sync.queueSync(user.uid);
+}
+}
+function getCurrentLessonIndex() {
+var progress = loadLessonProgress();
+return progress.currentLesson;
+}
+function setCurrentLesson(lessonIndex) {
+var total = getLessonCount();
+if (lessonIndex < 0 || lessonIndex >= total) return;
+var progress = loadLessonProgress();
+progress.currentLesson = lessonIndex;
+saveLessonProgress(progress);
+}
+function getCompletedLessonCount() {
+var progress = loadLessonProgress();
+return progress.completedLessons.length;
+}
+function exportLessonProgress() {
+return loadLessonProgress();
+}
+function importLessonProgress(data) {
+if (!data || typeof data !== 'object') return;
+var current = loadLessonProgress();
+if (data.completedLessons && data.completedLessons.length > current.completedLessons.length) {
+current.completedLessons = data.completedLessons;
+}
+if (data.quizPassed) {
+Object.keys(data.quizPassed).forEach(function (k) {
+if (data.quizPassed[k]) current.quizPassed[k] = true;
+});
+}
+if (data.currentLesson !== undefined && data.currentLesson < current.currentLesson) {
+current.currentLesson = data.currentLesson;
+} else if (data.currentLesson !== undefined && !current.currentLesson) {
+current.currentLesson = data.currentLesson;
+}
+saveLessonProgress(current);
+}
+const SURAH_PROGRESS_KEY = 'quran_surah_progress';
+function getDefaultSurahProgress() {
+return {
+completedSurahs: [],
+quizPassed: {},
+};
+}
+function loadSurahProgress() {
+try {
+var raw = localStorage.getItem(SURAH_PROGRESS_KEY);
+if (!raw) return getDefaultSurahProgress();
+return JSON.parse(raw);
+} catch (e) {
+return getDefaultSurahProgress();
+}
+}
+function saveSurahProgress(data) {
+try {
+localStorage.setItem(SURAH_PROGRESS_KEY, JSON.stringify(data));
+} catch (e) {
+console.warn('Could not save surah progress:', e.message);
+}
+}
+function isSurahCompleted(surahId) {
+var progress = loadSurahProgress();
+return progress.completedSurahs.indexOf(surahId) >= 0;
+}
+function completeSurah(surahId) {
+var progress = loadSurahProgress();
+if (progress.completedSurahs.indexOf(surahId) < 0) {
+progress.completedSurahs.push(surahId);
+}
+progress.quizPassed[String(surahId)] = true;
+saveSurahProgress(progress);
+var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+if (user && window.__sync && window.__sync.queueSync) {
+window.__sync.queueSync(user.uid);
+}
+}
+function getCompletedSurahCount() {
+var progress = loadSurahProgress();
+return progress.completedSurahs.length;
+}
+function exportSurahProgress() {
+return loadSurahProgress();
+}
+function importSurahProgress(data) {
+if (!data || typeof data !== 'object') return;
+var current = loadSurahProgress();
+if (data.completedSurahs && data.completedSurahs.length > current.completedSurahs.length) {
+current.completedSurahs = data.completedSurahs;
+}
+if (data.quizPassed) {
+Object.keys(data.quizPassed).forEach(function (k) {
+if (data.quizPassed[k]) current.quizPassed[k] = true;
+});
+}
+saveSurahProgress(current);
 }
 const SURAH_INFO = {
 1:  { id: 1,  name: 'الفاتحة',           nameSimple: 'Al-Fatiha',          english: 'The Opening',              verses: 7,   revelation: 'Meccan',  juz: '1',      meaning: 'The Opening' },

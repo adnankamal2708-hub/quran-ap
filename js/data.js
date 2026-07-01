@@ -70,6 +70,208 @@ function assignWordIds() {
 
 /** findWordById is defined in vocabulary.js (O(1) via cached index) */
 
+// ═══════════════════════════════════════════════════════════════
+// CANONICAL VOCABULARY — Deduplication System
+//
+// Groups identical Arabic words (same spelling, root, type, and
+// core meaning) into single canonical entries with occurrence arrays
+// preserving every verse context where the word appears.
+//
+// CANONICAL_WORDS — array of canonical vocabulary entries
+// OLD_ID_TO_CANONICAL — maps old w_N IDs to new cw_N canonical IDs
+// ═══════════════════════════════════════════════════════════════
+
+/** Canonical word list — populated by deduplicateVocabulary() */
+const CANONICAL_WORDS = [];
+
+/** Maps old word IDs (w_N) to canonical word IDs (cw_N) */
+const OLD_ID_TO_CANONICAL = {};
+
+/** Internal counter for canonical word IDs */
+let _canonicalIdCounter = 0;
+
+/**
+ * Build a uniqueness key for deduplication: arabic + root + typeCategory + core meaning
+ * This ensures words are only merged when they genuinely share the same form and sense.
+ */
+function _wordUniquenessKey(w) {
+  var coreMeaning = (w.meaning || w.english || '').split('\u2014')[0].trim().toLowerCase();
+  return (w.arabic || '') + '|' + (w.root || '') + '|' + (w.typeCategory || '') + '|' + coreMeaning;
+}
+
+/**
+ * Deduplicate ALL_WORDS into CANONICAL_WORDS by grouping
+ * entries that share the same arabic + root + type + core meaning.
+ *
+ * Each canonical entry stores:
+ *   - The base fields (arabic, translit, english, meaning, root, etc.)
+ *   - occurrences: Array of { surahId, verseKey, ayahA, ayahT, ayahR, tafsir }
+ *   - surahIds: Array of surah numbers where this word appears
+ *   - occ: Total Quranic occurrence count (sum of all occurrences)
+ *   - id: Canonical ID in format "cw_N"
+ *
+ * Also builds OLD_ID_TO_CANONICAL mapping for SRS migration.
+ */
+function deduplicateVocabulary() {
+  // Clear existing
+  CANONICAL_WORDS.length = 0;
+  Object.keys(OLD_ID_TO_CANONICAL).forEach(function(k) { delete OLD_ID_TO_CANONICAL[k]; });
+  _canonicalIdCounter = 0;
+  
+  if (ALL_WORDS.length === 0) return;
+  
+  // Group by uniqueness key
+  var groups = {};
+  
+  for (var i = 0; i < ALL_WORDS.length; i++) {
+    var w = ALL_WORDS[i];
+    var key = _wordUniquenessKey(w);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(w);
+  }
+  
+  // Build canonical entries from groups
+  var keys = Object.keys(groups).sort();
+  
+  for (var gi = 0; gi < keys.length; gi++) {
+    var group = groups[keys[gi]];
+    var base = group[0];
+    var occurrences = [];
+    var surahIds = [];
+    var seenKeys = {};
+    
+    for (var wj = 0; wj < group.length; wj++) {
+      var gw = group[wj];
+      
+      // Track surah IDs
+      if (gw.surahId && surahIds.indexOf(gw.surahId) < 0) {
+        surahIds.push(gw.surahId);
+      }
+      
+      // Build occurrence entry (deduplicate by verseKey)
+      var occKey = gw.surahId + ':' + (gw.verseKey || '');
+      if (!seenKeys[occKey] && (gw.ayahA || gw.ayahT || gw.verseKey)) {
+        seenKeys[occKey] = true;
+        occurrences.push({
+          surahId: gw.surahId || 0,
+          verseKey: gw.verseKey || '',
+          ayahA: gw.ayahA || '',
+          ayahT: gw.ayahT || '',
+          ayahR: gw.ayahR || '',
+          tafsir: gw.tafsir || ''
+        });
+      }
+      
+      // Map old ID to canonical ID
+      if (gw.id) {
+        OLD_ID_TO_CANONICAL[gw.id] = null; // Will set after we know the canonical ID
+      }
+    }
+    
+    // Compute total occurrence count
+    var totalOcc = 0;
+    group.forEach(function(gw) { totalOcc += (gw.occ || 0); });
+    // Clamp to at least the number of distinct occurrences we have
+    totalOcc = Math.max(totalOcc, occurrences.length);
+    
+    // Create canonical ID
+    var canonicalId = 'cw_' + (_canonicalIdCounter++);
+    
+    // Create canonical entry
+    var canonical = {
+      id: canonicalId,
+      arabic: base.arabic,
+      translit: base.translit,
+      type: base.type,
+      typeCategory: base.typeCategory,
+      pattern: base.pattern,
+      english: base.english,
+      meaning: base.meaning,
+      root: base.root,
+      rootMeaning: base.rootMeaning,
+      rootPattern: base.rootPattern,
+      rootFamily: base.rootFamily,
+      occ: totalOcc,
+      frequency: base.frequency,
+      difficulty: base.difficulty,
+      tags: base.tags,
+      lesson: base.lesson,
+      surahIds: surahIds,
+      occurrences: occurrences,
+      similarWords: base.similarWords,
+      oppositeWords: base.oppositeWords,
+      relatedWords: base.relatedWords,
+    };
+    
+    CANONICAL_WORDS.push(canonical);
+    
+    // Update OLD_ID_TO_CANONICAL for all words in this group
+    group.forEach(function(gw) {
+      if (gw.id) {
+        OLD_ID_TO_CANONICAL[gw.id] = canonicalId;
+      }
+    });
+  }
+  
+  console.log('[canonical] Deduplicated ' + ALL_WORDS.length + ' words into ' + CANONICAL_WORDS.length + ' canonical entries.');
+  console.log('[canonical] ' + Object.keys(groups).filter(function(k) { return groups[k].length > 1; }).length + ' groups had duplicates merged.');
+}
+
+/**
+ * Get a canonical word by its canonical ID (cw_N).
+ */
+function getCanonicalWordById(canonicalId) {
+  if (!CANONICAL_WORDS || CANONICAL_WORDS.length === 0) {
+    deduplicateVocabulary();
+  }
+  for (var ci = 0; ci < CANONICAL_WORDS.length; ci++) {
+    if (CANONICAL_WORDS[ci].id === canonicalId) return CANONICAL_WORDS[ci];
+  }
+  return null;
+}
+
+/**
+ * Get all canonical words.
+ */
+function getCanonicalWords() {
+  if (!CANONICAL_WORDS || CANONICAL_WORDS.length === 0) {
+    deduplicateVocabulary();
+  }
+  return CANONICAL_WORDS;
+}
+
+/**
+ * Get the count of canonical vocabulary entries.
+ */
+function getCanonicalWordCount() {
+  return getCanonicalWords().length;
+}
+
+/**
+ * Map an old word ID (w_N) to its canonical ID (cw_N).
+ * Returns the canonical ID or null if not found.
+ */
+function getCanonicalIdForOldId(oldId) {
+  if (CANONICAL_WORDS.length === 0) {
+    deduplicateVocabulary();
+  }
+  return OLD_ID_TO_CANONICAL[oldId] || null;
+}
+
+/**
+ * Map an array of old word IDs to their canonical IDs.
+ * Returns a deduplicated array of canonical IDs.
+ */
+function getCanonicalIdsForOldIds(oldIds) {
+  if (!oldIds || !oldIds.length) return [];
+  var result = {};
+  for (var i = 0; i < oldIds.length; i++) {
+    var cid = getCanonicalIdForOldId(oldIds[i]);
+    if (cid) result[cid] = true;
+  }
+  return Object.keys(result);
+}
+
 // ── Surah-based Organization ────────────────────────────────────
 // Words can be organized by Surah (surahId) or by sequential lessons.
 // The system supports both modes: users can study by Surah or by
@@ -114,11 +316,37 @@ function getActiveSurahId() {
 // ── Surah-based Word Functions ──────────────────────────────────
 
 /**
- * Get all words belonging to a specific Surah.
+ * Get all canonical words belonging to a specific Surah.
+ * Searches both the old surahId field (for backward compat) and
+ * the surahIds array on canonical entries.
  */
 function getSurahWords(surahId) {
   if (!surahId) return [];
-  return ALL_WORDS.filter(function (w) { return w.surahId === surahId; });
+  var words = getCanonicalWords();
+  return words.filter(function (w) {
+    return (
+      w.surahId === surahId ||
+      (w.surahIds && w.surahIds.indexOf(surahId) >= 0)
+    );
+  });
+}
+
+/**
+ * Get an array of surah IDs that have vocabulary entries.
+ */
+function getSurahsWithVocabulary() {
+  var surahIds = {};
+  // Check canonical words first
+  var words = CANONICAL_WORDS.length > 0 ? CANONICAL_WORDS : ALL_WORDS;
+  for (var si = 0; si < words.length; si++) {
+    var w = words[si];
+    if (w.surahIds) {
+      w.surahIds.forEach(function(sid) { surahIds[sid] = true; });
+    } else if (w.surahId) {
+      surahIds[w.surahId] = true;
+    }
+  }
+  return Object.keys(surahIds).map(Number).sort(function(a,b) { return a - b; });
 }
 
 // ── Lesson System ───────────────────────────────────────────────
@@ -129,15 +357,21 @@ function getSurahWords(surahId) {
 let LESSONS = [];
 
 /**
- * Build the LESSONS array from ALL_WORDS.
+ * Build the LESSONS array from ALL_WORDS (or CANONICAL_WORDS if available).
  * Call this once after all word files have been loaded.
  */
 function buildLessons() {
   // Ensure all words have IDs before building lessons
   assignWordIds();
   
+  // Build canonical vocabulary (deduplicate)
+  deduplicateVocabulary();
+  
+  // Use canonical words for lessons if available, otherwise raw ALL_WORDS
+  var wordPool = CANONICAL_WORDS.length > 0 ? CANONICAL_WORDS : ALL_WORDS;
+  
   LESSONS = [];
-  var total = ALL_WORDS.length;
+  var total = wordPool.length;
   if (total === 0) return;
   var lessonNum = 1;
   for (var i = 0; i < total; i += WORDS_PER_LESSON) {
@@ -151,16 +385,20 @@ function buildLessons() {
     });
     lessonNum++;
   }
+  
+  console.log('[lessons] Built ' + LESSONS.length + ' lessons from ' + total + ' canonical words.');
 }
 
 /**
  * Get the words for a specific lesson index (0-based).
+ * Returns canonical words.
  */
 function getLessonWords(lessonIndex) {
   if (!LESSONS || LESSONS.length === 0) return [];
   if (lessonIndex < 0 || lessonIndex >= LESSONS.length) return [];
   var lesson = LESSONS[lessonIndex];
-  return ALL_WORDS.slice(lesson.start, lesson.end);
+  var wordPool = CANONICAL_WORDS.length > 0 ? CANONICAL_WORDS : ALL_WORDS;
+  return wordPool.slice(lesson.start, lesson.end);
 }
 
 /**

@@ -1136,9 +1136,7 @@ canonicalKey = (typeof getCanonicalIdForOldId === 'function')
 }
 }
 if (!canonicalKey) {
-needsSave = true;
-console.warn('[srs] Dropping SRS entry for unknown word:', key);
-return;
+canonicalKey = key;
 }
 if (!tempEntries[canonicalKey]) {
 tempEntries[canonicalKey] = [];
@@ -1938,7 +1936,9 @@ function updateStatsDisplay() {
 var data = loadSRS();
 var totalWords = DOM.get('stat-total');
 if (totalWords) {
-totalWords.textContent = ALL_WORDS.length;
+var count = (typeof getCanonicalWordCount === 'function' && getCanonicalWordCount() > 0)
+? getCanonicalWordCount() : ALL_WORDS.length;
+totalWords.textContent = count;
 }
 var learned = 0;
 var lessonWords = typeof getActiveLessonWords === 'function' ? getActiveLessonWords() : ALL_WORDS.slice(0, 20);
@@ -2295,7 +2295,21 @@ window.__navigateToWordIndex(idx);
 return;
 }
 var globalIdx = ALL_WORDS.indexOf(w);
-if (globalIdx < 0) return;
+if (globalIdx < 0) {
+var canonicalWords = typeof getCanonicalWords === 'function' ? getCanonicalWords() : [];
+var canonicalIdx = canonicalWords.indexOf(w);
+if (canonicalIdx >= 0) {
+if (typeof goToLesson === 'function') {
+var wordLesson = Math.floor(canonicalIdx / WORDS_PER_LESSON);
+var wordInLesson = canonicalIdx % WORDS_PER_LESSON;
+if (wordLesson >= 0) {
+goToLesson(wordLesson, wordInLesson);
+}
+}
+return;
+}
+return;
+}
 if (w.surahId && typeof goToSurah === 'function') {
 var surahWords = getSurahWords(w.surahId);
 var surahIdx = surahWords.indexOf(w);
@@ -2311,6 +2325,11 @@ if (wordLesson >= 0) {
 goToLesson(wordLesson, wordInLesson);
 }
 }
+}
+function showWordContent(w) {
+if (!w) return;
+showAyah(w);
+loadTafsir(w);
 }
 let quizWords = [];
 let quizIndex = 0;
@@ -3717,6 +3736,7 @@ goToLessonMode();
 }
 };
 }
+wireOccurrenceNav();
 }
 function wireFilterChips(filterType) {
 var selector = '#filter-' + filterType + '-chips';

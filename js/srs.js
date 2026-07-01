@@ -145,10 +145,9 @@ function loadSRS() {
       }
       
       if (!canonicalKey) {
-        // Word not found in current vocabulary — drop the entry
-        needsSave = true;
-        console.warn('[srs] Dropping SRS entry for unknown word:', key);
-        return;
+        // Word not found in current vocabulary — keep the old key as fallback
+        // to preserve user progress until the word data is available
+        canonicalKey = key;
       }
       
       // Group entries by canonical key for merging

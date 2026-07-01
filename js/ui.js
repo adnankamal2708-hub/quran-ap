@@ -478,7 +478,10 @@ function updateStatsDisplay() {
   var data = loadSRS();
   var totalWords = DOM.get('stat-total');
   if (totalWords) {
-    totalWords.textContent = ALL_WORDS.length;
+    // Use canonical word count if available, otherwise fall back to ALL_WORDS length
+    var count = (typeof getCanonicalWordCount === 'function' && getCanonicalWordCount() > 0)
+      ? getCanonicalWordCount() : ALL_WORDS.length;
+    totalWords.textContent = count;
   }
   var learned = 0;
   var lessonWords = typeof getActiveLessonWords === 'function' ? getActiveLessonWords() : ALL_WORDS.slice(0, 20);
@@ -924,9 +927,26 @@ function navigateToWord(w) {
     return;
   }
   
-  // Word not in current lesson/surah — find where it belongs
+  // Word not in current lesson/surah — check if it's a canonical word
+  // and find it in CANONICAL_WORDS for lesson-based navigation
   var globalIdx = ALL_WORDS.indexOf(w);
-  if (globalIdx < 0) return;
+  if (globalIdx < 0) {
+    // Try canonical words (for navigateToWord called on a canonical word object)
+    var canonicalWords = typeof getCanonicalWords === 'function' ? getCanonicalWords() : [];
+    var canonicalIdx = canonicalWords.indexOf(w);
+    if (canonicalIdx >= 0) {
+      // Navigate via lesson
+      if (typeof goToLesson === 'function') {
+        var wordLesson = Math.floor(canonicalIdx / WORDS_PER_LESSON);
+        var wordInLesson = canonicalIdx % WORDS_PER_LESSON;
+        if (wordLesson >= 0) {
+          goToLesson(wordLesson, wordInLesson);
+        }
+      }
+      return;
+    }
+    return; // Word not found anywhere
+  }
   
   // If word belongs to a surah and we have goToSurah, navigate by surah
   if (w.surahId && typeof goToSurah === 'function') {
@@ -946,4 +966,14 @@ function navigateToWord(w) {
       goToLesson(wordLesson, wordInLesson);
     }
   }
+}
+
+/**
+ * Show word content (ayah + tafsir) for the current word.
+ * This is a safe wrapper that also handles canonical words with multiple occurrences.
+ */
+function showWordContent(w) {
+  if (!w) return;
+  showAyah(w);
+  loadTafsir(w);
 }
