@@ -79,8 +79,11 @@ const STAGE1_EASY =   [2,     4,     8];       // 2d, 4d, 8d
 // ── Storage ────────────────────────────────────────────────────
 
 /**
- * Load SRS data with automatic migration from legacy format
- * AND from arabic-based keys to id-based keys.
+ * Load SRS data with automatic migration:
+ * 1. Legacy format → modern format
+ * 2. Arabic-based keys → id-based keys (w_N)
+ * 3. Old IDs (w_N) → canonical IDs (cw_N) after deduplication
+ * 4. Merge duplicate entries that map to the same canonical ID
  */
 function loadSRS() {
   try {
@@ -95,31 +98,24 @@ function loadSRS() {
     var needsSave = false;
     var migrated = {};
     
-    // Check if we need key migration (arabic→id)
-    var needsKeyMigration = false;
-    Object.keys(parsed).forEach(function (key) {
-      if (key.indexOf('w_') !== 0 && key !== '_leechRecovery') {
-        needsKeyMigration = true;
-      }
-    });
-    
     // Build arabic→firstId lookup for migration
     var arabicToFirstId = {};
-    if (needsKeyMigration) {
-      for (var mi = 0; mi < ALL_WORDS.length; mi++) {
-        var mw = ALL_WORDS[mi];
-        if (!arabicToFirstId[mw.arabic]) {
-          arabicToFirstId[mw.arabic] = mw.id;
-        }
+    for (var mi = 0; mi < ALL_WORDS.length; mi++) {
+      var mw = ALL_WORDS[mi];
+      if (!arabicToFirstId[mw.arabic]) {
+        arabicToFirstId[mw.arabic] = mw.id;
       }
     }
+    
+    // First pass: migrate all keys to canonical IDs
+    var tempEntries = {}; // canonicalId → { entries: [], counts: {...} }
     
     Object.keys(parsed).forEach(function (key) {
       var entry = parsed[key];
       
-      // Skip special keys
+      // Skip special keys (handle _leechRecovery separately)
       if (key === '_leechRecovery') {
-        migrated[key] = entry;
+        // Will handle this after main entry migration
         return;
       }
       
@@ -129,25 +125,58 @@ function loadSRS() {
         needsSave = true;
       }
       
-      // Migrate arabic-based key to id-based key
-      if (key.indexOf('w_') !== 0) {
-        var newKey = arabicToFirstId[key];
-        if (newKey) {
-          migrated[newKey] = entry;
-          needsSave = true;
-        } else {
-          // Word not found in current vocabulary — drop the entry
-          needsSave = true;
-          console.warn('[srs] Dropping SRS entry for unknown word:', key);
-        }
+      // Determine the canonical key for this entry
+      var canonicalKey = null;
+      
+      if (key.indexOf('cw_') === 0) {
+        // Already a canonical key
+        canonicalKey = key;
+      } else if (key.indexOf('w_') === 0) {
+        // Old ID-based key — map to canonical
+        canonicalKey = (typeof getCanonicalIdForOldId === 'function') 
+          ? getCanonicalIdForOldId(key) : null;
       } else {
-        migrated[key] = entry;
+        // Arabic-based key — convert to old ID first, then to canonical
+        var oldId = arabicToFirstId[key];
+        if (oldId) {
+          canonicalKey = (typeof getCanonicalIdForOldId === 'function')
+            ? getCanonicalIdForOldId(oldId) : null;
+        }
+      }
+      
+      if (!canonicalKey) {
+        // Word not found in current vocabulary — drop the entry
+        needsSave = true;
+        console.warn('[srs] Dropping SRS entry for unknown word:', key);
+        return;
+      }
+      
+      // Group entries by canonical key for merging
+      if (!tempEntries[canonicalKey]) {
+        tempEntries[canonicalKey] = [];
+      }
+      tempEntries[canonicalKey].push(entry);
+    });
+    
+    // Second pass: merge entries for each canonical ID
+    Object.keys(tempEntries).forEach(function (cid) {
+      var entries = tempEntries[cid];
+      if (entries.length === 1) {
+        migrated[cid] = entries[0];
+      } else {
+        // Merge multiple entries - take highest stage, best stats
+        migrated[cid] = mergeSRSEntries(entries);
+        needsSave = true;
+        console.log('[srs] Merged ' + entries.length + ' SRS entries into canonical ID: ' + cid);
       }
     });
     
-    // Also migrate _leechRecovery sub-keys if they use arabic
-    if (migrated._leechRecovery) {
-      needsSave = migrateLeechRecoveryKeys(migrated) || needsSave;
+    // Handle _leechRecovery migration
+    if (parsed._leechRecovery) {
+      migrated._leechRecovery = migrateLeechRecoveryToCanonical(parsed._leechRecovery);
+      if (JSON.stringify(migrated._leechRecovery) !== JSON.stringify(parsed._leechRecovery)) {
+        needsSave = true;
+      }
     }
     
     if (needsSave) saveSRS(migrated);
@@ -156,6 +185,87 @@ function loadSRS() {
     console.warn('Could not load SRS data:', e.message);
     return {};
   }
+}
+
+/**
+ * Merge multiple SRS entries for the same canonical word.
+ * Takes the highest stage, most recent review, best ease factor,
+ * and accumulates review counts.
+ */
+function mergeSRSEntries(entries) {
+  var best = {
+    stage: 0,
+    dueDate: 0,
+    interval: 0,
+    lastRating: 2,
+    ratedAt: 0,
+    reps: 0,
+    totalReviews: 0,
+    lapses: 0,
+    easeFactor: DEFAULT_EASE,
+    leechCount: 0,
+    isLeech: false,
+  };
+  
+  for (var i = 0; i < entries.length; i++) {
+    var e = entries[i];
+    // Take highest stage
+    if (e.stage > best.stage) {
+      best.stage = e.stage;
+      best.dueDate = e.dueDate;
+      best.interval = e.interval;
+      best.lastRating = e.lastRating;
+      best.ratedAt = e.ratedAt;
+    } else if (e.stage === best.stage && e.ratedAt > best.ratedAt) {
+      // Same stage, take most recent review
+      best.dueDate = e.dueDate;
+      best.interval = e.interval;
+      best.lastRating = e.lastRating;
+      best.ratedAt = e.ratedAt;
+    }
+    // Accumulate review counts
+    best.reps += e.reps || 0;
+    best.totalReviews += e.totalReviews || 0;
+    best.lapses += e.lapses || 0;
+    // Take best ease factor (highest, but cap at MAX_EASE)
+    if (e.easeFactor && e.easeFactor > best.easeFactor && e.easeFactor <= MAX_EASE) {
+      best.easeFactor = e.easeFactor;
+    }
+    // Leech: if any entry is leeched, canonical is leeched
+    if (e.isLeech) {
+      best.isLeech = true;
+    }
+    best.leechCount += (e.leechCount || 0);
+  }
+  
+  return best;
+}
+
+/**
+ * Migrate _leechRecovery keys from old IDs to canonical IDs.
+ */
+function migrateLeechRecoveryToCanonical(recovery) {
+  if (!recovery || typeof recovery !== 'object') return recovery || {};
+  var result = {};
+  Object.keys(recovery).forEach(function (key) {
+    var value = recovery[key];
+    // Extract the word ID from the key (format: "leech_<id>")
+    var idPart = key.replace(/^leech_/, '');
+    var canonicalId = null;
+    
+    if (idPart.indexOf('cw_') === 0) {
+      canonicalId = idPart;
+    } else if (typeof getCanonicalIdForOldId === 'function') {
+      canonicalId = getCanonicalIdForOldId(idPart);
+    }
+    
+    if (canonicalId) {
+      // If multiple old IDs map to same canonical, sum their recovery counts
+      var newKey = 'leech_' + canonicalId;
+      result[newKey] = (result[newKey] || 0) + value;
+    }
+  });
+  return result;
 }
 
 /**

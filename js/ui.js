@@ -56,24 +56,45 @@ function setView(viewName) {
   if (content) content.scrollTop = 0;
 }
 
+/** Track current occurrence index when viewing a canonical word */
+let _currentOccurrenceIdx = 0;
+
 /**
  * Render the word card for a given word at the given position.
+ * Supports canonical words with multiple occurrences.
  */
 function renderWordCard(w, currentIndex, total, isReview) {
   if (!w) return;
+  
+  // Reset occurrence index on word change
+  _currentOccurrenceIdx = 0;
 
   DOM.get('word-num').textContent = (isReview ? 'Review' : 'Word') + ' ' + (currentIndex + 1) + ' of ' + total;
   DOM.get('arabic-word').textContent = w.arabic;
   DOM.get('transliteration').textContent = w.translit;
   DOM.get('word-type').textContent = w.type;
 
-  // Surah reference badge
+  // Determine which occurrence to display (for canonical words, use current occurrence)
+  var occ = null;
+  var occCount = 0;
+  if (w.occurrences && w.occurrences.length > 0) {
+    occCount = w.occurrences.length;
+    occ = w.occurrences[_currentOccurrenceIdx % w.occurrences.length];
+  }
+
+  // Surah/occurrence badge
   var surahBadge = DOM.get('surah-badge');
   if (surahBadge) {
-    if (w.surahId && SURAH_INFO) {
-      var si = SURAH_INFO[w.surahId];
-      var verseRef = w.verseKey ? w.surahId + ':' + w.verseKey.split(':')[1] : '';
-      surahBadge.textContent = '📖 ' + (si ? si.name : 'Surah ' + w.surahId) + (verseRef ? ' · Verse ' + verseRef : '');
+    if (occ && occ.surahId && SURAH_INFO) {
+      var si = SURAH_INFO[occ.surahId];
+      var verseRef = occ.verseKey ? occ.verseKey.split(':')[1] : '';
+      var occLabel = occCount > 1 ? ' (' + (_currentOccurrenceIdx + 1) + '/' + occCount + ')' : '';
+      surahBadge.textContent = '📖 ' + (si ? si.name : 'Surah ' + occ.surahId) + (verseRef ? ' · Verse ' + verseRef : '') + occLabel;
+      surahBadge.style.display = 'block';
+    } else if (w.surahIds && w.surahIds.length > 0 && SURAH_INFO) {
+      // Fallback: show first surah this word appears in
+      var firstSurah = SURAH_INFO[w.surahIds[0]];
+      surahBadge.textContent = '📖 ' + (firstSurah ? firstSurah.name : 'Surah ' + w.surahIds[0]);
       surahBadge.style.display = 'block';
     } else {
       surahBadge.style.display = 'none';
@@ -92,7 +113,8 @@ function renderWordCard(w, currentIndex, total, isReview) {
   }
 
   DOM.get('meaning').textContent = w.meaning;
-  DOM.get('occurrences').textContent = '\u2726 Appears ' + w.occ.toLocaleString() + ' times';
+  var occLabel = occCount > 1 ? ' (' + occCount + ' contexts)' : '';
+  DOM.get('occurrences').textContent = '\u2726 Appears ' + w.occ.toLocaleString() + ' times' + occLabel;
 
   DOM.get('progress-fill').style.width = Math.round(((currentIndex + 1) / total) * 100) + '%';
   DOM.get('progress-text').textContent = (currentIndex + 1) + ' / ' + total;
@@ -105,7 +127,7 @@ function renderWordCard(w, currentIndex, total, isReview) {
     nextBtn.textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Done \u2713' : 'Quiz \u270F\uFE0F';
   }
 
-  // SRS pill
+  // SRS pill (uses canonical word ID)
   renderSRSStatusPill(w.id);
 
   // Root box
@@ -113,6 +135,9 @@ function renderWordCard(w, currentIndex, total, isReview) {
 
   // Word network
   renderWordNetwork(w);
+
+  // Store occurrence data for showAyah/showWordContent
+  window.__currentOccurrence = occ;
 
   // Hide ayah & tafsir on navigation
   var ayahBox = DOM.get('ayah-box');
@@ -136,13 +161,63 @@ function renderWordCard(w, currentIndex, total, isReview) {
   if (notesBox) notesBox.style.display = 'block';
   if (notesInput) notesInput.value = getNote(w.id);
 
+  // Show occurrence navigation for words with multiple contexts
+  var occNav = DOM.get('occ-nav');
+  if (occNav) {
+    if (occCount > 1) {
+      occNav.style.display = 'flex';
+      var occPrevBtn = DOM.get('occ-prev');
+      var occNextBtn = DOM.get('occ-next');
+      var occLabel = DOM.get('occ-label');
+      if (occLabel) occLabel.textContent = (_currentOccurrenceIdx + 1) + '/' + occCount;
+      if (occPrevBtn) occPrevBtn.disabled = _currentOccurrenceIdx === 0;
+      if (occNextBtn) occNextBtn.disabled = _currentOccurrenceIdx >= occCount - 1;
+    } else {
+      occNav.style.display = 'none';
+    }
+  }
+
   // Animate card with faster, smoother transition
   var card = DOM.get('word-card');
   if (card) {
     card.classList.remove('fade-in');
-    void card.offsetHeight; // force reflow for animation restart
+    void card.offsetHeight;
     card.classList.add('fade-in');
   }
+}
+
+/**
+ * Navigate to the next occurrence of the current canonical word.
+ */
+function nextOccurrence() {
+  var w = typeof getCurrentWord === 'function' ? getCurrentWord() : null;
+  if (!w || !w.occurrences) return;
+  if (_currentOccurrenceIdx < w.occurrences.length - 1) {
+    _currentOccurrenceIdx++;
+    updateWordCard();
+  }
+}
+
+/**
+ * Navigate to the previous occurrence of the current canonical word.
+ */
+function prevOccurrence() {
+  var w = typeof getCurrentWord === 'function' ? getCurrentWord() : null;
+  if (!w || !w.occurrences) return;
+  if (_currentOccurrenceIdx > 0) {
+    _currentOccurrenceIdx--;
+    updateWordCard();
+  }
+}
+
+/**
+ * Wire occurrence navigation events.
+ */
+function wireOccurrenceNav() {
+  var prevBtn = DOM.get('occ-prev');
+  var nextBtn = DOM.get('occ-next');
+  if (prevBtn) prevBtn.onclick = prevOccurrence;
+  if (nextBtn) nextBtn.onclick = nextOccurrence;
 }
 
 /**
@@ -288,35 +363,51 @@ function renderRootBox(w) {
 
 /**
  * Show the ayah (verse) context for the current word.
+ * Uses the current occurrence if the word has multiple contexts.
  */
 function showAyah(w) {
   if (!w) return;
-  document.getElementById('ayah-arabic').innerHTML = w.ayahA;
-  document.getElementById('ayah-translation').innerHTML = w.ayahT;
-  document.getElementById('ayah-ref').textContent = w.ayahR;
+  // Use the current occurrence from the word card
+  var occ = window.__currentOccurrence || null;
+  if (occ && occ.ayahA) {
+    document.getElementById('ayah-arabic').innerHTML = occ.ayahA;
+    document.getElementById('ayah-translation').innerHTML = occ.ayahT;
+    document.getElementById('ayah-ref').textContent = occ.ayahR;
+  } else if (w.occurrences && w.occurrences.length > 0) {
+    var firstOcc = w.occurrences[0];
+    document.getElementById('ayah-arabic').innerHTML = firstOcc.ayahA;
+    document.getElementById('ayah-translation').innerHTML = firstOcc.ayahT;
+    document.getElementById('ayah-ref').textContent = firstOcc.ayahR;
+  } else if (w.ayahA) {
+    // Fallback for backward compatibility
+    document.getElementById('ayah-arabic').innerHTML = w.ayahA;
+    document.getElementById('ayah-translation').innerHTML = w.ayahT;
+    document.getElementById('ayah-ref').textContent = w.ayahR;
+  }
   document.getElementById('ayah-box').classList.add('visible');
 }
 
 /**
  * Load and display Ibn Kathir tafsir for the current word.
+ * Uses the current occurrence's tafsir if available.
  */
 function loadTafsir(w) {
   if (!w) return;
+  var occ = window.__currentOccurrence || null;
   document.getElementById('tafsir-box').classList.add('visible');
   document.getElementById('tafsir-text').innerHTML = '<span class="tafsir-loading">Loading Ibn Kathir commentary\u2026</span>';
   document.getElementById('tafsir-btn').style.display = 'none';
   setTimeout(() => {
-    document.getElementById('tafsir-text').textContent = w.tafsir;
+    var tafsirText = '';
+    if (occ && occ.tafsir) {
+      tafsirText = occ.tafsir;
+    } else if (w.occurrences && w.occurrences.length > 0) {
+      tafsirText = w.occurrences[0].tafsir;
+    } else if (w.tafsir) {
+      tafsirText = w.tafsir;
+    }
+    document.getElementById('tafsir-text').textContent = tafsirText;
   }, 400);
-}
-
-/**
- * Show ayah + tafsir together.
- */
-function showWordContent(w) {
-  if (!w) return;
-  showAyah(w);
-  loadTafsir(w);
 }
 
 /**

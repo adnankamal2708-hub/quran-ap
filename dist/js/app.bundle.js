@@ -861,12 +861,15 @@ if (words.length > 0) result.push(words[0]);
 return result;
 }
 function searchWords(query) {
-if (!query || query.trim() === '') return ALL_WORDS;
+if (!query || query.trim() === '') {
+return (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+? getCanonicalWords() : ALL_WORDS;
+}
 const q = query.trim().toLowerCase();
-return ALL_WORDS.filter(function (w) {
-var surahName = w.surahId ? getSurahEnglishName(w.surahId).toLowerCase() : '';
-var surahNameSimple = w.surahId ? getSurahNameSimple(w.surahId).toLowerCase() : '';
-return (
+var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+? getCanonicalWords() : ALL_WORDS;
+return words.filter(function (w) {
+var matches = (
 w.arabic.includes(q) ||
 w.translit.toLowerCase().includes(q) ||
 w.english.toLowerCase().includes(q) ||
@@ -874,10 +877,31 @@ w.meaning.toLowerCase().includes(q) ||
 w.root.includes(q) ||
 (w.pattern && w.pattern.includes(q)) ||
 (w.tags || []).some(function (t) { return t.includes(q); }) ||
-w.type.toLowerCase().includes(q) ||
-surahName.includes(q) ||
-surahNameSimple.includes(q)
+w.type.toLowerCase().includes(q)
 );
+if (!matches && w.occurrences) {
+for (var oi = 0; oi < w.occurrences.length; oi++) {
+var occ = w.occurrences[oi];
+if (
+(occ.ayahA && occ.ayahA.includes(q)) ||
+(occ.ayahT && occ.ayahT.toLowerCase().includes(q)) ||
+(occ.tafsir && occ.tafsir.toLowerCase().includes(q)) ||
+(occ.verseKey && occ.verseKey.includes(q))
+) {
+matches = true;
+break;
+}
+if (occ.surahId) {
+var surahName = getSurahEnglishName(occ.surahId).toLowerCase();
+var surahNameSimple = getSurahNameSimple(occ.surahId).toLowerCase();
+if (surahName.includes(q) || surahNameSimple.includes(q)) {
+matches = true;
+break;
+}
+}
+}
+}
+return matches;
 });
 }
 function filterByCategory(words, category) {
@@ -1081,46 +1105,61 @@ return {};
 }
 var needsSave = false;
 var migrated = {};
-var needsKeyMigration = false;
-Object.keys(parsed).forEach(function (key) {
-if (key.indexOf('w_') !== 0 && key !== '_leechRecovery') {
-needsKeyMigration = true;
-}
-});
 var arabicToFirstId = {};
-if (needsKeyMigration) {
 for (var mi = 0; mi < ALL_WORDS.length; mi++) {
 var mw = ALL_WORDS[mi];
 if (!arabicToFirstId[mw.arabic]) {
 arabicToFirstId[mw.arabic] = mw.id;
 }
 }
-}
+var tempEntries = {};
 Object.keys(parsed).forEach(function (key) {
 var entry = parsed[key];
 if (key === '_leechRecovery') {
-migrated[key] = entry;
 return;
 }
 if (entry.stage === undefined) {
 entry = migrateLegacy(entry);
 needsSave = true;
 }
-if (key.indexOf('w_') !== 0) {
-var newKey = arabicToFirstId[key];
-if (newKey) {
-migrated[newKey] = entry;
-needsSave = true;
+var canonicalKey = null;
+if (key.indexOf('cw_') === 0) {
+canonicalKey = key;
+} else if (key.indexOf('w_') === 0) {
+canonicalKey = (typeof getCanonicalIdForOldId === 'function')
+? getCanonicalIdForOldId(key) : null;
 } else {
+var oldId = arabicToFirstId[key];
+if (oldId) {
+canonicalKey = (typeof getCanonicalIdForOldId === 'function')
+? getCanonicalIdForOldId(oldId) : null;
+}
+}
+if (!canonicalKey) {
 needsSave = true;
 console.warn('[srs] Dropping SRS entry for unknown word:', key);
+return;
 }
+if (!tempEntries[canonicalKey]) {
+tempEntries[canonicalKey] = [];
+}
+tempEntries[canonicalKey].push(entry);
+});
+Object.keys(tempEntries).forEach(function (cid) {
+var entries = tempEntries[cid];
+if (entries.length === 1) {
+migrated[cid] = entries[0];
 } else {
-migrated[key] = entry;
+migrated[cid] = mergeSRSEntries(entries);
+needsSave = true;
+console.log('[srs] Merged ' + entries.length + ' SRS entries into canonical ID: ' + cid);
 }
 });
-if (migrated._leechRecovery) {
-needsSave = migrateLeechRecoveryKeys(migrated) || needsSave;
+if (parsed._leechRecovery) {
+migrated._leechRecovery = migrateLeechRecoveryToCanonical(parsed._leechRecovery);
+if (JSON.stringify(migrated._leechRecovery) !== JSON.stringify(parsed._leechRecovery)) {
+needsSave = true;
+}
 }
 if (needsSave) saveSRS(migrated);
 return migrated;
@@ -1128,6 +1167,66 @@ return migrated;
 console.warn('Could not load SRS data:', e.message);
 return {};
 }
+}
+function mergeSRSEntries(entries) {
+var best = {
+stage: 0,
+dueDate: 0,
+interval: 0,
+lastRating: 2,
+ratedAt: 0,
+reps: 0,
+totalReviews: 0,
+lapses: 0,
+easeFactor: DEFAULT_EASE,
+leechCount: 0,
+isLeech: false,
+};
+for (var i = 0; i < entries.length; i++) {
+var e = entries[i];
+if (e.stage > best.stage) {
+best.stage = e.stage;
+best.dueDate = e.dueDate;
+best.interval = e.interval;
+best.lastRating = e.lastRating;
+best.ratedAt = e.ratedAt;
+} else if (e.stage === best.stage && e.ratedAt > best.ratedAt) {
+best.dueDate = e.dueDate;
+best.interval = e.interval;
+best.lastRating = e.lastRating;
+best.ratedAt = e.ratedAt;
+}
+best.reps += e.reps || 0;
+best.totalReviews += e.totalReviews || 0;
+best.lapses += e.lapses || 0;
+if (e.easeFactor && e.easeFactor > best.easeFactor && e.easeFactor <= MAX_EASE) {
+best.easeFactor = e.easeFactor;
+}
+if (e.isLeech) {
+best.isLeech = true;
+}
+best.leechCount += (e.leechCount || 0);
+}
+return best;
+}
+function migrateLeechRecoveryToCanonical(recovery) {
+if (!recovery || typeof recovery !== 'object') return recovery || {};
+var result = {};
+Object.keys(recovery).forEach(function (key) {
+var value = recovery[key];
+var idPart = key.replace(/^leech_/, '');
+var canonicalId = null;
+if (idPart.indexOf('cw_') === 0) {
+canonicalId = idPart;
+} else if (typeof getCanonicalIdForOldId === 'function') {
+canonicalId = getCanonicalIdForOldId(idPart);
+}
+if (canonicalId) {
+var newKey = 'leech_' + canonicalId;
+result[newKey] = (result[newKey] || 0) + value;
+}
+});
+return result;
 }
 function migrateLeechRecoveryKeys(data) {
 var recovery = data._leechRecovery;
@@ -1528,18 +1627,31 @@ window.__viewHasBeenSet = true;
 var content = DOM.get('content');
 if (content) content.scrollTop = 0;
 }
+let _currentOccurrenceIdx = 0;
 function renderWordCard(w, currentIndex, total, isReview) {
 if (!w) return;
+_currentOccurrenceIdx = 0;
 DOM.get('word-num').textContent = (isReview ? 'Review' : 'Word') + ' ' + (currentIndex + 1) + ' of ' + total;
 DOM.get('arabic-word').textContent = w.arabic;
 DOM.get('transliteration').textContent = w.translit;
 DOM.get('word-type').textContent = w.type;
+var occ = null;
+var occCount = 0;
+if (w.occurrences && w.occurrences.length > 0) {
+occCount = w.occurrences.length;
+occ = w.occurrences[_currentOccurrenceIdx % w.occurrences.length];
+}
 var surahBadge = DOM.get('surah-badge');
 if (surahBadge) {
-if (w.surahId && SURAH_INFO) {
-var si = SURAH_INFO[w.surahId];
-var verseRef = w.verseKey ? w.surahId + ':' + w.verseKey.split(':')[1] : '';
-surahBadge.textContent = '📖 ' + (si ? si.name : 'Surah ' + w.surahId) + (verseRef ? ' · Verse ' + verseRef : '');
+if (occ && occ.surahId && SURAH_INFO) {
+var si = SURAH_INFO[occ.surahId];
+var verseRef = occ.verseKey ? occ.verseKey.split(':')[1] : '';
+var occLabel = occCount > 1 ? ' (' + (_currentOccurrenceIdx + 1) + '/' + occCount + ')' : '';
+surahBadge.textContent = '📖 ' + (si ? si.name : 'Surah ' + occ.surahId) + (verseRef ? ' · Verse ' + verseRef : '') + occLabel;
+surahBadge.style.display = 'block';
+} else if (w.surahIds && w.surahIds.length > 0 && SURAH_INFO) {
+var firstSurah = SURAH_INFO[w.surahIds[0]];
+surahBadge.textContent = '📖 ' + (firstSurah ? firstSurah.name : 'Surah ' + w.surahIds[0]);
 surahBadge.style.display = 'block';
 } else {
 surahBadge.style.display = 'none';
@@ -1555,7 +1667,8 @@ patternEl.style.display = 'none';
 }
 }
 DOM.get('meaning').textContent = w.meaning;
-DOM.get('occurrences').textContent = '\u2726 Appears ' + w.occ.toLocaleString() + ' times';
+var occLabel = occCount > 1 ? ' (' + occCount + ' contexts)' : '';
+DOM.get('occurrences').textContent = '\u2726 Appears ' + w.occ.toLocaleString() + ' times' + occLabel;
 DOM.get('progress-fill').style.width = Math.round(((currentIndex + 1) / total) * 100) + '%';
 DOM.get('progress-text').textContent = (currentIndex + 1) + ' / ' + total;
 var prevBtn = DOM.get('btn-prev');
@@ -1567,6 +1680,7 @@ nextBtn.textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Don
 renderSRSStatusPill(w.id);
 renderRootBox(w);
 renderWordNetwork(w);
+window.__currentOccurrence = occ;
 var ayahBox = DOM.get('ayah-box');
 var tafsirBox = DOM.get('tafsir-box');
 var tafsirBtn = DOM.get('tafsir-btn');
@@ -1584,12 +1698,48 @@ var notesBox = DOM.get('notes-box');
 var notesInput = DOM.get('notes-input');
 if (notesBox) notesBox.style.display = 'block';
 if (notesInput) notesInput.value = getNote(w.id);
+var occNav = DOM.get('occ-nav');
+if (occNav) {
+if (occCount > 1) {
+occNav.style.display = 'flex';
+var occPrevBtn = DOM.get('occ-prev');
+var occNextBtn = DOM.get('occ-next');
+var occLabel = DOM.get('occ-label');
+if (occLabel) occLabel.textContent = (_currentOccurrenceIdx + 1) + '/' + occCount;
+if (occPrevBtn) occPrevBtn.disabled = _currentOccurrenceIdx === 0;
+if (occNextBtn) occNextBtn.disabled = _currentOccurrenceIdx >= occCount - 1;
+} else {
+occNav.style.display = 'none';
+}
+}
 var card = DOM.get('word-card');
 if (card) {
 card.classList.remove('fade-in');
 void card.offsetHeight;
 card.classList.add('fade-in');
 }
+}
+function nextOccurrence() {
+var w = typeof getCurrentWord === 'function' ? getCurrentWord() : null;
+if (!w || !w.occurrences) return;
+if (_currentOccurrenceIdx < w.occurrences.length - 1) {
+_currentOccurrenceIdx++;
+updateWordCard();
+}
+}
+function prevOccurrence() {
+var w = typeof getCurrentWord === 'function' ? getCurrentWord() : null;
+if (!w || !w.occurrences) return;
+if (_currentOccurrenceIdx > 0) {
+_currentOccurrenceIdx--;
+updateWordCard();
+}
+}
+function wireOccurrenceNav() {
+var prevBtn = DOM.get('occ-prev');
+var nextBtn = DOM.get('occ-next');
+if (prevBtn) prevBtn.onclick = prevOccurrence;
+if (nextBtn) nextBtn.onclick = nextOccurrence;
 }
 function renderSRSStatusPill(wordId) {
 var srs = getSRSStatus(wordId);
@@ -1704,24 +1854,40 @@ fam.appendChild(d);
 }
 function showAyah(w) {
 if (!w) return;
+var occ = window.__currentOccurrence || null;
+if (occ && occ.ayahA) {
+document.getElementById('ayah-arabic').innerHTML = occ.ayahA;
+document.getElementById('ayah-translation').innerHTML = occ.ayahT;
+document.getElementById('ayah-ref').textContent = occ.ayahR;
+} else if (w.occurrences && w.occurrences.length > 0) {
+var firstOcc = w.occurrences[0];
+document.getElementById('ayah-arabic').innerHTML = firstOcc.ayahA;
+document.getElementById('ayah-translation').innerHTML = firstOcc.ayahT;
+document.getElementById('ayah-ref').textContent = firstOcc.ayahR;
+} else if (w.ayahA) {
 document.getElementById('ayah-arabic').innerHTML = w.ayahA;
 document.getElementById('ayah-translation').innerHTML = w.ayahT;
 document.getElementById('ayah-ref').textContent = w.ayahR;
+}
 document.getElementById('ayah-box').classList.add('visible');
 }
 function loadTafsir(w) {
 if (!w) return;
+var occ = window.__currentOccurrence || null;
 document.getElementById('tafsir-box').classList.add('visible');
 document.getElementById('tafsir-text').innerHTML = '<span class="tafsir-loading">Loading Ibn Kathir commentary\u2026</span>';
 document.getElementById('tafsir-btn').style.display = 'none';
 setTimeout(() => {
-document.getElementById('tafsir-text').textContent = w.tafsir;
-}, 400);
+var tafsirText = '';
+if (occ && occ.tafsir) {
+tafsirText = occ.tafsir;
+} else if (w.occurrences && w.occurrences.length > 0) {
+tafsirText = w.occurrences[0].tafsir;
+} else if (w.tafsir) {
+tafsirText = w.tafsir;
 }
-function showWordContent(w) {
-if (!w) return;
-showAyah(w);
-loadTafsir(w);
+document.getElementById('tafsir-text').textContent = tafsirText;
+}, 400);
 }
 function highlightRootBox() {
 const rootBox = document.getElementById('root-box');

@@ -92,16 +92,24 @@ function findWordsByArabicList(arabicList) {
 
 /**
  * Search all words by Arabic text, English meaning, root, tags, pattern, type, or surah.
- * Returns words matching the query string.
+ * Searches both the canonical vocabulary and all occurrence contexts.
+ * Returns canonical words matching the query.
  */
 function searchWords(query) {
-  if (!query || query.trim() === '') return ALL_WORDS;
+  if (!query || query.trim() === '') {
+    // Return canonical words if available, otherwise fall back to ALL_WORDS
+    return (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0) 
+      ? getCanonicalWords() : ALL_WORDS;
+  }
   const q = query.trim().toLowerCase();
-  return ALL_WORDS.filter(function (w) {
-    // Also search by surah name
-    var surahName = w.surahId ? getSurahEnglishName(w.surahId).toLowerCase() : '';
-    var surahNameSimple = w.surahId ? getSurahNameSimple(w.surahId).toLowerCase() : '';
-    return (
+  
+  // Search canonical vocabulary
+  var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  
+  return words.filter(function (w) {
+    // Check canonical fields
+    var matches = (
       w.arabic.includes(q) ||
       w.translit.toLowerCase().includes(q) ||
       w.english.toLowerCase().includes(q) ||
@@ -109,10 +117,35 @@ function searchWords(query) {
       w.root.includes(q) ||
       (w.pattern && w.pattern.includes(q)) ||
       (w.tags || []).some(function (t) { return t.includes(q); }) ||
-      w.type.toLowerCase().includes(q) ||
-      surahName.includes(q) ||
-      surahNameSimple.includes(q)
+      w.type.toLowerCase().includes(q)
     );
+    
+    // Also search occurrence fields (ayah text, tafsir, references)
+    if (!matches && w.occurrences) {
+      for (var oi = 0; oi < w.occurrences.length; oi++) {
+        var occ = w.occurrences[oi];
+        if (
+          (occ.ayahA && occ.ayahA.includes(q)) ||
+          (occ.ayahT && occ.ayahT.toLowerCase().includes(q)) ||
+          (occ.tafsir && occ.tafsir.toLowerCase().includes(q)) ||
+          (occ.verseKey && occ.verseKey.includes(q))
+        ) {
+          matches = true;
+          break;
+        }
+        // Search surah name for this occurrence
+        if (occ.surahId) {
+          var surahName = getSurahEnglishName(occ.surahId).toLowerCase();
+          var surahNameSimple = getSurahNameSimple(occ.surahId).toLowerCase();
+          if (surahName.includes(q) || surahNameSimple.includes(q)) {
+            matches = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    return matches;
   });
 }
 
