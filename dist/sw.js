@@ -11,6 +11,9 @@
 const CACHE_NAME = 'quran-vocab-v4';
 const FONTS_CACHE = 'quran-fonts-v1';
 
+// Production assets only — individual dev files are NOT cached.
+// The build script (build.js) generates these bundles from all source files,
+// so new surah data files are automatically included without editing this list.
 const PRECACHE_URLS = [
   './',
   './index.html',

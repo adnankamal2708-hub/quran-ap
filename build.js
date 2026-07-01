@@ -22,30 +22,50 @@ const DIST = path.join(ROOT, 'dist');
 // Data files are discovered automatically from js/data/ directory.
 // Adding a new words-surah-NN-name.js file will be picked up without
 // editing this build script.
+//
+// LOADING ORDER (preserved for backward compatibility):
+//   1. js/data.js (core vocabulary engine)
+//   2. js/data/surahs.js (surah metadata)
+//   3. Thematic word files (words-al-fatiha.js, words-ikhlas.js, etc.)
+//      sorted alphabetically among themselves
+//   4. Per-surah word files (words-surah-NN-name.js) sorted by surah number
+//
+// This stable ordering ensures ALL_WORDS array indices (and thus w_N IDs)
+// remain consistent across builds when no new files are added.
 const DATA_FILES = (function () {
   var dataDir = path.join(ROOT, 'js', 'data');
-  var files = [];
-  if (fs.existsSync(dataDir)) {
-    var entries = fs.readdirSync(dataDir).sort();
-    entries.forEach(function (f) {
-      if (f.endsWith('.js')) {
-        files.push('js/data/' + f);
-      }
-    });
-  }
-  // data.js must be first, surahs.js early, then all words-*.js files
-  var coreFiles = ['js/data.js'];
+  if (!fs.existsSync(dataDir)) return ['js/data.js'];
+
+  var entries = fs.readdirSync(dataDir).filter(function (f) { return f.endsWith('.js'); });
+
+  var core = ['js/data.js'];
   var surahMeta = [];
-  var wordFiles = [];
-  files.forEach(function (f) {
-    if (f === 'js/data.js') return;
-    if (f.indexOf('js/data/surahs.js') >= 0) {
-      surahMeta.push(f);
+  var thematic = [];
+  var perSurah = [];
+
+  entries.forEach(function (f) {
+    var fullPath = 'js/data/' + f;
+    if (fullPath === 'js/data.js') return;
+    if (fullPath === 'js/data/surahs.js') {
+      surahMeta.push(fullPath);
+    } else if (/^words-surah-\d+-/.test(f)) {
+      perSurah.push(fullPath);
     } else {
-      wordFiles.push(f);
+      thematic.push(fullPath);
     }
   });
-  return coreFiles.concat(surahMeta).concat(wordFiles);
+
+  // Sort per-surah files by surah number extracted from filename
+  perSurah.sort(function (a, b) {
+    var numA = parseInt(a.match(/words-surah-(\d+)/)[1], 10);
+    var numB = parseInt(b.match(/words-surah-(\d+)/)[1], 10);
+    return numA - numB;
+  });
+
+  // Sort thematic files alphabetically (stable for backward compat)
+  thematic.sort();
+
+  return core.concat(surahMeta).concat(thematic).concat(perSurah);
 })();
 
 // firebase-core.js is NOT included in the bundle — it is loaded as a
