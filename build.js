@@ -211,9 +211,10 @@ async function build() {
   console.log('  7. Copying service worker & assets...');
   var sw = readFile('sw.js');
   // Update SW precache list to use bundled files
+  // NOTE: Paths are relative to site root (deploy dist/ as root, so NO /dist/ prefix)
   sw = sw.replace(
     /const PRECACHE_URLS = \[[\s\S]*?\];/,
-    "const PRECACHE_URLS = [\n  './',\n  './dist/index.html',\n  './dist/styles.min.css',\n  './dist/js/data.bundle.min.js',\n  './dist/js/app.bundle.min.js',\n  './dist/js/services/firebase-core.js',\n  './dist/manifest.json',\n  './dist/favicon.ico',\n];"
+    "const PRECACHE_URLS = [\n  './',\n  './index.html',\n  './styles.min.css',\n  './js/data.bundle.min.js',\n  './js/app.bundle.min.js',\n  './js/services/firebase-core.js',\n  './manifest.json',\n  './favicon.ico',\n];"
   );
   writeFile('sw.js', sw);
   writeFile('manifest.json', readFile('manifest.json'));

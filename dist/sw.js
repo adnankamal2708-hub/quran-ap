@@ -13,13 +13,13 @@ const FONTS_CACHE = 'quran-fonts-v1';
 
 const PRECACHE_URLS = [
   './',
-  './dist/index.html',
-  './dist/styles.min.css',
-  './dist/js/data.bundle.min.js',
-  './dist/js/app.bundle.min.js',
-  './dist/js/services/firebase-core.js',
-  './dist/manifest.json',
-  './dist/favicon.ico',
+  './index.html',
+  './styles.min.css',
+  './js/data.bundle.min.js',
+  './js/app.bundle.min.js',
+  './js/services/firebase-core.js',
+  './manifest.json',
+  './favicon.ico',
 ];
 
 // Install: pre-cache all static assets
