@@ -615,7 +615,13 @@
     </nav>
   </div>
 
-  <!-- All scripts deferred: preserves execution order while allowing parsing to complete without blocking -->
+  <!-- ── FIREBASE v12 MODULAR SDK ── -->
+  <!-- firebase-core.js is the SINGLE ES module entry point for Firebase.
+       It loads Firebase v12 modular SDK from CDN and attaches all
+       functions to window.__firebaseCore for non-module scripts to use. -->
+  <script type="module" src="js/services/firebase-core.js"></script>
+
+  <!-- ── DATA LAYER ── -->
   <!-- 1. Data schema & constants -->
   <script defer src="js/data.js"></script>
   <!-- 2. Surah metadata (must be loaded before word files that reference surahId) -->
@@ -648,10 +654,6 @@
   <script defer src="js/data/words-surah-18-kahf.js"></script>
   <script defer src="js/data/words-surah-19-maryam.js"></script>
   <script defer src="js/data/words-surah-20-taha.js"></script>
-  <!-- 4. Firebase SDK (CDN) -->
-  <script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <!-- 4. Services (load before application modules) -->
   <script defer src="js/services/config.js"></script>
   <script defer src="js/services/auth-service.js"></script>

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// sw.js — Service Worker v3
+// sw.js — Service Worker v4
 // Provides offline support with optimized caching strategies:
 //   • Cache-first for static assets (instant load)
 //   • Stale-while-revalidate for Firebase API calls
@@ -8,7 +8,7 @@
 //   • Periodic cache refresh for versioned assets
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'quran-vocab-v3';
+const CACHE_NAME = 'quran-vocab-v4';
 const FONTS_CACHE = 'quran-fonts-v1';
 
 const PRECACHE_URLS = [
@@ -16,6 +16,7 @@ const PRECACHE_URLS = [
   './index.html',
   './styles.css',
   './js/data.js',
+  './js/data/surahs.js',
   './js/data/words-al-fatiha.js',
   './js/data/words-ikhlas.js',
   './js/data/words-attributes.js',
@@ -23,6 +24,25 @@ const PRECACHE_URLS = [
   './js/data/words-common.js',
   './js/data/words-expanded.js',
   './js/data/words-names-of-allah.js',
+  './js/data/words-surah-3-imran.js',
+  './js/data/words-surah-4-nisa.js',
+  './js/data/words-surah-5-maidah.js',
+  './js/data/words-surah-6-anam.js',
+  './js/data/words-surah-7-araf.js',
+  './js/data/words-surah-8-anfal.js',
+  './js/data/words-surah-9-tawbah.js',
+  './js/data/words-surah-10-yunus.js',
+  './js/data/words-surah-11-hud.js',
+  './js/data/words-surah-12-yusuf.js',
+  './js/data/words-surah-13-rad.js',
+  './js/data/words-surah-14-ibrahim.js',
+  './js/data/words-surah-15-hijr.js',
+  './js/data/words-surah-16-nahl.js',
+  './js/data/words-surah-17-isra.js',
+  './js/data/words-surah-18-kahf.js',
+  './js/data/words-surah-19-maryam.js',
+  './js/data/words-surah-20-taha.js',
+  './js/services/firebase-core.js',
   './js/services/config.js',
   './js/services/auth-service.js',
   './js/services/sync-service.js',
@@ -71,12 +91,23 @@ self.addEventListener('activate', function (event) {
 // Fetch: optimized caching strategy
 self.addEventListener('fetch', function (event) {
   var url = new URL(event.request.url);
-  var isFont = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
-  var isFirebase = url.hostname === 'firestore.googleapis.com' || url.hostname.includes('firebaseio.com');
-  var isGoogleAPIs = url.hostname === 'www.gstatic.com';
+
+  // Firebase CDN scripts: network-first with cache fallback (for module scripts)
+  if (url.hostname === 'www.gstatic.com') {
+    event.respondWith(
+      fetch(event.request)
+        .then(function (response) {
+          return response;
+        })
+        .catch(function () {
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
 
   // Fonts: cache-first with dedicated font cache
-  if (isFont) {
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     event.respondWith(
       caches.open(FONTS_CACHE).then(function (cache) {
         return cache.match(event.request).then(function (response) {
@@ -93,26 +124,11 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // Firebase/Google APIs: network-first with cache fallback (only cache same-origin)
-  if (isFirebase || isGoogleAPIs) {
-    event.respondWith(
-      fetch(event.request)
-        .then(function (response) {
-          return response;
-        })
-        .catch(function () {
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
-
   // Static assets: cache-first, falling back to network
   event.respondWith(
     caches.open(CACHE_NAME).then(function (cache) {
       return cache.match(event.request).then(function (cachedResponse) {
         if (cachedResponse) {
-          // Background refresh for versioned assets (optional)
           return cachedResponse;
         }
         return fetch(event.request).then(function (networkResponse) {

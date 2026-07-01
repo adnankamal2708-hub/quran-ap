@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// sync-service.js — Cloud Data Synchronization
+// sync-service.js — Cloud Data Synchronization (v12 Modular SDK)
 //
 // Syncs localStorage learning data to Firestore (and back).
 // Strategy: Local-first — all writes go to localStorage immediately,
@@ -10,10 +10,21 @@
 //   • All data saves locally as normal.
 //   • Pending sync changes are queued in localStorage.
 //   • On next online login, queued changes are pushed.
+//
+// Firebase v12 modular functions are accessed through
+// window.__firebaseCore (provided by firebase-core.js module).
 // ═══════════════════════════════════════════════════════════════
 
-/** @type {firebase.firestore.Firestore|null} */
-let _db = null;
+// ── Import Firebase functions from the core bridge ─────────────
+// Use `var` (not `const`) so that when build.js concatenates multiple
+// service files, the same variable names can be safely re-declared.
+var {
+  doc: _doc,
+  getDoc: _getDoc,
+  setDoc: _setDoc,
+  deleteDoc: _deleteDoc,
+  serverTimestamp: _serverTimestamp,
+} = window.__firebaseCore || {};
 
 /** @type {boolean} Whether Firestore is available */
 let _syncReady = false;
@@ -27,31 +38,29 @@ let _syncing = false;
 // ── Initialization ────────────────────────────────────────────
 
 /**
- * Initialize the sync service. Must be called after Firebase SDK loads.
+ * Initialize the sync service. Must be called after Firebase core initializes.
  */
 function initSync() {
-  if (typeof firebase === 'undefined' || !firebase.firestore) {
-    console.warn('[sync] Firestore SDK not loaded — sync disabled.');
+  const coreOk = window.__firebaseCore ? window.__firebaseCore.initCore() : false;
+  if (!coreOk) {
+    console.warn('[sync] Firebase core not available — sync disabled.');
     _syncReady = false;
     return false;
   }
 
   try {
-    _db = firebase.firestore();
+    const db = window.__firebaseCore.getDb();
+    if (!db) {
+      console.warn('[sync] Firestore not available — sync disabled.');
+      _syncReady = false;
+      return false;
+    }
 
-    _db.enablePersistence({ synchronizeTabs: true })
-      .then(function () {
-        console.log('[sync] Offline persistence enabled.');
-      })
-      .catch(function (err) {
-        if (err.code === 'failed-precondition') {
-          console.warn('[sync] Multiple tabs open — persistence in one tab only.');
-        } else if (err.code === 'unimplemented') {
-          console.warn('[sync] Browser does not support persistence.');
-        }
-      });
+    // NOTE: Offline persistence is already enabled in firebase-core.js initCore().
+    // No need to enable it again here.
 
     _syncReady = true;
+    console.log('[sync] Sync service initialized with v12 modular SDK.');
     return true;
   } catch (e) {
     console.warn('[sync] Init failed:', e.message);
@@ -75,53 +84,21 @@ function isSyncReady() {
 function exportLocalData() {
   var data = {};
 
-  // SRS data
-  try {
-    var srsRaw = localStorage.getItem('quran_srs_data');
-    if (srsRaw) data.srsData = JSON.parse(srsRaw);
-  } catch (e) { /* skip */ }
+  function tryParse(key, lsKey) {
+    try {
+      var raw = localStorage.getItem(lsKey || key);
+      if (raw) data[key] = JSON.parse(raw);
+    } catch (e) { /* skip */ }
+  }
 
-  // Favorites
-  try {
-    var favRaw = localStorage.getItem('quran_favorites');
-    if (favRaw) data.favorites = JSON.parse(favRaw);
-  } catch (e) { /* skip */ }
-
-  // Notes
-  try {
-    var notesRaw = localStorage.getItem('quran_notes');
-    if (notesRaw) data.notes = JSON.parse(notesRaw);
-  } catch (e) { /* skip */ }
-
-  // Streak
-  try {
-    var streakRaw = localStorage.getItem('quran_streak');
-    if (streakRaw) data.streak = JSON.parse(streakRaw);
-  } catch (e) { /* skip */ }
-
-  // Quiz history (if any)
-  try {
-    var quizRaw = localStorage.getItem('quran_quiz');
-    if (quizRaw) data.quiz = JSON.parse(quizRaw);
-  } catch (e) { /* skip */ }
-
-  // Settings
-  try {
-    var settingsRaw = localStorage.getItem('quran_settings');
-    if (settingsRaw) data.settings = JSON.parse(settingsRaw);
-  } catch (e) { /* skip */ }
-
-  // Lesson progress
-  try {
-    var lessonRaw = localStorage.getItem('quran_lesson_progress');
-    if (lessonRaw) data.lessonProgress = JSON.parse(lessonRaw);
-  } catch (e) { /* skip */ }
-
-  // Surah progress
-  try {
-    var surahRaw = localStorage.getItem('quran_surah_progress');
-    if (surahRaw) data.surahProgress = JSON.parse(surahRaw);
-  } catch (e) { /* skip */ }
+  tryParse('srsData', 'quran_srs_data');
+  tryParse('favorites', 'quran_favorites');
+  tryParse('notes', 'quran_notes');
+  tryParse('streak', 'quran_streak');
+  tryParse('quiz', 'quran_quiz');
+  tryParse('settings', 'quran_settings');
+  tryParse('lessonProgress', 'quran_lesson_progress');
+  tryParse('surahProgress', 'quran_surah_progress');
 
   data._exportedAt = new Date().toISOString();
   return data;
@@ -138,23 +115,31 @@ function importLocalData(data) {
     return { imported: [], skipped: [], error: 'Invalid data format.' };
   }
 
-  function trySet(key, subKey, value) {
+  function trySet(key, lsKey, value) {
     try {
-      localStorage.setItem(subKey || key, JSON.stringify(value));
+      localStorage.setItem(lsKey || key, JSON.stringify(value));
       imported.push(key);
     } catch (e) {
       skipped.push(key);
     }
   }
 
-  if (data.srsData) trySet('srsData', 'quran_srs_data', data.srsData);
-  if (data.favorites) trySet('favorites', 'quran_favorites', data.favorites);
-  if (data.notes) trySet('notes', 'quran_notes', data.notes);
-  if (data.streak) trySet('streak', 'quran_streak', data.streak);
-  if (data.quiz) trySet('quiz', 'quran_quiz', data.quiz);
-  if (data.settings) trySet('settings', 'quran_settings', data.settings);
-  if (data.lessonProgress) trySet('lessonProgress', 'quran_lesson_progress', data.lessonProgress);
-  if (data.surahProgress) trySet('surahProgress', 'quran_surah_progress', data.surahProgress);
+  var mappings = {
+    srsData: 'quran_srs_data',
+    favorites: 'quran_favorites',
+    notes: 'quran_notes',
+    streak: 'quran_streak',
+    quiz: 'quran_quiz',
+    settings: 'quran_settings',
+    lessonProgress: 'quran_lesson_progress',
+    surahProgress: 'quran_surah_progress',
+  };
+
+  Object.keys(mappings).forEach(function (key) {
+    if (data[key] !== undefined) {
+      trySet(key, mappings[key], data[key]);
+    }
+  });
 
   return { imported: imported, skipped: skipped };
 }
@@ -164,10 +149,12 @@ function importLocalData(data) {
 /**
  * Upload all local learning data to Firestore for the current user.
  * Data is stored in a single document per user under FIRESTORE_LEARNING_COLLECTION.
+ * Includes retry logic with exponential backoff for transient failures.
  */
-async function uploadToCloud(userId) {
-  if (!_syncReady || !_db) {
-    console.warn('[sync] Cannot upload — Firestore not initialized.');
+async function uploadToCloud(userId, retryCount) {
+  if (retryCount == null) retryCount = 0;
+  if (!_syncReady) {
+    console.warn('[sync] Cannot upload — sync not initialized.');
     return false;
   }
   if (!userId) {
@@ -177,32 +164,57 @@ async function uploadToCloud(userId) {
 
   try {
     var data = exportLocalData();
-
-    // Remove the export timestamp before saving to cloud
     delete data._exportedAt;
 
-    var docRef = _db.collection(FIRESTORE_LEARNING_COLLECTION).doc(userId);
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (!db) {
+      console.warn('[sync] Firestore not available.');
+      return false;
+    }
 
-    await docRef.set({
+    var docRef = _doc(db, FIRESTORE_LEARNING_COLLECTION, userId);
+
+    await _setDoc(docRef, {
       learningData: data,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: _serverTimestamp(),
     }, { merge: true });
 
     console.log('[sync] Data uploaded to cloud.');
     return true;
   } catch (e) {
+    // Retry with exponential backoff for transient errors (network, rate-limit)
+    if (retryCount < 3 && _isRetryableError(e)) {
+      var delayMs = Math.pow(2, retryCount) * 1000;
+      console.warn('[sync] Upload failed (attempt ' + (retryCount + 1) + '), retrying in ' + delayMs + 'ms:', e.message);
+      await new Promise(function (resolve) { setTimeout(resolve, delayMs); });
+      return uploadToCloud(userId, retryCount + 1);
+    }
     console.warn('[sync] Upload failed:', e.message);
     return false;
   }
 }
 
 /**
+ * Check if a Firestore error is transient and should be retried.
+ */
+function _isRetryableError(error) {
+  var code = error.code || '';
+  return code === 'unavailable' ||
+         code === 'resource-exhausted' ||
+         code === 'deadline-exceeded' ||
+         code === 'aborted' ||
+         (error.message && error.message.indexOf('network') >= 0);
+}
+
+/**
  * Download learning data from Firestore for the current user.
  * Returns the data object or null.
+ * Includes retry logic with exponential backoff.
  */
-async function downloadFromCloud(userId) {
-  if (!_syncReady || !_db) {
-    console.warn('[sync] Cannot download — Firestore not initialized.');
+async function downloadFromCloud(userId, retryCount) {
+  if (retryCount == null) retryCount = 0;
+  if (!_syncReady) {
+    console.warn('[sync] Cannot download — sync not initialized.');
     return null;
   }
   if (!userId) {
@@ -211,17 +223,30 @@ async function downloadFromCloud(userId) {
   }
 
   try {
-    var docRef = _db.collection(FIRESTORE_LEARNING_COLLECTION).doc(userId);
-    var doc = await docRef.get();
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (!db) {
+      console.warn('[sync] Firestore not available.');
+      return null;
+    }
 
-    if (!doc.exists) {
+    var docRef = _doc(db, FIRESTORE_LEARNING_COLLECTION, userId);
+    var snap = await _getDoc(docRef);
+
+    if (!snap.exists()) {
       console.log('[sync] No cloud data found for user.');
       return null;
     }
 
-    var result = doc.data();
+    var result = snap.data();
     return result.learningData || null;
   } catch (e) {
+    // Retry with exponential backoff for transient errors
+    if (retryCount < 3 && _isRetryableError(e)) {
+      var delayMs = Math.pow(2, retryCount) * 1000;
+      console.warn('[sync] Download failed (attempt ' + (retryCount + 1) + '), retrying in ' + delayMs + 'ms:', e.message);
+      await new Promise(function (resolve) { setTimeout(resolve, delayMs); });
+      return downloadFromCloud(userId, retryCount + 1);
+    }
     console.warn('[sync] Download failed:', e.message);
     return null;
   }
@@ -366,7 +391,7 @@ async function fullSync(userId) {
  * the Firestore upload. Call this after any SRS action, bookmark, or note change.
  */
 function queueSync(userId) {
-  if (!_syncReady || !_db || !userId) return;
+  if (!_syncReady || !userId) return;
 
   if (_syncTimer) {
     clearTimeout(_syncTimer);
@@ -379,13 +404,11 @@ function queueSync(userId) {
     uploadToCloud(userId)
       .then(function (ok) {
         if (ok) {
-          // Clear any pending sync flag
           try { localStorage.removeItem(PENDING_SYNC_KEY); } catch (e) { /* ignore */ }
         }
       })
       .catch(function (e) {
         console.warn('[sync] Debounced sync failed:', e.message);
-        // Mark that there are pending changes
         try { localStorage.setItem(PENDING_SYNC_KEY, 'true'); } catch (e) { /* ignore */ }
       });
   }, SYNC_DEBOUNCE_MS);
@@ -410,7 +433,7 @@ function getSyncStatus() {
     ready: _syncReady,
     syncing: _syncing,
     pending: hasPendingSync(),
-    user: getCurrentUser() ? getCurrentUser().uid : null,
+    user: typeof getCurrentUser === 'function' ? getCurrentUser()?.uid : null,
   };
 }
 

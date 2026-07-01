@@ -1,17 +1,42 @@
 // ═══════════════════════════════════════════════════════════════
-// auth-service.js — Firebase Authentication Service
+// auth-service.js — Firebase Authentication Service (v12 Modular SDK)
 //
 // Wraps Firebase Auth with a clean interface for the app.
-// Handles: login, signup, logout, password reset, email
-// verification, session persistence (remember me), and
-// auth state observation.
+// All public functions are attached to window for backward
+// compatibility with non-module app scripts.
 //
-// All public functions return Promises or values — no Firebase
-// objects leak outside this module.
+// Firebase v12 modular functions are accessed through
+// window.__firebaseCore (provided by firebase-core.js module).
 // ═══════════════════════════════════════════════════════════════
 
-/** @type {firebase.auth.Auth|null} */
-let _auth = null;
+// ── Import Firebase functions from the core bridge ─────────────
+// Use `var` (not `const`) so that when build.js concatenates multiple
+// service files, the same variable names can be safely re-declared.
+var {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail: _sendPasswordResetEmail,
+  confirmPasswordReset: _confirmPasswordReset,
+  applyActionCode: _applyActionCode,
+  updateProfile,
+  updateEmail: _updateEmail,
+  updatePassword: _updatePassword,
+  sendEmailVerification,
+  deleteUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+} = window.__firebaseCore || {};
+
+// Also need firestore funcs for user document creation
+var {
+  doc: _doc,
+  setDoc: _setDoc,
+  serverTimestamp: _serverTimestamp,
+} = window.__firebaseCore || {};
 
 /** @type {boolean} Whether Firebase Auth is available */
 let _authReady = false;
@@ -22,28 +47,26 @@ const _listeners = new Set();
 /** @type {Object|null} Current user info cache */
 let _currentUser = null;
 
+/** @type {Function|null} Unsubscribe function for auth state listener */
+let _unsubscribeAuth = null;
+
 // ── Initialization ────────────────────────────────────────────
 
 /**
- * Initialize the auth service. Must be called once after Firebase SDK loads.
+ * Initialize the auth service. Must be called once after DOM ready.
  * Returns true if successful, false if Firebase is not available.
  */
 function initAuth() {
-  if (typeof firebase === 'undefined' || !firebase.initializeApp) {
-    console.warn('[auth] Firebase SDK not loaded — auth disabled.');
+  const ok = window.__firebaseCore ? window.__firebaseCore.initCore() : false;
+  if (!ok) {
+    console.warn('[auth] Firebase core not available — auth disabled.');
     _authReady = false;
     return false;
   }
 
   try {
-    // Initialize Firebase app (safe to call multiple times)
-    if (!firebase.apps || !firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    _auth = firebase.auth();
-
-    // Watch auth state
-    _auth.onIdTokenChanged(function (user) {
+    // Subscribe to auth state changes using modular SDK
+    _unsubscribeAuth = window.__firebaseCore.subscribeToAuth(function (user) {
       if (user) {
         _currentUser = {
           uid: user.uid,
@@ -85,24 +108,28 @@ function isAuthReady() {
 
 /**
  * Get the current user (cached, synchronous).
- * Returns { uid, email, displayName, emailVerified, createdAt, lastSignIn, photoURL, isAnonymous } or null.
  */
 function getCurrentUser() {
   return _currentUser;
 }
 
 /**
- * Get a fresh user object from Firebase (async, may trigger re-fetch).
+ * Get a fresh user object from Firebase (async).
  * Returns user object or null.
  */
 async function fetchCurrentUser() {
-  if (!_authReady || !_auth || !_auth.currentUser) {
+  if (!_authReady) {
     _currentUser = null;
     return null;
   }
   try {
-    await _auth.currentUser.reload();
-    var user = _auth.currentUser;
+    const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+    if (!auth || !auth.currentUser) {
+      _currentUser = null;
+      return null;
+    }
+    await auth.currentUser.reload();
+    const user = auth.currentUser;
     _currentUser = {
       uid: user.uid,
       email: user.email,
@@ -139,25 +166,26 @@ function onAuthChange(fn) {
 
 /**
  * Create a new account with email and password.
- * Returns { user } on success.
- * Throws an Error with a user-friendly message on failure.
  */
 async function signUpWithEmail(email, password, displayName) {
-  if (!_authReady || !_auth) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  const db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+
+  if (!auth) {
     throw new Error('Authentication service is not available.');
   }
 
   try {
-    var result = await _auth.createUserWithEmailAndPassword(email, password);
+    const result = await createUserWithEmailAndPassword(auth, email, password);
 
     // Set display name
     if (displayName && result.user) {
-      await result.user.updateProfile({ displayName: displayName });
+      await updateProfile(result.user, { displayName: displayName });
     }
 
     // Send verification email
     if (result.user && !result.user.emailVerified) {
-      await result.user.sendEmailVerification({
+      await sendEmailVerification(result.user, {
         url: window.location.origin + '/',
         handleCodeInApp: true,
       });
@@ -173,24 +201,22 @@ async function signUpWithEmail(email, password, displayName) {
 
 /**
  * Sign in with email and password.
- * @param {string} email
- * @param {string} password
- * @param {boolean} rememberMe - If true, persist session across browser restarts
- * @returns {Promise<{user: Object}>}
  */
 async function loginWithEmail(email, password, rememberMe) {
-  if (!_authReady || !_auth) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+
+  if (!auth) {
     throw new Error('Authentication service is not available.');
   }
 
   try {
     if (rememberMe) {
-      await _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      await setPersistence(auth, browserLocalPersistence);
     } else {
-      await _auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+      await setPersistence(auth, browserSessionPersistence);
     }
 
-    var result = await _auth.signInWithEmailAndPassword(email, password);
+    const result = await signInWithEmailAndPassword(auth, email, password);
     return { user: result.user };
   } catch (e) {
     throw _translateFirebaseError(e);
@@ -203,9 +229,10 @@ async function loginWithEmail(email, password, rememberMe) {
  * Sign out the current user.
  */
 async function logout() {
-  if (!_authReady || !_auth) return;
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth) return;
   try {
-    await _auth.signOut();
+    await signOut(auth);
     _currentUser = null;
   } catch (e) {
     console.warn('[auth] Logout error:', e.message);
@@ -216,15 +243,15 @@ async function logout() {
 
 /**
  * Send a password reset email.
- * Returns success message string.
  */
 async function sendPasswordResetEmail(email) {
-  if (!_authReady || !_auth) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth) {
     throw new Error('Authentication service is not available.');
   }
 
   try {
-    await _auth.sendPasswordResetEmail(email, {
+    await _sendPasswordResetEmail(auth, email, {
       url: window.location.origin + '/',
       handleCodeInApp: true,
     });
@@ -236,15 +263,15 @@ async function sendPasswordResetEmail(email) {
 
 /**
  * Confirm password reset with code and new password.
- * Used when the user is on the reset-password page with an oobCode.
  */
 async function confirmPasswordReset(oobCode, newPassword) {
-  if (!_authReady || !_auth) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth) {
     throw new Error('Authentication service is not available.');
   }
 
   try {
-    await _auth.confirmPasswordReset(oobCode, newPassword);
+    await _confirmPasswordReset(auth, oobCode, newPassword);
     return 'Password has been reset successfully. Please sign in.';
   } catch (e) {
     throw _translateFirebaseError(e);
@@ -253,7 +280,6 @@ async function confirmPasswordReset(oobCode, newPassword) {
 
 /**
  * Check if the URL contains a password reset or email verification code.
- * Returns { mode: 'resetPassword'|'verifyEmail'|null, oobCode: string|null, continueUrl: string|null }
  */
 function checkActionCode() {
   var params = new URLSearchParams(window.location.search);
@@ -274,15 +300,16 @@ function checkActionCode() {
  * Apply an email verification code.
  */
 async function applyVerificationCode(oobCode) {
-  if (!_authReady || !_auth) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth) {
     throw new Error('Authentication service is not available.');
   }
 
   try {
-    await _auth.applyActionCode(oobCode);
+    await _applyActionCode(auth, oobCode);
     // Reload user to update emailVerified
-    if (_auth.currentUser) {
-      await _auth.currentUser.reload();
+    if (auth.currentUser) {
+      await auth.currentUser.reload();
     }
     return 'Email verified successfully!';
   } catch (e) {
@@ -296,12 +323,13 @@ async function applyVerificationCode(oobCode) {
  * Resend the email verification email.
  */
 async function resendVerificationEmail() {
-  if (!_authReady || !_auth || !_auth.currentUser) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth || !auth.currentUser) {
     throw new Error('No user is signed in.');
   }
 
   try {
-    await _auth.currentUser.sendEmailVerification({
+    await sendEmailVerification(auth.currentUser, {
       url: window.location.origin + '/',
       handleCodeInApp: true,
     });
@@ -311,18 +339,18 @@ async function resendVerificationEmail() {
   }
 }
 
-// ── Update Profile (from profile page) ────────────────────────
+// ── Update Profile ────────────────────────────────────────────
 
 /**
  * Update the current user's display name.
  */
 async function updateDisplayName(newName) {
-  if (!_authReady || !_auth || !_auth.currentUser) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth || !auth.currentUser) {
     throw new Error('No user is signed in.');
   }
   try {
-    await _auth.currentUser.updateProfile({ displayName: newName });
-    // Update cache
+    await updateProfile(auth.currentUser, { displayName: newName });
     if (_currentUser) _currentUser.displayName = newName;
     return true;
   } catch (e) {
@@ -332,17 +360,17 @@ async function updateDisplayName(newName) {
 
 /**
  * Update the current user's email address.
- * Sends a verification email to the new address.
  */
 async function updateEmail(newEmail) {
-  if (!_authReady || !_auth || !_auth.currentUser) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth || !auth.currentUser) {
     throw new Error('No user is signed in.');
   }
   try {
-    await _auth.currentUser.updateEmail(newEmail);
+    await _updateEmail(auth.currentUser, newEmail);
     if (_currentUser) _currentUser.email = newEmail;
     // New email needs to be verified
-    await _auth.currentUser.sendEmailVerification({
+    await sendEmailVerification(auth.currentUser, {
       url: window.location.origin + '/',
       handleCodeInApp: true,
     });
@@ -356,14 +384,14 @@ async function updateEmail(newEmail) {
  * Update the current user's password (requires recent login).
  */
 async function updatePassword(newPassword) {
-  if (!_authReady || !_auth || !_auth.currentUser) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth || !auth.currentUser) {
     throw new Error('No user is signed in.');
   }
   try {
-    await _auth.currentUser.updatePassword(newPassword);
+    await _updatePassword(auth.currentUser, newPassword);
     return true;
   } catch (e) {
-    // If credential error, user should re-authenticate
     throw _translateFirebaseError(e);
   }
 }
@@ -372,12 +400,13 @@ async function updatePassword(newPassword) {
  * Re-authenticate the user before sensitive operations.
  */
 async function reauthenticate(email, password) {
-  if (!_authReady || !_auth || !_auth.currentUser) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth || !auth.currentUser) {
     throw new Error('No user is signed in.');
   }
   try {
-    var credential = firebase.auth.EmailAuthProvider.credential(email, password);
-    await _auth.currentUser.reauthenticateWithCredential(credential);
+    const credential = EmailAuthProvider.credential(email, password);
+    await reauthenticateWithCredential(auth.currentUser, credential);
     return true;
   } catch (e) {
     throw _translateFirebaseError(e);
@@ -388,12 +417,12 @@ async function reauthenticate(email, password) {
  * Delete the current user's account.
  */
 async function deleteAccount() {
-  if (!_authReady || !_auth || !_auth.currentUser) {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth || !auth.currentUser) {
     throw new Error('No user is signed in.');
   }
   try {
-    // Note: User should be re-authenticated before this call
-    await _auth.currentUser.delete();
+    await deleteUser(auth.currentUser);
     _currentUser = null;
     return true;
   } catch (e) {
@@ -435,13 +464,31 @@ function _translateFirebaseError(error) {
     case 'auth/invalid-action-code':
       return new Error('This verification link is invalid. Please request a new one.');
     default:
-      // Log unexpected errors for debugging
       console.warn('[auth] Untranslated error:', code);
       return new Error('Something went wrong. Please try again.');
   }
 }
 
 // ── Export ────────────────────────────────────────────────────
+
+// Attach all public functions to window for non-module scripts
+window.getCurrentUser = getCurrentUser;
+window.initAuth = initAuth;
+window.fetchCurrentUser = fetchCurrentUser;
+window.onAuthChange = onAuthChange;
+window.signUpWithEmail = signUpWithEmail;
+window.loginWithEmail = loginWithEmail;
+window.logout = logout;
+window.sendPasswordResetEmail = sendPasswordResetEmail;
+window.confirmPasswordReset = confirmPasswordReset;
+window.checkActionCode = checkActionCode;
+window.applyVerificationCode = applyVerificationCode;
+window.resendVerificationEmail = resendVerificationEmail;
+window.updateDisplayName = updateDisplayName;
+window.updateEmail = updateEmail;
+window.updatePassword = updatePassword;
+window.reauthenticate = reauthenticate;
+window.deleteAccount = deleteAccount;
 
 window.__auth = {
   init: initAuth,

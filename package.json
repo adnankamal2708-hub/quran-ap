@@ -1,0 +1,25 @@
+{
+  "name": "quran-ap-main",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "scripts": {
+    "build": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adnankamal2708-hub/quran-ap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/adnankamal2708-hub/quran-ap/issues"
+  },
+  "homepage": "https://github.com/adnankamal2708-hub/quran-ap#readme",
+  "devDependencies": {
+    "terser": "^5.48.0"
+  }
+}

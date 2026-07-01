@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// user-service.js — User Profile & Account Management
+// user-service.js — User Profile & Account Management (v12 Modular SDK)
 //
 // Manages user profiles in Firestore, including name, email,
 // join date, avatar, learning statistics, and settings.
@@ -17,10 +17,21 @@
 //       autoImportOnLogin: boolean (default true)
 //     }
 //     lastSync: timestamp (server)
+//
+// Firebase v12 modular functions are accessed through
+// window.__firebaseCore (provided by firebase-core.js module).
 // ═══════════════════════════════════════════════════════════════
 
-/** @type {firebase.firestore.Firestore|null} */
-let _userDb = null;
+// ── Import Firebase functions from the core bridge ─────────────
+// Use `var` (not `const`) so that when build.js concatenates multiple
+// service files, the same variable names can be safely re-declared.
+var {
+  doc: _doc,
+  getDoc: _getDoc,
+  setDoc: _setDoc,
+  deleteDoc: _deleteDoc,
+  serverTimestamp: _serverTimestamp,
+} = window.__firebaseCore || {};
 
 /** @type {boolean} Ready flag */
 let _userReady = false;
@@ -28,20 +39,22 @@ let _userReady = false;
 // ── Initialization ────────────────────────────────────────────
 
 function initUserService() {
-  if (typeof firebase === 'undefined' || !firebase.firestore) {
+  const coreOk = window.__firebaseCore ? window.__firebaseCore.initCore() : false;
+  if (!coreOk) {
+    console.warn('[user] Firebase core not available.');
+    _userReady = false;
+    return false;
+  }
+
+  const db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+  if (!db) {
     console.warn('[user] Firestore not available.');
     _userReady = false;
     return false;
   }
-  try {
-    _userDb = firebase.firestore();
-    _userReady = true;
-    return true;
-  } catch (e) {
-    console.warn('[user] Init failed:', e.message);
-    _userReady = false;
-    return false;
-  }
+
+  _userReady = true;
+  return true;
 }
 
 function isUserServiceReady() {
@@ -54,17 +67,19 @@ function isUserServiceReady() {
  * Create or update a user profile document.
  */
 async function saveProfile(userId, profileData) {
-  if (!_userReady || !_userDb) {
+  if (!_userReady) {
     console.warn('[user] Cannot save profile — service not ready.');
     return false;
   }
   if (!userId) return false;
 
   try {
-    var docRef = _userDb.collection(FIRESTORE_PROFILE_COLLECTION).doc(userId);
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (!db) return false;
+    var docRef = _doc(db, FIRESTORE_PROFILE_COLLECTION, userId);
 
     var data = {
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: _serverTimestamp(),
     };
 
     if (profileData.displayName !== undefined) data.displayName = profileData.displayName;
@@ -72,7 +87,7 @@ async function saveProfile(userId, profileData) {
     if (profileData.avatarUrl !== undefined) data.avatarUrl = profileData.avatarUrl;
     if (profileData.settings !== undefined) data.settings = profileData.settings;
 
-    await docRef.set(data, { merge: true });
+    await _setDoc(docRef, data, { merge: true });
     return true;
   } catch (e) {
     console.warn('[user] Save profile failed:', e.message);
@@ -85,19 +100,21 @@ async function saveProfile(userId, profileData) {
  * Returns the profile object or null.
  */
 async function loadProfile(userId) {
-  if (!_userReady || !_userDb) {
+  if (!_userReady) {
     console.warn('[user] Cannot load profile — service not ready.');
     return null;
   }
   if (!userId) return null;
 
   try {
-    var docRef = _userDb.collection(FIRESTORE_PROFILE_COLLECTION).doc(userId);
-    var doc = await docRef.get();
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (!db) return null;
+    var docRef = _doc(db, FIRESTORE_PROFILE_COLLECTION, userId);
+    var snap = await _getDoc(docRef);
 
-    if (!doc.exists) return null;
+    if (!snap.exists()) return null;
 
-    return doc.data();
+    return snap.data();
   } catch (e) {
     console.warn('[user] Load profile failed:', e.message);
     return null;
@@ -108,15 +125,18 @@ async function loadProfile(userId) {
  * Delete a user's profile document from Firestore.
  */
 async function deleteProfile(userId) {
-  if (!_userReady || !_userDb) return false;
+  if (!_userReady) return false;
   if (!userId) return false;
 
   try {
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (!db) return false;
+
     // Delete profile
-    await _userDb.collection(FIRESTORE_PROFILE_COLLECTION).doc(userId).delete();
+    await _deleteDoc(_doc(db, FIRESTORE_PROFILE_COLLECTION, userId));
 
     // Delete learning data
-    await _userDb.collection(FIRESTORE_LEARNING_COLLECTION).doc(userId).delete();
+    await _deleteDoc(_doc(db, FIRESTORE_LEARNING_COLLECTION, userId));
 
     return true;
   } catch (e) {
@@ -158,8 +178,8 @@ function mergeSettings(saved) {
  * Generate a summary of the user's learning progress (for profile display).
  */
 function computeLearningSummary() {
-  var srsStats = getSRSStats ? getSRSStats() : { total: 0, mature: 0, totalReviews: 0 };
-  var streakData = loadStreakData ? loadStreakData() : { streak: 0 };
+  var srsStats = typeof getSRSStats === 'function' ? getSRSStats() : { total: 0, mature: 0, totalReviews: 0 };
+  var streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
 
   return {
     totalWords: srsStats.total || 0,
@@ -189,9 +209,12 @@ async function exportAccountData(userId) {
 
   // Add learning data
   try {
-    var learningDoc = await _userDb.collection(FIRESTORE_LEARNING_COLLECTION).doc(userId).get();
-    if (learningDoc.exists) {
-      data.learningData = learningDoc.data().learningData;
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (db) {
+      var snap = await _getDoc(_doc(db, FIRESTORE_LEARNING_COLLECTION, userId));
+      if (snap.exists()) {
+        data.learningData = snap.data().learningData;
+      }
     }
   } catch (e) { /* skip */ }
 

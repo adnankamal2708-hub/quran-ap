@@ -272,28 +272,25 @@ function loadFavorites() {
     if (!raw) return {};
     var data = JSON.parse(raw);
     // Migrate: if keys look like Arabic text (not "w_" prefix), convert to IDs
-    return migrateFavoritesIfNeeded(data);
+    return _migrateLegacyKeys(data, false);
   } catch (e) {
     return {};
   }
 }
 
 /**
- * Migrate favorites from arabic-based keys to id-based keys.
+ * Generic migration helper: convert storage keys from arabic-based to id-based.
+ * @param {Object} data - Storage data with legacy keys
+ * @param {boolean} keepValue - Whether to keep the original value (true for notes,
+ *   false for favorites where the value is just `true`)
+ * @returns {Object} Migrated data with id-based keys
  */
-function migrateFavoritesIfNeeded(favs) {
-  if (!favs || typeof favs !== 'object') return {};
-  var needsMigration = false;
-  var keys = Object.keys(favs);
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i] && keys[i].indexOf('w_') !== 0) {
-      needsMigration = true;
-      break;
-    }
-  }
-  if (!needsMigration) return favs;
+function _migrateLegacyKeys(data, keepValue) {
+  if (!data || typeof data !== 'object') return {};
+  var keys = Object.keys(data);
+  var needsMigration = keys.some(function(k) { return k && k.indexOf('w_') !== 0; });
+  if (!needsMigration) return data;
   
-  // Build arabic → id map from ALL_WORDS
   var arabicToFirstId = {};
   for (var j = 0; j < ALL_WORDS.length; j++) {
     var w = ALL_WORDS[j];
@@ -306,11 +303,11 @@ function migrateFavoritesIfNeeded(favs) {
   for (var k = 0; k < keys.length; k++) {
     var key = keys[k];
     if (key.indexOf('w_') === 0) {
-      migrated[key] = favs[key];
-    } else if (favs[key]) {
+      migrated[key] = data[key];
+    } else {
       var id = arabicToFirstId[key];
       if (id) {
-        migrated[id] = true;
+        migrated[id] = keepValue ? data[key] : true;
       }
     }
   }
@@ -361,40 +358,10 @@ function loadNotes() {
 
 /**
  * Migrate notes from arabic-based keys to id-based keys.
+ * Delegates to the shared _migrateLegacyKeys helper with keepValue=true.
  */
 function migrateNotesIfNeeded(notes) {
-  if (!notes || typeof notes !== 'object') return {};
-  var needsMigration = false;
-  var keys = Object.keys(notes);
-  for (var i = 0; i < keys.length; i++) {
-    if (keys[i] && keys[i].indexOf('w_') !== 0) {
-      needsMigration = true;
-      break;
-    }
-  }
-  if (!needsMigration) return notes;
-  
-  var arabicToFirstId = {};
-  for (var j = 0; j < ALL_WORDS.length; j++) {
-    var w = ALL_WORDS[j];
-    if (!arabicToFirstId[w.arabic]) {
-      arabicToFirstId[w.arabic] = w.id;
-    }
-  }
-  
-  var migrated = {};
-  for (var k = 0; k < keys.length; k++) {
-    var key = keys[k];
-    if (key.indexOf('w_') === 0) {
-      migrated[key] = notes[key];
-    } else {
-      var id = arabicToFirstId[key];
-      if (id) {
-        migrated[id] = notes[key];
-      }
-    }
-  }
-  return migrated;
+  return _migrateLegacyKeys(notes, true);
 }
 
 function saveNotes(data) {
