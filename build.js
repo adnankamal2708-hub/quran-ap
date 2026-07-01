@@ -2,8 +2,13 @@
 // build.js — Production Build Script
 //   • Concatenates all JS files into data + app bundles
 //   • Minifies both bundles using terser
-//   • Minifies CSS
+//   • Minifies CSS and inlines it into the HTML
 //   • Generates optimized dist/ folder
+//
+// IMPORTANT: The production HTML is derived from the DEVELOPMENT
+// index.html by replacing script tags and inlining CSS. This
+// ensures ALL UI sections, modals, keyboard hints, and other
+// content are preserved in the production build.
 // ═══════════════════════════════════════════════════════════════
 
 const fs = require('fs');
@@ -85,6 +90,14 @@ function basicMinify(code) {
     .trim();
 }
 
+function minifyHTML(html) {
+  return html
+    .replace(/\n\s+/g, '\n')
+    .replace(/>\s+</g, '><')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 async function build() {
   console.log('\n  Building Quranic Vocabulary — Production Build\n');
 
@@ -154,16 +167,48 @@ async function build() {
   var reduction = Math.round((1 - css.length / origCSSLen) * 100);
   console.log('     ' + (origCSSLen / 1024).toFixed(1) + ' KB -> ' + (css.length / 1024).toFixed(1) + ' KB (' + reduction + '% reduction)');
 
-  // 5. Copy Firebase core module (must be at the SAME relative path for module resolution)
-  console.log('  5. Copying Firebase core module...');
+  // 5. Generate production HTML from DEV index.html
+  //    This ensures ALL UI content (sections, modals, keyboard hints) is preserved.
+  console.log('  5. Generating optimized page from dev index.html...');
+  var devHtml = readFile('index.html');
+  if (!devHtml) {
+    console.error('     ERROR: Could not read index.html');
+    return;
+  }
+
+  // Step A: Replace external CSS link (<link rel="stylesheet" href="styles.css">) with inline <style>
+  var cssLinkRegex = /<link\s+rel="stylesheet"\s+href="styles\.css"\s*\/?>/;
+  devHtml = devHtml.replace(cssLinkRegex, '<style>' + css + '</style>');
+
+  // Step B: Remove all <script> tags (both regular and module), then append bundle scripts
+  // Remove module script (firebase-core.js)
+  devHtml = devHtml.replace(/<script\s+type="module"\s+src="js\/services\/firebase-core\.js"><\/script>\s*/g, '');
+  // Remove all individual <script defer src="..."> tags
+  devHtml = devHtml.replace(/<script\s+defer\s+src="[^"]*"><\/script>\s*/g, '');
+
+  // Step C: Append the production script tags before </body>
+  var prodScripts =
+    '  <script type="module" src="js/services/firebase-core.js"></script>\n' +
+    '  <script defer src="js/data.bundle.min.js"></script>\n' +
+    '  <script defer src="js/app.bundle.min.js"></script>\n';
+  devHtml = devHtml.replace('</body>', prodScripts + '</body>');
+
+  // Basic HTML minification
+  devHtml = minifyHTML(devHtml);
+
+  writeFile('index.html', devHtml);
+  console.log('     Production HTML generated (' + (devHtml.length / 1024).toFixed(1) + ' KB)');
+
+  // 6. Copy Firebase core module (must be at the SAME relative path for module resolution)
+  console.log('  6. Copying Firebase core module...');
   var coreSrc = readFile('js/services/firebase-core.js');
   if (coreSrc) {
     writeFile('js/services/firebase-core.js', coreSrc);
     console.log('     firebase-core.js copied as standalone module');
   }
 
-  // 6. Copy SW and manifest
-  console.log('  6. Copying service worker & assets...');
+  // 7. Copy SW and manifest
+  console.log('  7. Copying service worker & assets...');
   var sw = readFile('sw.js');
   // Update SW precache list to use bundled files
   sw = sw.replace(
@@ -173,59 +218,6 @@ async function build() {
   writeFile('sw.js', sw);
   writeFile('manifest.json', readFile('manifest.json'));
   writeFile('favicon.ico', readFile('favicon.ico') || '');
-
-  // 7. Create optimized index.html
-  console.log('  6. Generating optimized page...');
-  var minCSS = readFile('dist/styles.min.css');
-  var html = [
-    '<!DOCTYPE html>',
-    '<html lang="en">',
-    '<head>',
-    '<meta charset="UTF-8">',
-    '<meta name="viewport" content="width=device-width,initial-scale=1.0">',
-    '<meta name="apple-mobile-web-app-capable" content="yes">',
-    '<meta name="mobile-web-app-capable" content="yes">',
-    '<meta name="theme-color" content="#c9a84c">',
-    '<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E📖%3C/text%3E%3C/svg%3E">',
-    '<link rel="manifest" href="manifest.json">',
-    '<meta name="description" content="Learn Quranic Arabic vocabulary with spaced repetition.">',
-    '<title>Quranic Vocabulary</title>',
-    '<link rel="preconnect" href="https://fonts.googleapis.com">',
-    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-    '<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">',
-    '<style>' + minCSS + '</style>',
-    '</head>',
-    '<body>',
-    '<a href="#content" class="skip-link">Skip to content</a>',
-    '<div class="app" role="application">',
-    '<header class="top-bar" role="banner">',
-    '<div class="top-primary-row">',
-    '<div class="top-left-group"><div class="bismillah" aria-hidden="true">بِسْمِ اللَّهِ</div><span class="offline-badge" id="offline-badge" aria-live="polite">✓ Offline ready</span><span class="guest-badge" id="guest-badge" style="display:none">👤 Guest</span></div>',
-    '<div class="top-right-group"><button class="user-btn" id="user-btn" type="button" title="Account"><span class="user-avatar-small">👤</span></button></div>',
-    '</div>',
-    '<div class="top-meta-row">',
-    '<div class="top-info-group"><span class="lesson-label" id="lesson-label">Lesson 1 of 16</span><span class="top-meta-sep" aria-hidden="true">·</span><span class="top-meta-stat" id="stat-learned">0</span><span class="top-meta-stat-label">Learned</span><span class="top-meta-sep" aria-hidden="true">·</span><span class="top-meta-stat" id="stat-review">0</span><span class="top-meta-stat-label">Due</span><span class="top-meta-sep" aria-hidden="true">·</span><span class="top-meta-stat" id="stat-score">—</span><span class="top-meta-stat-label">Quiz</span>',
-    '<div class="goal-ring-wrap" id="goal-ring-wrap" title="Daily review goal" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">',
-    '<svg class="goal-ring" viewBox="0 0 36 36"><path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path class="goal-ring-fill" id="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="0,100"/><text class="goal-ring-text" id="goal-ring-text" x="18" y="20.5">0</text></svg>',
-    '</div></div></div>',
-    '<div class="progress-row" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div><span class="progress-label" id="progress-text">Word 1 / 20</span></div>',
-    '</header>',
-    '<main class="content" id="content" tabindex="-1">',
-    '</main>',
-    '<nav class="bottom-nav" role="navigation">',
-    '<button class="nav-tab active" id="tab-learn" type="button"><span class="nav-tab-icon">📖</span><span class="nav-tab-label">Learn</span></button>',
-    '<button class="nav-tab" id="tab-quiz" type="button"><span class="nav-tab-icon">✏️</span><span class="nav-tab-label">Quiz</span></button>',
-    '<button class="nav-tab" id="tab-list" type="button"><span class="nav-tab-icon">📋</span><span class="nav-tab-label">Words</span></button>',
-    '<button class="nav-tab" id="tab-stats" type="button"><span class="nav-tab-icon">📊</span><span class="nav-tab-label">Stats</span></button>',
-    '</nav>',
-    '</div>',
-    '<script type="module" src="js/services/firebase-core.js"></script>',
-    '<script defer src="js/data.bundle.min.js"></script>',
-    '<script defer src="js/app.bundle.min.js"></script>',
-    '</body>',
-    '</html>',
-  ].join('\n');
-  writeFile('index.html', html);
 
   // Stats
   console.log('\n  Build Complete!\n');
