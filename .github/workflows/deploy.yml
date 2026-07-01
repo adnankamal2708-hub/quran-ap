@@ -1,0 +1,68 @@
+# ═══════════════════════════════════════════════════════════════
+# deploy.yml — GitHub Actions: Build & Deploy to GitHub Pages
+#
+# On every push to main, this workflow:
+#   1. Checks out the repository
+#   2. Sets up Node.js
+#   3. Installs dependencies (npm ci)
+#   4. Runs the production build (npm run build)
+#   5. Deploys the dist/ directory to GitHub Pages
+#
+# Requirements:
+#   - Repository settings → Pages → Source: "GitHub Actions"
+# ═══════════════════════════════════════════════════════════════
+
+name: Build & Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Allow manual trigger from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# Cancel in-progress runs for non-main branches.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production assets
+        run: npm run build
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact (dist/)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

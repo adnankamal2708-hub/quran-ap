@@ -1,14 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
 // build.js — Production Build Script
+//   • Auto-discovers all data files from js/data/ directory
 //   • Concatenates all JS files into data + app bundles
 //   • Minifies both bundles using terser
 //   • Minifies CSS and inlines it into the HTML
 //   • Generates optimized dist/ folder
+//   • Updates service worker to precache production assets
 //
-// IMPORTANT: The production HTML is derived from the DEVELOPMENT
-// index.html by replacing script tags and inlining CSS. This
-// ensures ALL UI sections, modals, keyboard hints, and other
-// content are preserved in the production build.
+// ARCHITECTURE: Production-first (single deployment architecture).
+// Source index.html loads only production bundles (data.bundle.min.js
+// + app.bundle.min.js). No individual script tags in development.
 // ═══════════════════════════════════════════════════════════════
 
 const fs = require('fs');
@@ -17,55 +18,35 @@ const path = require('path');
 const ROOT = __dirname;
 const DIST = path.join(ROOT, 'dist');
 
-const DATA_FILES = [
-  'js/data.js',
-  'js/data/surahs.js',
-  'js/data/words-al-fatiha.js',
-  'js/data/words-ikhlas.js',
-  'js/data/words-attributes.js',
-  'js/data/words-baqarah.js',
-  'js/data/words-common.js',
-  'js/data/words-expanded.js',
-  'js/data/words-names-of-allah.js',
-  'js/data/words-surah-3-imran.js',
-  'js/data/words-surah-4-nisa.js',
-  'js/data/words-surah-5-maidah.js',
-  'js/data/words-surah-6-anam.js',
-  'js/data/words-surah-7-araf.js',
-  'js/data/words-surah-8-anfal.js',
-  'js/data/words-surah-9-tawbah.js',
-  'js/data/words-surah-10-yunus.js',
-  'js/data/words-surah-11-hud.js',
-  'js/data/words-surah-12-yusuf.js',
-  'js/data/words-surah-13-rad.js',
-  'js/data/words-surah-14-ibrahim.js',
-  'js/data/words-surah-15-hijr.js',
-  'js/data/words-surah-16-nahl.js',
-  'js/data/words-surah-17-isra.js',
-  'js/data/words-surah-18-kahf.js',
-  'js/data/words-surah-19-maryam.js',
-  'js/data/words-surah-20-taha.js',
-  'js/data/words-surah-21-anbiya.js',
-  'js/data/words-surah-22-hajj.js',
-  'js/data/words-surah-23-muminun.js',
-  'js/data/words-surah-24-nur.js',
-  'js/data/words-surah-25-furqan.js',
-  'js/data/words-surah-26-shuara.js',
-  'js/data/words-surah-27-naml.js',
-  'js/data/words-surah-28-qasas.js',
-  'js/data/words-surah-29-ankabut.js',
-  'js/data/words-surah-30-rum.js',
-  'js/data/words-surah-31-luqman.js',
-  'js/data/words-surah-32-sajdah.js',
-  'js/data/words-surah-33-ahzab.js',
-  'js/data/words-surah-34-saba.js',
-  'js/data/words-surah-35-fatir.js',
-  'js/data/words-surah-36-yasin.js',
-  'js/data/words-surah-37-saffat.js',
-  'js/data/words-surah-38-sad.js',
-  'js/data/words-surah-39-zumar.js',
-  'js/data/words-surah-40-ghafir.js',
-];
+// ── AUTO-DISCOVERY ────────────────────────────────────────────────
+// Data files are discovered automatically from js/data/ directory.
+// Adding a new words-surah-NN-name.js file will be picked up without
+// editing this build script.
+const DATA_FILES = (function () {
+  var dataDir = path.join(ROOT, 'js', 'data');
+  var files = [];
+  if (fs.existsSync(dataDir)) {
+    var entries = fs.readdirSync(dataDir).sort();
+    entries.forEach(function (f) {
+      if (f.endsWith('.js')) {
+        files.push('js/data/' + f);
+      }
+    });
+  }
+  // data.js must be first, surahs.js early, then all words-*.js files
+  var coreFiles = ['js/data.js'];
+  var surahMeta = [];
+  var wordFiles = [];
+  files.forEach(function (f) {
+    if (f === 'js/data.js') return;
+    if (f.indexOf('js/data/surahs.js') >= 0) {
+      surahMeta.push(f);
+    } else {
+      wordFiles.push(f);
+    }
+  });
+  return coreFiles.concat(surahMeta).concat(wordFiles);
+})();
 
 // firebase-core.js is NOT included in the bundle — it is loaded as a
 // separate ES module (<script type="module">) so that CDN imports work.
@@ -128,7 +109,7 @@ async function build() {
   fs.mkdirSync(path.join(DIST, 'js'), { recursive: true });
 
   // 1. Concat data files
-  console.log('  1. Concatenating data files...');
+  console.log('  1. Concatenating data files (' + DATA_FILES.length + ' files)...');
   var dataBundle = '';
   DATA_FILES.forEach(function (f) {
     var content = readFile(f);
@@ -137,7 +118,7 @@ async function build() {
   writeFile('js/data.bundle.js', basicMinify(stripComments(dataBundle)));
 
   // 2. Concat app files
-  console.log('  2. Concatenating app files...');
+  console.log('  2. Concatenating app files (' + APP_FILES.length + ' files)...');
   var appBundle = '';
   APP_FILES.forEach(function (f) {
     var content = readFile(f);
@@ -165,10 +146,8 @@ async function build() {
     console.log('     JS minification complete');
   } catch (e) {
     console.warn('     Warning: terser minification failed, using unminified: ' + e.message);
-    var dataRaw = readFile('dist/js/data.bundle.js');
-    writeFile('js/data.bundle.min.js', dataRaw);
-    var appRaw = readFile('dist/js/app.bundle.js');
-    writeFile('js/app.bundle.min.js', appRaw);
+    writeFile('js/data.bundle.min.js', readFile('dist/js/data.bundle.js'));
+    writeFile('js/app.bundle.min.js', readFile('dist/js/app.bundle.js'));
   }
 
   // 4. Minify CSS
@@ -187,33 +166,23 @@ async function build() {
   var reduction = Math.round((1 - css.length / origCSSLen) * 100);
   console.log('     ' + (origCSSLen / 1024).toFixed(1) + ' KB -> ' + (css.length / 1024).toFixed(1) + ' KB (' + reduction + '% reduction)');
 
-  // 5. Generate production HTML from DEV index.html
-  //    This ensures ALL UI content (sections, modals, keyboard hints) is preserved.
-  console.log('  5. Generating optimized page from dev index.html...');
+  // 5. Generate production HTML from source index.html
+  //    The source index.html already uses production bundle references
+  //    (data.bundle.min.js + app.bundle.min.js), so we just:
+  //    1) Inline the CSS
+  //    2) Minify the HTML
+  console.log('  5. Generating optimized page from source index.html...');
   var devHtml = readFile('index.html');
   if (!devHtml) {
     console.error('     ERROR: Could not read index.html');
     return;
   }
 
-  // Step A: Replace external CSS link (<link rel="stylesheet" href="styles.css">) with inline <style>
+  // Step A: Replace external CSS link with inline <style>
   var cssLinkRegex = /<link\s+rel="stylesheet"\s+href="styles\.css"\s*\/?>/;
   devHtml = devHtml.replace(cssLinkRegex, '<style>' + css + '</style>');
 
-  // Step B: Remove all <script> tags (both regular and module), then append bundle scripts
-  // Remove module script (firebase-core.js)
-  devHtml = devHtml.replace(/<script\s+type="module"\s+src="js\/services\/firebase-core\.js"><\/script>\s*/g, '');
-  // Remove all individual <script defer src="..."> tags
-  devHtml = devHtml.replace(/<script\s+defer\s+src="[^"]*"><\/script>\s*/g, '');
-
-  // Step C: Append the production script tags before </body>
-  var prodScripts =
-    '  <script type="module" src="js/services/firebase-core.js"></script>\n' +
-    '  <script defer src="js/data.bundle.min.js"></script>\n' +
-    '  <script defer src="js/app.bundle.min.js"></script>\n';
-  devHtml = devHtml.replace('</body>', prodScripts + '</body>');
-
-  // Basic HTML minification
+  // Step B: Basic HTML minification
   devHtml = minifyHTML(devHtml);
 
   writeFile('index.html', devHtml);
@@ -231,7 +200,6 @@ async function build() {
   console.log('  7. Copying service worker & assets...');
   var sw = readFile('sw.js');
   // Update SW precache list to use bundled files
-  // NOTE: Paths are relative to site root (deploy dist/ as root, so NO /dist/ prefix)
   sw = sw.replace(
     /const PRECACHE_URLS = \[[\s\S]*?\];/,
     "const PRECACHE_URLS = [\n  './',\n  './index.html',\n  './styles.min.css',\n  './js/data.bundle.min.js',\n  './js/app.bundle.min.js',\n  './js/services/firebase-core.js',\n  './manifest.json',\n  './favicon.ico',\n];"
