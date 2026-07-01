@@ -79,7 +79,8 @@ const STAGE1_EASY =   [2,     4,     8];       // 2d, 4d, 8d
 // ── Storage ────────────────────────────────────────────────────
 
 /**
- * Load SRS data with automatic migration from legacy format.
+ * Load SRS data with automatic migration from legacy format
+ * AND from arabic-based keys to id-based keys.
  */
 function loadSRS() {
   try {
@@ -90,22 +91,105 @@ function loadSRS() {
       console.warn('SRS data malformed, resetting.');
       return {};
     }
-    // Migrate any legacy entries
+    
     var needsSave = false;
+    var migrated = {};
+    
+    // Check if we need key migration (arabic→id)
+    var needsKeyMigration = false;
     Object.keys(parsed).forEach(function (key) {
-      var entry = parsed[key];
-      if (entry.stage === undefined) {
-        entry = migrateLegacy(entry);
-        parsed[key] = entry;
-        needsSave = true;
+      if (key.indexOf('w_') !== 0 && key !== '_leechRecovery') {
+        needsKeyMigration = true;
       }
     });
-    if (needsSave) saveSRS(parsed);
-    return parsed;
+    
+    // Build arabic→firstId lookup for migration
+    var arabicToFirstId = {};
+    if (needsKeyMigration) {
+      for (var mi = 0; mi < ALL_WORDS.length; mi++) {
+        var mw = ALL_WORDS[mi];
+        if (!arabicToFirstId[mw.arabic]) {
+          arabicToFirstId[mw.arabic] = mw.id;
+        }
+      }
+    }
+    
+    Object.keys(parsed).forEach(function (key) {
+      var entry = parsed[key];
+      
+      // Skip special keys
+      if (key === '_leechRecovery') {
+        migrated[key] = entry;
+        return;
+      }
+      
+      // Migrate legacy entry format (stage missing)
+      if (entry.stage === undefined) {
+        entry = migrateLegacy(entry);
+        needsSave = true;
+      }
+      
+      // Migrate arabic-based key to id-based key
+      if (key.indexOf('w_') !== 0) {
+        var newKey = arabicToFirstId[key];
+        if (newKey) {
+          migrated[newKey] = entry;
+          needsSave = true;
+        } else {
+          // Word not found in current vocabulary — drop the entry
+          needsSave = true;
+          console.warn('[srs] Dropping SRS entry for unknown word:', key);
+        }
+      } else {
+        migrated[key] = entry;
+      }
+    });
+    
+    // Also migrate _leechRecovery sub-keys if they use arabic
+    if (migrated._leechRecovery) {
+      needsSave = migrateLeechRecoveryKeys(migrated) || needsSave;
+    }
+    
+    if (needsSave) saveSRS(migrated);
+    return migrated;
   } catch (e) {
     console.warn('Could not load SRS data:', e.message);
     return {};
   }
+}
+
+/**
+ * Migrate leech recovery keys from arabic-based to id-based.
+ */
+function migrateLeechRecoveryKeys(data) {
+  var recovery = data._leechRecovery;
+  if (!recovery) return false;
+  var needsSave = false;
+  var newRecovery = {};
+  var hasChanges = false;
+  
+  Object.keys(recovery).forEach(function (key) {
+    if (key.indexOf('w_') === 0) {
+      newRecovery[key] = recovery[key];
+    } else {
+      // Key format is "leech_<arabic>" or just "<arabic>"
+      var arabicPart = key.replace(/^leech_/, '');
+      // Find the first ID for this arabic text
+      for (var i = 0; i < ALL_WORDS.length; i++) {
+        if (ALL_WORDS[i].arabic === arabicPart) {
+          newRecovery['leech_' + ALL_WORDS[i].id] = recovery[key];
+          hasChanges = true;
+          break;
+        }
+      }
+    }
+  });
+  
+  if (hasChanges) {
+    data._leechRecovery = newRecovery;
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -148,13 +232,13 @@ function saveSRS(data) {
 // ── Status ─────────────────────────────────────────────────────
 
 /**
- * Get the review status of a word.
+ * Get the review status of a word by its unique ID.
  * Returns { status: 'new'|'review'|'mastered', stage, dueDate,
  *          interval, easeFactor, isLeech, retention, daysUntilDue }
  */
-function getSRSStatus(arabic) {
+function getSRSStatus(wordId) {
   var data = loadSRS();
-  var entry = data[arabic];
+  var entry = data[wordId];
 
   if (!entry || entry.stage === 0) {
     return {
@@ -220,22 +304,23 @@ function estimateRetention(entry) {
 /**
  * Estimate retention for display (0-100%).
  */
-function getRetentionPercent(arabic) {
-  var srs = getSRSStatus(arabic);
+function getRetentionPercent(wordId) {
+  var srs = getSRSStatus(wordId);
   return Math.round(srs.retention * 100);
 }
 
 // ── Rating / Scheduling ────────────────────────────────────────
 
 /**
- * Record a rating for a word and compute the next review schedule.
+ * Record a rating for a word by its unique ID and compute the next review schedule.
  * rating: 0=again, 1=hard, 2=good, 3=easy
  *
  * Uses a modified SM-2 algorithm with three learning stages.
  */
-function rateSRSWord(arabic, rating) {
+function rateSRSWord(wordId, rating) {
+  if (!wordId) return;
   var data = loadSRS();
-  var entry = data[arabic];
+  var entry = data[wordId];
 
   // Create entry if new
   if (!entry) {
@@ -252,7 +337,7 @@ function rateSRSWord(arabic, rating) {
       leechCount: 0,
       isLeech: false,
     };
-    data[arabic] = entry;
+    data[wordId] = entry;
   }
 
   // Track total reviews
@@ -273,7 +358,7 @@ function rateSRSWord(arabic, rating) {
   } else if (entry.isLeech && rating >= 2) {
     // Check if we've had enough consecutive good reviews
     data._leechRecovery = data._leechRecovery || {};
-    var recoveryKey = 'leech_' + arabic;
+    var recoveryKey = 'leech_' + wordId;
     data._leechRecovery[recoveryKey] = (data._leechRecovery[recoveryKey] || 0) + 1;
     if (data._leechRecovery[recoveryKey] >= LEECH_RECOVERY) {
       entry.isLeech = false;
@@ -286,7 +371,7 @@ function rateSRSWord(arabic, rating) {
   } else if (entry.isLeech && rating < 2) {
     // Bad rating resets recovery progress
     data._leechRecovery = data._leechRecovery || {};
-    delete data._leechRecovery['leech_' + arabic];
+    delete data._leechRecovery['leech_' + wordId];
     if (Object.keys(data._leechRecovery).length === 0) {
       delete data._leechRecovery;
     }
@@ -376,7 +461,7 @@ function rateSRSWord(arabic, rating) {
   entry.ratedAt = Date.now();
   entry.stage = newStage;
 
-  data[arabic] = entry;
+  data[wordId] = entry;
   saveSRS(data);
 }
 
@@ -422,7 +507,7 @@ function getDueReviews() {
   if (!words || words.length === 0) words = ALL_WORDS;
 
   words.forEach(function (w) {
-    var entry = data[w.arabic];
+    var entry = data[w.id];
     if (!entry) return;
     if (now >= entry.dueDate) {
       due.push({
@@ -457,7 +542,7 @@ function getNewWords() {
   var words = (typeof getActiveLessonWords === 'function') ? getActiveLessonWords() : ALL_WORDS;
   if (!words || words.length === 0) words = ALL_WORDS;
   return words.filter(function (w) {
-    var entry = data[w.arabic];
+    var entry = data[w.id];
     return !entry || entry.stage === 0;
   });
 }
@@ -499,7 +584,7 @@ function getSRSStats() {
 
   ALL_WORDS.forEach(function (w) {
     stats.total++;
-    var entry = data[w.arabic];
+    var entry = data[w.id];
     if (!entry || entry.stage === 0) {
       stats.newCount++;
       return;

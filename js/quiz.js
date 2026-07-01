@@ -79,7 +79,7 @@ function showQuizQ() {
 /**
  * Handle a quiz answer selection.
  */
-function answerQuiz(btn, chosen, correct, arabic) {
+function answerQuiz(btn, chosen, correct, wordId) {
   if (quizAnswered) return;
   quizAnswered = true;
   quizTotal++;
@@ -95,12 +95,12 @@ function answerQuiz(btn, chosen, correct, arabic) {
   if (chosen === correct) {
     btn.classList.add('correct');
     quizCorrect++;
-    rateSRSWord(arabic, 2);
+    rateSRSWord(wordId, 2);
     feedback.textContent = '\u2713 Correct!';
     feedback.style.color = 'var(--green)';
   } else {
     btn.classList.add('wrong');
-    rateSRSWord(arabic, 0);
+    rateSRSWord(wordId, 0);
     for (var bi = 0; bi < allOpts.length; bi++) {
       if (allOpts[bi].textContent === correct) allOpts[bi].classList.add('correct');
     }
@@ -199,6 +199,6 @@ function nextQuiz() {
 /**
  * Wired handle for quiz answer clicks (called from UI events).
  */
-function handleQuizAnswer(btn, chosen, correct, arabic) {
-  answerQuiz(btn, chosen, correct, arabic);
+function handleQuizAnswer(btn, chosen, correct, wordId) {
+  answerQuiz(btn, chosen, correct, wordId);
 }

@@ -158,7 +158,7 @@ function updateWordCard() {
 function rateSRS(rating) {
   const w = getCurrentWord();
   if (!w) return;
-  rateSRSWord(w.arabic, rating);
+  rateSRSWord(w.id, rating);
 
   // Invalidate stats cache after rating
   if (window.__srs && window.__srs.invalidateStatsCache) {
@@ -211,15 +211,15 @@ function handleFilterClick(filterType, value) {
 function toggleBookmark() {
   var w = getCurrentWord();
   if (!w) return;
-  toggleFavorite(w.arabic);
-  updateBookmarkButton(w.arabic);
+  toggleFavorite(w.id);
+  updateBookmarkButton(w.id);
 }
 
 function saveNote() {
   var w = getCurrentWord();
   if (!w) return;
   var text = document.getElementById('notes-input').value;
-  setNote(w.arabic, text);
+  setNote(w.id, text);
 }
 
 // ── Lesson Progress Display ────────────────────────────────────
@@ -653,7 +653,7 @@ function startReview() {
   // Count how many are already mastered in the review queue
   var srsData = loadSRS();
   for (var ri = 0; ri < reviewQueue.length; ri++) {
-    var entry = srsData[reviewQueue[ri].arabic];
+    var entry = srsData[reviewQueue[ri].id];
     if (entry && entry.stage >= 2) _reviewOriginalMastered++;
   }
   reviewMode = true;
@@ -667,7 +667,7 @@ function endReview() {
   var srsData = loadSRS();
   var newMastered = 0;
   for (var ri = 0; ri < reviewQueue.length; ri++) {
-    var entry = srsData[reviewQueue[ri].arabic];
+    var entry = srsData[reviewQueue[ri].id];
     if (entry && entry.stage >= 2) {
       newMastered++;
     }
@@ -810,6 +810,154 @@ window.__navigateToWordIndex = function (idx) {
   updateWordCard();
 };
 
+// ═══════════════════════════════════════════════════════════════
+// Data Validation — Runs at startup to detect data issues
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Validate the integrity of ALL_WORDS data at startup.
+ * Checks for: duplicate IDs, missing IDs, missing required fields,
+ * invalid surah references, and malformed entries.
+ * Produces console warnings for any issues found.
+ */
+function validateData() {
+  if (!ALL_WORDS || ALL_WORDS.length === 0) {
+    console.warn('[validate] No vocabulary data loaded.');
+    return { valid: false, errors: ['No vocabulary data loaded'] };
+  }
+
+  var errors = [];
+  var idMap = {};
+  var arabicCounts = {};
+
+  // Build a Set of all arabic texts for O(1) cross-reference lookups
+  var arabicSet = new Set();
+  for (var si = 0; si < ALL_WORDS.length; si++) {
+    if (ALL_WORDS[si].arabic) arabicSet.add(ALL_WORDS[si].arabic);
+  }
+
+  for (var i = 0; i < ALL_WORDS.length; i++) {
+    var w = ALL_WORDS[i];
+
+    // 1. Check ID exists and is unique
+    if (!w.id) {
+      errors.push('Word #' + i + ' is missing an id field');
+    } else if (idMap[w.id]) {
+      errors.push('Duplicate ID: ' + w.id + ' (words #' + idMap[w.id] + ' and #' + i + ')');
+    } else {
+      idMap[w.id] = i;
+    }
+
+    // 2. Check ID format (should start with "w_")
+    if (w.id && w.id.indexOf('w_') !== 0) {
+      errors.push('Word #' + i + ' has malformed ID: ' + w.id);
+    }
+
+    // 3. Check required fields
+    if (!w.arabic) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing arabic field');
+    if (!w.english) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing english field');
+    if (!w.translit) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing translit field');
+    if (!w.meaning) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing meaning field');
+    if (!w.type) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing type field');
+    if (!w.typeCategory) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing typeCategory field');
+    if (!w.root) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing root field');
+    if (w.occ === undefined || w.occ === null) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing occ field');
+    if (!w.difficulty) errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') is missing difficulty field');
+
+    // 4. Check surahId is valid if present
+    if (w.surahId !== undefined && w.surahId !== null) {
+      if (!SURAH_INFO || !SURAH_INFO[w.surahId]) {
+        errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has invalid surahId: ' + w.surahId);
+      }
+    }
+
+    // 5. Check verseKey format and validate verse number against Surah info
+    if (w.verseKey && typeof w.verseKey === 'string') {
+      var parts = w.verseKey.split(':');
+      if (parts.length !== 2) {
+        errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has malformed verseKey: ' + w.verseKey);
+      } else {
+        var vSurah = parseInt(parts[0], 10);
+        var vVerse = parseInt(parts[1], 10);
+        // Check verse number is within surah's verse count
+        if (w.surahId && SURAH_INFO && SURAH_INFO[w.surahId]) {
+          var maxVerses = SURAH_INFO[w.surahId].verses;
+          if (vVerse < 1 || vVerse > maxVerses) {
+            errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has verseKey ' + w.verseKey + ' but surah ' + w.surahId + ' only has ' + maxVerses + ' verses');
+          }
+        }
+        // Check verseKey surah matches word surahId
+        if (w.surahId && vSurah !== w.surahId) {
+          errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has verseKey surah ' + vSurah + ' but surahId is ' + w.surahId);
+        }
+      }
+    }
+
+    // 5b. Check similar/opposite word references exist (using Set for O(1))
+    var refFields = ['similarWords', 'oppositeWords'];
+    for (var ri = 0; ri < refFields.length; ri++) {
+      var refs = w[refFields[ri]];
+      if (refs && Array.isArray(refs)) {
+        for (var rj = 0; rj < refs.length; rj++) {
+          if (!arabicSet.has(refs[rj])) {
+            errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') references missing ' + refFields[ri] + ' word: \'' + refs[rj] + '\'');
+          }
+        }
+      }
+    }
+
+    // 5c. Check rootFamily references exist (using Set for O(1))
+    if (w.rootFamily && Array.isArray(w.rootFamily)) {
+      for (var rfi = 0; rfi < w.rootFamily.length; rfi++) {
+        var rfArabic = w.rootFamily[rfi].a;
+        if (rfArabic && !arabicSet.has(rfArabic)) {
+          errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') references missing rootFamily word: \'' + rfArabic + '\'');
+        }
+      }
+    }
+
+    // 6. Track arabic duplicates (informational)
+    if (w.arabic) {
+      if (!arabicCounts[w.arabic]) arabicCounts[w.arabic] = 0;
+      arabicCounts[w.arabic]++;
+    }
+
+    // 7. Check difficulty range
+    if (w.difficulty !== undefined && (w.difficulty < 1 || w.difficulty > 5)) {
+      errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has out-of-range difficulty: ' + w.difficulty);
+    }
+
+    // 8. Check typeCategory is valid
+    var validCategories = ['noun', 'verb', 'particle', 'adjective', 'pronoun', 'exclamation'];
+    if (w.typeCategory && validCategories.indexOf(w.typeCategory) < 0) {
+      errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has invalid typeCategory: ' + w.typeCategory);
+    }
+  }
+
+  // Report arabic duplicates (not errors, just info)
+  var duplicateArabic = [];
+  Object.keys(arabicCounts).forEach(function (arabic) {
+    if (arabicCounts[arabic] > 1) {
+      duplicateArabic.push(arabic + ' (' + arabicCounts[arabic] + ' instances)');
+    }
+  });
+
+  if (errors.length > 0) {
+    console.warn('[validate] Data validation found ' + errors.length + ' issue(s):');
+    errors.forEach(function (err) { console.warn('  ✗ ' + err); });
+  }
+
+  if (duplicateArabic.length > 0) {
+    console.log('[validate] Legitimate duplicate Arabic words found (' + duplicateArabic.length + '):');
+    duplicateArabic.forEach(function (info) { console.log('  ℹ ' + info); });
+  }
+
+  console.log('[validate] All ' + ALL_WORDS.length + ' words validated. ' +
+    (errors.length === 0 ? '✓ No issues.' : errors.length + ' issue(s) found.'));
+
+  return { valid: errors.length === 0, errors: errors, arabicDuplicates: duplicateArabic };
+}
+
 // ── Initialization ─────────────────────────────────────────────
 
 function registerServiceWorker() {
@@ -834,6 +982,9 @@ function init() {
   // 0. Ensure lessons and word index are built
   if (LESSONS.length === 0) buildLessons();
   if (typeof buildWordIndex === 'function') buildWordIndex();
+
+  // 0a. Run data validation
+  validateData();
 
   // Set active lesson from saved progress
   activeLessonIndex = getCurrentLessonIndex();

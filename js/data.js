@@ -47,6 +47,29 @@ const WORDS_PER_LESSON = 10;
 /** Master word list — populated by individual files in js/data/ */
 const ALL_WORDS = [];
 
+/** Internal counter for assigning unique word IDs */
+let _wordIdCounter = 0;
+
+/**
+ * Assign a unique sequential ID to every word in ALL_WORDS that
+ * doesn't already have one. IDs use the format "w_<N>" where N
+ * is an auto-incrementing counter. This ensures every vocabulary
+ * instance has a stable, unique identifier regardless of the
+ * Arabic text (so identical words across different Surahs are
+ * distinct entries).
+ *
+ * Call this once after all word files have been loaded.
+ */
+function assignWordIds() {
+  for (var i = 0; i < ALL_WORDS.length; i++) {
+    if (!ALL_WORDS[i].id) {
+      ALL_WORDS[i].id = 'w_' + (_wordIdCounter++);
+    }
+  }
+}
+
+/** findWordById is defined in vocabulary.js (O(1) via cached index) */
+
 // ── Surah-based Organization ────────────────────────────────────
 // Words can be organized by Surah (surahId) or by sequential lessons.
 // The system supports both modes: users can study by Surah or by
@@ -110,6 +133,9 @@ let LESSONS = [];
  * Call this once after all word files have been loaded.
  */
 function buildLessons() {
+  // Ensure all words have IDs before building lessons
+  assignWordIds();
+  
   LESSONS = [];
   var total = ALL_WORDS.length;
   if (total === 0) return;

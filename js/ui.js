@@ -106,7 +106,7 @@ function renderWordCard(w, currentIndex, total, isReview) {
   }
 
   // SRS pill
-  renderSRSStatusPill(w.arabic);
+  renderSRSStatusPill(w.id);
 
   // Root box
   renderRootBox(w);
@@ -123,18 +123,18 @@ function renderWordCard(w, currentIndex, total, isReview) {
   if (tafsirBtn) tafsirBtn.style.display = 'block';
 
   // SRS buttons only show if word has been seen or not first word
-  var srs = getSRSStatus(w.arabic);
+  var srs = getSRSStatus(w.id);
   var showSRS = srs.status !== 'new' || currentIndex > 0;
   var srsRow = DOM.get('srs-row');
   var srsLabel = DOM.get('srs-label');
   if (srsRow) srsRow.style.display = showSRS ? 'grid' : 'none';
   if (srsLabel) srsLabel.style.display = showSRS ? 'block' : 'none';
 
-  updateBookmarkButton(w.arabic);
+  updateBookmarkButton(w.id);
   var notesBox = DOM.get('notes-box');
   var notesInput = DOM.get('notes-input');
   if (notesBox) notesBox.style.display = 'block';
-  if (notesInput) notesInput.value = getNote(w.arabic);
+  if (notesInput) notesInput.value = getNote(w.id);
 
   // Animate card with faster, smoother transition
   var card = DOM.get('word-card');
@@ -148,8 +148,8 @@ function renderWordCard(w, currentIndex, total, isReview) {
 /**
  * Render the SRS status pill with stage, retention, and leech info.
  */
-function renderSRSStatusPill(arabic) {
-  var srs = getSRSStatus(arabic);
+function renderSRSStatusPill(wordId) {
+  var srs = getSRSStatus(wordId);
   var pill = DOM.get('sr-pill');
   if (!pill) return;
   var stageLabels = ['', '\uD83D\uDD0D', '\uD83C\uDF31', '\uD83D\uDCA1'];
@@ -334,10 +334,10 @@ function highlightRootBox() {
 /**
  * Update the bookmark button state.
  */
-function updateBookmarkButton(arabic) {
+function updateBookmarkButton(wordId) {
   var btn = DOM.get('qa-bookmark');
   if (!btn) return;
-  if (isFavorite(arabic)) {
+  if (isFavorite(wordId)) {
     btn.textContent = '\u2B50 Bookmarked';
     btn.classList.add('active-qa');
   } else {
@@ -392,7 +392,7 @@ function updateStatsDisplay() {
   var learned = 0;
   var lessonWords = typeof getActiveLessonWords === 'function' ? getActiveLessonWords() : ALL_WORDS.slice(0, 20);
   for (var i = 0; i < lessonWords.length; i++) {
-    var entry = data[lessonWords[i].arabic];
+    var entry = data[lessonWords[i].id];
     if (entry && entry.stage && entry.stage > 0) learned++;
   }
   var due = getDueReviews().length;
@@ -458,7 +458,7 @@ function renderWordList() {
 
   for (var i = 0; i < words.length; i++) {
     var w = words[i];
-    var entry = srsData[w.arabic];
+    var entry = srsData[w.id];
     var badge = '';
     if (entry && entry.stage >= 3) {
       badge = '\uD83D\uDCA1';
@@ -469,7 +469,7 @@ function renderWordList() {
     } else {
       badge = '\uD83C\uDD95';
     }
-    var favStar = favs[w.arabic] ? '\u2B50' : '';
+    var favStar = favs[w.id] ? '\u2B50' : '';
     var d = document.createElement('div');
     d.className = 'wordlist-item';
     d.setAttribute('role', 'button');
@@ -664,7 +664,7 @@ function renderReviewForecast(srsData, now) {
     var cutoff = now + interval.days * DAY_MS;
     var count = 0;
     for (var wi = 0; wi < ALL_WORDS.length; wi++) {
-      var entry = srsData[ALL_WORDS[wi].arabic];
+      var entry = srsData[ALL_WORDS[wi].id];
       if (entry && entry.dueDate <= cutoff) count++;
     }
     var pct = Math.round((count / totalWords) * 100);
@@ -793,7 +793,7 @@ function renderQuizQuestion(currentWordObj, allWords) {
     b.className = 'quiz-opt';
     b.textContent = opt;
     b.setAttribute('role', 'button');
-    b.onclick = function () { handleQuizAnswer(b, opt, correct, currentWordObj.arabic); };
+    b.onclick = function () { handleQuizAnswer(b, opt, correct, currentWordObj.id); };
     optionsEl.appendChild(b);
   });
 }

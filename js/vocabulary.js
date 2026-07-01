@@ -17,39 +17,76 @@ const TYPE_CATEGORIES = {
 
 // ── Word Lookup ────────────────────────────────────────────────
 
-// ── Word lookup cache ─────────────────────────────────────────
-// Build an index of ALL_WORDS by arabic key for O(1) lookups
+// ── Word lookup indices ────────────────────────────────────────
+// Build an index of ALL_WORDS by ID for O(1) lookups.
+// Maintain a secondary arabic→IDs map for arabic-based searches.
 var _wordIndex = null;
+var _arabicToIds = null;
 
 function buildWordIndex() {
   _wordIndex = {};
+  _arabicToIds = {};
   for (var i = 0; i < ALL_WORDS.length; i++) {
-    _wordIndex[ALL_WORDS[i].arabic] = ALL_WORDS[i];
+    var w = ALL_WORDS[i];
+    // Primary index by unique ID
+    _wordIndex[w.id] = w;
+    // Secondary index: arabic text → array of IDs
+    if (!_arabicToIds[w.arabic]) _arabicToIds[w.arabic] = [];
+    _arabicToIds[w.arabic].push(w.id);
   }
 }
 
 /**
+ * Find a word object by its unique ID using cached index.
+ * Returns the word object or undefined.
+ */
+function findWordById(id) {
+  if (!_wordIndex) buildWordIndex();
+  return _wordIndex[id];
+}
+
+/**
  * Find a word object by its Arabic text (exact match) using cached index.
+ * If there are multiple words with the same Arabic text (across Surahs),
+ * returns the first one found. For unambiguous lookups, use findWordById().
  * Returns the word object or undefined.
  */
 function findWordByArabic(arabic) {
-  if (!_wordIndex) buildWordIndex();
-  return _wordIndex[arabic];
+  if (!_arabicToIds) buildWordIndex();
+  var ids = _arabicToIds[arabic];
+  if (ids && ids.length > 0) {
+    return findWordById(ids[0]) || undefined;
+  }
+  return undefined;
+}
+
+/**
+ * Get all unique IDs for a given Arabic text (handles duplicate words
+ * across different Surahs). Returns an array of word objects.
+ */
+function findWordsByArabic(arabic) {
+  if (!_arabicToIds) buildWordIndex();
+  var ids = _arabicToIds[arabic] || [];
+  return ids.map(function(id) { return findWordById(id); }).filter(Boolean);
 }
 
 /**
  * Find word objects matching a list of Arabic texts.
  * Returns an array of found word objects (preserving order, skipping missing).
+ * If a single Arabic text matches multiple words, returns the first match.
  */
 function findWordsByArabicList(arabicList) {
   var result = [];
   if (!arabicList || !arabicList.length) return result;
   for (var i = 0; i < arabicList.length; i++) {
-    var w = findWordByArabic(arabicList[i]);
-    if (w) result.push(w);
+    var words = findWordsByArabic(arabicList[i]);
+    // Use the first match for display (similar/opposite word navigation)
+    if (words.length > 0) result.push(words[0]);
   }
   return result;
 }
+
+
 
 // ── Search ─────────────────────────────────────────────────────
 
@@ -122,7 +159,7 @@ function filterByTag(words, tag) {
 function filterByStatus(words, statusFilter) {
   if (!statusFilter || statusFilter === 'all') return words;
   return words.filter(function (w) {
-    var srs = getSRSStatus(w.arabic);
+    var srs = getSRSStatus(w.id);
     if (statusFilter === 'new') return srs.status === 'new';
     if (statusFilter === 'learning') return srs.status === 'review';
     if (statusFilter === 'mastered') return srs.status === 'mastered';
@@ -135,7 +172,7 @@ function filterByStatus(words, statusFilter) {
  */
 function filterByFavorites(words) {
   var favs = loadFavorites();
-  return words.filter(function (w) { return favs[w.arabic]; });
+  return words.filter(function (w) { return favs[w.id]; });
 }
 
 // ── Educational Distractors ────────────────────────────────────
@@ -226,14 +263,58 @@ function getVocabularyStats() {
 
 const FAVORITES_KEY = 'quran_favorites';
 
+/**
+ * Load favorites, migrating from arabic-based keys to id-based keys.
+ */
 function loadFavorites() {
   try {
     var raw = localStorage.getItem(FAVORITES_KEY);
     if (!raw) return {};
-    return JSON.parse(raw);
+    var data = JSON.parse(raw);
+    // Migrate: if keys look like Arabic text (not "w_" prefix), convert to IDs
+    return migrateFavoritesIfNeeded(data);
   } catch (e) {
     return {};
   }
+}
+
+/**
+ * Migrate favorites from arabic-based keys to id-based keys.
+ */
+function migrateFavoritesIfNeeded(favs) {
+  if (!favs || typeof favs !== 'object') return {};
+  var needsMigration = false;
+  var keys = Object.keys(favs);
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] && keys[i].indexOf('w_') !== 0) {
+      needsMigration = true;
+      break;
+    }
+  }
+  if (!needsMigration) return favs;
+  
+  // Build arabic → id map from ALL_WORDS
+  var arabicToFirstId = {};
+  for (var j = 0; j < ALL_WORDS.length; j++) {
+    var w = ALL_WORDS[j];
+    if (!arabicToFirstId[w.arabic]) {
+      arabicToFirstId[w.arabic] = w.id;
+    }
+  }
+  
+  var migrated = {};
+  for (var k = 0; k < keys.length; k++) {
+    var key = keys[k];
+    if (key.indexOf('w_') === 0) {
+      migrated[key] = favs[key];
+    } else if (favs[key]) {
+      var id = arabicToFirstId[key];
+      if (id) {
+        migrated[id] = true;
+      }
+    }
+  }
+  return migrated;
 }
 
 function saveFavorites(data) {
@@ -244,34 +325,76 @@ function saveFavorites(data) {
   }
 }
 
-function toggleFavorite(arabic) {
+function toggleFavorite(wordId) {
   var favs = loadFavorites();
-  if (favs[arabic]) {
-    delete favs[arabic];
+  if (favs[wordId]) {
+    delete favs[wordId];
   } else {
-    favs[arabic] = true;
+    favs[wordId] = true;
   }
   saveFavorites(favs);
-  return !!favs[arabic];
+  return !!favs[wordId];
 }
 
-function isFavorite(arabic) {
+function isFavorite(wordId) {
   var favs = loadFavorites();
-  return !!favs[arabic];
+  return !!favs[wordId];
 }
 
 // ── Personal Notes ────────────────────────────────────────────
 
 const NOTES_KEY = 'quran_notes';
 
+/**
+ * Load notes, migrating from arabic-based keys to id-based keys.
+ */
 function loadNotes() {
   try {
     var raw = localStorage.getItem(NOTES_KEY);
     if (!raw) return {};
-    return JSON.parse(raw);
+    var data = JSON.parse(raw);
+    return migrateNotesIfNeeded(data);
   } catch (e) {
     return {};
   }
+}
+
+/**
+ * Migrate notes from arabic-based keys to id-based keys.
+ */
+function migrateNotesIfNeeded(notes) {
+  if (!notes || typeof notes !== 'object') return {};
+  var needsMigration = false;
+  var keys = Object.keys(notes);
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] && keys[i].indexOf('w_') !== 0) {
+      needsMigration = true;
+      break;
+    }
+  }
+  if (!needsMigration) return notes;
+  
+  var arabicToFirstId = {};
+  for (var j = 0; j < ALL_WORDS.length; j++) {
+    var w = ALL_WORDS[j];
+    if (!arabicToFirstId[w.arabic]) {
+      arabicToFirstId[w.arabic] = w.id;
+    }
+  }
+  
+  var migrated = {};
+  for (var k = 0; k < keys.length; k++) {
+    var key = keys[k];
+    if (key.indexOf('w_') === 0) {
+      migrated[key] = notes[key];
+    } else {
+      var id = arabicToFirstId[key];
+      if (id) {
+        migrated[id] = notes[key];
+      }
+    }
+  }
+  return migrated;
 }
 
 function saveNotes(data) {
@@ -282,13 +405,13 @@ function saveNotes(data) {
   }
 }
 
-function getNote(arabic) {
+function getNote(wordId) {
   var notes = loadNotes();
-  return notes[arabic] || '';
+  return notes[wordId] || '';
 }
 
-function setNote(arabic, text) {
+function setNote(wordId, text) {
   var notes = loadNotes();
-  notes[arabic] = text;
+  notes[wordId] = text;
   saveNotes(notes);
 }
