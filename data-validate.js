@@ -272,6 +272,12 @@ function run() {
     missingRootPattern + ' word(s) missing rootPattern');
   check('rootFamily present on all words (non-empty)', missingRootFamily === 0,
     missingRootFamily + ' word(s) missing rootFamily');
+  if (missingRootFamily > 0) {
+    var rootMissingDetails = allWords.filter(function(w) { return !w.rootFamily || w.rootFamily.length === 0; });
+    rootMissingDetails.forEach(function(w) {
+      validationReport.push('    ℹ "' + (w.arabic || 'unknown') + '" (' + (w._sourceFile || 'unknown') + ') has root: "' + (w.root || '—') + '"');
+    });
+  }
 
   // ── 6. Missing occurrence data ──
   validationReport.push('\n  Occurrence data:');

@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Anfal 8:1',
     tafsir: 'Ibn Kathir says anfal refers to the spoils taken in battle. This surah was revealed after the Battle of Badr to establish the rules of war.',
     similarWords: ['غَنِيمَة', 'فَيْء', 'مَغْنَم'],
-    oppositeWords: [],
+    oppositeWords: ['ضَيَاع', 'خَسَارَة'],
     relatedWords: ['اللَّهُ', 'قِتَال', 'جِهَاد'],
   },
   {
@@ -61,7 +61,7 @@ ALL_WORDS.push(
     ayahT: 'On the day of <strong>Badr</strong>, Allah granted victory to the believers against great odds.',
     ayahR: 'Al-Anfal 8:42',
     tafsir: 'Ibn Kathir says Badr was a decisive battle where 313 Muslims defeated a much larger Quraysh army through divine assistance, establishing the strength of the Muslim community.',
-    similarWords: [],
+    similarWords: ['غَزْوَة', 'مَعْرَكَة'],
     oppositeWords: [],
     relatedWords: ['اللَّهُ', 'جِهَاد', 'نَصْر'],
   },

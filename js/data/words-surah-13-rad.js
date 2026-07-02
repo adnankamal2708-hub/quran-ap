@@ -155,7 +155,7 @@ ALL_WORDS.push(
     ayahT: 'Those who know and those who do not know are not equal.',
     ayahR: 'Ar-Ra\'d 13:19',
     tafsir: 'Ibn Kathir says this verse distinguishes the learned believers from the ignorant. Knowledge of the truth is what brings one closer to Allah.',
-    similarWords: [],
+    similarWords: ['صِدْق', 'يَقِين', 'حَقِيقَة'],
     oppositeWords: ['بَاطِل', 'ضَلَال'],
     relatedWords: ['اللَّهُ', 'كِتَاب', 'عِلْم'],
   },

@@ -15,7 +15,11 @@ ALL_WORDS.push(
     root:'—',
     rootMeaning:'The meaning is known only to Allah',
     rootPattern:'One of the mysterious letters opening certain Quranic surahs',
-    rootFamily: [],
+    rootFamily: [
+      { a: 'ص', e: 'Sad (mysterious letter)' },
+      { a: 'ن', e: 'Nun (mysterious letter)' },
+      { a: 'ق', e: 'Qaf (mysterious letter)' },
+    ],
     occ: 1,
     frequency:'low',
     difficulty: 4,

@@ -216,7 +216,7 @@ ALL_WORDS.push(
     ayahT:'O you who have believed, when you marry believing women and then divorce them before you have touched them.',
     ayahR:'Al-Ahzab 33:49',
     tafsir:'Ibn Kathir discusses marriage laws, including that no waiting period is required if divorce occurs before consummation.',
-    similarWords: [],
+    similarWords: ['طَهَارَة', 'فِطْرَة'],
     oppositeWords: [],
     relatedWords: ['اللَّهُ', 'نِكَاح', 'طَهَارَة'],
   }

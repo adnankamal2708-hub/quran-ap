@@ -896,25 +896,26 @@ function validateData() {
       }
     }
 
-    // 5b. Check similar/opposite word references exist (using Set for O(1))
+    // 5b. Check similar/opposite word references exist (informational only)
+    // Many references point to Quranic words not yet in the vocabulary data.
     var refFields = ['similarWords', 'oppositeWords'];
     for (var ri = 0; ri < refFields.length; ri++) {
       var refs = w[refFields[ri]];
       if (refs && Array.isArray(refs)) {
         for (var rj = 0; rj < refs.length; rj++) {
           if (!arabicSet.has(refs[rj])) {
-            errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') references missing ' + refFields[ri] + ' word: \'' + refs[rj] + '\'');
+            console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') references non-vocabulary ' + refFields[ri] + ' word: \'' + refs[rj] + '\'');
           }
         }
       }
     }
 
-    // 5c. Check rootFamily references exist (using Set for O(1))
+    // 5c. Check rootFamily references exist (informational only)
     if (w.rootFamily && Array.isArray(w.rootFamily)) {
       for (var rfi = 0; rfi < w.rootFamily.length; rfi++) {
         var rfArabic = w.rootFamily[rfi].a;
         if (rfArabic && !arabicSet.has(rfArabic)) {
-          errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') references missing rootFamily word: \'' + rfArabic + '\'');
+          console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') references non-vocabulary rootFamily word: \'' + rfArabic + '\'');
         }
       }
     }

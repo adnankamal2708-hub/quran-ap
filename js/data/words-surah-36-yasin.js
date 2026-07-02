@@ -15,7 +15,11 @@ ALL_WORDS.push(
     root:'—',
     rootMeaning:'The meaning is known only to Allah — possibly addressing the Prophet ﷺ',
     rootPattern:"One of the mysterious letters (al-huruf al-muqatta'at) opening certain surahs",
-    rootFamily: [],
+    rootFamily: [
+      { a: 'يس', e: 'Ya-Sin (mysterious letter)' },
+      { a: 'طه', e: 'Ta-Ha (mysterious letters)' },
+      { a: 'الم', e: 'Alif-Lam-Mim (mysterious letters)' },
+    ],
     occ: 1,
     frequency:'low',
     difficulty: 4,

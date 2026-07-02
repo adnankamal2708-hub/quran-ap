@@ -31,8 +31,8 @@ ALL_WORDS.push(
     ayahT: 'When <strong>Joseph</strong> said to his father: O my father, I saw eleven stars.',
     ayahR: 'Yusuf 12:4',
     tafsir: 'Ibn Kathir relates that Surah Yusuf is the most beautiful of stories. Yusuf\'s life teaches that patience and trust in Allah lead to eventual victory.',
-    similarWords: [],
-    oppositeWords: [],
+    similarWords: ['نَبِيّ', 'رَسُول', 'صِدِّيق'],
+    oppositeWords: ['مُشْرِك', 'كَافِر'],
     relatedWords: ['اللَّهُ', 'يَعْقُوب', 'أَبَى'],
   },
   {
@@ -249,7 +249,7 @@ ALL_WORDS.push(
     ayahR: 'Yusuf 12:68',
     tafsir: 'Ibn Kathir explains that Jacob\'s instruction to his sons to enter through different gates was a practical measure, but he knew true protection comes only from Allah.',
     similarWords: ['إِسْرَائِيل', 'أَب', 'نَبِيّ'],
-    oppositeWords: [],
+    oppositeWords: ['فِرْعَوْن', 'ظَالِم'],
     relatedWords: ['اللَّهُ', 'يُوسُف', 'نَبِيّ'],
   },
   {

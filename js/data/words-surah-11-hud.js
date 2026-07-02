@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Hud 11:25',
     tafsir: 'Ibn Kathir explains that Noah preached to his people for 950 years with unwavering patience, warning them of a great flood if they persisted in disbelief.',
     similarWords: ['نَذِير', 'مُبِين'],
-    oppositeWords: [],
+    oppositeWords: ['مُشْرِك', 'مُكَذِّب'],
     relatedWords: ['اللَّهُ', 'رَسُول', 'قَوْم'],
   },
   {
@@ -93,8 +93,8 @@ ALL_WORDS.push(
     ayahT: 'And to \'Ad (We sent) their brother <strong>Hud</strong>. He said: O my people, worship Allah — you have no god besides Him.',
     ayahR: 'Hud 11:50',
     tafsir: 'Ibn Kathir relates that the people of \'Ad were giants with great strength who built monuments. Hud called them to worship Allah alone, but they arrogantly refused.',
-    similarWords: [],
-    oppositeWords: [],
+    similarWords: ['نَبِيّ', 'نَذِير', 'رَسُول'],
+    oppositeWords: ['مُشْرِك', 'مُكَذِّب'],
     relatedWords: ['اللَّهُ', 'عَاد', 'قَوْم'],
   },
   {
@@ -156,7 +156,7 @@ ALL_WORDS.push(
     ayahR: 'Hud 11:50',
     tafsir: 'Ibn Kathir describes \'Ad as a people of great physical strength who built elevated structures. They were destroyed by a fierce wind for their arrogance and rejection.',
     similarWords: ['ثَمُود', 'قَوْم'],
-    oppositeWords: [],
+    oppositeWords: ['مُؤْمِن', 'مُتَّقِي'],
     relatedWords: ['هُود', 'اللَّهُ', 'عَذَاب'],
   },
   {
@@ -280,7 +280,7 @@ ALL_WORDS.push(
     ayahR: 'Hud 11:50',
     tafsir: 'Ibn Kathir notes that this phrase appears frequently in the Quran — it is the essence of tawhid: there is no true deity worthy of worship except Allah.',
     similarWords: ['اللَّهُ', 'مَعْبُود', 'رَبّ'],
-    oppositeWords: [],
+    oppositeWords: ['شَيْطَان', 'صَنَم'],
     relatedWords: ['اللَّهُ', 'وَحْدَهُ', 'عِبَادَة'],
   },
   {
