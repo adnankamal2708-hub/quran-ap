@@ -220,14 +220,17 @@ function run() {
       }
     }
   });
-  check('No duplicate Arabic text entries', duplicateArabic.length === 0,
-    duplicateArabic.length > 0 ? 'Found ' + duplicateArabic.length + ' duplicate Arabic texts. Example: "' + duplicateArabic[0].arabic + '" in ' + duplicateArabic[0].firstFile + ' and ' + duplicateArabic[0].secondFile : '');
-
-  // Note: Some duplicates across files are intentional (same word in different surahs)
-  // Report them but don't fail if they appear in different files
-  if (duplicateArabic.length > 0) {
-    var crossFileDups = duplicateArabic.filter(function(d) { return d.firstFile !== d.secondFile; });
-    validationReport.push('    ' + crossFileDups.length + ' cross-file duplicates (may be intentional — same word in different surahs)');
+  // Same-file duplicates indicate actual errors (copy-paste mistake)
+  var sameFileDups = duplicateArabic.filter(function(d) { return d.firstFile === d.secondFile; });
+  // Cross-file duplicates are expected — same word appearing in different surahs
+  // with different contextual verses (e.g. اللَّهُ appears in many surahs)
+  var crossFileDups = duplicateArabic.filter(function(d) { return d.firstFile !== d.secondFile; });
+  
+  check('No duplicate Arabic text entries within the same file', sameFileDups.length === 0,
+    sameFileDups.length > 0 ? 'Same-file duplicates: ' + sameFileDups.slice(0, 3).map(function(d) { return '"' + d.arabic + '" in ' + d.firstFile; }).join(', ') : '');
+  
+  if (crossFileDups.length > 0) {
+    validationReport.push('    ⚠ ' + crossFileDups.length + ' cross-file duplicate Arabic texts (expected — same word in different surahs with different contexts)');
   }
 
   // ── 4. Missing required fields ──

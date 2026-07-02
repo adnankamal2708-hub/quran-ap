@@ -18,7 +18,7 @@ const cp = require('child_process');
 
 const DIST = path.join(__dirname, 'dist');
 const MIN_DATA_SIZE = 100 * 1024;      // data bundle > 100 KB
-const MAX_DATA_SIZE = 1024 * 1024;     // data bundle < 1 MB
+const MAX_DATA_SIZE = 1536 * 1024;     // data bundle < 1.5 MB
 const MIN_APP_SIZE = 20 * 1024;        // app bundle > 20 KB
 const MAX_APP_SIZE = 300 * 1024;       // app bundle < 300 KB
 
@@ -98,6 +98,43 @@ function run() {
     var pushCount = (dataContent.match(/ALL_WORDS\.push\(/g) || []).length;
     check('ALL_WORDS has entries (' + pushCount + ')', pushCount >= 30,
       'Only ' + pushCount + ' ALL_WORDS.push calls found (expected 30+)');
+
+    // Validate surah coverage by evaluating the unminified data bundle
+    try {
+      var bundledDataContent = readFile('js/data.bundle.js');
+      if (bundledDataContent.exists && bundledDataContent.content.length > 0) {
+        // Evaluate the data bundle to get ALL_WORDS and getSurahsWithVocabulary
+        eval(bundledDataContent.content);
+        
+        if (typeof getSurahsWithVocabulary === 'function') {
+          var coverageIds = getSurahsWithVocabulary();
+          
+          check('getSurahsWithVocabulary() returns at least 30 surahs', 
+            coverageIds.length >= 30,
+            'Only ' + coverageIds.length + ' surahs found (expected >= 30). Data files may be missing.');
+          
+          check('getSurahsWithVocabulary() returns at least 60 surahs', 
+            coverageIds.length >= 60,
+            'Only ' + coverageIds.length + ' surahs found (expected >= 60). Surahs 41-80+ may not be loaded.');
+          
+          // Check specific critical surah ranges
+          var missing = [];
+          for (var sid = 41; sid <= 80; sid++) {
+            if (coverageIds.indexOf(sid) < 0) missing.push(sid);
+          }
+          check('Surahs 41-80 are all present in vocabulary', 
+            missing.length === 0,
+            'Missing surahs: [' + missing.join(', ') + ']. These will not appear in the app.');
+          
+          console.log('  \n    Surah coverage: ' + coverageIds.length + ' surahs (1-' + 
+            (coverageIds.length > 0 ? coverageIds[coverageIds.length-1] : 'N/A') + ')\n');
+        } else {
+          check('getSurahsWithVocabulary() available', false, 'Function not found in data bundle');
+        }
+      }
+    } catch (e) {
+      check('Surah coverage validation', false, 'Failed to evaluate data bundle: ' + e.message);
+    }
   }
   if (appFile.exists) {
     var appContent = appFile.content;

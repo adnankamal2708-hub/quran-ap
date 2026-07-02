@@ -139,7 +139,11 @@ ALL_WORDS.push(
     root: '—',
     rootMeaning: '—',
     rootPattern: '—',
-    rootFamily: [],
+    rootFamily: [
+      { a: 'كَلَّا', e: 'no indeed' },
+      { a: 'الرَّدْع', e: 'rebuke' },
+      { a: 'الزَّجْر', e: 'deterrence' },
+    ],
     occ: 33,
     frequency: 'high',
     difficulty: 2,

@@ -1011,7 +1011,8 @@ function init() {
   // 4. Set up keyboard shortcuts
   setupKeyboardShortcuts();
 
-  // 5. Populate surah selector
+  // 5. Validate surah coverage and populate surah selector
+  validateSurahCoverage();
   populateSurahSelector();
 
   // 6. Show the first word card
@@ -1055,6 +1056,45 @@ function init() {
       // Silently ignore — use default limit
     });
   }
+}
+
+/**
+ * Validate that the loaded vocabulary covers enough surahs.
+ * Warns in the console if coverage seems incomplete.
+ * This is a safety net to catch deployment issues where data
+ * files were added but not properly bundled.
+ */
+function validateSurahCoverage() {
+  if (!ALL_WORDS || ALL_WORDS.length === 0) {
+    console.warn('[app] ⚠ No vocabulary data loaded! Check that data bundle was built correctly.');
+    return;
+  }
+
+  var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  
+  if (surahIds.length < 30) {
+    console.warn('[app] ⚠ Only ' + surahIds.length + ' surahs detected with vocabulary (expected 70+). ' +
+      'Surahs may be missing. Run \'node build.js\' and verify all data files exist in js/data/.');
+  }
+
+  // Check for specific surah ranges that should be present
+  var minSurah = Math.min.apply(null, surahIds);
+  var maxSurah = Math.max.apply(null, surahIds);
+  var missingMidSurahs = [];
+  for (var si = 41; si <= 80; si++) {
+    if (surahIds.indexOf(si) < 0) {
+      missingMidSurahs.push(si);
+    }
+  }
+  if (missingMidSurahs.length > 0) {
+    console.warn('[app] ⚠ Missing surahs ' + missingMidSurahs.slice(0, 10).join(', ') +
+      (missingMidSurahs.length > 10 ? ' (+' + (missingMidSurahs.length - 10) + ' more)' : '') +
+      '. These surahs were expected but have no vocabulary data. ' +
+      'Check that the corresponding words-surah-NN-*.js files exist and have surahId set.');
+  }
+
+  console.log('[app] ✓ Vocabulary coverage: ' + ALL_WORDS.length + ' words across ' +
+    surahIds.length + ' surahs (1-' + maxSurah + ').');
 }
 
 /**

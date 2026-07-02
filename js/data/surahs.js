@@ -172,12 +172,7 @@ function getAllSurahIds() {
   return Object.keys(SURAH_INFO).map(Number).sort(function(a, b) { return a - b; });
 }
 
-/** Get a list of Surah IDs with vocabulary available (have words in ALL_WORDS). */
-function getSurahsWithVocabulary() {
-  var ids = {};
-  for (var i = 0; i < ALL_WORDS.length; i++) {
-    var sid = ALL_WORDS[i].surahId;
-    if (sid) ids[sid] = true;
-  }
-  return Object.keys(ids).map(Number).sort(function(a, b) { return a - b; });
-}
+// getSurahsWithVocabulary is defined in data.js (the authoritative version).
+// It checks both ALL_WORDS and CANONICAL_WORDS for surahIds.
+// That single definition is used throughout the app.
+// Do NOT redefine this function here — the data.js version is the source of truth.
