@@ -1,18 +1,30 @@
 # ═══════════════════════════════════════════════════════════════
-# deploy.yml — GitHub Actions: Build & Deploy to GitHub Pages
+# deploy.yml — Automated Build, Validate & Deploy Pipeline
 #
-# On every push to main, this workflow:
-#   1. Checks out the repository
-#   2. Sets up Node.js
-#   3. Installs dependencies (npm ci)
-#   4. Runs the production build (npm run build)
-#   5. Deploys the dist/ directory to GitHub Pages
+# Triggered by: git push origin main
+# Workflow:
+#   1. Checkout repository
+#   2. Setup Node.js 20 with npm cache
+#   3. Install dependencies (npm ci)
+#   4. Run production build (npm run build)
+#   5. Validate build output (node validate.js)
+#   6. Upload production artifact to GitHub Pages
+#   7. Deploy to GitHub Pages
 #
-# Requirements:
-#   - Repository settings → Pages → Source: "GitHub Actions"
+# Deployment requires ONLY: git push origin main
+# No manual steps, no secrets to configure.
+#
+# Prerequisites:
+#   - GitHub Pages must be configured: Source → "GitHub Actions"
+#     (Settings → Pages → Source dropdown)
+#
+# Outputs:
+#   - Detailed build logs (sizes, reductions, validation results)
+#   - Deployment URL printed in the workflow summary
+#   - Email notification on failure (GitHub default)
 # ═══════════════════════════════════════════════════════════════
 
-name: Build & Deploy to GitHub Pages
+name: Build, Validate & Deploy
 
 on:
   push:
@@ -20,49 +32,116 @@ on:
   # Allow manual trigger from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Restrict permissions: build job only needs read access
+# Deploy job declares its own pages:write + id-token:write
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# Cancel in-progress runs for non-main branches.
+# Allow only one concurrent deployment. Queued runs are skipped.
+# In-progress runs are canceled for non-main pushes.
 concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  # ── BUILD + VALIDATE JOB ─────────────────────────────────
+  build:
+    name: Build & Validate
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout repository
+      - name: ⏱️ Start build
+        run: echo "BUILD_START=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+
+      - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
+      - name: 📥 Install dependencies
         run: npm ci
+        env:
+          CI: true
 
-      - name: Build production assets
-        run: npm run build
+      - name: 🏗️ Build production assets
+        id: build
+        run: npm run build 2>&1 | tee build_output.log
+        env:
+          CI: true
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v4
+      - name: ✅ Validate build output
+        id: validate
+        run: node validate.js 2>&1 | tee validation_output.log
 
-      - name: Upload artifact (dist/)
-        uses: actions/upload-pages-artifact@v3
+      - name: 📊 Generate build summary
+        id: summary
+        run: |
+          echo "## 📦 Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat build_output.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat validation_output.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🗂️ Deployed Files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          du -sh dist/* dist/js/*.min.js dist/js/services/* 2>/dev/null || ls -lhR dist/ 2>/dev/null | head -30
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📤 Upload build artifact
+        if: success()
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist
+          name: github-pages
 
-      - name: Deploy to GitHub Pages
+      - name: ❌ Build failure notification
+        if: failure()
+        run: |
+          echo "## ❌ Build Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The build or validation step failed. Check the logs above for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Common causes:" >> $GITHUB_STEP_SUMMARY
+          echo "- Missing or broken data file in js/data/" >> $GITHUB_STEP_SUMMARY
+          echo "- JavaScript syntax error in source files" >> $GITHUB_STEP_SUMMARY
+          echo "- Missing npm dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- Bundle size exceeded expected limits" >> $GITHUB_STEP_SUMMARY
+
+  # ── DEPLOY JOB ───────────────────────────────────────────
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 🚀 Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: ✅ Deployment success
+        run: |
+          echo "## ✅ Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Your site has been deployed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**🌐 Site URL:** ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**⏱️ Deployed at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
