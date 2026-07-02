@@ -33,7 +33,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Baqarah 2:1-2',
     tafsir: 'Al-Kitab refers to the Quran as the ultimate written revelation. The root also gives kataba (he wrote) and kutiba (it was prescribed), showing the connection between writing and divine decree.',
     similarWords: ['الْقُرْآن', 'الْفُرْقَان', 'الذِّكْر'],
-    oppositeWords: [],
+    oppositeWords: ['بَاطِل', 'إِفْك'],
     relatedWords: ['اللَّهُ', 'رَسُول', 'آمَنَ'],
   },
   {
@@ -96,7 +96,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Ma\'idah 5:99',
     tafsir: 'Muhammad (ﷺ) is called Rasul Allah — the Messenger of Allah. A rasul is distinguished from a nabi (prophet) by bringing a new scripture or law.',
     similarWords: ['نَبِيّ', 'مُرْسَل'],
-    oppositeWords: [],
+    oppositeWords: ['كَذَّاب', 'دَجَّال'],
     relatedWords: ['اللَّهُ', 'آمَنَ', 'الْكِتَابِ', 'نَبِيّ'],
   },
   {
@@ -253,7 +253,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Isra 17:9',
     tafsir: 'Al-Quran is derived from qara\'a (to read/recite). Ibn Kathir says it is the ultimate source of guidance, healing, and mercy for humanity.',
     similarWords: ['الْكِتَابِ', 'الذِّكْر', 'الْفُرْقَان'],
-    oppositeWords: [],
+    oppositeWords: ['ضَلَال', 'أَسَاطِير'],
     relatedWords: ['الْكِتَابِ', 'هُدًى', 'اللَّهُ'],
   },
   {
@@ -315,7 +315,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Ahzab 33:45',
     tafsir: 'Ibn Kathir explains that a nabiyy is one who receives news from Allah. A rasul (messenger) is a higher rank — every rasul is a nabiyy, but not every nabiyy is a rasul.',
     similarWords: ['رَسُول', 'مُرْسَل'],
-    oppositeWords: [],
+    oppositeWords: ['كَذَّاب', 'مُفْتَرٍ'],
     relatedWords: ['رَسُول', 'اللَّهُ', 'الْكِتَابِ'],
   }
 );

@@ -174,7 +174,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Bayyinah 98:5',
     tafsir: 'Ma is remarkable for its versatility. It functions as a relative pronoun (what/that which), an interrogative (what?), a negation particle (not), and more.',
     similarWords: ['لَا', 'مَنْ', 'هَلْ'],
-    oppositeWords: [],
+    oppositeWords: ['شَيْء', 'هَذَا'],
     relatedWords: ['لَا', 'مِنْ', 'فِي'],
   },
   {

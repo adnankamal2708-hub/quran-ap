@@ -186,7 +186,7 @@ ALL_WORDS.push(
     ayahR: 'Muhammad 47:19',
     tafsir: 'Ilah refers to any object of worship, while Allah is the unique proper name of the one true God. The shahada negates all false ilahs and affirms Allah alone.',
     similarWords: ['اللَّهُ', 'مَعْبُود'],
-    oppositeWords: [],
+    oppositeWords: ['طَاغُوت', 'صَنَم'],
     relatedWords: ['اللَّهُ', 'لَا', 'نَعْبُدُ'],
   },
   {

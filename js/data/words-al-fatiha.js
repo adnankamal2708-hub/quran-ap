@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Fatiha 1:1',
     tafsir: 'Ibn Kathir explains that "Allah" is the greatest name of God — a proper name that belongs to Him alone and cannot be applied to anyone else. It is derived from "al-ilah" (the deity) and signifies the one who alone deserves to be worshipped.',
     similarWords: ['إِلَٰهَ', 'رَبِّ'],
-    oppositeWords: [],
+    oppositeWords: ['شَيْطَان', 'طَاغُوت'],
     relatedWords: ['إِلَٰهَ', 'رَبِّ', 'الرَّحْمَٰنِ', 'الرَّحِيمِ'],
   },
   {
@@ -188,7 +188,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Fatiha 1:2',
     tafsir: 'Ibn Kathir explains Al-\'Alamin comes from the same root as \'ilm (knowledge) — the worlds are called thus because they are signs pointing to their Creator. This term encompasses everything besides Allah.',
     similarWords: ['خَلْق', 'كَوْن'],
-    oppositeWords: [],
+    oppositeWords: ['عَدَم', 'فَنَاء'],
     relatedWords: ['اللَّهُ', 'رَبِّ', 'عَلِيمٌ'],
   },
   {
@@ -219,7 +219,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Fatiha 1:5',
     tafsir: 'Ibn Kathir explains that placing إِيَّاكَ before the verb is one of the most powerful rhetorical devices in Arabic — it creates exclusive restriction.',
     similarWords: ['وَحْدَهُ'],
-    oppositeWords: [],
+    oppositeWords: ['سِوَاكَ', 'غَيْرُكَ'],
     relatedWords: ['نَعْبُدُ', 'هُوَ'],
   },
   {
@@ -313,7 +313,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Fatiha 1:4',
     tafsir: 'Ibn Kathir explains that "deen" in this context means recompense and judgment. The same root gives "dayn" (debt) — on the Day of Deen, every debt of deeds will be repaid.',
     similarWords: ['حِسَاب', 'جَزَاء'],
-    oppositeWords: [],
+    oppositeWords: ['دُنْيَا', 'غَفْلَة'],
     relatedWords: ['يَوْمَ', 'اللَّهُ', 'حِسَاب'],
   },
   {
@@ -374,7 +374,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Fatiha 1:7',
     tafsir: 'This relative pronoun is essential for understanding Quranic sentence structure. It connects descriptions to their subjects.',
     similarWords: ['الَّذِي', 'اللَّائِي'],
-    oppositeWords: [],
+    oppositeWords: ['اللَّائِي', 'اَلَّتِي'],
     relatedWords: ['هُوَ', 'إِيَّاكَ'],
   }
 );

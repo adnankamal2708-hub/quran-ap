@@ -122,7 +122,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hashr 59:23',
     tafsir: 'Al-Mu\'min is the One who has granted faith to His servants and also the One who provides security. By giving faith, He protects believers from fear.',
     similarWords: ['السَّلَامُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['كَافِر', 'مُنَافِق'],
     relatedWords: ['آمَنَ', 'اللَّهُ', 'السَّلَامُ'],
   },
   {
@@ -149,7 +149,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hashr 59:23',
     tafsir: 'Al-Muhaymin is the One who watches over, guards, and protects all things. He oversees every affair and nothing escapes His awareness.',
     similarWords: ['الرَّقِيبُ', 'الْحَفِيظُ', 'الشَّهِيدُ'],
-    oppositeWords: [],
+    oppositeWords: ['غَافِل', 'سَاهٍ'],
     relatedWords: ['اللَّهُ', 'الْعَزِيزُ', 'الْجَبَّارُ'],
   },
   {
@@ -268,7 +268,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hashr 59:24',
     tafsir: 'Al-Bari\' is the One who creates with precise order and proportion. He creates things free from any disproportion or fault.',
     similarWords: ['الْخَالِقُ', 'الْمُصَوِّرُ', 'الْمُبْدِئُ'],
-    oppositeWords: [],
+    oppositeWords: ['مُفْسِد', 'مُحَرِّف'],
     relatedWords: ['اللَّهُ', 'الْخَالِقُ', 'الْمُصَوِّرُ'],
   },
   {
@@ -297,7 +297,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hashr 59:24',
     tafsir: 'Al-Musawwir is the One who gives every creation its unique form and individual characteristics. No two creations are exactly alike.',
     similarWords: ['الْخَالِقُ', 'الْبَارِئُ'],
-    oppositeWords: [],
+    oppositeWords: ['مُشَوِّه', 'مُشَوِّش'],
     relatedWords: ['اللَّهُ', 'الْخَالِقُ', 'الْبَارِئُ'],
   },
   {
@@ -413,7 +413,7 @@ ALL_WORDS.push(
     ayahR: 'Adh-Dhariyat 51:58',
     tafsir: 'Ar-Razzaq is the One who provides all forms of sustenance to every living being. His provision reaches all creatures, the righteous and the wicked alike.',
     similarWords: ['الْوَهَّابُ', 'الْكَرِيمُ', 'الْمُقِيتُ'],
-    oppositeWords: [],
+    oppositeWords: ['مَانِع', 'مُقَتِّر'],
     relatedWords: ['اللَّهُ', 'الْوَهَّابُ', 'الْكَرِيمُ'],
   },
   {
@@ -442,7 +442,7 @@ ALL_WORDS.push(
     ayahR: "Al-A'raf 7:89",
     tafsir: 'Al-Fattah is the One who opens: He opens doors of mercy, opens difficult situations with ease, and opens the truth through judgment.',
     similarWords: ['الْحَكَمُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['ظَالِم', 'جَائِر'],
     relatedWords: ['اللَّهُ', 'الْحَكَمُ', 'الْعَلِيمُ'],
   },
 
@@ -1082,7 +1082,7 @@ ALL_WORDS.push(
     ayahR: 'Hud 11:61',
     tafsir: 'Al-Mujib is the One who answers the call of those who supplicate to Him. He is always near, always listening, and always responding in the best way.',
     similarWords: ['السَّمِيعُ', 'اللَّطِيفُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['أَصَمّ', 'غَافِل'],
     relatedWords: ['اللَّهُ', 'السَّمِيعُ', 'اللَّطِيفُ'],
   },
   {
@@ -1433,7 +1433,7 @@ ALL_WORDS.push(
     ayahR: 'An-Naba\' 78:29',
     tafsir: 'Al-Muhsi is the One who has counted and recorded every single thing in existence. Nothing escapes His enumeration, from the smallest to the greatest.',
     similarWords: ['الْعَلِيمُ', 'الْخَبِيرُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['جَاهِل', 'غَافِل'],
     relatedWords: ['اللَّهُ', 'الْعَلِيمُ', 'الْحَسِيبُ'],
   },
   {

@@ -235,7 +235,7 @@ ALL_WORDS.push(
     ayahR: 'Aal-e-Imran 3:8',
     tafsir: 'Ibn Kathir explains that the heart (qalb) is called so because of its constant change (taqallub). In the Quran, the heart is the centre of understanding, faith, and spiritual perception.',
     similarWords: ['فُؤَاد', 'صَدْر', 'لُبّ'],
-    oppositeWords: [],
+    oppositeWords: ['جَسَد', 'بَدَن'],
     relatedWords: ['اللَّهُ', 'هُدًى', 'صَبْر'],
   },
   {
@@ -380,7 +380,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Mu\'minun 23:50',
     tafsir: 'Ibn Kathir says ayat are found in both the created universe (cosmic signs) and the revealed Quran (scriptural signs). Each ayah of the Quran is a miracle of speech.',
     similarWords: ['بَيِّنَة', 'مُعْجِزَة', 'دَلِيل'],
-    oppositeWords: [],
+    oppositeWords: ['شُبْهَة', 'بُهْتَان'],
     relatedWords: ['الْقُرْآنِ', 'اللَّهُ', 'الْكِتَابِ'],
   }
 );
