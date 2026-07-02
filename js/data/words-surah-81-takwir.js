@@ -92,7 +92,7 @@ ALL_WORDS.push(
     ayahA: 'وَإِذَا <span class=\"ayah-highlight\">الْعِشَارُ عُطِّلَتْ</span>',
     ayahT: 'And when <strong>the pregnant camels are abandoned</strong> — left untended in the chaos.',
     ayahR: 'At-Takwir 81:4',
-    tafsir: 'Ibn Kathir explains that even the most valuable possessions — ten-month pregnant she-camels, the Arabs' most prized wealth — will be utterly neglected on that Day.',
+    tafsir: 'Ibn Kathir explains that even the most valuable possessions — ten-month pregnant she-camels, the Arabs\' most prized wealth — will be utterly neglected on that Day.',
     similarWords: ['تُرِكَت', 'أُهْمِلَت', 'أُهْدِرَت'],
     oppositeWords: ['رُعِيَت', 'حُفِظَت', 'عُنِيَ بِهَا'],
     relatedWords: ['الْإِبِل', 'الْقِيَامَة', 'يَوْم الْقِيَامَة'],
@@ -161,7 +161,7 @@ ALL_WORDS.push(
   },
   {
     arabic: 'لِلَّذِينَ يَشَاءُونَ',
-    translit: 'Lilladhīna Yashā\\'ūna',
+    translit: 'Lilladhīna Yashā\'ūna',
     type: 'Preposition + Relative Pronoun + Verb',
     typeCategory: 'particle',
     pattern: '—',

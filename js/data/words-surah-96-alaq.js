@@ -6,7 +6,7 @@
 ALL_WORDS.push(
   {
     arabic: 'اقْرَأْ',
-    translit: 'Iqra\\'',
+    translit: 'Iqra\'',
     type: 'Verb (command, masculine singular)',
     typeCategory: 'verb',
     pattern: 'افْعَلْ',

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// words-surah-87-ala.js — Surah 87: Al-A'la
+// words-surah-87-ala.js — Surah 87: Al-A\'la
 // The Most High — Meccan, 19 verses
 // ═══════════════════════════════════════════════════════════════
 
@@ -29,7 +29,7 @@ ALL_WORDS.push(
     verseKey: '87:1',
     ayahA: 'سَبِّحِ اسْمَ رَبِّكَ <span class=\"ayah-highlight\">الْأَعْلَىٰ</span>',
     ayahT: 'Glorify the name of your Lord, <strong>the Most High</strong>.',
-    ayahR: 'Al-A'la 87:1',
+    ayahR: 'Al-A\'la 87:1',
     tafsir: 'Ibn Kathir says this command to glorify the name of the Most High is the opening of this surah—a reminder that Allah alone is supreme above all creation.',
     similarWords: ['الْعَلِيّ', 'الْكَبِير', 'الْمُتَعَالِي'],
     oppositeWords: ['الْأَسْفَل', 'الْأَرْذَل', 'الدَّنِيء'],
@@ -60,7 +60,7 @@ ALL_WORDS.push(
     verseKey: '87:1',
     ayahA: '<span class=\"ayah-highlight\">سَبِّحِ</span> اسْمَ رَبِّكَ الْأَعْلَىٰ',
     ayahT: '<strong>Glorify</strong> the name of your Lord, the Most High.',
-    ayahR: 'Al-A'la 87:1',
+    ayahR: 'Al-A\'la 87:1',
     tafsir: 'Ibn Kathir says glorifying Allah involves declaring Him free from all imperfections and acknowledging His absolute perfection and greatness.',
     similarWords: ['نَزِّه', 'قَدِّس', 'مَجِّد'],
     oppositeWords: ['أَشْرَكَ', 'جَدَّفَ', 'أَهَانَ'],
@@ -91,7 +91,7 @@ ALL_WORDS.push(
     verseKey: '87:2',
     ayahA: 'الَّذِي <span class=\"ayah-highlight\">خَلَقَ فَسَوَّىٰ</span>',
     ayahT: 'Who <strong>created and proportioned</strong> [all things].',
-    ayahR: 'Al-A'la 87:2',
+    ayahR: 'Al-A\'la 87:2',
     tafsir: 'Ibn Kathir says Allah not only creates but also perfects His creation with precise balance and proportion — everything is created in the best form.',
     similarWords: ['أَبْدَعَ فَأَتْقَنَ', 'أَنْشَأَ فَعَدَّلَ', 'صَنَعَ فَأَحْكَمَ'],
     oppositeWords: ['أَهْمَلَ', 'خَلَّبَ', 'أَخْطَأَ'],
@@ -122,7 +122,7 @@ ALL_WORDS.push(
     verseKey: '87:3',
     ayahA: 'وَالَّذِي <span class=\"ayah-highlight\">قَدَّرَ فَهَدَىٰ</span>',
     ayahT: 'And who <strong>determined and guided</strong>.',
-    ayahR: 'Al-A'la 87:3',
+    ayahR: 'Al-A\'la 87:3',
     tafsir: 'Ibn Kathir says Allah has decreed everything\'s nature and purpose, then guided each creation to fulfill its role — from the bee to the flower, all follow divine guidance.',
     similarWords: ['أَعْطَىٰ فَأَرْشَدَ', 'حَتَّمَ فَدَلَّ', 'نَصَّبَ فَوَجَّهَ'],
     oppositeWords: ['تَرَكَ سُدًى', 'أَهْمَلَ', 'ضَيَّعَ'],
@@ -153,7 +153,7 @@ ALL_WORDS.push(
     verseKey: '87:4',
     ayahA: 'وَالَّذِي أَخْرَجَ <span class=\"ayah-highlight\">الْمَرْعَىٰ</span>',
     ayahT: 'And who brings forth <strong>the pasturage</strong>.',
-    ayahR: 'Al-A'la 87:4',
+    ayahR: 'Al-A\'la 87:4',
     tafsir: 'Ibn Kathir says Allah brings forth vegetation from the earth as sustenance for all creatures — a clear sign of His providence and care for creation.',
     similarWords: ['النَّبَات', 'الْعُشْب', 'الْكَلَأ'],
     oppositeWords: ['الْأَرْض الْجُرُز', 'الْيَبَس', 'الْقَفْر'],
@@ -161,7 +161,7 @@ ALL_WORDS.push(
   },
   {
     arabic: 'غُثَاءً أَحْوَىٰ',
-    translit: 'Ghuthā\\'an Aḥwā',
+    translit: 'Ghuthā\'an Aḥwā',
     type: 'Noun + Adjective',
     typeCategory: 'noun',
     pattern: '—',
@@ -184,7 +184,7 @@ ALL_WORDS.push(
     verseKey: '87:5',
     ayahA: 'فَجَعَلَهُ <span class=\"ayah-highlight\">غُثَاءً أَحْوَىٰ</span>',
     ayahT: 'And then makes it <strong>dried stubble</strong> [blackened and withered].',
-    ayahR: 'Al-A'la 87:5',
+    ayahR: 'Al-A\'la 87:5',
     tafsir: 'Ibn Kathir says the lush green vegetation eventually turns into blackened, withered stubble — a reminder of the transient nature of worldly life and the certainty of decay.',
     similarWords: ['يَابِس أَسْوَد', 'حَشِيش يَابِس', 'هَشِيم'],
     oppositeWords: ['أَخْضَر نَاضِر', 'خَضْرَاء مُورِقَة', 'نَبَات نَضِير'],
@@ -215,7 +215,7 @@ ALL_WORDS.push(
     verseKey: '87:17',
     ayahA: 'وَ<span class=\"ayah-highlight\">الْآخِرَةُ خَيْرٌ وَأَبْقَىٰ</span>',
     ayahT: 'While <strong>the Hereafter is better and more lasting</strong>.',
-    ayahR: 'Al-A'la 87:17',
+    ayahR: 'Al-A\'la 87:17',
     tafsir: 'Ibn Kathir says the worldly life is transient, while the Hereafter is eternal. The comparison is clear — what endures forever is infinitely better than what passes away.',
     similarWords: ['الدَّار الْبَاقِيَة', 'الْحَيَاة الْأَبَدِيَّة', 'الْحَيَوَان'],
     oppositeWords: ['الْحَيَاة الدُّنْيَا', 'الْمَتَاع الْفَانِي', 'اللَّذَّة الزَّائِلَة'],
