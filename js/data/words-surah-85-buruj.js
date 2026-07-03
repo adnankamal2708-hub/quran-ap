@@ -145,7 +145,7 @@ ALL_WORDS.push(
       { a: 'مَحْمُود', e: 'praised/commendable' },
     ],
     occ: 17,
-    frequency: 'medium',
+    frequency: 'high',
     difficulty: 1,
     tags: ['allah', 'attribute', 'buruj'],
     lesson: 'buruj',

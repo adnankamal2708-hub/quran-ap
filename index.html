@@ -165,7 +165,7 @@
           <div class="root-family" id="root-family" role="group" aria-label="Related root words"></div>
         </section>
 
-        <!-- Word Network: Similar & Opposite Words -->
+        <!-- Word Network: Similar, Opposite & Related Words -->
         <section class="word-network" id="word-network" aria-label="Word connections">
           <div class="word-network-section" id="similar-words-section">
             <div class="word-network-title">🔗 Similar Words</div>
@@ -174,6 +174,34 @@
           <div class="word-network-section" id="opposite-words-section">
             <div class="word-network-title">↔️ Opposite Words</div>
             <div class="word-network-list" id="opposite-words-list"></div>
+          </div>
+          <div class="word-network-section" id="related-words-section">
+            <div class="word-network-title">🔗 Related Quranic Words</div>
+            <div class="word-network-list" id="related-words-list"></div>
+          </div>
+        </section>
+
+        <!-- Extended Relationships -->
+        <section class="word-network" id="extended-relationships" aria-label="Extended word relationships">
+          <div class="word-network-section" id="derived-forms-section">
+            <div class="word-network-title">📐 Derived Forms</div>
+            <div class="word-network-list" id="derived-forms-list"></div>
+          </div>
+          <div class="word-network-section" id="semantic-groups-section">
+            <div class="word-network-title">🏷️ Semantic Groups</div>
+            <div class="word-network-list" id="semantic-groups-list"></div>
+          </div>
+          <div class="word-network-section" id="confused-with-section">
+            <div class="word-network-title">⚠️ Frequently Confused</div>
+            <div class="word-network-list" id="confused-with-list"></div>
+          </div>
+          <div class="word-network-section" id="contextual-equiv-section">
+            <div class="word-network-title">🔄 Contextual Equivalents</div>
+            <div class="word-network-list" id="contextual-equiv-list"></div>
+          </div>
+          <div class="word-network-section" id="morph-relations-section">
+            <div class="word-network-title">🔬 Morphological Relationships</div>
+            <div class="word-network-list" id="morph-relations-list"></div>
           </div>
         </section>
 
@@ -285,6 +313,12 @@
         <div class="progress-section">
           <div class="progress-section-title">📊 Learning Stages</div>
           <div id="stats-stages" class="stats-bar-list"></div>
+        </div>
+
+        <!-- Relationship Coverage -->
+        <div class="progress-section">
+          <div class="progress-section-title">🔗 Vocabulary Relationships</div>
+          <div id="stats-relationships" class="stats-bar-list"></div>
         </div>
 
         <!-- SRS Health -->

@@ -145,7 +145,7 @@ ALL_WORDS.push(
       { a: 'مَدِين', e: 'indebted' },
     ],
     occ: 14,
-    frequency: 'medium',
+    frequency: 'high',
     difficulty: 1,
     tags: ['judgment', 'resurrection', 'infitar'],
     lesson: 'infitar',

@@ -21,7 +21,7 @@ ALL_WORDS.push(
       { a: 'مِقْدَار', e: 'measure/amount' },
     ],
     occ: 6,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 2,
     tags: ['night', 'decree', 'qadr'],
     lesson: 'qadr',

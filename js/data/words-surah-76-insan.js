@@ -21,7 +21,7 @@ ALL_WORDS.push(
       { a: 'أُنْس', e: 'familiarity/companionship' },
     ],
     occ: 65,
-    frequency: 'high',
+    frequency: 'very-high',
     difficulty: 1,
     tags: ['humanity', 'creation', 'insan'],
     lesson: 'insan',

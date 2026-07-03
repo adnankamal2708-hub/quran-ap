@@ -114,7 +114,7 @@ ALL_WORDS.push(
       { a: 'تَوَيَّلَ', e: 'he was ruined' },
     ],
     occ: 6,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 2,
     tags: ['punishment', 'warning', 'humazah'],
     lesson: 'humazah',

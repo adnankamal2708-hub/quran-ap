@@ -35,6 +35,11 @@
 //   similarWords   — Array of arabic texts of words with similar meaning
 //   oppositeWords  — Array of arabic texts of antonyms
 //   relatedWords   — Array of arabic texts of conceptually related words
+//   derivedForms   — (Computed) Array of { arabic, english, pattern, formName } sharing same root
+//   semanticGroup  — (Computed) Array of { group, count, sampleWords } thematic groupings
+//   confusedWith   — (Computed) Array of { arabic, english, similarity, reason } confused words
+//   contextualEquivalents — (Computed) Array of { arabic, english, difficulty } same-context words
+//   morphRelations — (Computed) Array of { arabic, english, relationshipType } morphological links
 //   bookmarked     — Default bookmark state (false)
 // ═══════════════════════════════════════════════════════════════
 
@@ -171,8 +176,49 @@ function deduplicateVocabulary() {
     // Compute total occurrence count
     var totalOcc = 0;
     group.forEach(function(gw) { totalOcc += (gw.occ || 0); });
-    // Clamp to at least the number of distinct occurrences we have
     totalOcc = Math.max(totalOcc, occurrences.length);
+    
+    // Compute best difficulty from group (most frequent = mode)
+    var diffCounts = {};
+    group.forEach(function(gw) {
+      var d = gw.difficulty || 3;
+      diffCounts[d] = (diffCounts[d] || 0) + 1;
+    });
+    var bestDifficulty = base.difficulty || 3;
+    var maxCount = 0;
+    Object.keys(diffCounts).forEach(function(d) {
+      if (diffCounts[d] > maxCount) {
+        maxCount = diffCounts[d];
+        bestDifficulty = parseInt(d, 10);
+      }
+    });
+    
+    // Compute best frequency from group (most frequent = mode)
+    var freqCounts = {};
+    group.forEach(function(gw) {
+      var f = gw.frequency || 'medium';
+      freqCounts[f] = (freqCounts[f] || 0) + 1;
+    });
+    var bestFrequency = base.frequency || 'medium';
+    var maxFreqCount = 0;
+    Object.keys(freqCounts).forEach(function(f) {
+      if (freqCounts[f] > maxFreqCount) {
+        maxFreqCount = freqCounts[f];
+        bestFrequency = f;
+      }
+    });
+    
+    // Merge tags from all group entries
+    var mergedTags = [];
+    var seenTags = {};
+    group.forEach(function(gw) {
+      (gw.tags || []).forEach(function(t) {
+        if (!seenTags[t]) {
+          seenTags[t] = true;
+          mergedTags.push(t);
+        }
+      });
+    });
     
     // Create canonical ID
     var canonicalId = 'cw_' + (_canonicalIdCounter++);
@@ -192,9 +238,9 @@ function deduplicateVocabulary() {
       rootPattern: base.rootPattern,
       rootFamily: base.rootFamily,
       occ: totalOcc,
-      frequency: base.frequency,
-      difficulty: base.difficulty,
-      tags: base.tags,
+      frequency: bestFrequency,
+      difficulty: bestDifficulty,
+      tags: mergedTags,
       lesson: base.lesson,
       surahIds: surahIds,
       occurrences: occurrences,

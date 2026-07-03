@@ -83,7 +83,7 @@ ALL_WORDS.push(
       { a: 'عَصِيف', e: 'stormy' },
     ],
     occ: 5,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 3,
     tags: ['winds', 'storm', 'mursalat'],
     lesson: 'mursalat',

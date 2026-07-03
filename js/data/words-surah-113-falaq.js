@@ -52,7 +52,7 @@ ALL_WORDS.push(
       { a: 'مَعَاذ', e: 'place of refuge' },
     ],
     occ: 8,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 1,
     tags: ['protection', 'refuge', 'falaq'],
     lesson: 'falaq',

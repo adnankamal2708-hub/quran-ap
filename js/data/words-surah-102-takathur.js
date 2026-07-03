@@ -83,7 +83,7 @@ ALL_WORDS.push(
       { a: 'مَقْبَرَة', e: 'cemetery' },
     ],
     occ: 5,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 1,
     tags: ['death', 'graves', 'takathur'],
     lesson: 'takathur',

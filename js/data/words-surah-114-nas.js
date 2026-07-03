@@ -52,7 +52,7 @@ ALL_WORDS.push(
       { a: 'مَالِك', e: 'owner/possessor' },
     ],
     occ: 6,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 1,
     tags: ['allah', 'kingship', 'nas'],
     lesson: 'nas',

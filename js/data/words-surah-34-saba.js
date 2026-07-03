@@ -51,7 +51,7 @@ ALL_WORDS.push(
       { a: 'سَكِينَة', e: 'tranquility' },
     ],
     occ: 6,
-    frequency:'low',
+    frequency: 'medium',
     difficulty: 2,
     tags: ['dwelling', 'saba'],
     lesson:'saba',

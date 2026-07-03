@@ -51,7 +51,7 @@ ALL_WORDS.push(
       { a: 'زَيَّات', e: 'oil seller' },
     ],
     occ: 6,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 2,
     tags: ['oath', 'blessing', 'tin'],
     lesson: 'tin',

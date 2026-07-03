@@ -136,6 +136,14 @@ function renderWordCard(w, currentIndex, total, isReview) {
   // Word network
   renderWordNetwork(w);
 
+  // Extended relationships
+  renderRelatedWords(w);
+  renderDerivedForms(w);
+  renderSemanticGroups(w);
+  renderConfusedWith(w);
+  renderContextualEquivalents(w);
+  renderMorphRelations(w);
+
   // Store occurrence data for showAyah/showWordContent
   window.__currentOccurrence = occ;
 
@@ -295,6 +303,204 @@ function renderWordNetwork(w) {
     });
   } else {
     oppositeSection.style.display = 'none';
+  }
+}
+
+/**
+ * Render the related words section.
+ */
+function renderRelatedWords(w) {
+  if (!w) return;
+  var section = document.getElementById('related-words-section');
+  var list = document.getElementById('related-words-list');
+  if (!section || !list) return;
+  list.innerHTML = '';
+
+  var related = typeof getRelatedWordObjects === 'function' ? getRelatedWordObjects(w) : [];
+  if (related.length > 0) {
+    section.style.display = 'block';
+    related.forEach(function(rw) {
+      var wo = findWordByArabic(rw.arabic);
+      if (wo) {
+        list.appendChild(createWordNetworkChip(wo, 'related'));
+      }
+    });
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+/**
+ * Render the derived forms section.
+ */
+function renderDerivedForms(w) {
+  if (!w) return;
+  var section = document.getElementById('derived-forms-section');
+  var list = document.getElementById('derived-forms-list');
+  if (!section || !list) return;
+  list.innerHTML = '';
+
+  var forms = typeof getDerivedForms === 'function' ? getDerivedForms(w) : [];
+  if (forms.length > 0) {
+    section.style.display = 'block';
+    forms.forEach(function(df) {
+      var d = document.createElement('div');
+      d.className = 'word-network-chip';
+      d.setAttribute('role', 'button');
+      d.setAttribute('tabindex', '0');
+      d.setAttribute('aria-label', df.formName + ': ' + df.arabic + ' - ' + df.english);
+      d.innerHTML =
+        '<span class="word-network-chip-arabic">' + df.arabic + '</span>' +
+        '<span class="word-network-chip-eng">' + df.english + '</span>' +
+        '<span class="word-network-chip-sub">' + df.formName + '</span>';
+      var wo = findWordByArabic(df.arabic);
+      if (wo) {
+        d.onclick = function() { navigateToWord(wo); };
+        d.onkeydown = function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigateToWord(wo); }
+        };
+      }
+      list.appendChild(d);
+    });
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+/**
+ * Render the semantic groups section.
+ */
+function renderSemanticGroups(w) {
+  if (!w) return;
+  var section = document.getElementById('semantic-groups-section');
+  var list = document.getElementById('semantic-groups-list');
+  if (!section || !list) return;
+  list.innerHTML = '';
+
+  var groups = typeof getSemanticGroups === 'function' ? getSemanticGroups(w) : [];
+  if (groups.length > 0) {
+    section.style.display = 'block';
+    groups.forEach(function(sg) {
+      var d = document.createElement('div');
+      d.className = 'semantic-group-chip';
+      d.innerHTML =
+        '<div class="semantic-group-name">' + sg.group + '</div>' +
+        '<div class="semantic-group-info">' + sg.count + ' words · e.g. ' + sg.sampleWords.join(', ') + '</div>';
+      list.appendChild(d);
+    });
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+/**
+ * Render the confused-with (frequently confused) words section.
+ */
+function renderConfusedWith(w) {
+  if (!w) return;
+  var section = document.getElementById('confused-with-section');
+  var list = document.getElementById('confused-with-list');
+  if (!section || !list) return;
+  list.innerHTML = '';
+
+  var confused = typeof getConfusedWith === 'function' ? getConfusedWith(w) : [];
+  if (confused.length > 0) {
+    section.style.display = 'block';
+    confused.forEach(function(cw) {
+      var d = document.createElement('div');
+      d.className = 'word-network-chip';
+      d.setAttribute('role', 'button');
+      d.setAttribute('tabindex', '0');
+      d.setAttribute('aria-label', 'Confused with: ' + cw.arabic + ' - ' + cw.english + ' (' + cw.similarity + ' ' + cw.reason + ')');
+      var icon = cw.similarity === 'high' ? '🔴' : '🟡';
+      d.innerHTML =
+        '<span class="word-network-chip-arabic">' + cw.arabic + '</span>' +
+        '<span class="word-network-chip-eng">' + cw.english + '</span>' +
+        '<span class="word-network-chip-sub">' + icon + ' ' + cw.reason + '</span>';
+      var wo = findWordByArabic(cw.arabic);
+      if (wo) {
+        d.onclick = function() { navigateToWord(wo); };
+        d.onkeydown = function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigateToWord(wo); }
+        };
+      }
+      list.appendChild(d);
+    });
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+/**
+ * Render the contextual equivalents section.
+ */
+function renderContextualEquivalents(w) {
+  if (!w) return;
+  var section = document.getElementById('contextual-equiv-section');
+  var list = document.getElementById('contextual-equiv-list');
+  if (!section || !list) return;
+  list.innerHTML = '';
+
+  var equivs = typeof getContextualEquivalents === 'function' ? getContextualEquivalents(w) : [];
+  if (equivs.length > 0) {
+    section.style.display = 'block';
+    equivs.forEach(function(eq) {
+      var d = document.createElement('div');
+      d.className = 'word-network-chip';
+      d.setAttribute('role', 'button');
+      d.setAttribute('tabindex', '0');
+      d.setAttribute('aria-label', 'Equiv: ' + eq.arabic + ' - ' + eq.english);
+      d.innerHTML =
+        '<span class="word-network-chip-arabic">' + eq.arabic + '</span>' +
+        '<span class="word-network-chip-eng">' + eq.english + '</span>';
+      var wo = findWordByArabic(eq.arabic);
+      if (wo) {
+        d.onclick = function() { navigateToWord(wo); };
+        d.onkeydown = function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigateToWord(wo); }
+        };
+      }
+      list.appendChild(d);
+    });
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+/**
+ * Render the morphological relationships section.
+ */
+function renderMorphRelations(w) {
+  if (!w) return;
+  var section = document.getElementById('morph-relations-section');
+  var list = document.getElementById('morph-relations-list');
+  if (!section || !list) return;
+  list.innerHTML = '';
+
+  var morphs = typeof getMorphologicalRelationships === 'function' ? getMorphologicalRelationships(w) : [];
+  if (morphs.length > 0) {
+    section.style.display = 'block';
+    morphs.forEach(function(mr) {
+      var d = document.createElement('div');
+      d.className = 'word-network-chip morph-chip';
+      d.setAttribute('role', 'button');
+      d.setAttribute('tabindex', '0');
+      d.setAttribute('aria-label', 'Morph: ' + mr.arabic + ' - ' + mr.english + ' (' + mr.relationshipType + ')');
+      d.innerHTML =
+        '<span class="word-network-chip-arabic">' + mr.arabic + '</span>' +
+        '<span class="word-network-chip-eng">' + mr.english + '</span>' +
+        '<span class="word-network-chip-sub">' + mr.relationshipType + '</span>';
+      var wo = findWordByArabic(mr.arabic);
+      if (wo) {
+        d.onclick = function() { navigateToWord(wo); };
+        d.onkeydown = function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigateToWord(wo); }
+        };
+      }
+      list.appendChild(d);
+    });
+  } else {
+    section.style.display = 'none';
   }
 }
 
@@ -692,13 +898,37 @@ function renderStats() {
         '<span class="stats-bar-value">' + count + '</span>';
       stageContainer.appendChild(row);
     }
-  }
+  }        // Relationship Coverage section
+        var relStatsContainer = DOM.get('stats-relationships');
+        if (relStatsContainer && typeof getRelationshipStats === 'function') {
+          var relStats = getRelationshipStats();
+          relStatsContainer.innerHTML = '';
+          var relItems = [
+            { label: 'Derived Forms', value: relStats.wordsWithDerivedForms + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithDerivedForms / relStats.totalWords) * 100) : 0, color: 'var(--blue)' },
+            { label: 'Semantic Groups', value: relStats.wordsWithSemanticGroups + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithSemanticGroups / relStats.totalWords) * 100) : 0, color: 'var(--purple)' },
+            { label: 'Confused With', value: relStats.wordsWithConfusedWith + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithConfusedWith / relStats.totalWords) * 100) : 0, color: 'var(--gold-dim)' },
+            { label: 'Contextual Equivs', value: relStats.wordsWithContextualEquivalents + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithContextualEquivalents / relStats.totalWords) * 100) : 0, color: 'var(--green)' },
+            { label: 'Morph. Relations', value: relStats.wordsWithMorphRelations + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithMorphRelations / relStats.totalWords) * 100) : 0, color: 'var(--pink)' },
+            { label: 'Related Words', value: relStats.wordsWithRelatedWords + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithRelatedWords / relStats.totalWords) * 100) : 0, color: 'var(--gold)' },
+          ];
+          for (var ri = 0; ri < relItems.length; ri++) {
+            var item = relItems[ri];
+            if (item.value === '0/0') continue;
+            var row = document.createElement('div');
+            row.className = 'stats-bar-row';
+            row.innerHTML =
+              '<span class="stats-bar-label">' + item.label + '</span>' +
+              '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + item.pct + '%;background:' + item.color + '"></div></div>' +
+              '<span class="stats-bar-value">' + item.value + '</span>';
+            relStatsContainer.appendChild(row);
+          }
+        }
 
-  // SRS Health section
-  var healthContainer = DOM.get('stats-health');
-  if (healthContainer) {
-    healthContainer.innerHTML = '';
-    var healthItems = [
+        // SRS Health section
+        var healthContainer = DOM.get('stats-health');
+        if (healthContainer) {
+          healthContainer.innerHTML = '';
+          var healthItems = [
       { label: 'Avg Retention', value: srsStats.avgRetention + '%', pct: srsStats.avgRetention, color: 'var(--green)' },
       { label: 'Avg Ease', value: String(srsStats.avgEaseFactor.toFixed(2)), pct: Math.round((srsStats.avgEaseFactor / 3) * 100), color: 'var(--blue)' },
       { label: 'Overdue', value: srsStats.overdue, pct: srsStats.dueToday > 0 ? Math.round((srsStats.overdue / srsStats.dueToday) * 100) : 0, color: srsStats.overdue > 0 ? 'var(--red)' : 'var(--green)' },

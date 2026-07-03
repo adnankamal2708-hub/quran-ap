@@ -52,7 +52,7 @@ ALL_WORDS.push(
       { a: 'مَهَّدَ', e: 'he prepared' },
     ],
     occ: 6,
-    frequency:'low',
+    frequency: 'medium',
     difficulty: 2,
     tags: ['creation', 'sajdah'],
     lesson:'sajdah',

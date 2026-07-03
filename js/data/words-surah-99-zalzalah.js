@@ -207,7 +207,7 @@ ALL_WORDS.push(
       { a: 'مَرْأَىٰ', e: 'sight/view' },
     ],
     occ: 16,
-    frequency: 'medium',
+    frequency: 'high',
     difficulty: 1,
     tags: ['judgment', 'accountability', 'zalzalah'],
     lesson: 'zalzalah',

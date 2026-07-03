@@ -52,7 +52,7 @@ ALL_WORDS.push(
       { a: 'خَاشِع', e: 'humble/submissive' },
     ],
     occ: 7,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 2,
     tags: ['judgment', 'humiliation', 'ghashiyah'],
     lesson: 'ghashiyah',

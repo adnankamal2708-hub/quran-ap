@@ -143,7 +143,7 @@ ALL_WORDS.push(
       { a: 'ذَرِيَّة', e: 'offspring/descendants' },
     ],
     occ: 7,
-    frequency: 'low',
+    frequency: 'medium',
     difficulty: 3,
     tags: ['creation', 'dhariyat'],
     lesson: 'dhariyat',
