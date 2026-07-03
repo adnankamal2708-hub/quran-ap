@@ -907,6 +907,7 @@ function renderStats() {
           foundationStatsContainer.innerHTML = '';
           
           if (fTotal > 0) {
+            // Progress bar
             var fPct = Math.round((fCompleted / fTotal) * 100);
             var row = document.createElement('div');
             row.className = 'stats-bar-row';
@@ -917,23 +918,128 @@ function renderStats() {
               '<span class="stats-bar-value">' + fCompleted + '/' + fTotal + '</span>';
             foundationStatsContainer.appendChild(row);
             
-            // Coverage info
-            if (fCompleted === fTotal) {
-              var covRow = document.createElement('div');
-              covRow.className = 'stats-bar-row';
-              covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">🎉 Foundation Course Complete! ~84% Quran coverage</span>';
-              foundationStatsContainer.appendChild(covRow);
-            } else {
+            // Coverage metrics using the new analytics engine
+            var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+            var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
+            
+            if (coverage && foundCov) {
+              // Quran Reading Coverage (PRIMARY METRIC)
+              var covRow1 = document.createElement('div');
+              covRow1.className = 'stats-bar-row';
+              covRow1.innerHTML = '<span style="font-size:11px;color:var(--green);font-weight:500;padding:2px 0">📖 Quran Reading Coverage: ' + coverage.coveragePercent + '%</span>';
+              foundationStatsContainer.appendChild(covRow1);
+              
+              // Estimated reading comprehension
+              var compRow = document.createElement('div');
+              compRow.className = 'stats-bar-row';
+              compRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">🧠 Estimated comprehension: ' + coverage.estimatedComprehension + '%</span>';
+              foundationStatsContainer.appendChild(compRow);
+              
+              // Words mastered / total & occurrences covered
+              var statsRow = document.createElement('div');
+              statsRow.className = 'stats-bar-row';
+              statsRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">✓ ' + coverage.masteredWords + ' of ' + coverage.totalWords + ' words · ' + coverage.masteredOccurrences.toLocaleString() + ' of ' + coverage.totalOccurrences.toLocaleString() + ' occurrences</span>';
+              foundationStatsContainer.appendChild(statsRow);
+              
+              // Milestone status
+              var ms = typeof getMilestoneStatus === 'function' ? getMilestoneStatus(coverage.coveragePercent) : null;
+              if (ms && ms.currentMilestone) {
+                var msRow = document.createElement('div');
+                msRow.className = 'stats-bar-row';
+                msRow.innerHTML = '<span style="font-size:11px;color:var(--gold);padding:4px 0">' + ms.currentMilestone.icon + ' Milestone: ' + ms.currentMilestone.label + '</span>';
+                foundationStatsContainer.appendChild(msRow);
+                
+                // Milestone progress detail
+                var insightRow = document.createElement('div');
+                insightRow.className = 'stats-bar-row';
+                insightRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);font-style:italic;padding:2px 0">' + ms.currentMilestone.insight + '</span>';
+                foundationStatsContainer.appendChild(insightRow);
+              }
+              
+              // Next milestone info
+              if (ms && ms.nextMilestone) {
+                var nextMsRow = document.createElement('div');
+                nextMsRow.className = 'stats-bar-row';
+                nextMsRow.innerHTML = '<span style="font-size:10px;color:var(--gold-dim);padding:2px 0">🎯 Next: ' + ms.nextMilestone.label + ' (' + ms.nextMilestone.pct + '%) — ~' + ms.wordsToNextMilestone + ' words, ~' + ms.lessonsToNextMilestone + ' lessons</span>';
+                foundationStatsContainer.appendChild(nextMsRow);
+              }
+              
+              // Root family mastery
+              var roots = typeof getRootFamilyMastery === 'function' ? getRootFamilyMastery() : null;
+              if (roots) {
+                var rootsRow = document.createElement('div');
+                rootsRow.className = 'stats-bar-row';
+                rootsRow.innerHTML = '<span style="font-size:10px;color:var(--purple);padding:2px 0">🌱 Roots mastered: ' + roots.fullyMasteredRoots + '/' + roots.totalRoots + ' (' + (roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0) + '%)</span>';
+                foundationStatsContainer.appendChild(rootsRow);
+              }
+              
+              // Foundation-specific coverage
+              if (fCompleted > 0) {
+                var fCovRow = document.createElement('div');
+                fCovRow.className = 'stats-bar-row';
+                fCovRow.innerHTML = '<span style="font-size:10px;color:var(--green);padding:2px 0">📘 Foundation coverage: ' + foundCov.foundationCoveragePercent + '% of Quran (' + foundCov.masteredFoundationWords + '/' + foundCov.totalFoundationWords + ' words)</span>';
+                foundationStatsContainer.appendChild(fCovRow);
+              }
+            }
+            
+            // Next lesson info
+            if (fCompleted < fTotal) {
               var nextLesson = typeof getNextIncompleteFoundationLesson === 'function' ? getNextIncompleteFoundationLesson() : 0;
               var covRow = document.createElement('div');
               covRow.className = 'stats-bar-row';
               var fLesson = FOUNDATION_LESSONS && FOUNDATION_LESSONS[nextLesson] ? FOUNDATION_LESSONS[nextLesson] : null;
               var coverageText = fLesson ? 'Next: Foundation ' + (nextLesson + 1) + ' (+' + fLesson.lessonCoverage + ')' : '';
-              covRow.innerHTML = '<span style="font-size:11px;color:var(--text-muted);padding:4px 0">📖 ' + coverageText + '</span>';
+              covRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:4px 0">📖 ' + coverageText + '</span>';
+              foundationStatsContainer.appendChild(covRow);
+            } else {
+              var covRow = document.createElement('div');
+              covRow.className = 'stats-bar-row';
+              covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">🎉 Foundation Course Complete! ~' + (typeof getFoundationCoverage === 'function' ? getFoundationCoverage().foundationCoveragePercent : '84') + '% Quran coverage</span>';
               foundationStatsContainer.appendChild(covRow);
             }
           } else {
             foundationStatsContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Foundation Course not available</div>';
+          }
+        }
+
+        // Surah Comprehension section
+        var surahCompContainer = DOM.get('stats-surah-comprehension');
+        if (surahCompContainer && typeof getAllSurahComprehension === 'function') {
+          var allComp = getAllSurahComprehension();
+          surahCompContainer.innerHTML = '';
+          
+          if (allComp.length > 0) {
+            // Sort by comprehension ascending (lowest first — most impactful to study)
+            allComp.sort(function(a, b) {
+              return a.estimatedComprehension - b.estimatedComprehension;
+            });
+            
+            // Show top 10 most-impactful surahs (lowest comprehension)
+            var displayCount = Math.min(10, allComp.length);
+            for (var sci = 0; sci < displayCount; sci++) {
+              var sc = allComp[sci];
+              var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(sc.surahId) : null;
+              var surahName = surahInfo ? surahInfo.name : 'Surah ' + sc.surahId;
+              var color = sc.estimatedComprehension >= 80 ? 'var(--green)' : 
+                         sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)';
+              
+              var row = document.createElement('div');
+              row.className = 'stats-bar-row';
+              row.innerHTML =
+                '<span class="stats-bar-label" style="font-size:10px;min-width:80px">' + sc.surahId + '. ' + surahName + '</span>' +
+                '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + sc.estimatedComprehension + '%;background:' + color + '"></div></div>' +
+                '<span class="stats-bar-value" style="font-size:10px;min-width:40px">' + sc.estimatedComprehension + '%</span>';
+              surahCompContainer.appendChild(row);
+            }
+            
+            if (allComp.length > displayCount) {
+              var moreRow = document.createElement('div');
+              moreRow.className = 'stats-bar-row';
+              moreRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);padding:4px 0">+' + (allComp.length - displayCount) + ' more surahs</span>';
+              surahCompContainer.appendChild(moreRow);
+            }
+          } else {
+            surahCompContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Study words to see surah comprehension</div>';
           }
         }
 

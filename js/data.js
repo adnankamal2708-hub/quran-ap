@@ -528,31 +528,407 @@ function getAllFoundationWords() {
 
 const FOUNDATION_PROGRESS_KEY = 'quran_foundation_progress';
 
-function getDefaultFoundationProgress() {
+// ── Foundation Course Coverage & Analytics ─────────────────────
+// These functions compute Quran reading coverage, milestones,
+// surah comprehension, and other analytics from canonical words
+// and SRS data.
+
+/** Cached total Quranic occurrences across all canonical words */
+let _totalQuranOccurrences = 0;
+
+/**
+ * Compute total Quranic occurrences across all canonical words.
+ */
+function getTotalQuranOccurrences() {
+  if (_totalQuranOccurrences > 0) return _totalQuranOccurrences;
+  var words = typeof getCanonicalWords === 'function' ? getCanonicalWords() : [];
+  if (words.length === 0) words = ALL_WORDS;
+  var total = 0;
+  for (var ti = 0; ti < words.length; ti++) {
+    total += words[ti].occ || 0;
+  }
+  _totalQuranOccurrences = total;
+  return total;
+}
+
+/**
+ * Get the canonical IDs of all mastered words (stage >= 2 in SRS).
+ * Returns an object: { canonicalId: true }
+ */
+function getMasteredWordIds() {
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var mastered = {};
+  Object.keys(srsData).forEach(function(id) {
+    var entry = srsData[id];
+    if (entry && entry.stage >= 2) {
+      mastered[id] = true;
+    }
+  });
+  return mastered;
+}
+
+/**
+ * Calculate Quran Reading Coverage based on mastered words.
+ * Returns an object with detailed coverage metrics.
+ */
+function calculateCoverage() {
+  var totalOcc = getTotalQuranOccurrences();
+  var mastered = getMasteredWordIds();
+  
+  // Count mastered canonical words and their occurrences
+  var allCanonical = typeof getCanonicalWords === 'function' ? getCanonicalWords() : [];
+  if (allCanonical.length === 0) allCanonical = ALL_WORDS;
+  
+  var masteredCount = 0;
+  var masteredOcc = 0;
+  var totalWords = allCanonical.length;
+  
+  for (var ci = 0; ci < allCanonical.length; ci++) {
+    var w = allCanonical[ci];
+    if (mastered[w.id]) {
+      masteredCount++;
+      masteredOcc += w.occ || 0;
+    }
+  }
+  
+  var coveragePct = totalOcc > 0 ? (masteredOcc / totalOcc * 100) : 0;
+  var wordMasteryPct = totalWords > 0 ? (masteredCount / totalWords * 100) : 0;
+  
+  // Estimate reading comprehension: based on coverage with diminishing returns
+  // At 0% coverage → 0% comprehension
+  // At ~84% coverage (100 foundation words) → ~60% comprehension
+  // The curve: comprehension ≈ 1.3 * coverage^0.7 (diminishing at high coverage)
+  var estimatedComprehension = coveragePct > 0 
+    ? Math.min(95, Math.round(1.3 * Math.pow(coveragePct, 0.7) * 10) / 10)
+    : 0;
+  
   return {
-    currentLesson: 0,
-    completedLessons: [],
-    quizPassed: {},
+    totalOccurrences: totalOcc,
+    masteredWords: masteredCount,
+    totalWords: totalWords,
+    masteredOccurrences: masteredOcc,
+    coveragePercent: Math.round(coveragePct * 10) / 10,
+    wordMasteryPercent: Math.round(wordMasteryPct * 10) / 10,
+    estimatedComprehension: estimatedComprehension,
   };
 }
 
-function loadFoundationProgress() {
-  try {
-    var raw = localStorage.getItem(FOUNDATION_PROGRESS_KEY);
-    if (!raw) return getDefaultFoundationProgress();
-    return JSON.parse(raw);
-  } catch (e) {
-    return getDefaultFoundationProgress();
+/**
+ * Get Foundation Course-specific coverage metrics.
+ * Shows coverage from foundation words specifically.
+ */
+function getFoundationCoverage() {
+  var totalOcc = getTotalQuranOccurrences();
+  var mastered = getMasteredWordIds();
+  var fWords = getAllFoundationWords();
+  
+  var fMastered = 0;
+  var fMasteredOcc = 0;
+  var fTotalOcc = 0;
+  
+  for (var fi = 0; fi < fWords.length; fi++) {
+    var w = fWords[fi];
+    fTotalOcc += w.occ || 0;
+    if (mastered[w.id]) {
+      fMastered++;
+      fMasteredOcc += w.occ || 0;
+    }
   }
+  
+  var fCoveragePct = totalOcc > 0 ? (fMasteredOcc / totalOcc * 100) : 0;
+  var fProgressPct = fWords.length > 0 ? (fMastered / fWords.length * 100) : 0;
+  
+  return {
+    totalFoundationWords: fWords.length,
+    masteredFoundationWords: fMastered,
+    totalFoundationOccurrences: fTotalOcc,
+    masteredFoundationOccurrences: fMasteredOcc,
+    foundationCoveragePercent: Math.round(fCoveragePct * 10) / 10,
+    foundationProgressPercent: Math.round(fProgressPct),
+    totalQuranOccurrences: totalOcc,
+  };
 }
 
-function saveFoundationProgress(data) {
-  try {
-    localStorage.setItem(FOUNDATION_PROGRESS_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.warn('[foundation] Could not save progress:', e.message);
-  }
+/**
+ * Get the coverage gained from completing a specific foundation lesson.
+ */
+function getFoundationLessonCoverage(lessonIndex) {
+  if (!FOUNDATION_LESSONS || !FOUNDATION_LESSONS[lessonIndex]) return 0;
+  var lesson = FOUNDATION_LESSONS[lessonIndex];
+  // Parse the coverage string (e.g. "8.3%") to number
+  var covStr = lesson.lessonCoverage;
+  var num = parseFloat(covStr) || 0;
+  return num;
 }
+
+/**
+ * Surah Comprehension: Calculate estimated comprehension for every surah
+ * based on which vocabulary words appearing in that surah are mastered.
+ */
+function getSurahComprehension(surahId) {
+  if (!surahId) return null;
+  var words = getSurahWords(surahId);
+  if (!words || words.length === 0) return null;
+  
+  var mastered = getMasteredWordIds();
+  var totalWords = words.length;
+  var masteredInSurah = 0;
+  var totalOccInSurah = 0;
+  var masteredOccInSurah = 0;
+  
+  for (var wi = 0; wi < words.length; wi++) {
+    var w = words[wi];
+    var occ = w.occ || 0;
+    totalOccInSurah += occ;
+    if (mastered[w.id]) {
+      masteredInSurah++;
+      masteredOccInSurah += occ;
+    }
+  }
+  
+  // Comprehension estimate based on vocabulary coverage in this surah
+  var wordCoverage = totalWords > 0 ? (masteredInSurah / totalWords * 100) : 0;
+  var occCoverage = totalOccInSurah > 0 ? (masteredOccInSurah / totalOccInSurah * 100) : 0;
+  
+  // Estimated comprehension: weighted average of word count and occurrence coverage
+  var comprehension = (wordCoverage * 0.4 + occCoverage * 0.6);
+  comprehension = Math.round(Math.min(100, comprehension));
+  
+  return {
+    surahId: surahId,
+    totalWords: totalWords,
+    masteredWords: masteredInSurah,
+    totalOccurrences: totalOccInSurah,
+    masteredOccurrences: masteredOccInSurah,
+    wordCoveragePercent: Math.round(wordCoverage * 10) / 10,
+    occurrenceCoveragePercent: Math.round(occCoverage * 10) / 10,
+    estimatedComprehension: comprehension,
+  };
+}
+
+/**
+ * Get comprehension for all surahs.
+ */
+function getAllSurahComprehension() {
+  var surahIds = getSurahsWithVocabulary();
+  var results = [];
+  for (var si = 0; si < surahIds.length; si++) {
+    var comp = getSurahComprehension(surahIds[si]);
+    if (comp) results.push(comp);
+  }
+  return results;
+}
+
+/**
+ * Coverage Milestones with celebration data.
+ */
+const COVERAGE_MILESTONES = [
+  { pct: 5, label: 'First Steps', icon: '🌱', insight: 'You can recognize 1 in 20 words! Every word builds your foundation.' },
+  { pct: 10, label: 'Building Blocks', icon: '🧱', insight: '1 in 10 words familiar! You\'re starting to see patterns in the text.' },
+  { pct: 20, label: 'Growing Strong', icon: '🌿', insight: '1 in 5 words known! Short verses become recognizable.' },
+  { pct: 30, label: 'Solid Foundation', icon: '🏗️', insight: 'Nearly 1 in 3 words! You can grasp the topic of many verses.' },
+  { pct: 40, label: 'Halfway There', icon: '🔥', insight: '2 in 5 words! You can follow the flow of longer passages.' },
+  { pct: 50, label: 'Major Milestone', icon: '⭐', insight: 'Half the words! You understand key concepts across the Quran.' },
+  { pct: 60, label: 'Strong Reader', icon: '📖', insight: '3 in 5 words! With tafsir, you can study most verses.' },
+  { pct: 70, label: 'Advanced', icon: '🎯', insight: '7 in 10 words! Only specialized vocabulary remains unfamiliar.' },
+  { pct: 80, label: 'Near Complete', icon: '👑', insight: '4 in 5 words! You have working knowledge of almost the entire Quranic vocabulary.' },
+  { pct: 90, label: 'Expert Level', icon: '🏆', insight: '9 in 10 words! You can read with deep understanding.' },
+  { pct: 95, label: 'Mastery', icon: '💎', insight: 'Only the rarest words remain. You are among the few.' },
+  { pct: 100, label: 'Quran Complete', icon: '🌟', insight: 'All vocabulary mastered! The Quran is now open to you.' },
+];
+
+/**
+ * Get the current milestone and next milestone based on coverage.
+ */
+function getMilestoneStatus(coveragePercent) {
+  var currentMilestone = null;
+  var nextMilestone = null;
+  
+  for (var mi = 0; mi < COVERAGE_MILESTONES.length; mi++) {
+    if (coveragePercent >= COVERAGE_MILESTONES[mi].pct) {
+      currentMilestone = COVERAGE_MILESTONES[mi];
+    } else {
+      nextMilestone = COVERAGE_MILESTONES[mi];
+      break;
+    }
+  }
+  
+  var wordsToNext = 0;
+  var lessonsToNext = 0;
+  
+  if (nextMilestone) {
+    // Estimate words needed: each word adds roughly its occurrence count to coverage
+    var neededCoverage = nextMilestone.pct - coveragePercent;
+    var totalOcc = getTotalQuranOccurrences();
+    var neededOccurrences = Math.ceil((neededCoverage / 100) * totalOcc);
+    var avgOccPerFoundationWord = totalOcc > 0 && FOUNDATION_WORDS.length > 0
+      ? getTotalFoundationOccurrences() / FOUNDATION_WORDS.length
+      : 100;
+    wordsToNext = Math.ceil(neededOccurrences / avgOccPerFoundationWord);
+    lessonsToNext = Math.ceil(wordsToNext / FOUNDATION_WORDS_PER_LESSON);
+  }
+  
+  return {
+    currentMilestone: currentMilestone,
+    nextMilestone: nextMilestone,
+    wordsToNextMilestone: wordsToNext,
+    lessonsToNextMilestone: lessonsToNext,
+  };
+}
+
+function getTotalFoundationOccurrences() {
+  var fWords = getAllFoundationWords();
+  var total = 0;
+  for (var fi = 0; fi < fWords.length; fi++) {
+    total += fWords[fi].occ || 0;
+  }
+  return total;
+}
+
+/**
+ * Track root families mastered.
+ */
+function getRootFamilyMastery() {
+  var mastered = getMasteredWordIds();
+  var allCanonical = typeof getCanonicalWords === 'function' ? getCanonicalWords() : ALL_WORDS;
+  var rootGroups = {};
+  var masteredRoots = {};
+  
+  for (var ri = 0; ri < allCanonical.length; ri++) {
+    var w = allCanonical[ri];
+    if (!w.root || w.root === '—') continue;
+    if (!rootGroups[w.root]) rootGroups[w.root] = { total: 0, mastered: 0, rootMeaning: w.rootMeaning };
+    rootGroups[w.root].total++;
+    if (mastered[w.id]) {
+      rootGroups[w.root].mastered++;
+    }
+  }
+  
+  var totalRoots = Object.keys(rootGroups).length;
+  var fullyMasteredRoots = 0;
+  var partiallyMasteredRoots = 0;
+  
+  Object.keys(rootGroups).forEach(function(root) {
+    var g = rootGroups[root];
+    if (g.mastered === g.total) {
+      fullyMasteredRoots++;
+      masteredRoots[root] = 'complete';
+    } else if (g.mastered > 0) {
+      partiallyMasteredRoots++;
+      masteredRoots[root] = 'partial';
+    }
+  });
+  
+  return {
+    totalRoots: totalRoots,
+    fullyMasteredRoots: fullyMasteredRoots,
+    partiallyMasteredRoots: partiallyMasteredRoots,
+  };
+}
+
+/**
+ * Calculate coverage growth over time by analyzing completed lessons.
+ */
+function getCoverageGrowth() {
+  var progress = loadFoundationProgress();
+  var completed = progress.completedLessons || [];
+  var growth = [];
+  var totalOcc = getTotalQuranOccurrences();
+  var cumulativeOcc = 0;
+  
+  // Sort completed lessons
+  var sorted = completed.slice().sort(function(a, b) { return a - b; });
+  
+  for (var gi = 0; gi < sorted.length; gi++) {
+    var lessonIdx = sorted[gi];
+    if (FOUNDATION_LESSONS[lessonIdx]) {
+      var lessonCov = parseFloat(FOUNDATION_LESSONS[lessonIdx].lessonCoverage) || 0;
+      cumulativeOcc += Math.round((lessonCov / 100) * totalOcc);
+      growth.push({
+        lesson: lessonIdx + 1,
+        coverage: Math.round(((lessonCov / 100) * totalOcc) / totalOcc * 100 * 10) / 10,
+        cumulativeCoverage: totalOcc > 0 ? Math.round(cumulativeOcc / totalOcc * 100 * 10) / 10 : 0,
+      });
+    }
+  }
+  
+  return growth;
+}
+
+// ── Rich Lesson Summary Data ─────────────────────────────────────
+
+/**
+ * Create a rich lesson summary after completing a foundation lesson.
+ */
+function createLessonSummary(lessonIndex, quizCorrect, quizTotal, timeStudiedMs) {
+  if (!FOUNDATION_LESSONS[lessonIndex]) return null;
+  
+  var lesson = FOUNDATION_LESSONS[lessonIndex];
+  var words = getFoundationLessonWords(lessonIndex);
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  
+  var newWords = 0;
+  var reviewWords = 0;
+  var rootFamiliesInLesson = {};
+  
+  for (var wi = 0; wi < words.length; wi++) {
+    var w = words[wi];
+    var entry = srsData[w.id];
+    if (!entry || entry.totalReviews <= 1) {
+      newWords++;
+    } else {
+      reviewWords++;
+    }
+    if (w.root && w.root !== '—') {
+      rootFamiliesInLesson[w.root] = (rootFamiliesInLesson[w.root] || 0) + 1;
+    }
+  }
+  
+  // Coverage before completing this lesson (excluding this lesson's words)
+  var coveredBefore = 0;
+  var masteredBefore = getMasteredWordIds();
+  var wordsBeforeOcc = 0;
+  for (var bi = 0; bi < words.length; bi++) {
+    if (masteredBefore[words[bi].id]) {
+      coveredBefore += words[bi].occ || 0;
+    }
+  }
+  
+  var totalOcc = getTotalQuranOccurrences();
+  var coverageBefore = totalOcc > 0 ? Math.round((coveredBefore / totalOcc) * 100 * 10) / 10 : 0;
+  var covFromLesson = parseFloat(lesson.lessonCoverage) || 0;
+  var coverageAfter = Math.min(100, coverageBefore + covFromLesson);
+  var accuracy = quizTotal > 0 ? Math.round((quizCorrect / quizTotal) * 100) : 0;
+  
+  return {
+    lessonIndex: lessonIndex,
+    lessonNumber: lessonIndex + 1,
+    isReview: lesson.isReview,
+    newWords: newWords,
+    reviewWords: reviewWords,
+    totalWords: words.length,
+    accuracy: accuracy,
+    quizCorrect: quizCorrect,
+    quizTotal: quizTotal,
+    timeStudiedMs: timeStudiedMs || 0,
+    rootFamiliesIntroduced: Object.keys(rootFamiliesInLesson).length,
+    rootFamilyDetails: rootFamiliesInLesson,
+    coverageBefore: coverageBefore,
+    coverageAfter: coverageAfter,
+    coverageGained: Math.round(covFromLesson * 10) / 10,
+    nextLessonPreview: lessonIndex + 1 < FOUNDATION_LESSONS.length
+      ? {
+          number: lessonIndex + 2,
+          label: FOUNDATION_LESSONS[lessonIndex + 1].label,
+          estimatedCoverageGain: parseFloat(FOUNDATION_LESSONS[lessonIndex + 1].lessonCoverage) || 0,
+        }
+      : null,
+  };
+}
+
+// ── Foundation Course Progress Tracking (localStorage) ────────
+
+const FOUNDATION_PROGRESS_KEY = 'quran_foundation_progress';
 
 function isFoundationLessonCompleted(lessonIndex) {
   var progress = loadFoundationProgress();
