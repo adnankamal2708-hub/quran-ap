@@ -10,7 +10,7 @@ ALL_WORDS.push(
     type: 'Adjective (superlative)',
     typeCategory: 'adjective',
     pattern: 'أَفْعَل',
-    english: 'The Most High',
+    english: 'The Most High, The Supreme',
     meaning: 'The Most High — the Exalted, the Supreme, the Highest of all',
     root: 'ع-ل-و',
     rootMeaning: 'To be high, to be exalted, to rise above',

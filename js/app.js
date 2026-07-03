@@ -20,6 +20,10 @@ let activeLessonIndex = 0;
 
 /** Get the words for the currently active lesson */
 function getActiveLessonWords() {
+  // If in foundation mode, return foundation lesson words
+  if (getOrganizationMode() === FOUNDATION_MODE) {
+    return getFoundationLessonWords(activeLessonIndex);
+  }
   // If in surah mode, return surah words
   if (getOrganizationMode() === 'surah' && getActiveSurahId()) {
     return getSurahWords(getActiveSurahId());
@@ -31,6 +35,25 @@ function getActiveLessonWords() {
 function getActiveLessonWordCount() {
   var words = getActiveLessonWords();
   return words ? words.length : 0;
+}
+
+/** Navigate to a specific Foundation Course lesson. */
+function goToFoundationLesson(lessonIndex, wordIndex) {
+  if (lessonIndex < 0 || lessonIndex >= getFoundationLessonCount()) return;
+  if (getOrganizationMode() !== FOUNDATION_MODE) {
+    setOrganizationMode(FOUNDATION_MODE);
+    setActiveSurahId(null);
+  }
+  if (!isFoundationLessonUnlocked(lessonIndex) && lessonIndex !== activeLessonIndex) {
+    return;
+  }
+  activeLessonIndex = lessonIndex;
+  setCurrentFoundationLesson(lessonIndex);
+  currentWord = (wordIndex !== undefined && wordIndex >= 0) ? wordIndex : 0;
+  reviewMode = false;
+  switchView('learn');
+  updateWordCard();
+  updateLessonProgressDisplay();
 }
 
 /** Navigate to a specific lesson. Optional wordIndex to jump to a specific word. */
@@ -57,7 +80,7 @@ function goToLessonMode() {
 }
 function goToLesson(lessonIndex, wordIndex) {
   if (lessonIndex < 0 || lessonIndex >= getLessonCount()) return;
-  // Switch to lesson mode if we were in surah mode
+  // Switch to lesson mode if we were in surah or foundation mode
   if (getOrganizationMode() !== 'lesson') {
     setOrganizationMode('lesson');
     setActiveSurahId(null);
@@ -78,6 +101,11 @@ function goToLesson(lessonIndex, wordIndex) {
 
 /** Navigate to the next incomplete lesson (Continue Learning) */
 function continueLearning() {
+  if (getOrganizationMode() === FOUNDATION_MODE) {
+    var foundationNext = getNextIncompleteFoundationLesson();
+    goToFoundationLesson(foundationNext);
+    return;
+  }
   var next = getNextIncompleteLesson();
   goToLesson(next);
 }
@@ -227,6 +255,57 @@ function saveNote() {
 function updateLessonProgressDisplay() {
   var lessonLabel = DOM.get('lesson-label');
   
+  // ── Foundation Course Mode ──
+  if (getOrganizationMode() === FOUNDATION_MODE) {
+    var fTotal = getFoundationLessonCount();
+    var fCompleted = getCompletedFoundationLessonCount();
+    var fCurrent = activeLessonIndex + 1;
+    var isReview = FOUNDATION_LESSONS[activeLessonIndex] && FOUNDATION_LESSONS[activeLessonIndex].isReview;
+
+    if (lessonLabel) {
+      var fLesson = FOUNDATION_LESSONS[activeLessonIndex];
+      var coverage = fLesson ? fLesson.cumulativeCoverage : '';
+      lessonLabel.textContent = 'Foundation ' + fCurrent + ' of ' + fTotal + ' (' + coverage + ')';
+    }
+
+    var lessonProgress = DOM.get('lesson-progress');
+    if (lessonProgress) {
+      var pct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+      lessonProgress.style.width = pct + '%';
+    }
+
+    var lessonProgressText = DOM.get('lesson-progress-text');
+    if (lessonProgressText) {
+      lessonProgressText.textContent = fCompleted + ' of ' + fTotal + ' foundation lessons complete';
+    }
+
+    // Update foundation-specific lesson coverage display
+    var foundationCoverageEl = DOM.get('foundation-coverage');
+    if (foundationCoverageEl && fLesson) {
+      foundationCoverageEl.textContent = 'This lesson covers ' + fLesson.lessonCoverage + ' of Quranic vocabulary · Cumulative: ' + fLesson.cumulativeCoverage;
+      foundationCoverageEl.style.display = 'block';
+    }
+
+    var continueBtn = DOM.get('continue-learning-btn');
+    if (continueBtn) {
+      var nextIncomplete = getNextIncompleteFoundationLesson();
+      if (nextIncomplete === 0 && isFoundationLessonCompleted(0) && fTotal > 0) {
+        continueBtn.textContent = '🎉 Foundation Complete!';
+        continueBtn.disabled = true;
+      } else if (nextIncomplete === activeLessonIndex) {
+        continueBtn.textContent = '📖 Continue Foundation ' + (nextIncomplete + 1);
+        continueBtn.disabled = false;
+      } else if (isFoundationLessonCompleted(activeLessonIndex) && nextIncomplete < fTotal) {
+        continueBtn.textContent = '🔓 Unlock Foundation ' + (nextIncomplete + 1) + '!';
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.textContent = '📖 Continue Foundation ' + (nextIncomplete + 1);
+        continueBtn.disabled = false;
+      }
+    }
+    return;
+  }
+  
   if (getOrganizationMode() === 'surah') {
     // Surah mode display
     var surahId = getActiveSurahId();
@@ -250,6 +329,10 @@ function updateLessonProgressDisplay() {
     if (lessonProgressText) {
       lessonProgressText.textContent = completed + ' of ' + surahIds.length + ' surahs complete';
     }
+
+    // Hide foundation-specific elements when in surah mode
+    var foundationCoverageEl = DOM.get('foundation-coverage');
+    if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
 
     var continueBtn = DOM.get('continue-learning-btn');
     if (continueBtn) {
@@ -290,8 +373,12 @@ function updateLessonProgressDisplay() {
     lessonProgressText.textContent = completed + ' of ' + total + ' lessons complete';
   }
 
+  // Hide foundation-specific elements when in lesson mode
+  var foundationCoverageEl = DOM.get('foundation-coverage');
+  if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
+
   var continueBtn = DOM.get('continue-learning-btn');
-  if (continueBtn) {
+    if (continueBtn) {
     var nextIncomplete = getNextIncompleteLesson();
     if (nextIncomplete === 0 && isLessonCompleted(0) && getLessonCount() > 1) {
       continueBtn.textContent = '\uD83C\uDF89 All Lessons Complete!';
@@ -558,9 +645,12 @@ function wireEvents() {
   wireFilterChips('type');
   wireFilterChips('status');
 
-  // Continue Learning button (works for both surah and lesson mode)
+  // Continue Learning button (works for foundation, surah, and lesson mode)
   DOM.get('continue-learning-btn').onclick = function () {
-    if (getOrganizationMode() === 'surah') {
+    if (getOrganizationMode() === FOUNDATION_MODE) {
+      var fNext = getNextIncompleteFoundationLesson();
+      goToFoundationLesson(fNext);
+    } else if (getOrganizationMode() === 'surah') {
       // In surah mode, go to next incomplete surah
       var surahIds = getSurahsWithVocabulary();
       for (var si = 0; si < surahIds.length; si++) {
@@ -593,7 +683,9 @@ function wireEvents() {
 
   // Lesson navigation (prev/next lesson or surah)
   DOM.get('prev-lesson-btn').onclick = function () {
-    if (getOrganizationMode() === 'surah') {
+    if (getOrganizationMode() === FOUNDATION_MODE) {
+      if (activeLessonIndex > 0) goToFoundationLesson(activeLessonIndex - 1);
+    } else if (getOrganizationMode() === 'surah') {
       // In surah mode, find previous surah with vocabulary
       var surahIds = getSurahsWithVocabulary();
       var curIdx = surahIds.indexOf(getActiveSurahId());
@@ -603,7 +695,13 @@ function wireEvents() {
     }
   };
   DOM.get('next-lesson-btn').onclick = function () {
-    if (getOrganizationMode() === 'surah') {
+    if (getOrganizationMode() === FOUNDATION_MODE) {
+      var fTotal = getFoundationLessonCount();
+      var nextIdx = activeLessonIndex + 1;
+      if (nextIdx < fTotal && isFoundationLessonUnlocked(nextIdx)) {
+        goToFoundationLesson(nextIdx);
+      }
+    } else if (getOrganizationMode() === 'surah') {
       // In surah mode, find next surah with vocabulary
       var surahIds = getSurahsWithVocabulary();
       var curIdx = surahIds.indexOf(getActiveSurahId());
@@ -616,15 +714,27 @@ function wireEvents() {
     }
   };
   
-  // Surah selector from lesson header (wire the surah selector)
+  // Mode/Surah selector from lesson header
   var surahSelector = DOM.get('surah-select');
   if (surahSelector) {
     surahSelector.onchange = function () {
-      var val = parseInt(this.value, 10);
-      if (val) {
-        goToSurah(val);
-      } else {
+      var val = this.value;
+      if (val === 'lesson') {
         goToLessonMode();
+      } else if (val === 'foundation') {
+        goToFoundationLesson(getCurrentFoundationLessonIndex());
+      } else if (val === 'surah') {
+        // Find first surah with vocabulary
+        var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+        if (surahIds.length > 0) {
+          goToSurah(surahIds[0]);
+        }
+      } else {
+        // Numeric surah ID
+        var numVal = parseInt(val, 10);
+        if (numVal) {
+          goToSurah(numVal);
+        }
       }
     };
   }
@@ -773,10 +883,21 @@ function populateSurahSelector() {
   var select = DOM.get('surah-select');
   if (!select) return;
   
-  // Clear existing options (keep the first "lessons" option)
-  while (select.options.length > 1) {
-    select.remove(1);
+  // Clear existing options
+  while (select.options.length > 0) {
+    select.remove(0);
   }
+  
+  // Base options
+  var lessonOpt = document.createElement('option');
+  lessonOpt.value = 'lesson';
+  lessonOpt.textContent = '📚 Lessons (sequential)';
+  select.appendChild(lessonOpt);
+  
+  var foundationOpt = document.createElement('option');
+  foundationOpt.value = 'foundation';
+  foundationOpt.textContent = '📘 Foundation Course (frequency)';
+  select.appendChild(foundationOpt);
   
   // Get surah IDs that have vocabulary
   var surahIds = getSurahsWithVocabulary();
@@ -787,6 +908,18 @@ function populateSurahSelector() {
   separator.disabled = true;
   separator.textContent = '─── Surahs ───';
   select.appendChild(separator);
+  
+  // Add surah option for "Surah mode"
+  var surahModeOpt = document.createElement('option');
+  surahModeOpt.value = 'surah';
+  surahModeOpt.textContent = '📖 Surah Mode (by surah)';
+  select.appendChild(surahModeOpt);
+  
+  // Add a second separator
+  var separator2 = document.createElement('option');
+  separator2.disabled = true;
+  separator2.textContent = '─── Individual Surahs ───';
+  select.appendChild(separator2);
   
   // Add each surah with vocabulary
   for (var i = 0; i < surahIds.length; i++) {
@@ -990,9 +1123,15 @@ function init() {
   // 0a. Run data validation
   validateData();
 
-  // Set active lesson from saved progress
+  // Set active lesson from saved progress (check foundation mode first)
   activeLessonIndex = getCurrentLessonIndex();
   if (activeLessonIndex >= getLessonCount()) activeLessonIndex = 0;
+  
+  // Set mode selector to match initial state
+  var modeSelect = DOM.get('surah-select');
+  if (modeSelect) {
+    modeSelect.value = 'lesson';
+  }
 
   // 1. Initialize Firebase services (auth, sync, user)
   var firebaseReady = initAuth();

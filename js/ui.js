@@ -898,7 +898,46 @@ function renderStats() {
         '<span class="stats-bar-value">' + count + '</span>';
       stageContainer.appendChild(row);
     }
-  }        // Relationship Coverage section
+  }        // Foundation Course Progress section
+        var foundationStatsContainer = DOM.get('stats-foundation');
+        if (foundationStatsContainer) {
+          var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+          var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+          
+          foundationStatsContainer.innerHTML = '';
+          
+          if (fTotal > 0) {
+            var fPct = Math.round((fCompleted / fTotal) * 100);
+            var row = document.createElement('div');
+            row.className = 'stats-bar-row';
+            var color = fCompleted === fTotal ? 'var(--green)' : 'var(--gold)';
+            row.innerHTML =
+              '<span class="stats-bar-label" style="color:' + color + '">📘 Foundation</span>' +
+              '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + fPct + '%;background:' + color + '"></div></div>' +
+              '<span class="stats-bar-value">' + fCompleted + '/' + fTotal + '</span>';
+            foundationStatsContainer.appendChild(row);
+            
+            // Coverage info
+            if (fCompleted === fTotal) {
+              var covRow = document.createElement('div');
+              covRow.className = 'stats-bar-row';
+              covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">🎉 Foundation Course Complete! ~84% Quran coverage</span>';
+              foundationStatsContainer.appendChild(covRow);
+            } else {
+              var nextLesson = typeof getNextIncompleteFoundationLesson === 'function' ? getNextIncompleteFoundationLesson() : 0;
+              var covRow = document.createElement('div');
+              covRow.className = 'stats-bar-row';
+              var fLesson = FOUNDATION_LESSONS && FOUNDATION_LESSONS[nextLesson] ? FOUNDATION_LESSONS[nextLesson] : null;
+              var coverageText = fLesson ? 'Next: Foundation ' + (nextLesson + 1) + ' (+' + fLesson.lessonCoverage + ')' : '';
+              covRow.innerHTML = '<span style="font-size:11px;color:var(--text-muted);padding:4px 0">📖 ' + coverageText + '</span>';
+              foundationStatsContainer.appendChild(covRow);
+            }
+          } else {
+            foundationStatsContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Foundation Course not available</div>';
+          }
+        }
+
+        // Relationship Coverage section
         var relStatsContainer = DOM.get('stats-relationships');
         if (relStatsContainer && typeof getRelationshipStats === 'function') {
           var relStats = getRelationshipStats();

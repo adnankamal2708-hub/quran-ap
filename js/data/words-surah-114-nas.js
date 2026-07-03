@@ -11,7 +11,7 @@ ALL_WORDS.push(
     typeCategory: 'noun',
     pattern: 'فِعَال',
     english: 'Mankind',
-    meaning: 'The mankind — all of humanity, all people, the entire human race',
+    meaning: 'Mankind — all of humanity, all people, the entire human race',
     root: 'ن-و-س',
     rootMeaning: 'To be social, to be among people, to move about',
     rootPattern: 'ن-و-س relates to humanity, people, and social interaction',

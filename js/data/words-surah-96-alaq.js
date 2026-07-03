@@ -197,7 +197,7 @@ ALL_WORDS.push(
     typeCategory: 'verb',
     pattern: 'اسْتَفْعَلَىٰ',
     english: 'Considered Himself Self-Sufficient',
-    meaning: 'He considered himself self-sufficient — felt no need of Allah\'s help or guidance',
+    meaning: 'Considered himself self-sufficient — felt no need of Allah\'s help or guidance',
     root: 'غ-ن-ي',
     rootMeaning: 'To be rich, to be free of need',
     rootPattern: 'غ-ن-ي relates to wealth, self-sufficiency, and lack of need',

@@ -149,10 +149,13 @@ function nextQuiz() {
     // Check if quiz should be completed (>60% = pass)
     var pct = quizTotal > 0 ? Math.round((quizCorrect / quizTotal) * 100) : 0;
     if (pct >= 60) {
-      // Check if we're in surah mode
-      var isSurahMode = (typeof getOrganizationMode === 'function' && getOrganizationMode() === 'surah');
+      // Check current mode
+      var mode = (typeof getOrganizationMode === 'function' ? getOrganizationMode() : 'lesson');
       
-      if (isSurahMode) {
+      if (mode === FOUNDATION_MODE) {
+        // Mark this foundation lesson as completed
+        completeFoundationLesson(activeLessonIndex);
+      } else if (mode === 'surah') {
         // Mark this surah as completed
         var activeSurahId = getActiveSurahId ? getActiveSurahId() : null;
         if (activeSurahId) {
@@ -163,7 +166,7 @@ function nextQuiz() {
         completeLesson(activeLessonIndex);
       }
       
-      // Update lesson/surah display
+      // Update lesson/surah/foundation display
       if (typeof updateLessonProgressDisplay === 'function') {
         updateLessonProgressDisplay();
       }
@@ -172,7 +175,14 @@ function nextQuiz() {
       var autoNavTimer = setTimeout(function() {
         // Only navigate if user is still on the quiz view
         if (typeof currentView !== 'undefined' && currentView === 'quiz') {
-          if (isSurahMode) {
+          if (mode === FOUNDATION_MODE) {
+            var fNext = getNextIncompleteFoundationLesson();
+            if (fNext < getFoundationLessonCount() && fNext !== activeLessonIndex) {
+              if (typeof goToFoundationLesson === 'function') {
+                goToFoundationLesson(fNext);
+              }
+            }
+          } else if (mode === 'surah') {
             var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
             var curIdx = surahIds.indexOf(activeSurahId);
             if (curIdx >= 0 && curIdx < surahIds.length - 1 && typeof goToSurah === 'function') {

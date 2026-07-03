@@ -99,6 +99,7 @@ function exportLocalData() {
   tryParse('settings', 'quran_settings');
   tryParse('lessonProgress', 'quran_lesson_progress');
   tryParse('surahProgress', 'quran_surah_progress');
+  tryParse('foundationProgress', 'quran_foundation_progress');
 
   data._exportedAt = new Date().toISOString();
   return data;
@@ -133,6 +134,7 @@ function importLocalData(data) {
     settings: 'quran_settings',
     lessonProgress: 'quran_lesson_progress',
     surahProgress: 'quran_surah_progress',
+    foundationProgress: 'quran_foundation_progress',
   };
 
   Object.keys(mappings).forEach(function (key) {
@@ -341,6 +343,13 @@ function mergeData(localData, cloudData) {
     var localSP = localData.surahProgress || { completedSurahs: [], quizPassed: {} };
     var cloudSP = cloudData.surahProgress || { completedSurahs: [], quizPassed: {} };
     merged.surahProgress = (localSP.completedSurahs.length >= cloudSP.completedSurahs.length) ? localSP : cloudSP;
+  }
+
+  // Foundation progress: take the one with more completed lessons
+  if (localData.foundationProgress || cloudData.foundationProgress) {
+    var localFP = localData.foundationProgress || { completedLessons: [], quizPassed: {}, currentLesson: 0 };
+    var cloudFP = cloudData.foundationProgress || { completedLessons: [], quizPassed: {}, currentLesson: 0 };
+    merged.foundationProgress = (localFP.completedLessons.length >= cloudFP.completedLessons.length) ? localFP : cloudFP;
   }
 
   return merged;

@@ -73,7 +73,7 @@ ALL_WORDS.push(
     typeCategory: 'noun',
     pattern: 'فَعَلَات',
     english: 'Signs',
-    meaning: 'Signs of — the divine signs/revelations of Allah',
+    meaning: 'Signs — divine revelations, miraculous proofs of Allah\'s power',
     root: 'أ-ي-ي',
     rootMeaning: 'Sign, evidence, proof',
     rootPattern: 'آيَة relates to signs, evidence, and clear proofs',

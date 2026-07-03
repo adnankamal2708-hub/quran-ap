@@ -395,6 +395,239 @@ function getSurahsWithVocabulary() {
   return Object.keys(surahIds).map(Number).sort(function(a,b) { return a - b; });
 }
 
+// ── Foundation Course ────────────────────────────────────────────
+// The Foundation Course teaches the 100 most frequent Quranic words
+// organized into 10 progressive lessons (10 words each, every 5th is review).
+// Completing all 10 lessons covers ~84% of all Quranic word occurrences.
+
+/** Foundation Course mode constant */
+const FOUNDATION_MODE = 'foundation';
+
+/** Number of foundation lessons */
+const FOUNDATION_LESSON_COUNT = 10;
+
+/** Words per foundation lesson */
+const FOUNDATION_WORDS_PER_LESSON = 10;
+
+/**
+ * Foundation Course words — canonical IDs of the top 100 most frequent
+ * Quranic words, sorted by occurrence count (highest first).
+ * These are computed once after canonical vocabulary is built.
+ */
+let FOUNDATION_WORDS = [];
+
+/**
+ * Foundation Course lesson definitions.
+ * Each lesson has: id, label, wordIds (array of canonical IDs), coveragePct.
+ */
+let FOUNDATION_LESSONS = [];
+
+/**
+ * Build the Foundation Course from canonical vocabulary.
+ * Must be called after deduplicateVocabulary().
+ */
+function buildFoundationCourse() {
+  FOUNDATION_WORDS = [];
+  FOUNDATION_LESSONS = [];
+  
+  if (CANONICAL_WORDS.length === 0) {
+    console.warn('[foundation] No canonical words available.');
+    return;
+  }
+  
+  // Sort canonical words by frequency (highest first)
+  var sorted = CANONICAL_WORDS.slice().sort(function(a, b) {
+    return (b.occ || 0) - (a.occ || 0);
+  });
+  
+  // Take top 100 words
+  var topWords = sorted.slice(0, 100);
+  
+  // Compute total occurrences for coverage calculation
+  var totalOcc = 0;
+  for (var ti = 0; ti < CANONICAL_WORDS.length; ti++) {
+    totalOcc += CANONICAL_WORDS[ti].occ || 0;
+  }
+  
+  // Store canonical IDs
+  FOUNDATION_WORDS = topWords.map(function(w) { return w.id; });
+  
+  // Build lesson groupings (10 words each)
+  var cumulativeOcc = 0;
+  var totalFoundOcc = 0;
+  for (var fi = 0; fi < topWords.length; fi++) {
+    totalFoundOcc += topWords[fi].occ || 0;
+  }
+  
+  for (var li = 0; li < FOUNDATION_LESSON_COUNT; li++) {
+    var start = li * FOUNDATION_WORDS_PER_LESSON;
+    var end = Math.min(start + FOUNDATION_WORDS_PER_LESSON, topWords.length);
+    var wordIds = [];
+    var lessonOcc = 0;
+    for (var wi = start; wi < end; wi++) {
+      wordIds.push(topWords[wi].id);
+      lessonOcc += topWords[wi].occ || 0;
+    }
+    cumulativeOcc += lessonOcc;
+    
+    var lessonNum = li + 1;
+    var isReview = (lessonNum % 5 === 0);
+    
+    FOUNDATION_LESSONS.push({
+      id: lessonNum,
+      label: isReview ? 'Review ' + lessonNum : 'Foundation ' + lessonNum,
+      start: start,
+      end: end,
+      wordCount: end - start,
+      wordIds: wordIds,
+      lessonCoverage: totalOcc > 0 ? (lessonOcc / totalOcc * 100).toFixed(1) + '%' : '0%',
+      cumulativeCoverage: totalOcc > 0 ? (cumulativeOcc / totalOcc * 100).toFixed(1) + '%' : '0%',
+      isReview: isReview,
+    });
+  }
+  
+  console.log('[foundation] Built ' + FOUNDATION_LESSONS.length + ' foundation lessons from ' +
+    FOUNDATION_WORDS.length + ' words. Covers ' +
+    (totalOcc > 0 ? (totalFoundOcc / totalOcc * 100).toFixed(1) : '0') + '% of Quranic occurrences.');
+}
+
+/**
+ * Get the words for a specific foundation lesson (0-based index).
+ * Returns canonical word objects.
+ */
+function getFoundationLessonWords(lessonIndex) {
+  if (!FOUNDATION_LESSONS || FOUNDATION_LESSONS.length === 0) return [];
+  if (lessonIndex < 0 || lessonIndex >= FOUNDATION_LESSONS.length) return [];
+  var lesson = FOUNDATION_LESSONS[lessonIndex];
+  var words = [];
+  for (var fi = 0; fi < lesson.wordIds.length; fi++) {
+    var w = getCanonicalWordById(lesson.wordIds[fi]);
+    if (w) words.push(w);
+  }
+  return words;
+}
+
+/**
+ * Get the total number of foundation lessons.
+ */
+function getFoundationLessonCount() {
+  return FOUNDATION_LESSONS.length;
+}
+
+/**
+ * Get all foundation course words (canonical word objects).
+ */
+function getAllFoundationWords() {
+  if (!FOUNDATION_WORDS || FOUNDATION_WORDS.length === 0) return [];
+  return FOUNDATION_WORDS.map(function(cid) {
+    return getCanonicalWordById(cid);
+  }).filter(Boolean);
+}
+
+// ── Foundation Course Progress Tracking (localStorage) ────────
+
+const FOUNDATION_PROGRESS_KEY = 'quran_foundation_progress';
+
+function getDefaultFoundationProgress() {
+  return {
+    currentLesson: 0,
+    completedLessons: [],
+    quizPassed: {},
+  };
+}
+
+function loadFoundationProgress() {
+  try {
+    var raw = localStorage.getItem(FOUNDATION_PROGRESS_KEY);
+    if (!raw) return getDefaultFoundationProgress();
+    return JSON.parse(raw);
+  } catch (e) {
+    return getDefaultFoundationProgress();
+  }
+}
+
+function saveFoundationProgress(data) {
+  try {
+    localStorage.setItem(FOUNDATION_PROGRESS_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('[foundation] Could not save progress:', e.message);
+  }
+}
+
+function isFoundationLessonCompleted(lessonIndex) {
+  var progress = loadFoundationProgress();
+  return progress.completedLessons.indexOf(lessonIndex) >= 0;
+}
+
+function isFoundationLessonUnlocked(lessonIndex) {
+  if (lessonIndex === 0) return true;
+  return isFoundationLessonCompleted(lessonIndex - 1);
+}
+
+function getNextIncompleteFoundationLesson() {
+  var total = getFoundationLessonCount();
+  for (var i = 0; i < total; i++) {
+    if (!isFoundationLessonCompleted(i)) return i;
+  }
+  return 0;
+}
+
+function completeFoundationLesson(lessonIndex) {
+  var progress = loadFoundationProgress();
+  if (progress.completedLessons.indexOf(lessonIndex) < 0) {
+    progress.completedLessons.push(lessonIndex);
+  }
+  progress.quizPassed[String(lessonIndex)] = true;
+  var next = getNextIncompleteFoundationLesson();
+  progress.currentLesson = next;
+  saveFoundationProgress(progress);
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (user && window.__sync && window.__sync.queueSync) {
+    window.__sync.queueSync(user.uid);
+  }
+}
+
+function getCurrentFoundationLessonIndex() {
+  var progress = loadFoundationProgress();
+  return progress.currentLesson;
+}
+
+function setCurrentFoundationLesson(lessonIndex) {
+  var total = getFoundationLessonCount();
+  if (lessonIndex < 0 || lessonIndex >= total) return;
+  var progress = loadFoundationProgress();
+  progress.currentLesson = lessonIndex;
+  saveFoundationProgress(progress);
+}
+
+function getCompletedFoundationLessonCount() {
+  var progress = loadFoundationProgress();
+  return progress.completedLessons.length;
+}
+
+function exportFoundationProgress() {
+  return loadFoundationProgress();
+}
+
+function importFoundationProgress(data) {
+  if (!data || typeof data !== 'object') return;
+  var current = loadFoundationProgress();
+  if (data.completedLessons && data.completedLessons.length > current.completedLessons.length) {
+    current.completedLessons = data.completedLessons;
+  }
+  if (data.quizPassed) {
+    Object.keys(data.quizPassed).forEach(function(k) {
+      if (data.quizPassed[k]) current.quizPassed[k] = true;
+    });
+  }
+  if (data.currentLesson !== undefined && data.currentLesson < current.currentLesson) {
+    current.currentLesson = data.currentLesson;
+  } else if (data.currentLesson !== undefined && !current.currentLesson) {
+    current.currentLesson = data.currentLesson;
+  }
+  saveFoundationProgress(current);
+}
+
 // ── Lesson System ───────────────────────────────────────────────
 // Lessons are computed from ALL_WORDS after all data files load.
 // Each lesson contains WORDS_PER_LESSON words, except the last.
@@ -412,6 +645,9 @@ function buildLessons() {
   
   // Build canonical vocabulary (deduplicate)
   deduplicateVocabulary();
+  
+  // Build Foundation Course from canonical words
+  buildFoundationCourse();
   
   // Use canonical words for lessons if available, otherwise raw ALL_WORDS
   var wordPool = CANONICAL_WORDS.length > 0 ? CANONICAL_WORDS : ALL_WORDS;

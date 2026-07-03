@@ -88,11 +88,15 @@
             <button class="lesson-nav-btn" id="next-lesson-btn" type="button" title="Next" aria-label="Next">▶</button>
           </div>
           <div style="display:flex;gap:6px;margin-top:8px">
-            <select class="auth-input" id="surah-select" aria-label="Select Surah" style="flex:1;font-size:11px;padding:8px 10px">
-              <option value="">📚 Lessons (sequential)</option>
+            <select class="auth-input" id="surah-select" aria-label="Select mode" style="flex:1;font-size:11px;padding:8px 10px">
+              <option value="lesson">📚 Lessons (sequential)</option>
+              <option value="foundation">📘 Foundation Course (frequency)</option>
+              <option value="surah" disabled>─── Surahs ───</option>
             </select>
             <button class="continue-lesson-btn" id="continue-learning-btn" type="button" style="flex-shrink:0;width:auto;padding:8px 14px;font-size:12px">📖 Continue</button>
           </div>
+          <!-- Foundation Course coverage display -->
+          <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);margin-top:6px;text-align:center"></div>
         </div>
 
         <div class="review-banner" id="review-banner" role="alert" aria-live="polite">
@@ -313,6 +317,12 @@
         <div class="progress-section">
           <div class="progress-section-title">📊 Learning Stages</div>
           <div id="stats-stages" class="stats-bar-list"></div>
+        </div>
+
+        <!-- Foundation Course Progress -->
+        <div class="progress-section">
+          <div class="progress-section-title">📘 Foundation Course</div>
+          <div id="stats-foundation" class="stats-bar-list"></div>
         </div>
 
         <!-- Relationship Coverage -->
