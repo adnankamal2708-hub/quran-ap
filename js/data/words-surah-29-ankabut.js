@@ -31,7 +31,7 @@ ALL_WORDS.push(
     ayahR:'Al-Ankabut 29:41',
     tafsir:"Ibn Kathir says the spider's web is the weakest of homes — just as false protectors besides Allah are the weakest of supporters.",
     similarWords: ['عَنْكَبُوت', 'نَسْج'],
-    oppositeWords: [],
+    oppositeWords: ['الطَّيْرِ'],
     relatedWords: ['اللَّهُ', 'وَلِي', 'مَثَل'],
   },
   {

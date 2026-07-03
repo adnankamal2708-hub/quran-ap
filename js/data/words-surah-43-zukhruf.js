@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR: 'Az-Zukhruf 43:63',
     tafsir: 'Ibn Kathir presents Jesus as a prophet who called to the worship of Allah alone. The Quran clarifies his true status as a servant and messenger of Allah.',
     similarWords: ['مَسِيح', 'نَبِيّ', 'رَسُول'],
-    oppositeWords: [],
+    oppositeWords: ['الَّذِينَ كَفَرُوا'],
     relatedWords: ['اللَّهُ', 'مَرْيَم', 'إِنْجِيل'],
   },
   {

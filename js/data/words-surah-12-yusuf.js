@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR: 'Yusuf 12:19',
     tafsir: 'Ibn Kathir notes the divine irony: the same well meant to hide Yusuf became the means of his rescue and eventual rise to power in Egypt.',
     similarWords: ['سَجْل', 'إِدَاوَة'],
-    oppositeWords: [],
+    oppositeWords: ['الْبِئْرِ'],
     relatedWords: ['بِئْر', 'مَاء', 'سَيَّارَة'],
   },
   {

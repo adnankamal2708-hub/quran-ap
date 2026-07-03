@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR:'Al-Hajj 22:27',
     tafsir:"Ibn Kathir says this verse recounts Ibrahim's call to humanity for pilgrimage — a summons that continues to be answered to this day.",
     similarWords: ['عُمْرَة', 'حَجّ'],
-    oppositeWords: [],
+    oppositeWords: ['الْعُمْرَةِ'],
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'كَعْبَة'],
   },
   {
@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR:'Al-Hajj 22:26',
     tafsir:'Ibn Kathir explains that Allah showed Ibrahim the location of the Kaaba — the first House of worship established for mankind.',
     similarWords: ['الْبَيْت', 'الْبَيْت الْحَرَام'],
-    oppositeWords: [],
+    oppositeWords: ['الْبَيْتِ الْحَرَامِ'],
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'مَكَّة'],
   },
   {
@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR:'Al-Hajj 22:26',
     tafsir:'Ibn Kathir says the Kaaba is to be purified for the worshippers who perform tawaf (circumambulation), stand, bow, and prostrate — the four pillars of prayer.',
     similarWords: ['الرَّاكِعِينَ', 'الْمُصَلِّينَ'],
-    oppositeWords: [],
+    oppositeWords: ['الظَّالِمِينَ'],
     relatedWords: ['اللَّهُ', 'صَلَاة', 'سُجُود'],
   },
   {
@@ -125,7 +125,7 @@ ALL_WORDS.push(
     ayahR:'Al-Hajj 22:26',
     tafsir:'Ibn Kathir explains that tawaf (circling the Kaaba) is a unique act of worship symbolizing the unity of believers around the house of Allah.',
     similarWords: ['الْمُعْتَمِرِينَ', 'الْحُجَّاج'],
-    oppositeWords: [],
+    oppositeWords: ['الْمُشْرِكِينَ'],
     relatedWords: ['اللَّهُ', 'كَعْبَة', 'طَوَاف'],
   },
   {
@@ -248,7 +248,7 @@ ALL_WORDS.push(
     ayahR:'Al-Hajj 22:34',
     tafsir:'Ibn Kathir explains that sacrifice (qurban) is a means of drawing close to Allah. The essence is not the meat but the devotion of the heart.',
     similarWords: ['ذَبِيحَة', 'أُضْحِيَّة', 'نَسِيكَة'],
-    oppositeWords: [],
+    oppositeWords: ['الْعِيدِ'],
     relatedWords: ['اللَّهُ', 'ذِبْح', 'نُسُك'],
   },
   {

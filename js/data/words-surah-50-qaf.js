@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR: 'Qaf 50:1',
     tafsir: 'Ibn Kathir says the Quran is described as Majid because of its sublime nature, powerful meanings, and miraculous eloquence.',
     similarWords: ['الْكَرِيم', 'الْعَظِيم', 'الشَّرِيف'],
-    oppositeWords: ['الْحَقِير', 'الدَّنِيء'],
+    oppositeWords: [],
     relatedWords: ['اللَّهُ', 'قُرْآن', 'عَظَمَة'],
   },
   {
@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR: 'Qaf 50:18',
     tafsir: 'Ibn Kathir says every word spoken is recorded by two angels — one on the right and one on the left. Nothing escapes the divine record.',
     similarWords: ['حَافِظ', 'مُرَاقِب', 'شَهِيد'],
-    oppositeWords: ['غَافِل', 'سَاهِي'],
+    oppositeWords: [],
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'حِسَاب'],
   },
   {
@@ -125,7 +125,7 @@ ALL_WORDS.push(
     ayahR: 'Qaf 50:18',
     tafsir: 'Ibn Kathir says the recording angels are always present, never absent, constantly recording every deed and word.',
     similarWords: ['حَاضِر', 'مُسْتَعِدّ', 'مُهَيَّأ'],
-    oppositeWords: ['غَائِب', 'غَيْر مُسْتَعِدّ'],
+    oppositeWords: [],
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'كِتَاب'],
   },
   {
@@ -156,7 +156,7 @@ ALL_WORDS.push(
     ayahR: 'Qaf 50:19',
     tafsir: 'Ibn Kathir says the stupor of death is a state of overwhelming confusion and fear that every human experiences — it cannot be escaped.',
     similarWords: ['غَشْيَة', 'غَمْرَة', 'دَاهِيَة'],
-    oppositeWords: ['صَحْوَة', 'يَقَظَة'],
+    oppositeWords: [],
     relatedWords: ['اللَّهُ', 'مَوْت', 'يَوْمَ'],
   },
   {
@@ -187,7 +187,7 @@ ALL_WORDS.push(
     ayahR: 'Qaf 50:18',
     tafsir: 'Ibn Kathir says every single word is recorded. This should make believers conscious of their speech — a sign of true faith.',
     similarWords: ['يَتَكَلَّم', 'يَقُول', 'يَنْطِق'],
-    oppositeWords: ['يَصْمُت', 'يَسْكُت'],
+    oppositeWords: [],
     relatedWords: ['اللَّهُ', 'قَوْل', 'حِسَاب'],
   }
 );

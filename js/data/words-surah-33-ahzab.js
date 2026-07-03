@@ -217,7 +217,7 @@ ALL_WORDS.push(
     ayahR:'Al-Ahzab 33:49',
     tafsir:'Ibn Kathir discusses marriage laws, including that no waiting period is required if divorce occurs before consummation.',
     similarWords: ['طَهَارَة', 'فِطْرَة'],
-    oppositeWords: [],
+    oppositeWords: ['النِّكَاحِ'],
     relatedWords: ['اللَّهُ', 'نِكَاح', 'طَهَارَة'],
   }
 );

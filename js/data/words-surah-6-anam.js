@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: "Al-An'am 6:136",
     tafsir: 'Ibn Kathir explains that an\'am includes camels, cows, sheep, and goats — animals that are sources of food, transport, and provision.',
     similarWords: ['بَهِيمَة', 'مَاشِيَة', 'دَوَابّ'],
-    oppositeWords: [],
+    oppositeWords: ['الْحَيَوَانَاتِ'],
     relatedWords: ['اللَّهُ', 'رِزْق', 'خَلَقَ'],
   },
   {
@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR: "Al-An'am 6:4",
     tafsir: 'Ibn Kathir says ayat (signs) are both the verses of revelation and the created phenomena of the universe.',
     similarWords: ['بَيِّنَة', 'آيَة', 'حُجَّة'],
-    oppositeWords: [],
+    oppositeWords: ['آيَاتِ الشَّيْطَانِ'],
     relatedWords: ['اللَّهُ', 'الْقُرْآنِ', 'آيَة'],
   },
   {

@@ -249,7 +249,7 @@ ALL_WORDS.push(
     ayahR:"Ash-Shu'ara 26:102",
     tafsir:'The regret of the disbelievers on Judgment Day is a recurring theme — they will wish for another chance but it will be too late.',
     similarWords: ['الْحِجَاب', 'الْفَاصِل'],
-    oppositeWords: [],
+    oppositeWords: ['الْجَنَّةِ'],
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَار'],
   },
   {

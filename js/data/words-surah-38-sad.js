@@ -125,7 +125,7 @@ ALL_WORDS.push(
     ayahR:'Sad 38:22',
     tafsir:"Ibn Kathir explains the parable of the two disputants who climbed into David's prayer niche — a test of his judgment.",
     similarWords: ['مُنَازِع', 'مُخَاصِم', 'خَصِيم'],
-    oppositeWords: ['مُصَالِح', 'مُوَافِق'],
+    oppositeWords: [],
     relatedWords: ['اللَّهُ', 'حُكْم', 'دَاوُود'],
   },
   {

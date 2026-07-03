@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Maryam 19:16',
     tafsir: 'Ibn Kathir honours Maryam as the best woman of all time. She was chosen by Allah to bear Prophet Jesus through a miraculous birth without a father.',
     similarWords: ['عِيسَىٰ', 'أُمّ', 'بَتُول'],
-    oppositeWords: [],
+    oppositeWords: ['الظَّالِمُونَ'],
     relatedWords: ['اللَّهُ', 'عِيسَىٰ', 'رُوح'],
   },
   {
@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR: 'Maryam 19:12',
     tafsir: 'Ibn Kathir says that Yahya (John the Baptist) was given wisdom and prophethood in childhood. He was the first to believe in and herald Prophet Jesus.',
     similarWords: ['يَحْيَىٰ', 'نَبِيّ', 'زَكَرِيَّا'],
-    oppositeWords: [],
+    oppositeWords: ['الظَّالِمُونَ'],
     relatedWords: ['اللَّهُ', 'زَكَرِيَّا', 'عِيسَىٰ'],
   },
   {
@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR: 'Maryam 19:34',
     tafsir: 'Ibn Kathir affirms the Quranic description of Jesus: a servant of Allah and His messenger, born miraculously, not divine nor the son of God.',
     similarWords: ['مَسِيح', 'ابْنُ مَرْيَمَ', 'كَلِمَة'],
-    oppositeWords: [],
+    oppositeWords: ['الَّذِينَ كَفَرُوا'],
     relatedWords: ['اللَّهُ', 'مَرْيَم', 'رُوح'],
   },
   {
@@ -218,7 +218,7 @@ ALL_WORDS.push(
     ayahR: 'Maryam 19:2',
     tafsir: 'Ibn Kathir relates Zechariah\'s story — he was old and childless, yet he supplicated Allah for a son and was granted Yahya (John) as a miracle.',
     similarWords: ['نَبِيّ', 'أَب', 'الشَّيْخ'],
-    oppositeWords: [],
+    oppositeWords: ['الظَّالِمُونَ'],
     relatedWords: ['اللَّهُ', 'يَحْيَىٰ', 'رَحْمَة'],
   },
   {
@@ -311,7 +311,7 @@ ALL_WORDS.push(
     ayahR: 'Maryam 19:30',
     tafsir: 'Ibn Kathir says Jesus declared his prophethood in the cradle — a miracle confirming he was a prophet from birth, not a divine being.',
     similarWords: ['رِسَالَة', 'نُبُوَّة', 'مَنْصِب'],
-    oppositeWords: [],
+    oppositeWords: ['الْكُفْرِ'],
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'رَسُول'],
   }
 );

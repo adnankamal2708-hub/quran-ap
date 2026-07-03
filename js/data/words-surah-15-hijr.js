@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hijr 15:80',
     tafsir: 'Ibn Kathir identifies Ashab al-Hijr as the people of Thamud who carved their homes into the mountains. They were destroyed for their rejection of the prophet Salih.',
     similarWords: ['ثَمُود', 'وَادٍ', 'جَبَل'],
-    oppositeWords: [],
+    oppositeWords: ['الْجَنَّةِ'],
     relatedWords: ['اللَّهُ', 'صَالِح', 'عَذَاب'],
   },
   {
@@ -125,7 +125,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hijr 15:87',
     tafsir: 'Ibn Kathir identifies the Zabur as the scripture given to Prophet Dawud (David), containing psalms of praise and supplication.',
     similarWords: ['كِتَاب', 'صُحُف', 'إِنْجِيل'],
-    oppositeWords: [],
+    oppositeWords: ['أَنْهُ لَا'],
     relatedWords: ['اللَّهُ', 'دَاوُود', 'كِتَاب'],
   },
   {
@@ -156,7 +156,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hijr 15:22',
     tafsir: 'This verse mentions the role of winds in pollination — a scientific fact revealed centuries before modern science confirmed it.',
     similarWords: ['مِنْهُ', 'مِنْهُم'],
-    oppositeWords: [],
+    oppositeWords: ['فِيهَا'],
     relatedWords: ['اللَّهُ', 'شَيْء', 'سَمَاء'],
   },
   {
@@ -218,7 +218,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hijr 15:20',
     tafsir: 'Ibn Kathir counts livestock among Allah\'s great blessings — they provide food, clothing, transport, and milk.',
     similarWords: ['بَهَائِم', 'مَاشِيَة', 'حَيَوَان'],
-    oppositeWords: [],
+    oppositeWords: ['الْإِبِلِ'],
     relatedWords: ['اللَّهُ', 'رِزْق', 'خَلْق'],
   },
   {

@@ -239,7 +239,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hashr 59:24',
     tafsir: 'Al-Khaliq is the Creator who brings into existence from nothing. His creation is unique and unparalleled, and He creates with perfect wisdom.',
     similarWords: ['الْبَارِئُ', 'الْمُصَوِّرُ', 'الْمُبْدِئُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْمَخْلُوقُ'],
     relatedWords: ['اللَّهُ', 'الْبَارِئُ', 'الْمُصَوِّرُ'],
   },
   {
@@ -648,7 +648,7 @@ ALL_WORDS.push(
     ayahR: "Al-An'am 6:114",
     tafsir: 'Al-Hakam is the Judge whose judgments are perfect, just, and final. He judges between His servants with complete fairness.',
     similarWords: ['الْعَدْلُ', 'الْحَكِيمُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْجَاهِلُ'],
     relatedWords: ['اللَّهُ', 'الْعَدْلُ', 'الْحَكِيمُ'],
   },
   {
@@ -937,7 +937,7 @@ ALL_WORDS.push(
     ayahR: 'An-Nisa 4:85',
     tafsir: 'Al-Muqit is the One who provides sustenance and nourishment to all living beings. He also watches over and preserves everything.',
     similarWords: ['الرَّزَّاقُ', 'الوَكِيلُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْجَائِعُ'],
     relatedWords: ['اللَّهُ', 'الرَّزَّاقُ', 'الْوَكِيلُ'],
   },
   {
@@ -966,7 +966,7 @@ ALL_WORDS.push(
     ayahR: 'An-Nisa 4:6',
     tafsir: 'Al-Hasib is the One who takes account of every deed, word, and thought. He is sufficient for His servants and their account is with Him alone.',
     similarWords: ['الشَّهِيدُ', 'الرَّقِيبُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْمُهْمَلُ'],
     relatedWords: ['اللَّهُ', 'الشَّهِيدُ', 'الرَّقِيبُ'],
   },
   {
@@ -1607,7 +1607,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Baqarah 2:255 (Ayat al-Kursi)',
     tafsir: 'Al-Qayyum is the One who sustains and maintains all existence. Everything depends on Him for its continued existence, while He depends on nothing.',
     similarWords: ['الْحَيُّ', 'اللَّهُ', 'الْوَاحِدُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْفَانِي'],
     relatedWords: ['اللَّهُ', 'الْحَيُّ', 'الْوَاحِدُ'],
   },
 
@@ -1957,7 +1957,7 @@ ALL_WORDS.push(
     ayahR: 'Ar-Ra\'d 13:11',
     tafsir: 'Al-Wali is the One who governs and manages the affairs of all creation. He has full authority and His management is based on perfect wisdom.',
     similarWords: ['الْوَلِيُّ', 'الْمَوْلَى', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْمَعْزُولُ'],
     relatedWords: ['اللَّهُ', 'الْوَلِيُّ', 'النَّصِيرُ'],
   },
   {
@@ -2159,7 +2159,7 @@ ALL_WORDS.push(
     ayahR: "Aal-e-Imran 3:26",
     tafsir: 'Malik al-Mulk is the absolute owner of all dominion. He gives power to whom He wills and takes it from whom He wills, and all authority ultimately returns to Him.',
     similarWords: ['الْمَلِكُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْمَمْلُوكُ'],
     relatedWords: ['اللَّهُ', 'الْمَلِكُ', 'الْوَاحِدُ'],
   },
   {
@@ -2188,7 +2188,7 @@ ALL_WORDS.push(
     ayahR: 'Ar-Rahman 55:78',
     tafsir: 'Dhul Jalali wal Ikram is the One who combines absolute majesty with infinite generosity. He is awe-inspiring in His greatness and overflowing in His bounty.',
     similarWords: ['الْجَلِيلُ', 'الْكَرِيمُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['ذُو الذُّلِّ وَالْهَوَانِ'],
     relatedWords: ['اللَّهُ', 'الْجَلِيلُ', 'الْكَرِيمُ'],
   },
   {
@@ -2304,7 +2304,7 @@ ALL_WORDS.push(
     ayahR: 'Ad-Duha 93:8',
     tafsir: 'Al-Mughni is the One who grants wealth to whomever He wills. He enriches hearts with contentment and provides material and spiritual richness.',
     similarWords: ['الرَّزَّاقُ', 'الْوَهَّابُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْمُفْتَقِرُ'],
     relatedWords: ['اللَّهُ', 'الرَّزَّاقُ', 'الْوَهَّابُ'],
   },
   {
@@ -2478,7 +2478,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Baqarah 2:117',
     tafsir: 'Al-Badi\' is the One who creates with absolute originality and beauty. His creation has no precedent and is characterized by perfect artistry.',
     similarWords: ['الْخَالِقُ', 'الْمُبْدِئُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْمُقَلِّدُ'],
     relatedWords: ['اللَّهُ', 'الْخَالِقُ', 'الْمُبْدِئُ'],
   },
   {
@@ -2536,7 +2536,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Anbiya\' 21:89',
     tafsir: 'Al-Warith is the One who inherits everything after all creation has passed away. He is the ultimate owner to whom everything returns.',
     similarWords: ['الْبَاقِي', 'الْآخِرُ', 'اللَّهُ'],
-    oppositeWords: [],
+    oppositeWords: ['الْفَانِي'],
     relatedWords: ['اللَّهُ', 'الْبَاقِي', 'الْآخِرُ'],
   },
   {

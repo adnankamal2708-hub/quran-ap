@@ -92,7 +92,7 @@ ALL_WORDS.push(
     ayahR: 'At-Tin 95:2',
     tafsir: 'Ibn Kathir says Mount Sinai is the blessed mountain where Allah spoke directly to Prophet Moses — a sacred place of revelation and divine communication.',
     similarWords: ['الطُّور', 'جَبَل مُوسَىٰ', 'سَيْنَاء'],
-    oppositeWords: [],
+    oppositeWords: ['فِرْعَوْنَ'],
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'الوَحْي'],
   },
   {

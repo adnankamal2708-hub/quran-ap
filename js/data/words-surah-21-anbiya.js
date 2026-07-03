@@ -156,7 +156,7 @@ ALL_WORDS.push(
     ayahR:"Al-Anbiya' 21:87",
     tafsir:'Ibn Kathir explains that Dhul-Nun (man of the fish) refers to Yunus who was swallowed by a great fish.',
     similarWords: ['حُوت', 'يُونُس'],
-    oppositeWords: [],
+    oppositeWords: ['الْحُوتِ'],
     relatedWords: ['اللَّهُ', 'يُونُس', 'بَحْر'],
   },
   {

@@ -218,7 +218,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Kahf 18:9',
     tafsir: 'Ibn Kathir says the Raqim is either a stone tablet bearing the names of the cave sleepers, or the name of the valley where the cave was located — opinions vary among scholars.',
     similarWords: ['لَوْح', 'صَحِيفَة', 'كِتَاب'],
-    oppositeWords: [],
+    oppositeWords: ['الْكَهْفِ'],
     relatedWords: ['اللَّهُ', 'كَهْف', 'فِتْنَة'],
   },
   {
@@ -311,7 +311,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Kahf 18:84',
     tafsir: 'Ibn Kathir discusses Dhul-Qarnayn, a righteous ruler who travelled to the ends of the earth. "Dhul" means possessor — he was "the possessor of two horns/ages."',
     similarWords: ['ذُو', 'صَاحِب'],
-    oppositeWords: [],
+    oppositeWords: ['آخَرَ'],
     relatedWords: ['اللَّهُ', 'مَلِك', 'قُوَّة'],
   }
 );

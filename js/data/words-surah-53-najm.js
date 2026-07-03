@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR: 'An-Najm 53:14',
     tafsir: 'Ibn Kathir describes the Sidrat al-Muntaha as a blessed tree in the seventh heaven, near Paradise, where the Prophet ﷺ saw Jibril in his true form.',
     similarWords: ['شَجَرَة', 'سِدْرَة الْمُنْتَهَىٰ'],
-    oppositeWords: [],
+    oppositeWords: ['الطُّوبَىٰ'],
     relatedWords: ['اللَّهُ', 'جَنَّة', 'مِعْرَاج'],
   },
   {

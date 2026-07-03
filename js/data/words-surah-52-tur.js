@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'At-Tur 52:1',
     tafsir: 'Ibn Kathir says this refers to Mount Sinai, where Allah spoke to Moses and gave him the Torah. It is a sacred place of revelation.',
     similarWords: ['طُور سِينَاء', 'جَبَل', 'تُور'],
-    oppositeWords: [],
+    oppositeWords: ['الْجَبَلِ'],
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'كِتَاب'],
   },
   {

@@ -280,7 +280,7 @@ ALL_WORDS.push(
     ayahR: 'Ar-Ra\'d 13:17',
     tafsir: 'Ibn Kathir says that even an atom\'s weight of good or bad will be accounted for on the Day of Judgment — nothing escapes Allah\'s awareness.',
     similarWords: ['وَزْن', 'قِيرَاط', 'حَبَّة'],
-    oppositeWords: [],
+    oppositeWords: ['الْخَيْرِ'],
     relatedWords: ['اللَّهُ', 'مِيزَان', 'عَدْل'],
   },
   {

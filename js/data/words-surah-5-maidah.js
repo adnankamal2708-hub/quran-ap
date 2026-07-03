@@ -31,7 +31,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Ma\'idah 5:112',
     tafsir: 'Ibn Kathir explains that the table spread was a miraculous feast sent down in response to Jesus\' prayer, as a sign and a provision for the believers.',
     similarWords: ['خِوَان', 'طَعَام', 'رِزْق'],
-    oppositeWords: [],
+    oppositeWords: ['الطَّعَامِ'],
     relatedWords: ['عِيسَى', 'اللَّهُ', 'آيَة'],
   },
   {

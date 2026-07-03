@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Mumtahanah 60:10',
     tafsir: 'Ibn Kathir says this surah was revealed after the Treaty of Hudaybiyyah, regarding women who emigrated from Mecca to Medina. Their faith was to be tested before acceptance.',
     similarWords: ['مُخْتَبَرَة', 'مُمْتَحَنَة', 'مُفْتُونَة'],
-    oppositeWords: [],
+    oppositeWords: ['امْنَعُوهُنَّ'],
     relatedWords: ['اللَّهُ', 'إِيمَان', 'هِجْرَة'],
   },
   {
@@ -156,7 +156,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Mumtahanah 60:4',
     tafsir: 'Ibn Kathir says Abraham is the ultimate example of loyalty to Allah and disassociation from disbelief. He distanced himself from his own idolatrous people.',
     similarWords: ['أَب', 'إِبْرَاهِيم', 'خَلِيل اللَّه'],
-    oppositeWords: [],
+    oppositeWords: ['آزَرُ'],
     relatedWords: ['اللَّهُ', 'أُسْوَة', 'تَوْحِيد'],
   },
   {

@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR:'Al-Qasas 28:25',
     tafsir:"Ibn Kathir says Musa narrated his entire story to Shu'ayb — from fleeing Egypt to arriving at the well in Madyan.",
     similarWords: ['الْخَبَر', 'الرِّوَايَة', 'الْحَدِيث'],
-    oppositeWords: [],
+    oppositeWords: ['الْأَحَادِيثِ'],
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'نَبَأ'],
   },
   {
@@ -153,7 +153,7 @@ ALL_WORDS.push(
     ayahR:'Al-Qasas 28:7',
     tafsir:"Ibn Kathir relates the story of Moses' mother placing him in a chest (tabut) in the Nile — a supreme act of trust in Allah.",
     similarWords: ['صُنْدُوق', 'سَفَط', 'وِعَاء'],
-    oppositeWords: [],
+    oppositeWords: ['الصَّلِيبِ'],
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'يَمّ'],
   },
   {

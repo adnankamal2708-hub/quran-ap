@@ -218,7 +218,7 @@ ALL_WORDS.push(
     ayahR:"Al-Mu'minun 23:101",
     tafsir:'Ibn Kathir says the trumpet (Sur) will be blown twice — once to annihilate and once to resurrect all creation.',
     similarWords: ['بُوق', 'نَفْخ', 'قَرْن'],
-    oppositeWords: [],
+    oppositeWords: ['النَّاقُورِ'],
     relatedWords: ['اللَّهُ', 'قِيَامَة', 'بَعْث'],
   },
   {

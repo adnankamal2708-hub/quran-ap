@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Ibrahim 14:35',
     tafsir: 'Ibn Kathir says Ibrahim is called Khalil Allah (the friend of Allah). His life exemplifies complete submission — he rejected idolatry, survived the fire, and built the Kaaba.',
     similarWords: ['خَلِيل', 'أَب', 'حَنِيف'],
-    oppositeWords: [],
+    oppositeWords: ['آزَرُ'],
     relatedWords: ['اللَّهُ', 'إِسْمَاعِيل', 'مَكَّة'],
   },
   {
@@ -125,7 +125,7 @@ ALL_WORDS.push(
     ayahR: 'Ibrahim 14:37',
     tafsir: 'Ibn Kathir explains that Ibrahim settled his family in the barren valley of Mecca by divine command, trusting Allah to provide for them.',
     similarWords: ['مَكَان', 'مَنْزِلَة', 'دَرَجَة'],
-    oppositeWords: [],
+    oppositeWords: ['الظَّالِمُونَ'],
     relatedWords: ['اللَّهُ', 'صَلَاة', 'بَيْت'],
   },
   {
@@ -218,7 +218,7 @@ ALL_WORDS.push(
     ayahR: 'Ibrahim 14:4',
     tafsir: 'Ibn Kathir notes divine wisdom in sending messengers speaking the language of their people — so there could be no excuse for misunderstanding the message.',
     similarWords: ['نَبِيّ', 'مُرْسَل', 'دَاعِي'],
-    oppositeWords: [],
+    oppositeWords: ['الَّذِينَ كَذَّبُوا'],
     relatedWords: ['اللَّهُ', 'رِسَالَة', 'وَحْي'],
   },
   {

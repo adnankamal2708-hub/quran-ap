@@ -62,7 +62,7 @@ ALL_WORDS.push(
     ayahR:'An-Nur 24:35',
     tafsir:"Ibn Kathir says the niche represents the believer's chest, the lamp is the light of faith, and the glass is the purity of the heart.",
     similarWords: ['كُوَّة', 'طَاق', 'مَكَان'],
-    oppositeWords: [],
+    oppositeWords: ['الظُّلْمَةِ'],
     relatedWords: ['اللَّهُ', 'نُور', 'مِصْبَاح'],
   },
   {

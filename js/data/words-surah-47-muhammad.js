@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Muhammad 47:2',
     tafsir: 'Ibn Kathir says this is the only surah named after the Prophet ﷺ. Faith in Muhammad and the revelation he brought is the key to forgiveness and salvation.',
     similarWords: ['نَبِيّ', 'رَسُول', 'أَحْمَد'],
-    oppositeWords: [],
+    oppositeWords: ['الَّذِينَ كَفَرُوا'],
     relatedWords: ['اللَّهُ', 'قُرْآن', 'إِيمَان'],
   },
   {

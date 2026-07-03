@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Waqi\'ah 56:1',
     tafsir: 'Ibn Kathir says Al-Waqi\'ah is one of the names of the Day of Judgment, emphasizing its certainty and its overwhelming nature.',
     similarWords: ['الْقِيَامَة', 'الْحَاقَّة', 'الطَّامَّة'],
-    oppositeWords: [],
+    oppositeWords: ['الْآزِفَةُ'],
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'بَعْث'],
   },
   {
@@ -187,7 +187,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Waqi\'ah 56:21',
     tafsir: 'Ibn Kathir says the believers in Paradise will have whatever food they desire, including the meat of delicious birds served at their request.',
     similarWords: ['عُصْفُور', 'حَمَام', 'جَنَاح'],
-    oppositeWords: [],
+    oppositeWords: ['الْبَهَائِمَ'],
     relatedWords: ['اللَّهُ', 'جَنَّة', 'طَعَام'],
   },
   {
@@ -218,7 +218,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Waqi\'ah 56:22',
     tafsir: 'Ibn Kathir describes the companions of Paradise as pure, beautiful beings created as a reward for the believers — untouched and ever-youthful.',
     similarWords: ['أَبْكَار', 'عِين', 'أَتْرَاب'],
-    oppositeWords: [],
+    oppositeWords: ['النَّارُ'],
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَعِيم'],
   }
 );

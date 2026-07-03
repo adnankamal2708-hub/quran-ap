@@ -186,7 +186,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Ahqaf 46:29',
     tafsir: 'Ibn Kathir says the jinn are sentient beings created from fire. This verse describes a group of jinn who heard the Quran and embraced Islam.',
     similarWords: ['مَلَائِكَة', 'إِنْس', 'شَيَاطِين'],
-    oppositeWords: [],
+    oppositeWords: ['الْإِنْسِ'],
     relatedWords: ['اللَّهُ', 'إِنْس', 'شَيْطَان'],
   }
 );

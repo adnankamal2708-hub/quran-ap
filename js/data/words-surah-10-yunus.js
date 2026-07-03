@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR: 'Yunus 10:3',
     tafsir: 'Ibn Kathir says shafa\'ah is only possible with Allah\'s permission. No one can intercede except those He allows, and only for those He approves.',
     similarWords: ['شَفِيع', 'وَسِيط', 'مُحَامٍ'],
-    oppositeWords: [],
+    oppositeWords: ['عَذَابٌ'],
     relatedWords: ['اللَّهُ', 'إِذْن', 'يَوْمَ'],
   },
   {
@@ -93,7 +93,7 @@ ALL_WORDS.push(
     ayahR: 'Yunus 10:6',
     tafsir: 'Ibn Kathir explains that cosmic signs — the alternation of day and night, the creation of the heavens — all point to the Creator.',
     similarWords: ['بَيِّنَات', 'دَلَائِل', 'بَرَاهِين'],
-    oppositeWords: [],
+    oppositeWords: ['آيَاتُ الشَّيْطَانِ'],
     relatedWords: ['اللَّهُ', 'آيَة', 'سَمَاء'],
   },
   {
@@ -186,7 +186,7 @@ ALL_WORDS.push(
     ayahR: 'Yunus 10:22',
     tafsir: 'Ibn Kathir says ships are signs of Allah\'s mercy — they carry people and goods across the seas. When danger strikes at sea, people remember Allah.',
     similarWords: ['سَفِينَة', 'مَرْكَب', 'بَاخِرَة'],
-    oppositeWords: [],
+    oppositeWords: ['الْبَرِّ'],
     relatedWords: ['اللَّهُ', 'بَحْر', 'آيَة'],
   },
   {

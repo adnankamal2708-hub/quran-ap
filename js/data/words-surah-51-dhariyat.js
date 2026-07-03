@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Adh-Dhariyat 51:1',
     tafsir: 'Ibn Kathir says these opening oaths refer to the winds that scatter dust, and by extension, divine forces that execute Allah\'s commands.',
     similarWords: ['نَاشِرَات', 'رِيَاح', 'مُرْسَلَات'],
-    oppositeWords: [],
+    oppositeWords: ['الْحَاصِدَاتِ'],
     relatedWords: ['اللَّهُ', 'رِيَاح', 'سَحَاب'],
   },
   {

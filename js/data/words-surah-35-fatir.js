@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR:'Fatir 35:1',
     tafsir:'Ibn Kathir says Fatir means the One who created the heavens and earth from nothing — without any pre-existing model or material.',
     similarWords: ['الْخَالِق', 'الْبَارِئ', 'الْمُبْدِئ'],
-    oppositeWords: [],
+    oppositeWords: ['الْمَخْلُوقَ'],
     relatedWords: ['اللَّهُ', 'خَلَقَ', 'سَمَاء'],
   },
   {
@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR:'Fatir 35:1',
     tafsir:'Ibn Kathir says Allah created angels with varied wings, carrying out His commands as messengers.',
     similarWords: ['خَالِق', 'صَانِع'],
-    oppositeWords: [],
+    oppositeWords: ['الْمُزِيلِ'],
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'خَلَقَ'],
   },
   {
@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR:'Fatir 35:1',
     tafsir:'Ibn Kathir says angels have wings of varying numbers, with Gabriel having 600 wings according to authentic hadith.',
     similarWords: ['جَنَاح', 'أَجْنِحَة'],
-    oppositeWords: [],
+    oppositeWords: ['قَوَائِمَ'],
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'رَسُول'],
   },
   {

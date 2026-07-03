@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hujurat 49:4',
     tafsir: 'Ibn Kathir says this verse teaches respect for the Prophet ﷺ — believers should not call him from outside his private quarters but should wait patiently.',
     similarWords: ['غُرَف', 'بُيُوت', 'حُجْرَة'],
-    oppositeWords: [],
+    oppositeWords: ['الْمَسَاجِدِ'],
     relatedWords: ['اللَّهُ', 'رَسُول', 'أَدَب'],
   },
   {

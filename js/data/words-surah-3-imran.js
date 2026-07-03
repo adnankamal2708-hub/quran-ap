@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR: 'Aal-e-Imran 3:8',
     tafsir: 'Rabbana is the most common supplication opening in the Quran. Ibn Kathir notes that using \"Rabb\" (Nurturer) emphasizes Allah\'s care and mercy.',
     similarWords: ['رَبِّ', 'اللَّهُمَّ'],
-    oppositeWords: [],
+    oppositeWords: ['رَبُّ السَّوْءِ'],
     relatedWords: ['رَبِّ', 'اللَّهُ', 'هُدًى'],
   },
   {

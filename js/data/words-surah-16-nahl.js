@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'An-Nahl 16:68',
     tafsir: 'Ibn Kathir draws attention to how Allah inspired the bee with a sophisticated social structure. The bee produces honey with healing properties — a sign of divine wisdom.',
     similarWords: ['نَحْلَة', 'دَبُور', 'زُنْبُور'],
-    oppositeWords: [],
+    oppositeWords: ['الدَّابَّةُ'],
     relatedWords: ['اللَّهُ', 'عَسَل', 'آيَة'],
   },
   {

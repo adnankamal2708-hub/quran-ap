@@ -62,7 +62,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Anfal 8:42',
     tafsir: 'Ibn Kathir says Badr was a decisive battle where 313 Muslims defeated a much larger Quraysh army through divine assistance, establishing the strength of the Muslim community.',
     similarWords: ['غَزْوَة', 'مَعْرَكَة'],
-    oppositeWords: [],
+    oppositeWords: ['أُحُدٍ'],
     relatedWords: ['اللَّهُ', 'جِهَاد', 'نَصْر'],
   },
   {

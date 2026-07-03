@@ -31,7 +31,7 @@ ALL_WORDS.push(
     ayahR:'An-Naml 27:18',
     tafsir:"Ibn Kathir marvels at the ant's intelligence — it recognized Solomon's army and warned its colony. This is a sign of Allah's creation.",
     similarWords: ['الذَّرّ', 'الْحَشَرَات'],
-    oppositeWords: [],
+    oppositeWords: ['الذَّرِّ'],
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'دَاوُود'],
   },
   {
@@ -60,7 +60,7 @@ ALL_WORDS.push(
     ayahR:'An-Naml 27:20',
     tafsir:"Ibn Kathir relates the hoopoe's role in Solomon's intelligence network — it brought news of the Queen of Sheba, leading to her acceptance of Islam.",
     similarWords: ['طَائِر', 'عُصْفُور'],
-    oppositeWords: [],
+    oppositeWords: ['الْغُرَابِ'],
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'سَبَأ'],
   },
   {
@@ -211,7 +211,7 @@ ALL_WORDS.push(
     ayahR:'An-Naml 27:12',
     tafsir:'Allah gave Moses nine clear signs to show Pharaoh, but despite witnessing them, Pharaoh persisted in disbelief.',
     similarWords: ['بُرْهَان', 'مُعْجِزَة', 'دَلَالَة'],
-    oppositeWords: [],
+    oppositeWords: ['آيَاتِ السَّيِّئَةِ'],
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'فِرْعَوْن'],
   },
   {
@@ -242,7 +242,7 @@ ALL_WORDS.push(
     ayahR:'An-Naml 27:23',
     tafsir:'Ibn Kathir says the throne of Bilqis was magnificent, but Solomon had it brought to Jerusalem in the blink of an eye through divine power.',
     similarWords: ['كُرْسِيّ', 'سَرِير', 'مَجْلِس'],
-    oppositeWords: [],
+    oppositeWords: ['الْكُرْسِيِّ'],
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'مُلْك'],
   }
 );

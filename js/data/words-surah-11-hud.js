@@ -249,7 +249,7 @@ ALL_WORDS.push(
     ayahR: 'Hud 11:114',
     tafsir: 'Ibn Kathir says that praying during the late hours of the night is a means of forgiveness and expiation for sins. It was a practice of the righteous.',
     similarWords: ['سَاعَة', 'وَقْت', 'زَمَن'],
-    oppositeWords: [],
+    oppositeWords: ['طَرَفَيِ النَّهَارِ'],
     relatedWords: ['صَلَاة', 'اللَّهُ', 'لَيْل'],
   },
   {

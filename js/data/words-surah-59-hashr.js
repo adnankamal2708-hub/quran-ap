@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Hashr 59:21',
     tafsir: 'Ibn Kathir says this verse uses a powerful metaphor — even a solid mountain would tremble at the weight of the Quran, so how much more should humans be moved by it?',
     similarWords: ['لَوْ نَزَّلْنَا', 'لَوْ أَوْحَيْنَا'],
-    oppositeWords: [],
+    oppositeWords: ['وَلَكِنَّ'],
     relatedWords: ['اللَّهُ', 'قُرْآن', 'خَشْيَة'],
   },
   {

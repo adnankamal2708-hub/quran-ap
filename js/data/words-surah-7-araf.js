@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: "Al-A'raf 7:46",
     tafsir: 'Ibn Kathir explains the word a\'raf is related to ma\'rifah (recognition) — those on the heights recognize the people of Paradise and Hell by their distinguishing marks.',
     similarWords: ['سُور', 'حَاجِز'],
-    oppositeWords: [],
+    oppositeWords: ['الْجَنَّةِ'],
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَار'],
   },
   {
@@ -186,7 +186,7 @@ ALL_WORDS.push(
     ayahR: "Al-A'raf 7:2",
     tafsir: 'This verse establishes the purpose of Quranic revelation as guidance and warning.',
     similarWords: ['الَّذِي', 'اللَّائِي'],
-    oppositeWords: [],
+    oppositeWords: ['الَّذِي'],
     relatedWords: ['هُوَ', 'إِيَّاكَ'],
   }
 );

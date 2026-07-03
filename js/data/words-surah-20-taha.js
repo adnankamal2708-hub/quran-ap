@@ -63,7 +63,7 @@ ALL_WORDS.push(
     ayahR: 'Ta-Ha 20:9',
     tafsir: 'Ibn Kathir relates Moses\' story in detail — from his birth, his flight from Egypt, his call at the burning bush, to his confrontation with Pharaoh.',
     similarWords: ['كَلِيم', 'نَبِيّ', 'رَسُول'],
-    oppositeWords: [],
+    oppositeWords: ['فِرْعَوْنُ'],
     relatedWords: ['اللَّهُ', 'هَارُون', 'فِرْعَوْن'],
   },
   {
@@ -156,7 +156,7 @@ ALL_WORDS.push(
     ayahR: 'Ta-Ha 20:15',
     tafsir: 'Ibn Kathir says Allah nearly conceals the knowledge of the Hour to keep humanity in anticipation — it will come suddenly without warning.',
     similarWords: ['يَوْم الْقِيَامَة', 'سَاعَة', 'حِين'],
-    oppositeWords: [],
+    oppositeWords: ['الدُّنْيَا'],
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'جَزَاء'],
   },
   {

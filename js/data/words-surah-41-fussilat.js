@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR: 'Fussilat 41:23',
     tafsir: 'Ibn Kathir says on the Day of Judgment, a person\'s own body parts will testify against them — ears, eyes, and skin will speak of their deeds.',
     similarWords: ['جَوَانِب', 'نَوَاحِي'],
-    oppositeWords: [],
+    oppositeWords: ['الْحَقَّ'],
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'شَهَادَة'],
   },
   {
@@ -218,7 +218,7 @@ ALL_WORDS.push(
     ayahR: 'Fussilat 41:42',
     tafsir: 'Ibn Kathir says the Quran is preserved from all falsehood, unlike previous scriptures which were altered over time.',
     similarWords: ['كُتُب', 'صُحُف', 'مَصَاحِف'],
-    oppositeWords: [],
+    oppositeWords: ['الْكِتَابِ الْمُبِينِ'],
     relatedWords: ['اللَّهُ', 'قُرْآن', 'وَحْي'],
   }
 );

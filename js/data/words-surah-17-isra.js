@@ -32,7 +32,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Isra 17:1',
     tafsir: 'Ibn Kathir describes Al-Isra as a physical journey of the Prophet on the Buraq from Mecca to Jerusalem, preceding the Mi\'raj (ascension to heaven).',
     similarWords: ['مِعْرَاج', 'سَفَر', 'رِحْلَة'],
-    oppositeWords: [],
+    oppositeWords: ['الْإِسْرَافِ'],
     relatedWords: ['اللَّهُ', 'مَسْجِد', 'نَبِيّ'],
   },
   {
@@ -94,7 +94,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Isra 17:1',
     tafsir: 'Ibn Kathir says that Al-Masjid Al-Aqsa in Jerusalem is the second mosque ever built on earth and the first qibla of the Muslims.',
     similarWords: ['مُصَلَّىٰ', 'مَعْبَد', 'مُسَلَّى'],
-    oppositeWords: [],
+    oppositeWords: ['الْكَنِيسَةُ'],
     relatedWords: ['اللَّهُ', 'سُجُود', 'صَلَاة'],
   },
   {

@@ -31,7 +31,7 @@ ALL_WORDS.push(
     ayahR:"Saba' 34:15",
     tafsir:'Ibn Kathir relates the story of Sheba —a prosperous kingdom blessed with abundant gardens that became arrogant and was destroyed by a flood.',
     similarWords: ['الْيَمَن', 'الْيَمَنِ'],
-    oppositeWords: [],
+    oppositeWords: ['هَمْدَانَ'],
     relatedWords: ['اللَّهُ', 'نِعْمَة', 'سَيْل'],
   },
   {
@@ -122,7 +122,7 @@ ALL_WORDS.push(
     ayahR:"Saba' 34:16",
     tafsir:"Ibn Kathir says the great Ma'rib dam burst, flooding the entire region and turning their gardens into bitter, fruitless land.",
     similarWords: ['السِّدّ', 'الْحَاجِز'],
-    oppositeWords: [],
+    oppositeWords: ['السَّيْلِ'],
     relatedWords: ['اللَّهُ', 'سَيْل', 'نِعْمَة'],
   },
   {

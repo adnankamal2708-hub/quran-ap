@@ -93,7 +93,7 @@ ALL_WORDS.push(
     ayahR: 'Al-Qalam 68:1',
     tafsir: 'Ibn Kathir says the oath by the pen encompasses everything that has been written — from the preserved tablet to human books of knowledge.',
     similarWords: ['بِالَّذِي', 'بِمَا', 'بِأَنَّ'],
-    oppositeWords: [],
+    oppositeWords: ['بِمَا لَا'],
     relatedWords: ['اللَّهُ', 'قَلَم', 'كِتَاب'],
   },
   {
