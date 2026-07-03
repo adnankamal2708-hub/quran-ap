@@ -10,7 +10,7 @@ ALL_WORDS.push(
     type: 'Noun (plural, collective)',
     typeCategory: 'noun',
     pattern: 'فِعَال',
-    english: 'The Mankind',
+    english: 'Mankind',
     meaning: 'The mankind — all of humanity, all people, the entire human race',
     root: 'ن-و-س',
     rootMeaning: 'To be social, to be among people, to move about',

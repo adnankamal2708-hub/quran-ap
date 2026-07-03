@@ -163,7 +163,7 @@ ALL_WORDS.push(
     type:'Noun (plural)',
     typeCategory:'noun',
     pattern:'أَفْعَال',
-    english:'The Wombs',
+    english:'Kinship Ties / The Wombs',
     meaning:'The wombs — kinship ties, relatives, family relations',
     root:'ر-ح-م',
     rootMeaning:'Womb, tenderness, mercy',

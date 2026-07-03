@@ -196,7 +196,7 @@ ALL_WORDS.push(
     type: 'Verb (perfect, masculine singular)',
     typeCategory: 'verb',
     pattern: 'اسْتَفْعَلَىٰ',
-    english: 'He Considered Himself Self-Sufficient',
+    english: 'Considered Himself Self-Sufficient',
     meaning: 'He considered himself self-sufficient — felt no need of Allah\'s help or guidance',
     root: 'غ-ن-ي',
     rootMeaning: 'To be rich, to be free of need',

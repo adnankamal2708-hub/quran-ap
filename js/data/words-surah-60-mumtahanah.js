@@ -41,7 +41,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فَعَالَة',
-    english: 'Affection',
+    english: 'Affection / Love',
     meaning: 'Affection — love, friendship, warm attachment',
     root: 'و-د-د',
     rootMeaning: 'To love, to be fond, to cherish',

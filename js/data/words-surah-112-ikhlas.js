@@ -41,7 +41,7 @@ ALL_WORDS.push(
     type: 'Adjective',
     typeCategory: 'adjective',
     pattern: 'فَعَل',
-    english: 'The Eternal',
+    english: 'The Self-Sufficient',
     meaning: 'The Eternal — the Self-Sufficient Master upon whom all depend, who needs nothing',
     root: 'ص-م-د',
     rootMeaning: 'To be eternal, to be self-sufficient, to be the ultimate refuge',

@@ -10,7 +10,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فِعْل',
-    english: 'The Religion',
+    english: 'Judgment/Religion',
     meaning: 'The religion — the Judgment, the faith, the Day of Recompense',
     root: 'د-ي-ن',
     rootMeaning: 'To judge, to requite, to be indebted',

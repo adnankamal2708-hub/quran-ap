@@ -289,7 +289,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فِعْل',
-    english: 'Polytheism/Association',
+    english: 'Associating Partners with Allah / Polytheism',
     meaning: 'Polytheism — associating partners with Allah, the greatest sin',
     root: 'ش-ر-ك',
     rootMeaning: 'To share, to associate, to participate',

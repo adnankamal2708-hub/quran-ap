@@ -72,7 +72,7 @@ ALL_WORDS.push(
     type: 'Noun (plural, construct)',
     typeCategory: 'noun',
     pattern: 'فَعَلَات',
-    english: 'Signs of',
+    english: 'Signs',
     meaning: 'Signs of — the divine signs/revelations of Allah',
     root: 'أ-ي-ي',
     rootMeaning: 'Sign, evidence, proof',

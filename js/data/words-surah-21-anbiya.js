@@ -196,7 +196,7 @@ ALL_WORDS.push(
     type:'Noun',
     typeCategory:'noun',
     pattern:'فَعْلَىٰ',
-    english:'Secret Talk',
+    english:'Private Consultation',
     meaning:'Secret talk — private conversation, confidential counsel',
     root:'ن-ج-و',
     rootMeaning:'To be safe, to be saved, to whisper secretly',

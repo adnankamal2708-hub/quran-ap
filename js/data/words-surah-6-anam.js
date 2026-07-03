@@ -72,7 +72,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فِعْل',
-    english: 'Associating Partners',
+    english: 'Associating Partners with Allah / Polytheism',
     meaning: 'Associating partners with Allah — polytheism',
     root: 'ش-ر-ك',
     rootMeaning: 'To share, to associate, to participate',

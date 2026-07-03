@@ -196,7 +196,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فَعَال',
-    english: 'Peace/Safety',
+    english: 'Peace',
     meaning: 'Peace — security, safety, the source of peace (Allah)',
     root: 'س-ل-م',
     rootMeaning: 'To be safe, to submit, to be peaceful',
