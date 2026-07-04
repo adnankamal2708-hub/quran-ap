@@ -4,17 +4,6 @@
 // All application logic uses this service; data files in js/data/ store words.
 // ═══════════════════════════════════════════════════════════════
 
-// ── Type Categories ────────────────────────────────────────────
-
-const TYPE_CATEGORIES = {
-  noun: 'Nouns',
-  verb: 'Verbs',
-  particle: 'Particles',
-  adjective: 'Adjectives',
-  pronoun: 'Pronouns',
-  exclamation: 'Exclamations',
-};
-
 // ── Word Lookup ────────────────────────────────────────────────
 
 // ── Word lookup indices ────────────────────────────────────────

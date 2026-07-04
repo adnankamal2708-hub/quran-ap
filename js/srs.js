@@ -268,40 +268,6 @@ function migrateLeechRecoveryToCanonical(recovery) {
 }
 
 /**
- * Migrate leech recovery keys from arabic-based to id-based.
- */
-function migrateLeechRecoveryKeys(data) {
-  var recovery = data._leechRecovery;
-  if (!recovery) return false;
-  var needsSave = false;
-  var newRecovery = {};
-  var hasChanges = false;
-  
-  Object.keys(recovery).forEach(function (key) {
-    if (key.indexOf('w_') === 0) {
-      newRecovery[key] = recovery[key];
-    } else {
-      // Key format is "leech_<arabic>" or just "<arabic>"
-      var arabicPart = key.replace(/^leech_/, '');
-      // Find the first ID for this arabic text
-      for (var i = 0; i < ALL_WORDS.length; i++) {
-        if (ALL_WORDS[i].arabic === arabicPart) {
-          newRecovery['leech_' + ALL_WORDS[i].id] = recovery[key];
-          hasChanges = true;
-          break;
-        }
-      }
-    }
-  });
-  
-  if (hasChanges) {
-    data._leechRecovery = newRecovery;
-    return true;
-  }
-  return false;
-}
-
-/**
  * Migrate a legacy SRS entry (interval/dueDate only) to the modern format.
  */
 function migrateLegacy(entry) {

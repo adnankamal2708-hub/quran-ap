@@ -302,33 +302,19 @@ function getCanonicalIdForOldId(oldId) {
   return OLD_ID_TO_CANONICAL[oldId] || null;
 }
 
-/**
- * Map an array of old word IDs to their canonical IDs.
- * Returns a deduplicated array of canonical IDs.
- */
-function getCanonicalIdsForOldIds(oldIds) {
-  if (!oldIds || !oldIds.length) return [];
-  var result = {};
-  for (var i = 0; i < oldIds.length; i++) {
-    var cid = getCanonicalIdForOldId(oldIds[i]);
-    if (cid) result[cid] = true;
-  }
-  return Object.keys(result);
-}
-
 // ── Surah-based Organization ────────────────────────────────────
 // Words can be organized by Surah (surahId) or by sequential lessons.
 // The system supports both modes: users can study by Surah or by
 // traditional sequential lessons.
 
-/** @type {'surah'|'lesson'} Current organization mode */
+/** @type {'surah'|'lesson'|'foundation'} Current organization mode */
 let _orgMode = 'lesson';
 
 /**
  * Set the organization mode.
  */
 function setOrganizationMode(mode) {
-  if (mode === 'surah' || mode === 'lesson') {
+  if (mode === 'surah' || mode === 'lesson' || mode === 'foundation') {
     _orgMode = mode;
   }
 }
@@ -644,18 +630,6 @@ function getFoundationCoverage() {
 }
 
 /**
- * Get the coverage gained from completing a specific foundation lesson.
- */
-function getFoundationLessonCoverage(lessonIndex) {
-  if (!FOUNDATION_LESSONS || !FOUNDATION_LESSONS[lessonIndex]) return 0;
-  var lesson = FOUNDATION_LESSONS[lessonIndex];
-  // Parse the coverage string (e.g. "8.3%") to number
-  var covStr = lesson.lessonCoverage;
-  var num = parseFloat(covStr) || 0;
-  return num;
-}
-
-/**
  * Surah Comprehension: Calculate estimated comprehension for every surah
  * based on which vocabulary words appearing in that surah are mastered.
  */
@@ -779,6 +753,36 @@ function getTotalFoundationOccurrences() {
   return total;
 }
 
+// ── Foundation Progress (localStorage) ──────────────────────────
+
+const FOUNDATION_PROGRESS_KEY = 'quran_foundation_progress';
+
+function getDefaultFoundationProgress() {
+  return {
+    currentLesson: 0,        // 0-based index of the active foundation lesson
+    completedLessons: [],     // array of 0-based foundation lesson indices that are finished
+    quizPassed: {},           // { "0": true, "1": false, ... }
+  };
+}
+
+function loadFoundationProgress() {
+  try {
+    var raw = localStorage.getItem(FOUNDATION_PROGRESS_KEY);
+    if (!raw) return getDefaultFoundationProgress();
+    return JSON.parse(raw);
+  } catch (e) {
+    return getDefaultFoundationProgress();
+  }
+}
+
+function saveFoundationProgress(data) {
+  try {
+    localStorage.setItem(FOUNDATION_PROGRESS_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Could not save foundation progress:', e.message);
+  }
+}
+
 /**
  * Track root families mastered.
  */
@@ -819,107 +823,6 @@ function getRootFamilyMastery() {
     partiallyMasteredRoots: partiallyMasteredRoots,
   };
 }
-
-/**
- * Calculate coverage growth over time by analyzing completed lessons.
- */
-function getCoverageGrowth() {
-  var progress = loadFoundationProgress();
-  var completed = progress.completedLessons || [];
-  var growth = [];
-  var totalOcc = getTotalQuranOccurrences();
-  var cumulativeOcc = 0;
-  
-  // Sort completed lessons
-  var sorted = completed.slice().sort(function(a, b) { return a - b; });
-  
-  for (var gi = 0; gi < sorted.length; gi++) {
-    var lessonIdx = sorted[gi];
-    if (FOUNDATION_LESSONS[lessonIdx]) {
-      var lessonCov = parseFloat(FOUNDATION_LESSONS[lessonIdx].lessonCoverage) || 0;
-      cumulativeOcc += Math.round((lessonCov / 100) * totalOcc);
-      growth.push({
-        lesson: lessonIdx + 1,
-        coverage: Math.round(((lessonCov / 100) * totalOcc) / totalOcc * 100 * 10) / 10,
-        cumulativeCoverage: totalOcc > 0 ? Math.round(cumulativeOcc / totalOcc * 100 * 10) / 10 : 0,
-      });
-    }
-  }
-  
-  return growth;
-}
-
-// ── Rich Lesson Summary Data ─────────────────────────────────────
-
-/**
- * Create a rich lesson summary after completing a foundation lesson.
- */
-function createLessonSummary(lessonIndex, quizCorrect, quizTotal, timeStudiedMs) {
-  if (!FOUNDATION_LESSONS[lessonIndex]) return null;
-  
-  var lesson = FOUNDATION_LESSONS[lessonIndex];
-  var words = getFoundationLessonWords(lessonIndex);
-  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
-  
-  var newWords = 0;
-  var reviewWords = 0;
-  var rootFamiliesInLesson = {};
-  
-  for (var wi = 0; wi < words.length; wi++) {
-    var w = words[wi];
-    var entry = srsData[w.id];
-    if (!entry || entry.totalReviews <= 1) {
-      newWords++;
-    } else {
-      reviewWords++;
-    }
-    if (w.root && w.root !== '—') {
-      rootFamiliesInLesson[w.root] = (rootFamiliesInLesson[w.root] || 0) + 1;
-    }
-  }
-  
-  // Coverage before completing this lesson (excluding this lesson's words)
-  var coveredBefore = 0;
-  var masteredBefore = getMasteredWordIds();
-  var wordsBeforeOcc = 0;
-  for (var bi = 0; bi < words.length; bi++) {
-    if (masteredBefore[words[bi].id]) {
-      coveredBefore += words[bi].occ || 0;
-    }
-  }
-  
-  var totalOcc = getTotalQuranOccurrences();
-  var coverageBefore = totalOcc > 0 ? Math.round((coveredBefore / totalOcc) * 100 * 10) / 10 : 0;
-  var covFromLesson = parseFloat(lesson.lessonCoverage) || 0;
-  var coverageAfter = Math.min(100, coverageBefore + covFromLesson);
-  var accuracy = quizTotal > 0 ? Math.round((quizCorrect / quizTotal) * 100) : 0;
-  
-  return {
-    lessonIndex: lessonIndex,
-    lessonNumber: lessonIndex + 1,
-    isReview: lesson.isReview,
-    newWords: newWords,
-    reviewWords: reviewWords,
-    totalWords: words.length,
-    accuracy: accuracy,
-    quizCorrect: quizCorrect,
-    quizTotal: quizTotal,
-    timeStudiedMs: timeStudiedMs || 0,
-    rootFamiliesIntroduced: Object.keys(rootFamiliesInLesson).length,
-    rootFamilyDetails: rootFamiliesInLesson,
-    coverageBefore: coverageBefore,
-    coverageAfter: coverageAfter,
-    coverageGained: Math.round(covFromLesson * 10) / 10,
-    nextLessonPreview: lessonIndex + 1 < FOUNDATION_LESSONS.length
-      ? {
-          number: lessonIndex + 2,
-          label: FOUNDATION_LESSONS[lessonIndex + 1].label,
-          estimatedCoverageGain: parseFloat(FOUNDATION_LESSONS[lessonIndex + 1].lessonCoverage) || 0,
-        }
-      : null,
-  };
-}
-
 
 function isFoundationLessonCompleted(lessonIndex) {
   var progress = loadFoundationProgress();
@@ -970,29 +873,6 @@ function setCurrentFoundationLesson(lessonIndex) {
 function getCompletedFoundationLessonCount() {
   var progress = loadFoundationProgress();
   return progress.completedLessons.length;
-}
-
-function exportFoundationProgress() {
-  return loadFoundationProgress();
-}
-
-function importFoundationProgress(data) {
-  if (!data || typeof data !== 'object') return;
-  var current = loadFoundationProgress();
-  if (data.completedLessons && data.completedLessons.length > current.completedLessons.length) {
-    current.completedLessons = data.completedLessons;
-  }
-  if (data.quizPassed) {
-    Object.keys(data.quizPassed).forEach(function(k) {
-      if (data.quizPassed[k]) current.quizPassed[k] = true;
-    });
-  }
-  if (data.currentLesson !== undefined && data.currentLesson < current.currentLesson) {
-    current.currentLesson = data.currentLesson;
-  } else if (data.currentLesson !== undefined && !current.currentLesson) {
-    current.currentLesson = data.currentLesson;
-  }
-  saveFoundationProgress(current);
 }
 
 // ── Lesson System ───────────────────────────────────────────────
@@ -1161,37 +1041,6 @@ function getCompletedLessonCount() {
   return progress.completedLessons.length;
 }
 
-/**
- * Export lesson progress for cloud sync.
- */
-function exportLessonProgress() {
-  return loadLessonProgress();
-}
-
-/**
- * Import lesson progress from cloud sync.
- */
-function importLessonProgress(data) {
-  if (!data || typeof data !== 'object') return;
-  var current = loadLessonProgress();
-  // Merge: take higher completed count (more progress)
-  if (data.completedLessons && data.completedLessons.length > current.completedLessons.length) {
-    current.completedLessons = data.completedLessons;
-  }
-  if (data.quizPassed) {
-    Object.keys(data.quizPassed).forEach(function (k) {
-      if (data.quizPassed[k]) current.quizPassed[k] = true;
-    });
-  }
-  // Take earlier current lesson as hint (more conservative)
-  if (data.currentLesson !== undefined && data.currentLesson < current.currentLesson) {
-    current.currentLesson = data.currentLesson;
-  } else if (data.currentLesson !== undefined && !current.currentLesson) {
-    current.currentLesson = data.currentLesson;
-  }
-  saveLessonProgress(current);
-}
-
 // ── Surah Progress Tracking ─────────────────────────────────────
 
 const SURAH_PROGRESS_KEY = 'quran_surah_progress';
@@ -1243,22 +1092,4 @@ function completeSurah(surahId) {
 function getCompletedSurahCount() {
   var progress = loadSurahProgress();
   return progress.completedSurahs.length;
-}
-
-function exportSurahProgress() {
-  return loadSurahProgress();
-}
-
-function importSurahProgress(data) {
-  if (!data || typeof data !== 'object') return;
-  var current = loadSurahProgress();
-  if (data.completedSurahs && data.completedSurahs.length > current.completedSurahs.length) {
-    current.completedSurahs = data.completedSurahs;
-  }
-  if (data.quizPassed) {
-    Object.keys(data.quizPassed).forEach(function (k) {
-      if (data.quizPassed[k]) current.quizPassed[k] = true;
-    });
-  }
-  saveSurahProgress(current);
 }

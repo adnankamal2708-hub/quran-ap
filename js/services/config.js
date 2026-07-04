@@ -28,9 +28,6 @@ const FIREBASE_CONFIG = {
 
 // ── Feature flags ─────────────────────────────────────────────
 
-/** Enable/disable cloud sync entirely. Off = localStorage only (fully offline). */
-const CLOUD_SYNC_ENABLED = true;
-
 /** Automatically sync data on login (no prompt). If false, user is asked. */
 const AUTO_IMPORT_ON_LOGIN = true;
 

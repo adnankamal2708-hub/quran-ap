@@ -398,57 +398,6 @@ function updateLessonProgressDisplay() {
   }
 }
 
-// ── Foundation Coverage Display ───────────────────────────────
-
-function updateFoundationCoverageDisplay(fCurrent, fLesson) {
-  var primaryCovEl = DOM.get('foundation-primary-coverage');
-  if (!primaryCovEl) return;
-  
-  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-  var ms = coverage ? (typeof getMilestoneStatus === 'function' ? getMilestoneStatus(coverage.coveragePercent) : null) : null;
-  
-  var html = '<div class="foundation-coverage-grid">';
-  
-  if (coverage) {
-    html += '<div class="foundation-cov-item">' +
-      '<span class="foundation-cov-value">' + coverage.coveragePercent + '%</span>' +
-      '<span class="foundation-cov-label">Quran Coverage</span></div>';
-    html += '<div class="foundation-cov-item">' +
-      '<span class="foundation-cov-value">' + coverage.estimatedComprehension + '%</span>' +
-      '<span class="foundation-cov-label">Comprehension</span></div>';
-    html += '<div class="foundation-cov-item">' +
-      '<span class="foundation-cov-value">' + coverage.masteredOccurrences.toLocaleString() + '</span>' +
-      '<span class="foundation-cov-label">Occurrences</span></div>';
-    html += '<div class="foundation-cov-item">' +
-      '<span class="foundation-cov-value">' + coverage.masteredWords + '</span>' +
-      '<span class="foundation-cov-label">Words</span></div>';
-  }
-  
-  if (ms && ms.currentMilestone) {
-    html += '<div class="foundation-cov-item foundation-milestone-item">' +
-      '<span class="foundation-cov-value">' + ms.currentMilestone.icon + ' ' + ms.currentMilestone.label + '</span>' +
-      '<span class="foundation-cov-label">Milestone</span></div>';
-  }
-  
-  if (ms && ms.nextMilestone) {
-    html += '<div class="foundation-cov-item">' +
-      '<span class="foundation-cov-value" style="font-size:12px">🎯 ' + ms.nextMilestone.pct + '%</span>' +
-      '<span class="foundation-cov-label">Next: ' + ms.wordsToNextMilestone + ' words</span></div>';
-  }
-  
-  // Foundation progress
-  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
-  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
-  html += '<div class="foundation-cov-item">' +
-    '<span class="foundation-cov-value">' + fCompleted + '/' + fTotal + '</span>' +
-    '<span class="foundation-cov-label">Foundation</span></div>';
-  
-  html += '</div>';
-  
-  primaryCovEl.innerHTML = html;
-  primaryCovEl.style.display = 'block';
-}
-
 // ── Quick Flashcard Mode ──────────────────────────────────────
 
 let quickMode = false;
