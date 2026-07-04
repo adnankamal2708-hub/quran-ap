@@ -618,7 +618,128 @@ suite('SRS Data');
 })();
 
 // ═══════════════════════════════════════════════════════════════
-// SUITE 8: Build Pipeline
+// SUITE 8: Duplicate Declaration Validation
+// ═══════════════════════════════════════════════════════════════
+
+suite('Duplicate Declarations');
+
+(function() {
+  // Scan all source JS files that go into the bundles
+  var JS_FILES = [
+    'js/data.js',
+    'js/data/surahs.js',
+    'js/services/config.js',
+    'js/services/auth-service.js',
+    'js/services/sync-service.js',
+    'js/services/user-service.js',
+    'js/vocabulary.js',
+    'js/srs.js',
+    'js/ui.js',
+    'js/quiz.js',
+    'js/auth-ui.js',
+    'js/profile-ui.js',
+    'js/app.js',
+  ];
+
+  // Also scan all data files in js/data/ directory
+  var dataFiles = fs.readdirSync(DATA_DIR)
+    .filter(function(f) { return f.endsWith('.js') && f !== 'data.js' && f !== 'surahs.js'; })
+    .map(function(f) { return 'js/data/' + f; });
+
+  var allTestFiles = JS_FILES.concat(dataFiles);
+
+  test('No duplicate const/let/var/function declarations across all JS files', () => {
+    var seen = {};
+    var duplicates = [];
+
+    allTestFiles.forEach(function(file) {
+      var fullPath = path.join(ROOT, file);
+      if (!fs.existsSync(fullPath)) return;
+      var content = fs.readFileSync(fullPath, 'utf8');
+      var lines = content.split('\n');
+
+      lines.forEach(function(line, idx) {
+        var lineNum = idx + 1;
+        var trimmed = line.trim();
+
+        // Only track TOP-LEVEL declarations (no leading whitespace).
+        // Indented declarations are inside function bodies or blocks and
+        // are locally scoped — they do NOT cause global duplicate errors.
+        if (line.length > 0 && (line[0] === ' ' || line[0] === '\t')) return;
+
+        // Skip comment lines and empty lines
+        if (trimmed.indexOf('//') === 0 || trimmed.indexOf('/*') === 0 || trimmed === '') return;
+
+        var match;
+        if ((match = trimmed.match(/^(?:const|let|var)\s+(\w+)\s*=/))) {
+          var name = match[1];
+          if (seen[name]) {
+            duplicates.push(name + ' — "' + seen[name].file + ':' + seen[name].line + '" and "' + file + ':' + lineNum + '"');
+          } else {
+            seen[name] = { file: file, line: lineNum };
+          }
+        } else if ((match = trimmed.match(/^(?:async\s+)?function\s+(\w+)\s*\(/))) {
+          var name = match[1];
+          if (seen[name]) {
+            duplicates.push(name + ' — "' + seen[name].file + ':' + seen[name].line + '" and "' + file + ':' + lineNum + '"');
+          } else {
+            seen[name] = { file: file, line: lineNum };
+          }
+        }
+      });
+    });
+
+    assert(duplicates.length === 0,
+      duplicates.length + ' duplicate declaration(s) found:\n' +
+      duplicates.map(function(d) { return '      ' + d; }).join('\n'));
+  });
+
+  test('No duplicate declarations within individual data files', () => {
+    var intraFileIssues = [];
+
+    dataFiles.forEach(function(file) {
+      var fullPath = path.join(ROOT, file);
+      if (!fs.existsSync(fullPath)) return;
+      var content = fs.readFileSync(fullPath, 'utf8');
+      var lines = content.split('\n');
+      var seenInFile = {};
+
+      lines.forEach(function(line, idx) {
+        var lineNum = idx + 1;
+        var trimmed = line.trim();
+
+        // Only track TOP-LEVEL declarations
+        if (line.length > 0 && (line[0] === ' ' || line[0] === '\t')) return;
+
+        if (trimmed.indexOf('//') === 0 || trimmed.indexOf('/*') === 0 || trimmed === '') return;
+
+        var match;
+        if ((match = trimmed.match(/^(?:const|let|var)\s+(\w+)\s*=/))) {
+          var name = match[1];
+          if (seenInFile[name] !== undefined) {
+            intraFileIssues.push(file + ':' + lineNum + ' — "' + name + '" already declared at line ' + seenInFile[name]);
+          } else {
+            seenInFile[name] = lineNum;
+          }
+        } else if ((match = trimmed.match(/^(?:async\s+)?function\s+(\w+)\s*\(/))) {
+          var name = match[1];
+          if (seenInFile[name] !== undefined) {
+            intraFileIssues.push(file + ':' + lineNum + ' — "' + name + '" already declared at line ' + seenInFile[name]);
+          } else {
+            seenInFile[name] = lineNum;
+          }
+        }
+      });
+    });
+
+    assert(intraFileIssues.length === 0,
+      intraFileIssues.length + ' intra-file duplicate(s):\n' +
+      intraFileIssues.map(function(i) { return '      ' + i; }).join('\n'));
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 9: Build Pipeline
 // ═══════════════════════════════════════════════════════════════
 
 if (!SKIP_BUILD) {

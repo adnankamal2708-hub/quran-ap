@@ -194,32 +194,6 @@ function filterByCategory(words, category) {
 }
 
 /**
- * Filter words by difficulty level (1-5).
- */
-function filterByDifficulty(words, difficulty) {
-  if (!difficulty) return words;
-  return words.filter(function (w) { return w.difficulty === difficulty; });
-}
-
-/**
- * Filter words by Surah ID.
- */
-function filterBySurah(words, surahId) {
-  if (!surahId || surahId === 'all') return words;
-  return words.filter(function (w) { return w.surahId === surahId; });
-}
-
-/**
- * Filter words by tag.
- */
-function filterByTag(words, tag) {
-  if (!tag || tag === 'all') return words;
-  return words.filter(function (w) {
-    return (w.tags || []).indexOf(tag) >= 0;
-  });
-}
-
-/**
  * Filter words by SRS learning status using the enhanced SRS engine.
  * statusFilter: 'new', 'learning', 'mastered', 'all'
  */
@@ -334,31 +308,6 @@ function shuffleArray(arr) {
     a[j] = tmp;
   }
   return a;
-}
-
-/**
- * Get all unique tags across the vocabulary.
- */
-function getAllTags() {
-  var tags = {};
-  ALL_WORDS.forEach(function (w) {
-    (w.tags || []).forEach(function (t) { tags[t] = true; });
-  });
-  return Object.keys(tags).sort();
-}
-
-/**
- * Get all unique type categories with labels.
- */
-function getTypeCategories() {
-  return TYPE_CATEGORIES;
-}
-
-/**
- * Get stats summary of the vocabulary (uses enhanced SRS engine).
- */
-function getVocabularyStats() {
-  return getSRSStats();
 }
 
 // ── Favorites (bookmarks) ──────────────────────────────────────

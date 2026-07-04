@@ -119,8 +119,84 @@ function minifyHTML(html) {
     .trim();
 }
 
+// ── Duplicate Declaration Validation ────────────────────────────
+// Scans all source JS files before building to detect duplicate
+// `const`, `let`, `var`, or `function` declarations at the top level.
+// Fails fast with a clear report — this prevents the exact class of
+// error that previously blocked the entire application from loading.
+// ────────────────────────────────────────────────────────────────
+
+function validateNoDuplicateDeclarations() {
+  var allFiles = DATA_FILES.concat(APP_FILES);
+  var seen = {};  // name → { firstFile, firstLine }
+  var duplicates = [];
+
+  allFiles.forEach(function (file) {
+    var content = readFile(file);
+    if (!content) return;
+    var lines = content.split('\n');
+
+    lines.forEach(function (line, idx) {
+      var lineNum = idx + 1;
+      var trimmed = line.trim();
+
+      // Only track TOP-LEVEL declarations (no leading whitespace).
+      // Indented declarations are inside function bodies or blocks and
+      // are locally scoped — they do NOT cause global duplicate errors
+      // when concatenated into bundles.
+      if (line.length > 0 && (line[0] === ' ' || line[0] === '\t')) return;
+
+      // Skip comment lines and empty lines
+      if (trimmed.indexOf('//') === 0 || trimmed.indexOf('/*') === 0 || trimmed === '') return;
+
+      // Match top-level declarations on their own line
+      var match;
+      if ((match = trimmed.match(/^(?:const|let|var)\s+(\w+)\s*=/))) {
+        checkDeclaration(match[1], file, lineNum);
+      } else if ((match = trimmed.match(/^(?:async\s+)?function\s+(\w+)\s*\(/))) {
+        checkDeclaration(match[1], file, lineNum);
+      }
+    });
+  });
+
+  function checkDeclaration(name, file, lineNum) {
+    if (seen[name]) {
+      duplicates.push({
+        name: name,
+        firstFile: seen[name].file,
+        firstLine: seen[name].line,
+        secondFile: file,
+        secondLine: lineNum,
+      });
+    } else {
+      seen[name] = { file: file, line: lineNum };
+    }
+  }
+
+  if (duplicates.length > 0) {
+    console.error('');
+    console.error('  ✗ DUPLICATE DECLARATION' + (duplicates.length > 1 ? 'S' : '') + ' FOUND — Build aborted.\n');
+    duplicates.forEach(function (d) {
+      console.error('    "' + d.name + '" declared in:');
+      console.error('      • ' + d.firstFile + ':' + d.firstLine);
+      console.error('      • ' + d.secondFile + ':' + d.secondLine);
+    });
+    console.error('');
+    console.error('  Duplicate const/let/var/function declarations cause JavaScript parse errors');
+    console.error('  that can block the entire application from loading. Remove or rename the');
+    console.error('  duplicate(s) before building.\n');
+    process.exit(1);
+  }
+
+  console.log('  ✓ No duplicate declarations across ' + allFiles.length + ' JS files.');
+}
+
 async function build() {
   console.log('\n  Building Quranic Vocabulary — Production Build\n');
+
+  // 0. Validate no duplicate declarations before building
+  console.log('  0. Validating source files for duplicate declarations...');
+  validateNoDuplicateDeclarations();
 
   // Clean dist — handle locked directories gracefully
   if (fs.existsSync(DIST)) {

@@ -43,8 +43,6 @@
 //   bookmarked     — Default bookmark state (false)
 // ═══════════════════════════════════════════════════════════════
 
-/** Number of words shown per study session (legacy — kept for backward compat) */
-const SESSION_SIZE = 20;
 
 /** Words per lesson */
 const WORDS_PER_LESSON = 10;

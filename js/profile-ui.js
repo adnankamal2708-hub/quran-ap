@@ -323,11 +323,6 @@ async function saveSettingsChanges() {
   try {
     await saveProfile(user.uid, { settings: newSettings });
 
-    // Apply settings locally
-    if (typeof SESSION_SIZE !== 'undefined') {
-      // Note: session size takes effect next time the app loads
-    }
-
     if (successEl) {
       successEl.textContent = 'Settings saved. Some changes take effect after reload.';
       successEl.style.display = 'block';
