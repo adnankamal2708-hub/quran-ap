@@ -122,11 +122,21 @@ function minifyHTML(html) {
 async function build() {
   console.log('\n  Building Quranic Vocabulary — Production Build\n');
 
-  // Clean dist
+  // Clean dist — handle locked directories gracefully
   if (fs.existsSync(DIST)) {
-    fs.rmSync(DIST, { recursive: true, force: true });
+    try {
+      fs.rmSync(DIST, { recursive: true, force: true });
+    } catch (e) {
+      console.log('  ℹ Could not remove dist/ directory (may be locked by another process). Writing files directly.');
+      // Remove individual files inside dist to avoid directory-level lock issues
+      if (fs.existsSync(path.join(DIST, 'js'))) {
+        try { fs.rmSync(path.join(DIST, 'js'), { recursive: true, force: true }); } catch (e2) { /* skip */ }
+      }
+    }
   }
-  fs.mkdirSync(path.join(DIST, 'js'), { recursive: true });
+  if (!fs.existsSync(DIST)) fs.mkdirSync(DIST, { recursive: true });
+  if (!fs.existsSync(path.join(DIST, 'js'))) fs.mkdirSync(path.join(DIST, 'js'), { recursive: true });
+  if (!fs.existsSync(path.join(DIST, 'js', 'services'))) fs.mkdirSync(path.join(DIST, 'js', 'services'), { recursive: true });
 
   // 1. Concat data files
   console.log('  1. Concatenating data files (' + DATA_FILES.length + ' files)...');

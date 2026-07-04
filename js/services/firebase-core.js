@@ -37,8 +37,9 @@ import {
 
 // ── Firebase Firestore ─────────────────────────────────────────
 import {
-  getFirestore,
-  enableMultiTabIndexedDbPersistence,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   connectFirestoreEmulator,
   doc,
   getDoc,
@@ -67,15 +68,12 @@ function initCore() {
     const existingApps = getApps();
     app = existingApps.length > 0 ? existingApps[0] : initializeApp(FIREBASE_CONFIG);
     auth = getAuth(app);
-    db = getFirestore(app);
-
-    // Enable offline persistence (multi-tab) — non-blocking, fire-and-forget
-    enableMultiTabIndexedDbPersistence(db).catch(function (err) {
-      if (err.code === 'failed-precondition') {
-        console.warn('[firebase] Multi-tab persistence unavailable — another tab is open.');
-      } else if (err.code === 'unimplemented') {
-        console.warn('[firebase] Browser does not support persistence.');
-      }
+    // Initialize Firestore with multi-tab offline persistence via FirestoreSettings.cache
+    // (replaces the deprecated enableMultiTabIndexedDbPersistence())
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
     });
 
     _initialized = true;
@@ -157,7 +155,9 @@ window.__firebaseCore = {
   setDoc: setDoc,
   deleteDoc: deleteDoc,
   serverTimestamp: serverTimestamp,
-  enableMultiTabIndexedDbPersistence: enableMultiTabIndexedDbPersistence,
+  // NOTE: enableMultiTabIndexedDbPersistence is deprecated in v12.
+  // Persistence is now configured via initializeFirestore({ localCache: ... }).
+  // The legacy function is no longer exported.
 };
 
 console.log('[firebase] Core module loaded. Firebase v12 APIs attached to window.__firebaseCore.');

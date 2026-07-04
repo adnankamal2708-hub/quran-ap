@@ -102,7 +102,8 @@ self.addEventListener('fetch', function (event) {
           if (
             networkResponse &&
             networkResponse.status === 200 &&
-            !event.request.url.includes('chrome-extension')
+            !event.request.url.includes('chrome-extension') &&
+            event.request.method === 'GET'
           ) {
             var responseToCache = networkResponse.clone();
             cache.put(event.request, responseToCache);

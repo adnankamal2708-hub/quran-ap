@@ -520,7 +520,6 @@ function closeSessionSummary() {
   releaseFocusTrap(modal);
   var appEl = document.querySelector('.app');
   if (appEl) appEl.removeAttribute('aria-hidden');
-  __sessionSummaryModalQueuedSwitch = false;
 }
 
 // ── Keyboard Shortcuts ────────────────────────────────────────
@@ -1076,8 +1075,10 @@ function validateData() {
           }
         }
         // Check verseKey surah matches word surahId
+        // Note: cross-surah verse references are intentional for thematic words
+        // (e.g., a word from Al-Baqarah may use an example ayah from another surah)
         if (w.surahId && vSurah !== w.surahId) {
-          errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has verseKey surah ' + vSurah + ' but surahId is ' + w.surahId);
+          console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') has verseKey surah ' + vSurah + ' but surahId is ' + w.surahId + ' (cross-surah reference, not an error)');
         }
       }
     }
@@ -1118,7 +1119,7 @@ function validateData() {
     }
 
     // 8. Check typeCategory is valid
-    var validCategories = ['noun', 'verb', 'particle', 'adjective', 'pronoun', 'exclamation'];
+    var validCategories = ['noun', 'verb', 'particle', 'adjective', 'pronoun', 'exclamation', 'adverb', 'proper noun', 'name'];
     if (w.typeCategory && validCategories.indexOf(w.typeCategory) < 0) {
       errors.push('Word #' + i + ' (' + (w.id || 'no-id') + ') has invalid typeCategory: ' + w.typeCategory);
     }

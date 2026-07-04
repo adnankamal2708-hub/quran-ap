@@ -1268,28 +1268,6 @@ function renderQuizQuestion(currentWordObj, allWords) {
 }
 
 /**
- * Show quiz completion feedback.
- */
-function renderQuizCompletion(score, total) {
-  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-  document.getElementById('quiz-word').textContent = '\uD83C\uDF89';
-  document.getElementById('quiz-options').innerHTML = '';
-  const feedback = document.getElementById('quiz-feedback');
-  const msg = pct >= 80 ? 'Excellent, mashAllah!' : pct >= 60 ? 'Good effort \u2014 review the harder ones.' : "Keep going, you'll get there!";
-  feedback.textContent = 'Done! ' + pct + '% \u2014 ' + msg;
-  feedback.style.color = 'var(--gold)';
-  document.getElementById('btn-next-quiz').style.display = 'none';
-}
-
-/**
- * Update the quiz score display.
- */
-function updateQuizScoreDisplay(correct, total) {
-  document.getElementById('stat-score').textContent = total > 0 ? Math.round((correct / total) * 100) + '%' : '\u2014';
-  document.getElementById('quiz-score-display').textContent = correct + '/' + total + ' correct';
-}
-
-/**
  * Navigate to a word in the learn view.
  * Supports both lesson mode and surah mode.
  */
