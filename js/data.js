@@ -524,10 +524,6 @@ function getAllFoundationWords() {
   }).filter(Boolean);
 }
 
-// ── Foundation Course Progress Tracking (localStorage) ────────
-
-const FOUNDATION_PROGRESS_KEY = 'quran_foundation_progress';
-
 // ── Foundation Course Coverage & Analytics ─────────────────────
 // These functions compute Quran reading coverage, milestones,
 // surah comprehension, and other analytics from canonical words
@@ -926,9 +922,6 @@ function createLessonSummary(lessonIndex, quizCorrect, quizTotal, timeStudiedMs)
   };
 }
 
-// ── Foundation Course Progress Tracking (localStorage) ────────
-
-const FOUNDATION_PROGRESS_KEY = 'quran_foundation_progress';
 
 function isFoundationLessonCompleted(lessonIndex) {
   var progress = loadFoundationProgress();
