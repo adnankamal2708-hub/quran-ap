@@ -89,12 +89,12 @@ function renderWordCard(w, currentIndex, total, isReview) {
       var si = SURAH_INFO[occ.surahId];
       var verseRef = occ.verseKey ? occ.verseKey.split(':')[1] : '';
       var occLabel = occCount > 1 ? ' (' + (_currentOccurrenceIdx + 1) + '/' + occCount + ')' : '';
-      surahBadge.textContent = '📖 ' + (si ? si.name : 'Surah ' + occ.surahId) + (verseRef ? ' · Verse ' + verseRef : '') + occLabel;
+      surahBadge.textContent = '\uD83D\uDCD6 ' + (si ? si.name : 'Surah ' + occ.surahId) + (verseRef ? ' \u00B7 Verse ' + verseRef : '') + occLabel;
       surahBadge.style.display = 'block';
     } else if (w.surahIds && w.surahIds.length > 0 && SURAH_INFO) {
       // Fallback: show first surah this word appears in
       var firstSurah = SURAH_INFO[w.surahIds[0]];
-      surahBadge.textContent = '📖 ' + (firstSurah ? firstSurah.name : 'Surah ' + w.surahIds[0]);
+      surahBadge.textContent = '\uD83D\uDCD6 ' + (firstSurah ? firstSurah.name : 'Surah ' + w.surahIds[0]);
       surahBadge.style.display = 'block';
     } else {
       surahBadge.style.display = 'none';
@@ -385,7 +385,7 @@ function renderSemanticGroups(w) {
       d.className = 'semantic-group-chip';
       d.innerHTML =
         '<div class="semantic-group-name">' + sg.group + '</div>' +
-        '<div class="semantic-group-info">' + sg.count + ' words · e.g. ' + sg.sampleWords.join(', ') + '</div>';
+        '<div class="semantic-group-info">' + sg.count + ' words \u00B7 e.g. ' + sg.sampleWords.join(', ') + '</div>';
       list.appendChild(d);
     });
   } else {
@@ -412,7 +412,7 @@ function renderConfusedWith(w) {
       d.setAttribute('role', 'button');
       d.setAttribute('tabindex', '0');
       d.setAttribute('aria-label', 'Confused with: ' + cw.arabic + ' - ' + cw.english + ' (' + cw.similarity + ' ' + cw.reason + ')');
-      var icon = cw.similarity === 'high' ? '🔴' : '🟡';
+      var icon = cw.similarity === 'high' ? '\uD83D\uDD34' : '\uD83D\uDFE1';
       d.innerHTML =
         '<span class="word-network-chip-arabic">' + cw.arabic + '</span>' +
         '<span class="word-network-chip-eng">' + cw.english + '</span>' +
@@ -798,6 +798,8 @@ function renderWordList() {
   container.appendChild(fragment);
 }
 
+
+
 /**
  * Render the statistics dashboard.
  */
@@ -880,10 +882,10 @@ function renderStats() {
   if (stageContainer) {
     stageContainer.innerHTML = '';
     var stageLabels = [
-      { key: 'newCount', label: '\uD83C\uDD95 New', color: 'var(--blue)' },
-      { key: 'learning', label: '\uD83D\uDD0D Learning', color: 'var(--purple)' },
-      { key: 'young', label: '\uD83C\uDF31 Young', color: 'var(--gold-dim)' },
-      { key: 'mature', label: '\uD83D\uDCA1 Mature', color: 'var(--green)' },
+      { key: 'newCount', label: '\uD83C\uDD95 New', color: 'var(--blue)', filterStatus: 'new' },
+      { key: 'learning', label: '\uD83D\uDD0D Learning', color: 'var(--purple)', filterStatus: 'learning' },
+      { key: 'young', label: '\uD83C\uDF31 Young', color: 'var(--gold-dim)', filterStatus: 'mastered' },
+      { key: 'mature', label: '\uD83D\uDCA1 Mature', color: 'var(--green)', filterStatus: 'mastered' },
     ];
     for (var si = 0; si < stageLabels.length; si++) {
       var sl = stageLabels[si];
@@ -891,198 +893,218 @@ function renderStats() {
       if (count === 0) continue;
       var pct = Math.round((count / totalWords) * 100);
       var row = document.createElement('div');
-      row.className = 'stats-bar-row';
+      row.className = 'stats-bar-row clickable-stats-row';
+      row.setAttribute('tabindex', '0');
+      row.setAttribute('role', 'button');
+      row.setAttribute('aria-label', 'View ' + sl.label.toLowerCase() + ' words');
       row.innerHTML =
         '<span class="stats-bar-label" style="color:' + sl.color + '">' + sl.label + '</span>' +
         '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + pct + '%;background:' + sl.color + '"></div></div>' +
         '<span class="stats-bar-value">' + count + '</span>';
+      row.onclick = function() {
+        switchView('list');
+      };
+      row.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          switchView('list');
+        }
+      };
       stageContainer.appendChild(row);
     }
-  }        // Foundation Course Progress section
-        var foundationStatsContainer = DOM.get('stats-foundation');
-        if (foundationStatsContainer) {
-          var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
-          var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
-          
-          foundationStatsContainer.innerHTML = '';
-          
-          if (fTotal > 0) {
-            // Progress bar
-            var fPct = Math.round((fCompleted / fTotal) * 100);
-            var row = document.createElement('div');
-            row.className = 'stats-bar-row';
-            var color = fCompleted === fTotal ? 'var(--green)' : 'var(--gold)';
-            row.innerHTML =
-              '<span class="stats-bar-label" style="color:' + color + '">📘 Foundation</span>' +
-              '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + fPct + '%;background:' + color + '"></div></div>' +
-              '<span class="stats-bar-value">' + fCompleted + '/' + fTotal + '</span>';
-            foundationStatsContainer.appendChild(row);
-            
-            // Coverage metrics using the new analytics engine
-            var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-            var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
-            
-            if (coverage && foundCov) {
-              // Quran Reading Coverage (PRIMARY METRIC)
-              var covRow1 = document.createElement('div');
-              covRow1.className = 'stats-bar-row';
-              covRow1.innerHTML = '<span style="font-size:11px;color:var(--green);font-weight:500;padding:2px 0">📖 Quran Reading Coverage: ' + coverage.coveragePercent + '%</span>';
-              foundationStatsContainer.appendChild(covRow1);
-              
-              // Estimated reading comprehension
-              var compRow = document.createElement('div');
-              compRow.className = 'stats-bar-row';
-              compRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">🧠 Estimated comprehension: ' + coverage.estimatedComprehension + '%</span>';
-              foundationStatsContainer.appendChild(compRow);
-              
-              // Words mastered / total & occurrences covered
-              var statsRow = document.createElement('div');
-              statsRow.className = 'stats-bar-row';
-              statsRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">✓ ' + coverage.masteredWords + ' of ' + coverage.totalWords + ' words · ' + coverage.masteredOccurrences.toLocaleString() + ' of ' + coverage.totalOccurrences.toLocaleString() + ' occurrences</span>';
-              foundationStatsContainer.appendChild(statsRow);
-              
-              // Milestone status
-              var ms = typeof getMilestoneStatus === 'function' ? getMilestoneStatus(coverage.coveragePercent) : null;
-              if (ms && ms.currentMilestone) {
-                var msRow = document.createElement('div');
-                msRow.className = 'stats-bar-row';
-                msRow.innerHTML = '<span style="font-size:11px;color:var(--gold);padding:4px 0">' + ms.currentMilestone.icon + ' Milestone: ' + ms.currentMilestone.label + '</span>';
-                foundationStatsContainer.appendChild(msRow);
-                
-                // Milestone progress detail
-                var insightRow = document.createElement('div');
-                insightRow.className = 'stats-bar-row';
-                insightRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);font-style:italic;padding:2px 0">' + ms.currentMilestone.insight + '</span>';
-                foundationStatsContainer.appendChild(insightRow);
-              }
-              
-              // Next milestone info
-              if (ms && ms.nextMilestone) {
-                var nextMsRow = document.createElement('div');
-                nextMsRow.className = 'stats-bar-row';
-                nextMsRow.innerHTML = '<span style="font-size:10px;color:var(--gold-dim);padding:2px 0">🎯 Next: ' + ms.nextMilestone.label + ' (' + ms.nextMilestone.pct + '%) — ~' + ms.wordsToNextMilestone + ' words, ~' + ms.lessonsToNextMilestone + ' lessons</span>';
-                foundationStatsContainer.appendChild(nextMsRow);
-              }
-              
-              // Root family mastery
-              var roots = typeof getRootFamilyMastery === 'function' ? getRootFamilyMastery() : null;
-              if (roots) {
-                var rootsRow = document.createElement('div');
-                rootsRow.className = 'stats-bar-row';
-                rootsRow.innerHTML = '<span style="font-size:10px;color:var(--purple);padding:2px 0">🌱 Roots mastered: ' + roots.fullyMasteredRoots + '/' + roots.totalRoots + ' (' + (roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0) + '%)</span>';
-                foundationStatsContainer.appendChild(rootsRow);
-              }
-              
-              // Foundation-specific coverage
-              if (fCompleted > 0) {
-                var fCovRow = document.createElement('div');
-                fCovRow.className = 'stats-bar-row';
-                fCovRow.innerHTML = '<span style="font-size:10px;color:var(--green);padding:2px 0">📘 Foundation coverage: ' + foundCov.foundationCoveragePercent + '% of Quran (' + foundCov.masteredFoundationWords + '/' + foundCov.totalFoundationWords + ' words)</span>';
-                foundationStatsContainer.appendChild(fCovRow);
-              }
-            }
-            
-            // Next lesson info
-            if (fCompleted < fTotal) {
-              var nextLesson = typeof getNextIncompleteFoundationLesson === 'function' ? getNextIncompleteFoundationLesson() : 0;
-              var covRow = document.createElement('div');
-              covRow.className = 'stats-bar-row';
-              var fLesson = FOUNDATION_LESSONS && FOUNDATION_LESSONS[nextLesson] ? FOUNDATION_LESSONS[nextLesson] : null;
-              var coverageText = fLesson ? 'Next: Foundation ' + (nextLesson + 1) + ' (+' + fLesson.lessonCoverage + ')' : '';
-              covRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:4px 0">📖 ' + coverageText + '</span>';
-              foundationStatsContainer.appendChild(covRow);
-            } else {
-              var covRow = document.createElement('div');
-              covRow.className = 'stats-bar-row';
-              covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">🎉 Foundation Course Complete! ~' + (typeof getFoundationCoverage === 'function' ? getFoundationCoverage().foundationCoveragePercent : '84') + '% Quran coverage</span>';
-              foundationStatsContainer.appendChild(covRow);
-            }
-          } else {
-            foundationStatsContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Foundation Course not available</div>';
-          }
-        }
+  }
 
-        // Surah Comprehension section
-        var surahCompContainer = DOM.get('stats-surah-comprehension');
-        if (surahCompContainer && typeof getAllSurahComprehension === 'function') {
-          var allComp = getAllSurahComprehension();
-          surahCompContainer.innerHTML = '';
-          
-          if (allComp.length > 0) {
-            // Sort by comprehension ascending (lowest first — most impactful to study)
-            allComp.sort(function(a, b) {
-              return a.estimatedComprehension - b.estimatedComprehension;
-            });
-            
-            // Show top 10 most-impactful surahs (lowest comprehension)
-            var displayCount = Math.min(10, allComp.length);
-            for (var sci = 0; sci < displayCount; sci++) {
-              var sc = allComp[sci];
-              var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(sc.surahId) : null;
-              var surahName = surahInfo ? surahInfo.name : 'Surah ' + sc.surahId;
-              var color = sc.estimatedComprehension >= 80 ? 'var(--green)' : 
-                         sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)';
-              
-              var row = document.createElement('div');
-              row.className = 'stats-bar-row';
-              row.innerHTML =
-                '<span class="stats-bar-label" style="font-size:10px;min-width:80px">' + sc.surahId + '. ' + surahName + '</span>' +
-                '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + sc.estimatedComprehension + '%;background:' + color + '"></div></div>' +
-                '<span class="stats-bar-value" style="font-size:10px;min-width:40px">' + sc.estimatedComprehension + '%</span>';
-              surahCompContainer.appendChild(row);
-            }
-            
-            if (allComp.length > displayCount) {
-              var moreRow = document.createElement('div');
-              moreRow.className = 'stats-bar-row';
-              moreRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);padding:4px 0">+' + (allComp.length - displayCount) + ' more surahs</span>';
-              surahCompContainer.appendChild(moreRow);
-            }
-          } else {
-            surahCompContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Study words to see surah comprehension</div>';
-          }
+  // Foundation Course Progress section
+  var foundationStatsContainer = DOM.get('stats-foundation');
+  if (foundationStatsContainer) {
+    var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+    var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+    foundationStatsContainer.innerHTML = '';
+    if (fTotal > 0) {
+      var fPct = Math.round((fCompleted / fTotal) * 100);
+      var row = document.createElement('div');
+      row.className = 'stats-bar-row clickable-stats-row';
+      row.setAttribute('tabindex', '0');
+      row.setAttribute('role', 'button');
+      row.setAttribute('aria-label', 'Continue Foundation Course');
+      var color = fCompleted === fTotal ? 'var(--green)' : 'var(--gold)';
+      row.innerHTML =
+        '<span class="stats-bar-label" style="color:' + color + '">📘 Foundation</span>' +
+        '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + fPct + '%;background:' + color + '"></div></div>' +
+        '<span class="stats-bar-value">' + fCompleted + '/' + fTotal + '</span>';
+      row.onclick = function() {
+        if (typeof goToFoundationLesson === 'function') {
+          goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
         }
-
-        // Relationship Coverage section
-        var relStatsContainer = DOM.get('stats-relationships');
-        if (relStatsContainer && typeof getRelationshipStats === 'function') {
-          var relStats = getRelationshipStats();
-          relStatsContainer.innerHTML = '';
-          var relItems = [
-            { label: 'Derived Forms', value: relStats.wordsWithDerivedForms + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithDerivedForms / relStats.totalWords) * 100) : 0, color: 'var(--blue)' },
-            { label: 'Semantic Groups', value: relStats.wordsWithSemanticGroups + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithSemanticGroups / relStats.totalWords) * 100) : 0, color: 'var(--purple)' },
-            { label: 'Confused With', value: relStats.wordsWithConfusedWith + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithConfusedWith / relStats.totalWords) * 100) : 0, color: 'var(--gold-dim)' },
-            { label: 'Contextual Equivs', value: relStats.wordsWithContextualEquivalents + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithContextualEquivalents / relStats.totalWords) * 100) : 0, color: 'var(--green)' },
-            { label: 'Morph. Relations', value: relStats.wordsWithMorphRelations + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithMorphRelations / relStats.totalWords) * 100) : 0, color: 'var(--pink)' },
-            { label: 'Related Words', value: relStats.wordsWithRelatedWords + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithRelatedWords / relStats.totalWords) * 100) : 0, color: 'var(--gold)' },
-          ];
-          for (var ri = 0; ri < relItems.length; ri++) {
-            var item = relItems[ri];
-            if (item.value === '0/0') continue;
-            var row = document.createElement('div');
-            row.className = 'stats-bar-row';
-            row.innerHTML =
-              '<span class="stats-bar-label">' + item.label + '</span>' +
-              '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + item.pct + '%;background:' + item.color + '"></div></div>' +
-              '<span class="stats-bar-value">' + item.value + '</span>';
-            relStatsContainer.appendChild(row);
-          }
+      };
+      row.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); row.onclick(); }
+      };
+      foundationStatsContainer.appendChild(row);
+      var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+      var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
+      if (coverage && foundCov) {
+        var covRow1 = document.createElement('div');
+        covRow1.className = 'stats-bar-row';
+        covRow1.innerHTML = '<span style="font-size:11px;color:var(--green);font-weight:500;padding:2px 0">📖 Quran Reading Coverage: ' + coverage.coveragePercent + '%</span>';
+        foundationStatsContainer.appendChild(covRow1);
+        var compRow = document.createElement('div');
+        compRow.className = 'stats-bar-row';
+        compRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">🧠 Estimated comprehension: ' + coverage.estimatedComprehension + '%</span>';
+        foundationStatsContainer.appendChild(compRow);
+        var statsRow = document.createElement('div');
+        statsRow.className = 'stats-bar-row';
+        statsRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">✓ ' + coverage.masteredWords + ' of ' + coverage.totalWords + ' words · ' + coverage.masteredOccurrences.toLocaleString() + ' of ' + coverage.totalOccurrences.toLocaleString() + ' occurrences</span>';
+        foundationStatsContainer.appendChild(statsRow);
+        var ms = typeof getMilestoneStatus === 'function' ? getMilestoneStatus(coverage.coveragePercent) : null;
+        if (ms && ms.currentMilestone) {
+          var msRow = document.createElement('div');
+          msRow.className = 'stats-bar-row';
+          msRow.innerHTML = '<span style="font-size:11px;color:var(--gold);padding:4px 0">' + ms.currentMilestone.icon + ' Milestone: ' + ms.currentMilestone.label + '</span>';
+          foundationStatsContainer.appendChild(msRow);
+          var insightRow = document.createElement('div');
+          insightRow.className = 'stats-bar-row';
+          insightRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);font-style:italic;padding:2px 0">' + ms.currentMilestone.insight + '</span>';
+          foundationStatsContainer.appendChild(insightRow);
         }
+        if (ms && ms.nextMilestone) {
+          var nextMsRow = document.createElement('div');
+          nextMsRow.className = 'stats-bar-row';
+          nextMsRow.innerHTML = '<span style="font-size:10px;color:var(--gold-dim);padding:2px 0">🎯 Next: ' + ms.nextMilestone.label + ' (' + ms.nextMilestone.pct + '%) — ~' + ms.wordsToNextMilestone + ' words, ~' + ms.lessonsToNextMilestone + ' lessons</span>';
+          foundationStatsContainer.appendChild(nextMsRow);
+        }
+        var roots = typeof getRootFamilyMastery === 'function' ? getRootFamilyMastery() : null;
+        if (roots) {
+          var rootsRow = document.createElement('div');
+          rootsRow.className = 'stats-bar-row';
+          rootsRow.innerHTML = '<span style="font-size:10px;color:var(--purple);padding:2px 0">🌱 Roots mastered: ' + roots.fullyMasteredRoots + '/' + roots.totalRoots + ' (' + (roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0) + '%)</span>';
+          foundationStatsContainer.appendChild(rootsRow);
+        }
+        if (fCompleted > 0) {
+          var fCovRow = document.createElement('div');
+          fCovRow.className = 'stats-bar-row';
+          fCovRow.innerHTML = '<span style="font-size:10px;color:var(--green);padding:2px 0">📘 Foundation coverage: ' + foundCov.foundationCoveragePercent + '% of Quran (' + foundCov.masteredFoundationWords + '/' + foundCov.totalFoundationWords + ' words)</span>';
+          foundationStatsContainer.appendChild(fCovRow);
+        }
+      }
+      if (fCompleted < fTotal) {
+        var nextLesson = typeof getNextIncompleteFoundationLesson === 'function' ? getNextIncompleteFoundationLesson() : 0;
+        var covRow = document.createElement('div');
+        covRow.className = 'stats-bar-row';
+        var fLesson = FOUNDATION_LESSONS && FOUNDATION_LESSONS[nextLesson] ? FOUNDATION_LESSONS[nextLesson] : null;
+        var coverageText = fLesson ? 'Next: Foundation ' + (nextLesson + 1) + ' (+' + fLesson.lessonCoverage + ')' : '';
+        covRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:4px 0">📖 ' + coverageText + '</span>';
+        foundationStatsContainer.appendChild(covRow);
+      } else {
+        var covRow = document.createElement('div');
+        covRow.className = 'stats-bar-row';
+        covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">🎉 Foundation Course Complete! ~' + (typeof getFoundationCoverage === 'function' ? getFoundationCoverage().foundationCoveragePercent : '84') + '% Quran coverage</span>';
+        foundationStatsContainer.appendChild(covRow);
+      }
+    } else {
+      foundationStatsContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Foundation Course not available</div>';
+    }
+  }
 
-        // SRS Health section
-        var healthContainer = DOM.get('stats-health');
-        if (healthContainer) {
-          healthContainer.innerHTML = '';
-          var healthItems = [
+  // Surah Comprehension section
+  var surahCompContainer = DOM.get('stats-surah-comprehension');
+  if (surahCompContainer && typeof getAllSurahComprehension === 'function') {
+    var allComp = getAllSurahComprehension();
+    surahCompContainer.innerHTML = '';
+    if (allComp.length > 0) {
+      allComp.sort(function(a, b) {
+        return a.estimatedComprehension - b.estimatedComprehension;
+      });
+      var displayCount = Math.min(10, allComp.length);
+      for (var sci = 0; sci < displayCount; sci++) {
+        var sc = allComp[sci];
+        var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(sc.surahId) : null;
+        var surahName = surahInfo ? surahInfo.name : 'Surah ' + sc.surahId;
+        var color = sc.estimatedComprehension >= 80 ? 'var(--green)' : sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)';
+        var row = document.createElement('div');
+        row.className = 'stats-bar-row clickable-stats-row';
+        row.setAttribute('tabindex', '0');
+        row.setAttribute('role', 'button');
+        row.setAttribute('aria-label', 'Study ' + surahName);
+        row.innerHTML =
+          '<span class="stats-bar-label" style="font-size:10px;min-width:80px">' + sc.surahId + '. ' + surahName + '</span>' +
+          '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + sc.estimatedComprehension + '%;background:' + color + '"></div></div>' +
+          '<span class="stats-bar-value" style="font-size:10px;min-width:40px">' + sc.estimatedComprehension + '%</span>';
+        (function(sid) {
+          row.onclick = function() {
+            if (typeof goToSurah === 'function') {
+              goToSurah(sid);
+            }
+          };
+          row.onkeydown = function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (typeof goToSurah === 'function') goToSurah(sid); }
+          };
+        })(sc.surahId);
+        surahCompContainer.appendChild(row);
+      }
+      if (allComp.length > displayCount) {
+        var moreRow = document.createElement('div');
+        moreRow.className = 'stats-bar-row';
+        moreRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);padding:4px 0">+' + (allComp.length - displayCount) + ' more surahs</span>';
+        surahCompContainer.appendChild(moreRow);
+      }
+    } else {
+      surahCompContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Study words to see surah comprehension</div>';
+    }
+  }
+
+  // Relationship Coverage section
+  var relStatsContainer = DOM.get('stats-relationships');
+  if (relStatsContainer && typeof getRelationshipStats === 'function') {
+    var relStats = getRelationshipStats();
+    relStatsContainer.innerHTML = '';
+    var relItems = [
+      { label: 'Derived Forms', value: relStats.wordsWithDerivedForms + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithDerivedForms / relStats.totalWords) * 100) : 0, color: 'var(--blue)' },
+      { label: 'Semantic Groups', value: relStats.wordsWithSemanticGroups + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithSemanticGroups / relStats.totalWords) * 100) : 0, color: 'var(--purple)' },
+      { label: 'Confused With', value: relStats.wordsWithConfusedWith + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithConfusedWith / relStats.totalWords) * 100) : 0, color: 'var(--gold-dim)' },
+      { label: 'Contextual Equivs', value: relStats.wordsWithContextualEquivalents + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithContextualEquivalents / relStats.totalWords) * 100) : 0, color: 'var(--green)' },
+      { label: 'Morph. Relations', value: relStats.wordsWithMorphRelations + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithMorphRelations / relStats.totalWords) * 100) : 0, color: 'var(--pink)' },
+      { label: 'Related Words', value: relStats.wordsWithRelatedWords + '/' + relStats.totalWords, pct: relStats.totalWords > 0 ? Math.round((relStats.wordsWithRelatedWords / relStats.totalWords) * 100) : 0, color: 'var(--gold)' },
+    ];
+    for (var ri = 0; ri < relItems.length; ri++) {
+      var item = relItems[ri];
+      if (item.value === '0/0') continue;
+      var row = document.createElement('div');
+      row.className = 'stats-bar-row';
+      row.innerHTML =
+        '<span class="stats-bar-label">' + item.label + '</span>' +
+        '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + item.pct + '%;background:' + item.color + '"></div></div>' +
+        '<span class="stats-bar-value">' + item.value + '</span>';
+      relStatsContainer.appendChild(row);
+    }
+  }
+
+  // SRS Health section
+  var healthContainer = DOM.get('stats-health');
+  if (healthContainer) {
+    healthContainer.innerHTML = '';
+    var healthItems = [
       { label: 'Avg Retention', value: srsStats.avgRetention + '%', pct: srsStats.avgRetention, color: 'var(--green)' },
       { label: 'Avg Ease', value: String(srsStats.avgEaseFactor.toFixed(2)), pct: Math.round((srsStats.avgEaseFactor / 3) * 100), color: 'var(--blue)' },
-      { label: 'Overdue', value: srsStats.overdue, pct: srsStats.dueToday > 0 ? Math.round((srsStats.overdue / srsStats.dueToday) * 100) : 0, color: srsStats.overdue > 0 ? 'var(--red)' : 'var(--green)' },
-      { label: 'Reviews Today', value: srsStats.reviewsToday, pct: Math.min(100, Math.round((srsStats.reviewsToday / DAILY_REVIEW_LIMIT) * 100)), color: 'var(--gold)' },
+      { label: 'Overdue', value: srsStats.overdue, pct: srsStats.dueToday > 0 ? Math.round((srsStats.overdue / srsStats.dueToday) * 100) : 0, color: srsStats.overdue > 0 ? 'var(--red)' : 'var(--green)', actionable: srsStats.overdue > 0 },
+      { label: 'Reviews Today', value: srsStats.reviewsToday, pct: Math.min(100, Math.round((srsStats.reviewsToday / DAILY_REVIEW_LIMIT) * 100)), color: 'var(--gold)', actionable: true },
     ];
     for (var hi = 0; hi < healthItems.length; hi++) {
       var item = healthItems[hi];
       var row = document.createElement('div');
-      row.className = 'stats-bar-row';
+      row.className = 'stats-bar-row' + (item.actionable ? ' clickable-stats-row' : '');
+      if (item.actionable) {
+        row.setAttribute('tabindex', '0');
+        row.setAttribute('role', 'button');
+        row.setAttribute('aria-label', 'Start review for ' + item.label.toLowerCase());
+        row.onclick = function() {
+          if (typeof startReview === 'function') startReview();
+          else switchView('learn');
+        };
+        row.onkeydown = function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (typeof startReview === 'function') startReview(); }
+        };
+      }
       row.innerHTML =
         '<span class="stats-bar-label">' + item.label + '</span>' +
         '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + item.pct + '%;background:' + item.color + '"></div></div>' +
@@ -1096,7 +1118,7 @@ function renderStats() {
   if (leechContainer) {
     leechContainer.innerHTML = '';
     if (srsStats.leechCount > 0) {
-      leechContainer.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px 0">\uD83D\uDCA2 ' + srsStats.leechCount + ' leeched word' + (srsStats.leechCount !== 1 ? 's' : '') + ' — consider giving extra attention</div>';
+      leechContainer.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px 0">\uD83D\uDCA2 ' + srsStats.leechCount + ' leeched word' + (srsStats.leechCount !== 1 ? 's' : '') + ' \u2014 consider giving extra attention</div>';
     } else {
       leechContainer.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0">\u2705 No leeched words</div>';
     }
@@ -1104,6 +1126,33 @@ function renderStats() {
 
   // Review forecast
   renderReviewForecast(srsData, now);
+
+  // Wire stat card clicks (inline, not wrapped in a function declaration, to avoid terser scope issues)
+  var _statCards = [
+    { id: 'stat-total', fn: function() { switchView('list'); } },
+    { id: 'stat-mastered', fn: function() {
+      if (typeof getDueReviews === 'function' && getDueReviews().length > 0 && typeof startReview === 'function') {
+        startReview();
+      } else {
+        switchView('learn');
+      }
+    } },
+    { id: 'stat-new-count', fn: function() { switchView('list'); } },
+    { id: 'stat-learning-count', fn: function() {
+      if (typeof getDueReviews === 'function' && getDueReviews().length > 0 && typeof startReview === 'function') {
+        startReview();
+      } else {
+        switchView('learn');
+      }
+    } },
+  ];
+  for (var _si = 0; _si < _statCards.length; _si++) {
+    var _el = document.getElementById(_statCards[_si].id);
+    if (_el) {
+      var _card = _el.closest('.stat-card');
+      if (_card) _card.onclick = _statCards[_si].fn;
+    }
+  }
 }
 
 function createBarRow(label, count, pct) {

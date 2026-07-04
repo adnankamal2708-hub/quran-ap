@@ -1419,8 +1419,6 @@ body::before {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 14px;
-  content-visibility: auto;
-  contain-intrinsic-size: 200px;
 }
 
 .stat-card {
@@ -1578,6 +1576,40 @@ body::before {
   min-width: 35px;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* Clickable stats rows and cards */
+.clickable-stats-row {
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  border-radius: 6px;
+  padding: 2px 4px;
+  margin: 0 -4px;
+}
+.clickable-stats-row:hover {
+  background: rgba(201, 168, 76, 0.05);
+  transform: translateX(3px);
+}
+.clickable-stats-row:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.clickable-stats-row:active {
+  transform: scale(0.99);
+}
+
+/* Clickable stat cards in grid */
+.stat-card {
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.stat-card:hover {
+  border-color: var(--gold-dim) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 16px rgba(201, 168, 76, 0.12) !important;
+}
+.stat-card:active {
+  transform: scale(0.97) !important;
 }
 
 /* ── Goal Ring ──────────────────────────────────────────────── */

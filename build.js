@@ -310,6 +310,11 @@ async function build() {
     /const PRECACHE_URLS = \[[\s\S]*?\];/,
     "const PRECACHE_URLS = [\n  './',\n  './index.html',\n  './styles.min.css',\n  './js/data.bundle.min.js',\n  './js/app.bundle.min.js',\n  './js/services/firebase-core.js',\n  './manifest.json',\n  './favicon.ico',\n];"
   );
+  // Bump cache version so service worker detects changes and replaces old cache
+  sw = sw.replace(
+    /CACHE_NAME = 'quran-vocab-v\d+'/,
+    "CACHE_NAME = 'quran-vocab-v" + Date.now() + "'"
+  );
   writeFile('sw.js', sw);
   writeFile('manifest.json', readFile('manifest.json'));
   writeFile('favicon.ico', readFile('favicon.ico') || '');
