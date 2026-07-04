@@ -473,6 +473,324 @@ function buildFoundationCourse() {
   console.log('[foundation] Built ' + FOUNDATION_LESSONS.length + ' foundation lessons from ' +
     FOUNDATION_WORDS.length + ' words. Covers ' +
     (totalOcc > 0 ? (totalFoundOcc / totalOcc * 100).toFixed(1) : '0') + '% of Quranic occurrences.');
+  
+  // Phase 2: Enrich canonical words with computed metadata using foundation course data
+  enrichCanonicalMetadata(sorted, FOUNDATION_WORDS, totalOcc);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ENRICHED CANONICAL METADATA — Frequency Analytics & Priority
+//
+// After foundation course is built, every canonical word gets:
+//   frequencyRank     — Position when sorted by occ descending (1 = most frequent)
+//   frequencyPercentile — Percentile rank (what % of words are less frequent)
+//   learningPriority    — 1-5 priority based on frequency + difficulty
+//   foundationLessonId  — Foundation lesson index, or -1 if not in foundation
+//   firstOccurrence     — First verse this word appears in
+//   lastOccurrence      — Last verse this word appears in
+//   surahCount          — Number of surahs containing this word
+// ═══════════════════════════════════════════════════════════════
+
+/** Total Quranic occurrences across all canonical words (set during foundation build) */
+let TOTAL_QURAN_OCCURRENCES = 0;
+
+/**
+ * Enrich canonical words with computed metadata.
+ * Called once from buildFoundationCourse() after foundation is built.
+ * Must be called after FOUNDATION_WORDS is populated.
+ */
+function enrichCanonicalMetadata(sortedByFreq, foundationWordIds, totalOcc) {
+  if (!CANONICAL_WORDS || CANONICAL_WORDS.length === 0) return;
+  TOTAL_QURAN_OCCURRENCES = totalOcc;
+  
+  // Build a lookup from canonical ID to foundation lesson index
+  var foundationLessonMap = {};
+  for (var fwi = 0; fwi < foundationWordIds.length; fwi++) {
+    foundationLessonMap[foundationWordIds[fwi]] = Math.floor(fwi / FOUNDATION_WORDS_PER_LESSON);
+  }
+  
+  // Build a sorted-by-frequency index for each canonical word
+  var freqRankMap = {};
+  for (var fi = 0; fi < sortedByFreq.length; fi++) {
+    freqRankMap[sortedByFreq[fi].id] = fi + 1; // 1-based rank
+  }
+  
+  var totalWords = CANONICAL_WORDS.length;
+  
+  for (var ci = 0; ci < totalWords; ci++) {
+    var w = CANONICAL_WORDS[ci];
+    
+    // Frequency rank (1 = most frequent)
+    var rank = freqRankMap[w.id] || totalWords;
+    w.frequencyRank = rank;
+    
+    // Frequency percentile (what % of words this is more frequent than)
+    w.frequencyPercentile = totalWords > 0 
+      ? Math.round((1 - rank / totalWords) * 1000) / 10 
+      : 0;
+    
+    // Learning priority: 1 (highest) to 5 (lowest)
+    // Combines frequency rank (weighted 60%) and difficulty (weighted 40%)
+    var normalizedRank = rank / totalWords; // 0 (most frequent) to 1 (least)
+    var normalizedDifficulty = (w.difficulty || 3) / 5; // 0.2 (easiest) to 1 (hardest)
+    var priorityScore = (normalizedRank * 0.6 + normalizedDifficulty * 0.4);
+    // Map to 1-5 (lower score = higher priority = closer to 1)
+    if (priorityScore < 0.15) w.learningPriority = 1;
+    else if (priorityScore < 0.30) w.learningPriority = 2;
+    else if (priorityScore < 0.50) w.learningPriority = 3;
+    else if (priorityScore < 0.70) w.learningPriority = 4;
+    else w.learningPriority = 5;
+    
+    // Foundation lesson assignment
+    if (foundationLessonMap[w.id] !== undefined) {
+      w.foundationLessonId = foundationLessonMap[w.id];
+    } else {
+      w.foundationLessonId = -1;
+    }
+    
+    // First and last occurrence (based on surahId)
+    w.surahCount = w.surahIds ? w.surahIds.length : 0;
+    
+    // First occurrence: earliest surah:verse
+    if (w.occurrences && w.occurrences.length > 0) {
+      var firstOcc = null;
+      var lastOcc = null;
+      for (var oi = 0; oi < w.occurrences.length; oi++) {
+        var o = w.occurrences[oi];
+        if (o.surahId && o.verseKey) {
+          if (!firstOcc || o.surahId < firstOcc.surahId || (o.surahId === firstOcc.surahId && parseInt(o.verseKey.split(':')[1] || '0') < parseInt(firstOcc.verseKey.split(':')[1] || '0'))) {
+            firstOcc = { surahId: o.surahId, verseKey: o.verseKey };
+          }
+          if (!lastOcc || o.surahId > lastOcc.surahId || (o.surahId === lastOcc.surahId && parseInt(o.verseKey.split(':')[1] || '0') > parseInt(lastOcc.verseKey.split(':')[1] || '0'))) {
+            lastOcc = { surahId: o.surahId, verseKey: o.verseKey };
+          }
+        }
+      }
+      w.firstOccurrence = firstOcc ? firstOcc.verseKey : '';
+      w.lastOccurrence = lastOcc ? lastOcc.verseKey : '';
+    } else {
+      w.firstOccurrence = '';
+      w.lastOccurrence = '';
+    }
+  }
+  
+  console.log('[metadata] Enriched ' + totalWords + ' canonical words with frequency rank, learning priority, first/last occurrence, and foundation lesson mapping.');
+}
+
+/**
+ * Get the learning priority label for a word.
+ */
+function getLearningPriorityLabel(priority) {
+  var labels = {
+    1: 'Essential',
+    2: 'High Priority',
+    3: 'Medium Priority',
+    4: 'Low Priority',
+    5: 'Supplementary',
+  };
+  return labels[priority] || 'Unknown';
+}
+
+/**
+ * Get all canonical words sorted by learning priority (highest first).
+ */
+function getWordsByPriority() {
+  var words = getCanonicalWords();
+  return words.slice().sort(function(a, b) {
+    return (a.learningPriority || 5) - (b.learningPriority || 5);
+  });
+}
+
+/**
+ * Get the canonical word with the highest frequency rank (most common word).
+ */
+function getMostFrequentWord() {
+  var words = getCanonicalWords();
+  var best = null;
+  var bestFreq = 0;
+  for (var mi = 0; mi < words.length; mi++) {
+    if (words[mi].occ > bestFreq) {
+      bestFreq = words[mi].occ;
+      best = words[mi];
+    }
+  }
+  return best;
+}
+
+/**
+ * Get the frequency rank of a canonical word (1 = most frequent).
+ */
+function getFrequencyRank(word) {
+  if (word.frequencyRank !== undefined) return word.frequencyRank;
+  return null;
+}
+
+/**
+ * Get the learning priority of a canonical word (1-5).
+ */
+function getLearningPriority(word) {
+  if (word.learningPriority !== undefined) return word.learningPriority;
+  return 3;
+}
+
+/**
+ * Get words sorted by frequency rank (most frequent first).
+ */
+function getWordsByFrequency() {
+  var words = getCanonicalWords();
+  return words.slice().sort(function(a, b) {
+    return (a.frequencyRank || 9999) - (b.frequencyRank || 9999);
+  });
+}
+
+// ── Foundation Course Relationship Context ─────────────────────
+// Functions that connect foundation lessons to the broader
+// vocabulary relationship network. These help learners understand
+// how foundation words relate to each other and to future vocabulary.
+
+/**
+ * Get root families introduced in a specific foundation lesson.
+ * Returns an array of { root, rootMeaning, words: [arabic, english, ...] }
+ */
+function getFoundationLessonRoots(lessonIndex) {
+  var words = getFoundationLessonWords(lessonIndex);
+  var rootMap = {};
+  for (var wi = 0; wi < words.length; wi++) {
+    var w = words[wi];
+    if (!w.root || w.root === '—') continue;
+    if (!rootMap[w.root]) {
+      rootMap[w.root] = { root: w.root, rootMeaning: w.rootMeaning, words: [] };
+    }
+    rootMap[w.root].words.push({ arabic: w.arabic, english: w.english, wordId: w.id });
+  }
+  var result = [];
+  Object.keys(rootMap).forEach(function(r) { result.push(rootMap[r]); });
+  return result;
+}
+
+/**
+ * For a given foundation lesson, find related words from other foundation
+ * lessons (already learned or coming up).
+ */
+function getFoundationLessonRelationshipContext(lessonIndex) {
+  if (!FOUNDATION_LESSONS || lessonIndex >= FOUNDATION_LESSONS.length) {
+    return { alreadyLearnedRelated: [], upcomingRelated: [], rootFamilies: [] };
+  }
+  
+  var currentWords = getFoundationLessonWords(lessonIndex);
+  var allFoundationWords = getAllFoundationWords();
+  
+  // Get all root sets mentioned in this lesson
+  var currentRoots = {};
+  for (var ci = 0; ci < currentWords.length; ci++) {
+    var cw = currentWords[ci];
+    if (cw.root && cw.root !== '—') currentRoots[cw.root] = true;
+  }
+  
+  var alreadyLearned = [];
+  var upcoming = [];
+  var completedLessons = typeof loadFoundationProgress === 'function' 
+    ? loadFoundationProgress().completedLessons 
+    : [];
+  
+  // Scan all foundation words for same-root connections
+  for (var fi = 0; fi < allFoundationWords.length; fi++) {
+    var fw = allFoundationWords[fi];
+    
+    // Skip current lesson words
+    var foundInCurrent = false;
+    for (var sj = 0; sj < currentWords.length; sj++) {
+      if (currentWords[sj].id === fw.id) { foundInCurrent = true; break; }
+    }
+    if (foundInCurrent) continue;
+    
+    // Check if this word shares a root with a current lesson word
+    var sharesRoot = fw.root && fw.root !== '—' && currentRoots[fw.root];
+    if (!sharesRoot) continue;
+    
+    // Find which lesson this word belongs to
+    var wordLesson = -1;
+    for (var li = 0; li < FOUNDATION_LESSONS.length; li++) {
+      if (FOUNDATION_LESSONS[li].wordIds.indexOf(fw.id) >= 0) {
+        wordLesson = li;
+        break;
+      }
+    }
+    
+    var isAlreadyLearned = completedLessons.indexOf(wordLesson) >= 0;
+    var isUpcoming = !isAlreadyLearned && wordLesson >= 0 && wordLesson !== lessonIndex;
+    
+    if (isAlreadyLearned) {
+      alreadyLearned.push({ arabic: fw.arabic, english: fw.english, wordId: fw.id, lessonId: wordLesson });
+    } else if (isUpcoming) {
+      upcoming.push({ arabic: fw.arabic, english: fw.english, wordId: fw.id, lessonId: wordLesson });
+    }
+  }
+  
+  return {
+    alreadyLearnedRelated: alreadyLearned,
+    upcomingRelated: upcoming,
+    rootFamilies: getFoundationLessonRoots(lessonIndex),
+  };
+}
+
+/**
+ * Get the foundation lesson index for a given canonical word, or -1 if not in foundation.
+ */
+function getFoundationLessonForWord(canonicalWordId) {
+  if (!FOUNDATION_WORDS || FOUNDATION_WORDS.length === 0) return -1;
+  var idx = FOUNDATION_WORDS.indexOf(canonicalWordId);
+  if (idx < 0) return -1;
+  return Math.floor(idx / FOUNDATION_WORDS_PER_LESSON);
+}
+
+/**
+ * Get aggregate foundation relationship statistics.
+ */
+function getFoundationRelationshipStats() {
+  var totalWithRoots = 0;
+  var totalRootFamilies = 0;
+  var totalCrossLessonConnections = 0;
+  var rootSet = {};
+  
+  var fWords = getAllFoundationWords();
+  for (var fi = 0; fi < fWords.length; fi++) {
+    var w = fWords[fi];
+    if (w.root && w.root !== '—') {
+      rootSet[w.root] = (rootSet[w.root] || 0) + 1;
+      totalWithRoots++;
+    }
+  }
+  
+  totalRootFamilies = Object.keys(rootSet).length;
+  
+  // Count cross-lesson root connections
+  for (var ri = 0; ri < FOUNDATION_LESSONS.length; ri++) {
+    var lessonWords = getFoundationLessonWords(ri);
+    var lessonRoots = {};
+    for (var wi = 0; wi < lessonWords.length; wi++) {
+      if (lessonWords[wi].root && lessonWords[wi].root !== '—') {
+        lessonRoots[lessonWords[wi].root] = true;
+      }
+    }
+    // Check if any other lesson has same root
+    for (var rj = 0; rj < FOUNDATION_LESSONS.length; rj++) {
+      if (rj === ri) continue;
+      var otherWords = getFoundationLessonWords(rj);
+      for (var wi2 = 0; wi2 < otherWords.length; wi2++) {
+        if (otherWords[wi2].root && lessonRoots[otherWords[wi2].root]) {
+          totalCrossLessonConnections++;
+        }
+      }
+    }
+  }
+  
+  return {
+    totalFoundationWords: fWords.length,
+    totalWithRoots: totalWithRoots,
+    uniqueRootFamilies: totalRootFamilies,
+    crossLessonConnections: totalCrossLessonConnections / 2, // each counted twice
+  };
 }
 
 /**
@@ -1039,6 +1357,25 @@ function setCurrentLesson(lessonIndex) {
 function getCompletedLessonCount() {
   var progress = loadLessonProgress();
   return progress.completedLessons.length;
+}
+
+// ── Export Enriched Metadata Functions ──────────────────────────
+
+// Add the new metadata functions to window for use by UI modules
+// Guarded with typeof check for Node.js compatibility during validation
+if (typeof window !== 'undefined') {
+  window.__metadata = {
+    getFrequencyRank: getFrequencyRank,
+    getLearningPriority: getLearningPriority,
+    getLearningPriorityLabel: getLearningPriorityLabel,
+    getWordsByPriority: getWordsByPriority,
+    getWordsByFrequency: getWordsByFrequency,
+    getMostFrequentWord: getMostFrequentWord,
+    getFoundationLessonRoots: getFoundationLessonRoots,
+    getFoundationLessonRelationshipContext: getFoundationLessonRelationshipContext,
+    getFoundationLessonForWord: getFoundationLessonForWord,
+    getFoundationRelationshipStats: getFoundationRelationshipStats,
+  };
 }
 
 // ── Surah Progress Tracking ─────────────────────────────────────

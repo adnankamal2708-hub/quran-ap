@@ -92,11 +92,39 @@ function answerQuiz(btn, chosen, correct, wordId) {
 
   var feedback = DOM.get('quiz-feedback');
 
+  // Build relationship context for quiz feedback
+  var relContext = '';
+  var currentWord = null;
+  for (var wi = 0; wi < quizWords.length; wi++) {
+    if (quizWords[wi].id === wordId) { currentWord = quizWords[wi]; break; }
+  }
+  if (currentWord) {
+    var relParts = [];
+    if (currentWord.root && currentWord.root !== '\u2014') {
+      relParts.push('Root: ' + currentWord.root);
+    }
+    if (currentWord.type) {
+      relParts.push('Type: ' + currentWord.type);
+    }
+    if (currentWord.occ) {
+      relParts.push('Appears ' + currentWord.occ + ' times');
+    }
+    if (currentWord.frequencyRank) {
+      relParts.push('Rank: #' + currentWord.frequencyRank);
+    }
+    if (currentWord.surahCount) {
+      relParts.push('In ' + currentWord.surahCount + ' surah' + (currentWord.surahCount !== 1 ? 's' : ''));
+    }
+    if (relParts.length > 0) {
+      relContext = '<div class="quiz-rel-context" style="font-size:10px;color:var(--text-muted);margin-top:6px;padding:6px 8px;background:var(--bg-hover);border-radius:6px;line-height:1.5">' + relParts.join(' \u00B7 ') + '</div>';
+    }
+  }
+
   if (chosen === correct) {
     btn.classList.add('correct');
     quizCorrect++;
     rateSRSWord(wordId, 2);
-    feedback.textContent = '\u2713 Correct!';
+    feedback.innerHTML = '\u2713 Correct!' + relContext;
     feedback.style.color = 'var(--green)';
   } else {
     btn.classList.add('wrong');
@@ -104,7 +132,7 @@ function answerQuiz(btn, chosen, correct, wordId) {
     for (var bi = 0; bi < allOpts.length; bi++) {
       if (allOpts[bi].textContent === correct) allOpts[bi].classList.add('correct');
     }
-    feedback.textContent = '\u2717 Answer: ' + correct;
+    feedback.innerHTML = '\u2717 Answer: ' + correct + relContext;
     feedback.style.color = 'var(--red)';
   }
 

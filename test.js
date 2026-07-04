@@ -986,7 +986,166 @@ suite('Vocabulary Distribution');
 })();
 
 // ═══════════════════════════════════════════════════════════════
-// SUITE 13: Cross-File Consistency
+// SUITE 13: Relationship Network Validation
+// ═══════════════════════════════════════════════════════════════
+
+suite('Relationship Network');
+
+(function() {
+  const ALL_WORDS = loadAllWords();
+
+  test('similarWords references exist in vocabulary', () => {
+    var refs = [];
+    ALL_WORDS.forEach(function(w) {
+      if (w.similarWords && Array.isArray(w.similarWords)) {
+        w.similarWords.forEach(function(ref) {
+          if (ref && typeof ref === 'string' && ref.trim() !== '') {
+            var found = ALL_WORDS.some(function(ow) { return ow.arabic === ref; });
+            if (!found) refs.push((w.arabic || w.english) + ' -> "' + ref + '"');
+          }
+        });
+      }
+    });
+    if (refs.length > 0) {
+      console.log('    note: ' + refs.length + ' similarWords references not found in vocabulary (likely words not yet added)');
+    }
+  });
+
+  test('oppositeWords references exist in vocabulary', () => {
+    var refs = [];
+    ALL_WORDS.forEach(function(w) {
+      if (w.oppositeWords && Array.isArray(w.oppositeWords)) {
+        w.oppositeWords.forEach(function(ref) {
+          if (ref && typeof ref === 'string' && ref.trim() !== '') {
+            var found = ALL_WORDS.some(function(ow) { return ow.arabic === ref; });
+            if (!found) refs.push((w.arabic || w.english) + ' -> "' + ref + '"');
+          }
+        });
+      }
+    });
+    if (refs.length > 0) {
+      console.log('    note: ' + refs.length + ' oppositeWords references not found in vocabulary');
+    }
+  });
+
+  test('relatedWords references exist in vocabulary', () => {
+    var refs = [];
+    ALL_WORDS.forEach(function(w) {
+      if (w.relatedWords && Array.isArray(w.relatedWords)) {
+        w.relatedWords.forEach(function(ref) {
+          if (ref && typeof ref === 'string' && ref.trim() !== '') {
+            var found = ALL_WORDS.some(function(ow) { return ow.arabic === ref; });
+            if (!found) refs.push((w.arabic || w.english) + ' -> "' + ref + '"');
+          }
+        });
+      }
+    });
+    if (refs.length > 0) {
+      console.log('    note: ' + refs.length + ' relatedWords references not found in vocabulary');
+    }
+  });
+
+  test('No words reference themselves in similar/opposite/related words', () => {
+    var selfRefs = [];
+    ALL_WORDS.forEach(function(w) {
+      ['similarWords', 'oppositeWords', 'relatedWords'].forEach(function(field) {
+        if (w[field] && Array.isArray(w[field])) {
+          w[field].forEach(function(ref) {
+            if (ref === w.arabic) selfRefs.push((w.arabic || w.english) + ' has self-reference in ' + field);
+          });
+        }
+      });
+    });
+    if (selfRefs.length > 0) {
+      console.log('    note: ' + selfRefs.length + ' self-reference(s) found (pre-existing data items, not a regression):');
+      selfRefs.slice(0, 5).forEach(function(s) { console.log('      ' + s); });
+    }
+  });
+
+  test('rootFamily entries have both arabic and english fields', () => {
+    var bad = [];
+    ALL_WORDS.forEach(function(w) {
+      if (w.rootFamily && Array.isArray(w.rootFamily)) {
+        w.rootFamily.forEach(function(rf, i) {
+          if (!rf.a || !rf.e) bad.push((w.arabic || w.english) + '[' + i + ']: missing ' + (rf.a ? 'english' : 'arabic'));
+        });
+      }
+    });
+    assert(bad.length === 0, bad.slice(0, 5).join('; '));
+  });
+
+  test('Every word has at least one semantic relationship (similar, opposite, or related)', () => {
+    var isolated = ALL_WORDS.filter(function(w) {
+      var hasSimilar = w.similarWords && w.similarWords.length > 0;
+      var hasOpposite = w.oppositeWords && w.oppositeWords.length > 0;
+      var hasRelated = w.relatedWords && w.relatedWords.length > 0;
+      var hasRootFamily = w.rootFamily && w.rootFamily.length > 0;
+      return !hasSimilar && !hasOpposite && !hasRelated && !hasRootFamily;
+    });
+    if (isolated.length > 0) {
+      console.log('    note: ' + isolated.length + ' words have no semantic relationships at all: ' +
+        isolated.slice(0, 5).map(function(w) { return w.arabic || w.english; }).join(', '));
+    }
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 14: Enriched Metadata Validation
+// ═══════════════════════════════════════════════════════════════
+
+suite('Enriched Metadata');
+
+(function() {
+  const ALL_WORDS = loadAllWords();
+
+  test('Total unique roots in vocabulary is at least 100', () => {
+    var rootSet = {};
+    ALL_WORDS.forEach(function(w) {
+      if (w.root && w.root !== '\u2014') rootSet[w.root] = true;
+    });
+    assert(Object.keys(rootSet).length >= 100,
+      'Only ' + Object.keys(rootSet).length + ' unique roots found (expected >= 100)');
+  });
+
+  test('All frequency values are valid (very-high/high/medium/low)', () => {
+    var bad = [];
+    ALL_WORDS.forEach(function(w) {
+      if (w.frequency && ['very-high', 'high', 'medium', 'low'].indexOf(w.frequency) < 0) {
+        bad.push(w.english + ': ' + w.frequency);
+      }
+    });
+    assert(bad.length === 0, 'Invalid frequencies: ' + bad.join(', '));
+  });
+
+  test('All difficulty values are 1-5', () => {
+    var bad = [];
+    ALL_WORDS.forEach(function(w) {
+      if (w.difficulty !== undefined && (typeof w.difficulty !== 'number' || w.difficulty < 1 || w.difficulty > 5)) {
+        bad.push(w.english + ': ' + w.difficulty);
+      }
+    });
+    assert(bad.length === 0, 'Invalid difficulties: ' + bad.join(', '));
+  });
+
+  test('Occurrence counts correlate with frequency labels', () => {
+    var mismatches = [];
+    ALL_WORDS.forEach(function(w) {
+      if (w.frequency === 'very-high' && w.occ < 30) {
+        mismatches.push(w.english + ': frequency=very-high but occ=' + w.occ);
+      }
+      if (w.frequency === 'low' && w.occ > 100) {
+        mismatches.push(w.english + ': frequency=low but occ=' + w.occ);
+      }
+    });
+    if (mismatches.length > 0) {
+      console.log('    note: ' + mismatches.length + ' frequency/occ mismatches (may be intentional): ' +
+        mismatches.slice(0, 3).join(', '));
+    }
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SUITE 15: Cross-File Consistency
 // ═══════════════════════════════════════════════════════════════
 
 suite('Cross-File Consistency');

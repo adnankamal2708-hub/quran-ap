@@ -286,6 +286,45 @@ function updateLessonProgressDisplay() {
       foundationCoverageEl.style.display = 'block';
     }
 
+    // Show foundation lesson relationship context (root families, related words)
+    if (typeof getFoundationLessonRelationshipContext === 'function') {
+      var fCtx = getFoundationLessonRelationshipContext(activeLessonIndex);
+      if (fCtx && fCtx.rootFamilies && fCtx.rootFamilies.length > 0) {
+        var fRelCtx = DOM.get('foundation-relationship-context');
+        if (fRelCtx) {
+          var ctxHtml = '<div class="foundation-rel-header" style="font-size:11px;color:var(--gold);margin-top:8px;padding:8px 10px;background:var(--bg-card);border-radius:8px;border:1px solid var(--border-light)">';
+          // Root families
+          ctxHtml += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">🌱 Root families in this lesson:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
+          for (var rfi = 0; rfi < fCtx.rootFamilies.length; rfi++) {
+            var rf = fCtx.rootFamilies[rfi];
+            ctxHtml += '<span style="font-size:10px;background:var(--bg-hover);padding:3px 8px;border-radius:4px;color:var(--gold)">' + rf.root + ' <span style="color:var(--text-muted)">(' + rf.rootMeaning + ')</span></span>';
+          }
+          ctxHtml += '</div>';
+          // Already learned related
+          if (fCtx.alreadyLearnedRelated && fCtx.alreadyLearnedRelated.length > 0) {
+            ctxHtml += '<div style="font-size:10px;color:var(--green);margin-bottom:4px">✓ Related words already learned from this root family:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
+            for (var ali = 0; ali < fCtx.alreadyLearnedRelated.length; ali++) {
+              var al = fCtx.alreadyLearnedRelated[ali];
+              ctxHtml += '<span style="font-size:10px;background:rgba(76,175,80,0.1);padding:3px 8px;border-radius:4px;color:var(--green)">' + al.arabic + ' <span style="color:var(--text-muted)">(' + al.english + ')</span></span>';
+            }
+            ctxHtml += '</div>';
+          }
+          // Upcoming related
+          if (fCtx.upcomingRelated && fCtx.upcomingRelated.length > 0) {
+            ctxHtml += '<div style="font-size:10px;color:var(--purple);margin-bottom:4px">📅 Related words coming in future lessons:</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+            for (var upi = 0; upi < fCtx.upcomingRelated.length; upi++) {
+              var up = fCtx.upcomingRelated[upi];
+              ctxHtml += '<span style="font-size:10px;background:rgba(156,39,176,0.1);padding:3px 8px;border-radius:4px;color:var(--purple)">' + up.arabic + ' <span style="color:var(--text-muted)">(' + up.english + ') - Lesson ' + (up.lessonId + 1) + '</span></span>';
+            }
+            ctxHtml += '</div>';
+          }
+          ctxHtml += '</div>';
+          fRelCtx.innerHTML = ctxHtml;
+          fRelCtx.style.display = 'block';
+        }
+      }
+    }
+
     var continueBtn = DOM.get('continue-learning-btn');
     if (continueBtn) {
       var nextIncomplete = getNextIncompleteFoundationLesson();
@@ -378,6 +417,8 @@ function updateLessonProgressDisplay() {
   if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
   var foundationPrimaryCovEl = DOM.get('foundation-primary-coverage');
   if (foundationPrimaryCovEl) foundationPrimaryCovEl.style.display = 'none';
+  var foundationRelCtxEl = DOM.get('foundation-relationship-context');
+  if (foundationRelCtxEl) foundationRelCtxEl.style.display = 'none';
 
   var continueBtn = DOM.get('continue-learning-btn');
     if (continueBtn) {
