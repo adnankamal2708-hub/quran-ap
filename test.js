@@ -1165,6 +1165,320 @@ suite('Cross-File Consistency');
 })();
 
 // ═══════════════════════════════════════════════════════════════
+// SUITE 16: Stat Card Click Handlers
+// ═══════════════════════════════════════════════════════════════
+
+suite('Stat Card Click Handlers');
+
+(function() {
+  // ── Helper: Sets up a minimal mock DOM and global mocks for stat card wiring ──
+  function setupStatCardTest() {
+    // Track calls to mocked functions
+    var calls = {
+      switchView: [],
+      startReview: [],
+    };
+
+    // Create mock stat card DOM structure:
+    // <div class="stat-card">
+    //   <div class="stat-number" id="stat-total">939</div>
+    // </div>
+    var statCardIds = ['stat-total', 'stat-mastered', 'stat-new-count', 'stat-learning-count'];
+    var cardElements = {};  // the outer .stat-card elements
+    var numberElements = {}; // the inner elements with IDs
+
+    statCardIds.forEach(function(id) {
+      var card = { onclick: null };
+      cardElements[id] = card;
+      numberElements[id] = {
+        closest: function(sel) {
+          if (sel === '.stat-card') return card;
+          return null;
+        }
+      };
+    });
+
+    // Mock document.getElementById
+    var origGetElementById = typeof document !== 'undefined' ? document.getElementById : null;
+    global.document = global.document || {};
+    global.document.getElementById = function(id) {
+      return numberElements[id] || null;
+    };
+    // Need createElement for the createBarRow calls in renderStats
+    if (!global.document.createElement) {
+      global.document.createElement = function(tag) {
+        return { className: '', innerHTML: '', appendChild: function() {} };
+      };
+    }
+
+    var dueReviewsResult = [];
+
+    // Mock global functions used by stat card handlers
+    global.switchView = function(view) {
+      calls.switchView.push(view);
+    };
+    global.startReview = function() {
+      calls.startReview.push('started');
+    };
+    global.getDueReviews = function() {
+      return dueReviewsResult;
+    };
+
+    return {
+      calls: calls,
+      cardElements: cardElements,
+      numberElements: numberElements,
+      setDueReviews: function(count) {
+        var arr = [];
+        for (var i = 0; i < count; i++) arr.push({ id: 'w_' + i });
+        dueReviewsResult = arr;
+      },
+      cleanup: function() {
+        delete global.document.getElementById;
+        delete global.document.createElement;
+        delete global.switchView;
+        delete global.startReview;
+        delete global.getDueReviews;
+        // Restore original if it existed
+        if (origGetElementById) {
+          global.document.getElementById = origGetElementById;
+        }
+      }
+    };
+  }
+
+  // ── The exact wiring code from renderStats() in ui.js ──
+  // Reproduced here so the test can verify it independently.
+  // If the production code changes, this test must be updated to match.
+  function runStatCardWiring() {
+    var _statCards = [
+      { id: 'stat-total', fn: function() { switchView('list'); } },
+      { id: 'stat-mastered', fn: function() {
+        if (typeof getDueReviews === 'function' && getDueReviews().length > 0 && typeof startReview === 'function') {
+          startReview();
+        } else {
+          switchView('learn');
+        }
+      } },
+      { id: 'stat-new-count', fn: function() { switchView('list'); } },
+      { id: 'stat-learning-count', fn: function() {
+        if (typeof getDueReviews === 'function' && getDueReviews().length > 0 && typeof startReview === 'function') {
+          startReview();
+        } else {
+          switchView('learn');
+        }
+      } },
+    ];
+    for (var _si = 0; _si < _statCards.length; _si++) {
+      var _el = document.getElementById(_statCards[_si].id);
+      if (_el) {
+        var _card = _el.closest('.stat-card');
+        if (_card) _card.onclick = _statCards[_si].fn;
+      }
+    }
+  }
+
+  // ── Tests ──
+
+  test('All four stat cards get onclick handlers after wiring', function() {
+    var ctx = setupStatCardTest();
+    try {
+      runStatCardWiring();
+
+      var expectedIds = ['stat-total', 'stat-mastered', 'stat-new-count', 'stat-learning-count'];
+      for (var i = 0; i < expectedIds.length; i++) {
+        var id = expectedIds[i];
+        var card = ctx.cardElements[id];
+        assert(typeof card.onclick === 'function',
+          'Expected ' + id + ' .stat-card.onclick to be a function, got ' + typeof card.onclick);
+      }
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('stat-total onclick calls switchView("list")', function() {
+    var ctx = setupStatCardTest();
+    try {
+      runStatCardWiring();
+      ctx.cardElements['stat-total'].onclick();
+      assert(ctx.calls.switchView.length === 1,
+        'Expected switchView called once, got ' + ctx.calls.switchView.length);
+      assert(ctx.calls.switchView[0] === 'list',
+        'Expected switchView("list"), got switchView("' + ctx.calls.switchView[0] + '")');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('stat-mastered onclick calls switchView("learn") when no due reviews', function() {
+    var ctx = setupStatCardTest();
+    try {
+      ctx.setDueReviews(0);
+      runStatCardWiring();
+      ctx.cardElements['stat-mastered'].onclick();
+      assert(ctx.calls.switchView.length === 1,
+        'Expected switchView called once, got ' + ctx.calls.switchView.length);
+      assert(ctx.calls.switchView[0] === 'learn',
+        'Expected switchView("learn"), got switchView("' + ctx.calls.switchView[0] + '")');
+      assert(ctx.calls.startReview.length === 0,
+        'Expected startReview NOT called when no due reviews');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('stat-mastered onclick calls startReview when due reviews exist', function() {
+    var ctx = setupStatCardTest();
+    try {
+      ctx.setDueReviews(3);
+      runStatCardWiring();
+      ctx.cardElements['stat-mastered'].onclick();
+      assert(ctx.calls.startReview.length === 1,
+        'Expected startReview called once, got ' + ctx.calls.startReview.length);
+      assert(ctx.calls.switchView.length === 0,
+        'Expected switchView NOT called when reviews exist');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('stat-new-count onclick calls switchView("list")', function() {
+    var ctx = setupStatCardTest();
+    try {
+      runStatCardWiring();
+      ctx.cardElements['stat-new-count'].onclick();
+      assert(ctx.calls.switchView.length === 1,
+        'Expected switchView called once, got ' + ctx.calls.switchView.length);
+      assert(ctx.calls.switchView[0] === 'list',
+        'Expected switchView("list"), got switchView("' + ctx.calls.switchView[0] + '")');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('stat-learning-count onclick calls switchView("learn") when no due reviews', function() {
+    var ctx = setupStatCardTest();
+    try {
+      ctx.setDueReviews(0);
+      runStatCardWiring();
+      ctx.cardElements['stat-learning-count'].onclick();
+      assert(ctx.calls.switchView.length === 1,
+        'Expected switchView called once, got ' + ctx.calls.switchView.length);
+      assert(ctx.calls.switchView[0] === 'learn',
+        'Expected switchView("learn"), got switchView("' + ctx.calls.switchView[0] + '")');
+      assert(ctx.calls.startReview.length === 0,
+        'Expected startReview NOT called when no due reviews');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('stat-learning-count onclick calls startReview when due reviews exist', function() {
+    var ctx = setupStatCardTest();
+    try {
+      ctx.setDueReviews(5);
+      runStatCardWiring();
+      ctx.cardElements['stat-learning-count'].onclick();
+      assert(ctx.calls.startReview.length === 1,
+        'Expected startReview called once, got ' + ctx.calls.startReview.length);
+      assert(ctx.calls.switchView.length === 0,
+        'Expected switchView NOT called when reviews exist');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('Wiring handles missing DOM elements gracefully (no crash)', function() {
+    var ctx = setupStatCardTest();
+    try {
+      // Remove one element to simulate missing DOM
+      delete ctx.numberElements['stat-total'];
+      // This should not throw
+      runStatCardWiring();
+      // Remaining cards should still be wired
+      assert(typeof ctx.cardElements['stat-mastered'].onclick === 'function',
+        'stat-mastered should still be wired');
+      assert(typeof ctx.cardElements['stat-new-count'].onclick === 'function',
+        'stat-new-count should still be wired');
+      assert(typeof ctx.cardElements['stat-learning-count'].onclick === 'function',
+        'stat-learning-count should still be wired');
+      // Missing element's card onclick should be null
+      assert(ctx.cardElements['stat-total'].onclick === null,
+        'stat-total onclick should remain null when element is missing');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  test('Wiring handles missing .stat-card ancestor gracefully (no crash)', function() {
+    var ctx = setupStatCardTest();
+    try {
+      // Make closest return null for one element
+      ctx.numberElements['stat-total'].closest = function() { return null; };
+      // This should not throw
+      runStatCardWiring();
+      // Remaining cards should still be wired
+      assert(typeof ctx.cardElements['stat-mastered'].onclick === 'function',
+        'stat-mastered should still be wired');
+      assert(typeof ctx.cardElements['stat-new-count'].onclick === 'function',
+        'stat-new-count should still be wired');
+      assert(typeof ctx.cardElements['stat-learning-count'].onclick === 'function',
+        'stat-learning-count should still be wired');
+      // Missing ancestor's card onclick should be null
+      assert(ctx.cardElements['stat-total'].onclick === null,
+        'stat-total onclick should remain null when ancestor is missing');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  // Structural test: verify the wiring code exists in the source file
+  test('Handlers degrade gracefully when getDueReviews is not a function', function() {
+    var ctx = setupStatCardTest();
+    try {
+      // Remove getDueReviews to simulate missing dependency
+      delete global.getDueReviews;
+      runStatCardWiring();
+      // Should fall through to switchView('learn') without crashing
+      ctx.cardElements['stat-mastered'].onclick();
+      assert(ctx.calls.switchView.length === 1,
+        'Expected switchView called once, got ' + ctx.calls.switchView.length);
+      assert(ctx.calls.switchView[0] === 'learn',
+        'Expected switchView("learn") when getDueReviews missing, got "' + ctx.calls.switchView[0] + '"');
+      assert(ctx.calls.startReview.length === 0,
+        'Expected startReview NOT called when getDueReviews missing');
+    } finally {
+      ctx.cleanup();
+    }
+  });
+
+  // Structural test: verify the wiring code exists in the source file
+  test('ui.js contains stat card wiring with correct IDs', function() {
+    var uiPath = path.join(ROOT, 'js', 'ui.js');
+    var uiContent = fs.readFileSync(uiPath, 'utf8');
+
+    // Verify the stat card array exists with expected IDs
+    var patterns = [
+      { id: 'stat-total', text: 'stat-total' },
+      { id: 'stat-mastered', text: 'stat-mastered' },
+      { id: 'stat-new-count', text: 'stat-new-count' },
+      { id: 'stat-learning-count', text: 'stat-learning-count' },
+    ];
+    patterns.forEach(function(p) {
+      assert(uiContent.indexOf(p.text) >= 0,
+        'ui.js must contain reference to "' + p.text + '" but it was not found');
+    });
+
+    // Verify the loop structure is present (tightened: look for exact array init pattern)
+    assert(uiContent.indexOf('_statCards = [') >= 0,
+      'ui.js must contain _statCards = [ (the stat card wiring array)');
+    assert(uiContent.indexOf('card.onclick') >= 0,
+      'ui.js must contain card.onclick assignment for stat card wiring');
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════════
 // Summary
 // ═══════════════════════════════════════════════════════════════
 
