@@ -757,6 +757,39 @@ function wireEvents() {
     }
   };
   
+  // Advanced Filter Toggle
+  var filterToggle = DOM.get('advanced-filter-toggle');
+  if (filterToggle) {
+    filterToggle.onclick = function() {
+      var panel = DOM.get('advanced-filter-panel');
+      if (!panel) return;
+      var isOpen = panel.style.display === 'block';
+      panel.style.display = isOpen ? 'none' : 'block';
+      filterToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      if (!isOpen) {
+        populateFilterDropdowns();
+      }
+    };
+  }
+
+  // Filter Apply button
+  var filterApply = DOM.get('filter-apply');
+  if (filterApply) {
+    filterApply.onclick = function() {
+      renderWordList();
+    };
+  }
+
+  // Filter Clear button
+  var filterClear = DOM.get('filter-clear');
+  if (filterClear) {
+    filterClear.onclick = function() {
+      if (typeof clearAdvancedFilters === 'function') {
+        clearAdvancedFilters();
+      }
+    };
+  }
+
   // Mode/Surah selector from lesson header
   var surahSelector = DOM.get('surah-select');
   if (surahSelector) {

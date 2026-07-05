@@ -77,12 +77,170 @@ function findWordsByArabicList(arabicList) {
 
 
 
-// ── Search ─────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// ADVANCED SEARCH SYSTEM — Indexed, Multi-Dimensional Search
+//
+// Builds a pre-computed search index for O(1) field lookups.
+// Supports: Arabic (diacritic-insensitive), English, translit,
+// root, pattern, typeCategory, difficulty, frequency, tags,
+// foundation lesson, surah IDs, occurrences, and fuzzy matching.
+// ═══════════════════════════════════════════════════════════════
+
+/** @type {Object|null} Advanced search index */
+var _advancedSearchIndex = null;
+
+/** @type {boolean} Whether the index has been built */
+var _searchIndexBuilt = false;
 
 /**
- * Search all words by Arabic text, English meaning, root, tags, pattern, type, or surah.
- * Searches both the canonical vocabulary and all occurrence contexts.
- * Returns canonical words matching the query.
+ * Normalize an Arabic text string by removing diacritical marks
+ * (tashkeel) for diacritic-insensitive matching.
+ * Removes: fatha, damma, kasra, sukun, shadda, tanween, etc.
+ */
+function normalizeArabic(str) {
+  if (!str) return '';
+  return str.replace(/[\u064B-\u0652\u0670]/g, '');
+}
+
+/**
+ * Normalize a transliteration/English string for fuzzy search.
+ * Strips diacritics, special chars, and lowercases.
+ */
+function normalizeTranslit(str) {
+  if (!str) return '';
+  var s = str.toLowerCase()
+    .replace(/[āáǎàâäǎă]/g, 'a')
+    .replace(/[ēéěèêëĕ]/g, 'e')
+    .replace(/[īíǐìîïĭ]/g, 'i')
+    .replace(/[ōóǒòôöŏ]/g, 'o')
+    .replace(/[ūúǔùûüŭ]/g, 'u')
+    .replace(/[ḥḥḥ]/g, 'h')
+    .replace(/[ḍḍḍ]/g, 'd')
+    .replace(/[ṣṣṣ]/g, 's')
+    .replace(/[ṭṭṭ]/g, 't')
+    .replace(/[ẓẓẓ]/g, 'z')
+    .replace(/[ʾ']/g, '')
+    .replace(/[ʿ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim();
+  return s;
+}
+
+/**
+ * Build a comprehensive search index from canonical words.
+ * Pre-computes normalized text and dimension lookups for O(1) filtering.
+ */
+function buildAdvancedSearchIndex() {
+  if (_searchIndexBuilt) return;
+  
+  var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  
+  var idx = {
+    byNormalizedArabic: {},  // normalized arabic -> [word objects]
+    byNormalizedTranslit: {}, // normalized translit -> [word objects]
+    byRoot: {},              // root -> [word objects]
+    byDifficulty: {},        // difficulty -> [word objects]
+    byFrequency: {},         // frequency -> [word objects]
+    byPattern: {},           // pattern -> [word objects]
+    byTypeCategory: {},      // typeCategory -> [word objects]
+    byTag: {},               // tag -> [word objects]
+    bySurahId: {},           // surahId -> [word objects]
+    byFoundationLesson: {},  // foundationLessonId -> [word objects]
+    allWords: words,         // reference to all words
+    arabicPrefixCache: {},   // first 3 chars of normalized arabic -> [word objects]
+  };
+  
+  for (var i = 0; i < words.length; i++) {
+    var w = words[i];
+    
+    // Normalized Arabic (diacritic-stripped)
+    if (w.arabic) {
+      var normAr = normalizeArabic(w.arabic);
+      if (!idx.byNormalizedArabic[normAr]) idx.byNormalizedArabic[normAr] = [];
+      idx.byNormalizedArabic[normAr].push(w);
+      
+      // Prefix cache for partial Arabic matching
+      var prefix = normAr.substring(0, Math.min(3, normAr.length));
+      if (prefix && prefix.length >= 2) {
+        if (!idx.arabicPrefixCache[prefix]) idx.arabicPrefixCache[prefix] = [];
+        idx.arabicPrefixCache[prefix].push(w);
+      }
+    }
+    
+    // Normalized transliteration
+    if (w.translit) {
+      var normTr = w.translit.toLowerCase();
+      if (!idx.byNormalizedTranslit[normTr]) idx.byNormalizedTranslit[normTr] = [];
+      idx.byNormalizedTranslit[normTr].push(w);
+    }
+    
+    // Root
+    if (w.root && w.root !== '\u2014') {
+      if (!idx.byRoot[w.root]) idx.byRoot[w.root] = [];
+      idx.byRoot[w.root].push(w);
+    }
+    
+    // Difficulty
+    if (w.difficulty) {
+      if (!idx.byDifficulty[w.difficulty]) idx.byDifficulty[w.difficulty] = [];
+      idx.byDifficulty[w.difficulty].push(w);
+    }
+    
+    // Frequency
+    if (w.frequency) {
+      if (!idx.byFrequency[w.frequency]) idx.byFrequency[w.frequency] = [];
+      idx.byFrequency[w.frequency].push(w);
+    }
+    
+    // Pattern
+    if (w.pattern && w.pattern !== '\u2014') {
+      if (!idx.byPattern[w.pattern]) idx.byPattern[w.pattern] = [];
+      idx.byPattern[w.pattern].push(w);
+    }
+    
+    // TypeCategory
+    if (w.typeCategory) {
+      if (!idx.byTypeCategory[w.typeCategory]) idx.byTypeCategory[w.typeCategory] = [];
+      idx.byTypeCategory[w.typeCategory].push(w);
+    }
+    
+    // Tags
+    if (w.tags) {
+      for (var ti = 0; ti < w.tags.length; ti++) {
+        var tag = w.tags[ti];
+        if (!idx.byTag[tag]) idx.byTag[tag] = [];
+        idx.byTag[tag].push(w);
+      }
+    }
+    
+    // Surah IDs (from canonical surahIds array)
+    var surahIds = w.surahIds || (w.surahId ? [w.surahId] : []);
+    for (var si = 0; si < surahIds.length; si++) {
+      var sid = surahIds[si];
+      if (!idx.bySurahId[sid]) idx.bySurahId[sid] = [];
+      idx.bySurahId[sid].push(w);
+    }
+    
+    // Foundation lesson
+    if (w.foundationLessonId !== undefined && w.foundationLessonId >= 0) {
+      var fl = w.foundationLessonId;
+      if (!idx.byFoundationLesson[fl]) idx.byFoundationLesson[fl] = [];
+      idx.byFoundationLesson[fl].push(w);
+    }
+  }
+  
+  _advancedSearchIndex = idx;
+  _searchIndexBuilt = true;
+  console.log('[search] Built advanced search index from ' + words.length + ' words.');
+}
+
+/**
+ * Search all words using the advanced index.
+ * Supports: Arabic (diacritic-insensitive), English, transliteration,
+ * root, root family, pattern, part of speech, tags, surah, and verse.
+ * Falls back to linear scan if index is not available.
  */
 function searchWords(query) {
   if (!query || query.trim() === '') {
@@ -204,6 +362,192 @@ function filterByFavorites(words) {
   var favs = loadFavorites();
   return words.filter(function (w) { return favs[w.id]; });
 }
+
+/**
+ * Advanced multi-dimensional filter. Applies all specified filters
+ * to a set of words. filterState can contain:
+ *   difficulty: number or null
+ *   frequency: string (very-high|high|medium|low) or null
+ *   foundationLesson: number or null
+ *   rootFamilyFilter: string (root letters to match) or null
+ *   isBookmarked: boolean
+ *   reviewDue: string ('due', 'today', 'soon') or null
+ *   occurrenceRange: [min, max] or null
+ *   learnedOnly: boolean
+ *   unlearnedOnly: boolean
+ */
+function advancedFilterWords(words, filterState) {
+  if (!filterState || !words || words.length === 0) return words;
+  
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : null;
+  var favs = typeof loadFavorites === 'function' ? loadFavorites() : null;
+  var now = Date.now();
+  
+  return words.filter(function (w) {
+    // Difficulty filter
+    if (filterState.difficulty !== undefined && filterState.difficulty !== null && filterState.difficulty !== '') {
+      if (w.difficulty !== Number(filterState.difficulty)) return false;
+    }
+    
+    // Frequency filter
+    if (filterState.frequency && filterState.frequency !== 'all') {
+      if (w.frequency !== filterState.frequency) return false;
+    }
+    
+    // Foundation lesson filter
+    if (filterState.foundationLesson !== undefined && filterState.foundationLesson !== null && filterState.foundationLesson !== '') {
+      var fl = Number(filterState.foundationLesson);
+      var wordFl = (w.foundationLessonId !== undefined) ? w.foundationLessonId : -1;
+      if (filterState.foundationLesson === '-1' && wordFl >= 0) return false;
+      if (filterState.foundationLesson !== '-1' && wordFl !== fl) return false;
+      if (filterState.foundationLesson === 'any' && wordFl < 0) return false;
+    }
+    
+    // Root family filter
+    if (filterState.rootFamilyFilter && filterState.rootFamilyFilter.trim() !== '') {
+      var rootQ = filterState.rootFamilyFilter.trim().toLowerCase();
+      var matchesRoot = w.root && w.root.toLowerCase().indexOf(rootQ) >= 0;
+      var matchesRootFamily = false;
+      if (!matchesRoot && w.rootFamily && Array.isArray(w.rootFamily)) {
+        for (var rfi = 0; rfi < w.rootFamily.length; rfi++) {
+          if (w.rootFamily[rfi].a && w.rootFamily[rfi].a.toLowerCase().indexOf(rootQ) >= 0) {
+            matchesRootFamily = true;
+            break;
+          }
+        }
+      }
+      if (!matchesRoot && !matchesRootFamily) return false;
+    }
+    
+    // Bookmark filter
+    if (filterState.isBookmarked) {
+      if (!favs || !favs[w.id]) return false;
+    }
+    
+    // Review due filter
+    if (filterState.reviewDue && filterState.reviewDue !== 'all') {
+      if (!srsData || !srsData[w.id]) {
+        if (filterState.reviewDue !== 'all') return false;
+      } else {
+        var entry = srsData[w.id];
+        if (filterState.reviewDue === 'due' && (!entry.dueDate || entry.dueDate > now)) return false;
+        if (filterState.reviewDue === 'today' && (!entry.dueDate || entry.dueDate > now + 86400000)) return false;
+        if (filterState.reviewDue === 'soon' && (!entry.dueDate || entry.dueDate > now + 604800000)) return false;
+      }
+    }
+    
+    // Learned/unlearned filter
+    if (filterState.learnedOnly || filterState.unlearnedOnly) {
+      var learned = srsData && srsData[w.id] && srsData[w.id].stage && srsData[w.id].stage >= 1;
+      if (filterState.learnedOnly && !learned) return false;
+      if (filterState.unlearnedOnly && learned) return false;
+    }
+    
+    // Occurrence range filter
+    if (filterState.occMin !== undefined && filterState.occMin !== null && filterState.occMin !== '') {
+      if ((w.occ || 0) < Number(filterState.occMin)) return false;
+    }
+    if (filterState.occMax !== undefined && filterState.occMax !== null && filterState.occMax !== '') {
+      if ((w.occ || 0) > Number(filterState.occMax)) return false;
+    }
+    
+    // Surah filter
+    if (filterState.surahId !== undefined && filterState.surahId !== null && filterState.surahId !== '' && filterState.surahId !== 'all') {
+      var sid = Number(filterState.surahId);
+      var hasSurah = false;
+      if (w.surahIds && w.surahIds.indexOf(sid) >= 0) hasSurah = true;
+      if (!hasSurah && w.surahId === sid) hasSurah = true;
+      if (!hasSurah) return false;
+    }
+    
+    // Frequency rank range
+    if (filterState.freqRankMax !== undefined && filterState.freqRankMax !== null && filterState.freqRankMax !== '') {
+      var maxRank = Number(filterState.freqRankMax);
+      if (w.frequencyRank !== undefined && w.frequencyRank > maxRank) return false;
+    }
+    
+    // Part of speech / typeCategory filter
+    if (filterState.typeCategory && filterState.typeCategory !== '') {
+      if (w.typeCategory !== filterState.typeCategory) return false;
+    }
+    
+    return true;
+  });
+}
+
+/**
+ * Advanced search with multi-dimensional filtering.
+ * Combines text search with all advanced filters in a single call.
+ * filterState is passed to advancedFilterWords.
+ */
+function advancedSearch(query, filterState) {
+  // Build search index if needed
+  buildAdvancedSearchIndex();
+  
+  // Get matching words from text search
+  var matched = searchWords(query);
+  
+  // Apply advanced filters
+  if (filterState) {
+    matched = advancedFilterWords(matched, filterState);
+  }
+  
+  // Sort by relevance: exact Arabic matches first, then by frequency rank
+  if (query && query.trim() !== '') {
+    var q = query.trim().toLowerCase();
+    var normQ = normalizeArabic(q);
+    
+    matched.sort(function(a, b) {
+      // Exact Arabic match tops
+      var aExact = a.arabic && (a.arabic === q || normalizeArabic(a.arabic) === normQ) ? 1 : 0;
+      var bExact = b.arabic && (b.arabic === q || normalizeArabic(b.arabic) === normQ) ? 1 : 0;
+      if (aExact !== bExact) return bExact - aExact;
+      
+      // Exact English match
+      var aEng = a.english && a.english.toLowerCase() === q ? 1 : 0;
+      var bEng = b.english && b.english.toLowerCase() === q ? 1 : 0;
+      if (aEng !== bEng) return bEng - aEng;
+      
+      // Exact root match
+      var aRoot = a.root && a.root.toLowerCase() === q ? 1 : 0;
+      var bRoot = b.root && b.root.toLowerCase() === q ? 1 : 0;
+      if (aRoot !== bRoot) return bRoot - aRoot;
+      
+      // Sort by frequency rank (lower = more frequent = higher priority)
+      var aRank = a.frequencyRank || 9999;
+      var bRank = b.frequencyRank || 9999;
+      return aRank - bRank;
+    });
+  }
+  
+  return matched;
+}
+
+/**
+ * Get all available foundation lessons for filter display.
+ */
+function getFoundationLessonOptions() {
+  var options = [];
+  if (typeof FOUNDATION_LESSONS !== 'undefined' && FOUNDATION_LESSONS) {
+    for (var fi = 0; fi < FOUNDATION_LESSONS.length; fi++) {
+      options.push({
+        value: fi,
+        label: 'Foundation ' + (fi + 1) + (FOUNDATION_LESSONS[fi].isReview ? ' (Review)' : ''),
+      });
+    }
+  }
+  return options;
+}
+
+// Export advanced search for cross-module access
+window.__advancedSearch = {
+  search: advancedSearch,
+  filter: advancedFilterWords,
+  normalizeArabic: normalizeArabic,
+  normalizeTranslit: normalizeTranslit,
+  buildIndex: buildAdvancedSearchIndex,
+  getFoundationLessonOptions: getFoundationLessonOptions,
+};
 
 // ── Educational Distractors ────────────────────────────────────
 

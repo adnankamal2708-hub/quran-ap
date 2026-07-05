@@ -719,8 +719,158 @@ function updateReviewBanner() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ADVANCED SEARCH — Filter Panel & Enhanced Results
+// ═══════════════════════════════════════════════════════════════
+
+/** @type {boolean} Whether advanced filters have been populated */
+var _filterPanelPopulated = false;
+
+/**
+ * Populate the advanced filter panel dropdowns (foundation lessons, surahs).
+ */
+function populateFilterDropdowns() {
+  if (_filterPanelPopulated) return;
+  
+  // Foundation lesson dropdown
+  var foundationSelect = DOM.get('filter-foundation');
+  if (foundationSelect && typeof getFoundationLessonOptions === 'function') {
+    var options = getFoundationLessonOptions();
+    if (options && options.length > 0) {
+      for (var fi = 0; fi < options.length; fi++) {
+        var opt = document.createElement('option');
+        opt.value = options[fi].value;
+        opt.textContent = options[fi].label;
+        foundationSelect.appendChild(opt);
+      }
+    }
+  }
+  
+  // Surah dropdown
+  var surahSelect = DOM.get('filter-surah');
+  if (surahSelect && typeof SURAH_INFO !== 'undefined') {
+    var surahIds = Object.keys(SURAH_INFO);
+    if (surahIds.length > 0) {
+      // Sort numerically
+      surahIds.sort(function(a, b) { return parseInt(a, 10) - parseInt(b, 10); });
+      for (var si = 0; si < surahIds.length; si++) {
+        var sid = parseInt(surahIds[si], 10);
+        var info = SURAH_INFO[sid];
+        if (info) {
+          var opt = document.createElement('option');
+          opt.value = sid;
+          opt.textContent = sid + '. ' + info.name + ' — ' + info.english;
+          surahSelect.appendChild(opt);
+        }
+      }
+    }
+  }
+  
+  _filterPanelPopulated = true;
+}
+
+/**
+ * Collect the current filter state from the advanced filter panel.
+ * Returns an object suitable for advancedFilterWords().
+ */
+function collectAdvancedFilters() {
+  var filterState = {};
+  
+  var difficulty = DOM.get('filter-difficulty');
+  if (difficulty && difficulty.value !== '') filterState.difficulty = parseInt(difficulty.value, 10);
+  
+  var frequency = DOM.get('filter-frequency');
+  if (frequency && frequency.value !== '') filterState.frequency = frequency.value;
+  
+  var foundation = DOM.get('filter-foundation');
+  if (foundation && foundation.value !== '') filterState.foundationLesson = foundation.value;
+  
+  var pos = DOM.get('filter-part-of-speech');
+  if (pos && pos.value !== '') filterState.typeCategory = pos.value;
+  
+  var root = DOM.get('filter-root');
+  if (root && root.value.trim() !== '') filterState.rootFamilyFilter = root.value.trim();
+  
+  var surah = DOM.get('filter-surah');
+  if (surah && surah.value !== '') filterState.surahId = parseInt(surah.value, 10);
+  
+  var occMin = DOM.get('filter-occ-min');
+  if (occMin && occMin.value !== '') filterState.occMin = parseInt(occMin.value, 10);
+  
+  var occMax = DOM.get('filter-occ-max');
+  if (occMax && occMax.value !== '') filterState.occMax = parseInt(occMax.value, 10);
+  
+  var freqRank = DOM.get('filter-freq-rank');
+  if (freqRank && freqRank.value !== '') filterState.freqRankMax = parseInt(freqRank.value, 10);
+  
+  var bookmarked = DOM.get('filter-bookmarked');
+  if (bookmarked && bookmarked.checked) filterState.isBookmarked = true;
+  
+  var reviewDue = DOM.get('filter-review-due');
+  if (reviewDue && reviewDue.checked) filterState.reviewDue = 'due';
+  
+  var learned = DOM.get('filter-learned');
+  if (learned && learned.checked) filterState.learnedOnly = true;
+  
+  var unlearned = DOM.get('filter-unlearned');
+  if (unlearned && unlearned.checked) filterState.unlearnedOnly = true;
+  
+  return filterState;
+}
+
+/**
+ * Check if any advanced filters are active (non-default).
+ */
+function hasAdvancedFilters() {
+  var state = collectAdvancedFilters();
+  var keys = Object.keys(state);
+  return keys.length > 0;
+}
+
+/**
+ * Clear all advanced filter panel inputs to their default state.
+ */
+function clearAdvancedFilters() {
+  var selectors = ['filter-difficulty', 'filter-frequency', 'filter-foundation',
+    'filter-part-of-speech', 'filter-surah', 'filter-freq-rank'];
+  for (var si = 0; si < selectors.length; si++) {
+    var el = DOM.get(selectors[si]);
+    if (el) el.value = '';
+  }
+  DOM.get('filter-root').value = '';
+  DOM.get('filter-occ-min').value = '';
+  DOM.get('filter-occ-max').value = '';
+  DOM.get('filter-bookmarked').checked = false;
+  DOM.get('filter-review-due').checked = false;
+  DOM.get('filter-learned').checked = false;
+  DOM.get('filter-unlearned').checked = false;
+  _advancedFilterState = null;
+  renderWordList();
+}
+
+/**
+ * Show the active filter count badge on the toggle button.
+ */
+function updateFilterActiveBadge() {
+  var toggle = DOM.get('advanced-filter-toggle');
+  if (!toggle) return;
+  var state = collectAdvancedFilters();
+  var count = Object.keys(state).length;
+  // Remove existing badge
+  var existingBadge = toggle.querySelector('.filter-active-badge');
+  if (existingBadge) existingBadge.remove();
+  if (count > 0) {
+    var badge = document.createElement('span');
+    badge.className = 'filter-active-badge';
+    badge.textContent = count + ' active';
+    toggle.appendChild(badge);
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+}
+
 /**
  * Render the word list with filtering and search applied.
+ * Uses advanced search when the advanced filter panel is visible or has active filters.
  */
 function renderWordList() {
   var searchInput = DOM.get('search-input');
@@ -729,19 +879,61 @@ function renderWordList() {
   var activeStatus = document.querySelector('#filter-status-chips .chip-active');
   var typeFilter = activeType ? activeType.getAttribute('data-value') : 'all';
   var statusFilter = activeStatus ? activeStatus.getAttribute('data-value') : 'all';
-
-  // Apply all filters in sequence
-  var words = searchWords(searchQuery);
-  words = filterByCategory(words, typeFilter);
-  if (statusFilter === 'favorites') {
-    words = filterByFavorites(words);
+  
+  // Populate filter dropdowns on first render
+  populateFilterDropdowns();
+  
+  // Check if advanced filters are active
+  var advancedFilterPanel = DOM.get('advanced-filter-panel');
+  var advFiltersVisible = advancedFilterPanel && advancedFilterPanel.style.display === 'block';
+  var advFiltersActive = hasAdvancedFilters();
+  
+  var words;
+  if (advFiltersActive) {
+    // Use advanced search with collected filter state
+    var filterState = collectAdvancedFilters();
+    _advancedFilterState = filterState;
+    
+    // Build advanced search index if needed
+    if (typeof buildAdvancedSearchIndex === 'function') buildAdvancedSearchIndex();
+    
+    // Apply advanced search
+    words = typeof advancedSearch === 'function' 
+      ? advancedSearch(searchQuery, filterState)
+      : searchWords(searchQuery);
+    
+    // Apply basic type/status filters on top
+    words = filterByCategory(words, typeFilter);
+    if (statusFilter === 'favorites') {
+      words = filterByFavorites(words);
+    } else if (statusFilter !== 'all') {
+      words = filterByStatus(words, statusFilter);
+    }
   } else {
-    words = filterByStatus(words, statusFilter);
+    // Use simple filtering (existing behavior)
+    words = searchWords(searchQuery);
+    words = filterByCategory(words, typeFilter);
+    if (statusFilter === 'favorites') {
+      words = filterByFavorites(words);
+    } else {
+      words = filterByStatus(words, statusFilter);
+    }
   }
 
   // Update count
   var countEl = DOM.get('list-count');
   if (countEl) countEl.textContent = words.length + ' word' + (words.length !== 1 ? 's' : '');
+  
+  // Update filter result count badge
+  var resultCountEl = DOM.get('filter-result-count');
+  if (resultCountEl && advFiltersActive) {
+    resultCountEl.textContent = words.length + ' results';
+  } else if (resultCountEl) {
+    resultCountEl.textContent = '';
+  }
+  
+  // Update filter active badge on toggle
+  updateFilterActiveBadge();
 
   // Use DocumentFragment for batch insertion to reduce reflows
   var container = DOM.get('wordlist-container');
@@ -771,7 +963,7 @@ function renderWordList() {
     }
     var favStar = favs[w.id] ? '\u2B50' : '';
     var d = document.createElement('div');
-    d.className = 'wordlist-item';
+    d.className = 'wordlist-item' + (advFiltersActive ? ' has-quick-actions' : '');
     d.setAttribute('role', 'button');
     d.setAttribute('tabindex', '0');
     var shortMeaning = getShortMeaning(w.meaning);
@@ -793,6 +985,58 @@ function renderWordList() {
       }
     };
     fragment.appendChild(d);
+    
+    // Add quick action buttons for advanced search results
+    if (advFiltersActive) {
+      var qaRow = document.createElement('div');
+      qaRow.className = 'wordlist-quick-actions';
+      
+      // Explorer button
+      var explorerBtn = document.createElement('button');
+      explorerBtn.className = 'wordlist-qa-btn';
+      explorerBtn.textContent = '🔍 Explore';
+      explorerBtn.setAttribute('aria-label', 'Open vocabulary explorer for ' + w.arabic);
+      (function(wordObj) {
+        explorerBtn.onclick = function(e) {
+          e.stopPropagation();
+          navigateToWord(wordObj);
+        };
+      })(w);
+      qaRow.appendChild(explorerBtn);
+      
+      // Bookmark button
+      var bmBtn = document.createElement('button');
+      bmBtn.className = 'wordlist-qa-btn' + (favs[w.id] ? ' active-qa' : '');
+      bmBtn.textContent = favs[w.id] ? '⭐' : '☆';
+      bmBtn.setAttribute('aria-label', (favs[w.id] ? 'Remove' : 'Add') + ' bookmark for ' + w.arabic);
+      (function(wordObj) {
+        bmBtn.onclick = function(e) {
+          e.stopPropagation();
+          if (typeof toggleFavorite === 'function') {
+            var isNowFav = toggleFavorite(wordObj.id);
+            bmBtn.textContent = isNowFav ? '⭐' : '☆';
+            bmBtn.className = 'wordlist-qa-btn' + (isNowFav ? ' active-qa' : '');
+          }
+        };
+      })(w);
+      qaRow.appendChild(bmBtn);
+      
+      // Flashcards button
+      var flashBtn = document.createElement('button');
+      flashBtn.className = 'wordlist-qa-btn';
+      flashBtn.textContent = '⚡ Flash';
+      flashBtn.setAttribute('aria-label', 'Study ' + w.arabic + ' in flashcard mode');
+      (function(wordObj) {
+        flashBtn.onclick = function(e) {
+          e.stopPropagation();
+          if (typeof toggleQuickMode === 'function') toggleQuickMode();
+          navigateToWord(wordObj);
+        };
+      })(w);
+      qaRow.appendChild(flashBtn);
+      
+      d.appendChild(qaRow);
+    }
   }
 
   container.appendChild(fragment);

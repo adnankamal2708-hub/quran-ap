@@ -244,6 +244,120 @@
           <button class="chip" data-filter="status" data-value="favorites" type="button">⭐ Favorites</button>
         </div>
 
+        <!-- Advanced Filter Toggle -->
+        <button class="advanced-filter-toggle" id="advanced-filter-toggle" type="button" aria-expanded="false" aria-controls="advanced-filter-panel">
+          <span class="filter-toggle-icon">🔍</span>
+          <span class="filter-toggle-text">Advanced Filters</span>
+          <span class="filter-toggle-arrow">▶</span>
+        </button>
+
+        <!-- Advanced Filter Panel -->
+        <div class="advanced-filter-panel" id="advanced-filter-panel" style="display:none">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-label" for="filter-difficulty">Difficulty</label>
+              <select class="filter-select" id="filter-difficulty">
+                <option value="">All</option>
+                <option value="1">★ Easy</option>
+                <option value="2">★★ Medium</option>
+                <option value="3">★★★ Moderate</option>
+                <option value="4">★★★★ Hard</option>
+                <option value="5">★★★★★ Advanced</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="filter-frequency">Frequency</label>
+              <select class="filter-select" id="filter-frequency">
+                <option value="">All</option>
+                <option value="very-high">Very High</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="filter-foundation">Foundation</label>
+              <select class="filter-select" id="filter-foundation">
+                <option value="">All</option>
+                <option value="-1">Not in Foundation</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="filter-part-of-speech">Part of Speech</label>
+              <select class="filter-select" id="filter-part-of-speech">
+                <option value="">All</option>
+                <option value="noun">Noun</option>
+                <option value="verb">Verb</option>
+                <option value="particle">Particle</option>
+                <option value="adjective">Adjective</option>
+                <option value="pronoun">Pronoun</option>
+                <option value="exclamation">Exclamation</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-label" for="filter-root">Root Letters</label>
+              <input class="filter-input" id="filter-root" type="text" placeholder="e.g. ر-ح-م" />
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="filter-surah">Surah</label>
+              <select class="filter-select" id="filter-surah">
+                <option value="">All Surahs</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="filter-occ-min">Occurrences</label>
+              <div class="filter-range-group">
+                <input class="filter-input filter-input-sm" id="filter-occ-min" type="number" placeholder="Min" min="0" />
+                <span class="filter-range-sep">—</span>
+                <input class="filter-input filter-input-sm" id="filter-occ-max" type="number" placeholder="Max" min="0" />
+              </div>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="filter-freq-rank">Top N by Frequency</label>
+              <select class="filter-select" id="filter-freq-rank">
+                <option value="">All</option>
+                <option value="50">Top 50</option>
+                <option value="100">Top 100</option>
+                <option value="200">Top 200</option>
+                <option value="500">Top 500</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-group filter-group-checkbox">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" id="filter-bookmarked" />
+                <span>Bookmarked only</span>
+              </label>
+            </div>
+            <div class="filter-group filter-group-checkbox">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" id="filter-review-due" />
+                <span>Review due</span>
+              </label>
+            </div>
+            <div class="filter-group filter-group-checkbox">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" id="filter-learned" />
+                <span>Learned only</span>
+              </label>
+            </div>
+            <div class="filter-group filter-group-checkbox">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" id="filter-unlearned" />
+                <span>Unlearned only</span>
+              </label>
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-sm" id="filter-apply" type="button">Apply Filters</button>
+            <button class="btn btn-sm btn-outline" id="filter-clear" type="button">Clear All</button>
+            <span class="filter-result-count" id="filter-result-count"></span>
+          </div>
+        </div>
+
         <div class="list-header">
           <span id="list-count">All Words</span>
         </div>
