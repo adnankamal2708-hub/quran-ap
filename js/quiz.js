@@ -80,6 +80,11 @@ function showQuizQ() {
  * Handle a quiz answer selection.
  */
 function answerQuiz(btn, chosen, correct, wordId) {
+  // Record quiz result for adaptive analysis
+  if (typeof recordQuizResult === 'function') {
+    recordQuizResult(wordId, chosen === correct);
+  }
+  
   if (quizAnswered) return;
   quizAnswered = true;
   quizTotal++;

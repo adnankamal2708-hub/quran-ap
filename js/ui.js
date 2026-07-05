@@ -2386,6 +2386,9 @@ function renderDashboard() {
     grid.appendChild(card);
   }
   
+  // ── Personalized Insights ──
+  renderLearningInsights();
+  
   // ── Overall Progress ──
   var overallStats = DOM.get('dashboard-overall-stats');
   if (overallStats && progress.overall) {
@@ -2447,6 +2450,157 @@ function navigateToPath(pathId) {
         startMixedReview();
       }
       break;
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// PERSONALIZED LEARNING INSIGHTS — Adaptive Engine Display
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * Render personalized learning insights on the dashboard.
+ * Uses the adaptive engine's learner profile and recommendations.
+ */
+function renderLearningInsights() {
+  var insights = (typeof getLearningInsights === 'function') ? getLearningInsights() : null;
+  if (!insights) return;
+  
+  var container = DOM.get('dashboard-insights');
+  if (!container) return;
+  
+  var html = '';
+  var rec = insights.recommendation;
+  
+  // Urgency colors
+  var urgencyColors = { high: 'var(--red)', medium: 'var(--gold)', low: 'var(--green)' };
+  var urgencyColor = urgencyColors[rec.urgency] || 'var(--gold)';
+  
+  // Recommendation card
+  html += '<div class="insights-section">';
+  html += '<div class="insights-section-title">🧠 Personalized Recommendation</div>';
+  html += '<div class="insights-rec-card" style="border-left:3px solid ' + urgencyColor + '">';
+  html += '<div class="insights-rec-label" style="color:' + urgencyColor + '">' + rec.label + '</div>';
+  html += '<div class="insights-rec-reason">' + rec.reason + '</div>';
+  html += '<div class="insights-rec-details">' + (rec.details || '') + '</div>';
+  html += '<button class="insights-rec-btn dashboard-rec-btn" id="insights-rec-btn" type="button">Go →</button>';
+  html += '</div></div>';
+  
+  // Weak Roots
+  if (insights.weakRoots && insights.weakRoots.length > 0) {
+    html += '<div class="insights-section">';
+    html += '<div class="insights-section-title">🌱 Weak Root Families</div>';
+    html += '<div class="insights-grid">';
+    for (var wi = 0; wi < insights.weakRoots.length; wi++) {
+      var wr = insights.weakRoots[wi];
+      html += '<div class="insights-chip insights-weak">' +
+        '<span class="insights-chip-root">' + wr.root + '</span>' +
+        '<span class="insights-chip-detail">' + (wr.rootMeaning || '') + ' · ' + wr.masteryScore + '%</span></div>';
+    }
+    html += '</div></div>';
+  }
+  
+  // Strong Roots
+  if (insights.strongRoots && insights.strongRoots.length > 0) {
+    html += '<div class="insights-section">';
+    html += '<div class="insights-section-title">💪 Strongest Root Families</div>';
+    html += '<div class="insights-grid">';
+    for (var si = 0; si < insights.strongRoots.length; si++) {
+      var sr = insights.strongRoots[si];
+      html += '<div class="insights-chip insights-strong">' +
+        '<span class="insights-chip-root">' + sr.root + '</span>' +
+        '<span class="insights-chip-detail">' + (sr.rootMeaning || '') + ' · ' + sr.masteryScore + '%</span></div>';
+    }
+    html += '</div></div>';
+  }
+  
+  // Confused Words
+  if (insights.confusedWords && insights.confusedWords.length > 0) {
+    html += '<div class="insights-section">';
+    html += '<div class="insights-section-title">🤔 Frequently Confused</div>';
+    html += '<div class="insights-grid">';
+    for (var ci = 0; ci < Math.min(insights.confusedWords.length, 5); ci++) {
+      var cw = insights.confusedWords[ci];
+      html += '<div class="insights-chip insights-confused" role="button" tabindex="0" data-word-id="' + cw.wordId + '">' +
+        '<span class="insights-chip-root">' + cw.arabic + '</span>' +
+        '<span class="insights-chip-detail">' + cw.english + ' · ' + cw.lapseRate + '% lapse</span></div>';
+    }
+    html += '</div></div>';
+  }
+  
+  // Stats Summary
+  html += '<div class="insights-section">';
+  html += '<div class="insights-section-title">📊 Learning Statistics</div>';
+  html += '<div class="insights-stats-grid">';
+  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.studiedWords + '</span><span class="insights-stat-label">Studied</span></div>';
+  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.masteredWords + '</span><span class="insights-stat-label">Mastered</span></div>';
+  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.adaptiveDifficulty + '</span><span class="insights-stat-label">Adaptive Level</span></div>';
+  html += '<div class="insights-stat"><span class="insights-stat-value">' + (insights.quizAccuracy || '-') + '%</span><span class="insights-stat-label">Quiz Accuracy</span></div>';
+  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.reviewBacklog + '</span><span class="insights-stat-label">Due Reviews</span></div>';
+  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.criticallyOverdue + '</span><span class="insights-stat-label">Critically Overdue</span></div>';
+  html += '</div></div>';
+  
+  // Coverage Projection
+  html += '<div class="insights-section">';
+  html += '<div class="insights-section-title">📖 Coverage Projection</div>';
+  html += '<div class="insights-projection">';
+  html += '<div class="insights-projection-row"><span>Current Quran Coverage</span><span>' + insights.currentCoverage + '%</span></div>';
+  if (insights.coverageGain > 0) {
+    html += '<div class="insights-projection-row" style="color:var(--green)"><span>Estimated after next lesson</span><span>~' + insights.estimatedNextCoverage + '% (+' + insights.coverageGain + '%)</span></div>';
+  }
+  if (insights.predictedDaysToFoundationCompletion > 0) {
+    html += '<div class="insights-projection-row"><span>Est. Foundation Completion</span><span>~' + insights.predictedDaysToFoundationCompletion + ' days</span></div>';
+  }
+  html += '</div></div>';
+  
+  container.innerHTML = html;
+  
+  // Wire the recommendation button
+  var recBtn = DOM.get('insights-rec-btn');
+  if (recBtn && rec) {
+    (function(pathId, action, rootKey, surahId) {
+      recBtn.onclick = function() {
+        switch (action) {
+          case 'startCriticalReview':
+          case 'startReview':
+          case 'startMixedReview':
+            if (typeof startMixedReview === 'function') startMixedReview();
+            break;
+          case 'startFoundation':
+          case 'continueFoundation':
+            if (typeof goToFoundationLesson === 'function') {
+              goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
+            }
+            break;
+          case 'strengthenRoot':
+            if (rootKey && typeof goToRootFamily === 'function') goToRootFamily(rootKey);
+            break;
+          case 'studySurah':
+            if (surahId && typeof goToSurah === 'function') goToSurah(surahId);
+            break;
+          case 'advanceDifficulty':
+            if (typeof goToDifficultyLevel === 'function') goToDifficultyLevel(parseInt(rootKey || '1', 10));
+            break;
+          default:
+            navigateToPath(pathId);
+            break;
+        }
+      };
+    })(rec.path, rec.action, rec.rootKey, rec.surahId);
+  }
+  
+  // Wire confused word chips to open explorer
+  var confusedChips = container.querySelectorAll('.insights-chip.insights-confused');
+  for (var i = 0; i < confusedChips.length; i++) {
+    (function(chip) {
+      var wordId = chip.getAttribute('data-word-id');
+      chip.onclick = function() {
+        var w = typeof findWordById === 'function' ? findWordById(wordId) : null;
+        if (w && typeof openExplorer === 'function') openExplorer(w);
+      };
+      chip.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); chip.onclick(); }
+      };
+    })(confusedChips[i]);
   }
 }
 

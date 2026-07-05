@@ -7,6 +7,7 @@
 // Build lessons from ALL_WORDS (called once after data files populate)
 buildLessons();
 
+
 // ── State ──────────────────────────────────────────────────────
 
 let currentWord = 0;
@@ -196,6 +197,7 @@ function updateWordCard() {
 // ── SRS ────────────────────────────────────────────────────────
 
 function rateSRS(rating) {
+  
   const w = getCurrentWord();
   if (!w) return;
   rateSRSWord(w.id, rating);
@@ -1386,7 +1388,17 @@ function init() {
   currentView = 'dashboard';
   switchView('dashboard');
 
-  // 1. Initialize Firebase services (auth, sync, user)
+  // Wire adaptive engine: invalidate learner profile on SRS changes
+  if (window.__adaptive && window.__adaptive.invalidateProfile) {
+    if (window.__srs && window.__srs.invalidateStatsCache) {
+      let _origInvalidate = window.__srs.invalidateStatsCache;
+      window.__srs.invalidateStatsCache = function() {
+        _origInvalidate();
+        window.__adaptive.invalidateProfile();
+      };
+    }
+  }
+    // 1. Initialize Firebase services (auth, sync, user)
   var firebaseReady = initAuth();
   if (firebaseReady) {
     initSync();
