@@ -139,6 +139,7 @@ function switchView(viewName) {
   if (viewName === 'list') renderWordList();
   if (viewName === 'stats') renderStats();
   if (viewName === 'profile') renderProfileView();
+  if (viewName === 'explorer') renderExplorer();
   if (document.activeElement) document.activeElement.blur();
 }
 
@@ -986,6 +987,28 @@ window.__navigateToWordIndex = function (idx) {
   reviewMode = false;
   switchView('learn');
   updateWordCard();
+};
+
+// Bridge for explorer to navigate to a word in learn mode
+window.__navigateToWord = function (w) {
+  if (!w) return;
+  // Try to find the word in active words
+  var activeWords = typeof getActiveLessonWords === 'function' ? getActiveLessonWords() : [];
+  var idx = activeWords.indexOf(w);
+  if (idx >= 0) {
+    window.__navigateToWordIndex(idx);
+    return;
+  }
+  // Fallback: try canonical words
+  var canonicalWords = typeof getCanonicalWords === 'function' ? getCanonicalWords() : [];
+  var cidx = canonicalWords.indexOf(w);
+  if (cidx >= 0) {
+    var wordLesson = Math.floor(cidx / WORDS_PER_LESSON);
+    var wordInLesson = cidx % WORDS_PER_LESSON;
+    if (wordLesson >= 0 && typeof goToLesson === 'function') {
+      goToLesson(wordLesson, wordInLesson);
+    }
+  }
 };
 
 // ═══════════════════════════════════════════════════════════════

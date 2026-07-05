@@ -23,9 +23,8 @@
 
   <div class="app" role="application" aria-label="Quranic Vocabulary Learning App">
 
-    <!-- TOP BAR (Redesigned: cleaner, less cluttered, better hierarchy) -->
+    <!-- TOP BAR -->
     <header class="top-bar" role="banner">
-      <!-- Row 1: Brand identity + user controls -->
       <div class="top-primary-row">
         <div class="top-left-group">
           <div class="bismillah" aria-hidden="true">بِسْمِ اللَّهِ</div>
@@ -39,7 +38,6 @@
         </div>
       </div>
 
-      <!-- Row 2: Lesson context + learning stats (compact, inline) -->
       <div class="top-meta-row">
         <div class="top-info-group" role="status" aria-label="Learning statistics">
           <span class="lesson-label" id="lesson-label">Lesson 1 of 16</span>
@@ -62,7 +60,6 @@
         </div>
       </div>
 
-      <!-- Row 3: Session progress (thin, secondary) -->
       <div class="progress-row" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Session progress">
         <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
         <span class="progress-label" id="progress-text">Word 1 / 20</span>
@@ -74,8 +71,6 @@
 
       <!-- ── LEARN VIEW ── -->
       <section class="mode-view active" id="view-learn" aria-label="Learn words">
-
-        <!-- Compact Lesson / Surah Header -->
         <div class="lesson-header">
           <div class="lesson-header-top">
             <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous">◀</button>
@@ -95,11 +90,8 @@
             </select>
             <button class="continue-lesson-btn" id="continue-learning-btn" type="button" style="flex-shrink:0;width:auto;padding:8px 14px;font-size:12px">📖 Continue</button>
           </div>
-          <!-- Foundation Course coverage display -->
           <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);margin-top:6px;text-align:center"></div>
-          <!-- Foundation relationship context (root families, related words) -->
           <div id="foundation-relationship-context" style="display:none"></div>
-          <!-- Foundation primary coverage metrics (above word card) -->
           <div id="foundation-primary-coverage" style="display:none"></div>
         </div>
 
@@ -109,14 +101,11 @@
           <button class="btn btn-sm" id="review-start-btn" type="button">Review</button>
         </div>
 
-        <!-- ── Word Card ── -->
         <article class="word-card fade-in" id="word-card" aria-label="Current word">
           <div class="word-num" id="word-num">Word 1 of 20</div>
           <div class="arabic-word" id="arabic-word" lang="ar" dir="rtl">اللَّهُ</div>
           <div class="transliteration" id="transliteration">Allāhu</div>
-          <!-- Surah reference badge (added dynamically) -->
           <div style="font-size:10px;color:var(--gold-dim);margin:0 0 4px;min-height:16px" id="surah-badge"></div>
-          <!-- Occurrence navigation for words with multiple contexts -->
           <div id="occ-nav" style="display:none;justify-content:center;align-items:center;gap:6px;margin:2px 0 6px" role="group" aria-label="Context navigation">
             <button class="qa-btn" id="occ-prev" type="button" style="font-size:10px;padding:4px 10px;min-height:30px">← Prev context</button>
             <span id="occ-label" style="font-size:10px;color:var(--text-muted);min-width:32px;text-align:center">1/1</span>
@@ -129,13 +118,11 @@
           <div class="occurrence-tag" id="occurrences">✦ Appears 2,699 times</div>
         </article>
 
-        <!-- ── Navigation row — right after word card, always visible ── -->
         <div class="nav-row" id="nav-row">
           <button class="btn btn-outline btn-sm" id="btn-prev" type="button">← Prev</button>
           <button class="btn btn-sm" id="btn-next" type="button">Next →</button>
         </div>
 
-        <!-- ── SRS Rating ── -->
         <div class="srs-label" id="srs-label" style="display:none">How well did you know this word?</div>
         <div class="srs-row" id="srs-row" style="display:none" role="group" aria-label="Rate your recall">
           <button class="srs-btn again" id="srs-again" type="button" aria-label="Rate Again — forgot the word">😓<br />Again<br /><span style="font-size:9px">Tomorrow</span></button>
@@ -144,7 +131,6 @@
           <button class="srs-btn easy" id="srs-easy" type="button" aria-label="Rate Easy — effortless recall">😊<br />Easy<br /><span style="font-size:9px">14 days</span></button>
         </div>
 
-        <!-- ── Quick Actions ── -->
         <div class="quick-actions">
           <button class="qa-btn" type="button" id="qa-show-ayah" aria-expanded="false" aria-controls="ayah-box">📖 Show in ayah</button>
           <button class="qa-btn" type="button" id="qa-show-more" aria-expanded="false" aria-controls="ayah-box tafsir-box">📚 Show full tafsir</button>
@@ -153,13 +139,11 @@
           <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)">⚡ <span class="sr-only">Toggle quick flashcard mode</span><span aria-hidden="true">Quick</span></button>
         </div>
 
-        <!-- ── Notes ── -->
         <div class="notes-box" id="notes-box" style="display:none">
           <div class="notes-header">📝 Personal Notes</div>
           <textarea class="notes-input" id="notes-input" placeholder="Write your notes about this word…" rows="2"></textarea>
         </div>
 
-        <!-- ── Details sections (below the fold) ── -->
         <section class="root-box" id="root-box" aria-label="Arabic root system">
           <div class="root-box-title">🌱 Root System</div>
           <div class="root-main">
@@ -173,7 +157,6 @@
           <div class="root-family" id="root-family" role="group" aria-label="Related root words"></div>
         </section>
 
-        <!-- Word Network: Similar, Opposite & Related Words -->
         <section class="word-network" id="word-network" aria-label="Word connections">
           <div class="word-network-section" id="similar-words-section">
             <div class="word-network-title">🔗 Similar Words</div>
@@ -189,7 +172,6 @@
           </div>
         </section>
 
-        <!-- Extended Relationships -->
         <section class="word-network" id="extended-relationships" aria-label="Extended word relationships">
           <div class="word-network-section" id="derived-forms-section">
             <div class="word-network-title">📐 Derived Forms</div>
@@ -241,12 +223,10 @@
 
       <!-- ── WORD LIST VIEW ── -->
       <section class="mode-view" id="view-list" aria-label="All words">
-        <!-- Search bar -->
         <div class="search-row">
           <input class="search-input" id="search-input" type="search" placeholder="Search Arabic, English, or root…" aria-label="Search vocabulary" />
         </div>
 
-        <!-- Filter chips: Type -->
         <div class="filter-chips" id="filter-type-chips" role="group" aria-label="Filter by type">
           <button class="chip chip-active" data-filter="type" data-value="all" type="button">All</button>
           <button class="chip" data-filter="type" data-value="noun" type="button">Nouns</button>
@@ -256,7 +236,6 @@
           <button class="chip" data-filter="type" data-value="pronoun" type="button">Pronouns</button>
         </div>
 
-        <!-- Filter chips: Status -->
         <div class="filter-chips" id="filter-status-chips" role="group" aria-label="Filter by learning status">
           <button class="chip chip-active" data-filter="status" data-value="all" type="button">All</button>
           <button class="chip" data-filter="status" data-value="new" type="button">🆕 New</button>
@@ -296,7 +275,6 @@
           </div>
         </div>
 
-        <!-- Streak -->
         <div class="streak-box">
           <div class="streak-header">🔥 Daily Streak</div>
           <div class="streak-main">
@@ -306,69 +284,262 @@
           <div class="streak-sub" id="streak-today">Review today to start your streak!</div>
         </div>
 
-        <!-- Progress bars -->
         <div class="progress-section">
           <div class="progress-section-title">📊 Learning Progress</div>
-
           <div class="progress-bar-label">By Type</div>
           <div id="stats-by-type" class="stats-bar-list"></div>
-
           <div class="progress-bar-label mt-12">By Difficulty</div>
           <div id="stats-by-difficulty" class="stats-bar-list"></div>
         </div>
 
-        <!-- Learning stages -->
         <div class="progress-section">
           <div class="progress-section-title">📊 Learning Stages</div>
           <div id="stats-stages" class="stats-bar-list"></div>
         </div>
 
-        <!-- Foundation Course Progress -->
         <div class="progress-section">
           <div class="progress-section-title">📘 Foundation Course</div>
           <div id="stats-foundation" class="stats-bar-list"></div>
         </div>
 
-        <!-- Surah Comprehension -->
         <div class="progress-section">
           <div class="progress-section-title">📖 Surah Comprehension</div>
           <div id="stats-surah-comprehension" class="stats-bar-list"></div>
         </div>
 
-        <!-- Relationship Coverage -->
         <div class="progress-section">
           <div class="progress-section-title">🔗 Vocabulary Relationships</div>
           <div id="stats-relationships" class="stats-bar-list"></div>
         </div>
 
-        <!-- SRS Health -->
         <div class="progress-section">
           <div class="progress-section-title">❤️ SRS Health</div>
           <div id="stats-health" class="stats-bar-list"></div>
           <div id="stats-leeches"></div>
         </div>
 
-        <!-- Review forecast -->
         <div class="progress-section">
           <div class="progress-section-title">📅 Review Forecast</div>
           <div id="stats-forecast" class="stats-bar-list"></div>
         </div>
       </section>
 
+      <!-- ── VOCABULARY EXPLORER VIEW ── -->
+      <section class="mode-view" id="view-explorer" aria-label="Vocabulary Explorer">
+        <!-- Header with back button -->
+        <div class="explorer-header">
+          <button class="explorer-back-btn" id="explorer-back" type="button" aria-label="Back to previous view">← Back</button>
+          <div class="explorer-header-title">📖 Vocabulary Explorer</div>
+        </div>
+
+        <!-- ── Core Information Section ── -->
+        <section class="explorer-section" id="explorer-core" aria-label="Core word information">
+          <div class="explorer-section-title">📝 Core Information</div>
+          <div class="explorer-core-card">
+            <div class="explorer-arabic" id="explorer-arabic" lang="ar" dir="rtl">اللَّهُ</div>
+            <div class="explorer-translit" id="explorer-translit">Allāhu</div>
+            <div class="explorer-meaning-main" id="explorer-meaning-main">Allah — God</div>
+            <div class="explorer-full-meaning" id="explorer-full-meaning"></div>
+
+            <div class="explorer-info-grid">
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Root</span>
+                <span class="explorer-info-value" id="explorer-root" lang="ar" dir="rtl">أ-ل-ه</span>
+              </div>
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Morphology</span>
+                <span class="explorer-info-value" id="explorer-pattern">—</span>
+              </div>
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Part of Speech</span>
+                <span class="explorer-info-value" id="explorer-pos">Noun</span>
+              </div>
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Difficulty</span>
+                <span class="explorer-info-value" id="explorer-difficulty">—</span>
+              </div>
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Frequency Rank</span>
+                <span class="explorer-info-value" id="explorer-freq-rank">—</span>
+              </div>
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Total Quran Occurrences</span>
+                <span class="explorer-info-value" id="explorer-occ">—</span>
+              </div>
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Foundation Lesson</span>
+                <span class="explorer-info-value" id="explorer-foundation-lesson">—</span>
+              </div>
+              <div class="explorer-info-item">
+                <span class="explorer-info-label">Learning Priority</span>
+                <span class="explorer-info-value" id="explorer-priority">—</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Quran Context Section ── -->
+        <section class="explorer-section" id="explorer-quran-context" aria-label="Quran context">
+          <div class="explorer-section-title">📖 Quran Context</div>
+          <div class="explorer-context-card">
+            <div class="explorer-context-stats">
+              <div class="explorer-context-stat">
+                <span class="explorer-context-stat-value" id="explorer-first-occ">—</span>
+                <span class="explorer-context-stat-label">First occurrence</span>
+              </div>
+              <div class="explorer-context-stat">
+                <span class="explorer-context-stat-value" id="explorer-last-occ">—</span>
+                <span class="explorer-context-stat-label">Last occurrence</span>
+              </div>
+              <div class="explorer-context-stat">
+                <span class="explorer-context-stat-value" id="explorer-surah-count">—</span>
+                <span class="explorer-context-stat-label">Surahs</span>
+              </div>
+              <div class="explorer-context-stat">
+                <span class="explorer-context-stat-value" id="explorer-total-occ">—</span>
+                <span class="explorer-context-stat-label">Total occurrences</span>
+              </div>
+            </div>
+
+            <!-- Occurrence navigation and display -->
+            <div class="explorer-occ-nav" id="explorer-occ-nav" role="group" aria-label="Occurrence navigation">
+              <button class="qa-btn" id="explorer-occ-prev" type="button" style="font-size:10px;padding:6px 12px">← Prev</button>
+              <span class="explorer-occ-label" id="explorer-occ-label">1 / 1</span>
+              <button class="qa-btn" id="explorer-occ-next" type="button" style="font-size:10px;padding:6px 12px">Next →</button>
+            </div>
+
+            <div class="explorer-occ-view">
+              <div class="explorer-ayah-arabic" id="explorer-ayah-arabic" lang="ar" dir="rtl"></div>
+              <div class="explorer-ayah-translation" id="explorer-ayah-translation"></div>
+              <div class="explorer-ayah-ref" id="explorer-ayah-ref"></div>
+            </div>
+
+            <!-- Tafsir -->
+            <div class="explorer-tafsir-section">
+              <button class="qa-btn w-full text-center" id="explorer-tafsir-btn" type="button">📚 Load Ibn Kathir Tafsir</button>
+              <div class="explorer-tafsir-box" id="explorer-tafsir-box" style="display:none">
+                <div class="explorer-tafsir-text" id="explorer-tafsir-text"></div>
+              </div>
+            </div>
+
+            <!-- All occurrences list (collapsible) -->
+            <button class="qa-btn w-full text-center mt-8" id="explorer-all-occ-btn" type="button" aria-expanded="false">📋 View all occurrences</button>
+            <div id="explorer-all-occ-list" style="display:none"></div>
+
+            <!-- Related Surahs -->
+            <div id="explorer-related-surahs" style="margin-top:8px">
+              <div class="explorer-section-subtitle">In Surahs:</div>
+              <div class="explorer-surah-links" id="explorer-surah-links"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Vocabulary Relationships Section ── -->
+        <section class="explorer-section" id="explorer-relationships" aria-label="Vocabulary relationships">
+          <div class="explorer-section-title">🔗 Vocabulary Relationships</div>
+          <div class="explorer-rel-card" id="explorer-rel-content">
+            <div class="explorer-rel-section" id="explorer-root-family-section">
+              <div class="explorer-rel-subtitle">🌱 Root Family</div>
+              <div class="explorer-chip-list" id="explorer-root-family-list"></div>
+            </div>
+            <div class="explorer-rel-section" id="explorer-derived-forms-section">
+              <div class="explorer-rel-subtitle">📐 Derived Forms</div>
+              <div class="explorer-chip-list" id="explorer-derived-forms-list"></div>
+            </div>
+            <div class="explorer-rel-section" id="explorer-morph-section">
+              <div class="explorer-rel-subtitle">🔬 Morphological Relatives</div>
+              <div class="explorer-chip-list" id="explorer-morph-list"></div>
+            </div>
+            <div class="explorer-rel-section" id="explorer-similar-section">
+              <div class="explorer-rel-subtitle">🔗 Similar Words</div>
+              <div class="explorer-chip-list" id="explorer-similar-list"></div>
+            </div>
+            <div class="explorer-rel-section" id="explorer-confused-section">
+              <div class="explorer-rel-subtitle">⚠️ Frequently Confused</div>
+              <div class="explorer-chip-list" id="explorer-confused-list"></div>
+            </div>
+            <div class="explorer-rel-section" id="explorer-semantic-section">
+              <div class="explorer-rel-subtitle">🏷️ Semantic Groups</div>
+              <div class="explorer-chip-list" id="explorer-semantic-list"></div>
+            </div>
+            <div class="explorer-rel-section" id="explorer-related-section">
+              <div class="explorer-rel-subtitle">🔗 Related Quranic Words</div>
+              <div class="explorer-chip-list" id="explorer-related-list"></div>
+            </div>
+            <div class="explorer-rel-section" id="explorer-equiv-section">
+              <div class="explorer-rel-subtitle">🔄 Contextual Equivalents</div>
+              <div class="explorer-chip-list" id="explorer-equiv-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Personal Learning Progress Section ── -->
+        <section class="explorer-section" id="explorer-learning-progress" aria-label="Learning progress">
+          <div class="explorer-section-title">📊 My Learning Progress</div>
+          <div class="explorer-progress-card">
+            <div class="explorer-progress-grid">
+              <div class="explorer-progress-item">
+                <span class="explorer-progress-value" id="explorer-srs-stage">🆕</span>
+                <span class="explorer-progress-label">Mastery Status</span>
+              </div>
+              <div class="explorer-progress-item">
+                <span class="explorer-progress-value" id="explorer-foundation-status">—</span>
+                <span class="explorer-progress-label">Foundation Lesson</span>
+              </div>
+              <div class="explorer-progress-item">
+                <span class="explorer-progress-value" id="explorer-last-studied">—</span>
+                <span class="explorer-progress-label">Last Studied</span>
+              </div>
+              <div class="explorer-progress-item">
+                <span class="explorer-progress-value" id="explorer-next-review">—</span>
+                <span class="explorer-progress-label">Next Review</span>
+              </div>
+              <div class="explorer-progress-item">
+                <span class="explorer-progress-value" id="explorer-review-count">0</span>
+                <span class="explorer-progress-label">Total Reviews</span>
+              </div>
+              <div class="explorer-progress-item">
+                <span class="explorer-progress-value" id="explorer-retention">—</span>
+                <span class="explorer-progress-label">Retention</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Learning Actions ── -->
+        <section class="explorer-section" id="explorer-actions" aria-label="Learning actions">
+          <div class="explorer-section-title">🎯 Learning Actions</div>
+          <div class="explorer-actions-card">
+            <div class="explorer-actions-grid">
+              <button class="explorer-action-btn" id="explorer-btn-bookmark" type="button">⭐ Bookmark</button>
+              <button class="explorer-action-btn" id="explorer-btn-study" type="button">📖 Study this word</button>
+              <button class="explorer-action-btn" id="explorer-btn-review" type="button">🔁 Rate word</button>
+              <button class="explorer-action-btn" id="explorer-btn-practice-related" type="button">🔗 Practice related</button>
+              <button class="explorer-action-btn" id="explorer-btn-view-occurrences" type="button">📋 View all occurrences</button>
+              <button class="explorer-action-btn" id="explorer-btn-open-flashcards" type="button">⚡ Flashcard mode</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Personal Notes ── -->
+        <section class="explorer-section" id="explorer-notes" aria-label="Personal notes">
+          <div class="explorer-section-title">📝 Personal Notes</div>
+          <div class="explorer-notes-card">
+            <textarea class="explorer-notes-input" id="explorer-notes-input" placeholder="Write your notes about this word…" rows="3"></textarea>
+          </div>
+        </section>
+      </section>
+
       <!-- ── AUTH VIEW ── -->
       <section class="mode-view" id="view-auth" aria-label="Account login">
         <div class="auth-container">
           <div class="auth-title" id="auth-title">Welcome Back</div>
-
-          <!-- ── LOGIN FORM ── -->
           <div id="auth-login" class="auth-form-view">
             <form id="auth-login-form" autocomplete="on">
               <label class="auth-label" for="auth-login-email">Email</label>
               <input class="auth-input" id="auth-login-email" type="email" placeholder="your@email.com" autocomplete="email" required />
-
               <label class="auth-label" for="auth-login-password">Password</label>
               <input class="auth-input" id="auth-login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
-
               <div class="auth-remember-row">
                 <label class="auth-checkbox-label">
                   <input type="checkbox" id="auth-remember" checked />
@@ -376,94 +547,66 @@
                 </label>
                 <a href="#" id="auth-forgot-link" class="auth-link">Forgot password?</a>
               </div>
-
               <div class="auth-error" id="auth-login-error" style="display:none"></div>
-
               <button class="btn auth-submit-btn" id="auth-login-submit" type="submit">Sign In</button>
             </form>
-
             <div class="auth-footer">
               Don't have an account?
               <a href="#" id="auth-signup-link" class="auth-link">Create one</a>
             </div>
           </div>
-
-          <!-- ── SIGN UP FORM ── -->
           <div id="auth-signup" class="auth-form-view" style="display:none">
             <form id="auth-signup-form" autocomplete="on">
               <label class="auth-label" for="auth-signup-name">Name</label>
               <input class="auth-input" id="auth-signup-name" type="text" placeholder="Your name" autocomplete="name" required />
-
               <label class="auth-label" for="auth-signup-email">Email</label>
               <input class="auth-input" id="auth-signup-email" type="email" placeholder="your@email.com" autocomplete="email" required />
-
               <label class="auth-label" for="auth-signup-password">Password (min 6 chars)</label>
               <input class="auth-input" id="auth-signup-password" type="password" placeholder="••••••••" autocomplete="new-password" required />
-
               <label class="auth-label" for="auth-signup-confirm">Confirm password</label>
               <input class="auth-input" id="auth-signup-confirm" type="password" placeholder="••••••••" autocomplete="new-password" required />
-
               <div class="auth-error" id="auth-signup-error" style="display:none"></div>
-
               <button class="btn auth-submit-btn" id="auth-signup-submit" type="submit">Create Account</button>
             </form>
-
             <div class="auth-footer">
               Already have an account?
               <a href="#" id="auth-login-link" class="auth-link">Sign in</a>
             </div>
           </div>
-
-          <!-- ── FORGOT PASSWORD FORM ── -->
           <div id="auth-forgot" class="auth-form-view" style="display:none">
             <form id="auth-forgot-form" autocomplete="on">
               <p class="auth-description">Enter your email address and we'll send you a password reset link.</p>
-
               <label class="auth-label" for="auth-forgot-email">Email</label>
               <input class="auth-input" id="auth-forgot-email" type="email" placeholder="your@email.com" autocomplete="email" required />
-
               <div class="auth-error" id="auth-forgot-error" style="display:none"></div>
               <div class="auth-success" id="auth-forgot-success" style="display:none"></div>
-
               <button class="btn auth-submit-btn" id="auth-forgot-submit" type="submit">Send Reset Link</button>
             </form>
-
             <div class="auth-footer">
               <a href="#" id="auth-back-login" class="auth-link">← Back to sign in</a>
             </div>
           </div>
-
-          <!-- ── RESET PASSWORD FORM ── -->
           <div id="auth-reset" class="auth-form-view" style="display:none">
             <form id="auth-reset-form" autocomplete="on">
               <p class="auth-description">Enter your new password.</p>
-
               <input type="hidden" id="auth-reset-code" value="" />
-
               <label class="auth-label" for="auth-reset-password">New password (min 6 chars)</label>
               <input class="auth-input" id="auth-reset-password" type="password" placeholder="••••••••" autocomplete="new-password" required />
-
               <label class="auth-label" for="auth-reset-confirm">Confirm new password</label>
               <input class="auth-input" id="auth-reset-confirm" type="password" placeholder="••••••••" autocomplete="new-password" required />
-
               <div class="auth-error" id="auth-reset-error" style="display:none"></div>
               <div class="auth-success" id="auth-reset-success" style="display:none"></div>
-
               <button class="btn auth-submit-btn" id="auth-reset-submit" type="submit">Reset Password</button>
             </form>
           </div>
-
-          <!-- ── VERIFY EMAIL ── -->
           <div id="auth-verify" class="auth-form-view" style="display:none">
             <div class="auth-verify-content">
               <div class="auth-verify-icon">📧</div>
               <p class="auth-description">We sent a verification email to:</p>
               <p class="auth-verify-email" id="auth-verify-email">your@email.com</p>
               <p class="auth-description mt-12">Please check your inbox and click the verification link to continue.</p>
-
               <div class="auth-error" id="auth-verify-error" style="display:none"></div>
               <div class="auth-success" id="auth-verify-success" style="display:none"></div>
-
               <button class="btn auth-submit-btn mt-8" id="auth-resend-verify" type="button">Resend Verification Email</button>
             </div>
           </div>
@@ -473,7 +616,6 @@
       <!-- ── PROFILE VIEW ── -->
       <section class="mode-view" id="view-profile" aria-label="User profile">
         <div class="profile-container">
-          <!-- Avatar & Name -->
           <div class="profile-header">
             <div class="profile-avatar" id="profile-avatar">U</div>
             <div class="profile-header-info">
@@ -484,8 +626,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Profile Info -->
           <div id="profile-info">
             <div class="profile-detail-row">
               <span class="profile-detail-label">Joined</span>
@@ -495,7 +635,6 @@
               <span class="profile-detail-label">Sync</span>
               <span class="profile-detail-value" id="profile-sync-status">○ Offline</span>
             </div>
-
             <div class="profile-section-title mt-20">📊 Learning Stats</div>
             <div class="profile-stats-grid">
               <div class="profile-stat">
@@ -515,32 +654,22 @@
                 <div class="profile-stat-label">Retention</div>
               </div>
             </div>
-
             <button class="btn btn-sm w-full mt-14" id="btn-edit-profile" type="button">✏️ Edit Profile</button>
           </div>
-
-          <!-- Profile Edit Form -->
           <div id="profile-edit" style="display:none">
             <div class="profile-section-title mt-0">✏️ Edit Profile</div>
-
             <label class="auth-label" for="profile-edit-name">Name</label>
             <input class="auth-input" id="profile-edit-name" type="text" placeholder="Your name" />
-
             <label class="auth-label" for="profile-edit-email">Email</label>
             <input class="auth-input" id="profile-edit-email" type="email" placeholder="your@email.com" />
-
             <div class="auth-error" id="profile-edit-error" style="display:none"></div>
             <div class="auth-success" id="profile-edit-success" style="display:none"></div>
-
             <div class="profile-edit-actions">
               <button class="btn btn-sm flex-1" id="btn-save-profile" type="button">Save</button>
               <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-profile" type="button">Cancel</button>
             </div>
           </div>
-
-          <!-- Settings Section -->
           <div class="profile-section-title mt-24">⚙️ Settings</div>
-
           <div id="settings-info">
             <div class="profile-detail-row">
               <span class="profile-detail-label">Daily review limit</span>
@@ -554,41 +683,30 @@
               <span class="profile-detail-label">Auto-import</span>
               <span class="profile-detail-value" id="settings-auto-import">On</span>
             </div>
-
             <button class="btn btn-sm w-full mt-8" id="btn-edit-settings" type="button">⚙️ Edit Settings</button>
           </div>
-
           <div id="settings-edit" style="display:none">
             <div class="profile-section-title mt-0">⚙️ Edit Settings</div>
-
             <label class="auth-label" for="settings-edit-limit">Daily review limit (5-100)</label>
             <input class="auth-input" id="settings-edit-limit" type="number" min="5" max="100" value="25" />
-
             <label class="auth-label" for="settings-edit-size">Session word count (5-153)</label>
             <input class="auth-input" id="settings-edit-size" type="number" min="5" max="153" value="20" />
-
             <label class="auth-checkbox-label mt-12 flex gap-8">
               <input type="checkbox" id="settings-edit-auto" checked />
               <span>Auto-import local data on login</span>
             </label>
-
             <div class="auth-error" id="settings-edit-error" style="display:none"></div>
             <div class="auth-success" id="settings-edit-success" style="display:none"></div>
-
             <div class="profile-edit-actions">
               <button class="btn btn-sm flex-1" id="btn-save-settings" type="button">Save</button>
               <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-settings" type="button">Cancel</button>
             </div>
           </div>
-
-          <!-- Account Actions -->
           <div class="profile-section-title mt-24">🔐 Account</div>
-
           <button class="account-action-btn" id="btn-change-password" type="button">🔑 Change Password</button>
           <button class="account-action-btn" id="btn-export-data" type="button">📤 Export Learning Data</button>
           <button class="account-action-btn" id="btn-import-data" type="button">📥 Import Learning Data</button>
           <button class="account-action-btn account-action-danger" id="btn-delete-account" type="button">🗑️ Delete Account</button>
-
           <button class="btn btn-sm btn-outline w-full mt-16" id="btn-logout" type="button">🚪 Sign Out</button>
         </div>
       </section>
@@ -623,16 +741,12 @@
           <form id="password-change-form" autocomplete="on">
             <label class="auth-label" for="password-change-current">Current password</label>
             <input class="auth-input" id="password-change-current" type="password" placeholder="••••••••" autocomplete="current-password" required />
-
             <label class="auth-label" for="password-change-new">New password (min 6 chars)</label>
             <input class="auth-input" id="password-change-new" type="password" placeholder="••••••••" autocomplete="new-password" required />
-
             <label class="auth-label" for="password-change-confirm">Confirm new password</label>
             <input class="auth-input" id="password-change-confirm" type="password" placeholder="••••••••" autocomplete="new-password" required />
-
             <div class="auth-error" id="password-change-error" style="display:none"></div>
             <div class="auth-success" id="password-change-success" style="display:none"></div>
-
             <div class="profile-edit-actions mt-16">
               <button class="btn btn-sm flex-1" id="btn-save-password" type="submit">Change Password</button>
               <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-password" type="button">Cancel</button>
@@ -676,10 +790,7 @@
   </div>
 
   <!-- ── SCRIPTS ── -->
-  <!-- Firebase v12 modular SDK (loaded as ES module for CDN imports) -->
   <script type="module" src="js/services/firebase-core.js"></script>
-
-  <!-- Production bundles (generated by node build.js) -->
   <script defer src="js/data.bundle.min.js"></script>
   <script defer src="js/app.bundle.min.js"></script>
 </body>
