@@ -69,8 +69,29 @@
     <!-- CONTENT -->
     <main class="content" id="content" tabindex="-1">
 
+      <!-- ── LEARNING PATH DASHBOARD ── -->
+      <section class="mode-view active" id="view-dashboard" aria-label="Learning Dashboard">
+        <div class="dashboard-header">
+          <div class="dashboard-title">📚 Your Learning Paths</div>
+          <div class="dashboard-subtitle" id="dashboard-subtitle">Choose a path to continue your Quran vocabulary journey</div>
+          <div class="dashboard-recommendation" id="dashboard-recommendation">
+            <div class="dashboard-rec-label" aria-live="polite">✨ Recommended</div>
+            <div class="dashboard-rec-content" id="dashboard-rec-content"></div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid" id="dashboard-grid">
+          <!-- Path cards rendered dynamically by renderDashboard() -->
+        </div>
+
+        <div class="dashboard-overall" id="dashboard-overall">
+          <div class="dashboard-overall-title">📊 Overall Progress</div>
+          <div class="dashboard-overall-stats" id="dashboard-overall-stats"></div>
+        </div>
+      </section>
+
       <!-- ── LEARN VIEW ── -->
-      <section class="mode-view active" id="view-learn" aria-label="Learn words">
+      <section class="mode-view" id="view-learn" aria-label="Learn words">
         <div class="lesson-header">
           <div class="lesson-header-top">
             <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous">◀</button>
@@ -884,7 +905,11 @@
 
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
-      <button class="nav-tab active" id="tab-learn" type="button">
+      <button class="nav-tab active" id="tab-dashboard" type="button">
+        <span class="nav-tab-icon">📚</span>
+        <span class="nav-tab-label">Paths</span>
+      </button>
+      <button class="nav-tab" id="tab-learn" type="button">
         <span class="nav-tab-icon">📖</span>
         <span class="nav-tab-label">Learn</span>
       </button>

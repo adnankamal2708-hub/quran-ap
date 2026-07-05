@@ -28,6 +28,16 @@ function getActiveLessonWords() {
   if (getOrganizationMode() === 'surah' && getActiveSurahId()) {
     return getSurahWords(getActiveSurahId());
   }
+  // If in root family mode
+  if (getOrganizationMode() === 'root-family') {
+    var rfWords = typeof getActiveRootFamilyWords === 'function' ? getActiveRootFamilyWords() : [];
+    return rfWords;
+  }
+  // If in difficulty mode
+  if (getOrganizationMode() === 'difficulty') {
+    var diffWords = typeof getActiveDifficultyWords === 'function' ? getActiveDifficultyWords() : [];
+    return diffWords;
+  }
   return getLessonWords(activeLessonIndex);
 }
 
@@ -131,6 +141,7 @@ function switchView(viewName) {
 
   currentView = viewName;
   setView(viewName);
+  if (viewName === 'dashboard') renderDashboard();
   if (viewName === 'learn') {
     updateReviewBanner();
     updateLessonProgressDisplay();
@@ -343,6 +354,98 @@ function updateLessonProgressDisplay() {
         continueBtn.disabled = false;
       }
     }
+    return;
+  }
+  
+  if (getOrganizationMode() === 'root-family') {
+    // Root Family mode display
+    var rfFamilies = typeof getRootFamilyLessons === 'function' ? getRootFamilyLessons() : [];
+    var rfProgress = typeof loadRootFamilyProgress === 'function' ? loadRootFamilyProgress() : null;
+    var currentRoot = rfProgress ? rfProgress.currentRoot : '';
+    var rfCompleted = typeof getCompletedRootFamilyCount === 'function' ? getCompletedRootFamilyCount() : 0;
+    var rfTotal = typeof getTotalRootFamilyCount === 'function' ? getTotalRootFamilyCount() : 0;
+    
+    // Find current family info
+    var currentFamily = null;
+    for (var rfi = 0; rfi < rfFamilies.length; rfi++) {
+      if (rfFamilies[rfi].root === currentRoot) {
+        currentFamily = rfFamilies[rfi];
+        break;
+      }
+    }
+    
+    if (lessonLabel && currentFamily) {
+      lessonLabel.textContent = 'Root Family: ' + currentFamily.root + ' (' + (currentFamily.rootMeaning || '') + ')';
+    } else if (lessonLabel) {
+      lessonLabel.textContent = 'Root Family Learning';
+    }
+    
+    var lessonProgress = DOM.get('lesson-progress');
+    if (lessonProgress) {
+      var rfPct = rfTotal > 0 ? Math.round((rfCompleted / rfTotal) * 100) : 0;
+      lessonProgress.style.width = rfPct + '%';
+    }
+    
+    var lessonProgressText = DOM.get('lesson-progress-text');
+    if (lessonProgressText) {
+      lessonProgressText.textContent = rfCompleted + ' of ' + rfTotal + ' root families complete';
+    }
+    
+    var continueBtn = DOM.get('continue-learning-btn');
+    if (continueBtn) {
+      var nextRF = typeof getNextIncompleteRootFamily === 'function' ? getNextIncompleteRootFamily() : '';
+      if (nextRF) {
+        continueBtn.textContent = '\uD83C\uDF31 Next Root Family';
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.textContent = '\uD83C\uDF89 All Root Families Complete!';
+        continueBtn.disabled = true;
+      }
+    }
+    
+    // Hide foundation-specific elements
+    var foundationCoverageEl = DOM.get('foundation-coverage');
+    if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
+    return;
+  }
+  
+  if (getOrganizationMode() === 'difficulty') {
+    // Difficulty mode display
+    var dLevel = typeof loadDifficultyProgress === 'function' ? loadDifficultyProgress().currentDifficulty : 1;
+    var dCompleted = typeof getCompletedDifficultyLevelCount === 'function' ? getCompletedDifficultyLevelCount() : 0;
+    
+    if (lessonLabel) {
+      lessonLabel.textContent = 'Difficulty Level ' + dLevel + ' of 5';
+    }
+    
+    var lessonProgress = DOM.get('lesson-progress');
+    if (lessonProgress) {
+      var dPct = Math.round((dCompleted / 5) * 100);
+      lessonProgress.style.width = dPct + '%';
+    }
+    
+    var lessonProgressText = DOM.get('lesson-progress-text');
+    if (lessonProgressText) {
+      lessonProgressText.textContent = dCompleted + ' of 5 difficulty levels complete';
+    }
+    
+    var continueBtn = DOM.get('continue-learning-btn');
+    if (continueBtn) {
+      var nextD = typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1;
+      if (dCompleted >= 5) {
+        continueBtn.textContent = '\uD83C\uDF89 All Levels Complete!';
+        continueBtn.disabled = true;
+      } else if (nextD !== dLevel) {
+        continueBtn.textContent = '\uD83D\uDCE8 Continue Level ' + nextD;
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.textContent = '\uD83D\uDCE8 Study Level ' + dLevel;
+        continueBtn.disabled = false;
+      }
+    }
+    
+    var foundationCoverageEl = DOM.get('foundation-coverage');
+    if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
     return;
   }
   
@@ -607,6 +710,7 @@ function setupKeyboardShortcuts() {
     // Global navigation shortcuts (no modifier keys)
     if (!e.ctrlKey && !e.metaKey && !e.altKey) {
       if (e.key === 'l' || e.key === 'L') { e.preventDefault(); switchView('learn'); }
+      else if (e.key === 'd' || e.key === 'D') { e.preventDefault(); switchView('dashboard'); }
       else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); switchView('quiz'); }
       else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); switchView('list'); }
       else if (e.key === 's' || e.key === 'S') { e.preventDefault(); switchView('stats'); }
@@ -628,6 +732,7 @@ function setupKeyboardShortcuts() {
 
 function wireEvents() {
   // Bottom nav tabs
+  document.getElementById('tab-dashboard').onclick = function () { switchView('dashboard'); };
   document.getElementById('tab-learn').onclick = function () { switchView('learn'); };
   document.getElementById('tab-quiz').onclick = function () { switchView('quiz'); };
   document.getElementById('tab-list').onclick = function () { switchView('list'); };
@@ -688,7 +793,7 @@ function wireEvents() {
   wireFilterChips('type');
   wireFilterChips('status');
 
-  // Continue Learning button (works for foundation, surah, and lesson mode)
+  // Continue Learning button (works for all learning paths)
   DOM.get('continue-learning-btn').onclick = function () {
     if (getOrganizationMode() === FOUNDATION_MODE) {
       var fNext = getNextIncompleteFoundationLesson();
@@ -704,6 +809,14 @@ function wireEvents() {
       }
       // All complete
       goToSurah(surahIds[0] || 1);
+    } else if (getOrganizationMode() === 'root-family') {
+      // In root family mode, go to next incomplete root family
+      var nextRFKey = typeof getNextIncompleteRootFamily === 'function' ? getNextIncompleteRootFamily() : '';
+      if (nextRFKey) goToRootFamily(nextRFKey);
+    } else if (getOrganizationMode() === 'difficulty') {
+      // In difficulty mode, go to next incomplete level
+      var nextDLevel = typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1;
+      goToDifficultyLevel(nextDLevel);
     } else {
       continueLearning();
     }
@@ -712,10 +825,16 @@ function wireEvents() {
   // Quick mode toggle
   DOM.get('qa-quick-mode').onclick = toggleQuickMode;
 
-  // Session summary close
+  // Session summary close — returns to dashboard if from mixed review
   DOM.get('session-summary-close').onclick = function () {
     closeSessionSummary();
-    switchView('learn');
+    var wasMixed = window.__lastReviewWasMixed;
+    window.__lastReviewWasMixed = false;
+    if (wasMixed) {
+      switchView('dashboard');
+    } else {
+      switchView('learn');
+    }
     // Focus word card for keyboard users
     var wordCard = DOM.get('word-card');
     if (wordCard && typeof wordCard.focus === 'function') {
@@ -724,7 +843,7 @@ function wireEvents() {
     }
   };
 
-  // Lesson navigation (prev/next lesson or surah)
+  // Lesson navigation (prev/next lesson, surah, root family, or difficulty level)
   DOM.get('prev-lesson-btn').onclick = function () {
     if (getOrganizationMode() === FOUNDATION_MODE) {
       if (activeLessonIndex > 0) goToFoundationLesson(activeLessonIndex - 1);
@@ -733,6 +852,21 @@ function wireEvents() {
       var surahIds = getSurahsWithVocabulary();
       var curIdx = surahIds.indexOf(getActiveSurahId());
       if (curIdx > 0) goToSurah(surahIds[curIdx - 1]);
+    } else if (getOrganizationMode() === 'root-family') {
+      // In root family mode, go to previous family
+      var rfFamilies = typeof getRootFamilyLessons === 'function' ? getRootFamilyLessons() : [];
+      var rfProgress = typeof loadRootFamilyProgress === 'function' ? loadRootFamilyProgress() : null;
+      var currentRoot = rfProgress ? rfProgress.currentRoot : '';
+      for (var rfi = 0; rfi < rfFamilies.length; rfi++) {
+        if (rfFamilies[rfi].root === currentRoot && rfi > 0) {
+          goToRootFamily(rfFamilies[rfi - 1].root);
+          break;
+        }
+      }
+    } else if (getOrganizationMode() === 'difficulty') {
+      // In difficulty mode, go to previous level
+      var dLevel = typeof loadDifficultyProgress === 'function' ? loadDifficultyProgress().currentDifficulty : 1;
+      if (dLevel > 1) goToDifficultyLevel(dLevel - 1);
     } else if (activeLessonIndex > 0) {
       goToLesson(activeLessonIndex - 1);
     }
@@ -749,6 +883,21 @@ function wireEvents() {
       var surahIds = getSurahsWithVocabulary();
       var curIdx = surahIds.indexOf(getActiveSurahId());
       if (curIdx >= 0 && curIdx < surahIds.length - 1) goToSurah(surahIds[curIdx + 1]);
+    } else if (getOrganizationMode() === 'root-family') {
+      // In root family mode, go to next family
+      var rfFamilies = typeof getRootFamilyLessons === 'function' ? getRootFamilyLessons() : [];
+      var rfProgress = typeof loadRootFamilyProgress === 'function' ? loadRootFamilyProgress() : null;
+      var currentRoot = rfProgress ? rfProgress.currentRoot : '';
+      for (var rfi = 0; rfi < rfFamilies.length; rfi++) {
+        if (rfFamilies[rfi].root === currentRoot && rfi < rfFamilies.length - 1) {
+          goToRootFamily(rfFamilies[rfi + 1].root);
+          break;
+        }
+      }
+    } else if (getOrganizationMode() === 'difficulty') {
+      // In difficulty mode, go to next level
+      var dLevel = typeof loadDifficultyProgress === 'function' ? loadDifficultyProgress().currentDifficulty : 1;
+      if (dLevel < 5) goToDifficultyLevel(dLevel + 1);
     } else {
       var nextIdx = activeLessonIndex + 1;
       if (nextIdx < getLessonCount() && isLessonUnlocked(nextIdx)) {
@@ -1232,6 +1381,10 @@ function init() {
   if (modeSelect) {
     modeSelect.value = 'lesson';
   }
+  
+  // Set initial view to dashboard (switchView handles view activation, tab highlighting, and rendering)
+  currentView = 'dashboard';
+  switchView('dashboard');
 
   // 1. Initialize Firebase services (auth, sync, user)
   var firebaseReady = initAuth();
@@ -1254,7 +1407,7 @@ function init() {
   validateSurahCoverage();
   populateSurahSelector();
 
-  // 6. Show the first word card
+  // 6. Setup other views (dashboard already rendered by switchView('dashboard'))
   updateWordCard();
   updateReviewBanner();
   updateStatsDisplay();
@@ -1349,6 +1502,92 @@ function setupOnlineSync() {
       }
     }
   });
+}
+
+// ── Learning Path Navigation Functions ─────────────────────────
+
+/**
+ * Navigate to a root family for study.
+ */
+function goToRootFamily(rootKey) {
+  if (!rootKey) {
+    var families = typeof getRootFamilyLessons === 'function' ? getRootFamilyLessons() : [];
+    if (families.length === 0) return;
+    rootKey = families[0].root;
+  }
+  setOrganizationMode('root-family');
+  setActiveSurahId(null);
+  
+  if (typeof setCurrentRootFamily === 'function') {
+    setCurrentRootFamily(rootKey);
+  }
+  
+  var rootFamilyWords = typeof getRootFamilyWords === 'function' ? getRootFamilyWords(rootKey) : [];
+  activeLessonIndex = 0;
+  currentWord = 0;
+  reviewMode = false;
+  switchView('learn');
+  updateWordCard();
+  updateLessonProgressDisplay();
+}
+
+/**
+ * Navigate to a difficulty level for study.
+ */
+function goToDifficultyLevel(level) {
+  if (!level || level < 1) level = 1;
+  if (level > 5) level = 5;
+  
+  setOrganizationMode('difficulty');
+  setActiveSurahId(null);
+  
+  if (typeof setCurrentDifficulty === 'function') {
+    setCurrentDifficulty(level);
+  }
+  
+  activeLessonIndex = level - 1; // Use 0-based index
+  currentWord = 0;
+  reviewMode = false;
+  switchView('learn');
+  updateWordCard();
+  updateLessonProgressDisplay();
+}
+
+/**
+ * Start a Mixed Review session.
+ */
+function startMixedReview() {
+  reviewQueue = typeof getMixedReviewQueue === 'function' ? getMixedReviewQueue() : [];
+  if (!reviewQueue || reviewQueue.length === 0) {
+    // If no reviews due, return to dashboard
+    switchView('dashboard');
+    return;
+  }
+  
+  setOrganizationMode('lesson');
+  setActiveSurahId(null);
+  
+  _reviewOriginalMastered = 0;
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  for (var ri = 0; ri < reviewQueue.length; ri++) {
+    var entry = srsData[reviewQueue[ri].id];
+    if (entry && entry.stage >= 2) _reviewOriginalMastered++;
+  }
+  
+  reviewMode = true;
+  currentWord = 0;
+  activeLessonIndex = 0;
+  window.__lastReviewWasMixed = true; // Flag to return to dashboard after review
+  DOM.get('review-banner').classList.remove('visible');
+  switchView('learn');
+  updateWordCard();
+}
+
+/**
+ * Navigate back to the dashboard.
+ */
+function goToDashboard() {
+  switchView('dashboard');
 }
 
 // Start the app

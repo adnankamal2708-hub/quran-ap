@@ -314,7 +314,7 @@ let _orgMode = 'lesson';
  * Set the organization mode.
  */
 function setOrganizationMode(mode) {
-  if (mode === 'surah' || mode === 'lesson' || mode === 'foundation') {
+  if (mode === 'surah' || mode === 'lesson' || mode === 'foundation' || mode === 'root-family' || mode === 'difficulty') {
     _orgMode = mode;
   }
 }
@@ -1357,6 +1357,610 @@ function setCurrentLesson(lessonIndex) {
 function getCompletedLessonCount() {
   var progress = loadLessonProgress();
   return progress.completedLessons.length;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LEARNING PATH DASHBOARD — Multi-Path Progress & Recommendations
+//
+// Each learning path maintains independent lesson progression while
+// sharing the same vocabulary mastery and SRS data. This means:
+//   - A word mastered in Foundation Course appears learned everywhere
+//   - Users can switch paths without losing progress or creating duplicates
+//   - Statistics combine mastery from every learning path
+// ═══════════════════════════════════════════════════════════════
+
+/** @type {string|null} Last selected learning path for dashboard display */
+let _lastSelectedPath = null;
+
+// ── Root Family Learning Path ──────────────────────────────────
+// Groups words by root into studyable "families." Each family is
+// a set of words sharing the same root letters, presented together
+// to build morphological awareness. Families are sorted by total
+// Quranic frequency of the root.
+
+const ROOT_FAMILY_PROGRESS_KEY = 'quran_root_family_progress';
+
+/**
+ * Build root family "lessons" — groups of words sharing the same root.
+ * Returns an array of { root, rootMeaning, words, totalFrequency, wordCount }.
+ */
+function getRootFamilyLessons() {
+  var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  
+  var rootGroups = {};
+  
+  for (var i = 0; i < words.length; i++) {
+    var w = words[i];
+    if (!w.root || w.root === '\u2014') continue;
+    
+    if (!rootGroups[w.root]) {
+      rootGroups[w.root] = {
+        root: w.root,
+        rootMeaning: w.rootMeaning || '',
+        words: [],
+        totalFrequency: 0,
+      };
+    }
+    rootGroups[w.root].words.push(w);
+    rootGroups[w.root].totalFrequency += w.occ || 0;
+  }
+  
+  // Convert to array and sort by total frequency (most frequent first)
+  var families = Object.keys(rootGroups).map(function(r) { return rootGroups[r]; });
+  families.sort(function(a, b) { return b.totalFrequency - a.totalFrequency; });
+  
+  // Add word count
+  for (var fi = 0; fi < families.length; fi++) {
+    families[fi].wordCount = families[fi].words.length;
+  }
+  
+  return families;
+}
+
+/**
+ * Get the total number of root families.
+ */
+function getRootFamilyLessonCount() {
+  return getRootFamilyLessons().length;
+}
+
+/**
+ * Get words for a specific root family by root key.
+ */
+function getRootFamilyWords(rootKey) {
+  var families = getRootFamilyLessons();
+  for (var fi = 0; fi < families.length; fi++) {
+    if (families[fi].root === rootKey) return families[fi].words;
+  }
+  return [];
+}
+
+/**
+ * Get the words for the currently active root family.
+ */
+function getActiveRootFamilyWords() {
+  var progress = loadRootFamilyProgress();
+  return getRootFamilyWords(progress.currentRoot);
+}
+
+// ── Root Family Progress ───────────────────────────────────────
+
+function getDefaultRootFamilyProgress() {
+  var families = getRootFamilyLessons();
+  return {
+    currentRoot: families.length > 0 ? families[0].root : '',
+    completedRoots: [],
+  };
+}
+
+function loadRootFamilyProgress() {
+  try {
+    var raw = localStorage.getItem(ROOT_FAMILY_PROGRESS_KEY);
+    if (!raw) return getDefaultRootFamilyProgress();
+    return JSON.parse(raw);
+  } catch (e) {
+    return getDefaultRootFamilyProgress();
+  }
+}
+
+function saveRootFamilyProgress(data) {
+  try {
+    localStorage.setItem(ROOT_FAMILY_PROGRESS_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('[path] Could not save root family progress:', e.message);
+  }
+}
+
+function isRootFamilyCompleted(rootKey) {
+  var progress = loadRootFamilyProgress();
+  return progress.completedRoots.indexOf(rootKey) >= 0;
+}
+
+/**
+ * A root family is "unlocked" if it's the current one or any previous one is completed.
+ * Since root families are independently selectable, all are unlocked.
+ */
+function isRootFamilyUnlocked(rootKey) {
+  return true; // All root families are accessible at any time
+}
+
+function getNextIncompleteRootFamily() {
+  var families = getRootFamilyLessons();
+  for (var fi = 0; fi < families.length; fi++) {
+    if (!isRootFamilyCompleted(families[fi].root)) return families[fi].root;
+  }
+  return families.length > 0 ? families[0].root : '';
+}
+
+function completeRootFamily(rootKey) {
+  var progress = loadRootFamilyProgress();
+  if (progress.completedRoots.indexOf(rootKey) < 0) {
+    progress.completedRoots.push(rootKey);
+  }
+  var next = getNextIncompleteRootFamily();
+  progress.currentRoot = next;
+  saveRootFamilyProgress(progress);
+  // Queue cloud sync
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (user && window.__sync && window.__sync.queueSync) {
+    window.__sync.queueSync(user.uid);
+  }
+}
+
+function setCurrentRootFamily(rootKey) {
+  var families = getRootFamilyLessons();
+  for (var fi = 0; fi < families.length; fi++) {
+    if (families[fi].root === rootKey) {
+      var progress = loadRootFamilyProgress();
+      progress.currentRoot = rootKey;
+      saveRootFamilyProgress(progress);
+      return;
+    }
+  }
+}
+
+function getRootFamilyProgressPercent() {
+  var families = getRootFamilyLessons();
+  var progress = loadRootFamilyProgress();
+  return families.length > 0 
+    ? Math.round((progress.completedRoots.length / families.length) * 100)
+    : 0;
+}
+
+function getCompletedRootFamilyCount() {
+  var progress = loadRootFamilyProgress();
+  return progress.completedRoots.length;
+}
+
+function getTotalRootFamilyCount() {
+  return getRootFamilyLessons().length;
+}
+
+// ── Difficulty Learning Path ───────────────────────────────────
+// Groups words by difficulty level (1-5). Learners progress through
+// easier words first, building confidence before tackling harder vocabulary.
+// Each difficulty level requires the previous level to be completed.
+
+const DIFFICULTY_PROGRESS_KEY = 'quran_difficulty_progress';
+
+/**
+ * Get words grouped by difficulty level.
+ * Returns an object: { 1: [words], 2: [words], 3: [words], 4: [words], 5: [words] }
+ * Words within each level are sorted by frequency (most frequent first).
+ */
+function getDifficultyLevels() {
+  var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  
+  var levels = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+  
+  for (var i = 0; i < words.length; i++) {
+    var w = words[i];
+    var diff = w.difficulty || 3;
+    if (levels[diff]) {
+      levels[diff].push(w);
+    } else {
+      levels[3].push(w); // fallback to medium
+    }
+  }
+  
+  // Sort each level by frequency (highest first)
+  for (var d = 1; d <= 5; d++) {
+    levels[d].sort(function(a, b) {
+      return (b.occ || 0) - (a.occ || 0);
+    });
+  }
+  
+  return levels;
+}
+
+/**
+ * Get words for a specific difficulty level.
+ */
+function getDifficultyLevelWords(level) {
+  var levels = getDifficultyLevels();
+  return levels[level] || [];
+}
+
+/**
+ * Get the words for the currently active difficulty level.
+ */
+function getActiveDifficultyWords() {
+  var progress = loadDifficultyProgress();
+  return getDifficultyLevelWords(progress.currentDifficulty);
+}
+
+// ── Difficulty Progress ────────────────────────────────────────
+
+function getDefaultDifficultyProgress() {
+  return {
+    currentDifficulty: 1,
+    completedLevels: [],
+  };
+}
+
+function loadDifficultyProgress() {
+  try {
+    var raw = localStorage.getItem(DIFFICULTY_PROGRESS_KEY);
+    if (!raw) return getDefaultDifficultyProgress();
+    return JSON.parse(raw);
+  } catch (e) {
+    return getDefaultDifficultyProgress();
+  }
+}
+
+function saveDifficultyProgress(data) {
+  try {
+    localStorage.setItem(DIFFICULTY_PROGRESS_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('[path] Could not save difficulty progress:', e.message);
+  }
+}
+
+function isDifficultyLevelCompleted(level) {
+  var progress = loadDifficultyProgress();
+  return progress.completedLevels.indexOf(level) >= 0;
+}
+
+function isDifficultyLevelUnlocked(level) {
+  if (level === 1) return true;
+  return isDifficultyLevelCompleted(level - 1);
+}
+
+function getNextIncompleteDifficultyLevel() {
+  for (var d = 1; d <= 5; d++) {
+    if (!isDifficultyLevelCompleted(d)) return d;
+  }
+  return 1;
+}
+
+function completeDifficultyLevel(level) {
+  var progress = loadDifficultyProgress();
+  if (progress.completedLevels.indexOf(level) < 0) {
+    progress.completedLevels.push(level);
+  }
+  var next = getNextIncompleteDifficultyLevel();
+  progress.currentDifficulty = next;
+  saveDifficultyProgress(progress);
+  // Queue cloud sync
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (user && window.__sync && window.__sync.queueSync) {
+    window.__sync.queueSync(user.uid);
+  }
+}
+
+function setCurrentDifficulty(level) {
+  if (level < 1 || level > 5) return;
+  var progress = loadDifficultyProgress();
+  progress.currentDifficulty = level;
+  saveDifficultyProgress(progress);
+}
+
+function getDifficultyProgressPercent() {
+  var progress = loadDifficultyProgress();
+  return Math.round((progress.completedLevels.length / 5) * 100);
+}
+
+function getCompletedDifficultyLevelCount() {
+  var progress = loadDifficultyProgress();
+  return progress.completedLevels.length;
+}
+
+// ── Mixed Review Path ──────────────────────────────────────────
+// Combines due reviews from all vocabulary with smart balancing:
+// ~70% due reviews, ~30% new words. Caps at daily review limit.
+
+const MIXED_REVIEW_KEY = 'quran_mixed_review_state';
+
+/**
+ * Get a mixed review queue combining due reviews and new words.
+ * @param {number} limit - Max words in the queue (default: daily review limit)
+ * @returns {Array} Array of word objects
+ */
+function getMixedReviewQueue(limit) {
+  if (!limit) limit = typeof DAILY_REVIEW_LIMIT !== 'undefined' ? DAILY_REVIEW_LIMIT : 25;
+  
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var now = Date.now();
+  
+  // Gather due reviews from ALL words (not just active path)
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  
+  var dueWords = [];
+  var masteredWords = [];
+  var newWords = [];
+  
+  for (var i = 0; i < allWords.length; i++) {
+    var w = allWords[i];
+    var entry = srsData[w.id];
+    if (!entry || entry.stage === 0) {
+      newWords.push(w);
+    } else if (entry.dueDate && now >= entry.dueDate) {
+      dueWords.push(w);
+    } else {
+      masteredWords.push(w);
+    }
+  }
+  
+  // Sort due words: most overdue first, leeched first
+  dueWords.sort(function(a, b) {
+    var aEntry = srsData[a.id];
+    var bEntry = srsData[b.id];
+    if (aEntry.isLeech && !bEntry.isLeech) return -1;
+    if (!aEntry.isLeech && bEntry.isLeech) return 1;
+    return (aEntry.dueDate || 0) - (bEntry.dueDate || 0);
+  });
+  
+  // Mix: ~70% due reviews, ~30% new words
+  var dueLimit = Math.min(dueWords.length, Math.round(limit * 0.7));
+  var newLimit = Math.min(newWords.length, limit - dueLimit);
+  
+  // Shuffle new words for variety
+  var shuffledNew = newWords.slice().sort(function() { return Math.random() - 0.5; });
+  
+  // Interleave: due, new, due, new...
+  var queue = [];
+  var dueIdx = 0;
+  var newIdx = 0;
+ 
+  while (dueIdx < dueLimit || newIdx < newLimit) {
+    if (dueIdx < dueLimit) {
+      queue.push(dueWords[dueIdx]);
+      dueIdx++;
+    }
+    if (newIdx < newLimit) {
+      queue.push(shuffledNew[newIdx]);
+      newIdx++;
+    }
+  }
+  
+  return queue;
+}
+
+// ── Learning Path Progress Aggregator ──────────────────────────
+
+/**
+ * Get progress for all learning paths.
+ * Returns an object with path keys containing progress data.
+ */
+function getLearningPathProgress() {
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  
+  // Foundation Course
+  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var fPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+  
+  // Learn by Surah
+  var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  var sCompleted = typeof getCompletedSurahCount === 'function' ? getCompletedSurahCount() : 0;
+  var sPct = surahIds.length > 0 ? Math.round((sCompleted / surahIds.length) * 100) : 0;
+  
+  // Root Family
+  var rfTotal = getTotalRootFamilyCount();
+  var rfCompleted = getCompletedRootFamilyCount();
+  var rfPct = rfTotal > 0 ? Math.round((rfCompleted / rfTotal) * 100) : 0;
+  
+  // Difficulty
+  var dTotal = 5;
+  var dCompleted = getCompletedDifficultyLevelCount();
+  var dPct = Math.round((dCompleted / dTotal) * 100);
+  
+  // Overall mastery (shared across all paths)
+  var totalWords = allWords.length;
+  var masteredCount = 0;
+  var dueCount = 0;
+  for (var i = 0; i < allWords.length; i++) {
+    var entry = srsData[allWords[i].id];
+    if (entry && entry.stage >= 2) masteredCount++;
+    if (entry && entry.dueDate && Date.now() >= entry.dueDate) dueCount++;
+  }
+  
+  // Coverage
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  
+  return {
+    foundation: {
+      id: 'foundation',
+      label: 'Foundation Course',
+      icon: '\u2B50',
+      description: 'Master the 100 most frequent Quranic words across 10 progressive lessons. Covers ~84% of all Quranic word occurrences.',
+      completed: fCompleted,
+      total: fTotal,
+      percent: fPct,
+      isRecommended: true,
+      isNewUserPath: true,
+    },
+    surah: {
+      id: 'surah',
+      label: 'Learn by Surah',
+      icon: '\uD83D\uDCD6',
+      description: 'Study vocabulary surah by surah. Perfect after completing the Foundation Course to build contextual understanding.',
+      completed: sCompleted,
+      total: surahIds.length,
+      percent: sPct,
+      isRecommended: fPct >= 80,
+      isNewUserPath: false,
+    },
+    rootFamily: {
+      id: 'root-family',
+      label: 'Learn by Root Family',
+      icon: '\uD83C\uDF31',
+      description: 'Study words grouped by root letters to understand Arabic morphology. Great for those interested in language structure.',
+      completed: rfCompleted,
+      total: rfTotal,
+      percent: rfPct,
+      isRecommended: false,
+      isNewUserPath: false,
+    },
+    difficulty: {
+      id: 'difficulty',
+      label: 'Learn by Difficulty',
+      icon: '\uD83D\uDCE8',
+      description: 'Progress from easy to hard words. Build confidence with simpler vocabulary before tackling advanced words.',
+      completed: dCompleted,
+      total: dTotal,
+      percent: dPct,
+      isRecommended: false,
+      isNewUserPath: false,
+    },
+    mixedReview: {
+      id: 'mixed-review',
+      label: 'Mixed Review',
+      icon: '\uD83D\uDD04',
+      description: 'Smart review combining due words and new vocabulary from all paths. Optimized for daily practice.',
+      completed: 0,
+      total: 0,
+      percent: 0,
+      dueCount: dueCount,
+      masteredCount: masteredCount,
+      totalWords: totalWords,
+      isRecommended: masteredCount > 0,
+      isNewUserPath: false,
+    },
+    overall: {
+      masteredWords: masteredCount,
+      totalWords: totalWords,
+      dueReviews: dueCount,
+      coveragePercent: coverage ? coverage.coveragePercent : 0,
+      estimatedComprehension: coverage ? coverage.estimatedComprehension : 0,
+    },
+  };
+}
+
+/**
+ * Get a smart recommendation for which learning path the user should focus on.
+ * Returns { pathId, label, reason }.
+ */
+function getPathRecommendation() {
+  var progress = getLearningPathProgress();
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var hasAnyReviews = Object.keys(srsData).length > 0;
+  
+  // New user: recommend Foundation Course
+  if (!hasAnyReviews) {
+    return {
+      pathId: 'foundation',
+      label: 'Foundation Course',
+      reason: 'Start with the most frequent Quranic words. You will learn 84% of all Quranic word occurrences in just 10 lessons!',
+      icon: '\u2B50',
+    };
+  }
+  
+  // Foundation available and not complete: recommend Foundation
+  if (progress.foundation.percent < 100 && progress.foundation.total > 0) {
+    return {
+      pathId: 'foundation',
+      label: 'Foundation Course',
+      reason: progress.foundation.percent >= 80 
+        ? 'Almost done with the Foundation Course! Finish the remaining lessons for a strong base.'
+        : 'Continue building your foundation. Each lesson increases Quran reading coverage.',
+      icon: '\u2B50',
+    };
+  }
+  
+  // Foundation complete: recommend Surah learning
+  if (progress.surah.percent < 100 && progress.surah.total > 0) {
+    return {
+      pathId: 'surah',
+      label: 'Learn by Surah',
+      reason: 'Foundation complete! Now apply your knowledge by studying vocabulary in Quranic context, surah by surah.',
+      icon: '\uD83D\uDCD6',
+    };
+  }
+  
+  // Due reviews: recommend Mixed Review
+  if (progress.overall.dueReviews > 0) {
+    return {
+      pathId: 'mixed-review',
+      label: 'Mixed Review',
+      reason: 'You have ' + progress.overall.dueReviews + ' words due for review. Strengthen your memory with a mixed review session.',
+      icon: '\uD83D\uDD04',
+    };
+  }
+  
+  // Root families: recommend for morphology interest
+  if (progress.rootFamily.total > 0 && progress.rootFamily.percent < 50) {
+    return {
+      pathId: 'root-family',
+      label: 'Learn by Root Family',
+      reason: 'Explore Arabic morphology by studying root families. Understand how words are formed and connected.',
+      icon: '\uD83C\uDF31',
+    };
+  }
+  
+  // Default: Difficulty path
+  return {
+    pathId: 'difficulty',
+    label: 'Learn by Difficulty',
+    reason: 'Master vocabulary from easy to advanced. Challenge yourself with harder words.',
+    icon: '\uD83D\uDCE8',
+  };
+}
+
+/**
+ * Set the last selected path for dashboard display.
+ */
+function setLastSelectedPath(pathId) {
+  _lastSelectedPath = pathId;
+}
+
+function getLastSelectedPath() {
+  return _lastSelectedPath;
+}
+
+// Export learning path functions for cross-module access
+if (typeof window !== 'undefined') {
+  window.__learningPaths = {
+    getProgress: getLearningPathProgress,
+    getRecommendation: getPathRecommendation,
+    getRootFamilyLessons: getRootFamilyLessons,
+    getRootFamilyWords: getRootFamilyWords,
+    getActiveRootFamilyWords: getActiveRootFamilyWords,
+    loadRootFamilyProgress: loadRootFamilyProgress,
+    saveRootFamilyProgress: saveRootFamilyProgress,
+    isRootFamilyCompleted: isRootFamilyCompleted,
+    completeRootFamily: completeRootFamily,
+    setCurrentRootFamily: setCurrentRootFamily,
+    getRootFamilyProgressPercent: getRootFamilyProgressPercent,
+    getDifficultyLevels: getDifficultyLevels,
+    getDifficultyLevelWords: getDifficultyLevelWords,
+    getActiveDifficultyWords: getActiveDifficultyWords,
+    loadDifficultyProgress: loadDifficultyProgress,
+    saveDifficultyProgress: saveDifficultyProgress,
+    isDifficultyLevelCompleted: isDifficultyLevelCompleted,
+    isDifficultyLevelUnlocked: isDifficultyLevelUnlocked,
+    completeDifficultyLevel: completeDifficultyLevel,
+    setCurrentDifficulty: setCurrentDifficulty,
+    getDifficultyProgressPercent: getDifficultyProgressPercent,
+    getMixedReviewQueue: getMixedReviewQueue,
+    setLastSelectedPath: setLastSelectedPath,
+    getLastSelectedPath: getLastSelectedPath,
+  };
 }
 
 // ── Export Enriched Metadata Functions ──────────────────────────

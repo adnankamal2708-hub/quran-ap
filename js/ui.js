@@ -28,14 +28,14 @@ function getShortMeaning(meaning) {
  */
 function setView(viewName) {
   // All possible views — both main content and overlay views
-  const views = ['learn', 'quiz', 'list', 'stats', 'explorer', 'auth', 'profile', 'settings'];
+  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'explorer', 'auth', 'profile', 'settings'];
   for (var i = 0; i < views.length; i++) {
     var name = views[i];
     var viewEl = DOM.get('view-' + name);
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
     // Only toggle tab highlights for main nav tabs
-    if (name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats') {
+    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats') {
       var tabEl = DOM.get('tab-' + name);
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
@@ -844,7 +844,6 @@ function clearAdvancedFilters() {
   DOM.get('filter-review-due').checked = false;
   DOM.get('filter-learned').checked = false;
   DOM.get('filter-unlearned').checked = false;
-  _advancedFilterState = null;
   renderWordList();
 }
 
@@ -892,8 +891,6 @@ function renderWordList() {
   if (advFiltersActive) {
     // Use advanced search with collected filter state
     var filterState = collectAdvancedFilters();
-    _advancedFilterState = filterState;
-    
     // Build advanced search index if needed
     if (typeof buildAdvancedSearchIndex === 'function') buildAdvancedSearchIndex();
     
@@ -2283,4 +2280,173 @@ function renderExplorerAllOccurrences(listEl, w) {
 // Export explorer for cross-module access
 window.__openExplorer = openExplorer;
 window.__explorerWord = function() { return _explorerWord; };
+
+// ═══════════════════════════════════════════════════════════════
+// LEARNING PATH DASHBOARD — Multi-Path Progress & Selection
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Render the Learning Path Dashboard.
+ * Called by switchView('dashboard').
+ */
+function renderDashboard() {
+  var progress = typeof getLearningPathProgress === 'function' ? getLearningPathProgress() : null;
+  if (!progress) {
+    DOM.get('dashboard-grid').innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted)">Loading learning paths...</div>';
+    return;
+  }
+  
+  // ── Recommendation ──
+  var rec = typeof getPathRecommendation === 'function' ? getPathRecommendation() : null;
+  var recContent = DOM.get('dashboard-rec-content');
+  if (recContent && rec) {
+    recContent.innerHTML = '<span class="dashboard-rec-icon">' + rec.icon + '</span>' +
+      '<div class="dashboard-rec-text">' +
+        '<div class="dashboard-rec-path">' + rec.label + '</div>' +
+        '<div class="dashboard-rec-reason">' + rec.reason + '</div>' +
+      '</div>' +
+      '<button class="dashboard-rec-btn" id="dashboard-rec-btn" type="button">Start →</button>';
+    
+    var recBtn = DOM.get('dashboard-rec-btn');
+    if (recBtn) {
+      (function(pathId) {
+        recBtn.onclick = function() {
+          navigateToPath(pathId);
+        };
+      })(rec.pathId);
+    }
+  }
+  
+  // ── Path Cards ──
+  var grid = DOM.get('dashboard-grid');
+  grid.innerHTML = '';
+  
+  var pathOrder = ['foundation', 'surah', 'rootFamily', 'difficulty', 'mixedReview'];
+  var pathLabels = {
+    foundation: { icon: '\u2B50', title: 'Foundation Course', sub: 'Frequency-based', color: 'var(--gold)' },
+    surah: { icon: '\uD83D\uDCD6', title: 'Learn by Surah', sub: 'Contextual', color: 'var(--green)' },
+    rootFamily: { icon: '\uD83C\uDF31', title: 'Learn by Root Family', sub: 'Morphological', color: 'var(--purple)' },
+    difficulty: { icon: '\uD83D\uDCE8', title: 'Learn by Difficulty', sub: 'Progressive', color: 'var(--blue)' },
+    mixedReview: { icon: '\uD83D\uDD04', title: 'Mixed Review', sub: 'Smart review', color: 'var(--pink)' },
+  };
+  
+  for (var pi = 0; pi < pathOrder.length; pi++) {
+    var key = pathOrder[pi];
+    var path = progress[key];
+    if (!path) continue;
+    var labels = pathLabels[key] || {};
+    
+    var card = document.createElement('div');
+    card.className = 'dashboard-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', path.label + ' — ' + (path.percent || 0) + '% complete');
+    
+    var isRecommended = path.isRecommended;
+    var percent = path.percent || 0;
+    
+    card.innerHTML = 
+      '<div class="dashboard-card-header">' +
+        '<span class="dashboard-card-icon" style="background:' + (labels.color || 'var(--gold)') + '20;color:' + (labels.color || 'var(--gold)') + '">' + (labels.icon || '') + '</span>' +
+        '<div class="dashboard-card-title-group">' +
+          '<div class="dashboard-card-title">' + path.label + '</div>' +
+          '<div class="dashboard-card-subtitle">' + (labels.sub || '') + '</div>' +
+        '</div>' +
+        (isRecommended ? '<span class="dashboard-rec-badge">Recommended</span>' : '') +
+      '</div>' +
+      '<div class="dashboard-card-desc">' + path.description + '</div>' +
+      '<div class="dashboard-card-progress">' +
+        '<div class="dashboard-card-progress-track">' +
+          '<div class="dashboard-card-progress-fill" style="width:' + percent + '%;background:' + (labels.color || 'var(--gold)') + '"></div>' +
+        '</div>' +
+        '<div class="dashboard-card-progress-text">' +
+          (key === 'mixedReview'
+            ? (path.masteredCount || 0) + ' mastered · ' + (path.dueCount || 0) + ' due'
+            : percent + '% · ' + (path.completed || 0) + '/' + (path.total || 0))
+        + '</div>' +
+      '</div>' +
+      '<div class="dashboard-card-action">' +
+        '<span class="dashboard-card-action-btn">' +
+          (key === 'mixedReview' ? 'Start Review →' : 'Continue →') +
+        '</span>' +
+      '</div>';
+    
+    (function(pkey) {
+      card.onclick = function() {
+        navigateToPath(pkey);
+      };
+      card.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          navigateToPath(pkey);
+        }
+      };
+    })(key);
+    
+    grid.appendChild(card);
+  }
+  
+  // ── Overall Progress ──
+  var overallStats = DOM.get('dashboard-overall-stats');
+  if (overallStats && progress.overall) {
+    var o = progress.overall;
+    overallStats.innerHTML =
+      '<div class="dashboard-overall-stat">' +
+        '<div class="dashboard-overall-value">' + (o.masteredWords || 0) + ' / ' + (o.totalWords || 0) + '</div>' +
+        '<div class="dashboard-overall-label">Words Mastered</div>' +
+      '</div>' +
+      '<div class="dashboard-overall-stat">' +
+        '<div class="dashboard-overall-value">' + (o.dueReviews || 0) + '</div>' +
+        '<div class="dashboard-overall-label">Due for Review</div>' +
+      '</div>' +
+      '<div class="dashboard-overall-stat">' +
+        '<div class="dashboard-overall-value">' + (o.coveragePercent || 0) + '%</div>' +
+        '<div class="dashboard-overall-label">Quran Coverage</div>' +
+      '</div>' +
+      '<div class="dashboard-overall-stat">' +
+        '<div class="dashboard-overall-value">' + (o.estimatedComprehension || 0) + '%</div>' +
+        '<div class="dashboard-overall-label">Comprehension</div>' +
+      '</div>';
+  }
+}
+
+/**
+ * Navigate to a specific learning path.
+ */
+function navigateToPath(pathId) {
+  if (typeof setLastSelectedPath === 'function') {
+    setLastSelectedPath(pathId);
+  }
+  
+  switch (pathId) {
+    case 'foundation':
+      if (typeof goToFoundationLesson === 'function') {
+        goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
+      }
+      break;
+    case 'surah':
+      if (typeof goToSurah === 'function') {
+        var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+        if (surahIds.length > 0) goToSurah(surahIds[0]);
+      }
+      break;
+    case 'rootFamily':
+      if (typeof goToRootFamily === 'function') {
+        var rfProgress = typeof loadRootFamilyProgress === 'function' ? loadRootFamilyProgress() : null;
+        goToRootFamily(rfProgress ? rfProgress.currentRoot : '');
+      }
+      break;
+    case 'difficulty':
+      if (typeof goToDifficultyLevel === 'function') {
+        var dProgress = typeof loadDifficultyProgress === 'function' ? loadDifficultyProgress() : null;
+        goToDifficultyLevel(dProgress ? dProgress.currentDifficulty : 1);
+      }
+      break;
+    case 'mixedReview':
+      if (typeof startMixedReview === 'function') {
+        startMixedReview();
+      }
+      break;
+  }
+}
 
