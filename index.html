@@ -390,6 +390,19 @@
         <div id="wordlist-container" role="list" aria-label="Vocabulary list"></div>
       </section>
 
+      <!-- ── ANALYTICS VIEW ── -->
+      <section class="mode-view" id="view-analytics" aria-label="Learning Analytics">
+        <div class="analytics-tabs" role="tablist" aria-label="Analytics sections">
+          <button class="analytics-tab analytics-tab-active" data-analytics-tab="overview" type="button" role="tab" aria-selected="true">Overview</button>
+          <button class="analytics-tab" data-analytics-tab="trends" type="button" role="tab" aria-selected="false">Trends</button>
+          <button class="analytics-tab" data-analytics-tab="insights" type="button" role="tab" aria-selected="false">Insights</button>
+          <button class="analytics-tab" data-analytics-tab="achievements" type="button" role="tab" aria-selected="false">Achievements</button>
+        </div>
+        <div id="analytics-content">
+          <!-- Rendered dynamically by renderAnalytics() -->
+        </div>
+      </section>
+
       <!-- ── STATS VIEW ── -->
       <section class="mode-view" id="view-stats" aria-label="Statistics dashboard">
         <div class="stats-grid">
@@ -929,6 +942,10 @@
       <button class="nav-tab" id="tab-stats" type="button">
         <span class="nav-tab-icon">📊</span>
         <span class="nav-tab-label">Stats</span>
+      </button>
+      <button class="nav-tab" id="tab-analytics" type="button">
+        <span class="nav-tab-icon">📈</span>
+        <span class="nav-tab-label">Analytics</span>
       </button>
     </nav>
   </div>

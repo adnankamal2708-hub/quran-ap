@@ -2278,6 +2278,517 @@ function renderExplorerAllOccurrences(listEl, w) {
 }
 
 // Export explorer for cross-module access
+
+
+// ═══════════════════════════════════════════════════════════════
+// ANALYTICS DASHBOARD — Comprehensive Learning Analytics
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Render the full Analytics Dashboard.
+ * Called by switchView('analytics').
+ * Displays: overview, trends, insights, achievements tabs
+ */
+function renderAnalytics() {
+  var analytics = (window.__analytics && window.__analytics.getComprehensiveInsights) ? window.__analytics.getComprehensiveInsights() : null;
+  if (!analytics) {
+    DOM.get('analytics-content').innerHTML = '<div class="analytics-empty">Start learning to see your analytics!</div>';
+    return;
+  }
+  
+  var activeTab = document.querySelector('.analytics-tab-active');
+  var tabName = activeTab ? activeTab.getAttribute('data-analytics-tab') : 'overview';
+  renderAnalyticsTab(tabName, analytics);
+  
+  // Wire tab switching
+  var tabs = document.querySelectorAll('.analytics-tab');
+  for (var ti = 0; ti < tabs.length; ti++) {
+    (function(tab) {
+      tab.onclick = function() {
+        document.querySelectorAll('.analytics-tab').forEach(function(t) {
+          t.classList.remove('analytics-tab-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('analytics-tab-active');
+        tab.setAttribute('aria-selected', 'true');
+        renderAnalyticsTab(tab.getAttribute('data-analytics-tab'), analytics);
+      };
+    })(tabs[ti]);
+  }
+}
+
+function renderAnalyticsTab(tabName, analytics) {
+  var container = DOM.get('analytics-content');
+  if (!container) return;
+  
+  var html = '';
+  
+  switch (tabName) {
+    case 'overview':
+      html = renderAnalyticsOverview(analytics);
+      break;
+    case 'trends':
+      html = renderAnalyticsTrends(analytics);
+      break;
+    case 'insights':
+      html = renderAnalyticsInsightsPage(analytics);
+      break;
+    case 'achievements':
+      html = renderAnalyticsAchievements();
+      break;
+  }
+  
+  container.innerHTML = html;
+  
+  // Wire trend period tabs (only when trends tab is active)
+  var trendTabs = container.querySelectorAll('.analytics-trend-tab');
+  for (var tti = 0; tti < trendTabs.length; tti++) {
+    (function(tt) {
+      tt.onclick = function() {
+        var parentTabs = tt.closest('.analytics-trend-tabs');
+        if (parentTabs) {
+          var siblings = parentTabs.querySelectorAll('.analytics-trend-tab');
+          for (var si = 0; si < siblings.length; si++) {
+            siblings[si].classList.remove('analytics-trend-active');
+          }
+        }
+        tt.classList.add('analytics-trend-active');
+        var insights = (window.__analytics && window.__analytics.getComprehensiveInsights) ? window.__analytics.getComprehensiveInsights() : null;
+        if (insights) {
+          renderAnalyticsTab('trends', insights);
+        }
+      };
+    })(trendTabs[tti]);
+  }
+  
+  // Wire "View All Achievements" button
+  var viewAllAchBtn = container.querySelector('#analytics-view-all-ach');
+  if (viewAllAchBtn) {
+    viewAllAchBtn.onclick = function() {
+      var achTab = document.querySelector('.analytics-tab[data-analytics-tab="achievements"]');
+      if (achTab) {
+        document.querySelectorAll('.analytics-tab').forEach(function(t) {
+          t.classList.remove('analytics-tab-active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        achTab.classList.add('analytics-tab-active');
+        achTab.setAttribute('aria-selected', 'true');
+        var insights = (window.__analytics && window.__analytics.getComprehensiveInsights) ? window.__analytics.getComprehensiveInsights() : null;
+        renderAnalyticsTab('achievements', insights);
+      }
+    };
+  }
+}
+
+// ── OVERVIEW TAB ──
+
+function renderAnalyticsOverview(analytics) {
+  var html = '';
+  var profile = analytics.profile;
+  var periods = analytics.periods;
+  var forecasts = analytics.forecasts;
+  
+  // Coverage & Comprehension Card
+  var coverage = (typeof calculateCoverage === 'function') ? calculateCoverage() : null;
+  var fCompleted = (typeof getCompletedFoundationLessonCount === 'function') ? getCompletedFoundationLessonCount() : 0;
+  var fTotal = (typeof getFoundationLessonCount === 'function') ? getFoundationLessonCount() : 0;
+  var coveragePct = coverage ? coverage.coveragePercent : 0;
+  var compPct = coverage ? coverage.estimatedComprehension : 0;
+  
+  // Foundation Ring
+  var foundationPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+  
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">📊 Progress Overview</div>';
+  html += '<div class="analytics-stats-grid">';
+  html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + (profile ? profile.masteredWords : 0) + '</div><div class="analytics-stat-label">Mastered</div></div>';
+  html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + (profile ? profile.studiedWords : 0) + '</div><div class="analytics-stat-label">Studied</div></div>';
+  html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + (profile ? profile.adaptiveDifficulty : 1) + '</div><div class="analytics-stat-label">Level</div></div>';
+  html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + coveragePct + '%</div><div class="analytics-stat-label">Quran Coverage</div></div>';
+  html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + compPct + '%</div><div class="analytics-stat-label">Comprehension</div></div>';
+  html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + (profile ? profile.quizAccuracy || '-' : '-') + '</div><div class="analytics-stat-label">Quiz Accuracy</div></div>';
+  html += '</div></div>';
+  
+  // Foundation Progress
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">📘 Foundation Course</div>';
+  html += '<div class="analytics-progress-block">';
+  html += '<div class="analytics-progress-track-big"><div class="analytics-progress-fill-big" style="width:' + foundationPct + '%"></div></div>';
+  html += '<div class="analytics-progress-info">';
+  html += '<span class="analytics-progress-pct">' + foundationPct + '%</span>';
+  html += '<span class="analytics-progress-detail">' + fCompleted + ' of ' + fTotal + ' lessons</span>';
+  html += '</div></div></div>';
+  
+  // Quran Reading Coverage Ring
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">📖 Quran Reading Coverage</div>';
+  html += '<div class="analytics-coverage-card">';
+  html += '<div class="analytics-coverage-ring-wrap">';
+  html += '<svg class="analytics-coverage-ring" viewBox="0 0 36 36">';
+  html += '<path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />';
+  var covOffset = Math.round((coveragePct / 100) * 100);
+  html += '<path class="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + covOffset + ', 100" style="stroke:var(--gold)" />';
+  html += '<text class="goal-ring-text" x="18" y="20.5" style="fill:var(--gold);font-size:9px">' + coveragePct + '%</text>';
+  html += '</svg></div>';
+  html += '<div class="analytics-coverage-details">';
+  if (coverage) {
+    html += '<div class="analytics-cov-row"><span>Words Mastered</span><span>' + coverage.masteredWords + ' / ' + coverage.totalWords + '</span></div>';
+    html += '<div class="analytics-cov-row"><span>Occurrences Recognized</span><span>' + coverage.masteredOccurrences.toLocaleString() + ' / ' + coverage.totalOccurrences.toLocaleString() + '</span></div>';
+    html += '<div class="analytics-cov-row"><span>Estimated Comprehension</span><span>' + compPct + '%</span></div>';
+  }
+  html += '</div></div></div>';
+  
+  // Learning Paths Progress
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">🛤️ Learning Paths</div>';
+  html += '<div class="analytics-progress-block">';
+  var pathProgress = (typeof getLearningPathProgress === 'function') ? getLearningPathProgress() : null;
+  if (pathProgress) {
+    var pathKeys = ['foundation', 'surah', 'rootFamily', 'difficulty'];
+    var pathNames = { foundation: 'Foundation Course', surah: 'By Surah', rootFamily: 'Root Families', difficulty: 'Difficulty' };
+    var pathColors = { foundation: 'var(--gold)', surah: 'var(--green)', rootFamily: 'var(--purple)', difficulty: 'var(--blue)' };
+    for (var pki = 0; pki < pathKeys.length; pki++) {
+      var pk = pathKeys[pki];
+      var pp = pathProgress[pk];
+      if (!pp) continue;
+      var pct = pp.percent || 0;
+      html += '<div class="analytics-path-row">';
+      html += '<div class="analytics-path-label">' + (pathNames[pk] || pk) + '</div>';
+      html += '<div class="analytics-path-track"><div class="analytics-path-fill" style="width:' + pct + '%;background:' + (pathColors[pk] || 'var(--gold)') + '"></div></div>';
+      html += '<div class="analytics-path-value">' + pct + '%</div>';
+      html += '</div>';
+    }
+  }
+  html += '</div></div>';
+  
+  // Period Summaries
+  if (periods) {
+    var periodKeys = [
+      { key: 'week', label: 'This Week' },
+      { key: 'month', label: 'This Month' },
+      { key: 'allTime', label: 'All Time' },
+    ];
+    for (var psi = 0; psi < periodKeys.length; psi++) {
+      var pInfo = periodKeys[psi];
+      var data = periods[pInfo.key];
+      if (!data) continue;
+      html += '<div class="analytics-section">';
+      html += '<div class="analytics-section-title">📅 ' + pInfo.label + '</div>';
+      html += '<div class="analytics-period-card">';
+      html += '<div class="analytics-period-grid">';
+      html += '<div><span class="analytics-period-value">' + (data.gainMastered || 0) + '</span><span class="analytics-period-label">Gained</span></div>';
+      html += '<div><span class="analytics-period-value">' + data.totalReviews + '</span><span class="analytics-period-label">Reviews</span></div>';
+      html += '<div><span class="analytics-period-value">' + data.daysActive + '</span><span class="analytics-period-label">Active Days</span></div>';
+      html += '<div><span class="analytics-period-value">' + (data.gainCoverage || '0') + '%</span><span class="analytics-period-label">Coverage +</span></div>';
+      html += '</div></div></div>';
+    }
+    
+    // Consistency
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">🔥 Learning Consistency</div>';
+    html += '<div class="analytics-health-card">';
+    html += '<div class="analytics-health-row"><span>Active Study Days</span><span>' + periods.consistency + '%</span></div>';
+    html += '<div class="analytics-health-row"><span>Current Streak</span><span>' + (profile ? profile.streak || 0 : 0) + ' days</span></div>';
+    html += '<div class="analytics-health-row"><span>Avg Reviews/Day</span><span>' + (periods.week ? periods.week.avgReviewsPerDay || 0 : 0) + '</span></div>';
+    html += '</div></div>';
+  }
+  
+  // Forecasts
+  if (forecasts) {
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">🔮 Forecasts</div>';
+    html += '<div class="analytics-forecast-card">';
+    
+    // Predicted mastery in 7/30/90 days
+    html += '<div class="analytics-forecast-grid">';
+    html += '<div class="analytics-forecast-item"><span class="analytics-forecast-num">' + forecasts.predictedMastered['7'] + '</span><span class="analytics-forecast-label">7 days</span></div>';
+    html += '<div class="analytics-forecast-item"><span class="analytics-forecast-num">' + forecasts.predictedMastered['30'] + '</span><span class="analytics-forecast-label">30 days</span></div>';
+    html += '<div class="analytics-forecast-item"><span class="analytics-forecast-num">' + forecasts.predictedMastered['90'] + '</span><span class="analytics-forecast-label">90 days</span></div>';
+    html += '</div>';
+    
+    html += '<div class="analytics-forecast-card" style="margin-top:8px">';
+    html += '<div class="analytics-forecast-row"><span>Current pace</span><span>' + forecasts.masteryRatePerDay + ' words/day</span></div>';
+    if (forecasts.daysToNextMilestone) {
+      html += '<div class="analytics-forecast-row"><span>Next coverage milestone (' + forecasts.nextMilestonePct + '%)</span><span>~' + forecasts.daysToNextMilestone + ' days</span></div>';
+    }
+    if (forecasts.daysToFoundationCompletion) {
+      html += '<div class="analytics-forecast-row"><span>Foundation completion</span><span>~' + forecasts.daysToFoundationCompletion + ' days</span></div>';
+    }
+          var completionDate = forecasts.completionDate ? new Date(forecasts.completionDate) : null;
+    if (completionDate) {
+      html += '<div class="analytics-forecast-completion">🎯 Estimated all-vocabulary mastery: ' + completionDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</div>';
+    }
+    html += '</div></div></div>';
+  }
+  
+  // Achievements Summary
+  if (analytics.achievements) {
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">🏆 Achievements</div>';
+    html += '<div class="analytics-achievement-summary">';
+    html += '<span class="analytics-achievement-big">' + analytics.achievements.earnedCount + ' / ' + analytics.achievements.totalCount + '</span>';
+    html += '<span class="analytics-achievement-small">achievements earned</span>';
+    if (analytics.achievements.totalCount > 0) {
+      html += '<div class="analytics-achievement-track"><div class="analytics-achievement-fill" style="width:' + analytics.achievements.progressPercent + '%"></div></div>';
+    }
+    html += '<button class="analytics-view-ach-btn" id="analytics-view-all-ach" type="button">View All Achievements →</button>';
+    html += '</div></div>';
+  }
+  
+  return html;
+}
+
+// ── TRENDS TAB ──
+
+function renderAnalyticsTrends(analytics) {
+  var html = '';
+  
+  // Period selector
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">📈 Progress Trends</div>';
+  html += '<div class="analytics-trend-periods">';
+  html += '<div class="analytics-trend-tabs">';
+  var trendPeriods = ['7days', '30days', '90days'];
+  var trendLabels = ['7 Days', '30 Days', '90 Days'];
+  for (var tpi = 0; tpi < trendPeriods.length; tpi++) {
+    html += '<button class="analytics-trend-tab' + (tpi === 0 ? ' analytics-trend-active' : '') + '" data-trend-period="' + trendPeriods[tpi] + '" type="button">' + trendLabels[tpi] + '</button>';
+  }
+  html += '</div></div>';
+  
+  // Default to 7 days trend data
+  var trends = (window.__analytics && window.__analytics.getTrends) ? window.__analytics.getTrends('7days') : null;
+  
+  if (trends) {
+    // Summary stats
+    html += '<div class="analytics-trend-summary">';
+    html += '<div class="analytics-trend-stat"><span class="analytics-trend-value">+' + (trends.gainMastered || 0) + '</span><span class="analytics-trend-stat-label" style="display:block;font-size:9px;color:var(--text-muted);margin-top:2px">Words Gained</span></div>';
+    html += '<div class="analytics-trend-stat"><span class="analytics-trend-value">+' + (trends.gainCoverage || '0') + '%</span><span class="analytics-trend-stat-label" style="display:block;font-size:9px;color:var(--text-muted);margin-top:2px">Coverage +</span></div>';
+    html += '<div class="analytics-trend-stat"><span class="analytics-trend-value">' + trends.totalReviews + '</span><span class="analytics-trend-stat-label" style="display:block;font-size:9px;color:var(--text-muted);margin-top:2px">Reviews</span></div>';
+    html += '<div class="analytics-trend-stat"><span class="analytics-trend-value">' + trends.avgReviewsPerDay + '</span><span class="analytics-trend-stat-label" style="display:block;font-size:9px;color:var(--text-muted);margin-top:2px">Reviews/Day</span></div>';
+    html += '</div>';
+    
+    // Mastered trend chart (bar chart)
+    html += '<div class="analytics-trend-chart">';
+    html += '<div class="analytics-trend-chart-title">📚 Vocabulary Growth</div>';
+    var mastered = trends.mastered;
+    if (mastered && mastered.length > 0) {
+      var maxMastered = 1;
+      for (var mi = 0; mi < mastered.length; mi++) {
+        if (mastered[mi] > maxMastered) maxMastered = mastered[mi];
+      }
+      for (var mi = 0; mi < mastered.length; mi++) {
+        var pct = Math.round((mastered[mi] / maxMastered) * 100);
+        html += '<div class="analytics-bar-row">';
+        html += '<span class="analytics-bar-label">' + (trends.labels && trends.labels[mi] ? trends.labels[mi] : '') + '</span>';
+        html += '<div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:' + pct + '%"></div></div>';
+        html += '<span class="analytics-bar-value">' + mastered[mi] + '</span>';
+        html += '</div>';
+      }
+    } else {
+      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying!</div>';
+    }
+    html += '</div>';
+    
+    // Coverage trend chart
+    html += '<div class="analytics-trend-chart">';
+    html += '<div class="analytics-trend-chart-title">📖 Quran Coverage Growth</div>';
+    var coverage = trends.coverage;
+    if (coverage && coverage.length > 0) {
+      var maxCoverage = 100;
+      for (var ci = 0; ci < coverage.length; ci++) {
+        html += '<div class="analytics-bar-row">';
+        html += '<span class="analytics-bar-label">' + (trends.labels && trends.labels[ci] ? trends.labels[ci] : '') + '</span>';
+        html += '<div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:' + coverage[ci] + '%;background:linear-gradient(90deg,var(--green),var(--gold))"></div></div>';
+        html += '<span class="analytics-bar-value">' + coverage[ci] + '%</span>';
+        html += '</div>';
+      }
+    } else {
+      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying!</div>';
+    }
+    html += '</div>';
+    
+    // Reviews per day chart
+    html += '<div class="analytics-trend-chart">';
+    html += '<div class="analytics-trend-chart-title">🔁 Daily Reviews</div>';
+    var reviews = trends.reviews;
+    if (reviews && reviews.length > 0) {
+      var maxReviews = 1;
+      for (var ri = 0; ri < reviews.length; ri++) {
+        if (reviews[ri] > maxReviews) maxReviews = reviews[ri];
+      }
+      for (var ri = 0; ri < reviews.length; ri++) {
+        var rpct = Math.round((reviews[ri] / maxReviews) * 100);
+        html += '<div class="analytics-bar-row">';
+        html += '<span class="analytics-bar-label">' + (trends.labels && trends.labels[ri] ? trends.labels[ri] : '') + '</span>';
+        html += '<div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:' + rpct + '%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div>';
+        html += '<span class="analytics-bar-value">' + reviews[ri] + '</span>';
+        html += '</div>';
+      }
+    } else {
+      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying!</div>';
+    }
+    html += '</div>';
+    
+  } else {
+    html += '<div class="analytics-empty">Not enough data yet. Study for at least 2 days to see trends.</div>';
+  }
+  
+  // Wire trend period switchers
+  // Trend tabs wired in renderAnalyticsTab()
+  
+  return html;
+}
+
+// ── INSIGHTS TAB ──
+
+function renderAnalyticsInsightsPage(analytics) {
+  var html = '';
+  var profile = analytics.profile;
+  
+  if (profile) {
+    // Strongest Roots
+    if (profile.strongRoots && profile.strongRoots.length > 0) {
+      html += '<div class="analytics-section">';
+      html += '<div class="analytics-section-title">💪 Strongest Root Families</div>';
+      html += '<div class="analytics-insight-list">';
+      for (var sri = 0; sri < Math.min(profile.strongRoots.length, 8); sri++) {
+        var sr = profile.strongRoots[sri];
+        html += '<div class="analytics-insight-row">';
+        html += '<span class="analytics-insight-label">' + sr.root + '</span>';
+        html += '<span class="analytics-insight-sub">' + (sr.rootMeaning || '') + '</span>';
+        html += '<span class="analytics-insight-value">' + sr.masteryScore + '%</span>';
+        html += '</div>';
+      }
+      html += '</div></div>';
+    }
+    
+    // Weakest Roots
+    if (profile.weakRoots && profile.weakRoots.length > 0) {
+      html += '<div class="analytics-section">';
+      html += '<div class="analytics-section-title">🌱 Weakest Root Families</div>';
+      html += '<div class="analytics-insight-list">';
+      for (var wri = 0; wri < Math.min(profile.weakRoots.length, 8); wri++) {
+        var wr = profile.weakRoots[wri];
+        html += '<div class="analytics-insight-row">';
+        html += '<span class="analytics-insight-label" style="color:var(--red)">' + wr.root + '</span>';
+        html += '<span class="analytics-insight-sub">' + (wr.rootMeaning || '') + '</span>';
+        html += '<span class="analytics-insight-value" style="color:var(--red)">' + wr.masteryScore + '%</span>';
+        html += '</div>';
+      }
+      html += '</div></div>';
+    }
+    
+    // Forgetting Curve Analysis
+    if (profile) {
+      html += '<div class="analytics-section">';
+      html += '<div class="analytics-section-title">🧠 Memory Health</div>';
+      html += '<div class="analytics-health-card">';
+      var stages = profile.stageDistribution || { newCount: 0, learning: 0, young: 0, mature: 0 };
+      html += '<div class="analytics-health-row"><span>🆕 New words</span><span>' + (stages.newCount || 0) + '</span></div>';
+      html += '<div class="analytics-health-row"><span>🔁 Learning</span><span>' + (stages.learning || 0) + '</span></div>';
+      html += '<div class="analytics-health-row"><span>🌱 Young</span><span>' + (stages.young || 0) + '</span></div>';
+      html += '<div class="analytics-health-row"><span>💡 Mature</span><span>' + (stages.mature || 0) + '</span></div>';
+      html += '<div class="analytics-health-row" style="color:var(--red)"><span>⏰ Critically Overdue</span><span>' + (profile.criticallyOverdue || 0) + '</span></div>';
+      html += '</div></div>';
+    }
+    
+    // Quiz Performance
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">📝 Quiz Performance</div>';
+    html += '<div class="analytics-health-card">';
+    var quizHistory = (typeof loadQuizHistory === 'function') ? loadQuizHistory() : null;
+    var qTotal = quizHistory ? quizHistory.total : 0;
+    var qCorrect = quizHistory ? quizHistory.correct : 0;
+    var qAccuracy = qTotal > 0 ? Math.round((qCorrect / qTotal) * 100) : 0;
+    html += '<div class="analytics-health-row"><span>Quiz Questions Answered</span><span>' + qTotal + '</span></div>';
+    html += '<div class="analytics-health-row"><span>Correct Answers</span><span>' + qCorrect + '</span></div>';
+    html += '<div class="analytics-health-row"><span>Overall Accuracy</span><span>' + qAccuracy + '%</span></div>';
+    html += '</div></div>';
+    
+    // SRS Health
+    var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
+    if (srsStats) {
+      html += '<div class="analytics-section">';
+      html += '<div class="analytics-section-title">❤️ SRS Health</div>';
+      html += '<div class="analytics-health-card">';
+      html += '<div class="analytics-health-row"><span>Average Retention</span><span>' + srsStats.avgRetention + '%</span></div>';
+      html += '<div class="analytics-health-row"><span>Average Ease Factor</span><span>' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span></div>';
+      html += '<div class="analytics-health-row"><span>Leeched Words</span><span>' + (srsStats.leechCount || 0) + '</span></div>';
+      html += '</div></div>';
+    }
+    
+  } else {
+    html += '<div class="analytics-empty">Start learning to see your insights!</div>';
+  }
+  
+  return html;
+}
+
+// ── ACHIEVEMENTS TAB ──
+
+function renderAnalyticsAchievements() {
+  var html = '';
+  var allAchievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
+  var achievementStats = (window.__analytics && window.__analytics.getAchievementStats) ? window.__analytics.getAchievementStats() : null;
+  
+  if (allAchievements.length === 0) {
+    html += '<div class="analytics-empty">No achievements to display.</div>';
+    return html;
+  }
+  
+  // Summary
+  if (achievementStats) {
+    html += '<div class="analytics-ach-progress">';
+    html += '<span class="analytics-ach-big">' + achievementStats.earnedCount + ' / ' + achievementStats.totalCount + '</span>';
+    html += '<div class="analytics-ach-track-big"><div class="analytics-ach-fill-big" style="width:' + achievementStats.progressPercent + '%"></div></div>';
+    html += '</div>';
+    
+    // By category
+    if (achievementStats.byCategory) {
+      html += '<div class="analytics-section">';
+      html += '<div class="analytics-section-title">📊 Progress by Category</div>';
+      html += '<div class="analytics-progress-block">';
+      var catNames = { foundation: 'Foundation', coverage: 'Coverage', mastery: 'Mastery', streak: 'Streak', review: 'Review', quiz: 'Quiz', root: 'Root', path: 'Path', consistency: 'Consistency' };
+      var catColors = { foundation: 'var(--gold)', coverage: 'var(--green)', mastery: 'var(--blue)', streak: 'var(--red)', review: 'var(--purple)', quiz: 'var(--pink)', root: 'var(--green)', path: 'var(--gold-dim)', consistency: 'var(--blue)' };
+      var catKeys = Object.keys(achievementStats.byCategory);
+      for (var cki = 0; cki < catKeys.length; cki++) {
+        var ck = catKeys[cki];
+        var cat = achievementStats.byCategory[ck];
+        var catPct = cat.total > 0 ? Math.round((cat.earned / cat.total) * 100) : 0;
+        html += '<div class="analytics-path-row">';
+        html += '<div class="analytics-path-label">' + (catNames[ck] || ck) + '</div>';
+        html += '<div class="analytics-path-track"><div class="analytics-path-fill" style="width:' + catPct + '%;background:' + (catColors[ck] || 'var(--gold)') + '"></div></div>';
+        html += '<div class="analytics-path-value">' + cat.earned + '/' + cat.total + '</div>';
+        html += '</div>';
+      }
+      html += '</div></div>';
+    }
+  }
+  
+  // Achievement cards
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">🎯 All Achievements</div>';
+  html += '<div class="analytics-ach-grid">';
+  for (var ai = 0; ai < allAchievements.length; ai++) {
+    var ach = allAchievements[ai];
+    html += '<div class="analytics-ach-card' + (ach.earned ? ' analytics-ach-earned' : '') + '">';
+    html += '<div class="analytics-ach-icon">' + ach.icon + '</div>';
+    html += '<div class="analytics-ach-title">' + ach.title + '</div>';
+    html += '<div class="analytics-ach-desc">' + ach.description + '</div>';
+    if (ach.earned && ach.earnedDate) {
+      html += '<div class="analytics-ach-date">Earned ' + ach.earnedDate + '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div></div>';
+  
+  return html;
+}
+
+// Export for app.js
+window.__renderAnalytics = renderAnalytics;
+
+
 window.__openExplorer = openExplorer;
 window.__explorerWord = function() { return _explorerWord; };
 

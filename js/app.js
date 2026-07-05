@@ -152,6 +152,7 @@ function switchView(viewName) {
   if (viewName === 'stats') renderStats();
   if (viewName === 'profile') renderProfileView();
   if (viewName === 'explorer') renderExplorer();
+  if (viewName === 'analytics') renderAnalytics();
   if (document.activeElement) document.activeElement.blur();
 }
 
@@ -209,6 +210,13 @@ function rateSRS(rating) {
 
   // Track streak on review
   updateStreak();
+
+  if (window.__analytics && window.__analytics.recordDailySnapshot) {
+    window.__analytics.recordDailySnapshot();
+  }
+  if (window.__analytics && window.__analytics.checkAchievements) {
+    window.__analytics.checkAchievements();
+  }
 
   updateStatsDisplay(); // also updates goal ring
 
@@ -739,6 +747,7 @@ function wireEvents() {
   document.getElementById('tab-quiz').onclick = function () { switchView('quiz'); };
   document.getElementById('tab-list').onclick = function () { switchView('list'); };
   document.getElementById('tab-stats').onclick = function () { switchView('stats'); };
+  document.getElementById('tab-analytics').onclick = function () { switchView('analytics'); };
 
   // Learn navigation
   document.getElementById('btn-prev').onclick = prevWord;
@@ -1429,6 +1438,10 @@ function init() {
   registerServiceWorker();
 
   // 8. Set up online/offline sync listener
+  if (window.__analytics && window.__analytics.init) {
+    window.__analytics.init();
+  }
+
   setupOnlineSync();
 
   // 9. Show keyboard shortcut hints on first load (briefly)

@@ -81,6 +81,7 @@ const APP_FILES = [
   'js/quiz.js',
   'js/auth-ui.js',
   'js/profile-ui.js',
+  'js/analytics.js',
   'js/app.js',
 ];
 
