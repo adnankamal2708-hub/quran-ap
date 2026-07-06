@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/adnankamal2708-hub/quran-ap#readme",
   "devDependencies": {
+    "playwright": "^1.61.1",
     "terser": "^5.48.0"
   }
 }

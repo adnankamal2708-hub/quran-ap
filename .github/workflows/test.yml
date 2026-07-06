@@ -50,12 +50,19 @@ jobs:
     - name: Check JS syntax
       run: |
         FAILED=0
+        # Skip firebase-core.js — it uses ES module import syntax loaded as <script type="module">
+        # node --check treats .js as CommonJS, which doesn't support import
         for f in js/*.js; do
+          if [ "$f" = "js/services/firebase-core.js" ]; then continue; fi
           node --check "$f" 2>/dev/null || { echo "Syntax error in $f"; FAILED=1; }
         done
         for f in js/services/*.js; do
+          if [ "$f" = "js/services/firebase-core.js" ]; then continue; fi
           node --check "$f" 2>/dev/null || { echo "Syntax error in $f"; FAILED=1; }
         done
+        # Verify firebase-core.js as ES module separately
+        node --input-type=module --check < js/services/firebase-core.js 2>/dev/null || \
+          { echo "Module syntax error in js/services/firebase-core.js"; FAILED=1; }
         if [ "$FAILED" = "1" ]; then exit 1; fi
         echo "All JS files have valid syntax."
       shell: bash
