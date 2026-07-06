@@ -1,0 +1,61 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+      env:
+        CI: true
+
+    - name: Run unit tests
+      run: node test/run-all.js
+
+    - name: Check file sizes
+      run: |
+        echo "Build Output Sizes:"
+        ls -lh dist/index.html dist/styles.min.css dist/js/app.bundle.min.js dist/js/data.bundle.min.js 2>/dev/null || echo "Some dist files missing"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+    - name: Check JS syntax
+      run: |
+        FAILED=0
+        for f in js/*.js; do
+          node --check "$f" 2>/dev/null || { echo "Syntax error in $f"; FAILED=1; }
+        done
+        for f in js/services/*.js; do
+          node --check "$f" 2>/dev/null || { echo "Syntax error in $f"; FAILED=1; }
+        done
+        if [ "$FAILED" = "1" ]; then exit 1; fi
+        echo "All JS files have valid syntax."
+      shell: bash
