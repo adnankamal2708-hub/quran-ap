@@ -290,6 +290,12 @@ function toggleEditSettings() {
         if (sizeInput) sizeInput.value = settings.sessionSize;
         var autoInput = document.getElementById('settings-edit-auto');
         if (autoInput) autoInput.checked = settings.autoImportOnLogin;
+        var themeInput = document.getElementById('settings-edit-dark-theme');
+        if (themeInput) themeInput.checked = settings.darkTheme !== false;
+        var celebrationInput = document.getElementById('settings-edit-show-celebrations');
+        if (celebrationInput) celebrationInput.checked = settings.showCelebrations !== false;
+        var notifyInput = document.getElementById('settings-edit-notifications');
+        if (notifyInput) notifyInput.checked = settings.notificationsEnabled === true;
       });
     }
   }
@@ -314,6 +320,9 @@ async function saveSettingsChanges() {
     dailyReviewLimit: parseInt(limitInput ? limitInput.value : 25, 10) || 25,
     sessionSize: parseInt(sizeInput ? sizeInput.value : 20, 10) || 20,
     autoImportOnLogin: autoInput ? autoInput.checked : true,
+    darkTheme: document.getElementById('settings-edit-dark-theme') ? document.getElementById('settings-edit-dark-theme').checked : true,
+    showCelebrations: document.getElementById('settings-edit-show-celebrations') ? document.getElementById('settings-edit-show-celebrations').checked : true,
+    notificationsEnabled: document.getElementById('settings-edit-notifications') ? document.getElementById('settings-edit-notifications').checked : false,
   };
 
   // Clamp values

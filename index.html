@@ -85,14 +85,7 @@
         </div>
 
         
-        <div class="dashboard-insights" id="dashboard-insights">
-          <!-- Rendered by renderLearningInsights() -->
-        </div>
 
-        <div class="dashboard-overall" id="dashboard-overall">
-          <div class="dashboard-overall-title">📊 Overall Progress</div>
-          <div class="dashboard-overall-stats" id="dashboard-overall-stats"></div>
-        </div>
       </section>
 
       <!-- ── LEARN VIEW ── -->
@@ -848,6 +841,18 @@
               <input type="checkbox" id="settings-edit-auto" checked />
               <span>Auto-import local data on login</span>
             </label>
+            <label class="auth-checkbox-label mt-12 flex gap-8">
+              <input type="checkbox" id="settings-edit-dark-theme" checked />
+              <span>Dark theme (default)</span>
+            </label>
+            <label class="auth-checkbox-label mt-12 flex gap-8">
+              <input type="checkbox" id="settings-edit-show-celebrations" checked />
+              <span>Show milestone celebrations</span>
+            </label>
+            <label class="auth-checkbox-label mt-12 flex gap-8">
+              <input type="checkbox" id="settings-edit-notifications" checked />
+              <span>Daily review reminder</span>
+            </label>
             <div class="auth-error" id="settings-edit-error" style="display:none"></div>
             <div class="auth-success" id="settings-edit-success" style="display:none"></div>
             <div class="profile-edit-actions">
@@ -954,5 +959,25 @@
   <script type="module" src="js/services/firebase-core.js"></script>
   <script defer src="js/data.bundle.min.js"></script>
   <script defer src="js/app.bundle.min.js"></script>
+
+  <!-- ONBOARDING OVERLAY -->
+  <div class="onboarding-overlay" id="onboarding-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Welcome tour">
+    <div class="onboarding-card">
+      <button class="onboarding-skip-btn" id="onboarding-skip" type="button" aria-label="Skip tour">Skip</button>
+      <div class="onboarding-slide" id="onboarding-slide"></div>
+      <div class="onboarding-dots" id="onboarding-dots"></div>
+      <div class="onboarding-nav">
+        <button class="btn btn-sm btn-outline" id="onboarding-prev" type="button" aria-label="Previous slide">Back</button>
+        <button class="btn btn-sm" id="onboarding-next" type="button">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- UX POLISH SCRIPT -->
+  <script defer src="js/ux-polish.js"></script>
+
 </body>
 </html>

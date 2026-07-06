@@ -82,6 +82,7 @@ const APP_FILES = [
   'js/auth-ui.js',
   'js/profile-ui.js',
   'js/analytics.js',
+  'js/ux-polish.js',
   'js/app.js',
 ];
 

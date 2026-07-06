@@ -836,6 +836,14 @@ function wireEvents() {
   // Quick mode toggle
   DOM.get('qa-quick-mode').onclick = toggleQuickMode;
 
+  // Onboarding revisit button
+  var revisitBtn = document.getElementById('btn-revisit-onboarding');
+  if (revisitBtn) {
+    revisitBtn.onclick = function() {
+      if (window.__ux && window.__ux.showOnboarding) window.__ux.showOnboarding();
+    };
+  }
+
   // Session summary close — returns to dashboard if from mixed review
   DOM.get('session-summary-close').onclick = function () {
     closeSessionSummary();
@@ -1472,6 +1480,16 @@ function init() {
     }).catch(function () {
       // Silently ignore — use default limit
     });
+  }
+
+  // 12. Initialize UX polish module
+  if (window.__ux) {
+    if (!window.__ux.hasCompletedOnboarding()) {
+      setTimeout(function() { window.__ux.showOnboarding(); }, 800);
+    }
+    window.__ux.updateOfflineIndicator();
+    window.addEventListener('online', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
+    window.addEventListener('offline', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
   }
 }
 

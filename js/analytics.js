@@ -775,6 +775,704 @@ function getAchievementStats() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FREQUENTLY FORGOTTEN VOCABULARY
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Identify vocabulary that the learner frequently forgets.
+ * Looks for: lowest retention rates, highest leech counts,
+ * most review failures (stage resets), and words stuck in learning.
+ */
+function getFrequentlyForgotten() {
+  var srsData = loadSRS();
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  
+  var candidates = [];
+  
+  for (var i = 0; i < allWords.length; i++) {
+    var entry = srsData[allWords[i].id];
+    if (!entry) continue;
+    
+    var score = 0;
+    var reasons = [];
+    
+    // Leeched words are frequently forgotten
+    if (entry.isLeech) {
+      score += 30;
+      reasons.push('leeched');
+    }
+    
+    // Low retention
+    if (entry.interval > 0 && typeof estimateRetention === 'function') {
+      var retention = estimateRetention(entry);
+      if (retention < 0.5) {
+        score += 25;
+        reasons.push('low retention (' + Math.round(retention * 100) + '%)');
+      }
+    }
+    
+    // Stuck in learning stage (many reviews but still stage 0-1)
+    if (entry.stage <= 1 && entry.totalReviews >= 5) {
+      score += 20;
+      reasons.push('stuck in learning');
+    }
+    
+    // Frequently reset (many reviews with low average rating)
+    if (entry.totalReviews >= 3 && entry.averageRating && entry.averageRating < 1.5) {
+      score += 15;
+      reasons.push('low ratings');
+    }
+    
+    // Overdue words that keep getting postponed
+    if (entry.dueDate && entry.dueDate < Date.now() - 7 * 24 * 60 * 60 * 1000) {
+      score += 10;
+      reasons.push('persistently overdue');
+    }
+    
+    if (score > 0) {
+      candidates.push({
+        id: allWords[i].id,
+        arabic: allWords[i].arabic,
+        english: allWords[i].english,
+        translit: allWords[i].translit,
+        stage: entry.stage || 0,
+        retention: entry.interval > 0 && typeof estimateRetention === 'function' ? Math.round(estimateRetention(entry) * 100) : null,
+        totalReviews: entry.totalReviews || 0,
+        isLeech: !!entry.isLeech,
+        isOverdue: entry.dueDate && entry.dueDate < Date.now(),
+        forgottenScore: score,
+        reasons: reasons,
+      });
+    }
+  }
+  
+  candidates.sort(function(a, b) { return b.forgottenScore - a.forgottenScore; });
+  return candidates.slice(0, 10);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOST IMPROVED VOCABULARY
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Identify vocabulary that has shown the most improvement.
+ * Looks for words that moved from low stage to high stage,
+ * or showed significant retention improvement.
+ */
+function getMostImproved() {
+  var srsData = loadSRS();
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  
+  var candidates = [];
+  
+  for (var i = 0; i < allWords.length; i++) {
+    var entry = srsData[allWords[i].id];
+    if (!entry || !entry.totalReviews || entry.totalReviews < 2) continue;
+    if (entry.stage < 2) continue; // Only count mastered or young
+    
+    var improvementScore = 0;
+    
+    // High stage with many reviews shows improvement journey
+    improvementScore += entry.stage * 10;
+    
+    // High retention despite being a difficult word
+    if (entry.interval > 0 && typeof estimateRetention === 'function') {
+      var retention = estimateRetention(entry);
+      if (retention > 0.8) improvementScore += 15;
+    }
+    
+    // Words that had low ratings early on but high recent ratings
+    if (entry.averageRating && entry.averageRating >= 2.5 && entry.totalReviews >= 3) {
+      improvementScore += 10;
+    }
+    
+    // Recently matured (was new/learning recently, now mastered)
+    if (entry.stage >= 2 && entry.ratedAt && entry.ratedAt > Date.now() - 30 * 24 * 60 * 60 * 1000) {
+      improvementScore += 5;
+    }
+    
+    if (improvementScore > 0) {
+      candidates.push({
+        id: allWords[i].id,
+        arabic: allWords[i].arabic,
+        english: allWords[i].english,
+        translit: allWords[i].translit,
+        stage: entry.stage || 0,
+        retention: entry.interval > 0 && typeof estimateRetention === 'function' ? Math.round(estimateRetention(entry) * 100) : null,
+        totalReviews: entry.totalReviews || 0,
+        improvementScore: improvementScore,
+      });
+    }
+  }
+  
+  candidates.sort(function(a, b) { return b.improvementScore - a.improvementScore; });
+  return candidates.slice(0, 10);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DIFFICULT SEMANTIC GROUPS
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Identify semantic groups where the learner has the lowest average mastery.
+ */
+function getDifficultSemanticGroups() {
+  var srsData = loadSRS();
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  
+  // Build type-based groups (part of speech categories)
+  var groups = {};
+  var groupNames = {
+    noun: 'Nouns',
+    verb: 'Verbs',
+    particle: 'Particles',
+    adjective: 'Adjectives',
+    pronoun: 'Pronouns',
+    exclamation: 'Exclamations',
+  };
+  
+  for (var i = 0; i < allWords.length; i++) {
+    var w = allWords[i];
+    var cat = w.typeCategory || 'other';
+    if (!groups[cat]) {
+      groups[cat] = { total: 0, mastered: 0, retentionSum: 0, retentionCount: 0, label: groupNames[cat] || cat };
+    }
+    groups[cat].total++;
+    
+    var entry = srsData[w.id];
+    if (entry) {
+      if (entry.stage >= 2) groups[cat].mastered++;
+      if (entry.interval > 0 && typeof estimateRetention === 'function') {
+        groups[cat].retentionSum += estimateRetention(entry);
+        groups[cat].retentionCount++;
+      }
+    }
+  }
+  
+  // Also compute difficulty-based groups
+  var diffGroups = {};
+  var diffLabels = { 1: 'Easy', 2: 'Medium', 3: 'Hard', 4: 'Complex', 5: 'Advanced' };
+  for (var di = 0; di < allWords.length; di++) {
+    var w2 = allWords[di];
+    var d = w2.difficulty || 3;
+    if (!diffGroups[d]) {
+      diffGroups[d] = { total: 0, mastered: 0, retentionSum: 0, retentionCount: 0, label: diffLabels[d] || 'Level ' + d };
+    }
+    diffGroups[d].total++;
+    
+    var e2 = srsData[w2.id];
+    if (e2) {
+      if (e2.stage >= 2) diffGroups[d].mastered++;
+      if (e2.interval > 0 && typeof estimateRetention === 'function') {
+        diffGroups[d].retentionSum += estimateRetention(e2);
+        diffGroups[d].retentionCount++;
+      }
+    }
+  }
+  
+  // Compute mastery percentage for each group
+  var result = [];
+  Object.keys(groups).forEach(function(cat) {
+    var g = groups[cat];
+    var masteryPct = g.total > 0 ? Math.round((g.mastered / g.total) * 100) : 0;
+    var avgRet = g.retentionCount > 0 ? Math.round((g.retentionSum / g.retentionCount) * 100) : null;
+    result.push({
+      name: g.label,
+      type: 'part-of-speech',
+      total: g.total,
+      mastered: g.mastered,
+      masteryPercent: masteryPct,
+      avgRetention: avgRet,
+    });
+  });
+  
+  Object.keys(diffGroups).forEach(function(d) {
+    var g = diffGroups[d];
+    var masteryPct = g.total > 0 ? Math.round((g.mastered / g.total) * 100) : 0;
+    var avgRet = g.retentionCount > 0 ? Math.round((g.retentionSum / g.retentionCount) * 100) : null;
+    result.push({
+      name: g.label,
+      type: 'difficulty',
+      total: g.total,
+      mastered: g.mastered,
+      masteryPercent: masteryPct,
+      avgRetention: avgRet,
+    });
+  });
+  
+  // Sort by mastery ascending (hardest first)
+  result.sort(function(a, b) { return a.masteryPercent - b.masteryPercent; });
+  
+  return {
+    hardest: result.slice(0, 5),
+    easiest: result.slice(-5).reverse(),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AVERAGE LESSON ACCURACY
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Compute average accuracy per lesson based on SRS ratings.
+ * Lessons where the user consistently rates higher indicate easier content.
+ */
+function getAverageLessonAccuracy() {
+  var srsData = loadSRS();
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  
+  // Group words by foundation lesson
+  var lessons = {};
+  
+  for (var i = 0; i < allWords.length; i++) {
+    var w = allWords[i];
+    var lessonId = w.foundationLessonId;
+    if (lessonId === undefined || lessonId < 0) continue;
+    
+    if (!lessons[lessonId]) {
+      lessons[lessonId] = { totalWords: 0, reviewedWords: 0, ratingSum: 0, masteredCount: 0 };
+    }
+    lessons[lessonId].totalWords++;
+    
+    var entry = srsData[w.id];
+    if (entry) {
+      lessons[lessonId].reviewedWords++;
+      if (entry.averageRating) lessons[lessonId].ratingSum += entry.averageRating;
+      if (entry.stage >= 2) lessons[lessonId].masteredCount++;
+    }
+  }
+  
+  var result = [];
+  Object.keys(lessons).forEach(function(lid) {
+    var l = lessons[lid];
+    var avgRating = l.reviewedWords > 0 ? Math.round((l.ratingSum / l.reviewedWords) * 10) / 10 : 0;
+    var masteryRate = l.totalWords > 0 ? Math.round((l.masteredCount / l.totalWords) * 100) : 0;
+    result.push({
+      lessonId: parseInt(lid, 10),
+      totalWords: l.totalWords,
+      reviewedWords: l.reviewedWords,
+      avgRating: avgRating,
+      masteryPercent: masteryRate,
+    });
+  });
+  
+  result.sort(function(a, b) { return a.lessonId - b.lessonId; });
+  
+  return {
+    overall: result,
+    averageMasteryRate: result.length > 0
+      ? Math.round(result.reduce(function(s, r) { return s + r.masteryPercent; }, 0) / result.length)
+      : 0,
+    weakestLesson: result.length > 0 ? result.reduce(function(a, b) { return a.masteryPercent < b.masteryPercent ? a : b; }) : null,
+    strongestLesson: result.length > 0 ? result.reduce(function(a, b) { return a.masteryPercent > b.masteryPercent ? a : b; }) : null,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SESSION LOG — Study Time Tracking
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Log a study session with start time and duration.
+ */
+function logStudySession() {
+  var sessions = loadStudySessions();
+  var now = Date.now();
+  var today = getDateKeyAnalytics();
+  
+  // Check if there's an active session to close
+  var activeIdx = -1;
+  for (var si = 0; si < sessions.length; si++) {
+    if (!sessions[si].endTime) {
+      activeIdx = si;
+      break;
+    }
+  }
+  
+  if (activeIdx >= 0) {
+    // Close the active session
+    sessions[activeIdx].endTime = now;
+    sessions[activeIdx].duration = Math.round((now - sessions[activeIdx].startTime) / 60000); // minutes
+    sessions[activeIdx].date = today;
+  } else {
+    // Start a new session
+    sessions.push({
+      startTime: now,
+      endTime: null,
+      duration: 0,
+      date: today,
+    });
+  }
+  
+  // Keep only last 90 days of sessions
+  var cutoff = now - 90 * 24 * 60 * 60 * 1000;
+  sessions = sessions.filter(function(s) { return s.startTime > cutoff; });
+  
+  saveStudySessions(sessions);
+}
+
+function loadStudySessions() {
+  try {
+    var raw = localStorage.getItem(ANALYTICS_SESSION_LOG_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveStudySessions(data) {
+  try {
+    localStorage.setItem(ANALYTICS_SESSION_LOG_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('[analytics] Could not save sessions:', e.message);
+  }
+}
+
+/**
+ * Compute average study time for different periods.
+ */
+function getAverageStudyTime() {
+  var sessions = loadStudySessions();
+  if (sessions.length === 0) return null;
+  
+  var now = Date.now();
+  var dayMs = 24 * 60 * 60 * 1000;
+  
+  var weekSessions = sessions.filter(function(s) { return s.startTime > now - 7 * dayMs && s.duration > 0; });
+  var monthSessions = sessions.filter(function(s) { return s.startTime > now - 30 * dayMs && s.duration > 0; });
+  var allSessions = sessions.filter(function(s) { return s.duration > 0; });
+  
+  function avgDuration(arr) {
+    if (arr.length === 0) return 0;
+    var total = arr.reduce(function(s, s2) { return s + s2.duration; }, 0);
+    return Math.round(total / arr.length);
+  }
+  
+  function totalDuration(arr) {
+    return arr.reduce(function(s, s2) { return s + s2.duration; }, 0);
+  }
+  
+  return {
+    weeklyAvgMinutes: avgDuration(weekSessions),
+    monthlyAvgMinutes: avgDuration(monthSessions),
+    overallAvgMinutes: avgDuration(allSessions),
+    weeklyTotalMinutes: totalDuration(weekSessions),
+    monthlyTotalMinutes: totalDuration(monthSessions),
+    sessionCountWeek: weekSessions.length,
+    sessionCountMonth: monthSessions.length,
+    sessionCountOverall: allSessions.length,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIONABLE RECOMMENDATIONS
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Generate personalized, actionable recommendations based on learning data.
+ * Analyzes weaknesses and suggests specific actions.
+ */
+function getRecommendations() {
+  var recommendations = [];
+  var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
+  var profile = (typeof getLearnerProfile === 'function') ? getLearnerProfile() : null;
+  var periods = getPeriodSummaries();
+  var forgottenWords = getFrequentlyForgotten();
+  var difficultGroups = getDifficultSemanticGroups();
+  var lessonAccuracy = getAverageLessonAccuracy();
+  var sessions = loadStudySessions();
+  var streakData = loadStreakDataAnalytics();
+  
+  // 1. Overdue reviews
+  if (srsStats && srsStats.overdue > 0) {
+    var severity = srsStats.overdue > 20 ? 'high' : srsStats.overdue > 10 ? 'medium' : 'low';
+    recommendations.push({
+      priority: severity,
+      category: 'review',
+      icon: '⏰',
+      title: 'Overdue Reviews: ' + srsStats.overdue + ' words',
+      description: 'You have ' + srsStats.overdue + ' words past their due date. Reviewing them now will strengthen your memory.',
+      action: 'Start review session',
+      actionType: 'review',
+    });
+  }
+  
+  // 2. Frequently forgotten words
+  if (forgottenWords.length >= 3) {
+    recommendations.push({
+      priority: forgottenWords[0].forgottenScore > 25 ? 'high' : 'medium',
+      category: 'focus',
+      icon: '🔁',
+      title: 'Words Needing Extra Attention: ' + forgottenWords.length,
+      description: 'Some words need extra practice: ' + forgottenWords.slice(0, 3).map(function(w) { return w.arabic + ' (' + w.english + ')'; }).join(', ') + '.',
+      action: 'Review difficult words',
+      actionType: 'review-difficult',
+      words: forgottenWords.slice(0, 3),
+    });
+  }
+  
+  // 3. Consistency
+  if (periods && periods.consistency < 70) {
+    recommendations.push({
+      priority: periods.consistency < 40 ? 'high' : 'medium',
+      category: 'consistency',
+      icon: '📅',
+      title: 'Improve Learning Consistency',
+      description: 'You study on ' + periods.consistency + '% of days. Studying at least 5 minutes daily builds stronger long-term memory.',
+      action: 'Set a daily review reminder',
+      actionType: 'goal',
+    });
+  }
+  
+  // 4. Weak part of speech
+  if (difficultGroups.hardest && difficultGroups.hardest.length > 0) {
+    var hardest = difficultGroups.hardest[0];
+    if (hardest.masteryPercent < 50) {
+      recommendations.push({
+        priority: 'medium',
+        category: 'vocabulary',
+        icon: '📚',
+        title: 'Focus on ' + hardest.name,
+        description: 'You have only mastered ' + hardest.masteryPercent + '% of ' + hardest.name.toLowerCase() + '. Practice these word types more.',
+        action: 'Study ' + hardest.name,
+        actionType: 'focus-group',
+      });
+    }
+  }
+  
+  // 5. Study time
+  if (sessions.length > 0) {
+    var recentSessions = sessions.filter(function(s) { return s.startTime > Date.now() - 7 * 24 * 60 * 60 * 1000; });
+    var totalMinutes = recentSessions.reduce(function(sum, s) { return sum + (s.duration || 0); }, 0);
+    if (totalMinutes < 30 && recentSessions.length > 0) {
+      recommendations.push({
+        priority: 'low',
+        category: 'study-habits',
+        icon: '⏱️',
+        title: 'Increase Study Time',
+        description: 'You studied ' + totalMinutes + ' minutes this week. Aim for 10-15 minutes per session for optimal learning.',
+        action: 'Extend study sessions',
+        actionType: 'goal',
+      });
+    }
+  }
+  
+  // 6. Quiz performance
+  var quizHistory = (typeof loadQuizHistory === 'function') ? loadQuizHistory() : null;
+  if (quizHistory && quizHistory.total >= 10) {
+    var accuracy = (quizHistory.correct / quizHistory.total) * 100;
+    if (accuracy < 70) {
+      recommendations.push({
+        priority: 'high',
+        category: 'quiz',
+        icon: '📝',
+        title: 'Quiz Accuracy: ' + Math.round(accuracy) + '%',
+        description: 'Your quiz accuracy is below 70%. Review the words you missed and try again.',
+        action: 'Take a quiz',
+        actionType: 'quiz',
+      });
+    }
+  }
+  
+  // 7. Leeches
+  if (srsStats && srsStats.leechCount > 0) {
+    recommendations.push({
+      priority: srsStats.leechCount > 5 ? 'high' : 'low',
+      category: 'focus',
+      icon: '💢',
+      title: 'Leeched Words: ' + srsStats.leechCount,
+      description: srsStats.leechCount + ' words are marked as leeches (persistently difficult). Give them extra attention with focused review.',
+      action: 'Review leeched words',
+      actionType: 'review-leeches',
+    });
+  }
+  
+  // 8. Streak encouragement
+  if (streakData && streakData.streak > 0 && streakData.streak < 7) {
+    var daysTo7 = 7 - streakData.streak;
+    if (daysTo7 > 0) {
+      recommendations.push({
+        priority: 'low',
+        category: 'streak',
+        icon: '🔥',
+        title: streakData.streak + '-Day Streak!',
+        description: 'You\'re on a ' + streakData.streak + '-day streak! ' + daysTo7 + ' more days to reach a 7-day streak milestone.',
+        action: 'Keep studying daily',
+        actionType: 'streak',
+      });
+    }
+  }
+  
+  // Sort by priority
+  var priorityOrder = { high: 0, medium: 1, low: 2 };
+  recommendations.sort(function(a, b) { return priorityOrder[a.priority] - priorityOrder[b.priority]; });
+  
+  return recommendations;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REMAINING REVIEW WORKLOAD
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Compute the remaining review workload for upcoming periods.
+ */
+function getReviewWorkload() {
+  var srsData = loadSRS();
+  var now = Date.now();
+  var dayMs = 24 * 60 * 60 * 1000;
+  
+  var periods = [
+    { label: 'Today', days: 0 },
+    { label: 'Tomorrow', days: 1 },
+    { label: 'This Week', days: 7 },
+    { label: 'Next 2 Weeks', days: 14 },
+    { label: 'This Month', days: 30 },
+  ];
+  
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  
+  var workload = [];
+  
+  for (var pi = 0; pi < periods.length; pi++) {
+    var p = periods[pi];
+    var cutoff = now + p.days * dayMs;
+    var count = 0;
+    
+    for (var wi = 0; wi < allWords.length; wi++) {
+      var entry = srsData[allWords[wi].id];
+      if (entry && entry.dueDate && entry.dueDate <= cutoff) {
+        count++;
+      }
+    }
+    
+    var prevCutoff = now + (pi > 0 ? periods[pi - 1].days : -1) * dayMs;
+    var newCount = 0;
+    for (var wi2 = 0; wi2 < allWords.length; wi2++) {
+      var e2 = srsData[allWords[wi2].id];
+      if (e2 && e2.dueDate && e2.dueDate > prevCutoff && e2.dueDate <= cutoff) {
+        newCount++;
+      }
+    }
+    
+    workload.push({
+      label: p.label,
+      totalDue: count,
+      newDue: newCount,
+    });
+  }
+  
+  return workload;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PERSONALIZED GOALS
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Generate personalized daily and weekly learning goals.
+ */
+function getPersonalizedGoals() {
+  var forecasts = getForecasts();
+  var periods = getPeriodSummaries();
+  var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
+  var streakData = loadStreakDataAnalytics();
+  
+  var goals = [];
+  
+  // Daily review goal based on current pace
+  var avgDailyReviews = 0;
+  if (periods && periods.week && periods.week.avgReviewsPerDay) {
+    avgDailyReviews = periods.week.avgReviewsPerDay;
+  } else if (periods && periods.month && periods.month.avgReviewsPerDay) {
+    avgDailyReviews = periods.month.avgReviewsPerDay;
+  }
+  
+  var suggestedDailyReviews = Math.max(5, Math.min(50, Math.round(avgDailyReviews * 1.2)));
+  goals.push({
+    type: 'daily',
+    title: 'Daily Reviews: ' + suggestedDailyReviews,
+    description: 'Review ' + suggestedDailyReviews + ' words per day to maintain your current learning pace and build lasting retention.',
+    target: suggestedDailyReviews,
+    current: srsStats ? srsStats.reviewsToday || 0 : 0,
+    unit: 'reviews',
+  });
+  
+  // Weekly mastery goal
+  if (forecasts && forecasts.masteryRatePerDay) {
+    var weeklyGoal = Math.max(3, Math.round(forecasts.masteryRatePerDay * 7));
+    goals.push({
+      type: 'weekly',
+      title: 'Weekly Mastery: ' + weeklyGoal + ' words',
+      description: 'Aim to master ' + weeklyGoal + ' new words this week at your current pace of ' + forecasts.masteryRatePerDay + ' words/day.',
+      target: weeklyGoal,
+      unit: 'words mastered',
+    });
+  }
+  
+  // Streak goal
+  if (streakData) {
+    var currentStreak = streakData.streak || 0;
+    var nextMilestone = 0;
+    var milestones = [7, 14, 30, 50, 100, 365];
+    for (var mi = 0; mi < milestones.length; mi++) {
+      if (currentStreak < milestones[mi]) {
+        nextMilestone = milestones[mi];
+        break;
+      }
+    }
+    if (nextMilestone > 0) {
+      goals.push({
+        type: 'streak',
+        title: 'Streak: ' + currentStreak + ' → ' + nextMilestone + ' days',
+        description: 'You are ' + (nextMilestone - currentStreak) + ' days away from a ' + nextMilestone + '-day learning streak. Study daily to reach it!',
+        target: nextMilestone,
+        current: currentStreak,
+        unit: 'days',
+      });
+    }
+  }
+  
+  // Foundation completion goal
+  var fCompleted = (typeof getCompletedFoundationLessonCount === 'function') ? getCompletedFoundationLessonCount() : 0;
+  var fTotal = (typeof getFoundationLessonCount === 'function') ? getFoundationLessonCount() : 0;
+  if (fCompleted < fTotal && forecasts && forecasts.daysToFoundationCompletion) {
+    goals.push({
+      type: 'milestone',
+      title: 'Foundation Course: ' + fCompleted + '/' + fTotal,
+      description: 'Estimated completion in ~' + forecasts.daysToFoundationCompletion + ' days at your current pace.',
+      target: fTotal,
+      current: fCompleted,
+      unit: 'lessons',
+    });
+  }
+  
+  // Accuracy goal
+  var quizHistory = (typeof loadQuizHistory === 'function') ? loadQuizHistory() : null;
+  if (quizHistory && quizHistory.total >= 5) {
+    var accuracy = Math.round((quizHistory.correct / quizHistory.total) * 100);
+    if (accuracy < 90) {
+      goals.push({
+        type: 'accuracy',
+        title: 'Quiz Accuracy: ' + accuracy + '%',
+        description: 'Push your quiz accuracy above 90% by reviewing missed words before retaking quizzes.',
+        target: 90,
+        current: accuracy,
+        unit: '%',
+      });
+    }
+  }
+  
+  return goals;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // COMPREHENSIVE LEARNING INSIGHTS
 // ═══════════════════════════════════════════════════════════════
 
@@ -794,6 +1492,14 @@ function getComprehensiveInsights() {
     forecasts: forecasts,
     periods: periods,
     achievements: achievements,
+    frequentlyForgotten: getFrequentlyForgotten(),
+    mostImproved: getMostImproved(),
+    difficultGroups: getDifficultSemanticGroups(),
+    lessonAccuracy: getAverageLessonAccuracy(),
+    studyTime: getAverageStudyTime(),
+    recommendations: getRecommendations(),
+    reviewWorkload: getReviewWorkload(),
+    goals: getPersonalizedGoals(),
   };
 }
 
@@ -809,6 +1515,9 @@ function initAnalytics() {
   // Record today's snapshot
   recordDailySnapshot();
   
+  // Log study session start
+  logStudySession();
+  
   // Check achievements
   var newlyEarned = checkAchievements();
   if (newlyEarned.length > 0) {
@@ -820,9 +1529,13 @@ function initAnalytics() {
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
 
+function pad(n) {
+  return n < 10 ? '0' + n : '' + n;
+}
+
 function getDateKeyAnalytics() {
   var d = new Date();
-  return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
 function getTodayStartAnalytics() {
@@ -832,7 +1545,7 @@ function getTodayStartAnalytics() {
 }
 
 function formatDateKey(date) {
-  return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+  return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
 }
 
 function formatDateLabel(dateStr) {
@@ -860,6 +1573,7 @@ function loadStreakDataAnalytics() {
 window.__analytics = {
   init: initAnalytics,
   recordDailySnapshot: recordDailySnapshot,
+  logSession: logStudySession,
   getTrends: getProgressTrends,
   getForecasts: getForecasts,
   getPeriodSummaries: getPeriodSummaries,
@@ -868,4 +1582,12 @@ window.__analytics = {
   getAchievementStats: getAchievementStats,
   checkAchievements: checkAchievements,
   getHistory: loadAnalyticsHistory,
+  getFrequentlyForgotten: getFrequentlyForgotten,
+  getMostImproved: getMostImproved,
+  getDifficultGroups: getDifficultSemanticGroups,
+  getLessonAccuracy: getAverageLessonAccuracy,
+  getStudyTime: getAverageStudyTime,
+  getRecommendations: getRecommendations,
+  getReviewWorkload: getReviewWorkload,
+  getGoals: getPersonalizedGoals,
 };

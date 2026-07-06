@@ -100,6 +100,9 @@ function exportLocalData() {
   tryParse('lessonProgress', 'quran_lesson_progress');
   tryParse('surahProgress', 'quran_surah_progress');
   tryParse('foundationProgress', 'quran_foundation_progress');
+  tryParse('analyticsHistory', 'quran_analytics_history');
+  tryParse('analyticsAchievements', 'quran_analytics_achievements');
+  tryParse('analyticsSessions', 'quran_analytics_sessions');
 
   data._exportedAt = new Date().toISOString();
   return data;
@@ -135,6 +138,9 @@ function importLocalData(data) {
     lessonProgress: 'quran_lesson_progress',
     surahProgress: 'quran_surah_progress',
     foundationProgress: 'quran_foundation_progress',
+    analyticsHistory: 'quran_analytics_history',
+    analyticsAchievements: 'quran_analytics_achievements',
+    analyticsSessions: 'quran_analytics_sessions',
   };
 
   Object.keys(mappings).forEach(function (key) {

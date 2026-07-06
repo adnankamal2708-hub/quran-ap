@@ -2801,317 +2801,118 @@ window.__explorerWord = function() { return _explorerWord; };
  * Called by switchView('dashboard').
  */
 function renderDashboard() {
-  var progress = typeof getLearningPathProgress === 'function' ? getLearningPathProgress() : null;
-  if (!progress) {
-    DOM.get('dashboard-grid').innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted)">Loading learning paths...</div>';
-    return;
-  }
-  
-  // ── Recommendation ──
-  var rec = typeof getPathRecommendation === 'function' ? getPathRecommendation() : null;
-  var recContent = DOM.get('dashboard-rec-content');
-  if (recContent && rec) {
-    recContent.innerHTML = '<span class="dashboard-rec-icon">' + rec.icon + '</span>' +
-      '<div class="dashboard-rec-text">' +
-        '<div class="dashboard-rec-path">' + rec.label + '</div>' +
-        '<div class="dashboard-rec-reason">' + rec.reason + '</div>' +
-      '</div>' +
-      '<button class="dashboard-rec-btn" id="dashboard-rec-btn" type="button">Start →</button>';
-    
-    var recBtn = DOM.get('dashboard-rec-btn');
-    if (recBtn) {
-      (function(pathId) {
-        recBtn.onclick = function() {
-          navigateToPath(pathId);
-        };
-      })(rec.pathId);
-    }
-  }
-  
-  // ── Path Cards ──
-  var grid = DOM.get('dashboard-grid');
-  grid.innerHTML = '';
-  
-  var pathOrder = ['foundation', 'surah', 'rootFamily', 'difficulty', 'mixedReview'];
-  var pathLabels = {
-    foundation: { icon: '\u2B50', title: 'Foundation Course', sub: 'Frequency-based', color: 'var(--gold)' },
-    surah: { icon: '\uD83D\uDCD6', title: 'Learn by Surah', sub: 'Contextual', color: 'var(--green)' },
-    rootFamily: { icon: '\uD83C\uDF31', title: 'Learn by Root Family', sub: 'Morphological', color: 'var(--purple)' },
-    difficulty: { icon: '\uD83D\uDCE8', title: 'Learn by Difficulty', sub: 'Progressive', color: 'var(--blue)' },
-    mixedReview: { icon: '\uD83D\uDD04', title: 'Mixed Review', sub: 'Smart review', color: 'var(--pink)' },
-  };
-  
-  for (var pi = 0; pi < pathOrder.length; pi++) {
-    var key = pathOrder[pi];
-    var path = progress[key];
-    if (!path) continue;
-    var labels = pathLabels[key] || {};
-    
-    var card = document.createElement('div');
-    card.className = 'dashboard-card';
-    card.setAttribute('role', 'button');
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('aria-label', path.label + ' — ' + (path.percent || 0) + '% complete');
-    
-    var isRecommended = path.isRecommended;
-    var percent = path.percent || 0;
-    
-    card.innerHTML = 
-      '<div class="dashboard-card-header">' +
-        '<span class="dashboard-card-icon" style="background:' + (labels.color || 'var(--gold)') + '20;color:' + (labels.color || 'var(--gold)') + '">' + (labels.icon || '') + '</span>' +
-        '<div class="dashboard-card-title-group">' +
-          '<div class="dashboard-card-title">' + path.label + '</div>' +
-          '<div class="dashboard-card-subtitle">' + (labels.sub || '') + '</div>' +
-        '</div>' +
-        (isRecommended ? '<span class="dashboard-rec-badge">Recommended</span>' : '') +
-      '</div>' +
-      '<div class="dashboard-card-desc">' + path.description + '</div>' +
-      '<div class="dashboard-card-progress">' +
-        '<div class="dashboard-card-progress-track">' +
-          '<div class="dashboard-card-progress-fill" style="width:' + percent + '%;background:' + (labels.color || 'var(--gold)') + '"></div>' +
-        '</div>' +
-        '<div class="dashboard-card-progress-text">' +
-          (key === 'mixedReview'
-            ? (path.masteredCount || 0) + ' mastered · ' + (path.dueCount || 0) + ' due'
-            : percent + '% · ' + (path.completed || 0) + '/' + (path.total || 0))
-        + '</div>' +
-      '</div>' +
-      '<div class="dashboard-card-action">' +
-        '<span class="dashboard-card-action-btn">' +
-          (key === 'mixedReview' ? 'Start Review →' : 'Continue →') +
-        '</span>' +
-      '</div>';
-    
-    (function(pkey) {
-      card.onclick = function() {
-        navigateToPath(pkey);
-      };
-      card.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          navigateToPath(pkey);
-        }
-      };
-    })(key);
-    
-    grid.appendChild(card);
-  }
-  
-  // ── Personalized Insights ──
-  renderLearningInsights();
-  
-  // ── Overall Progress ──
-  var overallStats = DOM.get('dashboard-overall-stats');
-  if (overallStats && progress.overall) {
-    var o = progress.overall;
-    overallStats.innerHTML =
-      '<div class="dashboard-overall-stat">' +
-        '<div class="dashboard-overall-value">' + (o.masteredWords || 0) + ' / ' + (o.totalWords || 0) + '</div>' +
-        '<div class="dashboard-overall-label">Words Mastered</div>' +
-      '</div>' +
-      '<div class="dashboard-overall-stat">' +
-        '<div class="dashboard-overall-value">' + (o.dueReviews || 0) + '</div>' +
-        '<div class="dashboard-overall-label">Due for Review</div>' +
-      '</div>' +
-      '<div class="dashboard-overall-stat">' +
-        '<div class="dashboard-overall-value">' + (o.coveragePercent || 0) + '%</div>' +
-        '<div class="dashboard-overall-label">Quran Coverage</div>' +
-      '</div>' +
-      '<div class="dashboard-overall-stat">' +
-        '<div class="dashboard-overall-value">' + (o.estimatedComprehension || 0) + '%</div>' +
-        '<div class="dashboard-overall-label">Comprehension</div>' +
-      '</div>';
-  }
-}
-
-/**
- * Navigate to a specific learning path.
- */
-function navigateToPath(pathId) {
-  if (typeof setLastSelectedPath === 'function') {
-    setLastSelectedPath(pathId);
-  }
-  
-  switch (pathId) {
-    case 'foundation':
-      if (typeof goToFoundationLesson === 'function') {
-        goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
-      }
-      break;
-    case 'surah':
-      if (typeof goToSurah === 'function') {
-        var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
-        if (surahIds.length > 0) goToSurah(surahIds[0]);
-      }
-      break;
-    case 'rootFamily':
-      if (typeof goToRootFamily === 'function') {
-        var rfProgress = typeof loadRootFamilyProgress === 'function' ? loadRootFamilyProgress() : null;
-        goToRootFamily(rfProgress ? rfProgress.currentRoot : '');
-      }
-      break;
-    case 'difficulty':
-      if (typeof goToDifficultyLevel === 'function') {
-        var dProgress = typeof loadDifficultyProgress === 'function' ? loadDifficultyProgress() : null;
-        goToDifficultyLevel(dProgress ? dProgress.currentDifficulty : 1);
-      }
-      break;
-    case 'mixedReview':
-      if (typeof startMixedReview === 'function') {
-        startMixedReview();
-      }
-      break;
-  }
-}
-
-// ──────────────────────────────────────────────────────────────
-// PERSONALIZED LEARNING INSIGHTS — Adaptive Engine Display
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Render personalized learning insights on the dashboard.
- * Uses the adaptive engine's learner profile and recommendations.
- */
-function renderLearningInsights() {
-  var insights = (typeof getLearningInsights === 'function') ? getLearningInsights() : null;
-  if (!insights) return;
-  
-  var container = DOM.get('dashboard-insights');
-  if (!container) return;
-  
   var html = '';
-  var rec = insights.recommendation;
-  
-  // Urgency colors
-  var urgencyColors = { high: 'var(--red)', medium: 'var(--gold)', low: 'var(--green)' };
-  var urgencyColor = urgencyColors[rec.urgency] || 'var(--gold)';
-  
-  // Recommendation card
-  html += '<div class="insights-section">';
-  html += '<div class="insights-section-title">🧠 Personalized Recommendation</div>';
-  html += '<div class="insights-rec-card" style="border-left:3px solid ' + urgencyColor + '">';
-  html += '<div class="insights-rec-label" style="color:' + urgencyColor + '">' + rec.label + '</div>';
-  html += '<div class="insights-rec-reason">' + rec.reason + '</div>';
-  html += '<div class="insights-rec-details">' + (rec.details || '') + '</div>';
-  html += '<button class="insights-rec-btn dashboard-rec-btn" id="insights-rec-btn" type="button">Go →</button>';
-  html += '</div></div>';
-  
-  // Weak Roots
-  if (insights.weakRoots && insights.weakRoots.length > 0) {
-    html += '<div class="insights-section">';
-    html += '<div class="insights-section-title">🌱 Weak Root Families</div>';
-    html += '<div class="insights-grid">';
-    for (var wi = 0; wi < insights.weakRoots.length; wi++) {
-      var wr = insights.weakRoots[wi];
-      html += '<div class="insights-chip insights-weak">' +
-        '<span class="insights-chip-root">' + wr.root + '</span>' +
-        '<span class="insights-chip-detail">' + (wr.rootMeaning || '') + ' · ' + wr.masteryScore + '%</span></div>';
-    }
-    html += '</div></div>';
-  }
-  
-  // Strong Roots
-  if (insights.strongRoots && insights.strongRoots.length > 0) {
-    html += '<div class="insights-section">';
-    html += '<div class="insights-section-title">💪 Strongest Root Families</div>';
-    html += '<div class="insights-grid">';
-    for (var si = 0; si < insights.strongRoots.length; si++) {
-      var sr = insights.strongRoots[si];
-      html += '<div class="insights-chip insights-strong">' +
-        '<span class="insights-chip-root">' + sr.root + '</span>' +
-        '<span class="insights-chip-detail">' + (sr.rootMeaning || '') + ' · ' + sr.masteryScore + '%</span></div>';
-    }
-    html += '</div></div>';
-  }
-  
-  // Confused Words
-  if (insights.confusedWords && insights.confusedWords.length > 0) {
-    html += '<div class="insights-section">';
-    html += '<div class="insights-section-title">🤔 Frequently Confused</div>';
-    html += '<div class="insights-grid">';
-    for (var ci = 0; ci < Math.min(insights.confusedWords.length, 5); ci++) {
-      var cw = insights.confusedWords[ci];
-      html += '<div class="insights-chip insights-confused" role="button" tabindex="0" data-word-id="' + cw.wordId + '">' +
-        '<span class="insights-chip-root">' + cw.arabic + '</span>' +
-        '<span class="insights-chip-detail">' + cw.english + ' · ' + cw.lapseRate + '% lapse</span></div>';
-    }
-    html += '</div></div>';
-  }
-  
-  // Stats Summary
-  html += '<div class="insights-section">';
-  html += '<div class="insights-section-title">📊 Learning Statistics</div>';
-  html += '<div class="insights-stats-grid">';
-  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.studiedWords + '</span><span class="insights-stat-label">Studied</span></div>';
-  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.masteredWords + '</span><span class="insights-stat-label">Mastered</span></div>';
-  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.adaptiveDifficulty + '</span><span class="insights-stat-label">Adaptive Level</span></div>';
-  html += '<div class="insights-stat"><span class="insights-stat-value">' + (insights.quizAccuracy || '-') + '%</span><span class="insights-stat-label">Quiz Accuracy</span></div>';
-  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.reviewBacklog + '</span><span class="insights-stat-label">Due Reviews</span></div>';
-  html += '<div class="insights-stat"><span class="insights-stat-value">' + insights.criticallyOverdue + '</span><span class="insights-stat-label">Critically Overdue</span></div>';
-  html += '</div></div>';
-  
-  // Coverage Projection
-  html += '<div class="insights-section">';
-  html += '<div class="insights-section-title">📖 Coverage Projection</div>';
-  html += '<div class="insights-projection">';
-  html += '<div class="insights-projection-row"><span>Current Quran Coverage</span><span>' + insights.currentCoverage + '%</span></div>';
-  if (insights.coverageGain > 0) {
-    html += '<div class="insights-projection-row" style="color:var(--green)"><span>Estimated after next lesson</span><span>~' + insights.estimatedNextCoverage + '% (+' + insights.coverageGain + '%)</span></div>';
-  }
-  if (insights.predictedDaysToFoundationCompletion > 0) {
-    html += '<div class="insights-projection-row"><span>Est. Foundation Completion</span><span>~' + insights.predictedDaysToFoundationCompletion + ' days</span></div>';
-  }
-  html += '</div></div>';
-  
-  container.innerHTML = html;
-  
-  // Wire the recommendation button
-  var recBtn = DOM.get('insights-rec-btn');
-  if (recBtn && rec) {
-    (function(pathId, action, rootKey, surahId) {
-      recBtn.onclick = function() {
-        switch (action) {
-          case 'startCriticalReview':
-          case 'startReview':
-          case 'startMixedReview':
-            if (typeof startMixedReview === 'function') startMixedReview();
-            break;
-          case 'startFoundation':
-          case 'continueFoundation':
-            if (typeof goToFoundationLesson === 'function') {
-              goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
-            }
-            break;
-          case 'strengthenRoot':
-            if (rootKey && typeof goToRootFamily === 'function') goToRootFamily(rootKey);
-            break;
-          case 'studySurah':
-            if (surahId && typeof goToSurah === 'function') goToSurah(surahId);
-            break;
-          case 'advanceDifficulty':
-            if (typeof goToDifficultyLevel === 'function') goToDifficultyLevel(parseInt(rootKey || '1', 10));
-            break;
-          default:
-            navigateToPath(pathId);
-            break;
-        }
-      };
-    })(rec.path, rec.action, rec.rootKey, rec.surahId);
-  }
-  
-  // Wire confused word chips to open explorer
-  var confusedChips = container.querySelectorAll('.insights-chip.insights-confused');
-  for (var i = 0; i < confusedChips.length; i++) {
-    (function(chip) {
-      var wordId = chip.getAttribute('data-word-id');
-      chip.onclick = function() {
-        var w = typeof findWordById === 'function' ? findWordById(wordId) : null;
-        if (w && typeof openExplorer === 'function') openExplorer(w);
-      };
-      chip.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); chip.onclick(); }
-      };
-    })(confusedChips[i]);
-  }
-}
+  var container = DOM.get('dashboard-grid');
+  if (!container) return;
 
+  var srsObj = window.__srs;
+  var srsStats = (srsObj && srsObj.getStats) ? srsObj.getStats() : null;
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
+  var streak = streakData.streak || 0;
+  var coverage = (typeof calculateCoverage === 'function') ? calculateCoverage() : null;
+  var coveragePct = coverage ? coverage.coveragePercent : 0;
+  var fCompleted = (typeof getCompletedFoundationLessonCount === 'function') ? getCompletedFoundationLessonCount() : 0;
+  var fTotal = (typeof getFoundationLessonCount === 'function') ? getFoundationLessonCount() : 0;
+  var foundationsPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+  var dueReviews = typeof getDueReviews === 'function' ? getDueReviews() : [];
+  var masteredCount = srsStats ? srsStats.mature : 0;
+  var totalWords = ALL_WORDS ? ALL_WORDS.length : 0;
+  var dailyLimit = (srsObj && srsObj.getDailyReviewLimit) ? srsObj.getDailyReviewLimit() : 25;
+  var reviewsToday = srsStats ? srsStats.reviewsToday || 0 : 0;
+  var goalPct = Math.min(100, Math.round((reviewsToday / dailyLimit) * 100));
+  var hasProgress = fCompleted > 0 || masteredCount > 0 || streak > 0;
+
+  // Hero Section
+  if (hasProgress) {
+    html += '<div class="dashboard-hero"><div class="dashboard-hero-greeting">Your Learning Journey</div>';
+    html += '<div class="dashboard-hero-sub">Keep going \u2014 every word brings you closer to understanding the Quran.</div>';
+    html += '<div class="dashboard-hero-stats">';
+    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + masteredCount + '</div><div class="dashboard-hero-stat-label">Mastered</div></div>';
+    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + coveragePct + '%</div><div class="dashboard-hero-stat-label">Coverage</div></div>';
+    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + streak + '</div><div class="dashboard-hero-stat-label">Streak</div></div>';
+    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + dueReviews.length + '</div><div class="dashboard-hero-stat-label">Due</div></div>';
+    html += '</div><div class="dashboard-hero-action">';
+    if (dueReviews.length > 0) {
+      html += '<button class="btn btn-sm" id="dash-start-review" type="button">Review ' + dueReviews.length + ' Words</button>';
+    } else {
+      html += '<button class="btn btn-sm" id="dash-continue-learning" type="button">Continue Learning</button>';
+    }
+    html += '</div></div>';
+  } else {
+    html += '<div class="dashboard-hero"><div class="dashboard-hero-greeting">Welcome to Quranic Vocabulary!</div>';
+    html += '<div class="dashboard-hero-sub">Start your journey to understand the words of the Quran.</div>';
+    html += '<div class="dashboard-hero-action"><button class="btn btn-sm" id="dash-continue-learning" type="button">Start Learning</button></div></div>';
+  }
+
+  // Quick Stats
+  html += '<div class="dashboard-quick-section"><div class="dashboard-quick-title">Quick Stats</div><div class="dashboard-quick-grid">';
+  html += '<div class="dashboard-quick-item" id="dash-quick-foundation" tabindex="0" role="button"><div class="dashboard-quick-value">' + fCompleted + '/' + fTotal + '</div><div class="dashboard-quick-label">Foundation</div></div>';
+  html += '<div class="dashboard-quick-item" id="dash-quick-goal" tabindex="0" role="button"><div class="dashboard-quick-value">' + goalPct + '%</div><div class="dashboard-quick-label">Daily Goal</div></div>';
+  html += '<div class="dashboard-quick-item" id="dash-quick-mastered" tabindex="0" role="button"><div class="dashboard-quick-value">' + masteredCount + '</div><div class="dashboard-quick-label">Mastered</div></div>';
+  html += '<div class="dashboard-quick-item" id="dash-quick-due" tabindex="0" role="button"><div class="dashboard-quick-value">' + dueReviews.length + '</div><div class="dashboard-quick-label">Due</div></div>';
+  html += '</div></div>';
+
+  // Upcoming Reviews
+  if (srsData && totalWords > 0) {
+    var now = Date.now();
+    var tomorrow = now + 86400000;
+    var week = now + 7 * 86400000;
+    var month = now + 30 * 86400000;
+    var cToday = 0, cWeek = 0, cMonth = 0;
+    for (var wi = 0; wi < ALL_WORDS.length; wi++) {
+      var entry = srsData[ALL_WORDS[wi].id];
+      if (entry && entry.dueDate) {
+        if (entry.dueDate <= tomorrow) cToday++;
+        if (entry.dueDate <= week) cWeek++;
+        if (entry.dueDate <= month) cMonth++;
+      }
+    }
+    var mx = Math.max(cWeek, 1);
+    html += '<div class="dashboard-quick-section"><div class="dashboard-quick-title">Upcoming Reviews</div>';
+    html += '<div class="dashboard-workload-row"><span>Today</span><div class="dashboard-workload-bar"><div class="dashboard-workload-fill" style="width:' + Math.round(cToday/mx*100) + '%"></div></div><span>' + cToday + '</span></div>';
+    html += '<div class="dashboard-workload-row"><span>7 days</span><div class="dashboard-workload-bar"><div class="dashboard-workload-fill" style="width:' + Math.round(cWeek/mx*100) + '%"></div></div><span>' + cWeek + '</span></div>';
+    html += '<div class="dashboard-workload-row"><span>30 days</span><div class="dashboard-workload-bar"><div class="dashboard-workload-fill" style="width:' + Math.round(cMonth/mx*100) + '%"></div></div><span>' + cMonth + '</span></div>';
+    html += '</div>';
+  }
+
+  // Learning Paths
+  html += '<div class="dashboard-quick-section"><div class="dashboard-quick-title">Learning Paths</div></div>';
+
+  var lessonCount = typeof getLessonCount === 'function' ? getLessonCount() : 0;
+  var completedLessons = typeof getCompletedLessonCount === 'function' ? getCompletedLessonCount() : 0;
+  var lessonPct = lessonCount > 0 ? Math.round((completedLessons / lessonCount) * 100) : 0;
+
+  html += '<div class="dashboard-card" id="dash-path-foundation" tabindex="0" role="button">';
+  html += '<div class="dashboard-card-header"><div class="dashboard-card-icon" style="background:rgba(201,168,76,0.12)">Foundation</div><div class="dashboard-card-title-group"><div class="dashboard-card-title">Foundation Course</div><div class="dashboard-card-subtitle">' + fCompleted + '/' + fTotal + ' lessons</div></div></div>';
+  html += '<div class="dashboard-card-progress"><div class="dashboard-card-progress-track"><div class="dashboard-card-progress-fill" style="width:' + foundationsPct + '%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div><div class="dashboard-card-progress-text">' + foundationsPct + '%</div></div>';
+  html += '<div class="dashboard-card-action"><span class="dashboard-card-action-btn">Continue</span></div></div>';
+
+  html += '<div class="dashboard-card" id="dash-path-lessons" tabindex="0" role="button">';
+  html += '<div class="dashboard-card-header"><div class="dashboard-card-icon" style="background:rgba(74,126,194,0.12)">Sequential</div><div class="dashboard-card-title-group"><div class="dashboard-card-title">Sequential Lessons</div><div class="dashboard-card-subtitle">' + completedLessons + '/' + lessonCount + '</div></div></div>';
+  html += '<div class="dashboard-card-progress"><div class="dashboard-card-progress-track"><div class="dashboard-card-progress-fill" style="width:' + lessonPct + '%;background:linear-gradient(90deg,var(--blue),var(--gold))"></div></div><div class="dashboard-card-progress-text">' + lessonPct + '%</div></div>';
+  html += '<div class="dashboard-card-action"><span class="dashboard-card-action-btn">Continue</span></div></div>';
+
+  html += '<div class="dashboard-card" id="dash-path-mixed-review" tabindex="0" role="button">';
+  html += '<div class="dashboard-card-header"><div class="dashboard-card-icon" style="background:rgba(194,80,80,0.12)">Review</div><div class="dashboard-card-title-group"><div class="dashboard-card-title">Mixed Review</div><div class="dashboard-card-subtitle">' + dueReviews.length + ' due</div></div></div>';
+  html += '<div class="dashboard-card-action">';
+  if (dueReviews.length > 0) html += '<span class="dashboard-card-action-btn">Start Review</span>';
+  else html += '<span class="dashboard-card-action-btn" style="color:var(--green)">All caught up</span>';
+  html += '</div></div>';
+
+  container.innerHTML = html;
+
+  function wireCard(id, fn) {
+    var el = document.getElementById(id);
+    if (el) { el.onclick = fn; el.onkeydown = function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } }; }
+  }
+  wireCard('dash-path-foundation', function() { if (typeof goToFoundationLesson === 'function') goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0); });
+  wireCard('dash-path-lessons', function() { var n = typeof getNextIncompleteLesson === 'function' ? getNextIncompleteLesson() : 0; if (typeof goToLesson === 'function') goToLesson(n); });
+  wireCard('dash-path-mixed-review', function() { if (typeof startMixedReview === 'function') startMixedReview(); });
+  wireCard('dash-start-review', function() { if (typeof startReview === 'function') startReview(); });
+  wireCard('dash-continue-learning', function() { if (typeof continueLearning === 'function') continueLearning(); else if (typeof goToFoundationLesson === 'function') goToFoundationLesson(0); });
+  wireCard('dash-quick-foundation', function() { if (typeof goToFoundationLesson === 'function') goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0); });
+  wireCard('dash-quick-goal', function() { if (typeof startReview === 'function') startReview(); });
+  wireCard('dash-quick-mastered', function() { if (typeof switchView === 'function') switchView('list'); });
+  wireCard('dash-quick-due', function() { if (typeof startReview === 'function') startReview(); });
+}
