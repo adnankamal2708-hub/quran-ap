@@ -17,7 +17,7 @@ const FONTS_CACHE = 'bayan-fonts-v1';
 const PRECACHE_URLS = [
   './',
   './index.html',
-  './styles.css',
+  './styles.min.css',
   './js/data.bundle.min.js',
   './js/app.bundle.min.js',
   './js/services/firebase-core.js',

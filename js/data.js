@@ -900,7 +900,7 @@ function calculateCoverage() {
     ? Math.min(95, Math.round(1.3 * Math.pow(coveragePct, 0.7) * 10) / 10)
     : 0;
   
-  return {
+  var result = {
     totalOccurrences: totalOcc,
     masteredWords: masteredCount,
     totalWords: totalWords,
@@ -909,6 +909,8 @@ function calculateCoverage() {
     wordMasteryPercent: Math.round(wordMasteryPct * 10) / 10,
     estimatedComprehension: estimatedComprehension,
   };
+  _coverageCache = result;
+  return result;
 }
 
 /**

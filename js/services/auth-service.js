@@ -31,12 +31,6 @@ var {
   browserSessionPersistence,
 } = window.__firebaseCore || {};
 
-// Also need firestore funcs for user profile document creation on sign-up
-var {
-  doc: _doc,
-  setDoc: _setDoc,
-  serverTimestamp: _serverTimestamp,
-} = window.__firebaseCore || {};
 
 /** @type {boolean} Whether Firebase Auth is available */
 let _authReady = false;

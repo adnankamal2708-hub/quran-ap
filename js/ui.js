@@ -44,9 +44,9 @@ function setView(viewName) {
   if (window.__viewHasBeenSet) {
     var viewEl = DOM.get('view-' + viewName);
     if (viewEl) {
-      viewEl.classList.remove('view-animate');
+      viewEl.classList.remove('view-entrance');
       void viewEl.offsetHeight;
-      viewEl.classList.add('view-animate');
+      viewEl.classList.add('view-entrance');
     }
   } else {
     window.__viewHasBeenSet = true;
@@ -185,12 +185,12 @@ function renderWordCard(w, currentIndex, total, isReview) {
     }
   }
 
-  // Animate card with faster, smoother transition
+  // Animate card with bouncy entrance on content change
   var card = DOM.get('word-card');
   if (card) {
-    card.classList.remove('fade-in');
+    card.classList.remove('card-entrance', 'fade-in');
     void card.offsetHeight;
-    card.classList.add('fade-in');
+    card.classList.add('card-entrance');
   }
 }
 
@@ -960,7 +960,8 @@ function renderWordList() {
     }
     var favStar = favs[w.id] ? '\u2B50' : '';
     var d = document.createElement('div');
-    d.className = 'wordlist-item' + (advFiltersActive ? ' has-quick-actions' : '');
+    d.className = 'wordlist-item' + (advFiltersActive ? ' has-quick-actions' : '') + ' stagger-item';
+    d.style.animationDelay = Math.min(i * 30, 350) + 'ms';
     d.setAttribute('role', 'button');
     d.setAttribute('tabindex', '0');
     var shortMeaning = getShortMeaning(w.meaning);
@@ -1089,6 +1090,14 @@ function renderStats() {
   DOM.get('stat-mastered').textContent = srsStats.mature;
   DOM.get('stat-new-count').textContent = srsStats.newCount;
   DOM.get('stat-learning-count').textContent = srsStats.dueToday;
+
+  // Add entrance animation to stats sections
+  var statsView = DOM.get('view-stats');
+  if (statsView) {
+    statsView.classList.remove('stat-section-entrance');
+    void statsView.offsetHeight;
+    statsView.classList.add('stat-section-entrance');
+  }
 
   // Streak
   updateStreakDisplay();
@@ -2290,6 +2299,8 @@ function renderExplorerAllOccurrences(listEl, w) {
  * Displays: overview, trends, insights, achievements tabs
  */
 function renderAnalytics() {
+  try {
+
   var analytics = (window.__analytics && window.__analytics.getComprehensiveInsights) ? window.__analytics.getComprehensiveInsights() : null;
   if (!analytics) {
     DOM.get('analytics-content').innerHTML = '<div class="analytics-empty">Start learning to see your analytics!</div>';
@@ -2315,9 +2326,17 @@ function renderAnalytics() {
       };
     })(tabs[ti]);
   }
+
+  } catch (e) {
+    console.error('[analytics] renderAnalytics error:', e);
+    var container = document.getElementById('analytics-content');
+    if (container) container.innerHTML = '<div class="analytics-empty">\u26A0\uFE0F Something went wrong loading analytics. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
+  }
 }
 
 function renderAnalyticsTab(tabName, analytics) {
+  try {
+
   var container = DOM.get('analytics-content');
   if (!container) return;
   
@@ -2378,11 +2397,18 @@ function renderAnalyticsTab(tabName, analytics) {
       }
     };
   }
+
+  } catch (e) {
+    console.error('[analytics] renderAnalyticsTab error:', e);
+    var container = document.getElementById('analytics-content');
+    if (container) container.innerHTML = '<div class="analytics-empty">\u26A0\uFE0F Error loading ' + tabName + ' tab.</div>';
+  }
 }
 
 // ── OVERVIEW TAB ──
 
 function renderAnalyticsOverview(analytics) {
+  try {
   var html = '';
   var profile = analytics.profile;
   var periods = analytics.periods;
@@ -2536,11 +2562,18 @@ function renderAnalyticsOverview(analytics) {
   }
   
   return html;
+
+  } catch (e) {
+    console.error("[analytics] renderAnalyticsOverview error:", e);
+    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading Overview tab.</div>";
+  }
 }
+
 
 // ── TRENDS TAB ──
 
 function renderAnalyticsTrends(analytics) {
+  try {
   var html = '';
   
   // Period selector
@@ -2637,11 +2670,18 @@ function renderAnalyticsTrends(analytics) {
   // Trend tabs wired in renderAnalyticsTab()
   
   return html;
+
+  } catch (e) {
+    console.error("[analytics] renderAnalyticsTrends error:", e);
+    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading Trends tab.</div>";
+  }
 }
+
 
 // ── INSIGHTS TAB ──
 
 function renderAnalyticsInsightsPage(analytics) {
+  try {
   var html = '';
   var profile = analytics.profile;
   
@@ -2722,11 +2762,18 @@ function renderAnalyticsInsightsPage(analytics) {
   }
   
   return html;
+
+  } catch (e) {
+    console.error("[analytics] renderAnalyticsInsightsPage error:", e);
+    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading InsightsPage tab.</div>";
+  }
 }
+
 
 // ── ACHIEVEMENTS TAB ──
 
 function renderAnalyticsAchievements() {
+  try {
   var html = '';
   var allAchievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
   var achievementStats = (window.__analytics && window.__analytics.getAchievementStats) ? window.__analytics.getAchievementStats() : null;
@@ -2783,7 +2830,13 @@ function renderAnalyticsAchievements() {
   html += '</div></div>';
   
   return html;
+
+  } catch (e) {
+    console.error("[analytics] renderAnalyticsAchievements error:", e);
+    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading Achievements tab.</div>";
+  }
 }
+
 
 // Export for app.js
 window.__renderAnalytics = renderAnalytics;
@@ -2801,118 +2854,174 @@ window.__explorerWord = function() { return _explorerWord; };
  * Called by switchView('dashboard').
  */
 function renderDashboard() {
-  var html = '';
-  var container = DOM.get('dashboard-grid');
-  if (!container) return;
-
-  var srsObj = window.__srs;
-  var srsStats = (srsObj && srsObj.getStats) ? srsObj.getStats() : null;
-  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
-  var streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
-  var streak = streakData.streak || 0;
-  var coverage = (typeof calculateCoverage === 'function') ? calculateCoverage() : null;
-  var coveragePct = coverage ? coverage.coveragePercent : 0;
-  var fCompleted = (typeof getCompletedFoundationLessonCount === 'function') ? getCompletedFoundationLessonCount() : 0;
-  var fTotal = (typeof getFoundationLessonCount === 'function') ? getFoundationLessonCount() : 0;
-  var foundationsPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
-  var dueReviews = typeof getDueReviews === 'function' ? getDueReviews() : [];
-  var masteredCount = srsStats ? srsStats.mature : 0;
-  var totalWords = ALL_WORDS ? ALL_WORDS.length : 0;
-  var dailyLimit = (srsObj && srsObj.getDailyReviewLimit) ? srsObj.getDailyReviewLimit() : 25;
-  var reviewsToday = srsStats ? srsStats.reviewsToday || 0 : 0;
-  var goalPct = Math.min(100, Math.round((reviewsToday / dailyLimit) * 100));
-  var hasProgress = fCompleted > 0 || masteredCount > 0 || streak > 0;
-
-  // Hero Section
-  if (hasProgress) {
-    html += '<div class="dashboard-hero"><div class="dashboard-hero-greeting">Your Learning Journey</div>';
-    html += '<div class="dashboard-hero-sub">Keep going \u2014 every word brings you closer to understanding the Quran.</div>';
-    html += '<div class="dashboard-hero-stats">';
-    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + masteredCount + '</div><div class="dashboard-hero-stat-label">Mastered</div></div>';
-    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + coveragePct + '%</div><div class="dashboard-hero-stat-label">Coverage</div></div>';
-    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + streak + '</div><div class="dashboard-hero-stat-label">Streak</div></div>';
-    html += '<div class="dashboard-hero-stat"><div class="dashboard-hero-stat-value">' + dueReviews.length + '</div><div class="dashboard-hero-stat-label">Due</div></div>';
-    html += '</div><div class="dashboard-hero-action">';
-    if (dueReviews.length > 0) {
-      html += '<button class="btn btn-sm" id="dash-start-review" type="button">Review ' + dueReviews.length + ' Words</button>';
+  try {
+  var $d = DOM.get('dashboard-grid');
+  if (!$d) return;
+  
+  // ── Gather data ──
+  var $srsObj = window.__srs;
+  var $srsStats = ($srsObj && $srsObj.getStats) ? $srsObj.getStats() : (typeof getSRSStats === 'function' ? getSRSStats() : { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0 });
+  var $srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var $dueReviews = typeof getDueReviews === 'function' ? getDueReviews() : [];
+  var $streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
+  var $streak = $streakData.streak || 0;
+  
+  // Foundation course data
+  var $fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  var $fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var $foundationsPct = $fTotal > 0 ? Math.round(($fCompleted / $fTotal) * 100) : 0;
+  
+  // Sequential lessons data
+  var $lessonCount = typeof getLessonCount === 'function' ? getLessonCount() : 10;
+  var $completedLessons = typeof getCompletedLessonCount === 'function' ? getCompletedLessonCount() : 0;
+  var $lessonPct = $lessonCount > 0 ? Math.round(($completedLessons / $lessonCount) * 100) : 0;
+  
+  // Quran coverage data
+  var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var $coveragePct = $coverage ? $coverage.coveragePercent : 0;
+  
+  // Mastery stats for hero
+  var $masteredCount = $srsStats.mature || 0;
+  var $totalWords = $srsStats.total || (typeof getCanonicalWordCount === 'function' && getCanonicalWordCount() > 0 ? getCanonicalWordCount() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS.length : 0));
+  var $comprehensionPct = $coverage ? $coverage.estimatedComprehension : 0;
+  
+  // Weekly change (mock for now — real tracking could be added)
+  var $weeklyChange = 3; // placeholder
+  
+  // Learn by Surah data
+  var $surahProgress = typeof getSurahLessonProgress === 'function' ? getSurahLessonProgress() : null;
+  var $surahCompleted = $surahProgress ? $surahProgress.completedSurahs : 0;
+  var $surahTotal = $surahProgress ? $surahProgress.totalSurahs : 90;
+  
+  // ── Build hero section ──
+  var $html = '';
+  
+  // Hero with branding
+  $html += '<div class="dashboard-hero">';
+  $html += '<div class="dh-brand">';
+  $html += '<span class="dh-icon" aria-hidden="true">\uD83D\uDCD6</span>';
+  $html += '<div class="dh-title-group">';
+  $html += '<h2 class="dh-title">Bayan</h2>';
+  $html += '<p class="dh-tagline">Understand the Quran, one word at a time.</p>';
+  $html += '</div></div>';
+  
+  // Overall Progress Ring
+  $html += '<div class="dh-progress">';
+  $html += '<div class="dh-ring-wrap">';
+  $html += '<svg class="dh-ring" viewBox="0 0 36 36">';
+  $html += '<path class="dh-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />';
+  var $covOffset = Math.min(100, Math.max(0, Math.round(($comprehensionPct / 100) * 100)));
+  $html += '<path class="dh-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $covOffset + ', 100" />';
+  $html += '<text class="dh-ring-text" x="18" y="20.5">' + $comprehensionPct + '%</text>';
+  $html += '</svg></div>';
+  $html += '<div class="dh-progress-info">';
+  $html += '<div class="dh-progress-pct">' + $comprehensionPct + '% Quran Comprehension</div>';
+  $html += '<div class="dh-progress-change">+' + $weeklyChange + '% this week</div>';
+  $html += '<div class="dh-progress-sub">Coverage based on Quran word occurrences</div>';
+  $html += '</div></div></div>';
+  
+  // ── Quick Stats Row ──
+  $html += '<div class="dh-stats-row">';
+  $html += '<div class="dh-stat"><span class="dh-stat-value">' + $masteredCount + '</span><span class="dh-stat-label">Mastered</span></div>';
+  $html += '<div class="dh-stat"><span class="dh-stat-value">' + $streak + '</span><span class="dh-stat-label">Day Streak</span></div>';
+  $html += '<div class="dh-stat"><span class="dh-stat-value">' + ($dueReviews.length > 0 ? $dueReviews.length : 0) + '</span><span class="dh-stat-label">Due Review</span></div>';
+  $html += '<div class="dh-stat"><span class="dh-stat-value">' + $srsStats.totalReviews + '</span><span class="dh-stat-label">Total Reviews</span></div>';
+  $html += '</div>';
+  
+  // ── Learning Path Cards ──
+  $html += '<div class="dh-cards-title">Your Learning Paths</div>';
+  
+  // Card 1: Foundation Course
+  $html += '<div class="dh-card" id="dash-path-foundation" role="button" tabindex="0">';
+  $html += '<div class="dh-card-header">';
+  $html += '<div class="dh-card-icon" style="background:rgba(201,168,76,0.12)">\uD83D\uDCD8</div>';
+  $html += '<div class="dh-card-title-group">';
+  $html += '<div class="dh-card-title">Foundation Course</div>';
+  $html += '<div class="dh-card-subtitle">Learn the most important Quran words first</div>';
+  $html += '</div></div>';
+  $html += '<div class="dh-card-progress">';
+  $html += '<div class="dh-card-progress-track"><div class="dh-card-progress-fill" style="width:' + $foundationsPct + '%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div>';
+  $html += '<div class="dh-card-progress-text">' + $fCompleted + ' / ' + $fTotal + ' lessons</div>';
+  $html += '</div>';
+  $html += '<div class="dh-card-footer">';
+  $html += '<span class="dh-card-pct">' + $foundationsPct + '%</span>';
+  $html += '<span class="dh-card-action">' + ($foundationsPct === 0 ? 'Start Foundation' : $foundationsPct === 100 ? '\u2705 Complete' : 'Continue') + ' \u2192</span>';
+  $html += '</div></div>';
+  
+  // Card 2: Learn by Surah
+  $html += '<div class="dh-card" id="dash-path-lessons" role="button" tabindex="0">';
+  $html += '<div class="dh-card-header">';
+  $html += '<div class="dh-card-icon" style="background:rgba(74,126,194,0.12)">\uD83D\uDCD6</div>';
+  $html += '<div class="dh-card-title-group">';
+  $html += '<div class="dh-card-title">Learn by Surah</div>';
+  $html += '<div class="dh-card-subtitle">Study vocabulary in Quran order</div>';
+  $html += '</div></div>';
+  $html += '<div class="dh-card-progress">';
+  $html += '<div class="dh-card-progress-track"><div class="dh-card-progress-fill" style="width:' + $lessonPct + '%;background:linear-gradient(90deg,var(--blue),var(--gold-dim))"></div></div>';
+  $html += '<div class="dh-card-progress-text">' + $completedLessons + ' / ' + $lessonCount + ' lessons</div>';
+  $html += '</div>';
+  $html += '<div class="dh-card-footer">';
+  $html += '<span class="dh-card-pct">' + $lessonPct + '%</span>';
+  $html += '<span class="dh-card-action">' + ($lessonPct === 0 ? 'Start Learning' : 'Continue') + ' \u2192</span>';
+  $html += '</div></div>';
+  
+  // Card 3: Mixed Review
+  var $dueCount = $dueReviews.length;
+  $html += '<div class="dh-card" id="dash-path-mixed-review" role="button" tabindex="0">';
+  $html += '<div class="dh-card-header">';
+  $html += '<div class="dh-card-icon" style="background:rgba(74,158,107,0.12)">\uD83D\uDD01</div>';
+  $html += '<div class="dh-card-title-group">';
+  $html += '<div class="dh-card-title">Mixed Review</div>';
+  $html += '<div class="dh-card-subtitle">Reinforce previously learned vocabulary</div>';
+  $html += '</div></div>';
+  if ($dueCount > 0) {
+    $html += '<div class="dh-card-due-badge">' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' due</div>';
+  }
+  $html += '<div class="dh-card-desc">Keep your memory strong with a quick review session.</div>';
+  $html += '<div class="dh-card-footer">';
+  $html += '<span class="dh-card-pct" style="color:' + ($dueCount > 0 ? 'var(--gold)' : 'var(--green)') + '">' + ($dueCount > 0 ? '\uD83D\uDD14 ' + $dueCount + ' due' : '\u2705 All caught up') + '</span>';
+  $html += '<span class="dh-card-action">' + ($dueCount > 0 ? 'Start Review' : 'Learning Paths') + ' \u2192</span>';
+  $html += '</div></div>';
+  
+  $d.innerHTML = $html;
+  
+  // ── Wire card clicks ──
+  function $wire(id, fn) {
+    var $el = document.getElementById(id);
+    if (!$el) return;
+    $el.onclick = fn;
+    $el.onkeydown = function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+    };
+  }
+  
+  $wire('dash-path-foundation', function() {
+    if (typeof goToFoundationLesson === 'function') {
+      goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
     } else {
-      html += '<button class="btn btn-sm" id="dash-continue-learning" type="button">Continue Learning</button>';
+      if (typeof switchView === 'function') switchView('learn');
     }
-    html += '</div></div>';
-  } else {
-    html += '<div class="dashboard-hero"><div class="dashboard-hero-greeting">Welcome to Bayan</div>';
-    html += '<div class="dashboard-hero-sub">Start your journey to understand the words of the Quran.</div>';
-    html += '<div class="dashboard-hero-action"><button class="btn btn-sm" id="dash-continue-learning" type="button">Start Learning</button></div></div>';
-  }
-
-  // Quick Stats
-  html += '<div class="dashboard-quick-section"><div class="dashboard-quick-title">Quick Stats</div><div class="dashboard-quick-grid">';
-  html += '<div class="dashboard-quick-item" id="dash-quick-foundation" tabindex="0" role="button"><div class="dashboard-quick-value">' + fCompleted + '/' + fTotal + '</div><div class="dashboard-quick-label">Foundation</div></div>';
-  html += '<div class="dashboard-quick-item" id="dash-quick-goal" tabindex="0" role="button"><div class="dashboard-quick-value">' + goalPct + '%</div><div class="dashboard-quick-label">Daily Goal</div></div>';
-  html += '<div class="dashboard-quick-item" id="dash-quick-mastered" tabindex="0" role="button"><div class="dashboard-quick-value">' + masteredCount + '</div><div class="dashboard-quick-label">Mastered</div></div>';
-  html += '<div class="dashboard-quick-item" id="dash-quick-due" tabindex="0" role="button"><div class="dashboard-quick-value">' + dueReviews.length + '</div><div class="dashboard-quick-label">Due</div></div>';
-  html += '</div></div>';
-
-  // Upcoming Reviews
-  if (srsData && totalWords > 0) {
-    var now = Date.now();
-    var tomorrow = now + 86400000;
-    var week = now + 7 * 86400000;
-    var month = now + 30 * 86400000;
-    var cToday = 0, cWeek = 0, cMonth = 0;
-    for (var wi = 0; wi < ALL_WORDS.length; wi++) {
-      var entry = srsData[ALL_WORDS[wi].id];
-      if (entry && entry.dueDate) {
-        if (entry.dueDate <= tomorrow) cToday++;
-        if (entry.dueDate <= week) cWeek++;
-        if (entry.dueDate <= month) cMonth++;
-      }
+  });
+  
+  $wire('dash-path-lessons', function() {
+    if (typeof switchView === 'function') switchView('learn');
+  });
+  
+  $wire('dash-path-mixed-review', function() {
+    if ($dueCount > 0 && typeof startReview === 'function') {
+      startReview();
+    } else if (typeof switchView === 'function') {
+      switchView('learn');
     }
-    var mx = Math.max(cWeek, 1);
-    html += '<div class="dashboard-quick-section"><div class="dashboard-quick-title">Upcoming Reviews</div>';
-    html += '<div class="dashboard-workload-row"><span>Today</span><div class="dashboard-workload-bar"><div class="dashboard-workload-fill" style="width:' + Math.round(cToday/mx*100) + '%"></div></div><span>' + cToday + '</span></div>';
-    html += '<div class="dashboard-workload-row"><span>7 days</span><div class="dashboard-workload-bar"><div class="dashboard-workload-fill" style="width:' + Math.round(cWeek/mx*100) + '%"></div></div><span>' + cWeek + '</span></div>';
-    html += '<div class="dashboard-workload-row"><span>30 days</span><div class="dashboard-workload-bar"><div class="dashboard-workload-fill" style="width:' + Math.round(cMonth/mx*100) + '%"></div></div><span>' + cMonth + '</span></div>';
-    html += '</div>';
+  });
+  
+  // ── Update bottom stats ──
+  if (typeof updateStatsDisplay === 'function') updateStatsDisplay();
+  if (typeof updateReviewBanner === 'function') updateReviewBanner();
+  
+  } catch (e) {
+    console.error('[dashboard] renderDashboard error:', e);
+    var $d2 = document.getElementById('dashboard-grid');
+    if ($d2) $d2.innerHTML = '<div class="dh-error">Something went wrong loading the dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
   }
-
-  // Learning Paths
-  html += '<div class="dashboard-quick-section"><div class="dashboard-quick-title">Learning Paths</div></div>';
-
-  var lessonCount = typeof getLessonCount === 'function' ? getLessonCount() : 0;
-  var completedLessons = typeof getCompletedLessonCount === 'function' ? getCompletedLessonCount() : 0;
-  var lessonPct = lessonCount > 0 ? Math.round((completedLessons / lessonCount) * 100) : 0;
-
-  html += '<div class="dashboard-card" id="dash-path-foundation" tabindex="0" role="button">';
-  html += '<div class="dashboard-card-header"><div class="dashboard-card-icon" style="background:rgba(201,168,76,0.12)">Foundation</div><div class="dashboard-card-title-group"><div class="dashboard-card-title">Foundation Course</div><div class="dashboard-card-subtitle">' + fCompleted + '/' + fTotal + ' lessons</div></div></div>';
-  html += '<div class="dashboard-card-progress"><div class="dashboard-card-progress-track"><div class="dashboard-card-progress-fill" style="width:' + foundationsPct + '%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div><div class="dashboard-card-progress-text">' + foundationsPct + '%</div></div>';
-  html += '<div class="dashboard-card-action"><span class="dashboard-card-action-btn">Continue</span></div></div>';
-
-  html += '<div class="dashboard-card" id="dash-path-lessons" tabindex="0" role="button">';
-  html += '<div class="dashboard-card-header"><div class="dashboard-card-icon" style="background:rgba(74,126,194,0.12)">Sequential</div><div class="dashboard-card-title-group"><div class="dashboard-card-title">Sequential Lessons</div><div class="dashboard-card-subtitle">' + completedLessons + '/' + lessonCount + '</div></div></div>';
-  html += '<div class="dashboard-card-progress"><div class="dashboard-card-progress-track"><div class="dashboard-card-progress-fill" style="width:' + lessonPct + '%;background:linear-gradient(90deg,var(--blue),var(--gold))"></div></div><div class="dashboard-card-progress-text">' + lessonPct + '%</div></div>';
-  html += '<div class="dashboard-card-action"><span class="dashboard-card-action-btn">Continue</span></div></div>';
-
-  html += '<div class="dashboard-card" id="dash-path-mixed-review" tabindex="0" role="button">';
-  html += '<div class="dashboard-card-header"><div class="dashboard-card-icon" style="background:rgba(194,80,80,0.12)">Review</div><div class="dashboard-card-title-group"><div class="dashboard-card-title">Mixed Review</div><div class="dashboard-card-subtitle">' + dueReviews.length + ' due</div></div></div>';
-  html += '<div class="dashboard-card-action">';
-  if (dueReviews.length > 0) html += '<span class="dashboard-card-action-btn">Start Review</span>';
-  else html += '<span class="dashboard-card-action-btn" style="color:var(--green)">All caught up</span>';
-  html += '</div></div>';
-
-  container.innerHTML = html;
-
-  function wireCard(id, fn) {
-    var el = document.getElementById(id);
-    if (el) { el.onclick = fn; el.onkeydown = function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } }; }
-  }
-  wireCard('dash-path-foundation', function() { if (typeof goToFoundationLesson === 'function') goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0); });
-  wireCard('dash-path-lessons', function() { var n = typeof getNextIncompleteLesson === 'function' ? getNextIncompleteLesson() : 0; if (typeof goToLesson === 'function') goToLesson(n); });
-  wireCard('dash-path-mixed-review', function() { if (typeof startMixedReview === 'function') startMixedReview(); });
-  wireCard('dash-start-review', function() { if (typeof startReview === 'function') startReview(); });
-  wireCard('dash-continue-learning', function() { if (typeof continueLearning === 'function') continueLearning(); else if (typeof goToFoundationLesson === 'function') goToFoundationLesson(0); });
-  wireCard('dash-quick-foundation', function() { if (typeof goToFoundationLesson === 'function') goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0); });
-  wireCard('dash-quick-goal', function() { if (typeof startReview === 'function') startReview(); });
-  wireCard('dash-quick-mastered', function() { if (typeof switchView === 'function') switchView('list'); });
-  wireCard('dash-quick-due', function() { if (typeof startReview === 'function') startReview(); });
 }

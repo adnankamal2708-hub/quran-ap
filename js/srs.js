@@ -85,8 +85,11 @@ const STAGE1_EASY =   [2,     4,     8];       // 2d, 4d, 8d
  * 3. Old IDs (w_N) → canonical IDs (cw_N) after deduplication
  * 4. Merge duplicate entries that map to the same canonical ID
  */
+/** Memory cache: avoid repeated JSON.parse of SRS data */
+var _srsCache = null;
 function loadSRS() {
   try {
+    if (_srsCache !== null) return _srsCache;
     var raw = localStorage.getItem(SRS_STORAGE_KEY);
     if (!raw) return {};
     var parsed = JSON.parse(raw);
@@ -298,6 +301,8 @@ function migrateLegacy(entry) {
  */
 function saveSRS(data) {
   try {
+    _srsCache = null;
+    if (typeof invalidateCoverageCache === "function") invalidateCoverageCache();
     localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
     console.warn('Could not save SRS data:', e.message);
@@ -727,6 +732,8 @@ function invalidateStatsCache() {
 }
 
 // ── Export ────────────────────────────────────────────────────
+
+function invalidateSRSMemoryCache() { _srsCache = null; }
 
 window.__srs = {
   loadSRS: loadSRS,

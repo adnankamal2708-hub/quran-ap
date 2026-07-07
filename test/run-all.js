@@ -14,18 +14,20 @@ var cp = require('child_process');
 
 var TEST_DIR = __dirname;
 var TESTS = [
-  'analytics.test.js',
-  'ux-polish.test.js',
-  'srs.test.js',
-  'vocabulary.test.js',
-  'quiz.test.js',
-  'data-validation.test.js',
+  "analytics.test.js",
+  "ux-polish.test.js",
+  "srs.test.js",
+  "srs-edge.test.js",
+  "vocabulary.test.js",
+  "quiz.test.js",
+  "data-validation.test.js",
+  "dashboard.test.js",
+  "services.test.js",
 ];
-
-var results = [];
 var totalPassed = 0;
 var totalFailed = 0;
 var totalTests = 0;
+var results = [];
 var startTime = Date.now();
 
 console.log('='.repeat(60));
