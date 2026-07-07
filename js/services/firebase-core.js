@@ -16,7 +16,6 @@ import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/12.15
 import {
   getAuth,
   onIdTokenChanged,
-  connectAuthEmulator,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -40,7 +39,6 @@ import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
-  connectFirestoreEmulator,
   doc,
   getDoc,
   setDoc,

@@ -31,7 +31,7 @@ var {
   browserSessionPersistence,
 } = window.__firebaseCore || {};
 
-// Also need firestore funcs for user document creation
+// Also need firestore funcs for user profile document creation on sign-up
 var {
   doc: _doc,
   setDoc: _setDoc,
@@ -152,6 +152,10 @@ async function fetchCurrentUser() {
  * Returns an unsubscribe function.
  */
 function onAuthChange(fn) {
+  if (typeof fn !== 'function') {
+    console.warn('[auth] onAuthChange requires a function, got', typeof fn);
+    return function () {};
+  }
   _listeners.add(fn);
   // Immediately call with current state if available
   if (_currentUser !== null) {
@@ -169,7 +173,6 @@ function onAuthChange(fn) {
  */
 async function signUpWithEmail(email, password, displayName) {
   const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
-  const db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
 
   if (!auth) {
     throw new Error('Authentication service is not available.');

@@ -3607,13 +3607,26 @@ body::before {
   align-items: center;
   justify-content: center;
   background: var(--bg);
-  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1);
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Morph state: splash expands slightly and fades out */
 .splash-screen.splash-hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  transform: scale(1.03);
+}
+
+/* Splash content expands upward and dissolves into the app */
+.splash-screen.splash-hidden .splash-content {
+  transform: scale(1.15) translateY(-28px);
+  opacity: 0;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .splash-content {
@@ -3705,6 +3718,94 @@ body::before {
   .splash-icon { animation: none; }
   .splash-content { animation: none; opacity: 1; transform: none; }
   .splash-loader-bar { animation: none; left: 0; width: 60%; }
+  .splash-screen { transition: opacity 0.3s ease, visibility 0.3s ease; transform: none !important; }
+  .splash-screen.splash-hidden { transform: none !important; }
+  .splash-screen.splash-hidden .splash-content { transform: none !important; }
+}
+
+/* ── Dashboard Morph Entrance ───────────────────────────── */
+/* When the splash morphs away, the app gently fades in with upward slide */
+.app-morph-entering {
+  animation: appEntrance 0.65s cubic-bezier(0.35, 0, 0.15, 1) forwards;
+  overflow: clip;
+}
+
+@keyframes appEntrance {
+  0% {
+    opacity: 0.96;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered child entrances within the dashboard */
+.app-morph-entering .top-bar {
+  animation: morphSlideDown 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0s both;
+}
+
+.app-morph-entering .dashboard-header {
+  animation: morphFadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.05s both;
+}
+
+.app-morph-entering .dashboard-recommendation {
+  animation: morphFadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
+.app-morph-entering .dashboard-grid {
+  animation: morphFadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+}
+
+.app-morph-entering .bottom-nav {
+  animation: morphSlideUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
+@keyframes morphFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes morphSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes morphSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-morph-entering { animation: none !important; opacity: 1; transform: none; }
+  .app-morph-entering .top-bar,
+  .app-morph-entering .dashboard-header,
+  .app-morph-entering .dashboard-recommendation,
+  .app-morph-entering .dashboard-grid,
+  .app-morph-entering .bottom-nav {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ── Skip Link ─────────────────────────────────────────────── */

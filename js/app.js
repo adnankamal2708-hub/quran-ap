@@ -1496,19 +1496,29 @@ function init() {
   }
 
   // ── Hide Splash Screen ─────────────────────────────────────
-  // Fade out the splash overlay after a minimum display time
-  // so the branding is always visible for at least 1.5s.
+  // Morph the splash overlay into the dashboard view.
+  // The splash content scales up and lifts (expansion effect)
+  // while the app container fades in with staggered child animations
+  // for a seamless handoff.
   var splash = document.getElementById('splash-screen');
   if (splash) {
     var MIN_SPLASH_MS = 1500;
     var elapsed = Date.now() - window.__splashStart;
     var delay = Math.max(0, MIN_SPLASH_MS - elapsed);
     setTimeout(function() {
+      // Start the morph: splash expands/fades, app enters
       splash.classList.add('splash-hidden');
-      // Remove from DOM after CSS transition completes
+      var appEl = document.querySelector('.app');
+      if (appEl) {
+        appEl.classList.add('app-morph-entering');
+      }
+      // Remove from DOM after CSS transitions complete
       setTimeout(function() {
         if (splash.parentNode) splash.parentNode.removeChild(splash);
-      }, 700);
+        if (appEl) {
+          appEl.classList.remove('app-morph-entering');
+        }
+      }, 800);
     }, delay);
   }
 }
