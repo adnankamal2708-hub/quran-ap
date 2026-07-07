@@ -34,6 +34,9 @@ jobs:
     - name: Run unit tests
       run: node test/run-all.js
 
+    - name: Dry-load test — catch runtime ReferenceErrors
+      run: node test/dry-load.js
+
     - name: Check file sizes
       run: |
         echo "Build Output Sizes:"
