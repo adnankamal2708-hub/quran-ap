@@ -1,7 +1,7 @@
 {
-  "name": "Quranic Vocabulary",
-  "short_name": "Quran Vocab",
-  "description": "Learn Quranic Arabic vocabulary with spaced repetition",
+  "name": "Bayan",
+  "short_name": "Bayan",
+  "description": "Bayan — Understand the Quran, one word at a time. Learn Quranic Arabic vocabulary with spaced repetition.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0f0e0c",

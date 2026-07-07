@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// sw.js — Service Worker v4
+// sw.js — Bayan Service Worker v4
 // Provides offline support with optimized caching strategies:
 //   • Cache-first for static assets (instant load)
 //   • Stale-while-revalidate for Firebase API calls
@@ -8,8 +8,8 @@
 //   • Periodic cache refresh for versioned assets
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'quran-vocab-v4';
-const FONTS_CACHE = 'quran-fonts-v1';
+const CACHE_NAME = 'bayan-v4';
+const FONTS_CACHE = 'bayan-fonts-v1';
 
 // Production assets only — individual dev files are NOT cached.
 // The build script (build.js) generates these bundles from all source files,

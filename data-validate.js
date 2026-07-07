@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// data-validate.js — Quran Vocabulary Data Validation
+// data-validate.js — Bayan Quran Vocabulary Data Validation
 //   • Reads all source data files from js/data/
 //   • Simulates ALL_WORDS loading to validate every word entry
 //   • Checks: duplicate IDs, duplicate arabic, missing fields,
@@ -137,7 +137,7 @@ function loadSurahInfo() {
 // ── Run validation ───────────────────────────────────────────
 
 function run() {
-  validationReport.push('\n  Validating Quran Vocabulary Data\n');
+  validationReport.push('\n  Validating Bayan Vocabulary Data\n');
   validationReport.push('  Source: ' + DATA_DIR + '\n');
 
   // Check data directory exists

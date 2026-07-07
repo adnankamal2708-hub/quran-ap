@@ -1,6 +1,6 @@
 # AGENTS.md
 
-# Quran Vocabulary Learning PWA
+# Bayan — Quran Learning App
 
 ## Mission
 

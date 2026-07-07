@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// data.js — Quranic Vocabulary Data Schema & Constants
+// data.js — Bayan Quranic Vocabulary Data Schema & Constants
 //
 // Architecture:
 //   This file defines the data model constants and an empty ALL_WORDS

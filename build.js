@@ -194,7 +194,7 @@ function validateNoDuplicateDeclarations() {
 }
 
 async function build() {
-  console.log('\n  Building Quranic Vocabulary — Production Build\n');
+  console.log('\n  Building Bayan — Production Build\n');
 
   // 0. Validate no duplicate declarations before building
   console.log('  0. Validating source files for duplicate declarations...');

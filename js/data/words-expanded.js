@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// words-expanded.js — Additional Quranic Vocabulary
+// words-expanded.js — Additional Quranic Vocabulary (Bayan)
 // Words from diverse surahs covering faith, human experience,
 // and key theological concepts.
 // ═══════════════════════════════════════════════════════════════

@@ -14,8 +14,8 @@
 var _onboardingSlides = [
   {
     icon: '\uD83D\uDCD6',
-    title: 'Welcome to Quranic Vocabulary',
-    desc: 'Your personal guide to learning the vocabulary of the Quran. This app helps you understand the words of Allah through spaced repetition, root analysis, and contextual learning.'
+    title: 'Bayan',
+    desc: 'Understand the Quran, one word at a time.\n\nYour personal guide to learning the vocabulary of the Quran through spaced repetition, root analysis, and contextual learning.'
   },
   {
     icon: '\uD83D\uDCD8',

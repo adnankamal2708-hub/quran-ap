@@ -16,7 +16,9 @@
 //   7. (Optional) Enable Firebase App Check for extra security
 // ═══════════════════════════════════════════════════════════════
 
-const FIREBASE_CONFIG = {
+// Exposed on window so the ES module (firebase-core.js) can access it
+// ES modules have isolated scope and cannot see bare `const` from non-module scripts.
+window.FIREBASE_CONFIG = {
   // ── Paste your Firebase Web App config here ──────────────
   apiKey:            "AIzaSyActPDi21DFbyGl7KeecPC_CFuJuor9fxo",
   authDomain:        "bayan-quran-vocabulary.firebaseapp.com",

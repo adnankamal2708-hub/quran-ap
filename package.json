@@ -8,8 +8,12 @@
     "validate": "node validate.js",
     "data:validate": "node data-validate.js",
     "build:validate": "node build.js && node validate.js",
-    "test": "node validate.js",
-    "test:data": "node data-validate.js"
+    "test": "node test/run-all.js",
+    "test:data": "node data-validate.js",
+    "test:e2e": "node build.js && node test/run-all.js && npx playwright test",
+    "test:unit": "node test/run-all.js",
+    "serve": "npx http-server dist/ -p 8080 -c-1 --silent",
+    "e2e": "npx playwright test"
   },
   "repository": {
     "type": "git",
@@ -24,6 +28,7 @@
   },
   "homepage": "https://github.com/adnankamal2708-hub/quran-ap#readme",
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "playwright": "^1.61.1",
     "terser": "^5.48.0"
   }

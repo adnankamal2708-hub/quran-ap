@@ -351,7 +351,7 @@ suite('Onboarding Slides Data', function() {
   });
 
   test('slides cover expected topics in order', function() {
-    assert.ok(_onboardingSlides[0].title.indexOf('Welcome') >= 0);
+    assert.ok(_onboardingSlides[0].title.indexOf('Bayan') >= 0);
     assert.ok(_onboardingSlides[1].title.indexOf('Foundation') >= 0);
     assert.ok(_onboardingSlides[2].title.indexOf('Coverage') >= 0);
     assert.ok(_onboardingSlides[3].title.indexOf('Learning Paths') >= 0);
@@ -714,7 +714,7 @@ suite('showOnboarding / hideOnboarding', function() {
     assert.ok(_eventListeners['keydown'] && _eventListeners['keydown'].length > 0, 'keydown listener registered');
     var slideEl = document.getElementById('onboarding-slide');
     assert.ok(slideEl !== null, 'slide element exists');
-    assert.ok(slideEl.innerHTML.indexOf('Welcome') >= 0, 'shows welcome slide');
+    assert.ok(slideEl.innerHTML.indexOf('Bayan') >= 0, 'shows welcome slide');
   });
 
   test('showOnboarding reuses existing overlay', function() {

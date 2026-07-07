@@ -28,14 +28,14 @@ function getShortMeaning(meaning) {
  */
 function setView(viewName) {
   // All possible views — both main content and overlay views
-  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'explorer', 'auth', 'profile', 'settings'];
+  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'explorer', 'auth', 'profile', 'settings'];
   for (var i = 0; i < views.length; i++) {
     var name = views[i];
     var viewEl = DOM.get('view-' + name);
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
     // Only toggle tab highlights for main nav tabs
-    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats') {
+    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics') {
       var tabEl = DOM.get('tab-' + name);
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
@@ -2840,7 +2840,7 @@ function renderDashboard() {
     }
     html += '</div></div>';
   } else {
-    html += '<div class="dashboard-hero"><div class="dashboard-hero-greeting">Welcome to Quranic Vocabulary!</div>';
+    html += '<div class="dashboard-hero"><div class="dashboard-hero-greeting">Welcome to Bayan</div>';
     html += '<div class="dashboard-hero-sub">Start your journey to understand the words of the Quran.</div>';
     html += '<div class="dashboard-hero-action"><button class="btn btn-sm" id="dash-continue-learning" type="button">Start Learning</button></div></div>';
   }

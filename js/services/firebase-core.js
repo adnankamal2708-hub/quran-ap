@@ -66,7 +66,7 @@ function initCore() {
 
   try {
     const existingApps = getApps();
-    app = existingApps.length > 0 ? existingApps[0] : initializeApp(FIREBASE_CONFIG);
+    app = existingApps.length > 0 ? existingApps[0] : initializeApp(window.FIREBASE_CONFIG);
     auth = getAuth(app);
     // Initialize Firestore with multi-tab offline persistence via FirestoreSettings.cache
     // (replaces the deprecated enableMultiTabIndexedDbPersistence())
