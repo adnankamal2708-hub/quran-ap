@@ -3598,6 +3598,115 @@ body::before {
   }
 }
 
+/* ── Splash Screen ────────────────────────────────────────── */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.splash-screen.splash-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-content {
+  text-align: center;
+  padding: 20px;
+  max-width: 360px;
+  animation: splashFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes splashFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.splash-icon {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 20px;
+  display: block;
+  animation: splashPulse 2s ease-in-out infinite;
+}
+
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.9; }
+}
+
+.splash-title {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 16px rgba(201, 168, 76, 0.15);
+}
+
+.splash-tagline {
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.splash-loader {
+  width: 160px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.splash-loader-bar {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  border-radius: 2px;
+  position: absolute;
+  top: 0;
+  left: -40%;
+  animation: splashLoad 1.6s ease-in-out infinite;
+}
+
+@keyframes splashLoad {
+  0% { left: -40%; width: 40%; }
+  50% { width: 60%; }
+  100% { left: 100%; width: 30%; }
+}
+
+@media (max-width: 380px) {
+  .splash-icon { font-size: 52px; }
+  .splash-title { font-size: 34px; }
+  .splash-tagline { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-icon { animation: none; }
+  .splash-content { animation: none; opacity: 1; transform: none; }
+  .splash-loader-bar { animation: none; left: 0; width: 60%; }
+}
+
 /* ── Skip Link ─────────────────────────────────────────────── */
 .skip-link {
   position: absolute;

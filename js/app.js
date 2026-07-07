@@ -1384,6 +1384,9 @@ function registerServiceWorker() {
 }
 
 function init() {
+  // 0. Capture splash start time for minimum display duration
+  window.__splashStart = Date.now();
+
   // 0. Ensure lessons and word index are built
   if (LESSONS.length === 0) buildLessons();
   if (typeof buildWordIndex === 'function') buildWordIndex();
@@ -1490,6 +1493,23 @@ function init() {
     window.__ux.updateOfflineIndicator();
     window.addEventListener('online', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
     window.addEventListener('offline', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
+  }
+
+  // ── Hide Splash Screen ─────────────────────────────────────
+  // Fade out the splash overlay after a minimum display time
+  // so the branding is always visible for at least 1.5s.
+  var splash = document.getElementById('splash-screen');
+  if (splash) {
+    var MIN_SPLASH_MS = 1500;
+    var elapsed = Date.now() - window.__splashStart;
+    var delay = Math.max(0, MIN_SPLASH_MS - elapsed);
+    setTimeout(function() {
+      splash.classList.add('splash-hidden');
+      // Remove from DOM after CSS transition completes
+      setTimeout(function() {
+        if (splash.parentNode) splash.parentNode.removeChild(splash);
+      }, 700);
+    }, delay);
   }
 }
 
