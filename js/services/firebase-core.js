@@ -48,6 +48,19 @@ import {
   serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 
+// ── Firebase Configuration ─────────────────────────────────────
+// Duplicated from js/services/config.js for ES module self-containment.
+// ES modules have isolated scope and cannot access `const` from non-module scripts.
+// Must stay in sync with js/services/config.js.
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyActPDi21DFbyGl7KeecPC_CFuJuor9fxo",
+  authDomain:        "bayan-quran-vocabulary.firebaseapp.com",
+  projectId:         "bayan-quran-vocabulary",
+  storageBucket:     "bayan-quran-vocabulary.firebasestorage.app",
+  messagingSenderId: "857901285463",
+  appId:             "1:857901285463:web:9dc416c77b0add0e366312",
+};
+
 // ── Internal State ─────────────────────────────────────────────
 
 let app = null;
@@ -66,7 +79,7 @@ function initCore() {
 
   try {
     const existingApps = getApps();
-    app = existingApps.length > 0 ? existingApps[0] : initializeApp(window.FIREBASE_CONFIG);
+    app = existingApps.length > 0 ? existingApps[0] : initializeApp(FIREBASE_CONFIG);
     auth = getAuth(app);
     // Initialize Firestore with multi-tab offline persistence via FirestoreSettings.cache
     // (replaces the deprecated enableMultiTabIndexedDbPersistence())
