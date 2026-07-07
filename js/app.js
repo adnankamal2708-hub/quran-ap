@@ -179,16 +179,18 @@ function updateWordCard() {
   const total = reviewMode ? reviewQueue.length : getActiveLessonWordCount();
   renderWordCard(w, currentWord, total, reviewMode);
 
-  const btnNext = document.getElementById('btn-next');
-  btnNext.onclick = function () {
-    if (currentWord < total - 1) {
-      nextWord();
-    } else if (reviewMode) {
-      endReview();
-    } else {
-      switchView('quiz');
-    }
-  };
+  var btnNext = document.getElementById('btn-next');
+  if (btnNext) {
+    btnNext.onclick = function () {
+      if (currentWord < total - 1) {
+        nextWord();
+      } else if (reviewMode) {
+        endReview();
+      } else {
+        switchView('quiz');
+      }
+    };
+  }
 
   updateStatsDisplay();
 }
@@ -738,52 +740,61 @@ function setupKeyboardShortcuts() {
   });
 }
 
-// ── Event Wiring ───────────────────────────────────────────────
+// ── Event Wiring ───────────────────────────────────────────────/**
+ * Safely set onclick for an element. Returns the element or null.
+ * Prevents Uncaught TypeError crashes when a DOM element is missing.
+ */
+function safeOnClick(id, fn) {
+  var el = document.getElementById(id);
+  if (el) el.onclick = fn;
+  return el;
+}
 
 function wireEvents() {
-  // Bottom nav tabs
-  document.getElementById('tab-dashboard').onclick = function () { switchView('dashboard'); };
-  document.getElementById('tab-learn').onclick = function () { switchView('learn'); };
-  document.getElementById('tab-quiz').onclick = function () { switchView('quiz'); };
-  document.getElementById('tab-list').onclick = function () { switchView('list'); };
-  document.getElementById('tab-stats').onclick = function () { switchView('stats'); };
-  document.getElementById('tab-analytics').onclick = function () { switchView('analytics'); };
+  // Bottom nav tabs (always present in static HTML)
+  safeOnClick('tab-dashboard', function () { switchView('dashboard'); });
+  safeOnClick('tab-learn', function () { switchView('learn'); });
+  safeOnClick('tab-quiz', function () { switchView('quiz'); });
+  safeOnClick('tab-list', function () { switchView('list'); });
+  safeOnClick('tab-stats', function () { switchView('stats'); });
+  safeOnClick('tab-analytics', function () { switchView('analytics'); });
 
   // Learn navigation
-  document.getElementById('btn-prev').onclick = prevWord;
+  safeOnClick('btn-prev', prevWord);
 
   // Quick actions
-  document.getElementById('qa-show-ayah').onclick = function () {
+  safeOnClick('qa-show-ayah', function () {
     var w = getCurrentWord();
     if (w) showAyah(w);
-  };
-  document.getElementById('qa-show-more').onclick = function () {
+  });
+  safeOnClick('qa-show-more', function () {
     var w = getCurrentWord();
     if (w) showWordContent(w);
-  };
-  document.getElementById('qa-root-family').onclick = highlightRootBox;
-  document.getElementById('qa-bookmark').onclick = toggleBookmark;
+  });
+  safeOnClick('qa-root-family', highlightRootBox);
+  safeOnClick('qa-bookmark', toggleBookmark);
 
   // Tafsir button
-  document.getElementById('tafsir-btn').onclick = function () {
+  safeOnClick('tafsir-btn', function () {
     var w = getCurrentWord();
     if (w) loadTafsir(w);
-  };
+  });
 
   // Notes (auto-save on blur)
-  document.getElementById('notes-input').onblur = saveNote;
+  var notesInput = document.getElementById('notes-input');
+  if (notesInput) notesInput.onblur = saveNote;
 
   // SRS rating
-  document.getElementById('srs-again').onclick = function () { rateSRS(0); };
-  document.getElementById('srs-hard').onclick = function () { rateSRS(1); };
-  document.getElementById('srs-good').onclick = function () { rateSRS(2); };
-  document.getElementById('srs-easy').onclick = function () { rateSRS(3); };
+  safeOnClick('srs-again', function () { rateSRS(0); });
+  safeOnClick('srs-hard', function () { rateSRS(1); });
+  safeOnClick('srs-good', function () { rateSRS(2); });
+  safeOnClick('srs-easy', function () { rateSRS(3); });
 
   // Quiz next button
-  document.getElementById('btn-next-quiz').onclick = nextQuiz;
+  safeOnClick('btn-next-quiz', nextQuiz);
 
   // Review banner
-  document.getElementById('review-start-btn').onclick = startReview;
+  safeOnClick('review-start-btn', startReview);
 
   // Search input (debounced with requestAnimationFrame for performance)
   var searchInput = DOM.get('search-input');
@@ -805,12 +816,11 @@ function wireEvents() {
   wireFilterChips('status');
 
   // Continue Learning button (works for all learning paths)
-  DOM.get('continue-learning-btn').onclick = function () {
+  safeOnClick('continue-learning-btn', function () {
     if (getOrganizationMode() === FOUNDATION_MODE) {
       var fNext = getNextIncompleteFoundationLesson();
       goToFoundationLesson(fNext);
     } else if (getOrganizationMode() === 'surah') {
-      // In surah mode, go to next incomplete surah
       var surahIds = getSurahsWithVocabulary();
       for (var si = 0; si < surahIds.length; si++) {
         if (!isSurahCompleted(surahIds[si])) {
@@ -818,34 +828,28 @@ function wireEvents() {
           return;
         }
       }
-      // All complete
       goToSurah(surahIds[0] || 1);
     } else if (getOrganizationMode() === 'root-family') {
-      // In root family mode, go to next incomplete root family
       var nextRFKey = typeof getNextIncompleteRootFamily === 'function' ? getNextIncompleteRootFamily() : '';
       if (nextRFKey) goToRootFamily(nextRFKey);
     } else if (getOrganizationMode() === 'difficulty') {
-      // In difficulty mode, go to next incomplete level
       var nextDLevel = typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1;
       goToDifficultyLevel(nextDLevel);
     } else {
       continueLearning();
     }
-  };
+  });
 
   // Quick mode toggle
-  DOM.get('qa-quick-mode').onclick = toggleQuickMode;
+  safeOnClick('qa-quick-mode', toggleQuickMode);
 
   // Onboarding revisit button
-  var revisitBtn = document.getElementById('btn-revisit-onboarding');
-  if (revisitBtn) {
-    revisitBtn.onclick = function() {
-      if (window.__ux && window.__ux.showOnboarding) window.__ux.showOnboarding();
-    };
-  }
+  safeOnClick('btn-revisit-onboarding', function() {
+    if (window.__ux && window.__ux.showOnboarding) window.__ux.showOnboarding();
+  });
 
-  // Session summary close — returns to dashboard if from mixed review
-  DOM.get('session-summary-close').onclick = function () {
+  // Session summary close
+  safeOnClick('session-summary-close', function () {
     closeSessionSummary();
     var wasMixed = window.__lastReviewWasMixed;
     window.__lastReviewWasMixed = false;
@@ -854,25 +858,22 @@ function wireEvents() {
     } else {
       switchView('learn');
     }
-    // Focus word card for keyboard users
     var wordCard = DOM.get('word-card');
     if (wordCard && typeof wordCard.focus === 'function') {
       wordCard.setAttribute('tabindex', '-1');
       wordCard.focus();
     }
-  };
+  });
 
-  // Lesson navigation (prev/next lesson, surah, root family, or difficulty level)
-  DOM.get('prev-lesson-btn').onclick = function () {
+  // Lesson navigation
+  safeOnClick('prev-lesson-btn', function () {
     if (getOrganizationMode() === FOUNDATION_MODE) {
       if (activeLessonIndex > 0) goToFoundationLesson(activeLessonIndex - 1);
     } else if (getOrganizationMode() === 'surah') {
-      // In surah mode, find previous surah with vocabulary
       var surahIds = getSurahsWithVocabulary();
       var curIdx = surahIds.indexOf(getActiveSurahId());
       if (curIdx > 0) goToSurah(surahIds[curIdx - 1]);
     } else if (getOrganizationMode() === 'root-family') {
-      // In root family mode, go to previous family
       var rfFamilies = typeof getRootFamilyLessons === 'function' ? getRootFamilyLessons() : [];
       var rfProgress = typeof loadRootFamilyProgress === 'function' ? loadRootFamilyProgress() : null;
       var currentRoot = rfProgress ? rfProgress.currentRoot : '';
@@ -883,14 +884,13 @@ function wireEvents() {
         }
       }
     } else if (getOrganizationMode() === 'difficulty') {
-      // In difficulty mode, go to previous level
       var dLevel = typeof loadDifficultyProgress === 'function' ? loadDifficultyProgress().currentDifficulty : 1;
       if (dLevel > 1) goToDifficultyLevel(dLevel - 1);
     } else if (activeLessonIndex > 0) {
       goToLesson(activeLessonIndex - 1);
     }
-  };
-  DOM.get('next-lesson-btn').onclick = function () {
+  });
+  safeOnClick('next-lesson-btn', function () {
     if (getOrganizationMode() === FOUNDATION_MODE) {
       var fTotal = getFoundationLessonCount();
       var nextIdx = activeLessonIndex + 1;
@@ -898,12 +898,10 @@ function wireEvents() {
         goToFoundationLesson(nextIdx);
       }
     } else if (getOrganizationMode() === 'surah') {
-      // In surah mode, find next surah with vocabulary
       var surahIds = getSurahsWithVocabulary();
       var curIdx = surahIds.indexOf(getActiveSurahId());
       if (curIdx >= 0 && curIdx < surahIds.length - 1) goToSurah(surahIds[curIdx + 1]);
     } else if (getOrganizationMode() === 'root-family') {
-      // In root family mode, go to next family
       var rfFamilies = typeof getRootFamilyLessons === 'function' ? getRootFamilyLessons() : [];
       var rfProgress = typeof loadRootFamilyProgress === 'function' ? loadRootFamilyProgress() : null;
       var currentRoot = rfProgress ? rfProgress.currentRoot : '';
@@ -914,7 +912,6 @@ function wireEvents() {
         }
       }
     } else if (getOrganizationMode() === 'difficulty') {
-      // In difficulty mode, go to next level
       var dLevel = typeof loadDifficultyProgress === 'function' ? loadDifficultyProgress().currentDifficulty : 1;
       if (dLevel < 5) goToDifficultyLevel(dLevel + 1);
     } else {
@@ -923,8 +920,8 @@ function wireEvents() {
         goToLesson(nextIdx);
       }
     }
-  };
-  
+  });
+
   // Advanced Filter Toggle
   var filterToggle = DOM.get('advanced-filter-toggle');
   if (filterToggle) {
@@ -941,22 +938,16 @@ function wireEvents() {
   }
 
   // Filter Apply button
-  var filterApply = DOM.get('filter-apply');
-  if (filterApply) {
-    filterApply.onclick = function() {
-      renderWordList();
-    };
-  }
+  safeOnClick('filter-apply', function() {
+    renderWordList();
+  });
 
   // Filter Clear button
-  var filterClear = DOM.get('filter-clear');
-  if (filterClear) {
-    filterClear.onclick = function() {
-      if (typeof clearAdvancedFilters === 'function') {
-        clearAdvancedFilters();
-      }
-    };
-  }
+  safeOnClick('filter-clear', function() {
+    if (typeof clearAdvancedFilters === 'function') {
+      clearAdvancedFilters();
+    }
+  });
 
   // Mode/Surah selector from lesson header
   var surahSelector = DOM.get('surah-select');
@@ -968,13 +959,11 @@ function wireEvents() {
       } else if (val === 'foundation') {
         goToFoundationLesson(getCurrentFoundationLessonIndex());
       } else if (val === 'surah') {
-        // Find first surah with vocabulary
         var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
         if (surahIds.length > 0) {
           goToSurah(surahIds[0]);
         }
       } else {
-        // Numeric surah ID
         var numVal = parseInt(val, 10);
         if (numVal) {
           goToSurah(numVal);
@@ -1384,141 +1373,146 @@ function registerServiceWorker() {
 }
 
 function init() {
-  // 0. Capture splash start time for minimum display duration
-  window.__splashStart = Date.now();
+  try {
+    // 0. Capture splash start time for minimum display duration
+    window.__splashStart = Date.now();
 
-  // 0. Ensure lessons and word index are built
-  if (LESSONS.length === 0) buildLessons();
-  if (typeof buildWordIndex === 'function') buildWordIndex();
+    // 0. Ensure lessons and word index are built
+    if (LESSONS.length === 0) buildLessons();
+    if (typeof buildWordIndex === 'function') buildWordIndex();
 
-  // 0a. Run data validation
-  validateData();
+    // 0a. Run data validation
+    validateData();
 
-  // Set active lesson from saved progress (check foundation mode first)
-  activeLessonIndex = getCurrentLessonIndex();
-  if (activeLessonIndex >= getLessonCount()) activeLessonIndex = 0;
-  
-  // Set mode selector to match initial state
-  var modeSelect = DOM.get('surah-select');
-  if (modeSelect) {
-    modeSelect.value = 'lesson';
-  }
-  
-  // Set initial view to dashboard (switchView handles view activation, tab highlighting, and rendering)
-  currentView = 'dashboard';
-  switchView('dashboard');
-
-  // Wire adaptive engine: invalidate learner profile on SRS changes
-  if (window.__adaptive && window.__adaptive.invalidateProfile) {
-    if (window.__srs && window.__srs.invalidateStatsCache) {
-      let _origInvalidate = window.__srs.invalidateStatsCache;
-      window.__srs.invalidateStatsCache = function() {
-        _origInvalidate();
-        window.__adaptive.invalidateProfile();
-      };
+    // Set active lesson from saved progress (check foundation mode first)
+    activeLessonIndex = getCurrentLessonIndex();
+    if (activeLessonIndex >= getLessonCount()) activeLessonIndex = 0;
+    
+    // Set mode selector to match initial state
+    var modeSelect = DOM.get('surah-select');
+    if (modeSelect) {
+      modeSelect.value = 'lesson';
     }
-  }
-    // 1. Initialize Firebase services (auth, sync, user)
-  var firebaseReady = initAuth();
-  if (firebaseReady) {
-    initSync();
-    initUserService();
-  }
+    
+    // Set initial view to dashboard (switchView handles view activation, tab highlighting, and rendering)
+    currentView = 'dashboard';
+    switchView('dashboard');
 
-  // 2. Initialize auth and profile UI
-  initAuthUI();
-  initProfileUI();
-
-  // 3. Wire application events
-  wireEvents();
-
-  // 4. Set up keyboard shortcuts
-  setupKeyboardShortcuts();
-
-  // 5. Validate surah coverage and populate surah selector
-  validateSurahCoverage();
-  populateSurahSelector();
-
-  // 6. Setup other views (dashboard already rendered by switchView('dashboard'))
-  updateWordCard();
-  updateReviewBanner();
-  updateStatsDisplay();
-  updateLessonProgressDisplay();
-
-  // 7. Register service worker
-  registerServiceWorker();
-
-  // 8. Set up online/offline sync listener
-  if (window.__analytics && window.__analytics.init) {
-    window.__analytics.init();
-  }
-
-  setupOnlineSync();
-
-  // 9. Show keyboard shortcut hints on first load (briefly)
-  setTimeout(function() {
-    if (!window._kbdHintsShown) {
-      window._kbdHintsShown = true;
-      window._kbdHintsAutoShown = true;
-      showKeyboardHints();
-    }
-  }, 1000);
-
-  // 10. Check if user is already signed in (session restored from persistence)
-  var user = getCurrentUser();
-  if (user) {
-    if (!user.emailVerified) {
-      console.log('[app] Email not verified — user can continue.');
-    }
-  }
-
-  // 11. Apply user settings for daily review limit (if available)
-  if (user && window.__user) {
-    window.__user.loadProfile(user.uid).then(function (profile) {
-      if (profile && profile.settings && profile.settings.dailyReviewLimit) {
-        if (window.__srs && window.__srs.updateDailyReviewLimit) {
-          window.__srs.updateDailyReviewLimit(profile.settings.dailyReviewLimit);
-        }
+    // Wire adaptive engine: invalidate learner profile on SRS changes
+    if (window.__adaptive && window.__adaptive.invalidateProfile) {
+      if (window.__srs && window.__srs.invalidateStatsCache) {
+        let _origInvalidate = window.__srs.invalidateStatsCache;
+        window.__srs.invalidateStatsCache = function() {
+          _origInvalidate();
+          window.__adaptive.invalidateProfile();
+        };
       }
-    }).catch(function () {
-      // Silently ignore — use default limit
-    });
-  }
-
-  // 12. Initialize UX polish module
-  if (window.__ux) {
-    if (!window.__ux.hasCompletedOnboarding()) {
-      setTimeout(function() { window.__ux.showOnboarding(); }, 800);
     }
-    window.__ux.updateOfflineIndicator();
-    window.addEventListener('online', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
-    window.addEventListener('offline', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
+
+    // 1. Initialize Firebase services (auth, sync, user)
+    try {
+      var firebaseReady = initAuth();
+      if (firebaseReady) {
+        initSync();
+        initUserService();
+      }
+    } catch (e) {
+      console.warn('[app] Firebase init failed (non-blocking):', e.message);
+    }
+
+    // 2. Initialize auth and profile UI
+    try { initAuthUI(); } catch (e) { console.warn('[app] Auth UI init failed:', e.message); }
+    try { initProfileUI(); } catch (e) { console.warn('[app] Profile UI init failed:', e.message); }
+
+    // 3. Wire application events
+    try { wireEvents(); } catch (e) { console.error('[app] CRITICAL: wireEvents failed:', e.message); }
+
+    // 4. Set up keyboard shortcuts
+    try { setupKeyboardShortcuts(); } catch (e) { console.warn('[app] Keyboard shortcuts failed:', e.message); }
+
+    // 5. Validate surah coverage and populate surah selector
+    try { validateSurahCoverage(); } catch (e) { /* non-critical */ }
+    try { populateSurahSelector(); } catch (e) { console.warn('[app] Surah selector failed:', e.message); }
+
+    // 6. Setup other views (dashboard already rendered by switchView('dashboard'))
+    try { updateWordCard(); } catch (e) { console.warn('[app] Word card init failed:', e.message); }
+    try { updateReviewBanner(); } catch (e) { /* non-critical */ }
+    try { updateStatsDisplay(); } catch (e) { /* non-critical */ }
+    try { updateLessonProgressDisplay(); } catch (e) { /* non-critical */ }
+
+    // 7. Register service worker
+    try { registerServiceWorker(); } catch (e) { /* non-critical */ }
+
+    // 8. Set up online/offline sync listener
+    if (window.__analytics && window.__analytics.init) {
+      try { window.__analytics.init(); } catch (e) { /* non-critical */ }
+    }
+    try { setupOnlineSync(); } catch (e) { /* non-critical */ }
+
+    // 9. Show keyboard shortcut hints on first load (briefly)
+    setTimeout(function() {
+      if (!window._kbdHintsShown) {
+        window._kbdHintsShown = true;
+        window._kbdHintsAutoShown = true;
+        showKeyboardHints();
+      }
+    }, 1000);
+
+    // 10. Check if user is already signed in (session restored from persistence)
+    try {
+      var user = getCurrentUser();
+      if (user && !user.emailVerified) {
+        console.log('[app] Email not verified — user can continue.');
+      }
+
+      // 11. Apply user settings for daily review limit (if available)
+      if (user && window.__user) {
+        window.__user.loadProfile(user.uid).then(function (profile) {
+          if (profile && profile.settings && profile.settings.dailyReviewLimit) {
+            if (window.__srs && window.__srs.updateDailyReviewLimit) {
+              window.__srs.updateDailyReviewLimit(profile.settings.dailyReviewLimit);
+            }
+          }
+        }).catch(function () {
+          // Silently ignore — use default limit
+        });
+      }
+    } catch (e) { /* non-critical */ }
+
+    // 12. Initialize UX polish module
+    if (window.__ux) {
+      try {
+        if (!window.__ux.hasCompletedOnboarding()) {
+          setTimeout(function() { window.__ux.showOnboarding(); }, 800);
+        }
+        window.__ux.updateOfflineIndicator();
+      } catch (e) { console.warn('[app] UX init failed:', e.message); }
+      window.addEventListener('online', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
+      window.addEventListener('offline', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
+    }
+  } catch (e) {
+    console.error('[app] CRITICAL: init() failed:', e.message, e.stack);
   }
 
   // ── Hide Splash Screen ─────────────────────────────────────
-  // Morph the splash overlay into the dashboard view.
-  // The splash content scales up and lifts (expansion effect)
-  // while the app container fades in with staggered child animations
-  // for a seamless handoff.
+  // Always hide the splash regardless of init success or failure.
   var splash = document.getElementById('splash-screen');
   if (splash) {
     var MIN_SPLASH_MS = 1500;
     var elapsed = Date.now() - window.__splashStart;
     var delay = Math.max(0, MIN_SPLASH_MS - elapsed);
     setTimeout(function() {
-      // Start the morph: splash expands/fades, app enters
-      splash.classList.add('splash-hidden');
-      var appEl = document.querySelector('.app');
-      if (appEl) {
-        appEl.classList.add('app-morph-entering');
-      }
-      // Remove from DOM after CSS transitions complete
-      setTimeout(function() {
-        if (splash.parentNode) splash.parentNode.removeChild(splash);
-        if (appEl) {
-          appEl.classList.remove('app-morph-entering');
-        }
-      }, 800);
+      try {
+        splash.classList.add('splash-hidden');
+        var appEl = document.querySelector('.app');
+        if (appEl) appEl.classList.add('app-morph-entering');
+        setTimeout(function() {
+          try {
+            if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+            if (appEl) appEl.classList.remove('app-morph-entering');
+          } catch (e) { /* ignore */ }
+        }, 800);
+      } catch (e) { /* ignore */ }
     }, delay);
   }
 }

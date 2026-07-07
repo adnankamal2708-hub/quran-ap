@@ -25,17 +25,18 @@ const PRECACHE_URLS = [
   './favicon.ico',
 ];
 
-// Install: pre-cache all static assets
+// Install: pre-cache all static assets, then skip waiting to activate immediately
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
       return cache.addAll(PRECACHE_URLS);
+    }).then(function () {
+      return self.skipWaiting();
     })
   );
-  self.skipWaiting();
 });
 
-// Activate: clean up old caches
+// Activate: clean up old caches and take control of all open clients immediately
 self.addEventListener('activate', function (event) {
   var cacheWhitelist = [CACHE_NAME, FONTS_CACHE];
   event.waitUntil(
@@ -46,6 +47,7 @@ self.addEventListener('activate', function (event) {
             return cacheWhitelist.indexOf(name) === -1;
           })
           .map(function (name) {
+            console.log('[SW] Deleting old cache:', name);
             return caches.delete(name);
           })
       );
@@ -55,8 +57,10 @@ self.addEventListener('activate', function (event) {
   );
 });
 
-// Fetch: optimized caching strategy
+// Fetch: only handle GET requests (avoids cache poisoning from non-GET requests)
 self.addEventListener('fetch', function (event) {
+  if (event.request.method !== 'GET') return;
+
   var url = new URL(event.request.url);
 
   // Firebase CDN scripts: network-first with cache fallback (for module scripts)
