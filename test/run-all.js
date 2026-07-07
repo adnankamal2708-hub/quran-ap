@@ -23,6 +23,7 @@ var TESTS = [
   "data-validation.test.js",
   "dashboard.test.js",
   "services.test.js",
+  "foundation-course.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;

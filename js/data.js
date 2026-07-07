@@ -1168,6 +1168,7 @@ function completeFoundationLesson(lessonIndex) {
     progress.completedLessons.push(lessonIndex);
   }
   progress.quizPassed[String(lessonIndex)] = true;
+  saveFoundationProgress(progress);
   var next = getNextIncompleteFoundationLesson();
   progress.currentLesson = next;
   saveFoundationProgress(progress);
@@ -1323,6 +1324,7 @@ function completeLesson(lessonIndex) {
     progress.completedLessons.push(lessonIndex);
   }
   progress.quizPassed[String(lessonIndex)] = true;
+  saveLessonProgress(progress);
   // Advance current lesson to next incomplete
   var next = getNextIncompleteLesson();
   progress.currentLesson = next;
@@ -1500,6 +1502,7 @@ function completeRootFamily(rootKey) {
   if (progress.completedRoots.indexOf(rootKey) < 0) {
     progress.completedRoots.push(rootKey);
   }
+  saveRootFamilyProgress(progress);
   var next = getNextIncompleteRootFamily();
   progress.currentRoot = next;
   saveRootFamilyProgress(progress);
@@ -1642,6 +1645,7 @@ function completeDifficultyLevel(level) {
   if (progress.completedLevels.indexOf(level) < 0) {
     progress.completedLevels.push(level);
   }
+  saveDifficultyProgress(progress);
   var next = getNextIncompleteDifficultyLevel();
   progress.currentDifficulty = next;
   saveDifficultyProgress(progress);
