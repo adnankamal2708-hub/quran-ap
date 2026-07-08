@@ -1,0 +1,282 @@
+/* ── Minimal Dashboard (db-*) ── */
+.db-greeting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 0 2px;
+}
+.db-greeting-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.db-greeting-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--text);
+  font-weight: 600;
+  margin: 0 0 2px;
+  line-height: 1.2;
+}
+.db-greeting-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Dashboard Card ── */
+.db-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  box-shadow: var(--shadow-glow-gold);
+}
+.db-card-highlight {
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.03));
+  border-color: rgba(201,168,76,0.2);
+}
+.db-action-card {
+  cursor: pointer;
+}
+.db-action-card:hover {
+  border-color: var(--gold-dim);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(201,168,76,0.08);
+}
+.db-action-card:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.db-action-card:active {
+  transform: scale(0.995);
+}
+
+.db-card-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.db-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(201,168,76,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.db-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.db-card-title {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+  font-family: var(--serif);
+  line-height: 1.3;
+}
+.db-card-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+.db-arrow {
+  font-size: 16px;
+  color: var(--gold-dim);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.db-action-card:hover .db-arrow {
+  transform: translateX(3px);
+}
+
+/* ── Progress ── */
+.db-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.db-progress-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.db-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.db-fill-blue {
+  background: linear-gradient(90deg, var(--blue), #6a9fd8);
+}
+.db-progress-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Comprehension Ring Card ── */
+.db-comp-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.db-ring-wrap {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  position: relative;
+}
+.db-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.db-ring-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2.5;
+}
+.db-ring-fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.db-ring-text {
+  fill: var(--gold-light);
+  font-size: 7px;
+  font-family: var(--body);
+  text-anchor: middle;
+  transform: rotate(90deg) translateY(-1px);
+  transform-origin: 18px 18px;
+  font-weight: 600;
+}
+.db-comp-info {
+  flex: 1;
+  min-width: 0;
+}
+.db-comp-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+.db-comp-value {
+  font-size: 24px;
+  font-family: var(--serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+.db-comp-detail {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── Due Review Badge ── */
+.db-card-due {
+  cursor: pointer;
+  border-color: rgba(201,168,76,0.3);
+}
+.db-card-due:hover {
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+.db-card-due:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.db-card-due:active {
+  transform: scale(0.995);
+}
+.db-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background: rgba(201,168,76,0.15);
+  border: 1px solid rgba(201,168,76,0.3);
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--body);
+  flex-shrink: 0;
+}
+
+/* ── Achievement Section ── */
+.db-achievement {
+  margin-top: 4px;
+  padding: 0 2px;
+}
+.db-ach-title {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.db-ach-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.db-ach-item {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  line-height: 1.3;
+}
+
+/* ── Error State ── */
+.db-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 380px) {
+  .db-greeting { margin-bottom: 16px; }
+  .db-greeting-title { font-size: 18px; }
+  .db-comp-row { gap: 12px; }
+  .db-ring-wrap { width: 60px; height: 60px; }
+  .db-comp-value { font-size: 20px; }
+  .db-card { padding: 14px; margin-bottom: 10px; }
+  .db-card-title { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .db-progress-fill { transition: none; }
+  .db-ring-fill { transition: none; }
+  .db-action-card:hover { transform: none; }
+  .db-arrow { transition: none; }
+  .db-action-card:hover .db-arrow { transform: none; }
+}

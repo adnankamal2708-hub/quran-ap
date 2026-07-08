@@ -1040,8 +1040,6 @@ function renderWordList() {
   container.appendChild(fragment);
 }
 
-
-
 /**
  * Render the statistics dashboard.
  */
@@ -2288,7 +2286,6 @@ function renderExplorerAllOccurrences(listEl, w) {
 
 // Export explorer for cross-module access
 
-
 // ═══════════════════════════════════════════════════════════════
 // ANALYTICS DASHBOARD — Comprehensive Learning Analytics
 // ═══════════════════════════════════════════════════════════════
@@ -2569,7 +2566,6 @@ function renderAnalyticsOverview(analytics) {
   }
 }
 
-
 // ── TRENDS TAB ──
 
 function renderAnalyticsTrends(analytics) {
@@ -2677,7 +2673,6 @@ function renderAnalyticsTrends(analytics) {
   }
 }
 
-
 // ── INSIGHTS TAB ──
 
 function renderAnalyticsInsightsPage(analytics) {
@@ -2769,7 +2764,6 @@ function renderAnalyticsInsightsPage(analytics) {
   }
 }
 
-
 // ── ACHIEVEMENTS TAB ──
 
 function renderAnalyticsAchievements() {
@@ -2837,10 +2831,8 @@ function renderAnalyticsAchievements() {
   }
 }
 
-
 // Export for app.js
 window.__renderAnalytics = renderAnalytics;
-
 
 window.__openExplorer = openExplorer;
 window.__explorerWord = function() { return _explorerWord; };
@@ -2857,134 +2849,136 @@ function renderDashboard() {
   try {
   var $d = DOM.get('dashboard-grid');
   if (!$d) return;
-  
+
   // ── Gather data ──
   var $srsObj = window.__srs;
   var $srsStats = ($srsObj && $srsObj.getStats) ? $srsObj.getStats() : (typeof getSRSStats === 'function' ? getSRSStats() : { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0 });
-  var $srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  if (!$srsStats) $srsStats = { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0 };
   var $dueReviews = typeof getDueReviews === 'function' ? getDueReviews() : [];
   var $streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
   var $streak = $streakData.streak || 0;
-  
+
   // Foundation course data
   var $fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
   var $fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
   var $foundationsPct = $fTotal > 0 ? Math.round(($fCompleted / $fTotal) * 100) : 0;
-  
-  // Sequential lessons data
-  var $lessonCount = typeof getLessonCount === 'function' ? getLessonCount() : 10;
-  var $completedLessons = typeof getCompletedLessonCount === 'function' ? getCompletedLessonCount() : 0;
-  var $lessonPct = $lessonCount > 0 ? Math.round(($completedLessons / $lessonCount) * 100) : 0;
-  
+
   // Quran coverage data
   var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-  var $coveragePct = $coverage ? $coverage.coveragePercent : 0;
-  
-  // Mastery stats for hero
+
+  // Mastery stats
   var $masteredCount = $srsStats.mature || 0;
   var $totalWords = $srsStats.total || (typeof getCanonicalWordCount === 'function' && getCanonicalWordCount() > 0 ? getCanonicalWordCount() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS.length : 0));
   var $comprehensionPct = $coverage ? $coverage.estimatedComprehension : 0;
-  
-  // Weekly change (mock for now — real tracking could be added)
-  var $weeklyChange = 3; // placeholder
-  
+
   // Learn by Surah data
   var $surahProgress = typeof getSurahLessonProgress === 'function' ? getSurahLessonProgress() : null;
   var $surahCompleted = $surahProgress ? $surahProgress.completedSurahs : 0;
   var $surahTotal = $surahProgress ? $surahProgress.totalSurahs : 90;
-  
-  // ── Build hero section ──
-  var $html = '';
-  
-  // Hero with branding
-  $html += '<div class="dashboard-hero">';
-  $html += '<div class="dh-brand">';
-  $html += '<span class="dh-icon" aria-hidden="true">\uD83D\uDCD6</span>';
-  $html += '<div class="dh-title-group">';
-  $html += '<h2 class="dh-title">Bayan</h2>';
-  $html += '<p class="dh-tagline">Understand the Quran, one word at a time.</p>';
-  $html += '</div></div>';
-  
-  // Overall Progress Ring
-  $html += '<div class="dh-progress">';
-  $html += '<div class="dh-ring-wrap">';
-  $html += '<svg class="dh-ring" viewBox="0 0 36 36">';
-  $html += '<path class="dh-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />';
-  var $covOffset = Math.min(100, Math.max(0, Math.round(($comprehensionPct / 100) * 100)));
-  $html += '<path class="dh-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $covOffset + ', 100" />';
-  $html += '<text class="dh-ring-text" x="18" y="20.5">' + $comprehensionPct + '%</text>';
-  $html += '</svg></div>';
-  $html += '<div class="dh-progress-info">';
-  $html += '<div class="dh-progress-pct">' + $comprehensionPct + '% Quran Comprehension</div>';
-  $html += '<div class="dh-progress-change">+' + $weeklyChange + '% this week</div>';
-  $html += '<div class="dh-progress-sub">Coverage based on Quran word occurrences</div>';
-  $html += '</div></div></div>';
-  
-  // ── Quick Stats Row ──
-  $html += '<div class="dh-stats-row">';
-  $html += '<div class="dh-stat"><span class="dh-stat-value">' + $masteredCount + '</span><span class="dh-stat-label">Mastered</span></div>';
-  $html += '<div class="dh-stat"><span class="dh-stat-value">' + $streak + '</span><span class="dh-stat-label">Day Streak</span></div>';
-  $html += '<div class="dh-stat"><span class="dh-stat-value">' + ($dueReviews.length > 0 ? $dueReviews.length : 0) + '</span><span class="dh-stat-label">Due Review</span></div>';
-  $html += '<div class="dh-stat"><span class="dh-stat-value">' + $srsStats.totalReviews + '</span><span class="dh-stat-label">Total Reviews</span></div>';
-  $html += '</div>';
-  
-  // ── Learning Path Cards ──
-  $html += '<div class="dh-cards-title">Your Learning Paths</div>';
-  
-  // Card 1: Foundation Course
-  $html += '<div class="dh-card" id="dash-path-foundation" role="button" tabindex="0">';
-  $html += '<div class="dh-card-header">';
-  $html += '<div class="dh-card-icon" style="background:rgba(201,168,76,0.12)">\uD83D\uDCD8</div>';
-  $html += '<div class="dh-card-title-group">';
-  $html += '<div class="dh-card-title">Foundation Course</div>';
-  $html += '<div class="dh-card-subtitle">Learn the most important Quran words first</div>';
-  $html += '</div></div>';
-  $html += '<div class="dh-card-progress">';
-  $html += '<div class="dh-card-progress-track"><div class="dh-card-progress-fill" style="width:' + $foundationsPct + '%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))"></div></div>';
-  $html += '<div class="dh-card-progress-text">' + $fCompleted + ' / ' + $fTotal + ' lessons</div>';
-  $html += '</div>';
-  $html += '<div class="dh-card-footer">';
-  $html += '<span class="dh-card-pct">' + $foundationsPct + '%</span>';
-  $html += '<span class="dh-card-action">' + ($foundationsPct === 0 ? 'Start Foundation' : $foundationsPct === 100 ? '\u2705 Complete' : 'Continue') + ' \u2192</span>';
-  $html += '</div></div>';
-  
-  // Card 2: Learn by Surah
-  $html += '<div class="dh-card" id="dash-path-lessons" role="button" tabindex="0">';
-  $html += '<div class="dh-card-header">';
-  $html += '<div class="dh-card-icon" style="background:rgba(74,126,194,0.12)">\uD83D\uDCD6</div>';
-  $html += '<div class="dh-card-title-group">';
-  $html += '<div class="dh-card-title">Learn by Surah</div>';
-  $html += '<div class="dh-card-subtitle">Study vocabulary in Quran order</div>';
-  $html += '</div></div>';
-  $html += '<div class="dh-card-progress">';
-  $html += '<div class="dh-card-progress-track"><div class="dh-card-progress-fill" style="width:' + $lessonPct + '%;background:linear-gradient(90deg,var(--blue),var(--gold-dim))"></div></div>';
-  $html += '<div class="dh-card-progress-text">' + $completedLessons + ' / ' + $lessonCount + ' lessons</div>';
-  $html += '</div>';
-  $html += '<div class="dh-card-footer">';
-  $html += '<span class="dh-card-pct">' + $lessonPct + '%</span>';
-  $html += '<span class="dh-card-action">' + ($lessonPct === 0 ? 'Start Learning' : 'Continue') + ' \u2192</span>';
-  $html += '</div></div>';
-  
-  // Card 3: Mixed Review
+  var $surahPct = $surahTotal > 0 ? Math.round(($surahCompleted / $surahTotal) * 100) : 0;
+
+  // Due reviews
   var $dueCount = $dueReviews.length;
-  $html += '<div class="dh-card" id="dash-path-mixed-review" role="button" tabindex="0">';
-  $html += '<div class="dh-card-header">';
-  $html += '<div class="dh-card-icon" style="background:rgba(74,158,107,0.12)">\uD83D\uDD01</div>';
-  $html += '<div class="dh-card-title-group">';
-  $html += '<div class="dh-card-title">Mixed Review</div>';
-  $html += '<div class="dh-card-subtitle">Reinforce previously learned vocabulary</div>';
+
+  // ── Build HTML ──
+  var $html = '';
+
+  // 1. Greeting
+  $html += '<div class="db-greeting">';
+  $html += '<span class="db-greeting-icon" aria-hidden="true">&#x1F4D6;</span>';
+  $html += '<div>';
+  $html += '<h2 class="db-greeting-title">Assalamu Alaikum</h2>';
+  $html += '<p class="db-greeting-sub">Your journey to understand the Quran</p>';
   $html += '</div></div>';
+
+  // Comprehension ring offset
+  var $covOffset = Math.min(100, Math.max(0, Math.round(($comprehensionPct / 100) * 100)));
+
+  // 2. Quran Comprehension Card
+  $html += '<div class="db-card db-card-highlight">';
+  $html += '<div class="db-comp-row">';
+  $html += '<div class="db-ring-wrap">';
+  $html += '<svg class="db-ring" viewBox="0 0 36 36">';
+  $html += '<path class="db-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />';
+  $html += '<path class="db-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $covOffset + ', 100" />';
+  $html += '<text class="db-ring-text" x="18" y="20.5">' + $comprehensionPct + '%</text>';
+  $html += '</svg></div>';
+  $html += '<div class="db-comp-info">';
+  $html += '<div class="db-comp-label">Quran Comprehension</div>';
+  $html += '<div class="db-comp-value">' + $masteredCount + ' words</div>';
+  $html += '<div class="db-comp-detail">' + $masteredCount + ' of ' + $totalWords + ' words mastered</div>';
+  $html += '</div></div></div>';
+
+  // 3. Continue Learning (action card)
+  var $continueLabel = $fCompleted === 0 ? 'Start Foundation Course' : ($fCompleted >= $fTotal ? 'Course Complete' : 'Continue Foundation Course');
+  $html += '<div class="db-card db-action-card db-card-highlight" id="db-continue" role="button" tabindex="0">';
+  $html += '<div class="db-card-row">';
+  $html += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">&#x25B6;</div>';
+  $html += '<div class="db-card-body">';
+  $html += '<div class="db-card-title">' + $continueLabel + '</div>';
+  $html += '<div class="db-card-sub">Foundation ' + Math.min($fCompleted + 1, $fTotal) + ' of ' + $fTotal + ' lessons</div>';
+  $html += '</div>';
+  $html += '<span class="db-arrow">&#x2192;</span>';
+  $html += '</div>';
+  $html += '<div class="db-progress">';
+  $html += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $foundationsPct + '%"></div></div>';
+  $html += '<span class="db-progress-text">' + $foundationsPct + '%</span>';
+  $html += '</div></div>';
+
+  // 4. Foundation Course info card
+  $html += '<div class="db-card db-action-card" id="db-foundation" role="button" tabindex="0">';
+  $html += '<div class="db-card-row">';
+  $html += '<div class="db-card-icon" style="background:rgba(201,168,76,0.1)">&#x1F4D8;</div>';
+  $html += '<div class="db-card-body">';
+  $html += '<div class="db-card-title">Foundation Course</div>';
+  $html += '<div class="db-card-sub">' + $fCompleted + ' of ' + $fTotal + ' lessons completed</div>';
+  $html += '</div>';
+  $html += '<span class="db-arrow">&#x2192;</span>';
+  $html += '</div>';
+  $html += '<div class="db-progress">';
+  $html += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $foundationsPct + '%"></div></div>';
+  $html += '<span class="db-progress-text">' + $foundationsPct + '%</span>';
+  $html += '</div></div>';
+
+  // 5. Learn by Surah
+  $html += '<div class="db-card db-action-card" id="db-surah" role="button" tabindex="0">';
+  $html += '<div class="db-card-row">';
+  $html += '<div class="db-card-icon" style="background:rgba(74,126,194,0.1)">&#x1F4D6;</div>';
+  $html += '<div class="db-card-body">';
+  $html += '<div class="db-card-title">Learn by Surah</div>';
+  $html += '<div class="db-card-sub">' + $surahCompleted + ' of ' + $surahTotal + ' surahs</div>';
+  $html += '</div>';
+  $html += '<span class="db-arrow">&#x2192;</span>';
+  $html += '</div>';
+  $html += '<div class="db-progress">';
+  $html += '<div class="db-progress-track"><div class="db-progress-fill db-fill-blue" style="width:' + $surahPct + '%"></div></div>';
+  $html += '<span class="db-progress-text">' + $surahPct + '%</span>';
+  $html += '</div></div>';
+
+  // 6. Due Reviews (only shown when due reviews exist)
   if ($dueCount > 0) {
-    $html += '<div class="dh-card-due-badge">' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' due</div>';
+    $html += '<div class="db-card db-card-due" id="db-review" role="button" tabindex="0">';
+    $html += '<div class="db-card-row">';
+    $html += '<div class="db-card-icon" style="background:rgba(74,158,107,0.12)">&#x1F501;</div>';
+    $html += '<div class="db-card-body">';
+    $html += '<div class="db-card-title">Due Reviews</div>';
+    $html += '<div class="db-card-sub">' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' ready for review</div>';
+    $html += '</div>';
+    $html += '<span class="db-badge">' + $dueCount + '</span>';
+    $html += '</div></div>';
   }
-  $html += '<div class="dh-card-desc">Keep your memory strong with a quick review session.</div>';
-  $html += '<div class="dh-card-footer">';
-  $html += '<span class="dh-card-pct" style="color:' + ($dueCount > 0 ? 'var(--gold)' : 'var(--green)') + '">' + ($dueCount > 0 ? '\uD83D\uDD14 ' + $dueCount + ' due' : '\u2705 All caught up') + '</span>';
-  $html += '<span class="dh-card-action">' + ($dueCount > 0 ? 'Start Review' : 'Learning Paths') + ' \u2192</span>';
+
+  // 7. Recent Achievements
+  $html += '<div class="db-achievement">';
+  $html += '<div class="db-ach-title">Recent Achievements</div>';
+  $html += '<div class="db-ach-row">';
+  $html += '<span class="db-ach-item">&#x1F525; ' + $streak + '-day streak</span>';
+  $html += '<span class="db-ach-item">&#x1F4A1; ' + $masteredCount + ' mastered</span>';
+  $html += '<span class="db-ach-item">&#x1F4DA; ' + $totalWords + ' total words</span>';
   $html += '</div></div>';
-  
+
   $d.innerHTML = $html;
-  
+
   // ── Wire card clicks ──
   function $wire(id, fn) {
     var $el = document.getElementById(id);
@@ -2994,34 +2988,42 @@ function renderDashboard() {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
     };
   }
-  
-  $wire('dash-path-foundation', function() {
+
+  $wire('db-continue', function() {
     if (typeof goToFoundationLesson === 'function') {
       goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
     } else {
       if (typeof switchView === 'function') switchView('learn');
     }
   });
-  
-  $wire('dash-path-lessons', function() {
+
+  $wire('db-foundation', function() {
+    if (typeof goToFoundationLesson === 'function') {
+      goToFoundationLesson(0);
+    } else if (typeof switchView === 'function') {
+      switchView('learn');
+    }
+  });
+
+  $wire('db-surah', function() {
     if (typeof switchView === 'function') switchView('learn');
   });
-  
-  $wire('dash-path-mixed-review', function() {
+
+  $wire('db-review', function() {
     if ($dueCount > 0 && typeof startReview === 'function') {
       startReview();
     } else if (typeof switchView === 'function') {
       switchView('learn');
     }
   });
-  
+
   // ── Update bottom stats ──
   if (typeof updateStatsDisplay === 'function') updateStatsDisplay();
   if (typeof updateReviewBanner === 'function') updateReviewBanner();
-  
+
   } catch (e) {
     console.error('[dashboard] renderDashboard error:', e);
     var $d2 = document.getElementById('dashboard-grid');
-    if ($d2) $d2.innerHTML = '<div class="dh-error">Something went wrong loading the dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
+    if ($d2) $d2.innerHTML = '<div class="db-error">Something went wrong loading the dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
   }
 }
