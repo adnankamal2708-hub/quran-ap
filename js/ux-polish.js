@@ -71,7 +71,7 @@ function showOnboarding() {
   }
   overlay.style.display = 'flex';
   // Prevent body scroll
-  document.body.style.overflow = 'hidden';
+  document.body.classList.add('body-overflow-locked');
   // Trap focus
   trapOnboardingFocus(overlay);
   // Wire keyboard navigation
@@ -85,8 +85,8 @@ function hideOnboarding() {
   var overlay = document.getElementById('onboarding-overlay');
   if (overlay) {
     overlay.style.display = 'none';
-    document.body.style.overflow = '';
   }
+  document.body.classList.remove('body-overflow-locked');
   releaseOnboardingFocus();
 }
 
@@ -194,7 +194,10 @@ function wireOnboardingEvents() {
 /** Handle keyboard navigation during onboarding */
 var _onboardingKeyHandler = function(e) {
   var overlay = document.getElementById('onboarding-overlay');
-  if (!overlay || overlay.style.display !== 'flex') return;
+  if (!overlay || overlay.style.display !== 'flex') {
+    document.body.classList.remove('body-overflow-locked');
+    return;
+  }
   
   if (e.key === 'Escape') {
     e.preventDefault();

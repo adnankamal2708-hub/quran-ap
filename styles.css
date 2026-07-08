@@ -2531,6 +2531,11 @@ body::before {
 .flex-1 { flex: 1 !important; }
 .gap-8 { gap: 8px !important; }
 
+/* ── Body overflow lock (used by onboarding/modal lifecycle) ── */
+.body-overflow-locked {
+  overflow: hidden !important;
+}
+
 /* ── Screen-reader only helper ────────────────────────────── */
 .sr-only {
   position: absolute;
@@ -4123,7 +4128,6 @@ body::before {
 /* When the splash morphs away, the app gently fades in with upward slide */
 .app-morph-entering {
   animation: appEntrance 0.65s cubic-bezier(0.35, 0, 0.15, 1) forwards;
-  overflow: clip;
 }
 
 @keyframes appEntrance {

@@ -1547,6 +1547,17 @@ function init() {
             console.log('[startup] [17] Splash removed — app should be interactive now');
           } catch (e) { /* ignore */ }
         }, 800);
+        
+        // Safety timeout: ensure app-morph-entering is ALWAYS removed
+        // even if the splash removal above fails silently.
+        setTimeout(function() {
+          try {
+            if (appEl && appEl.classList.contains('app-morph-entering')) {
+              appEl.classList.remove('app-morph-entering');
+              console.log('[startup] [safety] Cleaned up stray app-morph-entering class');
+            }
+          } catch (e) { /* ignore */ }
+        }, 5000);
       } catch (e) { /* ignore */ }
     }, delay);
   }

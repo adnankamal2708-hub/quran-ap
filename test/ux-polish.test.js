@@ -186,10 +186,14 @@ global.document = {
     return el;
   },
   getElementById: function(id) { return _elementById[id] || null; },
-  body: {
-    style: {},
-    appendChild: function(el) { _bodyChildren.push(el); el.parentNode = this; },
-  },
+  body: (function() {
+    var bodyClassList = { _set: {}, add: function(c) { this._set[c] = true; }, remove: function(c) { delete this._set[c]; }, contains: function(c) { return !!this._set[c]; } };
+    return {
+      style: {},
+      classList: bodyClassList,
+      appendChild: function(el) { _bodyChildren.push(el); el.parentNode = this; },
+    };
+  })(),
   addEventListener: function(event, handler) {
     if (!_eventListeners[event]) { _eventListeners[event] = []; }
     _eventListeners[event].push(handler);
@@ -705,7 +709,7 @@ suite('showOnboarding / hideOnboarding', function() {
   test('showOnboarding prevents body scroll', function() {
     _resetDOM();
     ux.showOnboarding();
-    assert.strictEqual(document.body.style.overflow, 'hidden');
+    assert.strictEqual(document.body.classList.contains('body-overflow-locked'), true);
   });
 
   test('showOnboarding registers events and shows first slide', function() {
@@ -730,7 +734,7 @@ suite('showOnboarding / hideOnboarding', function() {
     ux.showOnboarding();
     ux.hideOnboarding();
     assert.strictEqual(document.getElementById('onboarding-overlay').style.display, 'none');
-    assert.strictEqual(document.body.style.overflow, '');
+    assert.strictEqual(document.body.classList.contains('body-overflow-locked'), false);
   });
 
   test('hideOnboarding releases event handlers', function() {
