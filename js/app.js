@@ -288,10 +288,14 @@ function updateLessonProgressDisplay() {
     var fCurrent = activeLessonIndex + 1;
     var isReview = FOUNDATION_LESSONS[activeLessonIndex] && FOUNDATION_LESSONS[activeLessonIndex].isReview;
 
+    var fLesson = FOUNDATION_LESSONS[activeLessonIndex];
+    var fCtx = typeof getFoundationLessonContextMsg === 'function' ? getFoundationLessonContextMsg(activeLessonIndex) : { title: '', context: '', comprehensionGain: '', cumulativeMsg: '' };
+
     if (lessonLabel) {
-      var fLesson = FOUNDATION_LESSONS[activeLessonIndex];
-      var coverage = fLesson ? fLesson.cumulativeCoverage : '';
-      lessonLabel.textContent = 'Foundation ' + fCurrent + ' of ' + fTotal + ' (' + coverage + ')';
+      // Show thematic title + lesson number + comprehension projection
+      var thematicTitle = fCtx.title || (isReview ? 'Review ' + fCurrent : 'Foundation ' + fCurrent);
+      var compGain = fLesson && fLesson.comprehensionGain > 0 ? ' (+' + fLesson.comprehensionGain + '% comprehension)' : '';
+      lessonLabel.textContent = thematicTitle + ' \u2014 ' + fCurrent + ' of ' + fTotal + compGain;
     }
 
     var lessonProgress = DOM.get('lesson-progress');
@@ -302,13 +306,22 @@ function updateLessonProgressDisplay() {
 
     var lessonProgressText = DOM.get('lesson-progress-text');
     if (lessonProgressText) {
-      lessonProgressText.textContent = fCompleted + ' of ' + fTotal + ' foundation lessons complete';
+      // Show comprehension projection
+      var comprehensionText = '';
+      if (fLesson && fLesson.projectedComprehension > 0) {
+        comprehensionText = ' \u00B7 ~' + fLesson.projectedComprehension + '% comprehension';
+      }
+      lessonProgressText.textContent = fCompleted + ' of ' + fTotal + ' foundation lessons complete' + comprehensionText;
     }
 
-    // Update foundation-specific lesson coverage display
+    // Update foundation-specific lesson coverage display with thematic context and comprehension projection
     var foundationCoverageEl = DOM.get('foundation-coverage');
     if (foundationCoverageEl && fLesson) {
-      foundationCoverageEl.textContent = 'This lesson covers ' + fLesson.lessonCoverage + ' of Quranic vocabulary · Cumulative: ' + fLesson.cumulativeCoverage;
+      var compMsg = fCtx.comprehensionGain ? ' · ' + fCtx.comprehensionGain : '';
+      var contextMsg = fCtx.context ? '<div style="color:var(--text-muted);font-size:10px;margin-top:4px">' + fCtx.context + '</div>' : '';
+      foundationCoverageEl.innerHTML = '<div style="color:var(--gold);font-weight:500">' + fCtx.title + compMsg + '</div>' +
+        '<div style="color:var(--green);font-size:10px;margin-top:2px">' + fLesson.lessonCoverage + ' of Quranic vocabulary · Cumulative: ' + fLesson.cumulativeCoverage + '</div>' +
+        contextMsg;
       foundationCoverageEl.style.display = 'block';
     }
 
@@ -354,14 +367,17 @@ function updateLessonProgressDisplay() {
     var continueBtn = DOM.get('continue-learning-btn');
     if (continueBtn) {
       var nextIncomplete = getNextIncompleteFoundationLesson();
+      var nextLessonCtx = (nextIncomplete < fTotal && typeof getFoundationLessonContextMsg === 'function') 
+        ? getFoundationLessonContextMsg(nextIncomplete) : { title: '' };
+      var nextTitle = nextLessonCtx.title ? ' \u2014 ' + nextLessonCtx.title : '';
       if (nextIncomplete === 0 && isFoundationLessonCompleted(0) && fTotal > 0) {
         continueBtn.textContent = '🎉 Foundation Complete!';
         continueBtn.disabled = true;
       } else if (nextIncomplete === activeLessonIndex) {
-        continueBtn.textContent = '📖 Continue Foundation ' + (nextIncomplete + 1);
+        continueBtn.textContent = '📖 Foundation ' + (nextIncomplete + 1) + nextTitle;
         continueBtn.disabled = false;
       } else if (isFoundationLessonCompleted(activeLessonIndex) && nextIncomplete < fTotal) {
-        continueBtn.textContent = '🔓 Unlock Foundation ' + (nextIncomplete + 1) + '!';
+        continueBtn.textContent = '🔓 Unlock Foundation ' + (nextIncomplete + 1) + nextTitle;
         continueBtn.disabled = false;
       } else {
         continueBtn.textContent = '📖 Continue Foundation ' + (nextIncomplete + 1);

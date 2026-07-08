@@ -1199,6 +1199,29 @@ function renderStats() {
         var compRow = document.createElement('div');
         compRow.className = 'stats-bar-row';
         compRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">🧠 Estimated comprehension: ' + coverage.estimatedComprehension + '%</span>';
+        if ($sight) {
+          var $sTodayCls = $sight.todayChange >= 0 ? 'var(--green)' : 'var(--red)';
+          var $sWeekCls = $sight.weekChange >= 0 ? 'var(--green)' : 'var(--red)';
+          var $sMonthCls = $sight.monthChange >= 0 ? 'var(--green)' : 'var(--red)';
+          var $sTodayFmt = $sight.todayChange > 0 ? '+' + $sight.todayChange.toFixed(1) + '%' : ($sight.todayChange < 0 ? $sight.todayChange.toFixed(1) + '%' : '± 0%');
+          var $sWeekFmt = $sight.weekChange > 0 ? '+' + $sight.weekChange.toFixed(1) + '%' : ($sight.weekChange < 0 ? $sight.weekChange.toFixed(1) + '%' : '± 0%');
+          var $sMonthFmt = $sight.monthChange > 0 ? '+' + $sight.monthChange.toFixed(1) + '%' : ($sight.monthChange < 0 ? $sight.monthChange.toFixed(1) + '%' : '± 0%');
+          var $sDeltaRow = document.createElement('div');
+          $sDeltaRow.className = 'stats-bar-row';
+          $sDeltaRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);padding:1px 0">Today <span style="color:' + $sTodayCls + '">' + $sTodayFmt + '</span> \u00B7 Week <span style="color:' + $sWeekCls + '">' + $sWeekFmt + '</span> \u00B7 Month <span style="color:' + $sMonthCls + '">' + $sMonthFmt + '</span></span>';
+          foundationStatsContainer.appendChild($sDeltaRow);
+          // Milestone insight
+          if ($sight.milestoneCurrent) {
+            var $sMSRow = document.createElement('div');
+            $sMSRow.className = 'stats-bar-row';
+            $sMSRow.innerHTML = '<span style="font-size:10px;color:var(--gold);padding:2px 0">' + $sight.milestoneCurrent.icon + ' Milestone: ' + $sight.milestoneCurrent.label + '</span>';
+            foundationStatsContainer.appendChild($sMSRow);
+            var $sInsightRow = document.createElement('div');
+            $sInsightRow.className = 'stats-bar-row';
+            $sInsightRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);font-style:italic;padding:1px 0">' + $sight.insightMessage + '</span>';
+            foundationStatsContainer.appendChild($sInsightRow);
+          }
+        }
         foundationStatsContainer.appendChild(compRow);
         var statsRow = document.createElement('div');
         statsRow.className = 'stats-bar-row';
@@ -2907,6 +2930,40 @@ function renderDashboard() {
   $html += '<div class="db-comp-label">Quran Comprehension</div>';
   $html += '<div class="db-comp-value">' + $masteredCount + ' words</div>';
   $html += '<div class="db-comp-detail">' + $masteredCount + ' of ' + $totalWords + ' words mastered</div>';
+  var $insight = typeof getComprehensionInsight === 'function' ? getComprehensionInsight() : null;
+  if ($insight) {
+    var $tCls = $insight.todayChange >= 0 ? 'var(--green)' : 'var(--red)';
+    var $wCls = $insight.weekChange >= 0 ? 'var(--green)' : 'var(--red)';
+    var $mCls = $insight.monthChange >= 0 ? 'var(--green)' : 'var(--red)';
+    var $tFmt = $insight.todayChange > 0 ? '+' + $insight.todayChange.toFixed(1) + '%' : ($insight.todayChange < 0 ? $insight.todayChange.toFixed(1) + '%' : '± 0%');
+    var $wFmt = $insight.weekChange > 0 ? '+' + $insight.weekChange.toFixed(1) + '%' : ($insight.weekChange < 0 ? $insight.weekChange.toFixed(1) + '%' : '± 0%');
+    var $mFmt = $insight.monthChange > 0 ? '+' + $insight.monthChange.toFixed(1) + '%' : ($insight.monthChange < 0 ? $insight.monthChange.toFixed(1) + '%' : '± 0%');
+    $html += '<div class="db-delta-row" style="font-size:10px;padding:2px 0"><span style="color:' + $tCls + '">Today: ' + $tFmt + '</span> <span style="color:' + $wCls + '">Week: ' + $wFmt + '</span> <span style="color:' + $mCls + '">Month: ' + $mFmt + '</span></div>';
+    if ($insight.milestoneCurrent) {
+      $html += '<div class="db-milestone-row" style="font-size:10px;color:var(--gold);padding:1px 0">' + $insight.milestoneCurrent.icon + ' ' + $insight.milestoneCurrent.label + '</div>';
+      $html += '<div class="db-insight-message" style="font-size:9px;color:var(--text-muted);font-style:italic;padding:1px 0">' + $insight.insightMessage + '</div>';
+    }
+    if ($insight.milestoneNext) {
+      $html += '<div class="db-next-milestone" style="font-size:9px;color:var(--gold-dim);padding:1px 0">Next: ' + $insight.milestoneNext.label + ' (' + $insight.milestoneNext.pct + '%)</div>';
+    }
+  };
+  var $insight = typeof getComprehensionInsight === 'function' ? getComprehensionInsight() : null;
+  if ($insight) {
+    var $tCls = $insight.todayChange >= 0 ? 'var(--green)' : 'var(--red)';
+    var $wCls = $insight.weekChange >= 0 ? 'var(--green)' : 'var(--red)';
+    var $mCls = $insight.monthChange >= 0 ? 'var(--green)' : 'var(--red)';
+    var $tFmt = $insight.todayChange > 0 ? '+' + $insight.todayChange.toFixed(1) + '%' : ($insight.todayChange < 0 ? $insight.todayChange.toFixed(1) + '%' : '± 0%');
+    var $wFmt = $insight.weekChange > 0 ? '+' + $insight.weekChange.toFixed(1) + '%' : ($insight.weekChange < 0 ? $insight.weekChange.toFixed(1) + '%' : '± 0%');
+    var $mFmt = $insight.monthChange > 0 ? '+' + $insight.monthChange.toFixed(1) + '%' : ($insight.monthChange < 0 ? $insight.monthChange.toFixed(1) + '%' : '± 0%');
+    $html += '<div class="db-delta-row"><span style="font-size:10px;color:' + $tCls + '">Today: ' + $tFmt + '</span> <span style="font-size:10px;color:' + $wCls + '">Week: ' + $wFmt + '</span> <span style="font-size:10px;color:' + $mCls + '">Month: ' + $mFmt + '</span></div>';
+    if ($insight.milestoneCurrent) {
+      $html += '<div class="db-milestone-row"><span>' + $insight.milestoneCurrent.icon + ' Milestone: ' + $insight.milestoneCurrent.label + '</span></div>';
+      $html += '<div class="db-insight-message" style="font-size:9px;color:var(--text-muted);font-style:italic;padding:2px 0">' + $insight.insightMessage + '</div>';
+    }
+    if ($insight.milestoneNext) {
+      $html += '<div class="db-next-milestone" style="font-size:9px;color:var(--gold-dim);padding:2px 0">Next: ' + $insight.milestoneNext.label + ' (' + $insight.milestoneNext.pct + '%)</div>';
+    }
+  }
   $html += '</div></div></div>';
 
   // 3. Continue Learning (action card)

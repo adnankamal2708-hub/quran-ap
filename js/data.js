@@ -457,15 +457,59 @@ function buildFoundationCourse() {
     var lessonNum = li + 1;
     var isReview = (lessonNum % 5 === 0);
     
+    // Compute comprehension projection for educational display
+    var lessonCoverageNum = totalOcc > 0 ? (lessonOcc / totalOcc * 100) : 0;
+    var cumulativeCoverageNum = totalOcc > 0 ? (cumulativeOcc / totalOcc * 100) : 0;
+    var curComprehensionNum = cumulativeCoverageNum > 0 && cumulativeCoverageNum > lessonCoverageNum
+      ? Math.min(95, Math.round(1.3 * Math.pow(Math.max(0, cumulativeCoverageNum - lessonCoverageNum), 0.7) * 10) / 10)
+      : 0;
+    var projComprehensionNum = cumulativeCoverageNum > 0
+      ? Math.min(95, Math.round(1.3 * Math.pow(cumulativeCoverageNum, 0.7) * 10) / 10)
+      : 0;
+    var wordsRemaining = FOUNDATION_WORDS_PER_LESSON * (FOUNDATION_LESSON_COUNT - li - 1);
+    
+    // Thematic titles and context for each lesson
+    var thematicTitles = [
+      'The Essential Framework',
+      'Core Quranic Verbs',
+      'Divine Descriptions',
+      'Key Particles & Ideas',
+      'Review & Consolidation I',
+      'Humanity & Faith',
+      'Prophets & Revelation',
+      'Judgment & Afterlife',
+      'Advanced Quranic Terms',
+      'Review & Mastery II',
+    ];
+    var lessonContexts = [
+      'These are the most frequent words in the Quran. Mastering them unlocks the basic structure of every verse.',
+      'These verbs and nouns appear hundreds of times. Understanding them transforms how you read passages about creation and faith.',
+      'These words describe divine attributes, actions, and the relationship between Creator and creation.',
+      'These particles connect Quranic ideas. They appear in nearly every verse and are essential for sentence structure.',
+      'Review and reinforce the first 50 words. Strengthen your recall before the next tier of vocabulary.',
+      'These words introduce key concepts about human nature, faith, and the purpose of life in the Quran.',
+      'Vocabulary related to prophets, revelation, and the stories carrying the core message of the Quran.',
+      'Words describing the Hereafter, judgment, and consequences of human actions — central Quranic themes.',
+      'Nuanced vocabulary about knowledge, patience, and deeper spiritual concepts from the Quran.',
+      'Final review of all 100 foundation words. After this you recognize ~84% of all Quranic word occurrences.',
+    ];
+    
     FOUNDATION_LESSONS.push({
       id: lessonNum,
       label: isReview ? 'Review ' + lessonNum : 'Foundation ' + lessonNum,
+      thematicTitle: thematicTitles[li] || 'Foundation ' + lessonNum,
+      lessonContext: lessonContexts[li] || '',
       start: start,
       end: end,
       wordCount: end - start,
       wordIds: wordIds,
-      lessonCoverage: totalOcc > 0 ? (lessonOcc / totalOcc * 100).toFixed(1) + '%' : '0%',
-      cumulativeCoverage: totalOcc > 0 ? (cumulativeOcc / totalOcc * 100).toFixed(1) + '%' : '0%',
+      lessonCoverage: totalOcc > 0 ? lessonCoverageNum.toFixed(1) + '%' : '0%',
+      cumulativeCoverage: totalOcc > 0 ? cumulativeCoverageNum.toFixed(1) + '%' : '0%',
+      lessonCoverageNum: lessonCoverageNum,
+      cumulativeCoverageNum: cumulativeCoverageNum,
+      comprehensionGain: Math.round((projComprehensionNum - curComprehensionNum) * 10) / 10,
+      projectedComprehension: projComprehensionNum,
+      remainingAfterLesson: Math.max(0, wordsRemaining),
       isReview: isReview,
     });
   }
@@ -1072,6 +1116,295 @@ function getTotalFoundationOccurrences() {
   }
   return total;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// QURAN COMPREHENSION TRACKER — Understanding & Milestones
+//
+// Provides:
+//   • Current comprehension percentage (estimated from occurrence coverage)
+//   • Previous comprehension values (yesterday, last week, last month)
+//   • Deltas (today's gain, weekly gain, monthly gain)
+//   • Educational milestone messages at every key threshold
+//   • Smooth animation-ready values for UI display
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Comprehension Milestones with educational explanations.
+ * Each threshold explains what the learner can now do.
+ */
+const COMPREHENSION_MILESTONES = [
+  { pct: 5, label: 'First Glimpses', icon: '🌱', insight: 'You can now recognize approximately one out of every twenty Quran words.' },
+  { pct: 10, label: 'Building Blocks', icon: '🧱', insight: 'One in ten words familiar! You can begin to spot repeated vocabulary across different surahs.' },
+  { pct: 15, label: 'Growing Familiarity', icon: '🌿', insight: 'You now understand enough that short verses begin to feel accessible.' },
+  { pct: 20, label: 'Recognizing Patterns', icon: '📖', insight: 'One in five words is known! You can identify the topic of many verses.' },
+  { pct: 25, label: 'Quarter Milestone', icon: '⭐', insight: 'You can now recognize approximately one out of every four Quran words.' },
+  { pct: 30, label: 'Solid Foundation', icon: '🏗️', insight: 'Nearly one in three words familiar! You can grasp the flow of longer passages.' },
+  { pct: 40, label: 'Strong Progress', icon: '🔥', insight: 'Two in five words! You can follow the structure of most verses.' },
+  { pct: 50, label: 'Major Milestone', icon: '👑', insight: 'Half the words recognized! You understand key Quranic concepts directly.' },
+  { pct: 60, label: 'Confident Reader', icon: '📚', insight: 'Three in five words! You can study most verses with a tafsir.' },
+  { pct: 70, label: 'Advanced Understanding', icon: '🎯', insight: 'Seven in ten words! Only specialized or rare vocabulary remains unfamiliar.' },
+  { pct: 80, label: 'Near Complete', icon: '💎', insight: 'Four in five words! Working knowledge of almost the entire Quranic vocabulary.' },
+  { pct: 90, label: 'Expert Level', icon: '🏆', insight: 'Nine in ten words! Deep understanding of Quranic Arabic.' },
+  { pct: 95, label: 'Virtually Complete', icon: '🌟', insight: 'Only the rarest words remain unfamiliar.' },
+  { pct: 100, label: 'Complete Mastery', icon: '💫', insight: 'All vocabulary mastered! The Quran is now open to you.' },
+];
+
+/**
+ * Get the current comprehension milestone and next milestone.
+ */
+function getComprehensionMilestone(comprehensionPercent) {
+  var current = null;
+  var next = null;
+  for (var mi = 0; mi < COMPREHENSION_MILESTONES.length; mi++) {
+    if (comprehensionPercent >= COMPREHENSION_MILESTONES[mi].pct) {
+      current = COMPREHENSION_MILESTONES[mi];
+    } else {
+      next = COMPREHENSION_MILESTONES[mi];
+      break;
+    }
+  }
+  var progressToNext = 0;
+  if (current && next) {
+    var range = next.pct - current.pct;
+    var achieved = comprehensionPercent - current.pct;
+    progressToNext = range > 0 ? Math.min(100, Math.round((achieved / range) * 100)) : 0;
+  } else if (current && !next) {
+    progressToNext = 100;
+  }
+  return { current: current, next: next, progressToNext: progressToNext };
+}
+
+/**
+ * Get an educational insight message for the current comprehension level.
+ */
+function getComprehensionInsightMessage(comprehensionPercent) {
+  var milestone = getComprehensionMilestone(comprehensionPercent);
+  if (milestone && milestone.current) {
+    return milestone.current.insight;
+  }
+  return 'Start learning Quranic vocabulary to build your comprehension.';
+}
+
+/**
+ * Get comprehension deltas (changes over time) from analytics history.
+ */
+function getComprehensionDeltas() {
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var currentValue = coverage ? coverage.estimatedComprehension : 0;
+  var history = (typeof window.__analytics !== 'undefined' && window.__analytics.getHistory)
+    ? window.__analytics.getHistory() : [];
+  if (history.length > 0) {
+    history.sort(function(a, b) { return a.date.localeCompare(b.date); });
+  }
+  var today = _getTodayKey();
+  var yesterday = _getRelativeDateKey(-1);
+  var weekAgo = _getRelativeDateKey(-7);
+  var monthAgo = _getRelativeDateKey(-30);
+  var yesterdayValue = 0;
+  var weekAgoValue = 0;
+  var monthAgoValue = 0;
+  for (var hi = 0; hi < history.length; hi++) {
+    var entry = history[hi];
+    if (entry.date === yesterday) yesterdayValue = entry.comprehension || 0;
+    if (entry.date === weekAgo || (!weekAgoValue && entry.date <= yesterday)) weekAgoValue = entry.comprehension || 0;
+    if (entry.date === monthAgo || (!monthAgoValue && entry.date <= weekAgo)) monthAgoValue = entry.comprehension || 0;
+  }
+  return {
+    currentValue: currentValue,
+    yesterdayValue: yesterdayValue,
+    weekAgoValue: weekAgoValue,
+    monthAgoValue: monthAgoValue,
+    todayChange: currentValue - yesterdayValue,
+    weekChange: currentValue - weekAgoValue,
+    monthChange: currentValue - monthAgoValue,
+  };
+}
+
+/**
+ * Format a comprehension delta as a display string.
+ */
+function formatComprehensionDelta(value) {
+  if (value === 0) return '0';
+  var sign = value > 0 ? '+' : '';
+  return sign + value.toFixed(1) + '%';
+}
+
+/**
+ * Get the full comprehension insight object for dashboard display.
+ */
+function getComprehensionInsight() {
+  var deltas = getComprehensionDeltas();
+  var milestone = getComprehensionMilestone(deltas.currentValue);
+  var insightMessage = getComprehensionInsightMessage(deltas.currentValue);
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  return {
+    currentValue: deltas.currentValue,
+    yesterdayValue: deltas.yesterdayValue,
+    weekAgoValue: deltas.weekAgoValue,
+    monthAgoValue: deltas.monthAgoValue,
+    todayChange: deltas.todayChange,
+    weekChange: deltas.weekChange,
+    monthChange: deltas.monthChange,
+    milestoneCurrent: milestone.current,
+    milestoneNext: milestone.next,
+    progressToNextMilestone: milestone.progressToNext,
+    insightMessage: insightMessage,
+    masteredOccurrences: coverage ? coverage.masteredOccurrences : 0,
+    totalOccurrences: coverage ? coverage.totalOccurrences : 0,
+    masteredWords: coverage ? coverage.masteredWords : 0,
+    totalWords: coverage ? coverage.totalWords : 0,
+  };
+}
+
+/** Format a number with leading zero */
+function _padDate(n) {
+  return n < 10 ? '0' + n : '' + n;
+}
+
+/** Get today's date as YYYY-MM-DD (padded, matching analytics.js format) */
+function _getTodayKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + _padDate(d.getMonth() + 1) + '-' + _padDate(d.getDate());
+}
+
+/** Get a date offset by offsetDays from today, as YYYY-MM-DD */
+function _getRelativeDateKey(offsetDays) {
+  var d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.getFullYear() + '-' + _padDate(d.getMonth() + 1) + '-' + _padDate(d.getDate());
+}
+/**
+ * shown at different Foundation Course progress levels.
+ * Each level has multiple messages for variety when displayed to the user.
+ */
+var FOUNDATION_MILESTONE_MESSAGES = [
+  { pct: 0, messages: [
+    'Every great journey begins with a single word. You are taking the most effective path to understanding the Quran.',
+    'The 100 most frequent words make up ~84% of all word occurrences. Each lesson brings you closer.',
+  ] },
+  { pct: 10, messages: [
+    'You now understand approximately {comprehension}% of all word occurrences. This is real, measurable progress.',
+    'You are building a foundation that will serve every verse you read. Keep going!',
+  ] },
+  { pct: 25, messages: [
+    'One quarter complete! You recognize vocabulary used in most Quranic verses.',
+    'These words appear {occurrences} times throughout the Quran. You are building real comprehension.',
+  ] },
+  { pct: 50, messages: [
+    'Halfway through the Foundation Course! You now understand approximately {comprehension}% of word occurrences.',
+    'Fifty words mastered. These alone cover a significant portion of every surah you read.',
+  ] },
+  { pct: 75, messages: [
+    'Three quarters done! Most short surahs are now accessible to you.',
+    'You have mastered vocabulary from {roots} unique root families. The patterns of Arabic are becoming clear.',
+  ] },
+  { pct: 90, messages: [
+    'The final stretch! Nearly all foundation words mastered. The Quran is opening to you.',
+    'After this course, you will recognize approximately {comprehension}% of all word occurrences.',
+  ] },
+  { pct: 100, messages: [
+    'Foundation Course Complete! You now understand approximately {comprehension}% of all word occurrences \u2014 covering ~84% of the entire Quran.',
+    'You mastered the 100 most frequent Quranic words \u2014 vocabulary used thousands of times throughout the Quran.',
+    'The Foundation Course has given you the essential vocabulary. Now explore surah by surah, or continue with reviews.',
+  ] },
+];
+
+/**
+ * Get an educational context message explaining why the current foundation lesson matters.
+ * Returns an object with title, context, comprehensionGain, cumulativeMsg, totalOccurrences, rootCount.
+ */
+function getFoundationLessonContextMsg(lessonIndex) {
+  if (!FOUNDATION_LESSONS || lessonIndex >= FOUNDATION_LESSONS.length) {
+    return { title: '', context: '', comprehensionGain: '', cumulativeMsg: '', totalOccurrences: 0, rootCount: 0 };
+  }
+  var lesson = FOUNDATION_LESSONS[lessonIndex];
+  var words = typeof getFoundationLessonWords === 'function' ? getFoundationLessonWords(lessonIndex) : [];
+  var totalOcc = 0;
+  for (var wi = 0; wi < words.length; wi++) totalOcc += words[wi].occ || 0;
+  var uniqueRoots = {};
+  for (var rwi = 0; rwi < words.length; rwi++) {
+    if (words[rwi].root && words[rwi].root !== '\u2014') uniqueRoots[words[rwi].root] = true;
+  }
+  var rootCount = Object.keys(uniqueRoots).length;
+  return {
+    title: lesson.thematicTitle || '',
+    context: lesson.lessonContext || '',
+    comprehensionGain: lesson.comprehensionGain !== undefined ? '+' + lesson.comprehensionGain + '% comprehension' : '',
+    cumulativeMsg: lesson.cumulativeCoverageNum
+      ? 'Cumulative: ' + lesson.cumulativeCoverage + ' of Quranic occurrences'
+      : '',
+    totalOccurrences: totalOcc,
+    rootCount: rootCount,
+  };
+}
+
+/**
+ * Get a meaningful educational milestone message based on Foundation Course progress.
+ * Returns { message, icon, progress } where message is a dynamic string with real stats.
+ */
+function getFoundationMilestoneMessage() {
+  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var pct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+  var comprehension = coverage ? coverage.estimatedComprehension : 0;
+  var masteredOcc = coverage ? coverage.masteredOccurrences : 0;
+  var roots = typeof getRootFamilyMastery === 'function' ? getRootFamilyMastery() : null;
+  var rootCount = roots ? roots.fullyMasteredRoots : 0;
+  
+  // Find the matching milestone level
+  var selected = FOUNDATION_MILESTONE_MESSAGES[0];
+  for (var mi = 0; mi < FOUNDATION_MILESTONE_MESSAGES.length; mi++) {
+    if (pct >= FOUNDATION_MILESTONE_MESSAGES[mi].pct) {
+      selected = FOUNDATION_MILESTONE_MESSAGES[mi];
+    }
+  }
+  
+  // Pick a random message from this level
+  var msgs = selected.messages;
+  var msg = msgs[Math.floor(Math.random() * msgs.length)];
+  msg = msg.replace('{comprehension}', String(comprehension));
+  msg = msg.replace('{occurrences}', masteredOcc.toLocaleString());
+  msg = msg.replace('{roots}', String(rootCount));
+  
+  var icon = pct >= 100 ? '\uD83C\uDF89' : pct >= 50 ? '\u2B50' : pct >= 25 ? '\uD83D\uDCA1' : '\uD83C\uDF31';
+  
+  return { message: msg, icon: icon, progress: pct };
+}
+
+/**
+ * Get the thematic title for a foundation lesson.
+ */
+function getFoundationLessonThematicTitle(lessonIndex) {
+  if (!FOUNDATION_LESSONS || lessonIndex >= FOUNDATION_LESSONS.length) return '';
+  return FOUNDATION_LESSONS[lessonIndex].thematicTitle || '';
+}
+
+/**
+ * Get comprehensive foundation course statistics for display on dashboard and lesson headers.
+ */
+function getFoundationCourseStats() {
+  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var fCoverage = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
+  var milestone = getFoundationMilestoneMessage();
+  return {
+    completed: fCompleted,
+    total: fTotal,
+    percent: fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0,
+    coveragePercent: coverage ? coverage.coveragePercent : 0,
+    estimatedComprehension: coverage ? coverage.estimatedComprehension : 0,
+    masteredWords: coverage ? coverage.masteredWords : 0,
+    totalWords: coverage ? coverage.totalWords : 0,
+    foundationCoveragePercent: fCoverage ? fCoverage.foundationCoveragePercent : 0,
+    masteredFoundationWords: fCoverage ? fCoverage.masteredFoundationWords : 0,
+    totalFoundationWords: fCoverage ? fCoverage.totalFoundationWords : 0,
+    milestoneMessage: milestone.message,
+    milestoneIcon: milestone.icon,
+  };
+}
+
 
 // ── Foundation Progress (localStorage) ──────────────────────────
 

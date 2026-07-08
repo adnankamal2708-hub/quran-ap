@@ -166,14 +166,14 @@ suite('Quiz Completion', function() {
     resetDOM();
     renderQuizCompletion(8, 10);
     var feedback = DOM.get('quiz-feedback');
-    assert.ok(feedback.textContent.length > 0);
+    assert.ok(feedback.innerHTML.length > 0);
   });
 
   test('renderQuizCompletion handles perfect score', function() {
     resetDOM();
     renderQuizCompletion(10, 10);
     var feedback = DOM.get('quiz-feedback');
-    assert.ok(feedback.textContent.indexOf('100%') >= 0 || feedback.textContent.indexOf('Excellent') >= 0);
+    assert.ok(feedback.innerHTML.indexOf('100%') >= 0 || feedback.innerHTML.indexOf('Excellent') >= 0);
   });
 
   test('renderQuizCompletion handles zero total without crash', function() {

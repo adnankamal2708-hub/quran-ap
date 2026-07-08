@@ -147,16 +147,42 @@ function answerQuiz(btn, chosen, correct, wordId) {
 }
 
 /**
- * Show quiz completion feedback.
+ * Show quiz completion feedback with educational milestone messages for Foundation Course.
  */
 function renderQuizCompletion(score, total) {
   var pct = total > 0 ? Math.round((score / total) * 100) : 0;
   DOM.get('quiz-word').textContent = '\uD83C\uDF89';
   DOM.get('quiz-options').innerHTML = '';
   var feedback = DOM.get('quiz-feedback');
-  var msg = pct >= 80 ? 'Excellent, mashAllah!' : pct >= 60 ? 'Good effort \u2014 review the harder ones.' : "Keep going, you'll get there!";
-  feedback.textContent = 'Done! ' + pct + '% \u2014 ' + msg;
-  feedback.style.color = 'var(--gold)';
+  var mode = (typeof getOrganizationMode === 'function' ? getOrganizationMode() : 'lesson');
+  
+  // Build educational milestone message for Foundation Course
+  var milestoneHtml = '';
+  if (mode === FOUNDATION_MODE && typeof getFoundationMilestoneMessage === 'function') {
+    var milestone = getFoundationMilestoneMessage();
+    if (milestone && milestone.message) {
+      milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
+        '<div style="display:flex;align-items:flex-start;gap:8px">' +
+        '<span style="font-size:20px">' + (milestone.icon || '\uD83C\uDF31') + '</span>' +
+        '<span style="color:var(--text);flex:1">' + milestone.message + '</span>' +
+        '</div></div>';
+    }
+  }
+  
+  // Educational feedback based on score
+  var msg = '';
+  if (pct >= 90) {
+    msg = 'Excellent! You have mastered these words well.';
+  } else if (pct >= 80) {
+    msg = 'Great work! Most words are solid in your memory.';
+  } else if (pct >= 60) {
+    msg = 'Good effort \u2014 review the words you missed to strengthen your recall.';
+  } else {
+    msg = "Keep going! Each attempt builds stronger memory. Review the lesson words and try again.";
+  }
+  
+  feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Done! ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
+  feedback.style.color = '';
   DOM.get('btn-next-quiz').style.display = 'none';
 }
 
