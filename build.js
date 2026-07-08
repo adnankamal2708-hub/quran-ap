@@ -304,13 +304,20 @@ async function build() {
     console.log('     firebase-core.js copied as standalone module');
   }
 
+  // 6b. Copy ux-polish.js (loaded separately from bundles for timing independence)
+  var uxPolish = readFile('js/ux-polish.js');
+  if (uxPolish) {
+    writeFile('js/ux-polish.js', uxPolish);
+    console.log('     ux-polish.js copied');
+  }
+
   // 7. Copy SW and manifest
   console.log('  7. Copying service worker & assets...');
   var sw = readFile('sw.js');
   // Update SW precache list to use bundled files
   sw = sw.replace(
     /const PRECACHE_URLS = \[[\s\S]*?\];/,
-    "const PRECACHE_URLS = [\n  './',\n  './index.html',\n  './styles.min.css',\n  './js/data.bundle.min.js',\n  './js/app.bundle.min.js',\n  './js/services/firebase-core.js',\n  './manifest.json',\n  './favicon.ico',\n];"
+    "const PRECACHE_URLS = [\n  './',\n  './index.html',\n  './styles.min.css',\n  './js/data.bundle.min.js',\n  './js/app.bundle.min.js',\n  './js/services/firebase-core.js',\n  './js/ux-polish.js',\n  './manifest.json',\n  './favicon.ico',\n];"
   );
   // Bump cache version so service worker detects changes and replaces old cache
   sw = sw.replace(

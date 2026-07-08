@@ -740,7 +740,8 @@ function setupKeyboardShortcuts() {
   });
 }
 
-// ── Event Wiring ───────────────────────────────────────────────/**
+// ── Event Wiring ───────────────────────────────────────────────
+/**
  * Safely set onclick for an element. Returns the element or null.
  * Prevents Uncaught TypeError crashes when a DOM element is missing.
  */
