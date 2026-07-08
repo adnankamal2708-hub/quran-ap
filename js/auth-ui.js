@@ -145,12 +145,16 @@ function wireUserMenuEvents() {
   var userBtn = document.getElementById('user-btn');
   if (userBtn) {
     userBtn.onclick = function () {
-      var user = getCurrentUser();
-      if (user) {
-        switchView('profile');
-      } else {
-        showAuthView('login');
-        switchView('auth');
+      try {
+        var user = getCurrentUser();
+        if (user) {
+          switchView('profile');
+        } else {
+          showAuthView('login');
+          switchView('auth');
+        }
+      } catch (e) {
+        console.error('[auth] Profile button handler error:', e.message, e.stack);
       }
     };
   }

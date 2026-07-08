@@ -1448,26 +1448,26 @@ function init() {
 
     // 5. Validate surah coverage and populate surah selector
     console.log('[startup] [7] Validating surah coverage...');
-    try { validateSurahCoverage(); } catch (e) { /* non-critical */ }
+    try { validateSurahCoverage(); } catch (e) { console.warn('[app] Surah coverage check failed:', e.message); }
     try { populateSurahSelector(); console.log('[startup] [7a] populateSurahSelector completed'); } catch (e) { console.warn('[app] Surah selector failed:', e.message); }
 
     // 6. Setup other views (dashboard already rendered by switchView('dashboard'))
     console.log('[startup] [8] Setting up initial displays...');
     try { updateWordCard(); } catch (e) { console.warn('[app] Word card init failed:', e.message); }
-    try { updateReviewBanner(); } catch (e) { /* non-critical */ }
-    try { updateStatsDisplay(); } catch (e) { /* non-critical */ }
-    try { updateLessonProgressDisplay(); } catch (e) { /* non-critical */ }
+    try { updateReviewBanner(); } catch (e) { console.warn('[app] Review banner update failed:', e.message); }
+    try { updateStatsDisplay(); } catch (e) { console.warn('[app] Stats display update failed:', e.message); }
+    try { updateLessonProgressDisplay(); } catch (e) { console.warn('[app] Lesson progress update failed:', e.message); }
 
     // 7. Register service worker
     console.log('[startup] [9] Registering service worker...');
-    try { registerServiceWorker(); } catch (e) { /* non-critical */ }
+    try { registerServiceWorker(); } catch (e) { console.warn('[app] Service worker registration failed:', e.message); }
 
     // 8. Set up online/offline sync listener
     console.log('[startup] [10] Setting up analytics and sync...');
     if (window.__analytics && window.__analytics.init) {
-      try { window.__analytics.init(); console.log('[startup] [10a] analytics.init completed'); } catch (e) { /* non-critical */ }
+      try { window.__analytics.init(); console.log('[startup] [10a] analytics.init completed'); } catch (e) { console.warn('[app] Analytics init failed:', e.message); }
     }
-    try { setupOnlineSync(); } catch (e) { /* non-critical */ }
+    try { setupOnlineSync(); } catch (e) { console.warn('[app] Online sync setup failed:', e.message); }
 
     // 9. Show keyboard shortcut hints on first load (briefly)
     setTimeout(function() {
