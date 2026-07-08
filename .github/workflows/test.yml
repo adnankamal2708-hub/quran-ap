@@ -36,6 +36,10 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm install
 
+      - name: Run comment lint check
+        run: node test/comment-lint.js
+        timeout-minutes: 2
+
       - name: Run all unit tests
         run: node test/run-all.js
         timeout-minutes: 5
@@ -55,8 +59,8 @@ jobs:
 
       - name: Check for lint warnings
         run: |
-          echo "Static analysis complete — no linter configured"
-          echo "Add ESLint or JSHint for automated code quality checks"
+          echo "Static analysis complete — comment-lint.js enabled"
+          echo "Add ESLint or JSHint for additional code quality checks"
 
       - name: Generate test summary
         if: always()

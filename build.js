@@ -14,6 +14,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const cp = require('child_process');
 
 const ROOT = __dirname;
 const DIST = path.join(ROOT, 'dist');
@@ -196,9 +197,28 @@ function validateNoDuplicateDeclarations() {
 async function build() {
   console.log('\n  Building Bayan — Production Build\n');
 
-  // 0. Validate no duplicate declarations before building
-  console.log('  0. Validating source files for duplicate declarations...');
+  // 0. Validate source file quality before building
+  console.log('  0. Validating source files...');
   validateNoDuplicateDeclarations();
+
+  // 0b. Run comment lint to catch malformed comment patterns
+  //     (e.g., a line comment with an unclosed block-comment opener on the same line)
+  console.log('  0b. Checking for malformed comment patterns...');
+  try {
+    var lintResult = cp.execSync('node test/comment-lint.js', {
+      cwd: ROOT,
+      timeout: 10000,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    console.log(lintResult.stdout || lintResult);
+    console.log('     Comment lint passed.');
+  } catch (e) {
+    // Print the actual lint output so developers know what to fix
+    if (e.stdout) console.log(e.stdout.toString());
+    if (e.stderr) console.error(e.stderr.toString());
+    throw new Error('Comment lint failed — fix issues above and re-run.');
+  }
 
   // Clean dist — handle locked directories gracefully
   if (fs.existsSync(DIST)) {
