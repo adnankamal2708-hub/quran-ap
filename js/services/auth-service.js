@@ -61,6 +61,7 @@ function initAuth() {
   try {
     // Subscribe to auth state changes using modular SDK
     _unsubscribeAuth = window.__firebaseCore.subscribeToAuth(function (user) {
+      console.log('[startup] [auth] onIdTokenChanged fired — user:', user ? user.email : 'null');
       if (user) {
         _currentUser = {
           uid: user.uid,
@@ -72,17 +73,21 @@ function initAuth() {
           photoURL: user.photoURL || null,
           isAnonymous: user.isAnonymous || false,
         };
+        console.log('[startup] [auth] Auth session restored for:', _currentUser.email);
       } else {
         _currentUser = null;
+        console.log('[startup] [auth] No user signed in');
       }
 
       // Notify listeners
       _listeners.forEach(function (fn) {
         try { fn(_currentUser); } catch (e) { console.warn('[auth] listener error:', e); }
       });
+      console.log('[startup] [auth] Auth listeners notified (' + _listeners.size + ' listeners)');
     });
 
     _authReady = true;
+    console.log('[startup] [auth] initAuth: auth subscription active, _authReady = true');
     return true;
   } catch (e) {
     console.warn('[auth] Init failed:', e.message);

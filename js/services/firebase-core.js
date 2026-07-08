@@ -73,19 +73,25 @@ let _initialized = false;
  * Returns true on success, false if Firebase is unavailable.
  */
 function initCore() {
+  console.log('[startup] [firebase] initCore called, _initialized:', _initialized);
   if (_initialized) return true;
 
   try {
+    console.log('[startup] [firebase] initializeApp...');
     const existingApps = getApps();
     app = existingApps.length > 0 ? existingApps[0] : initializeApp(FIREBASE_CONFIG);
+    console.log('[startup] [firebase] App initialized');
     auth = getAuth(app);
+    console.log('[startup] [firebase] Auth instance obtained');
     // Initialize Firestore with multi-tab offline persistence via FirestoreSettings.cache
     // (replaces the deprecated enableMultiTabIndexedDbPersistence())
+    console.log('[startup] [firebase] Initializing Firestore with persistence...');
     db = initializeFirestore(app, {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager(),
       }),
     });
+    console.log('[startup] [firebase] Firestore initialized with persistence');
 
     _initialized = true;
     console.log('[firebase] Firebase v12 modular SDK initialized.');
@@ -105,7 +111,10 @@ function subscribeToAuth(callback) {
     console.warn('[firebase] Auth not initialized.');
     return function () {};
   }
-  return onIdTokenChanged(auth, callback);
+  console.log('[startup] [firebase] subscribeToAuth — registering onIdTokenChanged listener');
+  var unsub = onIdTokenChanged(auth, callback);
+  console.log('[startup] [firebase] onIdTokenChanged listener registered');
+  return unsub;
 }
 
 /**
