@@ -325,39 +325,65 @@ function updateLessonProgressDisplay() {
       foundationCoverageEl.style.display = 'block';
     }
 
-    // Show foundation lesson relationship context (root families, related words)
+    // Show foundation lesson relationship context (root families, related words) — collapsible accordion
     if (typeof getFoundationLessonRelationshipContext === 'function') {
       var fCtx = getFoundationLessonRelationshipContext(activeLessonIndex);
       if (fCtx && fCtx.rootFamilies && fCtx.rootFamilies.length > 0) {
         var fRelCtx = DOM.get('foundation-relationship-context');
         if (fRelCtx) {
-          var ctxHtml = '<div class="foundation-rel-header" style="font-size:11px;color:var(--gold);margin-top:8px;padding:8px 10px;background:var(--bg-card);border-radius:8px;border:1px solid var(--border-light)">';
-          // Root families
-          ctxHtml += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">🌱 Root families in this lesson:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
+          var ctxHtml = '<div class="foundation-accordion">';
+          
+          // Root families section (always expanded)
+          ctxHtml += '<div class="foundation-acc-section foundation-acc-expanded">';
+          ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="true">';
+          ctxHtml += '<span>🌱 Root families in this lesson</span><span class="foundation-acc-arrow">▼</span>';
+          ctxHtml += '</button>';
+          ctxHtml += '<div class="foundation-acc-body">';
+          ctxHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
           for (var rfi = 0; rfi < fCtx.rootFamilies.length; rfi++) {
             var rf = fCtx.rootFamilies[rfi];
-            ctxHtml += '<span style="font-size:10px;background:var(--bg-hover);padding:3px 8px;border-radius:4px;color:var(--gold)">' + rf.root + ' <span style="color:var(--text-muted)">(' + rf.rootMeaning + ')</span></span>';
+            ctxHtml += '<span style="font-size:11px;background:var(--surface2);padding:4px 10px;border-radius:6px;color:var(--gold);border:1px solid rgba(201,168,76,0.15)">' + rf.root + ' <span style="color:var(--text-muted)">(' + rf.rootMeaning + ')</span></span>';
           }
           ctxHtml += '</div>';
           // Already learned related
           if (fCtx.alreadyLearnedRelated && fCtx.alreadyLearnedRelated.length > 0) {
-            ctxHtml += '<div style="font-size:10px;color:var(--green);margin-bottom:4px">✓ Related words already learned from this root family:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
+            ctxHtml += '<div style="font-size:11px;color:var(--green);margin-bottom:4px">✓ Already learned:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
             for (var ali = 0; ali < fCtx.alreadyLearnedRelated.length; ali++) {
               var al = fCtx.alreadyLearnedRelated[ali];
-              ctxHtml += '<span style="font-size:10px;background:rgba(76,175,80,0.1);padding:3px 8px;border-radius:4px;color:var(--green)">' + al.arabic + ' <span style="color:var(--text-muted)">(' + al.english + ')</span></span>';
+              ctxHtml += '<span style="font-size:10px;background:rgba(76,175,80,0.1);padding:3px 8px;border-radius:4px;color:var(--green);border:1px solid rgba(76,175,80,0.15)">' + al.arabic + ' <span style="color:var(--text-muted)">(' + al.english + ')</span></span>';
             }
             ctxHtml += '</div>';
           }
           // Upcoming related
           if (fCtx.upcomingRelated && fCtx.upcomingRelated.length > 0) {
-            ctxHtml += '<div style="font-size:10px;color:var(--purple);margin-bottom:4px">📅 Related words coming in future lessons:</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+            ctxHtml += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:3px">Related words coming in future lessons:</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
             for (var upi = 0; upi < fCtx.upcomingRelated.length; upi++) {
               var up = fCtx.upcomingRelated[upi];
-              ctxHtml += '<span style="font-size:10px;background:rgba(156,39,176,0.1);padding:3px 8px;border-radius:4px;color:var(--purple)">' + up.arabic + ' <span style="color:var(--text-muted)">(' + up.english + ') - Lesson ' + (up.lessonId + 1) + '</span></span>';
+              ctxHtml += '<span style="font-size:10px;background:rgba(156,39,176,0.08);padding:3px 8px;border-radius:4px;color:var(--purple);border:1px solid rgba(156,39,176,0.15)">' + up.arabic + ' <span style="color:var(--text-muted)">(' + up.english + ') - Lesson ' + (up.lessonId + 1) + '</span></span>';
             }
             ctxHtml += '</div>';
           }
-          ctxHtml += '</div>';
+          ctxHtml += '</div></div>'; // end root families section
+          
+          // Grammar notes section (collapsed by default)
+          ctxHtml += '<div class="foundation-acc-section">';
+          ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="false">';
+          ctxHtml += '<span>📝 Grammar notes</span><span class="foundation-acc-arrow">▶</span>';
+          ctxHtml += '</button>';
+          ctxHtml += '<div class="foundation-acc-body">';
+          ctxHtml += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;line-height:1.6">Focus on the root letters and their core meaning. Notice how different patterns (wazn) modify the meaning. Pay attention to how this word functions in its ayah context.</div>';
+          ctxHtml += '</div></div>';
+          
+          // Learning tips section (collapsed by default)
+          ctxHtml += '<div class="foundation-acc-section">';
+          ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="false">';
+          ctxHtml += '<span>💡 Learning tips</span><span class="foundation-acc-arrow">▶</span>';
+          ctxHtml += '</button>';
+          ctxHtml += '<div class="foundation-acc-body">';
+          ctxHtml += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;line-height:1.6">Review the root family words together to see patterns. Try to recognize this word when you see it in Quranic verses. Consistent daily review is more effective than cramming.</div>';
+          ctxHtml += '</div></div>';
+          
+          ctxHtml += '</div>'; // end accordion
           fRelCtx.innerHTML = ctxHtml;
           fRelCtx.style.display = 'block';
         }

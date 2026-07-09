@@ -2499,6 +2499,41 @@ function renderAnalyticsOverview(analytics) {
   }
   html += '</div></div></div>';
   
+  // Surah Comprehension
+  var allSurahComp = (typeof getAllSurahComprehension === 'function') ? getAllSurahComprehension() : [];
+  if (allSurahComp && allSurahComp.length > 0) {
+    allSurahComp.sort(function(a,b) { return b.estimatedComprehension - a.estimatedComprehension; });
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">📖 Surah Comprehension</div>';
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
+    html += '<div style="flex:1;min-width:130px"><div style="font-size:10px;color:var(--green);margin-bottom:6px;font-weight:500">✅ Best understood</div>';
+    var topCount = Math.min(3, allSurahComp.length);
+    for (var sci = 0; sci < topCount; sci++) {
+      var sc = allSurahComp[sci];
+      var sInfo = (typeof getSurahInfo === 'function') ? getSurahInfo(sc.surahId) : null;
+      html += '<div style="font-size:11px;color:var(--text);padding:4px 0;border-bottom:1px solid var(--border)">' + (sInfo ? sInfo.name : 'Surah ' + sc.surahId) + ' <span style="color:var(--gold-dim);float:right">' + sc.estimatedComprehension + '%</span></div>';
+    }
+    html += '</div>';
+    allSurahComp.sort(function(a,b) { return a.estimatedComprehension - b.estimatedComprehension; });
+    html += '<div style="flex:1;min-width:130px"><div style="font-size:10px;color:var(--red);margin-bottom:6px;font-weight:500">🌱 Needs work</div>';
+    var bottomCount = Math.min(3, allSurahComp.length);
+    for (var si = 0; si < bottomCount; si++) {
+      var sc2 = allSurahComp[si];
+      var sInfo2 = (typeof getSurahInfo === 'function') ? getSurahInfo(sc2.surahId) : null;
+      html += '<div style="font-size:11px;color:var(--text);padding:4px 0;border-bottom:1px solid var(--border)">' + (sInfo2 ? sInfo2.name : 'Surah ' + sc2.surahId) + ' <span style="color:var(--gold-dim);float:right">' + sc2.estimatedComprehension + '%</span></div>';
+    }
+    html += '</div></div>';
+    var avgComp = 0;
+    for (var ai = 0; ai < allSurahComp.length; ai++) avgComp += allSurahComp[ai].estimatedComprehension;
+    avgComp = allSurahComp.length > 0 ? Math.round(avgComp / allSurahComp.length) : 0;
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:center">Average: ' + avgComp + '% across ' + allSurahComp.length + ' surahs with vocabulary</div>';
+    html += '</div>';
+  } else {
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">📖 Surah Comprehension</div>';
+    html += '<div class="analytics-empty">Study words to see surah-level comprehension.</div></div>';
+  }
+  
   // Learning Paths Progress
   html += '<div class="analytics-section">';
   html += '<div class="analytics-section-title">🛤️ Learning Paths</div>';

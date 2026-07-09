@@ -2432,6 +2432,64 @@ body::before {
   box-shadow: none;
 }
 
+/* ── Foundation Accordion ──────────────────────────────────── */
+.foundation-accordion {
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.foundation-acc-section {
+  border-bottom: 1px solid var(--border);
+}
+.foundation-acc-section:last-child {
+  border-bottom: none;
+}
+.foundation-acc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--body);
+  transition: background 0.2s ease;
+  text-align: left;
+  min-height: 40px;
+}
+.foundation-acc-header:hover {
+  background: rgba(201,168,76,0.04);
+}
+.foundation-acc-header:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: -2px;
+}
+.foundation-acc-arrow {
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+.foundation-acc-expanded .foundation-acc-arrow {
+  transform: rotate(180deg);
+}
+.foundation-acc-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s cubic-bezier(0.4,0,0.2,1);
+  padding: 0 14px;
+}
+.foundation-acc-expanded .foundation-acc-body {
+  max-height: 2000px;
+  padding: 0 14px 12px;
+}
+
 /* ── Foundation Coverage Grid ───────────────────────────────── */
 .foundation-coverage-grid {
   display: grid;
