@@ -1206,6 +1206,7 @@ function renderStats() {
       foundationStatsContainer.appendChild(row);
       var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
       var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
+      var $sight = typeof getComprehensionInsight === 'function' ? getComprehensionInsight() : null;
       if (coverage && foundCov) {
         var covRow1 = document.createElement('div');
         covRow1.className = 'stats-bar-row stats-comprehension-row';
@@ -2523,7 +2524,31 @@ function renderAnalyticsOverview(analytics) {
       html += '<div style="font-size:11px;color:var(--text);padding:4px 0;border-bottom:1px solid var(--border)">' + (sInfo2 ? sInfo2.name : 'Surah ' + sc2.surahId) + ' <span style="color:var(--gold-dim);float:right">' + sc2.estimatedComprehension + '%</span></div>';
     }
     html += '</div></div>';
-    var avgComp = 0;
+   
+  // Vocabulary Relationships
+  var roots = (typeof getRootFamilyMastery === 'function') ? getRootFamilyMastery() : null;
+  var relStats = (typeof getRelationshipStats === 'function') ? getRelationshipStats() : null;
+  if (roots || relStats) {
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">📚 Vocabulary Relationships</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">';
+    if (roots) {
+      var rootsPct = roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0;
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--gold)">' + roots.fullyMasteredRoots + '<span style="font-size:12px;color:var(--text-muted);font-weight:400">/' + roots.totalRoots + '</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">Root families mastered</div><div style="font-size:9px;color:var(--green);margin-top:2px">' + rootsPct + '%</div></div>';
+    }
+    if (relStats && relStats.totalWords > 0) {
+      var derivedPct = Math.round(relStats.wordsWithDerivedForms / relStats.totalWords * 100);
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--blue)">' + relStats.wordsWithDerivedForms + '<span style="font-size:12px;color:var(--text-muted);font-weight:400">/' + relStats.totalWords + '</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">Derived forms</div><div style="font-size:9px;color:var(--blue);margin-top:2px">' + derivedPct + '%</div></div>';
+      var semanticPct = Math.round(relStats.wordsWithSemanticGroups / relStats.totalWords * 100);
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--purple)">' + relStats.wordsWithSemanticGroups + '<span style="font-size:12px;color:var(--text-muted);font-weight:400">/' + relStats.totalWords + '</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">Semantic groups</div><div style="font-size:9px;color:var(--purple);margin-top:2px">' + semanticPct + '%</div></div>';
+    }
+    if (roots && roots.partiallyMasteredRoots > 0) {
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--gold-dim)">' + roots.partiallyMasteredRoots + '</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">In progress roots</div></div>';
+    }
+    html += '</div></div>';
+  }
+
+ var avgComp = 0;
     for (var ai = 0; ai < allSurahComp.length; ai++) avgComp += allSurahComp[ai].estimatedComprehension;
     avgComp = allSurahComp.length > 0 ? Math.round(avgComp / allSurahComp.length) : 0;
     html += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:center">Average: ' + avgComp + '% across ' + allSurahComp.length + ' surahs with vocabulary</div>';
@@ -2589,49 +2614,73 @@ function renderAnalyticsOverview(analytics) {
     html += '</div></div>';
   }
   
-  // Forecasts
+    // Forecasts — Clean Grid Layout
   if (forecasts) {
     html += '<div class="analytics-section">';
     html += '<div class="analytics-section-title">🔮 Forecasts</div>';
-    html += '<div class="analytics-forecast-card">';
-    
-    // Predicted mastery in 7/30/90 days
-    html += '<div class="analytics-forecast-grid">';
-    html += '<div class="analytics-forecast-item"><span class="analytics-forecast-num">' + forecasts.predictedMastered['7'] + '</span><span class="analytics-forecast-label">7 days</span></div>';
-    html += '<div class="analytics-forecast-item"><span class="analytics-forecast-num">' + forecasts.predictedMastered['30'] + '</span><span class="analytics-forecast-label">30 days</span></div>';
-    html += '<div class="analytics-forecast-item"><span class="analytics-forecast-num">' + forecasts.predictedMastered['90'] + '</span><span class="analytics-forecast-label">90 days</span></div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--gold);line-height:1.2">' + forecasts.predictedMastered['7'] + '</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">7 days</div><div style="font-size:9px;color:var(--text-muted)">reviews forecast</div></div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--gold);line-height:1.2">' + forecasts.predictedMastered['30'] + '</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">30 days</div><div style="font-size:9px;color:var(--text-muted)">reviews forecast</div></div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--gold);line-height:1.2">' + forecasts.predictedMastered['90'] + '</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">90 days</div><div style="font-size:9px;color:var(--text-muted)">reviews forecast</div></div>';
     html += '</div>';
-    
-    html += '<div class="analytics-forecast-card" style="margin-top:8px">';
-    html += '<div class="analytics-forecast-row"><span>Current pace</span><span>' + forecasts.masteryRatePerDay + ' words/day</span></div>';
-    if (forecasts.daysToNextMilestone) {
-      html += '<div class="analytics-forecast-row"><span>Next coverage milestone (' + forecasts.nextMilestonePct + '%)</span><span>~' + forecasts.daysToNextMilestone + ' days</span></div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Current pace</div><div style="font-size:16px;font-weight:600;color:var(--text)">' + forecasts.masteryRatePerDay + ' <span style="font-size:10px;font-weight:400;color:var(--text-muted)">words/day</span></div></div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Est. completion</div><div style="font-size:16px;font-weight:600;color:var(--text)">~' + (forecasts.daysToFoundationCompletion != null ? forecasts.daysToFoundationCompletion : (forecasts.daysToNextMilestone != null ? forecasts.daysToNextMilestone : '—')) + ' <span style="font-size:10px;font-weight:400;color:var(--text-muted)">days</span></div></div>';
+    html += '</div>';
+    var completionDate = forecasts.completionDate ? new Date(forecasts.completionDate) : null;
+    if (completionDate && !isNaN(completionDate.getTime())) {
+      var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      html += '<div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px;padding:6px;background:var(--surface2);border-radius:8px">🎯 Estimated all-vocabulary mastery: ' + monthNames[completionDate.getMonth()] + ' ' + completionDate.getFullYear() + '</div>';
     }
-    if (forecasts.daysToFoundationCompletion) {
-      html += '<div class="analytics-forecast-row"><span>Foundation completion</span><span>~' + forecasts.daysToFoundationCompletion + ' days</span></div>';
-    }
-          var completionDate = forecasts.completionDate ? new Date(forecasts.completionDate) : null;
-    if (completionDate) {
-      html += '<div class="analytics-forecast-completion">🎯 Estimated all-vocabulary mastery: ' + completionDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + '</div>';
-    }
-    html += '</div></div></div>';
+  html += '</div>';
   }
-  
-  // Achievements Summary
+
+  // Review Forecast
+  var srsData = (typeof loadSRS === 'function') ? loadSRS() : {};
+  var now = Date.now();
+  var dayMs = 24 * 60 * 60 * 1000;
+  var dueTomorrow = 0, dueThisWeek = 0, dueThisMonth = 0;
+  var allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0) ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  for (var ri = 0; ri < allWords.length; ri++) {
+    var entry = srsData[allWords[ri].id];
+    if (entry && entry.dueDate) {
+      if (entry.dueDate <= now + dayMs) dueTomorrow++;
+      if (entry.dueDate <= now + 7 * dayMs) dueThisWeek++;
+      if (entry.dueDate <= now + 30 * dayMs) dueThisMonth++;
+    }
+  }
+  var dailyWorkload = dueThisWeek > 0 ? Math.ceil(dueThisWeek / 7) : 0;
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">📅 Review Forecast</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--gold)">' + dueTomorrow + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:4px">Due tomorrow</div></div>';
+  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--gold)">' + dueThisWeek + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:4px">Due this week</div></div>';
+  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--gold)">' + dueThisMonth + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:4px">Due this month</div></div>';
+  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--blue)">' + dailyWorkload + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:4px">Daily workload</div></div>';
+  html += '</div></div>';
+
+
+// Achievements Summary
   if (analytics.achievements) {
+    var earnedCount = analytics.achievements.earnedCount || 0;
+    var totalCount = analytics.achievements.totalCount || 1;
+    var achPct = Math.min(100, Math.round((earnedCount / totalCount) * 100));
     html += '<div class="analytics-section">';
     html += '<div class="analytics-section-title">🏆 Achievements</div>';
-    html += '<div class="analytics-achievement-summary">';
-    html += '<span class="analytics-achievement-big">' + analytics.achievements.earnedCount + ' / ' + analytics.achievements.totalCount + '</span>';
-    html += '<span class="analytics-achievement-small">achievements earned</span>';
-    if (analytics.achievements.totalCount > 0) {
-      html += '<div class="analytics-achievement-track"><div class="analytics-achievement-fill" style="width:' + analytics.achievements.progressPercent + '%"></div></div>';
-    }
-    html += '<button class="analytics-view-ach-btn" id="analytics-view-all-ach" type="button">View All Achievements →</button>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    html += '<span style="font-size:12px;color:var(--text)">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';
+    html += '<span style="font-size:10px;color:var(--gold)">' + achPct + '%</span>';
+    html += '</div>';
+    html += '<div class="analytics-progress-track-big" style="height:8px;margin-bottom:12px"><div class="analytics-progress-fill-big" style="width:' + achPct + '%;height:8px;border-radius:4px"></div></div>';
+    html += '<div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:4px">' + earnedCount + '</div>';
+    html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">' + (earnedCount === 1 ? 'Achievement unlocked' : 'Achievements unlocked') + '</div>';
+    html += '<div style="font-size:10px;color:var(--text-muted);line-height:1.4;margin-bottom:12px">Keep learning to unlock more milestones.</div>';
+    html += '<button id="analytics-view-all-ach" class="btn btn-sm" style="width:100%;padding:8px;border-radius:8px;font-size:11px">View All Achievements →</button>';
     html += '</div></div>';
   }
-  
-  return html;
+
+return html;
 
   } catch (e) {
     console.error("[analytics] renderAnalyticsOverview error:", e);
@@ -2816,51 +2865,38 @@ function renderAnalyticsInsightsPage(analytics) {
     // SRS Health
     var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
     if (srsStats) {
-      html += '<div class="analytics-section">';
-      html += '<div class="analytics-section-title">❤️ SRS Health</div>';
-      html += '<div class="analytics-health-card">';
-      html += '<div class="analytics-health-row"><span>Average Retention</span><span>' + srsStats.avgRetention + '%</span></div>';
-      html += '<div class="analytics-health-row"><span>Average Ease Factor</span><span>' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span></div>';
-      html += '<div class="analytics-health-row"><span>Leeched Words</span><span>' + (srsStats.leechCount || 0) + '</span></div>';
-      html += '</div></div>';
+      html += '<div class    html += '<div class="analytics-section-title">❤️ SRS Health</div>';
+    html += '<div class="analytics-health-card">';
+    if (srsStats) {
+      // Compute additional metrics
+      var retentionRate = srsStats.avgRetention ? srsStats.avgRetention + '%' : '—';
+      var wordsAtRisk = srsStats.overdue || 0;
+      var matureWords = srsStats.mature || 0;
+      var learningWords = srsStats.learning || 0;
+      var youngWords = srsStats.young || 0;
+      var totalSrsWords = matureWords + youngWords + learningWords || 1;
+      var maturePct = Math.round(matureWords / totalSrsWords * 100);
+      var learningPct = Math.round(learningWords / totalSrsWords * 100);
+      var youngPct = Math.round(youngWords / totalSrsWords * 100);
+      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">';
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green)">' + retentionRate + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Retention rate</div></div>';
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:' + (wordsAtRisk > 0 ? 'var(--red)' : 'var(--green)') + '">' + wordsAtRisk + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">' + (wordsAtRisk === 1 ? 'Word' : 'Words') + ' at risk</div></div>';
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--gold)">' + matureWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Mature words</div></div>';
+      html += '</div>';
+      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">';
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:var(--purple)">' + learningWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Learning</div><div style="font-size:9px;color:var(--purple);margin-top:2px">' + learningPct + '%</div></div>';
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:var(--gold-dim)">' + youngWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Young</div><div style="font-size:9px;color:var(--gold-dim);margin-top:2px">' + youngPct + '%</div></div>';
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:var(--green)">' + matureWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Mature</div><div style="font-size:9px;color:var(--green);margin-top:2px">' + maturePct + '%</div></div>';
+      html += '</div>';
+      html += '<div style="display:flex;gap:8px">';
+      html += '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:600;color:var(--blue)">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Avg ease factor</div></div>';
+      html += '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:600;color:' + (srsStats.leechCount > 0 ? 'var(--red)' : 'var(--text)') + '">' + (srsStats.leechCount || 0) + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Leeched words</div></div>';
+      html += '</div>';
+    } else {
+      html += '<div style="padding:12px;color:var(--text-muted);font-size:11px;text-align:center">Start learning to see SRS health metrics.</div>';
     }
-    
-  } else {
-    html += '<div class="analytics-empty">Start learning to see your insights!</div>';
-  }
-  
-  return html;
-
-  } catch (e) {
-    console.error("[analytics] renderAnalyticsInsightsPage error:", e);
-    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading InsightsPage tab.</div>";
-  }
-}
-
-// ── ACHIEVEMENTS TAB ──
-
-function renderAnalyticsAchievements() {
-  try {
-  var html = '';
-  var allAchievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
-  var achievementStats = (window.__analytics && window.__analytics.getAchievementStats) ? window.__analytics.getAchievementStats() : null;
-  
-  if (allAchievements.length === 0) {
-    html += '<div class="analytics-empty">No achievements to display.</div>';
-    return html;
-  }
-  
-  // Summary
-  if (achievementStats) {
-    html += '<div class="analytics-ach-progress">';
-    html += '<span class="analytics-ach-big">' + achievementStats.earnedCount + ' / ' + achievementStats.totalCount + '</span>';
-    html += '<div class="analytics-ach-track-big"><div class="analytics-ach-fill-big" style="width:' + achievementStats.progressPercent + '%"></div></div>';
-    html += '</div>';
-    
-    // By category
-    if (achievementStats.byCategory) {
-      html += '<div class="analytics-section">';
-      html += '<div class="analytics-section-title">📊 Progress by Category</div>';
+    html += '</div></div>';
+html += '<div class="analytics-section-title">📊 Progress by Category</div>';
       html += '<div class="analytics-progress-block">';
       var catNames = { foundation: 'Foundation', coverage: 'Coverage', mastery: 'Mastery', streak: 'Streak', review: 'Review', quiz: 'Quiz', root: 'Root', path: 'Path', consistency: 'Consistency' };
       var catColors = { foundation: 'var(--gold)', coverage: 'var(--green)', mastery: 'var(--blue)', streak: 'var(--red)', review: 'var(--purple)', quiz: 'var(--pink)', root: 'var(--green)', path: 'var(--gold-dim)', consistency: 'var(--blue)' };
