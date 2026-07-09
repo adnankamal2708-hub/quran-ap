@@ -96,6 +96,18 @@ function makeEl(tag) {
     contains: function(c) { return !!this._values[c]; },
   };
   el.offsetHeight = 1;
+  el.querySelector = function(sel) {
+    if (sel.startsWith('.')) {
+      var cls = sel.substring(1);
+      if ((el._className || '').indexOf(cls) >= 0) return el;
+      for (var ci = 0; ci < el.children.length; ci++) {
+        var child = el.children[ci];
+        if ((child._className || '').indexOf(cls) >= 0) return child;
+      }
+      return null;
+    }
+    return null;
+  };
   return el;
 }
 
@@ -608,9 +620,11 @@ suite('Edge Cases', function() {
   test('does not throw with unset SRS stats (null)', function() {
     resetState();
     setupGlobals();
+    var origGetStats = global.window.__srs.getStats;
     global.window.__srs.getStats = function() { return null; };
     setupDashboardGrid();
     renderDashboard();
+    global.window.__srs.getStats = origGetStats;
     var html = getInnerHTML();
     assert.ok(html.length > 0, 'should render with null SRS stats');
   });
