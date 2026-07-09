@@ -549,8 +549,8 @@ function rateSRSWord(wordId, rating) {
  * Compute interval for learning stage (stage 1).
  */
 function computeLearningInterval(rating, prevInterval, entry) {
-  // Number of previous again/hard ratings in this learning span
-  var attemptCount = Math.min(entry.totalReviews || 0, 2);
+  // Number of lapses (again ratings) determines interval progression
+  var attemptCount = Math.min((entry.lapses || 0), 2);
 
   switch (rating) {
     case 0: // Again

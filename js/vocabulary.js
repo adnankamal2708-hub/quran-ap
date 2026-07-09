@@ -565,13 +565,54 @@ window.__advancedSearch = {
 function getDistractors(correctWord, count) {
   if (count == null) count = 3;
   
-  // Build relationship cache if needed (for confusedWith / contextualEquivalents)
+  // Build relationship cache if needed
   buildRelationsCache();
   
+  // Determine which lessons are current/completed to avoid future unseen distractors
+  var completedLessonIds = [];
+  var currentLessonId = -1;
+  try {
+    if (typeof getOrganizationMode === 'function' && getOrganizationMode() === 'foundation') {
+      if (typeof getCompletedFoundationLessonCount === 'function' && typeof getFoundationLessonCount === 'function') {
+        for (var cli = 0; cli < getFoundationLessonCount(); cli++) {
+          if (typeof isFoundationLessonCompleted === 'function' && isFoundationLessonCompleted(cli)) {
+            completedLessonIds.push(cli);
+          }
+        }
+      }
+      currentLessonId = (typeof getFoundationLessonForWord === 'function') ? getFoundationLessonForWord(correctWord.id) : -1;
+      if (currentLessonId >= 0 && completedLessonIds.indexOf(currentLessonId) < 0) {
+        // Include current lesson (in progress) in eligible pool
+      }
+    }
+  } catch (e) { /* non-critical */ }
+  
+  // Build pool: prefer words from current + completed lessons, then same category, then all words
   var pool = [];
-  for (var pi = 0; pi < ALL_WORDS.length; pi++) {
-    if (ALL_WORDS[pi] !== correctWord) pool.push(ALL_WORDS[pi]);
+  var eligibleLessonIds = completedLessonIds.slice();
+  if (currentLessonId >= 0 && eligibleLessonIds.indexOf(currentLessonId) < 0) {
+    eligibleLessonIds.push(currentLessonId);
   }
+  
+  // First, collect words from eligible lessons
+  var lessonWords = [];
+  var otherWords = [];
+  for (var pi = 0; pi < ALL_WORDS.length; pi++) {
+    if (ALL_WORDS[pi] === correctWord) continue;
+    var wLessonId = (ALL_WORDS[pi].foundationLessonId !== undefined) ? ALL_WORDS[pi].foundationLessonId : -1;
+    if (wLessonId >= 0) {
+      if (eligibleLessonIds.indexOf(wLessonId) >= 0) {
+        lessonWords.push(ALL_WORDS[pi]);
+      } else {
+        otherWords.push(ALL_WORDS[pi]);
+      }
+    } else {
+      otherWords.push(ALL_WORDS[pi]);
+    }
+  }
+  
+  // Prioritize: lesson words first, then other words
+  pool = lessonWords.concat(otherWords);
   
   var distractors = [];
   var used = {};
@@ -582,6 +623,10 @@ function getDistractors(correctWord, count) {
     var key = candidate.arabic + '|' + candidate.english;
     if (used[key]) return;
     if (candidate.english === correctWord.english) return;
+    // Avoid obviously impossible answers (completely different languages)
+    var cShort = (candidate.meaning || candidate.english || '').split('\u2014')[0].trim();
+    var wShort = (correctWord.meaning || correctWord.english || '').split('\u2014')[0].trim();
+    if (cShort === wShort) return;
     used[key] = true;
     distractors.push(candidate);
   }
@@ -592,7 +637,7 @@ function getDistractors(correctWord, count) {
     return found && found !== correctWord ? found : null;
   }
 
-  // Priority 1: Confused-with words (from relationship inference engine)
+  // Priority 1: Confused-with words (from relationship inference)
   var rels = _relCache && _relCache.byId[correctWord.id];
   if (rels && rels.confusedWith) {
     for (var ci = 0; ci < rels.confusedWith.length; ci++) {
@@ -601,35 +646,44 @@ function getDistractors(correctWord, count) {
     }
   }
   
-  // Priority 2: Same type category
-  var sameType = [];
+  // Priority 2: Same grammatical category + similar meaning
+  var sameCat = [];
   for (var sti = 0; sti < pool.length; sti++) {
-    if (pool[sti].typeCategory === correctWord.typeCategory) sameType.push(pool[sti]);
+    if (pool[sti].typeCategory === correctWord.typeCategory) sameCat.push(pool[sti]);
   }
-  shuffleArray(sameType).forEach(addCandidate);
-
-  // Priority 3: Same root (but different meaning)
-  var sameRoot = [];
-  for (var sri = 0; sri < pool.length; sri++) {
-    if (pool[sri].root === correctWord.root && pool[sri].typeCategory !== correctWord.typeCategory) sameRoot.push(pool[sri]);
+  shuffleArray(sameCat).forEach(addCandidate);
+  
+  // Priority 3: Same root (different meaning)
+  if (correctWord.root && correctWord.root !== '—') {
+    var sameRoot = [];
+    for (var sri = 0; sri < pool.length; sri++) {
+      if (pool[sri].root === correctWord.root && pool[sri].typeCategory !== correctWord.typeCategory) sameRoot.push(pool[sri]);
+    }
+    shuffleArray(sameRoot).forEach(addCandidate);
   }
-  shuffleArray(sameRoot).forEach(addCandidate);
-
-  // Priority 4: Any other words
-  var other = [];
-  for (var oi = 0; oi < pool.length; oi++) {
-    if (pool[oi].typeCategory !== correctWord.typeCategory && pool[oi].root !== correctWord.root) other.push(pool[oi]);
+  
+  // Priority 4: Visually similar Arabic (same first 2-3 letters)
+  if (correctWord.arabic && correctWord.arabic.length >= 2) {
+    var visSimilar = [];
+    var arPrefix = correctWord.arabic.substring(0, Math.min(2, correctWord.arabic.length));
+    for (var vi = 0; vi < pool.length; vi++) {
+      if (pool[vi].arabic && pool[vi].arabic.indexOf(arPrefix) === 0 && pool[vi].arabic !== correctWord.arabic) {
+        visSimilar.push(pool[vi]);
+      }
+    }
+    shuffleArray(visSimilar).forEach(addCandidate);
   }
-  shuffleArray(other).forEach(addCandidate);
-
-  // Fallback: any word from the pool
+  
+  // Priority 5: Another word from same lesson (educational connection)
+  shuffleArray(lessonWords).forEach(addCandidate);
+  
+  // Fallback: any word from pool
   if (distractors.length < count) {
     shuffleArray(pool).forEach(addCandidate);
   }
 
   return distractors.slice(0, count);
 }
-
 // ── Utility ────────────────────────────────────────────────────
 
 function shuffleArray(arr) {

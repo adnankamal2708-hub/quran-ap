@@ -600,6 +600,94 @@ function toggleQuickMode() {
   }
 }
 
+
+// ═══════════════════════════════════════════════════════════════
+// PROACTIVE CROSS-LESSON REVIEW — Detects overdue reviews and
+// encourages review before unlocking new content.
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Check for overdue reviews and weak vocabulary before proceeding
+ * to a new lesson. Returns an object with the number of words
+ * needing reinforcement, or null if all is well.
+ */
+function checkPreLessonReviews() {
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var now = Date.now();
+  var overdueCount = 0;
+  var weakCount = 0;
+  
+  // Count overdue + leeched words
+  Object.keys(srsData).forEach(function(id) {
+    var entry = srsData[id];
+    if (!entry) return;
+    if (entry.dueDate && now >= entry.dueDate) {
+      overdueCount++;
+      // Also count leeches as "weak"
+      if (entry.isLeech) weakCount++;
+    }
+  });
+  
+  return {
+    overdueCount: overdueCount,
+    weakCount: weakCount,
+    needsReview: overdueCount > 0,
+    message: 'You have ' + overdueCount + ' word' + (overdueCount !== 1 ? 's' : '') + 
+      ' that need' + (overdueCount === 1 ? 's' : '') + 
+      ' reinforcement before learning new vocabulary.' +
+      (weakCount > 0 ? ' (' + weakCount + ' need' + (weakCount === 1 ? 's' : '') + ' extra attention)' : ''),
+  };
+}
+
+/**
+ * Show the pre-lesson review prompt banner.
+ * Allows the learner to Review Now or Continue Anyway.
+ */
+function showPreLessonReviewPrompt(checkResult) {
+  // Don't show if already on review or less than 3 words overdue
+  if (!checkResult || !checkResult.needsReview || checkResult.overdueCount < 3) return;
+  if (reviewMode) return;
+  
+  var existing = document.getElementById('pre-lesson-review-prompt');
+  if (existing) existing.remove();
+  
+  var banner = document.createElement('div');
+  banner.id = 'pre-lesson-review-prompt';
+  banner.className = 'pre-lesson-review visible';
+  banner.style.cssText = 'margin:8px 12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--gold);font-size:12px;line-height:1.5';
+  banner.innerHTML = 
+    '<div style="display:flex;align-items:flex-start;gap:8px">' +
+    '<span style="font-size:16px">🔁</span>' +
+    '<div style="flex:1">' +
+    '<div style="font-weight:500;color:var(--gold);margin-bottom:4px">' + checkResult.message + '</div>' +
+    '<div style="display:flex;gap:8px">' +
+    '<button id="pre-review-now" class="btn btn-sm" style="background:var(--gold);color:var(--bg);border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">Review Now</button>' +
+    '<button id="pre-review-continue" class="btn btn-sm" style="background:var(--bg-hover);color:var(--text);border:1px solid var(--border-light);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">Continue Anyway</button>' +
+    '</div></div></div>';
+  
+  // Insert after review banner
+  var reviewBanner = document.getElementById('review-banner');
+  var learnView = document.getElementById('view-learn');
+  if (learnView) {
+    if (reviewBanner && reviewBanner.nextSibling) {
+      learnView.insertBefore(banner, reviewBanner.nextSibling);
+    } else {
+      learnView.insertBefore(banner, learnView.firstChild);
+    }
+  }
+  
+  // Wire buttons
+  document.getElementById('pre-review-now').onclick = function() {
+    banner.remove();
+    if (typeof startReview === 'function') startReview();
+  };
+  document.getElementById('pre-review-continue').onclick = function() {
+    banner.remove();
+  };
+  
+  return banner;
+}
+
 // ── Session Review Summary ─────────────────────────────────────
 
 function showSessionSummary(stats) {

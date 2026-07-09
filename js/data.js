@@ -34,6 +34,7 @@
 //   tafsir         — Ibn Kathir tafsir excerpt
 //   similarWords   — Array of arabic texts of words with similar meaning
 //   oppositeWords  — Array of arabic texts of antonyms
+//   contrastWords  — Array of arabic texts of Quranic contrast pairs (e.g. جنة ↔ نار)
 //   relatedWords   — Array of arabic texts of conceptually related words
 //   derivedForms   — (Computed) Array of { arabic, english, pattern, formName } sharing same root
 //   semanticGroup  — (Computed) Array of { group, count, sampleWords } thematic groupings
@@ -1405,6 +1406,123 @@ function getFoundationCourseStats() {
   };
 }
 
+
+
+/**
+ * Validate educational consistency across all vocabulary.
+ * Checks:
+ *   - Difficulty progression across foundation lessons
+ *   - Root family relationships (all members present)
+ *   - Similar word links (bidirectional when possible)
+ *   - Contrast word references exist
+ *   - Consistent typeCategory assignments
+ * Reports issues to console for manual review.
+ */
+function validateEducationalConsistency() {
+  var issues = [];
+  var words = typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0 
+    ? getCanonicalWords() : ALL_WORDS;
+  
+  if (!words || words.length === 0) {
+    console.warn('[edu-validate] No vocabulary data.');
+    return { valid: false, issues: ['No vocabulary data'] };
+  }
+  
+  // Build arabic lookup
+  var arabicMap = {};
+  for (var vi = 0; vi < words.length; vi++) {
+    if (words[vi].arabic) arabicMap[words[vi].arabic] = words[vi];
+  }
+  
+  // 1. Check difficulty distribution in foundation lessons
+  if (typeof getFoundationLessonCount === 'function') {
+    var fCount = getFoundationLessonCount();
+    for (var li = 0; li < fCount; li++) {
+      var lessonWords = typeof getFoundationLessonWords === 'function' ? getFoundationLessonWords(li) : [];
+      var diffs = lessonWords.map(function(w) { return w.difficulty || 3; });
+      var maxDiff = Math.max.apply(null, diffs);
+      var minDiff = Math.min.apply(null, diffs);
+      if (maxDiff - minDiff > 3) {
+        issues.push('Foundation lesson ' + (li + 1) + ' has large difficulty spread: ' + minDiff + '-' + maxDiff);
+      }
+    }
+  }
+  
+  // 2. Check root family references exist
+  var totalRootFamilyRefs = 0;
+  var missingRootFamilyRefs = 0;
+  for (var wi = 0; wi < words.length; wi++) {
+    var w = words[wi];
+    if (w.rootFamily && Array.isArray(w.rootFamily)) {
+      for (var rfi = 0; rfi < w.rootFamily.length; rfi++) {
+        totalRootFamilyRefs++;
+        var rfArabic = w.rootFamily[rfi].a;
+        if (rfArabic && !arabicMap[rfArabic]) {
+          missingRootFamilyRefs++;
+        }
+      }
+    }
+  }
+  if (missingRootFamilyRefs > 0) {
+    console.log('[edu-validate] ℹ ' + missingRootFamilyRefs + '/' + totalRootFamilyRefs + ' root family refs point to non-vocabulary words (may be intentional)');
+  }
+  
+  // 3. Check similar/opposite/contrast word references
+  var refFields = ['similarWords', 'oppositeWords', 'contrastWords'];
+  for (var fi = 0; fi < refFields.length; fi++) {
+    var field = refFields[fi];
+    var missingRefs = 0;
+    var totalRefs = 0;
+    for (var wj = 0; wj < words.length; wj++) {
+      var refs = words[wj][field];
+      if (refs && Array.isArray(refs)) {
+        totalRefs += refs.length;
+        for (var rj = 0; rj < refs.length; rj++) {
+          if (!arabicMap[refs[rj]]) {
+            missingRefs++;
+            if (missingRefs <= 3) {
+              console.log('[edu-validate] ℹ ' + words[wj].arabic + ' references missing ' + field + ': \'' + refs[rj] + '\'');
+            }
+          }
+        }
+      }
+    }
+    if (missingRefs > 0) {
+      console.log('[edu-validate] ℹ ' + field + ': ' + missingRefs + '/' + totalRefs + ' refs missing from vocabulary');
+    }
+  }
+  
+  // 4. Check typeCategory consistency
+  var validCategories = ['noun', 'verb', 'particle', 'adjective', 'pronoun', 'exclamation', 'adverb', 'proper noun', 'name'];
+  var invalidCat = 0;
+  for (var ci = 0; ci < words.length; ci++) {
+    if (words[ci].typeCategory && validCategories.indexOf(words[ci].typeCategory) < 0) {
+      invalidCat++;
+      if (invalidCat <= 5) {
+        issues.push('Invalid typeCategory \'' + words[ci].typeCategory + '\' for word ' + words[ci].arabic);
+      }
+    }
+  }
+  
+  // 5. Check for missing difficulty
+  var missingDiff = 0;
+  for (var di = 0; di < words.length; di++) {
+    if (!words[di].difficulty) missingDiff++;
+  }
+  if (missingDiff > 0) {
+    issues.push(missingDiff + ' words missing difficulty level');
+  }
+  
+  // Report
+  if (issues.length > 0) {
+    console.log('[edu-validate] Found ' + issues.length + ' issue(s):');
+    issues.forEach(function(iss) { console.log('  ' + iss); });
+  } else {
+    console.log('[edu-validate] ✓ All checks passed for ' + words.length + ' words.');
+  }
+  
+  return { valid: issues.length === 0, issues: issues };
+}
 
 // ── Foundation Progress (localStorage) ──────────────────────────
 
