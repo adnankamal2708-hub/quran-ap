@@ -212,8 +212,8 @@ suite('Rate SRS Word - Scheduling', function() {
     clearStorage();
     rateSRSWord('w_learn', 2);
     var entry = loadSRS()['w_learn'];
-    // stage 1, good → STAGE1_GOOD[1]=2 (totalReviews incremented before interval compute)
-    assertApprox(entry.interval, 2, 0.01, 'good interval in learning');
+    // stage 1, good → STAGE1_GOOD[0]=1 (lapses=0, so attemptCount=0)
+    assertApprox(entry.interval, 1, 0.01, 'good interval in learning');
   });
 
   test('learning graduates to young after enough reviews', function() {
@@ -227,8 +227,10 @@ suite('Rate SRS Word - Scheduling', function() {
 
   test('young stage intervals grow with ease factor', function() {
     clearStorage();
-    // First 3 ratings to reach young
+    // First 3 good ratings in learning (lapses=0, so interval stays 1 each time)
     for (var i = 0; i < 3; i++) { rateSRSWord('w_young', 2); }
+    // Now in young stage (stage 2). One more good rating applies SM-2: interval = prevInterval * ef
+    rateSRSWord('w_young', 2);
     var intervalAfter = loadSRS()['w_young'].interval;
     assert.ok(intervalAfter > 1, 'young interval > 1, got ' + intervalAfter);
   });

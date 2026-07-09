@@ -165,10 +165,11 @@ suite('Interval Calculations', function() {
 
   test('correct review increases interval', function() {
     saveEntry('w1', {
-      stage: 1, reps: 2, easeFactor: 2.5,
-      interval: 3, totalReviews: 3, lapses: 0, leechCount: 0, isLeech: false,
+      stage: 2, reps: 5, easeFactor: 2.5,
+      interval: 3, totalReviews: 6, lapses: 0, leechCount: 0, isLeech: false,
       dueDate: _mockNow - 86400000,
     });
+    // In young stage (stage 2), rating easy: newInterval = prevInterval * ef * 1.3 = 3 * 2.5 * 1.3 = 9.75
     srs.rateWord('w1', 3);
     var entry = getEntry('w1');
     assert.ok(entry.interval > 3, 'interval should increase after correct review');

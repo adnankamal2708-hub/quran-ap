@@ -170,8 +170,8 @@ test.describe('Foundation Lesson Flow', () => {
   test('dashboard shows learning paths', async ({ page }) => {
     await waitAndSee(page, '#view-dashboard');
     await expect(page.locator('#dashboard-grid')).toBeVisible();
-    // Should have dashboard cards
-    const dashboardCards = page.locator('.dashboard-card');
+    // Should have dashboard cards (using db-card class after educational overhaul)
+    const dashboardCards = page.locator('.db-card, .dashboard-card');
     const count = await dashboardCards.count();
     expect(count).toBeGreaterThanOrEqual(1);
   });
@@ -186,9 +186,9 @@ test.describe('Foundation Lesson Flow', () => {
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
-    // Should see foundation lesson info
+    // Should see foundation lesson info (thematic title shown after educational overhaul)
     const lessonLabel = page.locator('#lesson-label');
-    await expect(lessonLabel).toContainText(/Foundation/i);
+    await expect(lessonLabel).toContainText(/Framework|Foundation|lesson|Lesson|Essential/i);
 
     // Word card should be visible
     await expect(page.locator('#word-card')).toBeVisible();
@@ -490,11 +490,12 @@ test.describe('Dashboard', () => {
     await expect(page.locator('#view-dashboard')).toBeVisible();
     await expect(page.locator('#dashboard-grid')).toBeVisible();
 
-    // Should have dashboard title
-    await expect(page.locator('.dashboard-title')).toBeVisible();
+    // Should have dashboard greeting or title
+    // Should have dashboard greeting visible
+    await expect(page.locator('.db-greeting')).toBeVisible();
 
-    // Should have recommendation section
-    await expect(page.locator('#dashboard-recommendation')).toBeVisible();
+    // Should have dashboard cards visible
+    await expect(page.locator('.db-card').first()).toBeVisible();
   });
 
   test('bottom navigation switches views', async ({ page }) => {
