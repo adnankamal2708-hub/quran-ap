@@ -106,6 +106,34 @@ function resetDOM() {
 global.document = {
   getElementById: function(id) { return _elementsById[id] || null; },
   createElement: function(tag) { return makeEl(tag); },
+  querySelector: function(sel) {
+    // Simple mock: handle #id selectors and .class selectors
+    if (sel.startsWith('#')) {
+      return _elementsById[sel.substring(1)] || null;
+    }
+    if (sel.startsWith('.')) {
+      var cls = sel.substring(1);
+      for (var k in _elementsById) {
+        if (_elementsById[k].className === cls || (_elementsById[k]._className || '').indexOf(cls) >= 0) {
+          return _elementsById[k];
+        }
+      }
+      return null;
+    }
+    return null;
+  },
+  querySelectorAll: function(sel) {
+    var results = [];
+    if (sel.startsWith('.')) {
+      var cls = sel.substring(1);
+      for (var k in _elementsById) {
+        if ((_elementsById[k]._className || '').indexOf(cls) >= 0) {
+          results.push(_elementsById[k]);
+        }
+      }
+    }
+    return results;
+  },
 };
 
 global.DOM = {
