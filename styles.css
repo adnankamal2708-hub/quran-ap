@@ -3618,6 +3618,185 @@ Redul occurrences list ── */
   stroke-linecap: round;
   transition: stroke-dasharray 0.6s cubic-bezier(0.4,0,0.2,1);
 }
+
+/* ── Comprehension Animation Keyframes ───────────────────── */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes celebratePulse {
+  0% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4); }
+  50% { box-shadow: 0 0 20px 6px rgba(201, 168, 76, 0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); }
+}
+
+@keyframes ringGlowFill {
+  0% { filter: drop-shadow(0 0 0px rgba(201, 168, 76, 0)); }
+  50% { filter: drop-shadow(0 0 6px rgba(201, 168, 76, 0.3)); }
+  100% { filter: drop-shadow(0 0 0px rgba(201, 168, 76, 0)); }
+}
+
+@keyframes burstParticles {
+  0% { transform: scale(0); opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes milestoneSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes deltaFadeIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes ringPulse {
+  0%, 100% { transform: rotate(-90deg) scale(1); }
+  50% { transform: rotate(-90deg) scale(1.03); }
+}
+
+/* ── Animation Utility Classes ── */
+.animate-count {
+  animation: countUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  will-change: opacity, transform;
+}
+
+.animate-ring-pulse {
+  animation: ringPulse 0.8s cubic-bezier(0.4, 0, 0.2, 1) 1;
+}
+
+.animate-ring-glow .db-ring-fill {
+  animation: ringGlowFill 1.2s ease-in-out 1;
+}
+
+.animate-delta {
+  animation: deltaFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+  will-change: opacity, transform;
+}
+
+.animate-delta-active {
+  /* Delays applied via JS animateDeltaRows */ }
+
+.animate-insight {
+  animation: milestoneSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  will-change: opacity, transform;
+}
+
+.animate-insight:nth-child(1) { animation-delay: 0.55s; }
+.animate-insight:nth-child(2) { animation-delay: 0.7s; }
+
+/* ── Milestone Celebration ── */
+.milestone-celebration {
+  animation: celebratePulse 1.5s ease-in-out 1;
+  position: relative;
+}
+
+.milestone-celebration .db-milestone-row {
+  position: relative;
+  display: inline-block;
+}
+
+.milestone-celebration .db-milestone-row::after {
+  content: '✨';
+  position: absolute;
+  top: -12px;
+  right: -20px;
+  font-size: 14px;
+  animation: burstParticles 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.milestone-celebration .db-comp-row {
+  animation: ringPulse 0.6s ease 3;
+}
+
+/* ── Ring fill starts at 0 and animates to target ── */
+.db-ring-wrap.animate-ring-start .db-ring-fill {
+  stroke-dasharray: 0, 100 !important;
+}
+
+.db-ring-wrap.animate-ring-start.animate-ring-done .db-ring-fill {
+  transition: stroke-dasharray 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Number count-up text ── */
+.db-ring-text.animate-ring-text {
+  transition: opacity 0.2s ease;
+}
+
+/* ── Staggered entrance for stats comprehension rows ── */
+.stats-comprehension-row {
+  animation: milestoneSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  will-change: opacity, transform;
+}
+
+.stats-comprehension-row {
+  animation-delay: 0.05s; /* Default — JS overrides for proper staggering */ }
+
+/* ── Celebration confetti particles ── */
+.db-card.milestone-confetti {
+  position: relative;
+  overflow: hidden;
+}
+
+.db-card.milestone-confetti::before,
+.db-card.milestone-confetti::after {
+  content: '✦';
+  position: absolute;
+  font-size: 10px;
+  color: var(--gold);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.db-card.milestone-confetti::before {
+  top: 8px;
+  right: 30px;
+  animation: confettiFloat 1.5s ease-out 0.1s forwards;
+}
+
+.db-card.milestone-confetti::after {
+  top: 20px;
+  right: 16px;
+  font-size: 7px;
+  content: '◆';
+  animation: confettiFloat 1.8s ease-out 0.3s forwards;
+}
+
+@keyframes confettiFloat {
+  0% { opacity: 0; transform: translateY(0) rotate(0deg) scale(0); }
+  20% { opacity: 0.8; transform: translateY(-8px) rotate(30deg) scale(1); }
+  100% { opacity: 0; transform: translateY(-28px) rotate(60deg) scale(0.3); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-count,
+  .animate-ring-pulse,
+  .animate-ring-glow,
+  .animate-delta,
+  .animate-insight,
+  .milestone-celebration,
+  .milestone-celebration .db-milestone-row::after,
+  .milestone-celebration .db-comp-row,
+  .db-ring-wrap.animate-ring-start .db-ring-fill,
+  .stats-comprehension-row,
+  .db-card.milestone-confetti::before,
+  .db-card.milestone-confetti::after {
+    animation: none !important;
+  }
+  .milestone-celebration .db-milestone-row::after { content: none; }
+  .db-ring-text.animate-ring-text { transition: none; }
+  .db-ring-wrap.animate-ring-start.animate-ring-done .db-ring-fill { transition: none; }
+}
+
 .db-ring-text {
   fill: var(--gold-light);
   font-size: 7px;

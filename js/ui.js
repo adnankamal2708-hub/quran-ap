@@ -1193,7 +1193,7 @@ function renderStats() {
       var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
       if (coverage && foundCov) {
         var covRow1 = document.createElement('div');
-        covRow1.className = 'stats-bar-row';
+        covRow1.className = 'stats-bar-row stats-comprehension-row';
         covRow1.innerHTML = '<span style="font-size:11px;color:var(--green);font-weight:500;padding:2px 0">📖 Quran Reading Coverage: ' + coverage.coveragePercent + '%</span>';
         foundationStatsContainer.appendChild(covRow1);
         var compRow = document.createElement('div');
@@ -1207,17 +1207,17 @@ function renderStats() {
           var $sWeekFmt = $sight.weekChange > 0 ? '+' + $sight.weekChange.toFixed(1) + '%' : ($sight.weekChange < 0 ? $sight.weekChange.toFixed(1) + '%' : '± 0%');
           var $sMonthFmt = $sight.monthChange > 0 ? '+' + $sight.monthChange.toFixed(1) + '%' : ($sight.monthChange < 0 ? $sight.monthChange.toFixed(1) + '%' : '± 0%');
           var $sDeltaRow = document.createElement('div');
-          $sDeltaRow.className = 'stats-bar-row';
+          $sDeltaRow.className = 'stats-bar-row stats-comprehension-row';
           $sDeltaRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);padding:1px 0">Today <span style="color:' + $sTodayCls + '">' + $sTodayFmt + '</span> \u00B7 Week <span style="color:' + $sWeekCls + '">' + $sWeekFmt + '</span> \u00B7 Month <span style="color:' + $sMonthCls + '">' + $sMonthFmt + '</span></span>';
           foundationStatsContainer.appendChild($sDeltaRow);
           // Milestone insight
           if ($sight.milestoneCurrent) {
             var $sMSRow = document.createElement('div');
-            $sMSRow.className = 'stats-bar-row';
+            $sMSRow.className = 'stats-bar-row stats-comprehension-row';
             $sMSRow.innerHTML = '<span style="font-size:10px;color:var(--gold);padding:2px 0">' + $sight.milestoneCurrent.icon + ' Milestone: ' + $sight.milestoneCurrent.label + '</span>';
             foundationStatsContainer.appendChild($sMSRow);
             var $sInsightRow = document.createElement('div');
-            $sInsightRow.className = 'stats-bar-row';
+            $sInsightRow.className = 'stats-bar-row stats-comprehension-row';
             $sInsightRow.innerHTML = '<span style="font-size:9px;color:var(--text-muted);font-style:italic;padding:1px 0">' + $sight.insightMessage + '</span>';
             foundationStatsContainer.appendChild($sInsightRow);
           }
@@ -2861,6 +2861,155 @@ window.__openExplorer = openExplorer;
 window.__explorerWord = function() { return _explorerWord; };
 
 // ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// COMPREHENSION ANIMATIONS — Smooth number counting, ring fill, milestone celebration
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Animate a number element counting from 0 to target.
+ * @param {Element} el - The DOM element to update
+ * @param {number} target - The target value (0-100)
+ * @param {number} duration - Animation duration in ms (default 800)
+ */
+function animateComprehensionNumber(el, target, duration) {
+  if (!el) return;
+  duration = duration || 800;
+  var startTime = null;
+  var startVal = 0;
+  
+  function step(timestamp) {
+    if (!startTime) startTime = timestamp;
+    var progress = Math.min(1, (timestamp - startTime) / duration);
+    // Ease out cubic
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = Math.round(eased * target);
+    el.textContent = current + '%';
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.textContent = target + '%';
+      el.classList.add('animate-count');
+    }
+  }
+  
+  requestAnimationFrame(step);
+}
+
+/**
+ * Animate the SVG comprehension ring from 0 to target percent.
+ * @param {Element} ringEl - The SVG path element for the ring fill
+ * @param {number} targetPercent - The final percentage (0-100)
+ * @param {number} duration - Animation duration in ms (default 800)
+ */
+function animateComprehensionRing(ringEl, targetPercent, duration) {
+  if (!ringEl) return;
+  duration = duration || 800;
+  var startTime = null;
+  targetPercent = Math.min(100, Math.max(0, targetPercent));
+  
+  // Save original transition and disable it during animation to avoid conflict
+  var origTransition = ringEl.style.transition;
+  ringEl.style.transition = 'none';
+  
+  // Start at 0
+  ringEl.setAttribute('stroke-dasharray', '0, 100');
+  
+  function step(timestamp) {
+    if (!startTime) startTime = timestamp;
+    var progress = Math.min(1, (timestamp - startTime) / duration);
+    // Ease out cubic with slight overshoot
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = Math.round(eased * targetPercent);
+    ringEl.setAttribute('stroke-dasharray', current + ', 100');
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      // Restore original transition
+      ringEl.style.transition = origTransition || '';
+    }
+  }
+  
+  // Force layout to ensure 'none' transition is applied before first frame
+  void ringEl.getBoundingClientRect();
+  requestAnimationFrame(step);
+}
+
+/**
+ * Trigger a milestone celebration effect on the comprehension card.
+ * @param {Element} cardEl - The dashboard comprehension card element
+ */
+function triggerMilestoneCelebration(cardEl) {
+  if (!cardEl) return;
+  
+  // Add celebration class
+  cardEl.classList.add('milestone-celebration', 'milestone-confetti');
+  
+  // Pulse the ring
+  var ringWrap = cardEl.querySelector('.db-ring-wrap');
+  if (ringWrap) ringWrap.classList.add('animate-ring-pulse');
+  
+  // Remove animation classes after they complete
+  setTimeout(function() {
+    cardEl.classList.remove('milestone-celebration', 'milestone-confetti');
+    if (ringWrap) ringWrap.classList.remove('animate-ring-pulse');
+  }, 2000);
+}
+
+/**
+ * Animate delta rows with staggered entrance
+ * @param {Element} container - The parent element containing delta rows
+ */
+function animateDeltaRows(container) {
+  if (!container) return;
+  var rows = container.querySelectorAll('.db-delta-row, .db-milestone-row, .db-insight-message, .db-next-milestone');
+  for (var i = 0; i < rows.length; i++) {
+    rows[i].classList.add('animate-delta');
+    // Use JS-applied delays instead of CSS nth-child (which counts all siblings)
+    rows[i].style.animationDelay = (0.4 + i * 0.1) + 's';
+  }
+}
+
+/**
+ * Full comprehension animation sequence for the dashboard card.
+ * @param {Element} cardEl - The dashboard comprehension card
+ * @param {number} comprehensionPct - The comprehension percentage to animate to
+ * @param {boolean} isNewMilestone - Whether a new milestone was just reached
+ */
+function animateDashboardComprehension(cardEl, comprehensionPct, isNewMilestone) {
+  if (!cardEl) return;
+  
+  var ringEl = cardEl.querySelector('.db-ring-fill');
+  var ringText = cardEl.querySelector('.db-ring-text');
+  var ringWrap = cardEl.querySelector('.db-ring-wrap');
+  
+  // Animate ring fill from 0 to target
+  if (ringEl) {
+    animateComprehensionRing(ringEl, comprehensionPct);
+  }
+  
+  // Animate ring text number counting up
+  if (ringText) {
+    animateComprehensionNumber(ringText, comprehensionPct);
+  }
+  
+  // Ring glow effect
+  if (ringWrap) {
+    ringWrap.classList.add('animate-ring-glow');
+    setTimeout(function() {
+      ringWrap.classList.remove('animate-ring-glow');
+    }, 1500);
+  }
+  
+  // Staggered delta row entrance
+  animateDeltaRows(cardEl);
+  
+  // Milestone celebration
+  if (isNewMilestone) {
+    triggerMilestoneCelebration(cardEl);
+  }
+}
+
 // LEARNING PATH DASHBOARD — Multi-Path Progress & Selection
 // ═══════════════════════════════════════════════════════════════
 
@@ -2946,23 +3095,6 @@ function renderDashboard() {
     if ($insight.milestoneNext) {
       $html += '<div class="db-next-milestone" style="font-size:9px;color:var(--gold-dim);padding:1px 0">Next: ' + $insight.milestoneNext.label + ' (' + $insight.milestoneNext.pct + '%)</div>';
     }
-  };
-  var $insight = typeof getComprehensionInsight === 'function' ? getComprehensionInsight() : null;
-  if ($insight) {
-    var $tCls = $insight.todayChange >= 0 ? 'var(--green)' : 'var(--red)';
-    var $wCls = $insight.weekChange >= 0 ? 'var(--green)' : 'var(--red)';
-    var $mCls = $insight.monthChange >= 0 ? 'var(--green)' : 'var(--red)';
-    var $tFmt = $insight.todayChange > 0 ? '+' + $insight.todayChange.toFixed(1) + '%' : ($insight.todayChange < 0 ? $insight.todayChange.toFixed(1) + '%' : '± 0%');
-    var $wFmt = $insight.weekChange > 0 ? '+' + $insight.weekChange.toFixed(1) + '%' : ($insight.weekChange < 0 ? $insight.weekChange.toFixed(1) + '%' : '± 0%');
-    var $mFmt = $insight.monthChange > 0 ? '+' + $insight.monthChange.toFixed(1) + '%' : ($insight.monthChange < 0 ? $insight.monthChange.toFixed(1) + '%' : '± 0%');
-    $html += '<div class="db-delta-row"><span style="font-size:10px;color:' + $tCls + '">Today: ' + $tFmt + '</span> <span style="font-size:10px;color:' + $wCls + '">Week: ' + $wFmt + '</span> <span style="font-size:10px;color:' + $mCls + '">Month: ' + $mFmt + '</span></div>';
-    if ($insight.milestoneCurrent) {
-      $html += '<div class="db-milestone-row"><span>' + $insight.milestoneCurrent.icon + ' Milestone: ' + $insight.milestoneCurrent.label + '</span></div>';
-      $html += '<div class="db-insight-message" style="font-size:9px;color:var(--text-muted);font-style:italic;padding:2px 0">' + $insight.insightMessage + '</div>';
-    }
-    if ($insight.milestoneNext) {
-      $html += '<div class="db-next-milestone" style="font-size:9px;color:var(--gold-dim);padding:2px 0">Next: ' + $insight.milestoneNext.label + ' (' + $insight.milestoneNext.pct + '%)</div>';
-    }
   }
   $html += '</div></div></div>';
 
@@ -3035,6 +3167,29 @@ function renderDashboard() {
   $html += '</div></div>';
 
   $d.innerHTML = $html;
+
+  // ── Animate comprehension card ──
+  var $compCard = document.querySelector('.db-card-highlight .db-comp-row');
+  if ($compCard) {
+    var $compCardParent = $compCard.closest('.db-card');
+    if ($compCardParent && typeof animateDashboardComprehension === 'function') {
+      // Determine if this is a new milestone by comparing with stored value
+      var $prevComp = window.__prevComprehensionPct || -1;
+      var $isNewMs = false;
+      if ($prevComp >= 0 && $prevComp < $comprehensionPct) {
+        // Check if we crossed a milestone threshold
+        var milestones = window.__comprehensionMilestones || [5,10,15,20,25,30,40,50,60,70,80,90,95,100];
+        for (var $mii = 0; $mii < milestones.length; $mii++) {
+          if ($prevComp < milestones[$mii] && $comprehensionPct >= milestones[$mii]) {
+            $isNewMs = true;
+            break;
+          }
+        }
+      }
+      window.__prevComprehensionPct = $comprehensionPct;
+      animateDashboardComprehension($compCardParent, $comprehensionPct, $isNewMs);
+    }
+  }
 
   // ── Wire card clicks ──
   function $wire(id, fn) {
