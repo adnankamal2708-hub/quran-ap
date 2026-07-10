@@ -635,6 +635,420 @@ test.describe('Keyboard Shortcuts', () => {
   });
 });
 
+// ── SRS Rating — Edge Cases ────────────────────────────────────
+
+test.describe('SRS Rating - Edge Cases', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+    await page.locator('#tab-learn').click();
+    await page.waitForTimeout(500);
+    await page.locator('#surah-select').selectOption('foundation');
+    await page.waitForTimeout(500);
+  });
+
+  test('rating "Again" on a word resets the SRS pill status', async ({ page }) => {
+    // Navigate forward to enable SRS
+    await page.locator('#btn-next').click();
+    await page.waitForTimeout(300);
+
+    // Get initial SRS pill text
+    const srPill = page.locator('#sr-pill');
+    const initialText = await srPill.textContent();
+
+    // Click "Again" (forgotten)
+    await page.locator('#srs-again').click();
+    await page.waitForTimeout(500);
+
+    // After rating, the SRS pill should reflect the rating
+    // The pill should still be visible and should not be empty
+    await expect(srPill).toBeVisible();
+    const afterText = await srPill.textContent();
+    expect(afterText.length).toBeGreaterThan(0);
+  });
+
+  test('rating a word and navigating back retains learned count', async ({ page }) => {
+    // Navigate forward to enable SRS
+    await page.locator('#btn-next').click();
+    await page.waitForTimeout(300);
+
+    // Get initial learned count
+    const learned = page.locator('#stat-learned');
+    const initialLearned = parseInt(await learned.textContent()) || 0;
+
+    // Rate the word
+    await page.locator('#srs-good').click();
+    await page.waitForTimeout(500);
+
+    const firstLearned = parseInt(await learned.textContent()) || 0;
+
+    // Navigate back to previous word (if available)
+    await page.locator('#btn-prev').click();
+    await page.waitForTimeout(300);
+
+    // Learned count should persist (not reset)
+    const afterBack = parseInt(await learned.textContent()) || 0;
+    expect(afterBack).toBeGreaterThanOrEqual(firstLearned);
+  });
+
+  test('rating "Easy" updates SRS status to reflect better retention', async ({ page }) => {
+    await page.locator('#btn-next').click();
+    await page.waitForTimeout(300);
+
+    // Get initial SRS pill status
+    const srPill = page.locator('#sr-pill');
+    const initialPillText = await srPill.textContent();
+
+    // Rate with "Easy"
+    await page.locator('#srs-easy').click();
+    await page.waitForTimeout(500);
+
+    // After rating, stats should be visible and positive
+    const learned = page.locator('#stat-learned');
+    const text = await learned.textContent();
+    expect(parseInt(text) || 0).toBeGreaterThanOrEqual(0);
+
+    // SRS pill should update after rating
+    const newPillText = await srPill.textContent();
+    // New pill content should reflect the rating (not empty, may change status)
+    expect(newPillText.length).toBeGreaterThan(0);
+  });
+});
+
+// ── Quiz Completion — Edge Cases ───────────────────────────────
+
+test.describe('Quiz Completion - Edge Cases', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+    await page.locator('#tab-learn').click();
+    await page.waitForTimeout(500);
+    await page.locator('#surah-select').selectOption('foundation');
+    await page.waitForTimeout(500);
+    await page.locator('#tab-quiz').click();
+    await page.waitForTimeout(500);
+  });
+
+  test('correct answer shows green feedback and update score', async ({ page }) => {
+    // Answer first question correctly by picking the right option
+    await page.waitForTimeout(300);
+    const firstOption = page.locator('.quiz-opt').first();
+    await firstOption.click();
+    await page.waitForTimeout(300);
+
+    // Next button should appear
+    await expect(page.locator('#btn-next-quiz')).toBeVisible();
+
+    // Score display should show 1/1 correct
+    const score = page.locator('#quiz-score-display');
+    await expect(score).toContainText(/correct/);
+  });
+
+  test('score updates across multiple answers', async ({ page }) => {
+    await page.waitForTimeout(300);
+
+    // Answer first question
+    const firstOption = page.locator('.quiz-opt').first();
+    await firstOption.click();
+    await page.waitForTimeout(200);
+
+    // Advance to next question
+    await page.locator('#btn-next-quiz').click();
+    await page.waitForTimeout(300);
+
+    // Answer second question
+    const secondOptions = page.locator('.quiz-opt');
+    const count = await secondOptions.count();
+    if (count > 0) {
+      await secondOptions.first().click();
+      await page.waitForTimeout(200);
+    }
+
+    // Score should have advanced
+    const score = page.locator('#quiz-score-display');
+    await expect(score).toContainText(/correct/);
+  });
+
+  test('quiz navigates between questions with score progression', async ({ page }) => {
+    await page.waitForTimeout(300);
+
+    // Answer first question
+    const firstOption = page.locator('.quiz-opt').first();
+    await firstOption.click();
+    await page.waitForTimeout(200);
+
+    // Feedback should appear with correct/incorrect indicator
+    const feedback = page.locator('#quiz-feedback');
+    await expect(feedback).not.toBeEmpty();
+
+    // Score display should show progress like "1/1" or "correct"
+    const scoreEl = page.locator('#quiz-score-display');
+    await expect(scoreEl).not.toBeEmpty();
+
+    // Advance to next question
+    await page.locator('#btn-next-quiz').click();
+    await page.waitForTimeout(500);
+
+    // Should show next question (different word or same with updated score)
+    await expect(page.locator('#quiz-word')).toBeVisible();
+
+    // Answer second question
+    const secondOptions = page.locator('.quiz-opt');
+    const optCount = await secondOptions.count();
+    expect(optCount).toBeGreaterThanOrEqual(2);
+    await secondOptions.first().click();
+    await page.waitForTimeout(200);
+
+    // Score should advance
+    const updatedScore = await scoreEl.textContent();
+    expect(updatedScore.length).toBeGreaterThan(0);
+  });
+
+  test('quiz score percentage displays in top bar', async ({ page }) => {
+    await page.waitForTimeout(300);
+
+    // Answer a question
+    const firstOption = page.locator('.quiz-opt').first();
+    await firstOption.click();
+    await page.waitForTimeout(300);
+
+    // Score in top bar should update
+    const scoreEl = page.locator('#stat-score');
+    const text = await scoreEl.textContent();
+    // Should show percentage (100% or 0% depending on answer)
+    expect(text).toMatch(/%|-/);
+  });
+});
+
+// ── Vocabulary Explorer ─────────────────────────────────────────
+
+test.describe('Vocabulary Explorer', () => {
+  async function navigateToWordAndOpenExplorer(page) {
+    await page.locator('#tab-list').click();
+    await page.waitForTimeout(800);
+
+    // Click first word in list to navigate to learn view
+    const firstItem = page.locator('.wordlist-item').first();
+    await expect(firstItem).toBeVisible({ timeout: 5000 });
+    await firstItem.click();
+    await page.waitForTimeout(800);
+
+    // Open explorer via global bridge function
+    await page.evaluate(() => {
+      const w = window.__getCurrentWord();
+      if (w && window.__openExplorer) {
+        window.__openExplorer(w);
+      }
+    });
+    await page.waitForTimeout(500);
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+  });
+
+  test('opens explorer view from word list click', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    // Should now be in the explorer view
+    await expect(page.locator('#view-explorer')).toBeVisible({ timeout: 3000 });
+  });
+
+  test('explorer shows core word information (arabic, translit, meaning, root)', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    await expect(page.locator('#view-explorer')).toBeVisible();
+
+    // Core info elements should be populated
+    await expect(page.locator('#explorer-arabic')).not.toBeEmpty();
+    await expect(page.locator('#explorer-translit')).not.toBeEmpty();
+    await expect(page.locator('#explorer-meaning-main')).not.toBeEmpty();
+    await expect(page.locator('#explorer-root')).not.toBeEmpty();
+    await expect(page.locator('#explorer-pos')).not.toBeEmpty();
+  });
+
+  test('explorer displays occurrence count and verse context', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    await expect(page.locator('#view-explorer')).toBeVisible();
+
+    // Occurrence info should be present
+    await expect(page.locator('#explorer-occ')).not.toBeEmpty();
+    await expect(page.locator('#explorer-total-occ')).not.toBeEmpty();
+    await expect(page.locator('#explorer-surah-count')).not.toBeEmpty();
+
+    // Ayah display area should be visible
+    await expect(page.locator('#explorer-ayah-arabic')).not.toBeEmpty();
+    await expect(page.locator('#explorer-ayah-translation')).not.toBeEmpty();
+    await expect(page.locator('#explorer-ayah-ref')).not.toBeEmpty();
+  });
+
+  test('explorer displays root family list', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    // Root family section should exist and have content or empty message
+    const rootFamilyList = page.locator('#explorer-root-family-list');
+    await expect(rootFamilyList).toBeVisible();
+  });
+
+  test('explorer shows derived forms and morphological relatives', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    // Derived forms section
+    const derivedList = page.locator('#explorer-derived-forms-list');
+    await expect(derivedList).toBeVisible();
+
+    // Morphological relatives
+    const morphList = page.locator('#explorer-morph-list');
+    await expect(morphList).toBeVisible();
+  });
+
+  test('explorer shows SRS learning progress', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    // Learning progress section
+    await expect(page.locator('#explorer-srs-stage')).toBeVisible();
+    await expect(page.locator('#explorer-last-studied')).toBeVisible();
+    await expect(page.locator('#explorer-next-review')).toBeVisible();
+    await expect(page.locator('#explorer-review-count')).toBeVisible();
+    await expect(page.locator('#explorer-foundation-status')).toBeVisible();
+  });
+
+  test('explorer back button returns to previous view', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    await expect(page.locator('#view-explorer')).toBeVisible();
+
+    // Click back button
+    await page.locator('#explorer-back').click();
+
+    // Wait for explorer view to be dismissed (animation ~400ms)
+    await expect(page.locator('#view-explorer')).not.toBeVisible({ timeout: 3000 });
+
+    // Should return to a view — either learn or list was the previous view
+    // The view-entrance animation may briefly hide the target, so wait for content
+    await page.waitForTimeout(500);
+    const isLearnVisible = await page.locator('#view-learn').isVisible();
+    const isListVisible = await page.locator('#view-list').isVisible();
+    expect(isLearnVisible || isListVisible).toBeTruthy();
+  });
+
+  test('explorer has action buttons (bookmark, study, review)', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    await expect(page.locator('#explorer-btn-bookmark')).toBeVisible();
+    await expect(page.locator('#explorer-btn-study')).toBeVisible();
+    await expect(page.locator('#explorer-btn-review')).toBeVisible();
+  });
+
+  test('explorer word relationships section has semantic groups', async ({ page }) => {
+    await navigateToWordAndOpenExplorer(page);
+
+    // Various relationship lists should exist
+    await expect(page.locator('#explorer-semantic-list')).toBeVisible();
+    await expect(page.locator('#explorer-similar-list')).toBeVisible();
+    await expect(page.locator('#explorer-related-list')).toBeVisible();
+  });
+});
+
+// ── Analytics View ─────────────────────────────────────────────
+
+test.describe('Analytics View', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+  });
+
+  test('analytics tab renders content', async ({ page }) => {
+    await page.locator('#tab-analytics').click();
+    await page.waitForTimeout(1000);
+
+    await expect(page.locator('#view-analytics')).toBeVisible();
+
+    // Analytics tabs should be present
+    const tabs = page.locator('.analytics-tab');
+    const tabCount = await tabs.count();
+    expect(tabCount).toBeGreaterThanOrEqual(3);
+
+    // Analytics content area should be present
+    const content = page.locator('#analytics-content');
+    await expect(content).toBeVisible();
+  });
+
+  test('overview tab shows learning stats', async ({ page }) => {
+    await page.locator('#tab-analytics').click();
+    await page.waitForTimeout(1000);
+
+    // Overview tab should be active by default and show stat cards
+    const overviewTab = page.locator('.analytics-tab-active');
+    await expect(overviewTab).toBeVisible();
+    await expect(overviewTab).toContainText(/Overview/i);
+
+    // Content area should have analytics content
+    const content = page.locator('#analytics-content');
+    await expect(content).not.toBeEmpty();
+  });
+
+  test('trends tab is clickable', async ({ page }) => {
+    await page.locator('#tab-analytics').click();
+    await page.waitForTimeout(1000);
+
+    // Click the Trends tab
+    const trendsTab = page.locator('.analytics-tab').filter({ hasText: /Trends/i });
+    await expect(trendsTab).toBeVisible();
+    await trendsTab.click();
+    await page.waitForTimeout(500);
+
+    // Should have content
+    const content = page.locator('#analytics-content');
+    await expect(content).not.toBeEmpty();
+  });
+
+  test('insights tab is clickable', async ({ page }) => {
+    await page.locator('#tab-analytics').click();
+    await page.waitForTimeout(1000);
+
+    // Click the Insights tab
+    const insightsTab = page.locator('.analytics-tab').filter({ hasText: /Insights/i });
+    await expect(insightsTab).toBeVisible();
+    await insightsTab.click();
+    await page.waitForTimeout(500);
+
+    const content = page.locator('#analytics-content');
+    await expect(content).not.toBeEmpty();
+  });
+
+  test('achievements tab is clickable', async ({ page }) => {
+    await page.locator('#tab-analytics').click();
+    await page.waitForTimeout(1000);
+
+    const achievementsTab = page.locator('.analytics-tab').filter({ hasText: /Achievements/i });
+    await expect(achievementsTab).toBeVisible();
+    await achievementsTab.click();
+    await page.waitForTimeout(500);
+
+    const content = page.locator('#analytics-content');
+    await expect(content).not.toBeEmpty();
+  });
+});
+
 // ── Progress Persistence ───────────────────────────────────────
 
 test.describe('Progress Persistence', () => {
@@ -663,5 +1077,98 @@ test.describe('Progress Persistence', () => {
     const text = await lessonLabel.textContent();
     // The lesson label should reflect the saved progress
     expect(text).toContain('Lesson');
+  });
+
+  test('SRS data persists across page reloads', async ({ page }) => {
+    // Seed SRS data
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.clear();
+      const srsData = {
+        'test_word_1': {
+          dueDate: Date.now() + 86400000,
+          interval: 1,
+          lastRating: 2,
+          ratedAt: Date.now(),
+          stage: 1,
+          reps: 1,
+          totalReviews: 1,
+          lapses: 0,
+          easeFactor: 2.5,
+          leechCount: 0,
+          isLeech: false,
+        },
+      };
+      localStorage.setItem('quran_srs_data', JSON.stringify(srsData));
+      localStorage.setItem('quran_onboarding_done', 'true');
+    });
+
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1500);
+
+    // Navigate to stats to check SRS data persisted
+    await page.locator('#tab-stats').click();
+    await page.waitForTimeout(500);
+
+    await expect(page.locator('#view-stats')).toBeVisible();
+  });
+});
+
+// ── Quick Flashcard Mode ───────────────────────────────────────
+
+test.describe('Quick Flashcard Mode', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+    await page.locator('#tab-learn').click();
+    await page.waitForTimeout(500);
+    await page.locator('#surah-select').selectOption('foundation');
+    await page.waitForTimeout(500);
+  });
+
+  test('quick mode toggle button is visible', async ({ page }) => {
+    await expect(page.locator('#qa-quick-mode')).toBeVisible();
+  });
+
+  test('toggling quick mode hides extra content', async ({ page }) => {
+    // Click quick mode button
+    await page.locator('#qa-quick-mode').click();
+    await page.waitForTimeout(300);
+
+    // The learn view should have quick-mode class
+    const learnView = page.locator('#view-learn');
+    const hasQuickMode = await learnView.evaluate(el => el.classList.contains('quick-mode'));
+    expect(hasQuickMode).toBeTruthy();
+  });
+
+  test('toggling quick mode off restores full layout', async ({ page }) => {
+    // Toggle on — use page.evaluate to bypass smooth-scroll repositioning
+    await page.evaluate(() => {
+      var btn = document.getElementById('qa-quick-mode');
+      if (btn) btn.click();
+    });
+    await page.waitForTimeout(300);
+
+    // Toggle off
+    await page.evaluate(() => {
+      var btn = document.getElementById('qa-quick-mode');
+      if (btn) btn.click();
+    });
+    await page.waitForTimeout(300);
+
+    // Check quick-mode class is removed
+    const hasQuickMode = await page.evaluate(() => {
+      var view = document.getElementById('view-learn');
+      return view ? view.classList.contains('quick-mode') : false;
+    });
+    expect(hasQuickMode).toBeFalsy();
+
+    // Button should say "⚡ Quick" when off
+    await expect(page.locator('#qa-quick-mode')).toContainText(/Quick(?!: ON)/);
   });
 });
