@@ -2865,7 +2865,7 @@ function renderAnalyticsInsightsPage(analytics) {
     // SRS Health
     var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
     if (srsStats) {
-      html += '<div class    html += '<div class="analytics-section-title">❤️ SRS Health</div>';
+      html += '<div class="analytics-section-title">💖 SRS Health</div>';
     html += '<div class="analytics-health-card">';
     if (srsStats) {
       // Compute additional metrics

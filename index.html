@@ -844,7 +844,7 @@
             <label class="auth-label" for="settings-edit-limit">Daily review limit (5-100)</label>
             <input class="auth-input" id="settings-edit-limit" type="number" min="5" max="100" value="25" />
             <label class="auth-label" for="settings-edit-size">Session word count (5-153)</label>
-            <input class="auth-input" id="settings-edit-size" type="number" min="5" max="153" value="20" />
+            <input class="auth-input" id="settings-edit-size" type="number" min="5" max="500" value="20" />
             <label class="auth-checkbox-label mt-12 flex gap-8">
               <input type="checkbox" id="settings-edit-auto" checked />
               <span>Auto-import local data on login</span>
@@ -899,6 +899,16 @@
           <button class="btn w-full mt-16" id="session-summary-close" type="button">Continue Learning</button>
         </div>
       </div>
+
+      <!-- ── SVG Defs for Dashboard Rings ── -->
+      <svg class="db-ring-gradient" aria-hidden="true" style="position:absolute;width:0;height:0">
+        <defs>
+          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="var(--gold-dim)" />
+            <stop offset="100%" stop-color="var(--gold)" />
+          </linearGradient>
+        </defs>
+      </svg>
 
       <!-- ── PASSWORD CHANGE MODAL ── -->
       <div class="modal-overlay" id="password-change-modal" style="display:none" role="dialog" aria-modal="true" aria-label="Change password">

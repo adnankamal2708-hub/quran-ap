@@ -879,6 +879,9 @@ function getAllFoundationWords() {
 /** Cached total Quranic occurrences across all canonical words */
 let _totalQuranOccurrences = 0;
 
+/** Cached coverage result */
+let _coverageCache = null;
+
 /**
  * Compute total Quranic occurrences across all canonical words.
  */
@@ -1620,8 +1623,7 @@ function completeFoundationLesson(lessonIndex) {
   }
   progress.quizPassed[String(lessonIndex)] = true;
   saveFoundationProgress(progress);
-  var next = getNextIncompleteFoundationLesson();
-  progress.currentLesson = next;
+  progress.currentLesson = getNextIncompleteFoundationLesson();
   saveFoundationProgress(progress);
   var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
   if (user && window.__sync && window.__sync.queueSync) {
