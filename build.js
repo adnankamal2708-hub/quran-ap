@@ -35,11 +35,40 @@ const DIST = path.join(ROOT, 'dist');
 // remain consistent across builds when no new files are added.
 const DATA_FILES = (function () {
   var dataDir = path.join(ROOT, 'js', 'data');
-  if (!fs.existsSync(dataDir)) return ['js/data.js'];
+  var dataCoreDir = path.join(ROOT, 'js', 'data-core');
+  
+  var files = [];
+
+  // 1. Core data engine modules (split from the monolithic data.js)
+  //    Loaded first because they define ALL_WORDS, CANONICAL_WORDS, etc.
+  var coreModules = [
+    'js/data-core/vocab-data.js',
+    'js/data-core/surah-org.js',
+    'js/data-core/foundation.js',
+    'js/data-core/lesson-system.js',
+    'js/data-core/progress-aggregator.js',
+    'js/data-core/adaptive.js',
+    'js/data-core/quiz-history.js',
+    'js/data-core/surah-progress.js',
+  ];
+  if (fs.existsSync(dataCoreDir)) {
+    files = files.concat(coreModules);
+  }
+  
+  // Fallback: if data-core directory is missing, use the monolithic data.js
+  if (files.length === 0) {
+    files = ['js/data.js'];
+    console.log('  ⚠ js/data-core/ not found — falling back to monolithic data.js');
+  }
+
+  // 2. Word data files from js/data/
+  if (!fs.existsSync(dataDir)) return files;
 
   var entries = fs.readdirSync(dataDir).filter(function (f) { return f.endsWith('.js'); });
 
-  var core = ['js/data.js'];
+  var surahMeta = [];
+  var thematic = [];
+  var perSurah = [];
   var surahMeta = [];
   var thematic = [];
   var perSurah = [];
@@ -66,11 +95,28 @@ const DATA_FILES = (function () {
   // Sort thematic files alphabetically (stable for backward compat)
   thematic.sort();
 
-  return core.concat(surahMeta).concat(thematic).concat(perSurah);
+  return files.concat(surahMeta).concat(thematic).concat(perSurah);
 })();
 
 // firebase-core.js is NOT included in the bundle — it is loaded as a
 // separate ES module (<script type="module">) so that CDN imports work.
+const UI_FILES = (function () {
+  var uiDir = path.join(ROOT, 'js', 'ui');
+  if (fs.existsSync(uiDir)) {
+    // Load UI modules in dependency order
+    return [
+      'js/ui/dom-helpers.js',
+      'js/ui/word-card.js',
+      'js/ui/stats-ui.js',
+      'js/ui/quiz-ui.js',
+      'js/ui/explorer.js',
+      'js/ui/analytics-ui.js',
+      'js/ui/dashboard.js',
+    ];
+  }
+  return ['js/ui.js']; // Fallback to monolithic file
+})();
+
 const APP_FILES = [
   'js/services/config.js',
   'js/services/auth-service.js',
@@ -78,14 +124,26 @@ const APP_FILES = [
   'js/services/user-service.js',
   'js/vocabulary.js',
   'js/srs.js',
-  'js/ui.js',
+].concat(UI_FILES).concat([
   'js/quiz.js',
   'js/auth-ui.js',
   'js/profile-ui.js',
   'js/analytics.js',
   'js/ux-polish.js',
   'js/app.js',
-];
+]);
+
+// Validate that all referenced files exist
+UI_FILES.forEach(function(f) {
+  if (!fs.existsSync(path.join(ROOT, f))) {
+    console.warn('  ⚠ UI file not found: ' + f + ' — check js/ui/ directory');
+  }
+});
+DATA_FILES.forEach(function(f) {
+  if (!fs.existsSync(path.join(ROOT, f))) {
+    console.warn('  ⚠ Data file not found: ' + f);
+  }
+});
 
 function readFile(filePath) {
   var full = path.join(ROOT, filePath);

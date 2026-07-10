@@ -1,4 +1,18 @@
 // ═══════════════════════════════════════════════════════════════
+// ⚠ NOTE: This file is no longer loaded by the build process.
+// The UI layer has been split into focused modules in
+//   js/ui/
+//   ├── dom-helpers.js    — DOM element cache
+//   ├── word-card.js      — Word card rendering
+//   ├── stats-ui.js       — Stats, filters, word list
+//   ├── quiz-ui.js        — Quiz question rendering
+//   ├── explorer.js       — Vocabulary explorer
+//   ├── analytics-ui.js   — Analytics rendering
+//   └── dashboard.js      — Dashboard rendering
+//
+// Edit the modules above instead of this file.
+// ═══════════════════════════════════════════════════════════════
+
 // ui.js — UI Rendering Module
 // All DOM manipulation functions — no application state here
 // ═══════════════════════════════════════════════════════════════

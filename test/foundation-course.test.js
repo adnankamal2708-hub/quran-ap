@@ -106,7 +106,24 @@ function makeCanonicalWords(count) {
 // EVAL data.js to make functions available globally
 // ═══════════════════════════════════════════════════════════════
 
-var dataCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
+// Load split data-core modules instead of monolithic data.js
+var dataModuleNames = [
+  'vocab-data.js',
+  'surah-org.js',
+  'foundation.js',
+  'lesson-system.js',
+  'progress-aggregator.js',
+  'adaptive.js',
+  'quiz-history.js',
+  'surah-progress.js',
+];
+var dataCode = '';
+dataModuleNames.forEach(function(mod) {
+  var modPath = path.join(__dirname, '..', 'js', 'data-core', mod);
+  if (fs.existsSync(modPath)) {
+    dataCode += fs.readFileSync(modPath, 'utf8') + '\n';
+  }
+});
 dataCode = dataCode.replace(/\bconst\s+/g, 'var ');
 dataCode = dataCode.replace(/\blet\s+/g, 'var ');
 global.eval(dataCode);

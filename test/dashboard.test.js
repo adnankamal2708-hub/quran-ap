@@ -243,9 +243,14 @@ var fs = require('fs');
 var path = require('path');
 
 (function() {
-  var uiCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui.js'), 'utf8');
+  // Load split UI modules instead of monolithic ui.js
+  var uiModulePath = path.join(__dirname, '..', 'js', 'ui', 'dashboard.js');
+  if (!fs.existsSync(uiModulePath)) {
+    throw new Error('dashboard.js split module not found');
+  }
+  var uiCode = fs.readFileSync(uiModulePath, 'utf8');
   var idx = uiCode.indexOf('function renderDashboard()');
-  if (idx < 0) throw new Error('renderDashboard() not found in ui.js');
+  if (idx < 0) throw new Error('renderDashboard() not found in dashboard.js');
 
   var braceIdx = uiCode.indexOf('{', idx);
   var depth = 1;

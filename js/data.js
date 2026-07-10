@@ -1,4 +1,20 @@
 // ═══════════════════════════════════════════════════════════════
+// ⚠ NOTE: This file is no longer loaded by the build process.
+// The data layer has been split into focused modules in
+//   js/data-core/
+//   ├── vocab-data.js        — Core vocabulary setup
+//   ├── surah-org.js         — Surah-based organization
+//   ├── foundation.js        — Foundation Course
+//   ├── lesson-system.js     — Lesson system & learning paths
+//   ├── progress-aggregator.js — Learning path progress aggregator
+//   ├── adaptive.js          — Adaptive learning engine
+//   ├── quiz-history.js      — Quiz history tracking
+//   └── surah-progress.js    — Surah completion tracking
+//
+// Edit the modules above instead of this file.
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
 // data.js — Bayan Quranic Vocabulary Data Schema & Constants
 //
 // Architecture:

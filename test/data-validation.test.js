@@ -58,7 +58,24 @@ try {
 // We need to load them before eval'ing data.js so the const ALL_WORDS array in data.js
 // gets populated properly. We do this by first setting up a global reference, then
 // re-arranging the globals after eval.
-var dataCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
+// Load split data-core modules instead of monolithic data.js
+var dataModules = [
+  'vocab-data.js',
+  'surah-org.js',
+  'foundation.js',
+  'lesson-system.js',
+  'progress-aggregator.js',
+  'adaptive.js',
+  'quiz-history.js',
+  'surah-progress.js',
+];
+var dataCode = '';
+dataModules.forEach(function(mod) {
+  var modPath = path.join(__dirname, '..', 'js', 'data-core', mod);
+  if (fs.existsSync(modPath)) {
+    dataCode += fs.readFileSync(modPath, 'utf8') + '\n';
+  }
+});
 eval(dataCode);
 
 // At this point, ALL_WORDS is a const array (empty), CANONICAL_WORDS is const (empty)
