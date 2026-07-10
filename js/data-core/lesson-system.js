@@ -165,6 +165,76 @@ function getCompletedLessonCount() {
   return progress.completedLessons.length;
 }
 
+/**
+ * Get a list of surahs whose comprehension improves after completing
+ * a specific standard sequential lesson. Returns top 5 surahs with comprehension change.
+ * Works by simulating mastery of the lesson's words and calculating before/after
+ * comprehension for each surah that contains those words.
+ */
+function getSurahsImprovedByLesson(lessonIndex) {
+  var lessonWords = typeof getLessonWords === 'function' ? getLessonWords(lessonIndex) : [];
+  if (!lessonWords || lessonWords.length === 0) return [];
+  
+  var mastered = typeof getMasteredWordIds === 'function' ? getMasteredWordIds() : {};
+  
+  // Simulate mastery of this lesson's words
+  var simulatedMastered = {};
+  Object.keys(mastered).forEach(function(id) { simulatedMastered[id] = true; });
+  for (var wi = 0; wi < lessonWords.length; wi++) {
+    if (lessonWords[wi].id) simulatedMastered[lessonWords[wi].id] = true;
+  }
+  
+  var allSurahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  var improvements = [];
+  
+  for (var si = 0; si < allSurahIds.length; si++) {
+    var sid = allSurahIds[si];
+    var words = typeof getSurahWords === 'function' ? getSurahWords(sid) : [];
+    if (!words || words.length === 0) continue;
+    
+    var lessonWordsInSurah = 0;
+    for (var wi2 = 0; wi2 < lessonWords.length; wi2++) {
+      if (!lessonWords[wi2].id) continue;
+      for (var wj = 0; wj < words.length; wj++) {
+        if (words[wj].id === lessonWords[wi2].id) {
+          lessonWordsInSurah++;
+          break;
+        }
+      }
+    }
+    
+    if (lessonWordsInSurah > 0) {
+      var totalWords = words.length;
+      var masteredBefore = 0;
+      var masteredAfter = 0;
+      for (var wk = 0; wk < words.length; wk++) {
+        if (mastered[words[wk].id]) masteredBefore++;
+        if (simulatedMastered[words[wk].id]) masteredAfter++;
+      }
+      var beforePct = totalWords > 0 ? Math.round(masteredBefore / totalWords * 100) : 0;
+      var afterPct = totalWords > 0 ? Math.round(masteredAfter / totalWords * 100) : 0;
+      
+      if (afterPct > beforePct) {
+        var surahName = '';
+        if (typeof SURAH_INFO !== 'undefined' && SURAH_INFO[sid]) {
+          surahName = SURAH_INFO[sid].name;
+        }
+        improvements.push({
+          surahId: sid,
+          name: surahName || 'Surah ' + sid,
+          beforePct: beforePct,
+          afterPct: afterPct,
+          gain: afterPct - beforePct,
+          wordsLearned: lessonWordsInSurah,
+        });
+      }
+    }
+  }
+  
+  improvements.sort(function(a, b) { return b.gain - a.gain; });
+  return improvements.slice(0, 5);
+}
+
 // ═══════════════════════════════════════════════════════════════
 // LEARNING PATH DASHBOARD — Multi-Path Progress & Recommendations
 //

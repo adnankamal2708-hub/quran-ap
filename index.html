@@ -109,9 +109,9 @@
             </select>
             <button class="continue-lesson-btn" id="continue-learning-btn" type="button" style="flex-shrink:0;width:auto;padding:8px 14px;font-size:12px">📖 Continue</button>
           </div>
-          <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);margin-top:6px;text-align:center"></div>
-          <div id="foundation-unlocks" style="display:none;margin-top:8px"></div>
-          <div id="foundation-journey" style="display:none;margin-top:4px"></div>
+          <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);margin-top:6px;text-align:center" aria-live="polite"></div>
+          <div id="foundation-unlocks" style="display:none;margin-top:8px" aria-live="polite"></div>
+          <div id="foundation-journey" style="display:none;margin-top:4px" aria-live="polite"></div>
           <div id="foundation-relationship-context" style="display:none"></div>
           <div id="foundation-primary-coverage" style="display:none"></div>
         </div>
@@ -922,13 +922,9 @@
       </div>
 
       <!-- ── SVG Defs for Dashboard Rings ── -->
+      <!-- goldGradient is defined inline in dashboard.js render function -->
       <svg class="db-ring-gradient" aria-hidden="true" style="position:absolute;width:0;height:0">
-        <defs>
-          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="var(--gold-dim)" />
-            <stop offset="100%" stop-color="var(--gold)" />
-          </linearGradient>
-        </defs>
+        <defs></defs>
       </svg>
 
       <!-- ── PASSWORD CHANGE MODAL ── -->

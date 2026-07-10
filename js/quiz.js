@@ -243,6 +243,14 @@ function nextQuiz() {
         if (hadLesson && typeof checkForLessonCompletionCelebration === 'function') {
           checkForLessonCompletionCelebration(activeLessonIndex);
         }
+        
+        // Show surah connection after lesson completion
+        if (hadLesson && typeof getSurahsImprovedByLesson === 'function') {
+          var surahImprovements = getSurahsImprovedByLesson(activeLessonIndex);
+          if (surahImprovements && surahImprovements.length > 0 && typeof showSurahConnectionToast === 'function') {
+            showSurahConnectionToast(surahImprovements);
+          }
+        }
       }
       
       // Update lesson/surah/foundation display
