@@ -1,0 +1,2411 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\HP\\Downloads\\quran-ap-main\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "test/e2e/full-user-flow.spec.js",
+      "--config=playwright.config.js",
+      "--timeout=600000"
+    ],
+    "configFile": "C:\\Users\\HP\\Downloads\\quran-ap-main\\playwright.config.js",
+    "rootDir": "C:/Users/HP/Downloads/quran-ap-main/test/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/HP/Downloads/quran-ap-main/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/HP/Downloads/quran-ap-main/test/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "full-user-flow.spec.js",
+      "file": "full-user-flow.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Onboarding Tour",
+          "file": "full-user-flow.spec.js",
+          "line": 42,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows welcome tour on first visit",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13953,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:50:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:50:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:38:05.656Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--f0527-welcome-tour-on-first-visit-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--f0527-welcome-tour-on-first-visit-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--f0527-welcome-tour-on-first-visit-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11796,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:50:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:50:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:38:21.725Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--f0527-welcome-tour-on-first-visit-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--f0527-welcome-tour-on-first-visit-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--f0527-welcome-tour-on-first-visit-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--f0527-welcome-tour-on-first-visit-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-e71e3138484d3bdb18ac",
+              "file": "full-user-flow.spec.js",
+              "line": 48,
+              "column": 3
+            },
+            {
+              "title": "navigation through all 6 slides",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 14712,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:70:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:70:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:38:36.147Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--287e2-gation-through-all-6-slides-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--287e2-gation-through-all-6-slides-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--287e2-gation-through-all-6-slides-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11283,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:70:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:70:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:38:52.770Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--287e2-gation-through-all-6-slides-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--287e2-gation-through-all-6-slides-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--287e2-gation-through-all-6-slides-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--287e2-gation-through-all-6-slides-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-b2e40a32406b1f43b966",
+              "file": "full-user-flow.spec.js",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "skip button dismisses the tour",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11834,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:115:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:115:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:39:06.464Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--4d1dd-p-button-dismisses-the-tour-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--4d1dd-p-button-dismisses-the-tour-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--4d1dd-p-button-dismisses-the-tour-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13124,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:115:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:115:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:39:19.979Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--4d1dd-p-button-dismisses-the-tour-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--4d1dd-p-button-dismisses-the-tour-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--4d1dd-p-button-dismisses-the-tour-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--4d1dd-p-button-dismisses-the-tour-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-4b385d4290234e6ced50",
+              "file": "full-user-flow.spec.js",
+              "line": 114,
+              "column": 3
+            },
+            {
+              "title": "revisit onboarding from settings",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10990,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:129:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    13 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:129:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:39:35.449Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--ba16c-it-onboarding-from-settings-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--ba16c-it-onboarding-from-settings-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--ba16c-it-onboarding-from-settings-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11933,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:129:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:129:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:39:48.025Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--ba16c-it-onboarding-from-settings-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--ba16c-it-onboarding-from-settings-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--ba16c-it-onboarding-from-settings-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding--ba16c-it-onboarding-from-settings-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-6446530c822276bdad2f",
+              "file": "full-user-flow.spec.js",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "Escape key dismisses the tour",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10795,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:147:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:147:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:40:02.199Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding-Tour-Escape-key-dismisses-the-tour-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding-Tour-Escape-key-dismisses-the-tour-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding-Tour-Escape-key-dismisses-the-tour-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    },
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11216,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:147:11",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 14,
+                          "line": 37
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m\n \u001b[90m 36 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitAndSee(page\u001b[33m,\u001b[39m selector\u001b[33m,\u001b[39m timeout \u001b[33m=\u001b[39m \u001b[35m5000\u001b[39m) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(selector\u001b[33m,\u001b[39m { state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m }\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m \u001b[90m// ── Onboarding Tour ────────────────────────────────────────────\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 14,
+                            "line": 37
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#onboarding-overlay') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <div role=\"dialog\" aria-modal=\"true\" id=\"onboarding-overlay\" aria-label=\"Welcome tour\" class=\"onboarding-overlay\">…</div>\u001b[22m\n\n\n  35 |\n  36 | async function waitAndSee(page, selector, timeout = 5000) {\n> 37 |   await page.waitForSelector(selector, { state: 'visible', timeout });\n     |              ^\n  38 | }\n  39 |\n  40 | // ── Onboarding Tour ────────────────────────────────────────────\n    at waitAndSee (C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:37:14)\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:147:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:40:14.821Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding-Tour-Escape-key-dismisses-the-tour-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding-Tour-Escape-key-dismisses-the-tour-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding-Tour-Escape-key-dismisses-the-tour-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Onboarding-Tour-Escape-key-dismisses-the-tour-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 14,
+                        "line": 37
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-e0b997772165346d99f8",
+              "file": "full-user-flow.spec.js",
+              "line": 146,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Foundation Lesson Flow",
+          "file": "full-user-flow.spec.js",
+          "line": 156,
+          "column": 6,
+          "specs": [
+            {
+              "title": "dashboard shows learning paths",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 47018,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:40:28.898Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--3755a-hboard-shows-learning-paths-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--3755a-hboard-shows-learning-paths-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--3755a-hboard-shows-learning-paths-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    },
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18465,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:41:17.631Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--3755a-hboard-shows-learning-paths-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--3755a-hboard-shows-learning-paths-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--3755a-hboard-shows-learning-paths-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--3755a-hboard-shows-learning-paths-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-2788a57f2dbab7ed37e4",
+              "file": "full-user-flow.spec.js",
+              "line": 170,
+              "column": 3
+            },
+            {
+              "title": "foundation lesson navigation",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12751,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:41:38.798Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--8559c-oundation-lesson-navigation-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--8559c-oundation-lesson-navigation-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--8559c-oundation-lesson-navigation-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    },
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 15138,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:41:53.609Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--8559c-oundation-lesson-navigation-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--8559c-oundation-lesson-navigation-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--8559c-oundation-lesson-navigation-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--8559c-oundation-lesson-navigation-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-59adda715fc0422ed60b",
+              "file": "full-user-flow.spec.js",
+              "line": 179,
+              "column": 3
+            },
+            {
+              "title": "word card displays correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11581,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:42:10.684Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--31b2d-ord-card-displays-correctly-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--31b2d-ord-card-displays-correctly-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--31b2d-ord-card-displays-correctly-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    },
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 19422,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:42:23.848Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--31b2d-ord-card-displays-correctly-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--31b2d-ord-card-displays-correctly-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--31b2d-ord-card-displays-correctly-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--31b2d-ord-card-displays-correctly-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-564f7a4578a3fe4cc293",
+              "file": "full-user-flow.spec.js",
+              "line": 198,
+              "column": 3
+            },
+            {
+              "title": "navigate between words with prev/next",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 16277,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:42:45.480Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--91899-etween-words-with-prev-next-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--91899-etween-words-with-prev-next-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--91899-etween-words-with-prev-next-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    },
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13885,
+                      "error": {
+                        "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n",
+                        "stack": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 16,
+                          "line": 167
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m       \u001b[90m// Onboarding may not appear if already completed\u001b[39m\n \u001b[90m 166 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#view-dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m   test(\u001b[32m'dashboard shows learning paths'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 16,
+                            "line": 167
+                          },
+                          "message": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#view-dashboard') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <section id=\"view-dashboard\" class=\"mode-view active\" aria-label=\"Learning Dashboard\">…</section>\u001b[22m\n\n\n  165 |       // Onboarding may not appear if already completed\n  166 |     }\n> 167 |     await page.waitForSelector('#view-dashboard', { timeout: 5000 });\n      |                ^\n  168 |   });\n  169 |\n  170 |   test('dashboard shows learning paths', async ({ page }) => {\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:167:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:43:03.936Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--91899-etween-words-with-prev-next-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--91899-etween-words-with-prev-next-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--91899-etween-words-with-prev-next-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-Foundation--91899-etween-words-with-prev-next-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 16,
+                        "line": 167
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-bb015f0ff3cf06114c70",
+              "file": "full-user-flow.spec.js",
+              "line": 214,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "SRS Rating",
+          "file": "full-user-flow.spec.js",
+          "line": 237,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SRS buttons become visible after first word",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 602543,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 8,
+                          "line": 238
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 236 |\u001b[39m\n \u001b[90m 237 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'SRS Rating'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 238 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m     |\u001b[39m        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 239 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 240 |\u001b[39m     \u001b[36mtry\u001b[39m {\n \u001b[90m 241 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#onboarding-overlay'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 8,
+                            "line": 238
+                          },
+                          "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  236 |\n  237 | test.describe('SRS Rating', () => {\n> 238 |   test.beforeEach(async ({ page }) => {\n      |        ^\n  239 |     await page.goto('/');\n  240 |     try {\n  241 |       await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 38,
+                            "line": 245
+                          },
+                          "message": "Error: locator.click: Test timeout of 600000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#tab-learn')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" id=\"tab-learn\" class=\"nav-tab\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    1080 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m         - element is visible, enabled and stable\u001b[22m\n\u001b[2m         - scrolling into view if needed\u001b[22m\n\u001b[2m         - done scrolling\u001b[22m\n\u001b[2m         - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m       - retrying click action\u001b[22m\n\u001b[2m         - waiting 500ms\u001b[22m\n\n\n  243 |       await page.waitForTimeout(500);\n  244 |     } catch (e) {}\n> 245 |     await page.locator('#tab-learn').click();\n      |                                      ^\n  246 |     await page.waitForTimeout(500);\n  247 |     await page.locator('#surah-select').selectOption('foundation');\n  248 |     await page.waitForTimeout(500);\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:245:38"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T22:43:19.980Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--0ae88-me-visible-after-first-word-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--0ae88-me-visible-after-first-word-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 8,
+                        "line": 238
+                      }
+                    },
+                    {
+                      "workerIndex": 19,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 608050,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 8,
+                          "line": 238
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 236 |\u001b[39m\n \u001b[90m 237 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'SRS Rating'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 238 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m     |\u001b[39m        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 239 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 240 |\u001b[39m     \u001b[36mtry\u001b[39m {\n \u001b[90m 241 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#onboarding-overlay'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 8,
+                            "line": 238
+                          },
+                          "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  236 |\n  237 | test.describe('SRS Rating', () => {\n> 238 |   test.beforeEach(async ({ page }) => {\n      |        ^\n  239 |     await page.goto('/');\n  240 |     try {\n  241 |       await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 38,
+                            "line": 245
+                          },
+                          "message": "Error: locator.click: Test timeout of 600000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#tab-learn')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" id=\"tab-learn\" class=\"nav-tab\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    988 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is visible, enabled and stable\u001b[22m\n\u001b[2m        - scrolling into view if needed\u001b[22m\n\u001b[2m        - done scrolling\u001b[22m\n\u001b[2m        - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m      - retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\n\n  243 |       await page.waitForTimeout(500);\n  244 |     } catch (e) {}\n> 245 |     await page.locator('#tab-learn').click();\n      |                                      ^\n  246 |     await page.waitForTimeout(500);\n  247 |     await page.locator('#surah-select').selectOption('foundation');\n  248 |     await page.waitForTimeout(500);\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:245:38"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T22:53:24.601Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--0ae88-me-visible-after-first-word-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--0ae88-me-visible-after-first-word-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--0ae88-me-visible-after-first-word-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 8,
+                        "line": 238
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-862a5afffbda8bbb659f",
+              "file": "full-user-flow.spec.js",
+              "line": 251,
+              "column": 3
+            },
+            {
+              "title": "rating a word updates stats and navigates",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 20,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 605167,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 8,
+                          "line": 238
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 236 |\u001b[39m\n \u001b[90m 237 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'SRS Rating'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 238 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m     |\u001b[39m        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 239 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 240 |\u001b[39m     \u001b[36mtry\u001b[39m {\n \u001b[90m 241 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#onboarding-overlay'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 8,
+                            "line": 238
+                          },
+                          "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  236 |\n  237 | test.describe('SRS Rating', () => {\n> 238 |   test.beforeEach(async ({ page }) => {\n      |        ^\n  239 |     await page.goto('/');\n  240 |     try {\n  241 |       await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 38,
+                            "line": 245
+                          },
+                          "message": "Error: locator.click: Test timeout of 600000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#tab-learn')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" id=\"tab-learn\" class=\"nav-tab\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    1080 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m         - element is visible, enabled and stable\u001b[22m\n\u001b[2m         - scrolling into view if needed\u001b[22m\n\u001b[2m         - done scrolling\u001b[22m\n\u001b[2m         - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m       - retrying click action\u001b[22m\n\u001b[2m         - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\n\n  243 |       await page.waitForTimeout(500);\n  244 |     } catch (e) {}\n> 245 |     await page.locator('#tab-learn').click();\n      |                                      ^\n  246 |     await page.waitForTimeout(500);\n  247 |     await page.locator('#surah-select').selectOption('foundation');\n  248 |     await page.waitForTimeout(500);\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:245:38"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:04:41.567Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--763b4-updates-stats-and-navigates-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--763b4-updates-stats-and-navigates-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 8,
+                        "line": 238
+                      }
+                    },
+                    {
+                      "workerIndex": 21,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 606659,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8",
+                        "location": {
+                          "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                          "column": 8,
+                          "line": 238
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 236 |\u001b[39m\n \u001b[90m 237 |\u001b[39m test\u001b[33m.\u001b[39mdescribe(\u001b[32m'SRS Rating'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 238 |\u001b[39m   test\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m     |\u001b[39m        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 239 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 240 |\u001b[39m     \u001b[36mtry\u001b[39m {\n \u001b[90m 241 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'#onboarding-overlay'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m3000\u001b[39m\u001b[33m,\u001b[39m state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 8,
+                            "line": 238
+                          },
+                          "message": "\u001b[31mTest timeout of 600000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  236 |\n  237 | test.describe('SRS Rating', () => {\n> 238 |   test.beforeEach(async ({ page }) => {\n      |        ^\n  239 |     await page.goto('/');\n  240 |     try {\n  241 |       await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:238:8"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                            "column": 38,
+                            "line": 245
+                          },
+                          "message": "Error: locator.click: Test timeout of 600000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#tab-learn')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" id=\"tab-learn\" class=\"nav-tab\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    1011 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m         - element is visible, enabled and stable\u001b[22m\n\u001b[2m         - scrolling into view if needed\u001b[22m\n\u001b[2m         - done scrolling\u001b[22m\n\u001b[2m         - <div role=\"status\" id=\"splash-screen\" class=\"splash-screen\" aria-label=\"Loading Bayan\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m       - retrying click action\u001b[22m\n\u001b[2m         - waiting 500ms\u001b[22m\n\n\n  243 |       await page.waitForTimeout(500);\n  244 |     } catch (e) {}\n> 245 |     await page.locator('#tab-learn').click();\n      |                                      ^\n  246 |     await page.waitForTimeout(500);\n  247 |     await page.locator('#surah-select').selectOption('foundation');\n  248 |     await page.waitForTimeout(500);\n    at C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js:245:38"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:15:06.956Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--763b4-updates-stats-and-navigates-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--763b4-updates-stats-and-navigates-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--763b4-updates-stats-and-navigates-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test-results\\full-user-flow-SRS-Rating--763b4-updates-stats-and-navigates-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\HP\\Downloads\\quran-ap-main\\test\\e2e\\full-user-flow.spec.js",
+                        "column": 8,
+                        "line": 238
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-4da504c002cb9806db2f",
+              "file": "full-user-flow.spec.js",
+              "line": 268,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Quiz Flow",
+          "file": "full-user-flow.spec.js",
+          "line": 286,
+          "column": 6,
+          "specs": [
+            {
+              "title": "quiz view shows questions after navigating from lesson",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 22,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Error: worker process exited unexpectedly (code=1073807364, signal=null)"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: worker process exited unexpectedly (code=1073807364, signal=null)"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:25:19.412Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.760Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-bda57aec03e20b397e20",
+              "file": "full-user-flow.spec.js",
+              "line": 296,
+              "column": 3
+            },
+            {
+              "title": "answering quiz moves to next question",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Error: worker process exited unexpectedly (code=3221226091, signal=null)"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: worker process exited unexpectedly (code=3221226091, signal=null)"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.757Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "failed",
+                      "duration": 0,
+                      "error": {
+                        "message": "Error: worker process exited unexpectedly (code=3221226091, signal=null)"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: worker process exited unexpectedly (code=3221226091, signal=null)"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.769Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-93a9fb456091de9d1a7d",
+              "file": "full-user-flow.spec.js",
+              "line": 318,
+              "column": 3
+            },
+            {
+              "title": "quiz completes with score display",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.769Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-2c55895f534677b28c42",
+              "file": "full-user-flow.spec.js",
+              "line": 344,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Review Banner & SRS Review",
+          "file": "full-user-flow.spec.js",
+          "line": 393,
+          "column": 6,
+          "specs": [
+            {
+              "title": "review banner appears when words are due",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.770Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-12db93a9fb4affcfc539",
+              "file": "full-user-flow.spec.js",
+              "line": 394,
+              "column": 3
+            },
+            {
+              "title": "start review button enters review mode",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.770Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-1db52c30d7119b73af06",
+              "file": "full-user-flow.spec.js",
+              "line": 434,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Dashboard",
+          "file": "full-user-flow.spec.js",
+          "line": 478,
+          "column": 6,
+          "specs": [
+            {
+              "title": "dashboard displays learning paths with progress",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.770Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-a30e5074f8c0e55d868b",
+              "file": "full-user-flow.spec.js",
+              "line": 489,
+              "column": 3
+            },
+            {
+              "title": "bottom navigation switches views",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-f04c29221c5a9475146f",
+              "file": "full-user-flow.spec.js",
+              "line": 501,
+              "column": 3
+            },
+            {
+              "title": "stats view shows learning metrics",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.758Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-5cd9fe50ce195411df61",
+              "file": "full-user-flow.spec.js",
+              "line": 518,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Offline Indicator",
+          "file": "full-user-flow.spec.js",
+          "line": 535,
+          "column": 6,
+          "specs": [
+            {
+              "title": "shows online status by default",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-5dd2cc77bd2b2633603b",
+              "file": "full-user-flow.spec.js",
+              "line": 536,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Word List & Search",
+          "file": "full-user-flow.spec.js",
+          "line": 552,
+          "column": 6,
+          "specs": [
+            {
+              "title": "word list view shows vocabulary",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-f15d97015c516dfcd4c0",
+              "file": "full-user-flow.spec.js",
+              "line": 562,
+              "column": 3
+            },
+            {
+              "title": "search filters words",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-95a3e5953a4f7b7b8156",
+              "file": "full-user-flow.spec.js",
+              "line": 575,
+              "column": 3
+            },
+            {
+              "title": "filter chips change word list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-a34e5474bb5ee37d3ee3",
+              "file": "full-user-flow.spec.js",
+              "line": 589,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Keyboard Shortcuts",
+          "file": "full-user-flow.spec.js",
+          "line": 608,
+          "column": 6,
+          "specs": [
+            {
+              "title": "? key shows keyboard hints",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-f82430025af7dab326bb",
+              "file": "full-user-flow.spec.js",
+              "line": 618,
+              "column": 3
+            },
+            {
+              "title": "W key switches to word list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-19108f2dca899d43f124",
+              "file": "full-user-flow.spec.js",
+              "line": 625,
+              "column": 3
+            },
+            {
+              "title": "S key switches to stats",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-4118d4e9482032ced59d",
+              "file": "full-user-flow.spec.js",
+              "line": 631,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "Progress Persistence",
+          "file": "full-user-flow.spec.js",
+          "line": 640,
+          "column": 6,
+          "specs": [
+            {
+              "title": "lesson completion persists across reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-07-09T23:30:28.760Z",
+                      "annotations": [],
+                      "attachments": []
+                    },
+                    {
+                      "workerIndex": -1,
+                      "parallelIndex": -1,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-07-09T23:30:28.772Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "175cba0dd4374e93762e-4097704cffd35d8a7225",
+              "file": "full-user-flow.spec.js",
+              "line": 641,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-07-09T22:33:40.637Z",
+    "duration": 3408141.991,
+    "expected": 0,
+    "skipped": 14,
+    "unexpected": 13,
+    "flaky": 0
+  }
+}
