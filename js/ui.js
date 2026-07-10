@@ -51,7 +51,26 @@ function setView(viewName) {
     // Only toggle tab highlights for main nav tabs
     if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics') {
       var tabEl = DOM.get('tab-' + name);
-      if (tabEl) tabEl.classList.toggle('active', name === viewName);
+      if (tabEl) {
+        tabEl.classList.toggle('active', name === viewName);
+        if (name === viewName) {
+          tabEl.setAttribute('aria-current', 'page');
+        } else {
+          tabEl.removeAttribute('aria-current');
+        }
+      }
+    }
+  }
+  // Update the sliding indicator position
+  var indicator = document.getElementById('bn-indicator');
+  if (indicator) {
+    var activeTab = document.querySelector('.nav-tab.active');
+    if (activeTab) {
+      var tabs = document.querySelectorAll('.nav-tab');
+      var activeIdx = Array.prototype.indexOf.call(tabs, activeTab);
+      if (activeIdx >= 0) {
+        indicator.style.transform = 'translateX(' + (activeIdx * 100) + '%)';
+      }
     }
   }
   // Animate the newly activated view (skip on first render to avoid flicker)
