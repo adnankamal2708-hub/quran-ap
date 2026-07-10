@@ -9,6 +9,7 @@
 // ── Word lookup indices ────────────────────────────────────────
 // Build an index of ALL_WORDS by ID for O(1) lookups.
 // Maintain a secondary arabic→IDs map for arabic-based searches.
+// Production flag - set to false to suppress debug logging
 var _wordIndex = null;
 var _arabicToIds = null;
 
@@ -233,7 +234,7 @@ function buildAdvancedSearchIndex() {
   
   _advancedSearchIndex = idx;
   _searchIndexBuilt = true;
-  console.log('[search] Built advanced search index from ' + words.length + ' words.');
+  window.__DEV__ && console.log('[search] Built advanced search index from ' + words.length + ' words.');
 }
 
 /**

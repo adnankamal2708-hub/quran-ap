@@ -4,7 +4,8 @@
 // Loaded LAST after all services, data, and UI modules.
 // ═══════════════════════════════════════════════════════════════
 
-console.log('[startup] [0] app.js bundle executing — top-level code runs');
+// Production flag - set to false to suppress debug logging
+window.__DEV__ && console.log('[startup] [0] app.js bundle executing — top-level code runs');
 
 // Build lessons from ALL_WORDS (called once after data files populate)
 buildLessons();
@@ -1744,7 +1745,7 @@ function validateData() {
         // Note: cross-surah verse references are intentional for thematic words
         // (e.g., a word from Al-Baqarah may use an example ayah from another surah)
         if (w.surahId && vSurah !== w.surahId) {
-          console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') has verseKey surah ' + vSurah + ' but surahId is ' + w.surahId + ' (cross-surah reference, not an error)');
+          window.__DEV__ && console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') has verseKey surah ' + vSurah + ' but surahId is ' + w.surahId + ' (cross-surah reference, not an error)');
         }
       }
     }
@@ -1757,7 +1758,7 @@ function validateData() {
       if (refs && Array.isArray(refs)) {
         for (var rj = 0; rj < refs.length; rj++) {
           if (!arabicSet.has(refs[rj])) {
-            console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') references non-vocabulary ' + refFields[ri] + ' word: \'' + refs[rj] + '\'');
+            window.__DEV__ && console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') references non-vocabulary ' + refFields[ri] + ' word: \'' + refs[rj] + '\'');
           }
         }
       }
@@ -1768,7 +1769,7 @@ function validateData() {
       for (var rfi = 0; rfi < w.rootFamily.length; rfi++) {
         var rfArabic = w.rootFamily[rfi].a;
         if (rfArabic && !arabicSet.has(rfArabic)) {
-          console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') references non-vocabulary rootFamily word: \'' + rfArabic + '\'');
+          window.__DEV__ && console.log('[validate] ℹ Word #' + i + ' (' + (w.id || 'no-id') + ') references non-vocabulary rootFamily word: \'' + rfArabic + '\'');
         }
       }
     }
@@ -1805,11 +1806,11 @@ function validateData() {
   }
 
   if (duplicateArabic.length > 0) {
-    console.log('[validate] Legitimate duplicate Arabic words found (' + duplicateArabic.length + '):');
-    duplicateArabic.forEach(function (info) { console.log('  ℹ ' + info); });
+    window.__DEV__ && console.log('[validate] Legitimate duplicate Arabic words found (' + duplicateArabic.length + '):');
+    duplicateArabic.forEach(function (info) { window.__DEV__ && console.log('  ℹ ' + info); });
   }
 
-  console.log('[validate] All ' + ALL_WORDS.length + ' words validated. ' +
+  window.__DEV__ && console.log('[validate] All ' + ALL_WORDS.length + ' words validated. ' +
     (errors.length === 0 ? '✓ No issues.' : errors.length + ' issue(s) found.'));
 
   return { valid: errors.length === 0, errors: errors, arabicDuplicates: duplicateArabic };
@@ -1836,21 +1837,21 @@ function registerServiceWorker() {
 }
 
 function init() {
-  console.log('[startup] [1] init() called');
+  window.__DEV__ && console.log('[startup] [1] init() called');
   try {
     // 0. Capture splash start time for minimum display duration
     window.__splashStart = Date.now();
 
     // 0. Ensure lessons and word index are built
-    console.log('[startup] [1a] Building lessons and word index...');
+    window.__DEV__ && console.log('[startup] [1a] Building lessons and word index...');
     if (LESSONS.length === 0) buildLessons();
     if (typeof buildWordIndex === 'function') buildWordIndex();
 
     // 0a. Run data validation
-    console.log('[startup] [1b] Running data validation...');
+    window.__DEV__ && console.log('[startup] [1b] Running data validation...');
     validateData();
 
-    console.log('[startup] [1c] Setting active lesson...');
+    window.__DEV__ && console.log('[startup] [1c] Setting active lesson...');
     // Set active lesson from saved progress (check foundation mode first)
     activeLessonIndex = getCurrentLessonIndex();
     if (activeLessonIndex >= getLessonCount()) activeLessonIndex = 0;
@@ -1862,10 +1863,10 @@ function init() {
     }
     
     // Set initial view to dashboard (switchView handles view activation, tab highlighting, and rendering)
-    console.log('[startup] [2] Switching to dashboard view...');
+    window.__DEV__ && console.log('[startup] [2] Switching to dashboard view...');
     currentView = 'dashboard';
     switchView('dashboard');
-    console.log('[startup] [2a] switchView(dashboard) completed');
+    window.__DEV__ && console.log('[startup] [2a] switchView(dashboard) completed');
 
     // Wire adaptive engine: invalidate learner profile on SRS changes
     if (window.__adaptive && window.__adaptive.invalidateProfile) {
@@ -1879,53 +1880,53 @@ function init() {
     }
 
     // 1. Initialize Firebase services (auth, sync, user)
-    console.log('[startup] [3] Initializing Firebase...');
+    window.__DEV__ && console.log('[startup] [3] Initializing Firebase...');
     try {
       var firebaseReady = initAuth();
-      console.log('[startup] [3a] initAuth returned:', firebaseReady);
+      window.__DEV__ && console.log('[startup] [3a] initAuth returned:', firebaseReady);
       if (firebaseReady) {
         initSync();
-        console.log('[startup] [3b] initSync completed');
+        window.__DEV__ && console.log('[startup] [3b] initSync completed');
         initUserService();
-        console.log('[startup] [3c] initUserService completed');
+        window.__DEV__ && console.log('[startup] [3c] initUserService completed');
       }
     } catch (e) {
       console.warn('[app] Firebase init failed (non-blocking):', e.message);
     }
 
     // 2. Initialize auth and profile UI
-    console.log('[startup] [4] Initializing auth UI...');
-    try { initAuthUI(); console.log('[startup] [4a] initAuthUI completed'); } catch (e) { console.warn('[app] Auth UI init failed:', e.message); }
-    try { initProfileUI(); console.log('[startup] [4b] initProfileUI completed'); } catch (e) { console.warn('[app] Profile UI init failed:', e.message); }
+    window.__DEV__ && console.log('[startup] [4] Initializing auth UI...');
+    try { initAuthUI(); window.__DEV__ && console.log('[startup] [4a] initAuthUI completed'); } catch (e) { console.warn('[app] Auth UI init failed:', e.message); }
+    try { initProfileUI(); window.__DEV__ && console.log('[startup] [4b] initProfileUI completed'); } catch (e) { console.warn('[app] Profile UI init failed:', e.message); }
 
     // 3. Wire application events
-    console.log('[startup] [5] Wiring events...');
-    try { wireEvents(); console.log('[startup] [5a] wireEvents completed'); } catch (e) { console.error('[app] CRITICAL: wireEvents failed:', e.message); }
+    window.__DEV__ && console.log('[startup] [5] Wiring events...');
+    try { wireEvents(); window.__DEV__ && console.log('[startup] [5a] wireEvents completed'); } catch (e) { console.error('[app] CRITICAL: wireEvents failed:', e.message); }
 
     // 4. Set up keyboard shortcuts
-    console.log('[startup] [6] Setting up keyboard shortcuts...');
-    try { setupKeyboardShortcuts(); console.log('[startup] [6a] setupKeyboardShortcuts completed'); } catch (e) { console.warn('[app] Keyboard shortcuts failed:', e.message); }
+    window.__DEV__ && console.log('[startup] [6] Setting up keyboard shortcuts...');
+    try { setupKeyboardShortcuts(); window.__DEV__ && console.log('[startup] [6a] setupKeyboardShortcuts completed'); } catch (e) { console.warn('[app] Keyboard shortcuts failed:', e.message); }
 
     // 5. Validate surah coverage and populate surah selector
-    console.log('[startup] [7] Validating surah coverage...');
+    window.__DEV__ && console.log('[startup] [7] Validating surah coverage...');
     try { validateSurahCoverage(); } catch (e) { console.warn('[app] Surah coverage check failed:', e.message); }
-    try { populateSurahSelector(); console.log('[startup] [7a] populateSurahSelector completed'); } catch (e) { console.warn('[app] Surah selector failed:', e.message); }
+    try { populateSurahSelector(); window.__DEV__ && console.log('[startup] [7a] populateSurahSelector completed'); } catch (e) { console.warn('[app] Surah selector failed:', e.message); }
 
     // 6. Setup other views (dashboard already rendered by switchView('dashboard'))
-    console.log('[startup] [8] Setting up initial displays...');
+    window.__DEV__ && console.log('[startup] [8] Setting up initial displays...');
     try { updateWordCard(); } catch (e) { console.warn('[app] Word card init failed:', e.message); }
     try { updateReviewBanner(); } catch (e) { console.warn('[app] Review banner update failed:', e.message); }
     try { updateStatsDisplay(); } catch (e) { console.warn('[app] Stats display update failed:', e.message); }
     try { updateLessonProgressDisplay(); } catch (e) { console.warn('[app] Lesson progress update failed:', e.message); }
 
     // 7. Register service worker
-    console.log('[startup] [9] Registering service worker...');
+    window.__DEV__ && console.log('[startup] [9] Registering service worker...');
     try { registerServiceWorker(); } catch (e) { console.warn('[app] Service worker registration failed:', e.message); }
 
     // 8. Set up online/offline sync listener
-    console.log('[startup] [10] Setting up analytics and sync...');
+    window.__DEV__ && console.log('[startup] [10] Setting up analytics and sync...');
     if (window.__analytics && window.__analytics.init) {
-      try { window.__analytics.init(); console.log('[startup] [10a] analytics.init completed'); } catch (e) { console.warn('[app] Analytics init failed:', e.message); }
+      try { window.__analytics.init(); window.__DEV__ && console.log('[startup] [10a] analytics.init completed'); } catch (e) { console.warn('[app] Analytics init failed:', e.message); }
     }
     try { setupOnlineSync(); } catch (e) { console.warn('[app] Online sync setup failed:', e.message); }
 
@@ -1935,23 +1936,23 @@ function init() {
         window._kbdHintsShown = true;
         window._kbdHintsAutoShown = true;
         showKeyboardHints();
-        console.log('[startup] [11] Keyboard hints shown');
+        window.__DEV__ && console.log('[startup] [11] Keyboard hints shown');
       }
     }, 1000);
 
     // 10. Check if user is already signed in (session restored from persistence)
-    console.log('[startup] [12] Checking auth session...');
+    window.__DEV__ && console.log('[startup] [12] Checking auth session...');
     try {
       var user = getCurrentUser();
-      console.log('[startup] [12a] Current user:', user ? user.email : 'none');
+      window.__DEV__ && console.log('[startup] [12a] Current user:', user ? user.email : 'none');
       if (user && !user.emailVerified) {
-        console.log('[app] Email not verified — user can continue.');
+        window.__DEV__ && console.log('[app] Email not verified — user can continue.');
       }
 
       // 11. Apply user settings for daily review limit (if available)
       if (user && window.__user) {
         window.__user.loadProfile(user.uid).then(function (profile) {
-          console.log('[startup] [12b] User profile loaded');
+          window.__DEV__ && console.log('[startup] [12b] User profile loaded');
           if (profile && profile.settings && profile.settings.dailyReviewLimit) {
             if (window.__srs && window.__srs.updateDailyReviewLimit) {
               window.__srs.updateDailyReviewLimit(profile.settings.dailyReviewLimit);
@@ -1964,27 +1965,27 @@ function init() {
     } catch (e) { /* non-critical */ }
 
     // 12. Initialize UX polish module
-    console.log('[startup] [13] Initializing UX polish...');
+    window.__DEV__ && console.log('[startup] [13] Initializing UX polish...');
     if (window.__ux) {
       try {
         var onbDone = window.__ux.hasCompletedOnboarding();
-        console.log('[startup] [13a] Onboarding completed earlier:', onbDone);
+        window.__DEV__ && console.log('[startup] [13a] Onboarding completed earlier:', onbDone);
         if (!onbDone) {
-          setTimeout(function() { console.log('[startup] [13b] Showing onboarding overlay'); window.__ux.showOnboarding(); }, 800);
+          setTimeout(function() { window.__DEV__ && console.log('[startup] [13b] Showing onboarding overlay'); window.__ux.showOnboarding(); }, 800);
         }
         window.__ux.updateOfflineIndicator();
-        console.log('[startup] [13c] Offline indicator updated');
+        window.__DEV__ && console.log('[startup] [13c] Offline indicator updated');
       } catch (e) { console.warn('[app] UX init failed:', e.message); }
       window.addEventListener('online', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
       window.addEventListener('offline', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
     } else {
-      console.log('[startup] [13x] window.__ux is NOT available — UX polish module not loaded');
+      window.__DEV__ && console.log('[startup] [13x] window.__ux is NOT available — UX polish module not loaded');
     }
   } catch (e) {
     console.error('[app] CRITICAL: init() failed:', e.message, e.stack);
   }
 
-  console.log('[startup] [14] init() successful — splash screen scheduled');
+  window.__DEV__ && console.log('[startup] [14] init() successful — splash screen scheduled');
 
   // ── Hide Splash Screen ─────────────────────────────────────
   // Always hide the splash regardless of init success or failure.
@@ -1994,17 +1995,17 @@ function init() {
     var elapsed = Date.now() - window.__splashStart;
     var delay = Math.max(0, MIN_SPLASH_MS - elapsed);
     setTimeout(function() {
-      console.log('[startup] [15] Hiding splash screen (after ' + delay + 'ms delay)');
+      window.__DEV__ && console.log('[startup] [15] Hiding splash screen (after ' + delay + 'ms delay)');
       try {
         splash.classList.add('splash-hidden');
         var appEl = document.querySelector('.app');
         if (appEl) appEl.classList.add('app-morph-entering');
         setTimeout(function() {
-          console.log('[startup] [16] Removing splash DOM element');
+          window.__DEV__ && console.log('[startup] [16] Removing splash DOM element');
           try {
             if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
             if (appEl) appEl.classList.remove('app-morph-entering');
-            console.log('[startup] [17] Splash removed — app should be interactive now');
+            window.__DEV__ && console.log('[startup] [17] Splash removed — app should be interactive now');
           } catch (e) { /* ignore */ }
         }, 800);
         
@@ -2014,7 +2015,7 @@ function init() {
           try {
             if (appEl && appEl.classList.contains('app-morph-entering')) {
               appEl.classList.remove('app-morph-entering');
-              console.log('[startup] [safety] Cleaned up stray app-morph-entering class');
+              window.__DEV__ && console.log('[startup] [safety] Cleaned up stray app-morph-entering class');
             }
           } catch (e) { /* ignore */ }
         }, 5000);
@@ -2058,7 +2059,7 @@ function validateSurahCoverage() {
       'Check that the corresponding words-surah-NN-*.js files exist and have surahId set.');
   }
 
-  console.log('[app] ✓ Vocabulary coverage: ' + ALL_WORDS.length + ' words across ' +
+  window.__DEV__ && console.log('[app] ✓ Vocabulary coverage: ' + ALL_WORDS.length + ' words across ' +
     surahIds.length + ' surahs (1-' + maxSurah + ').');
 }
 
@@ -2070,7 +2071,7 @@ function setupOnlineSync() {
     var user = getCurrentUser();
     if (user && window.__sync) {
       if (window.__sync.hasPending && window.__sync.hasPending()) {
-        console.log('[app] Back online — syncing pending changes...');
+        window.__DEV__ && console.log('[app] Back online — syncing pending changes...');
         window.__sync.fullSync(user.uid);
       }
     }

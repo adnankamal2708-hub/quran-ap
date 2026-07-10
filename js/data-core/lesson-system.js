@@ -2,6 +2,7 @@
 // Lessons are computed from ALL_WORDS after all data files load.
 // Each lesson contains WORDS_PER_LESSON words, except the last.
 
+// Production flag - set to false to suppress debug logging
 /** @type {Array<{id:number, label:string, start:number, end:number}>} */
 let LESSONS = [];
 
@@ -38,7 +39,7 @@ function buildLessons() {
     lessonNum++;
   }
   
-  console.log('[lessons] Built ' + LESSONS.length + ' lessons from ' + total + ' canonical words.');
+  window.__DEV__ && console.log('[lessons] Built ' + LESSONS.length + ' lessons from ' + total + ' canonical words.');
 }
 
 /**

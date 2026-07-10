@@ -3,6 +3,7 @@
 // organized into 10 progressive lessons (10 words each, every 5th is review).
 // Completing all 10 lessons covers ~84% of all Quranic word occurrences.
 
+// Production flag - set to false to suppress debug logging
 /** Foundation Course mode constant */
 const FOUNDATION_MODE = 'foundation';
 
@@ -133,7 +134,7 @@ function buildFoundationCourse() {
     });
   }
   
-  console.log('[foundation] Built ' + FOUNDATION_LESSONS.length + ' foundation lessons from ' +
+  window.__DEV__ && console.log('[foundation] Built ' + FOUNDATION_LESSONS.length + ' foundation lessons from ' +
     FOUNDATION_WORDS.length + ' words. Covers ' +
     (totalOcc > 0 ? (totalFoundOcc / totalOcc * 100).toFixed(1) : '0') + '% of Quranic occurrences.');
   
@@ -237,7 +238,7 @@ function enrichCanonicalMetadata(sortedByFreq, foundationWordIds, totalOcc) {
     }
   }
   
-  console.log('[metadata] Enriched ' + totalWords + ' canonical words with frequency rank, learning priority, first/last occurrence, and foundation lesson mapping.');
+  window.__DEV__ && console.log('[metadata] Enriched ' + totalWords + ' canonical words with frequency rank, learning priority, first/last occurrence, and foundation lesson mapping.');
 }
 
 /**
@@ -1196,7 +1197,7 @@ function validateEducationalConsistency() {
     }
   }
   if (missingRootFamilyRefs > 0) {
-    console.log('[edu-validate] ℹ ' + missingRootFamilyRefs + '/' + totalRootFamilyRefs + ' root family refs point to non-vocabulary words (may be intentional)');
+    window.__DEV__ && console.log('[edu-validate] ℹ ' + missingRootFamilyRefs + '/' + totalRootFamilyRefs + ' root family refs point to non-vocabulary words (may be intentional)');
   }
   
   // 3. Check similar/opposite/contrast word references
@@ -1213,14 +1214,14 @@ function validateEducationalConsistency() {
           if (!arabicMap[refs[rj]]) {
             missingRefs++;
             if (missingRefs <= 3) {
-              console.log('[edu-validate] ℹ ' + words[wj].arabic + ' references missing ' + field + ': \'' + refs[rj] + '\'');
+              window.__DEV__ && console.log('[edu-validate] ℹ ' + words[wj].arabic + ' references missing ' + field + ': \'' + refs[rj] + '\'');
             }
           }
         }
       }
     }
     if (missingRefs > 0) {
-      console.log('[edu-validate] ℹ ' + field + ': ' + missingRefs + '/' + totalRefs + ' refs missing from vocabulary');
+      window.__DEV__ && console.log('[edu-validate] ℹ ' + field + ': ' + missingRefs + '/' + totalRefs + ' refs missing from vocabulary');
     }
   }
   
@@ -1247,10 +1248,10 @@ function validateEducationalConsistency() {
   
   // Report
   if (issues.length > 0) {
-    console.log('[edu-validate] Found ' + issues.length + ' issue(s):');
-    issues.forEach(function(iss) { console.log('  ' + iss); });
+    window.__DEV__ && console.log('[edu-validate] Found ' + issues.length + ' issue(s):');
+    issues.forEach(function(iss) { window.__DEV__ && console.log('  ' + iss); });
   } else {
-    console.log('[edu-validate] ✓ All checks passed for ' + words.length + ' words.');
+    window.__DEV__ && console.log('[edu-validate] ✓ All checks passed for ' + words.length + ' words.');
   }
   
   return { valid: issues.length === 0, issues: issues };

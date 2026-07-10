@@ -15,6 +15,7 @@
 
 // ── Storage Keys ──────────────────────────────────────────────
 
+// Production flag - set to false to suppress debug logging
 const ANALYTICS_HISTORY_KEY = 'quran_analytics_history';
 const ANALYTICS_ACHIEVEMENTS_KEY = 'quran_analytics_achievements';
 const ANALYTICS_SESSION_LOG_KEY = 'quran_analytics_sessions';
@@ -1521,7 +1522,7 @@ function initAnalytics() {
   // Check achievements
   var newlyEarned = checkAchievements();
   if (newlyEarned.length > 0) {
-    console.log('[analytics] 🎉 New achievements earned:', newlyEarned.map(function(a) { return a.title; }).join(', '));
+    window.__DEV__ && console.log('[analytics] 🎉 New achievements earned:', newlyEarned.map(function(a) { return a.title; }).join(', '));
   }
 }
 

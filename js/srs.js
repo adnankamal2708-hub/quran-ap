@@ -13,6 +13,7 @@
 
 // ── Constants ──────────────────────────────────────────────────
 
+// Production flag - set to false to suppress debug logging
 const SRS_STORAGE_KEY = 'quran_srs_data';
 
 /** Default maximum reviews per day (can be overridden by user settings) */
@@ -169,7 +170,7 @@ function loadSRS() {
         // Merge multiple entries - take highest stage, best stats
         migrated[cid] = mergeSRSEntries(entries);
         needsSave = true;
-        console.log('[srs] Merged ' + entries.length + ' SRS entries into canonical ID: ' + cid);
+        window.__DEV__ && console.log('[srs] Merged ' + entries.length + ' SRS entries into canonical ID: ' + cid);
       }
     });
     
