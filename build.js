@@ -128,6 +128,8 @@ const APP_FILES = [
   'js/quiz.js',
   'js/auth-ui.js',
   'js/profile-ui.js',
+  'js/diagnostics.js',
+  'js/validation.js',
   'js/analytics.js',
   'js/ux-polish.js',
   'js/app.js',

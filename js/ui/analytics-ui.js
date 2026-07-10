@@ -71,7 +71,11 @@ function renderAnalytics() {
   }
 
   } catch (e) {
-    console.error('[analytics] renderAnalytics error:', e);
+    if (window.__diag) {
+      window.__diag.catchError('Analytics', 'renderAnalytics', 'js/ui/analytics-ui.js', e, { activeTab: 'analytics' });
+    } else {
+      console.error('[analytics] renderAnalytics error:', e);
+    }
     var container = document.getElementById('analytics-content');
     if (container) container.innerHTML = '<div class="analytics-empty">\u26A0\uFE0F Something went wrong loading analytics. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
   }
@@ -142,9 +146,13 @@ function renderAnalyticsTab(tabName, analytics) {
   }
 
   } catch (e) {
-    console.error('[analytics] renderAnalyticsTab error:', e);
+    if (window.__diag) {
+      window.__diag.catchError('Analytics', 'renderAnalyticsTab', 'js/ui/analytics-ui.js', e, { tabName: tabName });
+    } else {
+      console.error('[analytics] renderAnalyticsTab error:', e);
+    }
     var container = document.getElementById('analytics-content');
-    if (container) container.innerHTML = '<div class="analytics-empty">\u26A0\uFE0F Error loading ' + tabName + ' tab.</div>';
+    if (container) container.innerHTML = '<div class="analytics-empty">\u26A0\uFE0F ' + tabName.charAt(0).toUpperCase() + tabName.slice(1) + ' couldn\'t be loaded right now. Keep learning and check back later!</div>';
   }
 }
 
@@ -390,8 +398,12 @@ function renderAnalyticsOverview(analytics) {
 return html;
 
   } catch (e) {
-    console.error("[analytics] renderAnalyticsOverview error:", e);
-    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading Overview tab.</div>";
+    if (window.__diag) {
+      window.__diag.catchError('Analytics', 'renderAnalyticsOverview', 'js/ui/analytics-ui.js', e);
+    } else {
+      console.error('[analytics] renderAnalyticsOverview error:', e);
+    }
+    return "<div class='analytics-empty'>\u26A0\uFE0F Overview couldn't be loaded right now.</div>";
   }
 }
 
@@ -497,8 +509,12 @@ function renderAnalyticsTrends(analytics) {
   return html;
 
   } catch (e) {
-    console.error("[analytics] renderAnalyticsTrends error:", e);
-    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading Trends tab.</div>";
+    if (window.__diag) {
+      window.__diag.catchError('Analytics', 'renderAnalyticsTrends', 'js/ui/analytics-ui.js', e);
+    } else {
+      console.error('[analytics] renderAnalyticsTrends error:', e);
+    }
+    return "<div class='analytics-empty'>\u26A0\uFE0F Trends couldn't be loaded right now.</div>";
   }
 }
 
@@ -607,10 +623,11 @@ html += '<div class="analytics-section-title">📊 Progress by Category</div>';
       html += '<div class="analytics-progress-block">';
       var catNames = { foundation: 'Foundation', coverage: 'Coverage', mastery: 'Mastery', streak: 'Streak', review: 'Review', quiz: 'Quiz', root: 'Root', path: 'Path', consistency: 'Consistency' };
       var catColors = { foundation: 'var(--gold)', coverage: 'var(--green)', mastery: 'var(--blue)', streak: 'var(--red)', review: 'var(--purple)', quiz: 'var(--pink)', root: 'var(--green)', path: 'var(--gold-dim)', consistency: 'var(--blue)' };
-      var catKeys = Object.keys(achievementStats.byCategory);
+      var achStats = analytics.achievements || { earnedCount: 0, totalCount: 1, byCategory: {} };
+      var catKeys = Object.keys(achStats.byCategory);
       for (var cki = 0; cki < catKeys.length; cki++) {
         var ck = catKeys[cki];
-        var cat = achievementStats.byCategory[ck];
+        var cat = achStats.byCategory[ck];
         var catPct = cat.total > 0 ? Math.round((cat.earned / cat.total) * 100) : 0;
         html += '<div class="analytics-path-row">';
         html += '<div class="analytics-path-label">' + (catNames[ck] || ck) + '</div>';
@@ -626,6 +643,7 @@ html += '<div class="analytics-section-title">📊 Progress by Category</div>';
   html += '<div class="analytics-section">';
   html += '<div class="analytics-section-title">🎯 All Achievements</div>';
   html += '<div class="analytics-ach-grid">';
+  var allAchievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
   for (var ai = 0; ai < allAchievements.length; ai++) {
     var ach = allAchievements[ai];
     html += '<div class="analytics-ach-card' + (ach.earned ? ' analytics-ach-earned' : '') + '">';
@@ -642,8 +660,87 @@ html += '<div class="analytics-section-title">📊 Progress by Category</div>';
   return html;
 
   } catch (e) {
-    console.error("[analytics] renderAnalyticsAchievements error:", e);
-    return "<div class='analytics-empty'>\u26A0\uFE0F Error loading Achievements tab.</div>";
+    if (window.__diag) {
+      window.__diag.catchError('Analytics', 'renderAnalyticsInsightsPage', 'js/ui/analytics-ui.js', e);
+    } else {
+      console.error('[analytics] renderAnalyticsInsightsPage error:', e);
+    }
+    return "<div class='analytics-empty'>\u26A0\uFE0F Insights couldn't be loaded right now.</div>";
+  }
+}
+
+// ── ACHIEVEMENTS TAB ──
+
+function renderAnalyticsAchievements() {
+  try {
+    var html = '';
+    var allAchievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
+    var achievementStats = (window.__analytics && window.__analytics.getAchievementStats) ? window.__analytics.getAchievementStats() : null;
+
+    if (!achievementStats) {
+      html += '<div class="analytics-empty">Keep learning to earn achievements!</div>';
+      return html;
+    }
+
+    var earnedCount = achievementStats.earnedCount || 0;
+    var totalCount = achievementStats.totalCount || 1;
+    var achPct = Math.min(100, Math.round((earnedCount / totalCount) * 100));
+
+    // Progress bar
+    html += '<div class="analytics-section">';
+    html += '<div class="analytics-section-title">🏆 Overall Progress</div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    html += '<span style="font-size:12px;color:var(--text)">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';
+    html += '<span style="font-size:10px;color:var(--gold)">' + achPct + '%</span>';
+    html += '</div>';
+    html += '<div class="analytics-progress-track-big" style="height:10px;margin-bottom:16px">';
+    html += '<div class="analytics-progress-fill-big" style="width:' + achPct + '%;height:10px;border-radius:5px"></div>';
+    html += '</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">';
+    var catNames = { foundation: 'Foundation', coverage: 'Coverage', mastery: 'Mastery', streak: 'Streak', review: 'Review', quiz: 'Quiz', root: 'Root', path: 'Path', consistency: 'Consistency' };
+    var catColors = { foundation: 'var(--gold)', coverage: 'var(--green)', mastery: 'var(--blue)', streak: 'var(--red)', review: 'var(--purple)', quiz: 'var(--pink)', root: 'var(--green)', path: 'var(--gold-dim)', consistency: 'var(--blue)' };
+    var catKeys = Object.keys(achievementStats.byCategory || {});
+    for (var cki = 0; cki < catKeys.length; cki++) {
+      var ck = catKeys[cki];
+      var cat = achievementStats.byCategory[ck];
+      var catPct = cat.total > 0 ? Math.round((cat.earned / cat.total) * 100) : 0;
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">';
+      html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">' + (catNames[ck] || ck) + '</div>';
+      html += '<div style="display:flex;align-items:center;gap:6px">';
+      html += '<div style="flex:1;height:4px;background:var(--bg);border-radius:2px"><div style="width:' + catPct + '%;height:4px;background:' + (catColors[ck] || 'var(--gold)') + ';border-radius:2px"></div></div>';
+      html += '<span style="font-size:10px;color:var(--text)">' + cat.earned + '/' + cat.total + '</span>';
+      html += '</div></div>';
+    }
+    html += '</div></div></div>';
+
+    // Achievement cards grid
+    if (allAchievements.length > 0) {
+      html += '<div class="analytics-section">';
+      html += '<div class="analytics-section-title">🎯 All Achievements</div>';
+      html += '<div class="analytics-ach-grid">';
+      for (var ai = 0; ai < allAchievements.length; ai++) {
+        var ach = allAchievements[ai];
+        html += '<div class="analytics-ach-card' + (ach.earned ? ' analytics-ach-earned' : '') + '">';
+        html += '<div class="analytics-ach-icon">' + ach.icon + '</div>';
+        html += '<div class="analytics-ach-title">' + ach.title + '</div>';
+        html += '<div class="analytics-ach-desc">' + ach.description + '</div>';
+        if (ach.earned && ach.earnedDate) {
+          html += '<div class="analytics-ach-date">Earned ' + ach.earnedDate + '</div>';
+        }
+        html += '</div>';
+      }
+      html += '</div></div>';
+    }
+
+    return html;
+  } catch (e) {
+    if (window.__diag) {
+      window.__diag.catchError('Analytics', 'renderAnalyticsAchievements', 'js/ui/analytics-ui.js', e);
+    } else {
+      console.error('[analytics] renderAnalyticsAchievements error:', e);
+    }
+    return "<div class='analytics-empty'>\u26A0\uFE0F Achievements couldn't be loaded right now. Keep learning to earn more!</div>";
   }
 }
 

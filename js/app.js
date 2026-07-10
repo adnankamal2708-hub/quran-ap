@@ -136,6 +136,11 @@ function getCurrentWord() {
 // ── View Switching ─────────────────────────────────────────────
 
 function switchView(viewName) {
+  // Validate route in development mode
+  if (window.__validation) {
+    window.__validation.onRouteChange(viewName);
+  }
+
   // Clear any pending quiz auto-navigation timer when user switches views
   if (window.__autoNavTimer) {
     clearTimeout(window.__autoNavTimer);
@@ -144,17 +149,40 @@ function switchView(viewName) {
 
   currentView = viewName;
   setView(viewName);
-  if (viewName === 'dashboard') renderDashboard();
-  if (viewName === 'learn') {
-    updateReviewBanner();
-    updateLessonProgressDisplay();
+  
+  // Render view content — each wrapped with existence check
+  if (viewName === 'dashboard') {
+    if (typeof renderDashboard === 'function') renderDashboard();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderDashboard() not found');
   }
-  if (viewName === 'quiz') initQuiz();
-  if (viewName === 'list') renderWordList();
-  if (viewName === 'stats') renderStats();
-  if (viewName === 'profile') renderProfileView();
-  if (viewName === 'explorer') renderExplorer();
-  if (viewName === 'analytics') renderAnalytics();
+  if (viewName === 'learn') {
+    if (typeof updateReviewBanner === 'function') updateReviewBanner();
+    if (typeof updateLessonProgressDisplay === 'function') updateLessonProgressDisplay();
+  }
+  if (viewName === 'quiz') {
+    if (typeof initQuiz === 'function') initQuiz();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'initQuiz() not found');
+  }
+  if (viewName === 'list') {
+    if (typeof renderWordList === 'function') renderWordList();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderWordList() not found');
+  }
+  if (viewName === 'stats') {
+    if (typeof renderStats === 'function') renderStats();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderStats() not found');
+  }
+  if (viewName === 'profile') {
+    if (typeof renderProfileView === 'function') renderProfileView();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderProfileView() not found');
+  }
+  if (viewName === 'explorer') {
+    if (typeof renderExplorer === 'function') renderExplorer();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderExplorer() not found');
+  }
+  if (viewName === 'analytics') {
+    if (typeof renderAnalytics === 'function') renderAnalytics();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderAnalytics() not found');
+  }
   if (document.activeElement) document.activeElement.blur();
 }
 

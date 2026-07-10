@@ -289,7 +289,11 @@ function renderDashboard() {
   }
 
   } catch (e) {
-    console.error('[dashboard] renderDashboard error:', e);
+    if (window.__diag) {
+      window.__diag.catchError('Dashboard', 'renderDashboard', 'js/ui/dashboard.js', e);
+    } else {
+      console.error('[dashboard] renderDashboard error:', e);
+    }
     var $d = DOM.get('dashboard-grid');
     if ($d) $d.innerHTML = '<div class="db-error">\u26A0\uFE0F Something went wrong loading your dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
   }
