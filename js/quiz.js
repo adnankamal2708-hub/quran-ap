@@ -213,7 +213,22 @@ function nextQuiz() {
       
       if (mode === FOUNDATION_MODE) {
         // Mark this foundation lesson as completed
+        var hadLesson = !isFoundationLessonCompleted(activeLessonIndex);
         completeFoundationLesson(activeLessonIndex);
+        
+        // R4+R5: Check for milestone celebrations after completing a foundation lesson
+        if (hadLesson) {
+          if (typeof checkForLessonCompletionCelebration === 'function') {
+            checkForLessonCompletionCelebration(activeLessonIndex);
+          }
+          
+          // R5: Show surah connection info after lesson completion
+          var surahImprovements = typeof getSurahsImprovedByFoundationLesson === 'function' 
+            ? getSurahsImprovedByFoundationLesson(activeLessonIndex) : [];
+          if (surahImprovements && surahImprovements.length > 0 && typeof showSurahConnectionToast === 'function') {
+            showSurahConnectionToast(surahImprovements);
+          }
+        }
       } else if (mode === 'surah') {
         // Mark this surah as completed
         var activeSurahId = getActiveSurahId ? getActiveSurahId() : null;
@@ -222,7 +237,12 @@ function nextQuiz() {
         }
       } else {
         // Mark this lesson as completed
+        var hadLesson = !isLessonCompleted(activeLessonIndex);
         completeLesson(activeLessonIndex);
+        
+        if (hadLesson && typeof checkForLessonCompletionCelebration === 'function') {
+          checkForLessonCompletionCelebration(activeLessonIndex);
+        }
       }
       
       // Update lesson/surah/foundation display

@@ -318,12 +318,20 @@ function updateLessonProgressDisplay() {
 
     var fLesson = FOUNDATION_LESSONS[activeLessonIndex];
     var fCtx = typeof getFoundationLessonContextMsg === 'function' ? getFoundationLessonContextMsg(activeLessonIndex) : { title: '', context: '', comprehensionGain: '', cumulativeMsg: '' };
+    var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+    var $currentComp = $coverage ? $coverage.estimatedComprehension : 0;
+    var $beforeComp = fLesson && fLesson.projectedComprehension > 0 
+      ? Math.max(0, $currentComp - fLesson.comprehensionGain) 
+      : $currentComp;
 
     if (lessonLabel) {
-      // Show thematic title + lesson number + comprehension projection
+      // R1: Clear lesson header answering: What am I learning? Why is it important? What will I understand?
       var thematicTitle = fCtx.title || (isReview ? 'Review ' + fCurrent : 'Foundation ' + fCurrent);
-      var compGain = fLesson && fLesson.comprehensionGain > 0 ? ' (+' + fLesson.comprehensionGain + '% comprehension)' : '';
-      lessonLabel.textContent = thematicTitle + ' \u2014 ' + fCurrent + ' of ' + fTotal + compGain;
+      lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + (isReview ? '🔄 Review Lesson' : '📘 Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
+        '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' +
+        'Covers ~' + (fLesson ? fLesson.lessonCoverageNum.toFixed(1) : '0') + '% of Quran word occurrences' +
+        (fLesson && fLesson.comprehensionGain > 0 ? ' \u00B7 Understanding: ' + $beforeComp.toFixed(1) + '% → ' + fLesson.projectedComprehension + '%' : '') +
+        '</div>';
     }
 
     var lessonProgress = DOM.get('lesson-progress');
@@ -334,7 +342,6 @@ function updateLessonProgressDisplay() {
 
     var lessonProgressText = DOM.get('lesson-progress-text');
     if (lessonProgressText) {
-      // Show comprehension projection
       var comprehensionText = '';
       if (fLesson && fLesson.projectedComprehension > 0) {
         comprehensionText = ' \u00B7 ~' + fLesson.projectedComprehension + '% comprehension';
@@ -342,7 +349,58 @@ function updateLessonProgressDisplay() {
       lessonProgressText.textContent = fCompleted + ' of ' + fTotal + ' foundation lessons complete' + comprehensionText;
     }
 
-    // Update foundation-specific lesson coverage display with thematic context and comprehension projection
+    // R2: "What This Unlocks" — educational section explaining what becomes easier after mastery
+    var unlocksEl = DOM.get('foundation-unlocks');
+    if (unlocksEl) {
+      var $words = typeof getFoundationLessonWords === 'function' ? getFoundationLessonWords(activeLessonIndex) : [];
+      var $rootSet = {};
+      var $verbCount = 0, $nounCount = 0;
+      for (var $ui = 0; $ui < $words.length; $ui++) {
+        if ($words[$ui].root && $words[$ui].root !== '\u2014') $rootSet[$words[$ui].root] = true;
+        if ($words[$ui].typeCategory === 'verb') $verbCount++;
+        else if ($words[$ui].typeCategory === 'noun' || $words[$ui].typeCategory === 'adjective') $nounCount++;
+      }
+      var $rootCount = Object.keys($rootSet).length;
+      var $sentenceTypes = fLesson && fLesson.cumulativeCoverageNum && fLesson.cumulativeCoverageNum > 30 ? ['basic sentence structures', 'frequent verb forms', 'common prepositions'] : ['common Quranic phrases', 'frequent word patterns', 'basic sentence flow'];
+      
+      unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
+        '<div class="foundation-unlock-title" style="font-size:11px;color:var(--gold);font-weight:500;margin-bottom:6px">🔓 After this lesson you will:</div>' +
+        '<div class="foundation-unlock-items" style="display:flex;flex-direction:column;gap:4px">' +
+        '<span style="font-size:10px;color:var(--green)">✓ Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
+        '<span style="font-size:10px;color:var(--green)">✓ Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
+        '<span style="font-size:10px;color:var(--green)">✓ Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
+        (fLesson && fLesson.comprehensionGain > 0 ? '<span style="font-size:10px;color:var(--gold-dim)">📈 Estimated comprehension gain: +' + fLesson.comprehensionGain + '%</span>' : '') +
+        '</div></div>';
+      unlocksEl.style.display = 'block';
+    }
+
+    // R3: Remaining Journey — progress bar with key metrics
+    var journeyEl = DOM.get('foundation-journey');
+    if (journeyEl) {
+      var $totalWords = $coverage ? $coverage.totalWords : 0;
+      var $masteredWords = $coverage ? $coverage.masteredWords : 0;
+      var $allSurahComp = typeof getAllSurahComprehension === 'function' ? getAllSurahComprehension() : [];
+      var $surahsWith50Plus = $allSurahComp.filter(function($s) { return $s.estimatedComprehension >= 50; }).length;
+      var $surahsTotal = $allSurahComp.length;
+      
+      var $remainingBar = Math.round((($currentComp || 0) / 100) * 24);
+      // Create a simple visual progress representation
+      journeyEl.innerHTML = '<div class="foundation-journey-section" style="margin-top:8px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light)">' +
+        '<div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:8px">🗺️ Your Journey</div>' +
+        '<div class="db-progress" style="margin-bottom:6px">' +
+        '<div class="db-progress-track" style="height:6px;background:var(--surface2);border-radius:3px">' +
+        '<div class="db-progress-fill" style="height:6px;width:' + (fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0) + '%;background:var(--gold);border-radius:3px"></div></div>' +
+        '<span class="db-progress-text" style="font-size:10px;color:var(--text-muted);margin-top:4px">Foundation: ' + fCompleted + ' / ' + fTotal + ' lessons</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' +
+        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--gold)">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
+        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--green)">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
+        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--blue)">' + $surahsWith50Plus + '/' + $surahsTotal + '</div><div style="font-size:9px;color:var(--text-muted)">Surahs (50%+)</div></div>' +
+        '</div></div>';
+      journeyEl.style.display = 'block';
+    }
+
+    // Update foundation-specific lesson coverage display
     var foundationCoverageEl = DOM.get('foundation-coverage');
     if (foundationCoverageEl && fLesson) {
       var compMsg = fCtx.comprehensionGain ? ' · ' + fCtx.comprehensionGain : '';
@@ -748,27 +806,72 @@ function showSessionSummary(stats) {
   var modal = document.getElementById('session-summary-modal');
   if (!modal) return;
 
-  document.getElementById('session-words-reviewed').textContent = stats.wordsReviewed || 0;
-  document.getElementById('session-streak-earned').textContent = stats.streakDays || 0;
-  document.getElementById('session-mastered-new').textContent = stats.newMastered || 0;
+  // R7: Enhanced session summary with more stats
+  var $wordsReviewed = stats.wordsReviewed || 0;
+  var $newMastered = stats.newMastered || 0;
+  var $rootsLearned = stats.newRootsLearned || 0;
+  var $comprehensionBefore = stats.comprehensionBefore || 0;
+  var $comprehensionAfter = stats.comprehensionAfter || 0;
+  var $compGain = $comprehensionAfter - $comprehensionBefore;
+  var $reviewCardsCreated = stats.reviewCardsCreated || $wordsReviewed;
+  var $streakDays = stats.streakDays || 0;
+  var $timeSpent = stats.timeSpentMinutes || 0;
+  var $nextRecommendation = stats.nextRecommendation || 'Continue your learning journey';
 
+  // R9: Use shared source of truth from getFoundationCourseStats for consistency
+  var $sharedStats = typeof getFoundationCourseStats === 'function' ? getFoundationCourseStats() : null;
+  
+  document.getElementById('session-words-reviewed').textContent = $wordsReviewed;
+  document.getElementById('session-streak-earned').textContent = $streakDays;
+  document.getElementById('session-mastered-new').textContent = $newMastered;
+  
+  // Ensure all progress numbers use the same source of truth
+  if ($sharedStats) {
+    // Foundation progress is now available for display consistency
+    var $fPctEl = document.getElementById('session-foundation-pct');
+    if ($fPctEl) $fPctEl.textContent = $sharedStats.percent + '%';
+  }
+
+  // Add additional stats display if elements exist
+  var $compGainEl = document.getElementById('session-comp-gain');
+  if ($compGainEl) {
+    $compGainEl.textContent = ($compGain > 0 ? '+' : '') + $compGain.toFixed(1) + '%';
+    $compGainEl.style.color = $compGain > 0 ? 'var(--green)' : 'var(--text-muted)';
+  }
+  var $rootsEl = document.getElementById('session-roots-learned');
+  if ($rootsEl) $rootsEl.textContent = $rootsLearned;
+  var $reviewCardsEl = document.getElementById('session-review-cards');
+  if ($reviewCardsEl) $reviewCardsEl.textContent = $reviewCardsCreated;
+  var $nextRecEl = document.getElementById('session-next-recommendation');
+  if ($nextRecEl) $nextRecEl.textContent = $nextRecommendation;
+  var $timeSpentEl = document.getElementById('session-time-spent');
+  if ($timeSpentEl) $timeSpentEl.textContent = $timeSpent > 0 ? $timeSpent + ' min' : '< 1 min';
+
+  // Educational encouragement - Quran-focused meaningful messages
   var encouragement = document.getElementById('session-encouragement');
-  var msgs = [
-    '🌟 MashAllah! Excellent progress!',
-    '📖 Keep going — every word brings you closer!',
-    '💪 Strong effort! Consistency is key.',
-    '🎯 Focused review makes perfect. Well done!',
-    '🌙 Beautiful work! The Quran rewards persistence.',
+  var $msgs = [
+    '\"And We have certainly made the Quran easy to remember, but is there any who will remember?\" (54:17) — every word you learn brings you closer.',
+    'Every word of the Quran you understand is a light added to your heart. Keep going — Allah is guiding you through His words.',
+    'The Prophet (peace be upon him) said: \"The best among you are those who learn the Quran and teach it.\" — you are walking this blessed path.',
+    'Understanding the Quran is a journey of a lifetime. Each lesson is a step toward deeper connection with Allah\'s message.',
+    'The more you learn, the more the Quran comes alive. What was once unfamiliar becomes a conversation with your Creator.',
   ];
-  if (stats.wordsReviewed >= 10) {
-    encouragement.textContent = msgs[0];
-  } else if (stats.wordsReviewed >= 5) {
-    encouragement.textContent = msgs[1];
+  if ($wordsReviewed >= 10) {
+    encouragement.textContent = $msgs[0];
+  } else if ($wordsReviewed >= 5) {
+    encouragement.textContent = $msgs[1];
   } else {
-    encouragement.textContent = msgs[2];
+    encouragement.textContent = $msgs[2];
   }
 
   modal.style.display = 'flex';
+  // Show celebration for milestones
+  if (stats.milestoneToCelebrate && window.__ux && window.__ux.showMilestoneCelebration) {
+    setTimeout(function() {
+      window.__ux.showMilestoneCelebration(stats.milestoneToCelebrate);
+    }, 500);
+  }
+  
   // Backdrop click to close
   modal.onclick = function(e) {
     if (e.target === modal) closeSessionSummary();
@@ -1173,19 +1276,46 @@ function endReview() {
   // Compute session summary stats
   var srsData = loadSRS();
   var newMastered = 0;
+  var newRootsSet = {};
   for (var ri = 0; ri < reviewQueue.length; ri++) {
     var entry = srsData[reviewQueue[ri].id];
     if (entry && entry.stage >= 2) {
       newMastered++;
     }
+    // Track new root families encountered
+    if (reviewQueue[ri] && reviewQueue[ri].root && reviewQueue[ri].root !== '\u2014') {
+      newRootsSet[reviewQueue[ri].root] = true;
+    }
   }
   newMastered = Math.max(0, newMastered - _reviewOriginalMastered);
 
   var streakData = loadStreakData();
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var compBefore = coverage ? coverage.estimatedComprehension : 0;
+  
+  // Check for milestone to celebrate
+  var milestoneToCelebrate = null;
+  var milestoneStatus = typeof getMilestoneStatus === 'function' ? getMilestoneStatus(coverage ? coverage.coveragePercent : 0) : null;
+  var prevCoverage = window.__prevCoveragePercent || 0;
+  if (milestoneStatus && milestoneStatus.currentMilestone && prevCoverage < milestoneStatus.currentMilestone.pct) {
+    milestoneToCelebrate = milestoneStatus.currentMilestone;
+  }
+  window.__prevCoveragePercent = coverage ? coverage.coveragePercent : 0;
+  
+  // Calculate time spent (approximate: 30 seconds per word reviewed)
+  var timeSpentMinutes = Math.round((reviewQueue.length * 30) / 60);
+  
   var stats = {
     wordsReviewed: reviewQueue.length,
     streakDays: streakData.streak || 0,
     newMastered: newMastered,
+    newRootsLearned: Object.keys(newRootsSet).length,
+    comprehensionBefore: compBefore,
+    comprehensionAfter: compBefore + (reviewQueue.length > 0 ? 0.5 : 0), // Small bump for review
+    reviewCardsCreated: reviewQueue.length,
+    timeSpentMinutes: timeSpentMinutes,
+    nextRecommendation: getNextActionRecommendation(),
+    milestoneToCelebrate: milestoneToCelebrate,
   };
 
   reviewMode = false;
@@ -1197,6 +1327,26 @@ function endReview() {
   if (reviewQueue.length > 0) {
     showSessionSummary(stats);
   }
+}
+
+/**
+ * Get a brief text recommendation for the user's next action.
+ */
+function getNextActionRecommendation() {
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var now = Date.now();
+  var dueCount = 0;
+  Object.keys(srsData).forEach(function(id) {
+    var entry = srsData[id];
+    if (entry && entry.dueDate && now >= entry.dueDate) dueCount++;
+  });
+  if (dueCount > 0) return dueCount + ' words due for review — reinforce them soon';
+  
+  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  if (fCompleted < fTotal) return 'Continue Foundation ' + (fCompleted + 1) + ' of ' + fTotal;
+  
+  return 'Review your progress in Analytics';
 }
 
 // ── Modal Focus Trap Utilities ─────────────────────────────────
@@ -1852,6 +2002,85 @@ function startMixedReview() {
   DOM.get('review-banner').classList.remove('visible');
   switchView('learn');
   updateWordCard();
+}
+
+/**
+ * Check for milestone celebrations after completing a lesson.
+ * Shows celebration for coverage milestones like 10%, 25%, 50% completion, etc.
+ */
+function checkForLessonCompletionCelebration(lessonIndex) {
+  if (!window.__ux || !window.__ux.showMilestoneCelebration) return;
+  
+  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  var fPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var compPct = coverage ? coverage.estimatedComprehension : 0;
+  
+  // Map of milestone triggers
+  var celebrations = [];
+  
+  // Foundation completion milestones
+  if (fCompleted === 1) {
+    celebrations.push({ pct: 10, label: 'First Lesson Completed!', icon: '🎉', insight: 'You have taken the first step on an incredible journey. The Quran is opening to you, word by word.' });
+  }
+  if (fCompleted === Math.ceil(fTotal * 0.25)) { // 25%
+    celebrations.push({ pct: 25, label: 'Quarter Way Through Foundation!', icon: '🌟', insight: 'One quarter of the Foundation Course complete! You can now recognize approximately ' + compPct.toFixed(1) + '% of all Quranic word occurrences.' });
+  }
+  if (fCompleted === Math.ceil(fTotal * 0.5)) { // 50%
+    celebrations.push({ pct: 50, label: 'Halfway Through Foundation!', icon: '⭐', insight: 'You have mastered 50 of the most frequent Quranic words! These words cover a significant portion of every surah you read.' });
+  }
+  if (fCompleted === Math.ceil(fTotal * 0.75)) { // 75%
+    celebrations.push({ pct: 75, label: 'Three Quarters Done!', icon: '🔥', insight: 'Most short surahs are now accessible to you. The words of Allah are becoming clearer with every lesson.' });
+  }
+  if (fCompleted >= fTotal && fTotal > 0) {
+    celebrations.push({ pct: 90, label: 'Foundation Complete!', icon: '👑', insight: 'You have completed all Foundation Course lessons! You now understand approximately ' + compPct.toFixed(1) + '% of all Quranic word occurrences. SubhanAllah!' });
+  }
+  
+  // Comprehension milestone celebrations
+  var compMilestones = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+  for (var mi = 0; mi < compMilestones.length; mi++) {
+    if (compPct >= compMilestones[mi] && (!window.__lastCompMilestone || window.__lastCompMilestone < compMilestones[mi])) {
+      var msLabels = {
+        10: { icon: '🌱', label: '10% Comprehension', insight: 'You now understand approximately one out of every ten Quran words. You can begin to spot repeated vocabulary across different surahs.' },
+        20: { icon: '📖', label: '20% Comprehension', insight: 'One in five words is known! Short verses like Al-Ikhlas and Al-Asr are becoming meaningful to you.' },
+        30: { icon: '🏗️', label: '30% Comprehension', insight: 'Nearly one in three words familiar! You can grasp the topic of many verses.' },
+        40: { icon: '🔥', label: '40% Comprehension', insight: 'Two in five words! You can follow the structure of most verses.' },
+        50: { icon: '👑', label: '50% Comprehension — Major Milestone!', insight: 'Half the words recognized! You understand key Quranic concepts directly. This is a tremendous achievement.' },
+        60: { icon: '📚', label: '60% Comprehension', insight: 'Three in five words! With tafsir, you can study most verses meaningfully.' },
+        70: { icon: '🎯', label: '70% Comprehension', insight: 'Seven in ten words! Only specialized vocabulary remains unfamiliar.' },
+        80: { icon: '💎', label: '80% Comprehension', insight: 'Four in five words! Working knowledge of almost the entire Quranic vocabulary.' },
+        90: { icon: '🏆', label: '90% Comprehension', insight: 'Nine in ten words! Deep understanding of Quranic Arabic.' },
+      };
+      var ms = msLabels[compMilestones[mi]];
+      if (ms) celebrations.push({ pct: compMilestones[mi], label: ms.label, icon: ms.icon, insight: ms.insight });
+      window.__lastCompMilestone = compMilestones[mi];
+      break; // Show only the highest milestone reached
+    }
+  }
+  
+  // Show the highest priority celebration
+  if (celebrations.length > 0) {
+    var best = celebrations[celebrations.length - 1]; // Last = highest priority
+    setTimeout(function() {
+      window.__ux.showMilestoneCelebration(best);
+    }, 800);
+  }
+}
+
+/**
+ * Show a toast notification about surah comprehension improvements after a foundation lesson.
+ */
+function showSurahConnectionToast(surahImprovements) {
+  if (!surahImprovements || surahImprovements.length === 0) return;
+  
+  var surahNames = surahImprovements.slice(0, 3).map(function(s) { return s.name; }).join(', ');
+  var toastMsg = 'You now have improved understanding of: ' + surahNames + 
+    (surahImprovements.length > 3 ? ' (+' + (surahImprovements.length - 3) + ' more)' : '');
+  
+  if (window.__ux && window.__ux.showToast) {
+    window.__ux.showToast(toastMsg, 'success', 6000);
+  }
 }
 
 /**

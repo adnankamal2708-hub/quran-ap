@@ -110,6 +110,8 @@
             <button class="continue-lesson-btn" id="continue-learning-btn" type="button" style="flex-shrink:0;width:auto;padding:8px 14px;font-size:12px">📖 Continue</button>
           </div>
           <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);margin-top:6px;text-align:center"></div>
+          <div id="foundation-unlocks" style="display:none;margin-top:8px"></div>
+          <div id="foundation-journey" style="display:none;margin-top:4px"></div>
           <div id="foundation-relationship-context" style="display:none"></div>
           <div id="foundation-primary-coverage" style="display:none"></div>
         </div>
@@ -887,12 +889,31 @@
               <div class="session-stat-label">Words Reviewed</div>
             </div>
             <div class="session-stat">
-              <div class="session-stat-value" id="session-streak-earned">0</div>
-              <div class="session-stat-label">Streak Days</div>
-            </div>
-            <div class="session-stat">
               <div class="session-stat-value" id="session-mastered-new">0</div>
               <div class="session-stat-label">Now Mastered</div>
+            </div>
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-comp-gain">—</div>
+              <div class="session-stat-label">Comprehension</div>
+            </div>
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-roots-learned">0</div>
+              <div class="session-stat-label">New Roots</div>
+            </div>
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-review-cards">0</div>
+              <div class="session-stat-label">Review Cards</div>
+            </div>
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-time-spent">< 1 min</div>
+              <div class="session-stat-label">Time Spent</div>
+            </div>
+            <div class="session-stat" style="grid-column:1/-1;padding:6px 0;border-bottom:none">
+              <div class="session-stat-next" style="font-size:10px;color:var(--text-muted)">Next: <span id="session-next-recommendation">Continue learning</span></div>
+            </div>
+            <div class="session-stat" style="grid-column:1/-1;border-bottom:none">
+              <div class="session-stat-value" id="session-streak-earned" style="font-size:14px">0</div>
+              <div class="session-stat-label">🔥 Streak Days</div>
             </div>
           </div>
           <div class="session-summary-encouragement" id="session-encouragement">Keep up the great work! 🌟</div>

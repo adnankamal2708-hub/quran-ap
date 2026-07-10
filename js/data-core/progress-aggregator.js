@@ -112,72 +112,151 @@ function getLearningPathProgress() {
 }
 
 /**
- * Get a smart recommendation for which learning path the user should focus on.
- * Returns { pathId, label, reason }.
+ * Get a smart recommendation for the user's best next action.
+ * Priority order:
+ *   1. Due reviews (words actively needing reinforcement)
+ *   2. Finish current lesson (if quiz not passed)
+ *   3. Continue Foundation Course
+ *   4. Continue Surah learning
+ *   5. Review weak words (leeched or frequently forgotten)
+ *   6. Explore statistics
+ *
+ * Returns { pathId, label, reason, icon, action }.
  */
 function getPathRecommendation() {
   var progress = getLearningPathProgress();
   var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
   var hasAnyReviews = Object.keys(srsData).length > 0;
+  var now = Date.now();
   
-  // New user: recommend Foundation Course
-  if (!hasAnyReviews) {
+  // ── Priority 1: Due reviews ──
+  var dueCount = 0;
+  var overdueCount = 0;
+  var leechCount = 0;
+  Object.keys(srsData).forEach(function(id) {
+    var entry = srsData[id];
+    if (!entry) return;
+    if (entry.dueDate && now >= entry.dueDate) {
+      dueCount++;
+      if (now - entry.dueDate > 3 * DAY_MS) overdueCount++;
+    }
+    if (entry.isLeech) leechCount++;
+  });
+  
+  if (dueCount > 0) {
+    var urgency = overdueCount > 0 ? 'urgent' : 'recommended';
+    var reason = '';
+    if (overdueCount > 5) {
+      reason = 'You have ' + dueCount + ' words due for review (' + overdueCount + ' overdue). Strengthening memory before it fades is the most effective learning strategy.';
+    } else if (leechCount > 0) {
+      reason = overdueCount + ' words are overdue and ' + leechCount + ' need extra attention. Reviewing now reinforces your long-term memory.';
+    } else {
+      reason = 'You have ' + dueCount + ' words ready for review. Regular review is the key to making Quranic vocabulary stick.';
+    }
     return {
-      pathId: 'foundation',
-      label: 'Foundation Course',
-      reason: 'Start with the most frequent Quranic words. You will learn 84% of all Quranic word occurrences in just 10 lessons!',
-      icon: '\u2B50',
+      pathId: 'mixed-review',
+      label: 'Review Due Words',
+      reason: reason,
+      icon: '\uD83D\uDD01',
+      priority: 'high',
+      action: 'start-review',
     };
   }
   
-  // Foundation available and not complete: recommend Foundation
+  // ── Priority 2: Finish current Foundation lesson ──
   if (progress.foundation.percent < 100 && progress.foundation.total > 0) {
+    var fLesson = null;
+    var fCurrentIdx = typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0;
+    if (typeof FOUNDATION_LESSONS !== 'undefined' && FOUNDATION_LESSONS[fCurrentIdx]) {
+      fLesson = FOUNDATION_LESSONS[fCurrentIdx];
+    }
+    var lessonWordIds = fLesson ? fLesson.wordIds : [];
+    var masteredInLesson = 0;
+    lessonWordIds.forEach(function(wid) {
+      var entry = srsData[wid];
+      if (entry && entry.stage >= 2) masteredInLesson++;
+    });
+    
+    var completionHint = '';
+    if (masteredInLesson > 0 && masteredInLesson < lessonWordIds.length) {
+      completionHint = ' You have already mastered ' + masteredInLesson + ' of ' + lessonWordIds.length + ' words in the current lesson.';
+    } else if (masteredInLesson === 0) {
+      completionHint = ' A fresh lesson with new Quranic vocabulary awaits.';
+    } else {
+      completionHint = ' All words in this lesson are ready! Take the quiz to mark it complete.';
+    }
+    
     return {
       pathId: 'foundation',
-      label: 'Foundation Course',
+      label: 'Foundation ' + (fCurrentIdx + 1) + ': ' + (fLesson ? fLesson.thematicTitle : ''),
       reason: progress.foundation.percent >= 80 
-        ? 'Almost done with the Foundation Course! Finish the remaining lessons for a strong base.'
-        : 'Continue building your foundation. Each lesson increases Quran reading coverage.',
+        ? 'Almost done with the Foundation Course! ' + (progress.foundation.total - progress.foundation.completed) + ' lesson' + (progress.foundation.total - progress.foundation.completed !== 1 ? 's' : '') + ' remaining.' + completionHint
+        : 'Continue building your foundation. Each lesson brings you closer to understanding the Quran.' + completionHint,
       icon: '\u2B50',
+      priority: 'high',
+      action: 'continue-foundation',
     };
   }
   
-  // Foundation complete: recommend Surah learning
+  // ── Priority 3: Weak words needing attention ──
+  if (leechCount > 2) {
+    return {
+      pathId: 'mixed-review',
+      label: 'Focus on Difficult Words',
+      reason: leechCount + ' words need extra attention. These are words you have struggled with — giving them focused review now will turn them into strengths.',
+      icon: '\uD83D\uDCA2',
+      priority: 'medium',
+      action: 'review-leeches',
+    };
+  }
+  
+  // ── Priority 4: Continue Surah learning ──
   if (progress.surah.percent < 100 && progress.surah.total > 0) {
     return {
       pathId: 'surah',
       label: 'Learn by Surah',
-      reason: 'Foundation complete! Now apply your knowledge by studying vocabulary in Quranic context, surah by surah.',
+      reason: 'Foundation complete! Now apply your knowledge by studying vocabulary in Quranic context, surah by surah. You have completed ' + progress.surah.completed + ' of ' + progress.surah.total + ' surahs.',
       icon: '\uD83D\uDCD6',
+      priority: 'medium',
+      action: 'continue-surah',
     };
   }
   
-  // Due reviews: recommend Mixed Review
-  if (progress.overall.dueReviews > 0) {
+  // ── Priority 5: Check for frequently forgotten words ──
+  var forgottenWords = (typeof window.__analytics !== 'undefined' && window.__analytics.getFrequentlyForgotten)
+    ? window.__analytics.getFrequentlyForgotten() : [];
+  if (forgottenWords && forgottenWords.length >= 3) {
+    var sampleWords = forgottenWords.slice(0, 2).map(function(w) { return w.arabic; }).join(', ');
     return {
       pathId: 'mixed-review',
-      label: 'Mixed Review',
-      reason: 'You have ' + progress.overall.dueReviews + ' words due for review. Strengthen your memory with a mixed review session.',
-      icon: '\uD83D\uDD04',
+      label: 'Reinforce Weak Vocabulary',
+      reason: forgottenWords.length + ' words (like ' + sampleWords + ') need reinforcement. Targeted practice on weak words builds durable knowledge.',
+      icon: '\uD83C\uDFAD',
+      priority: 'medium',
+      action: 'review-difficult',
     };
   }
   
-  // Root families: recommend for morphology interest
-  if (progress.rootFamily.total > 0 && progress.rootFamily.percent < 50) {
+  // ── Priority 6: Explore stats — review achievements ──
+  if (hasAnyReviews) {
     return {
-      pathId: 'root-family',
-      label: 'Learn by Root Family',
-      reason: 'Explore Arabic morphology by studying root families. Understand how words are formed and connected.',
-      icon: '\uD83C\uDF31',
+      pathId: 'stats',
+      label: 'Review Your Progress',
+      reason: 'You have made great progress! Review your learning statistics, achievements, and see how far you have come in understanding the Quran.',
+      icon: '\uD83D\uDCCA',
+      priority: 'low',
+      action: 'view-stats',
     };
   }
   
-  // Default: Difficulty path
+  // ── New user: Foundation Course ──
   return {
-    pathId: 'difficulty',
-    label: 'Learn by Difficulty',
-    reason: 'Master vocabulary from easy to advanced. Challenge yourself with harder words.',
-    icon: '\uD83D\uDCE8',
+    pathId: 'foundation',
+    label: 'Start Foundation Course',
+    reason: 'Begin your journey to understand the Quran. The Foundation Course teaches the 100 most frequent words — covering ~84% of all Quranic word occurrences in just 10 lessons.',
+    icon: '\u2B50',
+    priority: 'high',
+    action: 'start-foundation',
   };
 }
 

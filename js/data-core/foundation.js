@@ -899,35 +899,41 @@ function _getRelativeDateKey(offsetDays) {
  * shown at different Foundation Course progress levels.
  * Each level has multiple messages for variety when displayed to the user.
  */
+/**
+ * Enhanced milestone messages focusing on Quranic educational value.
+ * Each level has multiple messages for variety when displayed to the user.
+ * These messages connect learning achievements directly to understanding Allah's words.
+ */
 var FOUNDATION_MILESTONE_MESSAGES = [
   { pct: 0, messages: [
     'Every great journey begins with a single word. You are taking the most effective path to understanding the Quran.',
-    'The 100 most frequent words make up ~84% of all word occurrences. Each lesson brings you closer.',
+    'The 100 most frequent words make up ~84% of all word occurrences. Each lesson brings you closer to understanding Allah\'s words directly.',
   ] },
   { pct: 10, messages: [
-    'You now understand approximately {comprehension}% of all word occurrences. This is real, measurable progress.',
-    'You are building a foundation that will serve every verse you read. Keep going!',
+    'You now understand approximately {comprehension}% of all word occurrences. You can now recognize one out of every ten Quran words — this is real, measurable progress toward understanding the Book of Allah.',
+    'You are building a foundation that will serve every verse you read. Keep going — every word brings you closer to the Qurans message.',
   ] },
   { pct: 25, messages: [
-    'One quarter complete! You recognize vocabulary used in most Quranic verses.',
-    'These words appear {occurrences} times throughout the Quran. You are building real comprehension.',
+    'One quarter complete! You recognize vocabulary used in most Quranic verses. Short surahs like Al-Ikhlas and Al-Asr are becoming accessible to you.',
+    'These words appear {occurrences} times throughout the Quran. Every lesson is like unlocking a key to understanding Allah\'s revelation.',
+    'You can now recognize approximately one out of every four Quran words. The patterns of divine speech are emerging.',
   ] },
   { pct: 50, messages: [
-    'Halfway through the Foundation Course! You now understand approximately {comprehension}% of word occurrences.',
-    'Fifty words mastered. These alone cover a significant portion of every surah you read.',
+    'Halfway through the Foundation Course! You now understand approximately {comprehension}% of word occurrences. Many short surahs you hear in prayer are becoming meaningful.',
+    'Fifty words mastered. These alone cover a significant portion of every surah you read. You are beginning to understand the Quran in its own words.',
   ] },
   { pct: 75, messages: [
-    'Three quarters done! Most short surahs are now accessible to you.',
-    'You have mastered vocabulary from {roots} unique root families. The patterns of Arabic are becoming clear.',
+    'Three quarters done! Most short surahs are now accessible to you. The words of Ar-Rahman, Al-Fatihah, and Al-Ikhlas carry new meaning.',
+    'You have mastered vocabulary from {roots} unique root families. The patterns of Arabic morphology are becoming clear, revealing the depth of Quranic language.',
   ] },
   { pct: 90, messages: [
-    'The final stretch! Nearly all foundation words mastered. The Quran is opening to you.',
-    'After this course, you will recognize approximately {comprehension}% of all word occurrences.',
+    'The final stretch! Nearly all foundation words mastered. The Quran is opening to you in a profound way. Verses you have heard for years now carry understanding.',
+    'After this course, you will recognize approximately {comprehension}% of all word occurrences. You are almost ready to read the Quran with comprehension.',
   ] },
   { pct: 100, messages: [
-    'Foundation Course Complete! You now understand approximately {comprehension}% of all word occurrences \u2014 covering ~84% of the entire Quran.',
-    'You mastered the 100 most frequent Quranic words \u2014 vocabulary used thousands of times throughout the Quran.',
-    'The Foundation Course has given you the essential vocabulary. Now explore surah by surah, or continue with reviews.',
+    'Foundation Course Complete! You now understand approximately {comprehension}% of all word occurrences — covering ~84% of the entire Quran. SubhanAllah, what a journey!',
+    'You mastered the 100 most frequent Quranic words — vocabulary used thousands of times throughout the Quran. These words appear in nearly every page of Allah\'s book.',
+    'The Foundation Course has given you the essential vocabulary. Now explore surah by surah, and experience the Quran as it was revealed — to be understood.',
   ] },
 ];
 
@@ -992,6 +998,111 @@ function getFoundationMilestoneMessage() {
   var icon = pct >= 100 ? '\uD83C\uDF89' : pct >= 50 ? '\u2B50' : pct >= 25 ? '\uD83D\uDCA1' : '\uD83C\uDF31';
   
   return { message: msg, icon: icon, progress: pct };
+}
+
+/**
+ * Get educational motivation text for a specific lesson, based on actual lesson content.
+ * Returns meaningful Quranic encouragement rather than generic gamification.
+ */
+function getEducationalMotivation(lessonIndex) {
+  if (!FOUNDATION_LESSONS || lessonIndex >= FOUNDATION_LESSONS.length) {
+    return 'Continue your journey to understand the Quran, one word at a time.';
+  }
+  var lesson = FOUNDATION_LESSONS[lessonIndex];
+  var words = typeof getFoundationLessonWords === 'function' ? getFoundationLessonWords(lessonIndex) : [];
+  
+  // Calculate occurrences covered by this lesson
+  var lessonOcc = 0;
+  for (var wi = 0; wi < words.length; wi++) {
+    lessonOcc += words[wi].occ || 0;
+  }
+  
+  // Find sample words for the motivational message
+  var sampleWords = words.slice(0, 3).map(function(w) { return w.arabic + ' (' + w.english + ')'; }).join(', ');
+  var totalOcc = getTotalQuranOccurrences();
+  var coveragePct = totalOcc > 0 ? Math.round(lessonOcc / totalOcc * 100) : 0;
+  
+  // Different messages based on lesson type
+  if (lesson.isReview) {
+    return 'Review lessons strengthen your memory so the words become part of your long-term understanding. This consolidation is where true learning happens.';
+  }
+  
+  if (coveragePct >= 10) {
+    return 'This lesson covers approximately ' + coveragePct + '% of all Quranic word occurrences. Words like ' + sampleWords + ' appear hundreds of times — mastering them transforms how you read the Quran.';
+  }
+  
+  return 'This lesson introduces words that appear extensively throughout the Quran. Words like ' + sampleWords + ' are part of the fabric of divine revelation — each one a key to understanding.';
+}
+
+/**
+ * Get a list of surahs whose comprehension improves significantly after completing
+ * a specific foundation lesson. Returns top 5 surahs with their comprehension change.
+ */
+function getSurahsImprovedByFoundationLesson(lessonIndex) {
+  if (!FOUNDATION_LESSONS || lessonIndex >= FOUNDATION_LESSONS.length) return [];
+  
+  var lesson = FOUNDATION_LESSONS[lessonIndex];
+  var mastered = getMasteredWordIds();
+  
+  // Add lesson words to mastered (simulating completion)
+  var simulatedMastered = {};
+  Object.keys(mastered).forEach(function(id) { simulatedMastered[id] = true; });
+  for (var wi = 0; wi < lesson.wordIds.length; wi++) {
+    simulatedMastered[lesson.wordIds[wi]] = true;
+  }
+  
+  // Calculate comprehension change for each surah
+  var allSurahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  var improvements = [];
+  
+  for (var si = 0; si < allSurahIds.length; si++) {
+    var sid = allSurahIds[si];
+    var words = getSurahWords(sid);
+    if (!words || words.length === 0) continue;
+    
+    // Count how many lesson words appear in this surah
+    var lessonWordsInSurah = 0;
+    for (var wi2 = 0; wi2 < lesson.wordIds.length; wi2++) {
+      for (var wj = 0; wj < words.length; wj++) {
+        if (words[wj].id === lesson.wordIds[wi2]) {
+          lessonWordsInSurah++;
+          break;
+        }
+      }
+    }
+    
+    if (lessonWordsInSurah > 0) {
+      // Calculate before/after comprehension
+      var totalWords = words.length;
+      var masteredBefore = 0;
+      var masteredAfter = 0;
+      for (var wk = 0; wk < words.length; wk++) {
+        if (mastered[words[wk].id]) masteredBefore++;
+        if (simulatedMastered[words[wk].id]) masteredAfter++;
+      }
+      var beforePct = totalWords > 0 ? Math.round(masteredBefore / totalWords * 100) : 0;
+      var afterPct = totalWords > 0 ? Math.round(masteredAfter / totalWords * 100) : 0;
+      
+      if (afterPct > beforePct) {
+        var surahName = '';
+        if (typeof SURAH_INFO !== 'undefined' && SURAH_INFO[sid]) {
+          surahName = SURAH_INFO[sid].name;
+        }
+        improvements.push({
+          surahId: sid,
+          name: surahName || 'Surah ' + sid,
+          beforePct: beforePct,
+          afterPct: afterPct,
+          gain: afterPct - beforePct,
+          wordsLearned: lessonWordsInSurah,
+        });
+      }
+    }
+  }
+  
+  // Sort by gain (highest first) and return top 5
+  improvements.sort(function(a, b) { return b.gain - a.gain; });
+  return improvements.slice(0, 5);
 }
 
 /**
