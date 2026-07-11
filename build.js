@@ -414,6 +414,23 @@ async function build() {
   writeFile('manifest.json', readFile('manifest.json'));
   writeFile('favicon.ico', readFile('favicon.ico') || '');
 
+  // 8. Copy minified bundles to root js/ directory so source index.html can load them
+  //    (source index.html references js/data.bundle.min.js + js/app.bundle.min.js)
+  console.log('  8. Copying bundles to root js/ directory...');
+  var bundlesToCopy = [
+    'js/data.bundle.min.js',
+    'js/app.bundle.min.js',
+  ];
+  bundlesToCopy.forEach(function (relPath) {
+    var srcPath = path.join(DIST, relPath);
+    var destPath = path.join(ROOT, relPath);
+    if (fs.existsSync(srcPath)) {
+      fs.copyFileSync(srcPath, destPath);
+      var size = fs.statSync(destPath).size;
+      console.log('     Copied ' + relPath + ' (' + (size / 1024).toFixed(1) + ' KB)');
+    }
+  });
+
   // Stats
   console.log('\n  Build Complete!\n');
   var origJSSize = 0;
