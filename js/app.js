@@ -1068,25 +1068,6 @@ function closePasswordModal() {
   if (appEl) appEl.removeAttribute('aria-hidden');
 }
 
-// ── Surah Selector Populator ───────────────────────────────────
-
-  var idx = activeWords.indexOf(w);
-  if (idx >= 0) {
-    window.__navigateToWordIndex(idx);
-    return;
-  }
-  // Fallback: try canonical words
-  var canonicalWords = typeof getCanonicalWords === 'function' ? getCanonicalWords() : [];
-  var cidx = canonicalWords.indexOf(w);
-  if (cidx >= 0) {
-    var wordLesson = Math.floor(cidx / WORDS_PER_LESSON);
-    var wordInLesson = cidx % WORDS_PER_LESSON;
-    if (wordLesson >= 0 && typeof goToLesson === 'function') {
-      goToLesson(wordLesson, wordInLesson);
-    }
-  }
-};
-
 // ═══════════════════════════════════════════════════════════════
 // Data Validation — Runs at startup to detect data issues
 // ═══════════════════════════════════════════════════════════════
@@ -1455,9 +1436,6 @@ function init() {
 // ── Learning Path Navigation Functions ─────────────────────────
 
 /**
- * Navigate to a root family for study.
- */
-
-/**
  * Start a Mixed Review session.
  */
+// (Stub — see js/ui/review.js for the implementation)
