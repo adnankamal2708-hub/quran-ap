@@ -240,17 +240,22 @@ function renderWordList() {
   for (var i = 0; i < words.length; i++) {
     var w = words[i];
     var entry = srsData[w.id];
+    // Determine badge icon using SVG system
+    var $icon = window.__components && window.__components.createSVGIcon;
+    function $badge(name) {
+      return $icon ? $icon(name, {size: 14}) : '';
+    }
     var badge = '';
     if (entry && entry.stage >= 3) {
-      badge = '\uD83D\uDCA1';
+      badge = $badge('brain');
     } else if (entry && entry.stage >= 2) {
-      badge = '\uD83C\uDF31';
+      badge = $badge('leaf');
     } else if (entry && entry.stage >= 1 && Date.now() >= entry.dueDate) {
-      badge = entry.isLeech ? '\uD83D\uDCA2' : '\uD83D\uDD01';
+      badge = entry.isLeech ? $badge('alert-triangle') : $badge('repeat');
     } else {
-      badge = '\uD83C\uDD95';
+      badge = $badge('star');
     }
-    var favStar = favs[w.id] ? '\u2B50' : '';
+    var favStar = favs[w.id] ? $badge('star-fill') : '';
     var d = document.createElement('div');
     d.className = 'wordlist-item' + (advFiltersActive ? ' has-quick-actions' : '') + ' stagger-item';
     d.style.animationDelay = Math.min(i * 30, 350) + 'ms';
@@ -422,10 +427,10 @@ function renderStats() {
   if (stageContainer) {
     stageContainer.innerHTML = '';
     var stageLabels = [
-      { key: 'newCount', label: '\uD83C\uDD95 New', color: 'var(--blue)', filterStatus: 'new' },
-      { key: 'learning', label: '\uD83D\uDD0D Learning', color: 'var(--purple)', filterStatus: 'learning' },
-      { key: 'young', label: '\uD83C\uDF31 Young', color: 'var(--gold-dim)', filterStatus: 'mastered' },
-      { key: 'mature', label: '\uD83D\uDCA1 Mature', color: 'var(--green)', filterStatus: 'mastered' },
+      { key: 'newCount', label: 'New', color: 'var(--blue)', filterStatus: 'new' },
+      { key: 'learning', label: 'Learning', color: 'var(--purple)', filterStatus: 'learning' },
+      { key: 'young', label: 'Young', color: 'var(--gold-dim)', filterStatus: 'mastered' },
+      { key: 'mature', label: 'Mature', color: 'var(--green)', filterStatus: 'mastered' },
     ];
     for (var si = 0; si < stageLabels.length; si++) {
       var sl = stageLabels[si];
@@ -469,7 +474,7 @@ function renderStats() {
       row.setAttribute('aria-label', 'Continue Foundation Course');
       var color = fCompleted === fTotal ? 'var(--green)' : 'var(--gold)';
       row.innerHTML =
-        '<span class="stats-bar-label" style="color:' + color + '">📘 Foundation</span>' +
+        '<span class="stats-bar-label" style="color:' + color + '">Foundation</span>' +
         '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + fPct + '%;background:' + color + '"></div></div>' +
         '<span class="stats-bar-value">' + fCompleted + '/' + fTotal + '</span>';
       row.onclick = function() {
@@ -487,11 +492,11 @@ function renderStats() {
       if (coverage && foundCov) {
         var covRow1 = document.createElement('div');
         covRow1.className = 'stats-bar-row stats-comprehension-row';
-        covRow1.innerHTML = '<span style="font-size:11px;color:var(--green);font-weight:500;padding:2px 0">📖 Quran Reading Coverage: ' + coverage.coveragePercent + '%</span>';
+        covRow1.innerHTML = '<span style="font-size:11px;color:var(--green);font-weight:500;padding:2px 0">Quran Reading Coverage: ' + coverage.coveragePercent + '%</span>';
         foundationStatsContainer.appendChild(covRow1);
         var compRow = document.createElement('div');
         compRow.className = 'stats-bar-row';
-        compRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">🧠 Estimated comprehension: ' + coverage.estimatedComprehension + '%</span>';
+        compRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:2px 0">Estimated comprehension: ' + coverage.estimatedComprehension + '%</span>';
         if ($sight) {
           var $sTodayCls = $sight.todayChange >= 0 ? 'var(--green)' : 'var(--red)';
           var $sWeekCls = $sight.weekChange >= 0 ? 'var(--green)' : 'var(--red)';
@@ -541,13 +546,13 @@ function renderStats() {
         if (roots) {
           var rootsRow = document.createElement('div');
           rootsRow.className = 'stats-bar-row';
-          rootsRow.innerHTML = '<span style="font-size:10px;color:var(--purple);padding:2px 0">🌱 Roots mastered: ' + roots.fullyMasteredRoots + '/' + roots.totalRoots + ' (' + (roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0) + '%)</span>';
+          rootsRow.innerHTML = '<span style="font-size:10px;color:var(--purple);padding:2px 0">Roots mastered: ' + roots.fullyMasteredRoots + '/' + roots.totalRoots + ' (' + (roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0) + '%)</span>';
           foundationStatsContainer.appendChild(rootsRow);
         }
         if (fCompleted > 0) {
           var fCovRow = document.createElement('div');
           fCovRow.className = 'stats-bar-row';
-          fCovRow.innerHTML = '<span style="font-size:10px;color:var(--green);padding:2px 0">📘 Foundation coverage: ' + foundCov.foundationCoveragePercent + '% of Quran (' + foundCov.masteredFoundationWords + '/' + foundCov.totalFoundationWords + ' words)</span>';
+          fCovRow.innerHTML = '<span style="font-size:10px;color:var(--green);padding:2px 0">Foundation coverage: ' + foundCov.foundationCoveragePercent + '% of Quran (' + foundCov.masteredFoundationWords + '/' + foundCov.totalFoundationWords + ' words)</span>';
           foundationStatsContainer.appendChild(fCovRow);
         }
       }
@@ -557,12 +562,12 @@ function renderStats() {
         covRow.className = 'stats-bar-row';
         var fLesson = FOUNDATION_LESSONS && FOUNDATION_LESSONS[nextLesson] ? FOUNDATION_LESSONS[nextLesson] : null;
         var coverageText = fLesson ? 'Next: Foundation ' + (nextLesson + 1) + ' (+' + fLesson.lessonCoverage + ')' : '';
-        covRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:4px 0">📖 ' + coverageText + '</span>';
+        covRow.innerHTML = '<span style="font-size:10px;color:var(--text-muted);padding:4px 0">' + coverageText + '</span>';
         foundationStatsContainer.appendChild(covRow);
       } else {
         var covRow = document.createElement('div');
         covRow.className = 'stats-bar-row';
-        covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">🎉 Foundation Course Complete! ~' + (typeof getFoundationCoverage === 'function' ? getFoundationCoverage().foundationCoveragePercent : '84') + '% Quran coverage</span>';
+        covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">Foundation Course Complete! ~' + (typeof getFoundationCoverage === 'function' ? getFoundationCoverage().foundationCoveragePercent : '84') + '% Quran coverage</span>';
         foundationStatsContainer.appendChild(covRow);
       }
     } else {
@@ -682,9 +687,9 @@ function renderStats() {
   if (leechContainer) {
     leechContainer.innerHTML = '';
     if (srsStats.leechCount > 0) {
-      leechContainer.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px 0">\uD83D\uDCA2 ' + srsStats.leechCount + ' leeched word' + (srsStats.leechCount !== 1 ? 's' : '') + ' \u2014 consider giving extra attention</div>';
+      leechContainer.innerHTML = '<div style="font-size:12px;color:var(--red);padding:8px 0">' + srsStats.leechCount + ' leeched word' + (srsStats.leechCount !== 1 ? 's' : '') + ' \u2014 consider giving extra attention</div>';
     } else {
-      leechContainer.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0">\u2705 No leeched words</div>';
+      leechContainer.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0">No leeched words</div>';
     }
   }
 
@@ -767,13 +772,13 @@ function updateStreakDisplay() {
   if (!streakToday) return;
 
   if (data.lastDate === today) {
-    streakToday.textContent = '\u2713 Reviewed today! Come back tomorrow.';
+    streakToday.textContent = 'Reviewed today! Come back tomorrow.';
     streakToday.style.color = 'var(--green)';
   } else if (data.lastDate === getYesterdayKey()) {
-    streakToday.textContent = '\uD83D\uDD25 ' + streak + ' day streak! Review today to continue.';
+    streakToday.textContent = streak + ' day streak! Review today to continue.';
     streakToday.style.color = 'var(--gold)';
   } else if (streak > 0) {
-    streakToday.textContent = '\uD83D\uDD25 ' + streak + ' day streak! Review today to continue.';
+    streakToday.textContent = streak + ' day streak! Review today to continue.';
     streakToday.style.color = 'var(--gold)';
   } else {
     streakToday.textContent = 'Start your streak by reviewing a word today!';

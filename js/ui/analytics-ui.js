@@ -191,7 +191,7 @@ function renderAnalyticsOverview(analytics) {
   var foundationPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
   
   html += '<div class="analytics-section">';
-  html += '<div class="analytics-section-title">📊 Progress Overview</div>';
+  html += '<div class="analytics-section-title">Progress Overview</div>';
   html += '<div class="analytics-stats-grid">';
   html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + (profile ? profile.masteredWords : 0) + '</div><div class="analytics-stat-label">Mastered</div></div>';
   html += '<div class="analytics-stat-card"><div class="analytics-stat-value">' + (profile ? profile.studiedWords : 0) + '</div><div class="analytics-stat-label">Studied</div></div>';
@@ -203,7 +203,7 @@ function renderAnalyticsOverview(analytics) {
   
   // Foundation Progress
   html += '<div class="analytics-section">';
-  html += '<div class="analytics-section-title">📘 Foundation Course</div>';
+  html += '<div class="analytics-section-title">Foundation Course</div>';
   html += '<div class="analytics-progress-block">';
   html += '<div class="analytics-progress-track-big"><div class="analytics-progress-fill-big" style="width:' + foundationPct + '%"></div></div>';
   html += '<div class="analytics-progress-info">';
@@ -213,7 +213,7 @@ function renderAnalyticsOverview(analytics) {
   
   // Quran Reading Coverage Ring
   html += '<div class="analytics-section">';
-  html += '<div class="analytics-section-title">📖 Quran Reading Coverage</div>';
+  html += '<div class="analytics-section-title">Quran Reading Coverage</div>';
   html += '<div class="analytics-coverage-card">';
   html += '<div class="analytics-coverage-ring-wrap">';
   html += '<svg class="analytics-coverage-ring" viewBox="0 0 36 36">';
@@ -260,7 +260,7 @@ function renderAnalyticsOverview(analytics) {
   var relStats = (typeof getRelationshipStats === 'function') ? getRelationshipStats() : null;
   if (roots || relStats) {
     html += '<div class="analytics-section">';
-    html += '<div class="analytics-section-title">📚 Vocabulary Relationships</div>';
+    html += '<div class="analytics-section-title">Vocabulary Relationships</div>';
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">';
     if (roots) {
       var rootsPct = roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0;
@@ -291,7 +291,7 @@ function renderAnalyticsOverview(analytics) {
   
   // Learning Paths Progress
   html += '<div class="analytics-section">';
-  html += '<div class="analytics-section-title">🛤️ Learning Paths</div>';
+  html += '<div class="analytics-section-title">Learning Paths</div>';
   html += '<div class="analytics-progress-block">';
   var pathProgress = (typeof getLearningPathProgress === 'function') ? getLearningPathProgress() : null;
   if (pathProgress) {
@@ -324,7 +324,7 @@ function renderAnalyticsOverview(analytics) {
       var data = periods[pInfo.key];
       if (!data) continue;
       html += '<div class="analytics-section">';
-      html += '<div class="analytics-section-title">📅 ' + pInfo.label + '</div>';
+      html += '<div class="analytics-section-title">' + pInfo.label + '</div>';
       html += '<div class="analytics-period-card">';
       html += '<div class="analytics-period-grid">';
       html += '<div><span class="analytics-period-value">' + (data.gainMastered || 0) + '</span><span class="analytics-period-label">Gained</span></div>';
@@ -336,7 +336,7 @@ function renderAnalyticsOverview(analytics) {
     
     // Consistency
     html += '<div class="analytics-section">';
-    html += '<div class="analytics-section-title">🔥 Learning Consistency</div>';
+    html += '<div class="analytics-section-title">Learning Consistency</div>';
     html += '<div class="analytics-health-card">';
     html += '<div class="analytics-health-row"><span>Active Study Days</span><span>' + periods.consistency + '%</span></div>';
     html += '<div class="analytics-health-row"><span>Current Streak</span><span>' + (profile ? profile.streak || 0 : 0) + ' days</span></div>';
@@ -347,7 +347,7 @@ function renderAnalyticsOverview(analytics) {
     // Forecasts — Clean Grid Layout
   if (forecasts) {
     html += '<div class="analytics-section">';
-    html += '<div class="analytics-section-title">🔮 Forecasts</div>';
+    html += '<div class="analytics-section-title">Forecasts</div>';
     html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">';
     html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--gold);line-height:1.2">' + forecasts.predictedMastered['7'] + '</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">7 days</div><div style="font-size:9px;color:var(--text-muted)">reviews forecast</div></div>';
     html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--gold);line-height:1.2">' + forecasts.predictedMastered['30'] + '</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">30 days</div><div style="font-size:9px;color:var(--text-muted)">reviews forecast</div></div>';
@@ -381,7 +381,7 @@ function renderAnalyticsOverview(analytics) {
   }
   var dailyWorkload = dueThisWeek > 0 ? Math.ceil(dueThisWeek / 7) : 0;
   html += '<div class="analytics-section">';
-  html += '<div class="analytics-section-title">📅 Review Forecast</div>';
+  html += '<div class="analytics-section-title">Review Forecast</div>';
   html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
   html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--gold)">' + dueTomorrow + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:4px">Due tomorrow</div></div>';
   html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--gold)">' + dueThisWeek + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:4px">Due this week</div></div>';
@@ -396,7 +396,7 @@ function renderAnalyticsOverview(analytics) {
     var totalCount = analytics.achievements.totalCount || 1;
     var achPct = Math.min(100, Math.round((earnedCount / totalCount) * 100));
     html += '<div class="analytics-section">';
-    html += '<div class="analytics-section-title">🏆 Achievements</div>';
+    html += '<div class="analytics-section-title">Achievements</div>';
     html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
     html += '<span style="font-size:12px;color:var(--text)">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';
@@ -430,7 +430,7 @@ function renderAnalyticsTrends(analytics) {
   
   // Period selector
   html += '<div class="analytics-section">';
-  html += '<div class="analytics-section-title">📈 Progress Trends</div>';
+  html += '<div class="analytics-section-title">Progress Trends</div>';
   html += '<div class="analytics-trend-periods">';
   html += '<div class="analytics-trend-tabs">';
   var trendPeriods = ['7days', '30days', '90days'];
@@ -454,7 +454,7 @@ function renderAnalyticsTrends(analytics) {
     
     // Mastered trend chart (bar chart)
     html += '<div class="analytics-trend-chart">';
-    html += '<div class="analytics-trend-chart-title">📚 Vocabulary Growth</div>';
+    html += '<div class="analytics-trend-chart-title">Vocabulary Growth</div>';
     var mastered = trends.mastered;
     if (mastered && mastered.length > 0) {
       var maxMastered = 1;
@@ -476,7 +476,7 @@ function renderAnalyticsTrends(analytics) {
     
     // Coverage trend chart
     html += '<div class="analytics-trend-chart">';
-    html += '<div class="analytics-trend-chart-title">📖 Quran Coverage Growth</div>';
+    html += '<div class="analytics-trend-chart-title">Quran Coverage Growth</div>';
     var coverage = trends.coverage;
     if (coverage && coverage.length > 0) {
       var maxCoverage = 100;
@@ -494,7 +494,7 @@ function renderAnalyticsTrends(analytics) {
     
     // Reviews per day chart
     html += '<div class="analytics-trend-chart">';
-    html += '<div class="analytics-trend-chart-title">🔁 Daily Reviews</div>';
+    html += '<div class="analytics-trend-chart-title">Daily Reviews</div>';
     var reviews = trends.reviews;
     if (reviews && reviews.length > 0) {
       var maxReviews = 1;
@@ -544,7 +544,7 @@ function renderAnalyticsInsightsPage(analytics) {
     // Strongest Roots
     if (profile.strongRoots && profile.strongRoots.length > 0) {
       html += '<div class="analytics-section">';
-      html += '<div class="analytics-section-title">💪 Strongest Root Families</div>';
+      html += '<div class="analytics-section-title">Strongest Root Families</div>';
       html += '<div class="analytics-insight-list">';
       for (var sri = 0; sri < Math.min(profile.strongRoots.length, 8); sri++) {
         var sr = profile.strongRoots[sri];
@@ -560,7 +560,7 @@ function renderAnalyticsInsightsPage(analytics) {
     // Weakest Roots
     if (profile.weakRoots && profile.weakRoots.length > 0) {
       html += '<div class="analytics-section">';
-      html += '<div class="analytics-section-title">🌱 Weakest Root Families</div>';
+      html += '<div class="analytics-section-title">Weakest Root Families</div>';
       html += '<div class="analytics-insight-list">';
       for (var wri = 0; wri < Math.min(profile.weakRoots.length, 8); wri++) {
         var wr = profile.weakRoots[wri];
@@ -576,20 +576,20 @@ function renderAnalyticsInsightsPage(analytics) {
     // Forgetting Curve Analysis
     if (profile) {
       html += '<div class="analytics-section">';
-      html += '<div class="analytics-section-title">🧠 Memory Health</div>';
+      html += '<div class="analytics-section-title">Memory Health</div>';
       html += '<div class="analytics-health-card">';
       var stages = profile.stageDistribution || { newCount: 0, learning: 0, young: 0, mature: 0 };
-      html += '<div class="analytics-health-row"><span>🆕 New words</span><span>' + (stages.newCount || 0) + '</span></div>';
-      html += '<div class="analytics-health-row"><span>🔁 Learning</span><span>' + (stages.learning || 0) + '</span></div>';
-      html += '<div class="analytics-health-row"><span>🌱 Young</span><span>' + (stages.young || 0) + '</span></div>';
-      html += '<div class="analytics-health-row"><span>💡 Mature</span><span>' + (stages.mature || 0) + '</span></div>';
-      html += '<div class="analytics-health-row" style="color:var(--red)"><span>⏰ Critically Overdue</span><span>' + (profile.criticallyOverdue || 0) + '</span></div>';
+      html += '<div class="analytics-health-row"><span>New words</span><span>' + (stages.newCount || 0) + '</span></div>';
+      html += '<div class="analytics-health-row"><span>Learning</span><span>' + (stages.learning || 0) + '</span></div>';
+      html += '<div class="analytics-health-row"><span>Young</span><span>' + (stages.young || 0) + '</span></div>';
+      html += '<div class="analytics-health-row"><span>Mature</span><span>' + (stages.mature || 0) + '</span></div>';
+      html += '<div class="analytics-health-row" style="color:var(--red)"><span>Critically Overdue</span><span>' + (profile.criticallyOverdue || 0) + '</span></div>';
       html += '</div></div>';
     }
     
     // Quiz Performance
     html += '<div class="analytics-section">';
-    html += '<div class="analytics-section-title">📝 Quiz Performance</div>';
+    html += '<div class="analytics-section-title">Quiz Performance</div>';
     html += '<div class="analytics-health-card">';
     var quizHistory = (typeof loadQuizHistory === 'function') ? loadQuizHistory() : null;
     var qTotal = quizHistory ? quizHistory.total : 0;
@@ -603,7 +603,7 @@ function renderAnalyticsInsightsPage(analytics) {
     // SRS Health
     var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : null;
     if (srsStats) {
-      html += '<div class="analytics-section-title">💖 SRS Health</div>';
+      html += '<div class="analytics-section-title">SRS Health</div>';
     html += '<div class="analytics-health-card">';
     if (srsStats) {
       // Compute additional metrics
@@ -633,8 +633,7 @@ function renderAnalyticsInsightsPage(analytics) {
     } else {
       html += '<div style="padding:12px;color:var(--text-muted);font-size:11px;text-align:center">Start learning to see SRS health metrics.</div>';
     }
-    html += '</div></div>';
-html += '<div class="analytics-section-title">📊 Progress by Category</div>';
+    html += '</div></div>';  html += '<div class="analytics-section-title">Progress by Category</div>';
       html += '<div class="analytics-progress-block">';
       var catNames = { foundation: 'Foundation', coverage: 'Coverage', mastery: 'Mastery', streak: 'Streak', review: 'Review', quiz: 'Quiz', root: 'Root', path: 'Path', consistency: 'Consistency' };
       var catColors = { foundation: 'var(--gold)', coverage: 'var(--green)', mastery: 'var(--blue)', streak: 'var(--red)', review: 'var(--purple)', quiz: 'var(--pink)', root: 'var(--green)', path: 'var(--gold-dim)', consistency: 'var(--blue)' };
@@ -661,8 +660,12 @@ html += '<div class="analytics-section-title">📊 Progress by Category</div>';
   var allAchievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
   for (var ai = 0; ai < allAchievements.length; ai++) {
     var ach = allAchievements[ai];
+    // Convert achievement emoji icon to SVG if possible
+    var $svgIcon = window.__components && window.__components.createSVGIcon;
+    var $emojiMap = window.__components && window.__components.iconNameFromEmoji;
+    var $achIconSvg = $svgIcon && $emojiMap ? $svgIcon($emojiMap(ach.icon) || 'award', {size: 24}) : null;
     html += '<div class="analytics-ach-card' + (ach.earned ? ' analytics-ach-earned' : '') + '">';
-    html += '<div class="analytics-ach-icon">' + ach.icon + '</div>';
+    html += '<div class="analytics-ach-icon">' + ($achIconSvg || ach.icon) + '</div>';
     html += '<div class="analytics-ach-title">' + ach.title + '</div>';
     html += '<div class="analytics-ach-desc">' + ach.description + '</div>';
     if (ach.earned && ach.earnedDate) {
@@ -703,7 +706,7 @@ function renderAnalyticsAchievements() {
 
     // Progress bar
     html += '<div class="analytics-section">';
-    html += '<div class="analytics-section-title">🏆 Overall Progress</div>';
+    html += '<div class="analytics-section-title">Overall Progress</div>';
     html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
     html += '<span style="font-size:12px;color:var(--text)">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';

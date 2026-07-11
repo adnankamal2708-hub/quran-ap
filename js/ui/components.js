@@ -251,6 +251,43 @@ function createSectionHeader(title, opts) {
   return el;
 }
 
+/**
+ * Comprehensive emoji-to-SVG icon name mapping.
+ * Converts common emoji used throughout the app as icons to SVG icon names
+ * that can be passed to createSVGIcon().
+ * @param {string} emoji - The emoji character to convert
+ * @returns {string} SVG icon name, or the emoji itself if no mapping exists
+ */
+function iconNameFromEmoji(emoji) {
+  var map = {
+    '🔥': 'fire', '⭐': 'star', '📖': 'book', '📘': 'book', '📚': 'layers',
+    '📝': 'edit', '📊': 'chart', '📈': 'trend', '📉': 'trend', '📅': 'calendar',
+    '💡': 'lightbulb', '✅': 'check-circle', '✨': 'star', '🌟': 'star',
+    '🎯': 'target', '🎉': 'celebration', '🎊': 'celebration', '🏆': 'award',
+    '🥇': 'award', '🔁': 'repeat', '🔄': 'refresh-cw', '⚡': 'bolt',
+    '🌱': 'leaf', '🌿': 'leaf', '🌳': 'leaf', '🔗': 'link',
+    '📐': 'chevron-up', '🏷️': 'tag', '⚠️': 'alert-triangle', '⏰': 'clock',
+    '🔬': 'settings', '❤️': 'heart', '💖': 'heart', '💪': 'fire',
+    '🧠': 'brain', '👑': 'crown', '💎': 'star', '🆕': 'star',
+    '💢': 'alert-triangle', '📌': 'map-pin', '📍': 'map-pin', '🔍': 'search',
+    '👤': 'user', '🌐': 'globe', '❓': 'help-circle', '🌙': 'moon',
+    '🎓': 'award', '🏅': 'award', '💬': 'message-circle', '🧱': 'layers',
+    '🗡️': 'zap-off', '🛤️': 'arrow-right', '🔴': 'circle', '🟡': 'circle',
+    '🟢': 'circle', '🧮': 'layers', '🔮': 'settings', '🎵': 'volume-2',
+    '🎶': 'volume-2', '🗺️': 'map-pin', '⌛': 'clock', '💾': 'download-cloud',
+    '💿': 'circle', '📀': 'circle', '▶': 'chevron-right', '◀': 'chevron-left',
+    '✓': 'check', '✗': 'x', '★': 'star-fill', '☆': 'star', '✦': 'star',
+    '→': 'arrow-right', '←': 'arrow-left', '🔒': 'lock', '🔓': 'unlock',
+    '🔐': 'lock', '🚪': 'log-out', '🔑': 'key', '📤': 'upload-cloud',
+    '📥': 'download-cloud', '🗑️': 'trash', '✏️': 'edit', '📋': 'list',
+    '💻': 'monitor', '📱': 'smartphone', '☀️': 'sun', '⚙️': 'settings',
+    '❌': 'x', 'ℹ️': 'info', '🔔': 'bell', '🔕': 'bell-off',
+    '🌻': 'sun', '💰': 'dollar-sign', '💳': 'credit-card',
+    '🎒': 'book', '🚀': 'zap-off', '🤲': 'heart', '🙏': 'heart',
+  };
+  return map[emoji] || null;
+}
+
 // Export to global
 window.__components = {
   createBtn: createBtn,
@@ -260,4 +297,5 @@ window.__components = {
   createStatTile: createStatTile,
   createBadge: createBadge,
   createSectionHeader: createSectionHeader,
+  iconNameFromEmoji: iconNameFromEmoji,
 };
