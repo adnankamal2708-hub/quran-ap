@@ -113,6 +113,7 @@ const UI_FILES = (function () {
       'js/ui/explorer.js',
       'js/ui/analytics-ui.js',
       'js/ui/dashboard.js',
+      'js/ui/reader.js',
     ];
   }
   return ['js/ui.js']; // Fallback to monolithic file
@@ -134,6 +135,9 @@ const APP_FILES = [
   'js/analytics.js',
   'js/adaptive-engine.js',
   'js/ux-polish.js',
+  'js/ui/navigation.js',
+  'js/ui/review.js',
+  'js/ui/keyboard.js',
   'js/app.js',
 ]);
 

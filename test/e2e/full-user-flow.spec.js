@@ -530,6 +530,216 @@ test.describe('Dashboard', () => {
   });
 });
 
+// ── Bottom Nav Indicator ──────────────────────────────────────
+
+test.describe('Bottom Nav Indicator', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+    await page.waitForSelector('#view-dashboard', { timeout: 5000 });
+  });
+
+  test('initial load positions indicator on dashboard tab (index 0)', async ({ page }) => {
+    const indicator = page.locator('#bn-indicator');
+    await expect(indicator).toBeVisible();
+
+    const tx = await indicator.evaluate(el => {
+      const m = window.getComputedStyle(el).transform;
+      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match ? Math.round(parseFloat(match[1])) : -1;
+    });
+
+    // Dashboard is first tab (index 0) → translateX = 0
+    expect(tx).toBe(0);
+
+    // Dashboard tab should have aria-current="page"
+    await expect(page.locator('#tab-dashboard')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('each tab click moves indicator to correct position', async ({ page }) => {
+    const indicator = page.locator('#bn-indicator');
+    const tabs = [
+      { id: '#tab-dashboard', name: 'dashboard', index: 0 },
+      { id: '#tab-learn', name: 'learn', index: 1 },
+      { id: '#tab-quiz', name: 'quiz', index: 2 },
+      { id: '#tab-list', name: 'list', index: 3 },
+      { id: '#tab-stats', name: 'stats', index: 4 },
+      { id: '#tab-analytics', name: 'analytics', index: 5 },
+    ];
+
+    // Measure indicator width once (stable across all tabs since they're equal-width)
+    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
+
+    for (const tab of tabs) {
+      await page.locator(tab.id).click();
+      // Wait for CSS transition to complete (350ms spring easing)
+      await page.waitForTimeout(500);
+
+      const tx = await indicator.evaluate(el => {
+        const m = window.getComputedStyle(el).transform;
+        const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+        return match ? Math.round(parseFloat(match[1])) : -1;
+      });
+
+      const expectedTx = Math.round(tab.index * indicatorWidth);
+      expect(tx).toBe(expectedTx);
+
+      // The clicked tab should have aria-current="page"
+      await expect(page.locator(tab.id)).toHaveAttribute('aria-current', 'page');
+    }
+  });
+
+  test('only one tab is ever active at a time', async ({ page }) => {
+    const tabs = ['#tab-dashboard', '#tab-learn', '#tab-quiz', '#tab-list', '#tab-stats', '#tab-analytics'];
+
+    for (const tabId of tabs) {
+      await page.locator(tabId).click();
+      await page.waitForTimeout(500);
+
+      const activeCount = await page.evaluate(() => {
+        return document.querySelectorAll('.nav-tab.active').length;
+      });
+      expect(activeCount).toBe(1);
+
+      const ariaCurrentCount = await page.evaluate(() => {
+        return document.querySelectorAll('.nav-tab[aria-current="page"]').length;
+      });
+      expect(ariaCurrentCount).toBe(1);
+    }
+  });
+
+  test('keyboard shortcut W moves indicator to word list tab', async ({ page }) => {
+    const indicator = page.locator('#bn-indicator');
+    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
+
+    // Press W for word list (tab index 3)
+    await page.keyboard.press('w');
+    await page.waitForTimeout(500);
+
+    const tx = await indicator.evaluate(el => {
+      const m = window.getComputedStyle(el).transform;
+      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match ? Math.round(parseFloat(match[1])) : -1;
+    });
+
+    const expectedTx = Math.round(3 * indicatorWidth);
+    expect(tx).toBe(expectedTx);
+    await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('keyboard shortcut S moves indicator to stats tab', async ({ page }) => {
+    const indicator = page.locator('#bn-indicator');
+    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
+
+    // Press S for stats (tab index 4)
+    await page.keyboard.press('s');
+    await page.waitForTimeout(500);
+
+    const tx = await indicator.evaluate(el => {
+      const m = window.getComputedStyle(el).transform;
+      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match ? Math.round(parseFloat(match[1])) : -1;
+    });
+
+    const expectedTx = Math.round(4 * indicatorWidth);
+    expect(tx).toBe(expectedTx);
+    await expect(page.locator('#tab-stats')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('browser refresh restores indicator on dashboard tab', async ({ page }) => {
+    // Navigate to quiz first
+    await page.locator('#tab-quiz').click();
+    await page.waitForTimeout(500);
+
+    // Refresh page
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1500);
+
+    // Dismiss onboarding if it appears
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+
+    await page.waitForSelector('#view-dashboard', { timeout: 5000 });
+
+    const indicator = page.locator('#bn-indicator');
+    const tx = await indicator.evaluate(el => {
+      const m = window.getComputedStyle(el).transform;
+      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match ? Math.round(parseFloat(match[1])) : -1;
+    });
+
+    // After refresh, should be back on dashboard (index 0)
+    expect(tx).toBe(0);
+
+    // Only one active tab after refresh
+    const activeCount = await page.evaluate(() => {
+      return document.querySelectorAll('.nav-tab.active').length;
+    });
+    expect(activeCount).toBe(1);
+  });
+
+  test('indicator position is never stale — clicking quickly still ends on correct tab', async ({ page }) => {
+    const indicator = page.locator('#bn-indicator');
+    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
+
+    // Rapidly click multiple tabs without waiting for animation
+    await page.locator('#tab-quiz').click();
+    await page.locator('#tab-stats').click();
+    await page.locator('#tab-list').click();
+    await page.locator('#tab-learn').click();
+
+    // Wait for final animation to settle
+    await page.waitForTimeout(600);
+
+    const tx = await indicator.evaluate(el => {
+      const m = window.getComputedStyle(el).transform;
+      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match ? Math.round(parseFloat(match[1])) : -1;
+    });
+
+    // Should be on learn tab (index 1)
+    const expectedTx = Math.round(1 * indicatorWidth);
+    expect(tx).toBe(expectedTx);
+    await expect(page.locator('#tab-learn')).toHaveAttribute('aria-current', 'page');
+
+    // Only one active tab
+    const activeCount = await page.evaluate(() => {
+      return document.querySelectorAll('.nav-tab.active').length;
+    });
+    expect(activeCount).toBe(1);
+  });
+
+  test('reduced-motion prefers no transition but still positions correctly', async ({ page }) => {
+    // Set prefers-reduced-motion via CDP
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+
+    const indicator = page.locator('#bn-indicator');
+    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
+
+    await page.locator('#tab-analytics').click();
+    await page.waitForTimeout(100);
+
+    const tx = await indicator.evaluate(el => {
+      const m = window.getComputedStyle(el).transform;
+      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match ? Math.round(parseFloat(match[1])) : -1;
+    });
+
+    // Should be on analytics tab (index 5) — immediately, no transition delay
+    const expectedTx = Math.round(5 * indicatorWidth);
+    expect(tx).toBe(expectedTx);
+    await expect(page.locator('#tab-analytics')).toHaveAttribute('aria-current', 'page');
+  });
+});
+
 // ── Offline Indicator ──────────────────────────────────────────
 
 test.describe('Offline Indicator', () => {

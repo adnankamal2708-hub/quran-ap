@@ -14,6 +14,9 @@ var cp = require('child_process');
 
 var TEST_DIR = __dirname;
 var TESTS = [
+  "navigation.test.js",
+  "review.test.js",
+  "keyboard.test.js",
   "analytics.test.js",
   "ux-polish.test.js",
   "srs.test.js",

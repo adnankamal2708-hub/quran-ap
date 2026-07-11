@@ -35,7 +35,7 @@ function setView(viewName) {
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
     // Only toggle tab highlights for main nav tabs
-    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics') {
+    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics' || name === 'reader') {
       var tabEl = DOM.get('tab-' + name);
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
@@ -54,7 +54,7 @@ function setView(viewName) {
   }
 
   // Update aria-current on nav tabs for accessibility
-  var navTabs = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics'];
+  var navTabs = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'reader'];
   for (var ti = 0; ti < navTabs.length; ti++) {
     var tabEl = DOM.get('tab-' + navTabs[ti]);
     if (tabEl) {

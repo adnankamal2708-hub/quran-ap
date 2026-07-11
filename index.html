@@ -389,6 +389,70 @@
         <div id="wordlist-container" role="list" aria-label="Vocabulary list"></div>
       </section>
 
+      <!-- ── READING MODE VIEW ── -->
+      <section class="mode-view" id="view-reader" aria-label="Quran Reading Mode">
+        <div class="reader-container">
+          <!-- Surah Browser (left column / top row on mobile) -->
+          <div class="reader-sidebar" id="reader-sidebar">
+            <div class="reader-sidebar-header">
+              <div class="reader-sidebar-title">📖 Surahs</div>
+              <button class="reader-close-btn" id="reader-back-to-list" type="button" title="Browse surahs" aria-label="Browse surahs">📋</button>
+            </div>
+            <div class="reader-search-row">
+              <input class="reader-search-input" id="reader-search-input" type="text" placeholder="Search surah…" aria-label="Search surah" />
+            </div>
+            <div class="reader-surah-list" id="reader-surah-list">
+              <!-- Rendered dynamically by renderSurahBrowser() -->
+            </div>
+          </div>
+
+          <!-- Reading Area (right column) -->
+          <div class="reader-main">
+            <!-- Surah Title & Comprehension Header -->
+            <div class="reader-top-bar">
+              <h2 class="reader-title" id="reader-surah-title">Select a Surah</h2>
+              <div class="reader-top-actions">
+                <div class="reader-jump-group">
+                  <input class="reader-jump-input" id="reader-jump-input" type="number" min="1" placeholder="Verse #" aria-label="Jump to verse" />
+                  <button class="reader-jump-btn" id="reader-jump-btn" type="button">Go</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="reader-surah-comp" id="reader-surah-comp">
+              <!-- Rendered dynamically by renderSurahComprehensionHeader() -->
+            </div>
+
+            <!-- Legend -->
+            <div class="reader-legend" id="reader-legend">
+              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-mastered"></span>Mastered</span>
+              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-known"></span>Known</span>
+              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-learning"></span>Learning</span>
+              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-seen"></span>Seen</span>
+              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-unknown"></span>New</span>
+            </div>
+
+            <!-- Reader Filters -->
+            <div class="reader-filter-bar" id="reader-filter-bar">
+              <button class="reader-filter-btn" data-filter="hideTranslation" type="button" title="Hide translations">🌐</button>
+              <button class="reader-filter-btn" data-filter="showUnknownOnly" type="button" title="Show unknown words only">❓</button>
+              <button class="reader-filter-btn" data-filter="focusMode" type="button" title="Focus mode — dim verses">🎯</button>
+              <button class="reader-filter-btn" data-filter="nightMode" type="button" title="Night mode">🌙</button>
+            </div>
+
+            <!-- Reading Insights Panel -->
+            <div class="reader-insights" id="reader-insights" style="display:none">
+              <!-- Rendered dynamically by renderReadingInsightsPanel() -->
+            </div>
+
+            <!-- Verses Container -->
+            <div class="reader-verses" id="reader-verses">
+              <!-- Rendered dynamically by renderAyahs() -->
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ── ANALYTICS VIEW ── -->
       <section class="mode-view" id="view-analytics" aria-label="Learning Analytics">
         <div class="analytics-tabs" role="tablist" aria-label="Analytics sections">
@@ -982,6 +1046,7 @@
         <span class="kbd-group"><kbd>Z</kbd> Quiz</span>
         <span class="kbd-group"><kbd>W</kbd> Words</span>
         <span class="kbd-group"><kbd>S</kbd> Stats</span>
+        <span class="kbd-group"><kbd>R</kbd> Read</span>
         <span class="kbd-group"><kbd>?</kbd> Hints</span>
       </div>
     </main>
@@ -1012,6 +1077,10 @@
       <button class="nav-tab" id="tab-analytics" type="button">
         <span class="nav-tab-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
         <span class="nav-tab-label">Analytics</span>
+      </button>
+      <button class="nav-tab" id="tab-reader" type="button">
+        <span class="nav-tab-icon"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="14" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/></svg></span>
+        <span class="nav-tab-label">Read</span>
       </button>
     </nav>
   </div>
