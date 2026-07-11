@@ -414,20 +414,23 @@ async function build() {
   writeFile('manifest.json', readFile('manifest.json'));
   writeFile('favicon.ico', readFile('favicon.ico') || '');
 
-  // 8. Copy minified bundles to root js/ directory so source index.html can load them
+  // 8. Copy build artifacts to root directory so source index.html and sw.js work
   //    (source index.html references js/data.bundle.min.js + js/app.bundle.min.js)
-  console.log('  8. Copying bundles to root js/ directory...');
-  var bundlesToCopy = [
+  //    (root sw.js precaches styles.min.css + service worker must match dist version)
+  console.log('  8. Syncing build artifacts to root directory...');
+  var artifactsToSync = [
     'js/data.bundle.min.js',
     'js/app.bundle.min.js',
+    'styles.min.css',
+    'sw.js',
   ];
-  bundlesToCopy.forEach(function (relPath) {
+  artifactsToSync.forEach(function (relPath) {
     var srcPath = path.join(DIST, relPath);
     var destPath = path.join(ROOT, relPath);
     if (fs.existsSync(srcPath)) {
       fs.copyFileSync(srcPath, destPath);
       var size = fs.statSync(destPath).size;
-      console.log('     Copied ' + relPath + ' (' + (size / 1024).toFixed(1) + ' KB)');
+      console.log('     Synced ' + relPath + ' (' + (size / 1024).toFixed(1) + ' KB)');
     }
   });
 

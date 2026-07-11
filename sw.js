@@ -21,6 +21,7 @@ const PRECACHE_URLS = [
   './js/data.bundle.min.js',
   './js/app.bundle.min.js',
   './js/services/firebase-core.js',
+  './js/ux-polish.js',
   './manifest.json',
   './favicon.ico',
 ];
