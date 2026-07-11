@@ -172,12 +172,26 @@ function renderDashboard() {
   var $noProgress = $fCompleted === 0 && $masteredCount === 0;
   var $continueLabel = $noProgress ? 'Start Foundation Course' : ($foundationComplete ? 'Learn by Surah' : 'Continue Foundation Course');
 
-  // SVG helper
+  // SVG helper — uses the comprehensive icon system in components.js
   var $icons = window.__components && window.__components.createSVGIcon;
   function $icon(name, size) {
     if ($icons) return $icons(name, {size: size || 22});
-    var $map = {book: '📖', layers: '📚', list: '📋', chart: '📊', bolt: '⚡', star: '⭐', target: '🎯', fire: '🔥', check: '✓', brain: '🧠', clock: '⏰', crown: '👑'};
-    return $map[name] || '📖';
+    // Fallback: map icon names to SVG or emoji characters
+    var $fallback = {
+      book: '📖', layers: '📚', list: '📋', chart: '📊', bolt: '⚡', star: '⭐', target: '🎯',
+      fire: '🔥', check: '✓', brain: '🧠', clock: '⏰', crown: '👑', repeat: '🔄',
+      'arrow-right': '→', 'arrow-left': '←', 'check-circle': '✅', lightbulb: '💡',
+      celebration: '🎉', leaf: '🌱', link: '🔗', 'map-pin': '📍', heart: '❤️',
+      'alert-triangle': '⚠️', mail: '📧', edit: '✏️', search: '🔍', award: '🏆',
+      'refresh-cw': '🔄', 'log-out': '🚪', key: '🔑', trash: '🗑️', lock: '🔒',
+      unlock: '🔓', moon: '🌙', 'help-circle': '❓', 'chevron-right': '▶',
+      'chevron-left': '◀', trend: '📈', trending: '📈', flag: '📌', sun: '☀️',
+      'message-circle': '💬', plus: '+', minus: '-', x: '✗', 'star-fill': '⭐',
+      'upload-cloud': '📤', 'download-cloud': '📥', info: 'ℹ️', 'thumbs-up': '👍',
+      'book-open': '📖', 'zap-off': '⚡', sliders: '🔍', 'external-link': '🔗',
+      'volume-2': '🔊', 'log-in': '📥',
+    };
+    return $fallback[name] || '✦';
   }
 
   // ── Build HTML ──
@@ -194,7 +208,8 @@ function renderDashboard() {
   // ═══ 2. COMPACT HERO STATS BAR ═══
   $h += '<div class="db-hero-bar">';
   $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="stats" tabindex="0" role="button" aria-label="Streak: ' + $streak + ' days">';
-  $h += '<div class="db-hero-stat-value">🔥 ' + $streak + '</div>';
+  $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
+  $h += '<div class="db-hero-stat-value">' + $streak + '</div>';
   $h += '<div class="db-hero-stat-label">Streak</div></div>';
   $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="list" tabindex="0" role="button" aria-label="Words mastered: ' + $masteredCount + '">';
   $h += '<div class="db-hero-stat-value">' + $masteredCount + '</div>';
@@ -211,7 +226,7 @@ function renderDashboard() {
   if ($fTotal > 0) {
     var $ringOffset = Math.min(100, Math.max(0, Math.round(($comprehensionPct / 100) * 100)));
 
-    $h += '<div class="db-section-label">⭐ Recommended Path</div>';
+    $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('star', 14) + '</span> Recommended Path</div>';
 
     $h += '<div class="db-hero-card" id="db-hero-card">';
     $h += '<div class="db-hero-card-bg" aria-hidden="true"></div>';
@@ -267,7 +282,7 @@ function renderDashboard() {
   }
 
   // ═══ 4. LEARNING PATHS ═══
-  $h += '<div class="db-section-label">Learning Paths</div>';
+  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> Learning Paths</div>';
   $h += '<div class="db-paths-grid">';
 
   // Path 1: Foundation Course (⭐ Recommended)
@@ -275,7 +290,7 @@ function renderDashboard() {
   $h += '<div class="db-path-tile-header">';
   $h += '<div class="db-path-icon" style="background:rgba(201,168,76,0.12)">' + $icon('layers', 20) + '</div>';
   $h += '<div class="db-path-body">';
-  $h += '<div class="db-path-title">Foundation Course <span class="db-path-badge">⭐ Recommended</span></div>';
+  $h += '<div class="db-path-title">Foundation Course <span class="db-path-badge">' + $icon('star', 10) + ' Recommended</span></div>';
   $h += '<div class="db-path-sub">' + $fCompleted + ' of ' + $fTotal + ' lessons · ~' + $coveragePct + '% Quran coverage</div>';
   $h += '</div></div>';
   $h += '<div class="db-progress">';
@@ -341,7 +356,7 @@ function renderDashboard() {
   if ($dueCount > 0) {
     $h += '<div class="db-card db-card-due db-action-card" id="db-review" tabindex="0" role="button" aria-label="' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' due for review">';
     $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">🔁</div>';
+    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">' + $icon('repeat', 22) + '</div>';
     $h += '<div class="db-card-body">';
     $h += '<div class="db-card-title">Due for Review</div>';
     $h += '<div class="db-card-sub">' + ($dueCount === 1 ? '1 word needs reinforcement' : $dueCount + ' words need reinforcement') + '</div>';
@@ -352,7 +367,7 @@ function renderDashboard() {
     // Show positive reinforcement when all caught up
     $h += '<div class="db-card db-card-caught-up">';
     $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon" style="background:rgba(74,158,107,0.1)">✅</div>';
+    $h += '<div class="db-card-icon" style="background:rgba(74,158,107,0.1)">' + $icon('check-circle', 22) + '</div>';
     $h += '<div class="db-card-body">';
     $h += '<div class="db-card-title">All Caught Up!</div>';
     $h += '<div class="db-card-sub">' + $reviewsToday + ' reviews done today — great consistency</div>';
@@ -360,7 +375,7 @@ function renderDashboard() {
   }
 
   // ═══ 6. PROGRESS SNAPSHOT ═══
-  $h += '<div class="db-section-label">Progress Snapshot</div>';
+  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Snapshot</div>';
   $h += '<div class="db-card">';
   $h += '<div class="db-snapshot-grid">';
 
@@ -392,7 +407,7 @@ function renderDashboard() {
 
   // Streak
   $h += '<div class="db-snapshot-item">';
-  $h += '<div class="db-snapshot-value">🔥 ' + $streak + '</div>';
+  $h += '<div class="db-snapshot-icon" aria-hidden="true">' + $icon('fire', 14) + '</div><div class="db-snapshot-value">' + $streak + '</div>';
   $h += '<div class="db-snapshot-label">Day Streak</div>';
   $h += '</div>';
 
@@ -408,7 +423,10 @@ function renderDashboard() {
   if ($ms && $ms.nextMilestone) {
     $h += '<div class="db-card db-card-milestone">';
     $h += '<div class="db-card-row">';
-    $h += '<span style="font-size:16px;line-height:1;flex-shrink:0">' + ($ms.currentMilestone ? $ms.currentMilestone.icon : '🎯') + '</span>';
+    // Map milestone icon emoji to SVG icon names
+  var $milestoneIconMap = {'🔥':'fire','⭐':'star','📖':'book','🏆':'award','💡':'lightbulb','🎯':'target','👑':'crown','💎':'star','🌟':'star','📚':'layers','🌱':'leaf','🌿':'leaf','🧱':'layers','📝':'edit','⚡':'bolt','🏅':'award','🎓':'award','📅':'calendar','💪':'fire','💬':'message-circle','🧠':'brain','🗡️':'zap-off'};
+  var $msIconName = ($ms && $ms.currentMilestone && $milestoneIconMap[$ms.currentMilestone.icon]) || 'target';
+  $h += '<span style="font-size:16px;line-height:1;flex-shrink:0">' + $icon($msIconName, 18) + '</span>';
     $h += '<div style="flex:1;font-size:11px;color:var(--text-muted);line-height:1.5">';
     if ($ms.nextMilestone) {
       $h += 'Next milestone: ' + $ms.nextMilestone.icon + ' ' + $ms.nextMilestone.label + ' — ~' + $ms.lessonsToNextMilestone + ' lessons away';
@@ -423,7 +441,7 @@ function renderDashboard() {
   if ($totalWords > 0) {
     $h += '<div class="db-card db-card-collapsible" id="db-weekly-section">';
     $h += '<div class="db-card-row db-card-collapsible-header" id="db-weekly-toggle" tabindex="0" role="button" aria-expanded="false" aria-label="Toggle weekly forecast">';
-    $h += '<span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:500">📅 Review Forecast</span>';
+    $h += '<span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:500">' + $icon('calendar', 14) + ' Review Forecast</span>';
     $h += '<span class="db-collapse-arrow" id="db-weekly-arrow">▶</span>';
     $h += '</div>';
     $h += '<div id="db-weekly-body" style="display:none">';
@@ -443,19 +461,19 @@ function renderDashboard() {
   // ═══ 8. RECENT ACHIEVEMENTS ═══
   $h += '<div class="db-card">';
   $h += '<div class="db-achievement">';
-  $h += '<div class="db-ach-title">🏆 Recent Achievements</div>';
+  $h += '<div class="db-ach-title">' + $icon('award', 16) + ' Recent Achievements</div>';
   $h += '<div class="db-ach-row">';
-  if ($streak > 0) $h += '<span class="db-ach-item">🔥 ' + $streak + '-day streak</span>';
-  if ($masteredCount > 0) $h += '<span class="db-ach-item">💡 ' + $masteredCount + ' words mastered</span>';
-  $h += '<span class="db-ach-item">📖 ' + $totalWords + ' total words</span>';
-  if ($reviewsToday > 0) $h += '<span class="db-ach-item">🔁 ' + $reviewsToday + ' reviewed today</span>';
-  if ($fCompleted > 0) $h += '<span class="db-ach-item">📘 ' + $fCompleted + ' foundation lessons</span>';
-  if ($surahsWith50Plus > 0) $h += '<span class="db-ach-item">📖 ' + $surahsWith50Plus + ' surahs (50%+)</span>';
+  if ($streak > 0) $h += '<span class="db-ach-item">' + $icon('fire', 12) + ' ' + $streak + '-day streak</span>';
+  if ($masteredCount > 0) $h += '<span class="db-ach-item">' + $icon('brain', 12) + ' ' + $masteredCount + ' words mastered</span>';
+  $h += '<span class="db-ach-item">' + $icon('book', 12) + ' ' + $totalWords + ' total words</span>';
+  if ($reviewsToday > 0) $h += '<span class="db-ach-item">' + $icon('repeat', 12) + ' ' + $reviewsToday + ' reviewed today</span>';
+  if ($fCompleted > 0) $h += '<span class="db-ach-item">' + $icon('layers', 12) + ' ' + $fCompleted + ' foundation lessons</span>';
+  if ($surahsWith50Plus > 0) $h += '<span class="db-ach-item">' + $icon('book-open', 12) + ' ' + $surahsWith50Plus + ' surahs (50%+)</span>';
   $h += '</div></div></div>';
 
   // ═══ 8b. DAILY LEARNING PLAN (from adaptive engine) ═══
   if ($dailyPlan && $dailyPlan.length > 0) {
-    $h += '<div class="db-section-label" style="margin-top:16px">Today\'s Plan</div>';
+    $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('calendar', 14) + ' Today\'s Plan</div>';
     $h += '<div class="db-card" id="db-daily-plan">';
     $h += '<div class="db-daily-plan">';
     for (var $dpi = 0; $dpi < $dailyPlan.length; $dpi++) {
@@ -464,7 +482,7 @@ function renderDashboard() {
       if ($taskDone) continue; // Hide completed tasks
       var $taskIcon = $taskDone ? '✅' : ($task.icon || '📋');
       $h += '<div class="db-daily-item" data-plan-id="' + $task.id + '">';
-      $h += '<span class="db-daily-icon" aria-hidden="true">' + $taskIcon + '</span>';
+      $h += '<span class="db-daily-icon" aria-hidden="true">' + ($taskDone ? $icon('check-circle', 16) : ($task.icon ? $icon($task.icon, 16) : $icon('list', 16))) + '</span>';
       $h += '<span class="db-daily-label">' + $task.label + '</span>';
       $h += '<span class="db-daily-status">' + ($taskDone ? '✓ Done' : '') + '</span>';
       $h += '</div>';
@@ -476,7 +494,7 @@ function renderDashboard() {
   if ($smartRec && $smartRec.actionType) {
     $h += '<div class="db-card db-smart-rec" id="db-smart-rec" tabindex="0" role="button" aria-label="' + ($smartRec.title || '') + '">';
     $h += '<div class="db-card-row">';
-    $h += '<span style="font-size:18px;flex-shrink:0">' + ($smartRec.icon || '💡') + '</span>';
+    $h += '<span style="font-size:18px;flex-shrink:0">' + $icon($smartRec.icon || 'lightbulb', 18) + '</span>';
     $h += '<div style="flex:1;min-width:0">';
     $h += '<div class="db-card-title" style="font-size:12px">' + ($smartRec.title || 'Recommendation') + '</div>';
     $h += '<div class="db-card-sub" style="font-size:10px;line-height:1.4">' + ($smartRec.message || '') + '</div>';
@@ -487,13 +505,13 @@ function renderDashboard() {
 
   // ═══ 8d. WEAKNESS DETECTION ═══
   if ($weaknesses && $weaknesses.length > 0) {
-    $h += '<div class="db-section-label" style="margin-top:16px">Weak Areas</div>';
+    $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('alert-triangle', 14) + ' Weak Areas</div>';
     $h += '<div class="db-card">';
     for (var $wi = 0; $wi < Math.min($weaknesses.length, 4); $wi++) {
       var $w = $weaknesses[$wi];
       var $sevIcon = $w.severity === 'high' ? '🔴' : ($w.severity === 'medium' ? '🟡' : '🟢');
       $h += '<div class="db-week-area-item">';
-      $h += '<span>' + $sevIcon + '</span>';
+      $h += '<span class="db-severity-icon" style="font-size:12px">' + $sevIcon + '</span>';
       $h += '<span style="flex:1;font-size:11px">' + $w.name + '</span>';
       if ($w.severity === 'high') $h += '<span class="db-badge db-badge-pulse" style="background:var(--danger);color:#fff;font-size:9px">!</span>';
       $h += '</div>';
@@ -503,20 +521,20 @@ function renderDashboard() {
 
   // ═══ 8e. STREAK QUALITY & GOAL PROGRESS ═══
   if ($goalProgress || $streakQuality) {
-    $h += '<div class="db-section-label" style="margin-top:16px">Your Progress</div>';
+    $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('trending', 14) + ' Your Progress</div>';
     $h += '<div class="db-card" style="display:flex;gap:12px;flex-wrap:wrap">';
     // Goal progress
     if ($goalProgress) {
       var $gpPct = $goalProgress.progressPercent || 0;
       $h += '<div style="flex:1;min-width:100px">';
-      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">🎯 Daily Goal: ' + $goalProgress.targetMinutes + ' min</div>';
+      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">' + $icon('target', 12) + ' Daily Goal: ' + $goalProgress.targetMinutes + ' min</div>';
       $h += '<div class="db-progress"><div class="db-progress-track" style="height:6px"><div class="db-progress-fill" style="width:' + $gpPct + '%;height:6px;background:var(--gold)"></div></div><span class="db-progress-text" style="font-size:10px">' + $goalProgress.progressMinutes + ' / ' + $goalProgress.targetMinutes + ' min</span></div>';
       $h += '</div>';
     }
     // Streak quality
     if ($streakQuality) {
       $h += '<div style="flex:1;min-width:100px">';
-      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">🔥 Consistency</div>';
+      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">' + $icon('fire', 12) + ' Consistency</div>';
       $h += '<div style="display:flex;align-items:center;gap:8px">';
       $h += '<span style="font-size:16px;font-weight:600;color:var(--gold)">' + $streakQuality.streak + '</span>';
       $h += '<span style="font-size:10px;color:var(--text-muted)">day streak</span>';

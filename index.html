@@ -22,7 +22,7 @@
   <!-- ── SPLASH SCREEN ── -->
   <div class="splash-screen" id="splash-screen" role="status" aria-label="Loading Bayan">
     <div class="splash-content">
-      <div class="splash-icon" aria-hidden="true">📖</div>
+      <div class="splash-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="64" height="64" stroke="var(--gold-dim)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
       <h1 class="splash-title">Bayan</h1>
       <p class="splash-tagline">Understand the Quran, one word at a time.</p>
       <div class="splash-loader" aria-hidden="true">
@@ -41,7 +41,7 @@
         <div class="top-left-group">
           <div class="bismillah" aria-hidden="true">بِسْمِ اللَّهِ</div>
           <span class="offline-badge" id="offline-badge" aria-live="polite">✓ Offline ready</span>
-          <span class="guest-badge" id="guest-badge" style="display:none">👤 Guest</span>
+          <span class="guest-badge" id="guest-badge" style="display:none"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Guest</span>
         </div>
         <div class="top-right-group">
           <button class="user-btn" id="user-btn" type="button" title="Account" aria-label="Account">
@@ -92,22 +92,22 @@
       <section class="mode-view" id="view-learn" aria-label="Learn words">
         <div class="lesson-header">
           <div class="lesson-header-top">
-            <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous">◀</button>
+            <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
             <div class="lesson-progress-info">
               <div class="lesson-progress-text" id="lesson-progress-text">3 of 16 lessons</div>
               <div class="lesson-progress-track">
                 <div class="lesson-progress-fill" id="lesson-progress" style="width:0%"></div>
               </div>
             </div>
-            <button class="lesson-nav-btn" id="next-lesson-btn" type="button" title="Next" aria-label="Next">▶</button>
+            <button class="lesson-nav-btn" id="next-lesson-btn" type="button" title="Next" aria-label="Next"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
           </div>
           <div style="display:flex;gap:6px;margin-top:8px">
             <select class="auth-input" id="surah-select" aria-label="Select mode" style="flex:1;font-size:11px;padding:8px 10px">
-              <option value="lesson">📚 Lessons (sequential)</option>
-              <option value="foundation">📘 Foundation Course (frequency)</option>
+              <option value="lesson">Lessons (sequential)</option>
+              <option value="foundation">Foundation Course (frequency)</option>
               <option value="surah" disabled>─── Surahs ───</option>
             </select>
-            <button class="continue-lesson-btn" id="continue-learning-btn" type="button" style="flex-shrink:0;width:auto;padding:8px 14px;font-size:12px">📖 Continue</button>
+            <button class="continue-lesson-btn" id="continue-learning-btn" type="button" style="flex-shrink:0;width:auto;padding:8px 14px;font-size:12px"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Continue</button>
           </div>
           <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);margin-top:6px;text-align:center" aria-live="polite"></div>
           <div id="foundation-unlocks" style="display:none;margin-top:8px" aria-live="polite"></div>
@@ -117,7 +117,7 @@
         </div>
 
         <div class="review-banner" id="review-banner" role="alert" aria-live="polite">
-          <span aria-hidden="true" style="font-size:18px">🔁</span>
+          <span aria-hidden="true" style="font-size:18px;display:flex;align-items:center"><svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--gold)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
           <p id="review-banner-text">You have words due for review!</p>
           <button class="btn btn-sm" id="review-start-btn" type="button">Review</button>
         </div>
@@ -136,7 +136,7 @@
           <div class="word-pattern" id="word-pattern"></div>
           <div class="meaning" id="meaning">Allah — God</div>
           <div id="sr-pill" class="sr-pill sr-new" aria-live="polite">🆕 New word</div>
-          <div class="occurrence-tag" id="occurrences">✦ Appears 2,699 times</div>
+          <div class="occurrence-tag" id="occurrences"><svg viewBox="0 0 24 24" width="10" height="10" stroke="var(--green)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Appears 2,699 times</div>
         </article>
 
         <div class="nav-row" id="nav-row">
@@ -146,27 +146,27 @@
 
         <div class="srs-label" id="srs-label" style="display:none">How well did you know this word?</div>
         <div class="srs-row" id="srs-row" style="display:none" role="group" aria-label="Rate your recall">
-          <button class="srs-btn again" id="srs-again" type="button" aria-label="Rate Again — forgot the word">😓<br />Again<br /><span style="font-size:9px">Tomorrow</span></button>
-          <button class="srs-btn hard" id="srs-hard" type="button" aria-label="Rate Hard — difficult to recall">😐<br />Hard<br /><span style="font-size:9px">3 days</span></button>
-          <button class="srs-btn good" id="srs-good" type="button" aria-label="Rate Good — remembered correctly">🙂<br />Good<br /><span style="font-size:9px">7 days</span></button>
-          <button class="srs-btn easy" id="srs-easy" type="button" aria-label="Rate Easy — effortless recall">😊<br />Easy<br /><span style="font-size:9px">14 days</span></button>
+          <button class="srs-btn again" id="srs-again" type="button" aria-label="Rate Again — forgot the word"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:2px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><br />Again<br /><span class="srs-days">Tomorrow</span></button>
+          <button class="srs-btn hard" id="srs-hard" type="button" aria-label="Rate Hard — difficult to recall"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><br />Hard<br /><span class="srs-days">3 days</span></button>
+          <button class="srs-btn good" id="srs-good" type="button" aria-label="Rate Good — remembered correctly"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:2px"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg><br />Good<br /><span class="srs-days">7 days</span></button>
+          <button class="srs-btn easy" id="srs-easy" type="button" aria-label="Rate Easy — effortless recall"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:2px"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><br />Easy<br /><span class="srs-days">14 days</span></button>
         </div>
 
         <div class="quick-actions">
-          <button class="qa-btn" type="button" id="qa-show-ayah" aria-expanded="false" aria-controls="ayah-box">📖 Show in ayah</button>
-          <button class="qa-btn" type="button" id="qa-show-more" aria-expanded="false" aria-controls="ayah-box tafsir-box">📚 Show full tafsir</button>
-          <button class="qa-btn" type="button" id="qa-root-family">🌱 Root system</button>
-          <button class="qa-btn" type="button" id="qa-bookmark">⭐ Bookmark</button>
-          <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)">⚡ <span class="sr-only">Toggle quick flashcard mode</span><span aria-hidden="true">Quick</span></button>
+          <button class="qa-btn" type="button" id="qa-show-ayah" aria-expanded="false" aria-controls="ayah-box"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Show in ayah</button>
+          <button class="qa-btn" type="button" id="qa-show-more" aria-expanded="false" aria-controls="ayah-box tafsir-box"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Show full tafsir</button>
+          <button class="qa-btn" type="button" id="qa-root-family"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10z"/></svg> Root system</button>
+          <button class="qa-btn" type="button" id="qa-bookmark"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Bookmark</button>
+          <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <span class="sr-only">Toggle quick flashcard mode</span><span aria-hidden="true">Quick</span></button>
         </div>
 
         <div class="notes-box" id="notes-box" style="display:none">
-          <div class="notes-header">📝 Personal Notes</div>
+          <div class="notes-header"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Personal Notes</div>
           <textarea class="notes-input" id="notes-input" placeholder="Write your notes about this word…" rows="2"></textarea>
         </div>
 
         <section class="root-box" id="root-box" aria-label="Arabic root system">
-          <div class="root-box-title">🌱 Root System</div>
+          <div class="root-box-title"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg> Root System</div>
           <div class="root-main">
             <div class="root-arabic-big" id="root-arabic-big" lang="ar" dir="rtl">أ-ل-ه</div>
             <div class="root-meaning">
@@ -180,42 +180,42 @@
 
         <section class="word-network" id="word-network" aria-label="Word connections">
           <div class="word-network-section" id="similar-words-section">
-            <div class="word-network-title">🔗 Similar Words</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Similar Words</div>
             <div class="word-network-list" id="similar-words-list"></div>
           </div>
           <div class="word-network-section" id="opposite-words-section">
-            <div class="word-network-title">↔️ Opposite Words</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> Opposite Words</div>
             <div class="word-network-list" id="opposite-words-list"></div>
           </div>
           <div class="word-network-section" id="contrast-words-section">
-            <div class="word-network-title">⚖️ Quranic Contrasts</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg> Quranic Contrasts</div>
             <div class="word-network-list" id="contrast-words-list"></div>
           </div>
           <div class="word-network-section" id="related-words-section">
-            <div class="word-network-title">🔗 Related Quranic Words</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Related Quranic Words</div>
             <div class="word-network-list" id="related-words-list"></div>
           </div>
         </section>
 
         <section class="word-network" id="extended-relationships" aria-label="Extended word relationships">
           <div class="word-network-section" id="derived-forms-section">
-            <div class="word-network-title">📐 Derived Forms</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg> Derived Forms</div>
             <div class="word-network-list" id="derived-forms-list"></div>
           </div>
           <div class="word-network-section" id="semantic-groups-section">
-            <div class="word-network-title">🏷️ Semantic Groups</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Semantic Groups</div>
             <div class="word-network-list" id="semantic-groups-list"></div>
           </div>
           <div class="word-network-section" id="confused-with-section">
-            <div class="word-network-title">⚠️ Frequently Confused</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Frequently Confused</div>
             <div class="word-network-list" id="confused-with-list"></div>
           </div>
           <div class="word-network-section" id="contextual-equiv-section">
-            <div class="word-network-title">🔄 Contextual Equivalents</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Contextual Equivalents</div>
             <div class="word-network-list" id="contextual-equiv-list"></div>
           </div>
           <div class="word-network-section" id="morph-relations-section">
-            <div class="word-network-title">🔬 Morphological Relationships</div>
+            <div class="word-network-title"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Morphological Relationships</div>
             <div class="word-network-list" id="morph-relations-list"></div>
           </div>
         </section>
@@ -225,10 +225,10 @@
           <div class="ayah-translation" id="ayah-translation"></div>
           <div class="ayah-ref" id="ayah-ref"></div>
           <div class="tafsir-box" id="tafsir-box" aria-label="Ibn Kathir tafsir">
-            <div class="tafsir-header">📚 Ibn Kathir — Tafsir</div>
+            <div class="tafsir-header"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Ibn Kathir — Tafsir</div>
             <div class="tafsir-text" id="tafsir-text"></div>
           </div>
-          <button class="qa-btn w-full text-center mt-10" id="tafsir-btn" type="button" aria-expanded="false" aria-controls="tafsir-box">📚 Load Ibn Kathir Tafsir</button>
+          <button class="qa-btn w-full text-center mt-10" id="tafsir-btn" type="button" aria-expanded="false" aria-controls="tafsir-box"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Load Ibn Kathir Tafsir</button>
         </section>
       </section>
 
@@ -263,15 +263,15 @@
 
         <div class="filter-chips" id="filter-status-chips" role="group" aria-label="Filter by learning status">
           <button class="chip chip-active" data-filter="status" data-value="all" type="button">All</button>
-          <button class="chip" data-filter="status" data-value="new" type="button">🆕 New</button>
-          <button class="chip" data-filter="status" data-value="learning" type="button">🔁 Learning</button>
-          <button class="chip" data-filter="status" data-value="mastered" type="button">✓ Mastered</button>
-          <button class="chip" data-filter="status" data-value="favorites" type="button">⭐ Favorites</button>
+          <button class="chip" data-filter="status" data-value="new" type="button">New</button>
+          <button class="chip" data-filter="status" data-value="learning" type="button">Learning</button>
+          <button class="chip" data-filter="status" data-value="mastered" type="button">Mastered</button>
+          <button class="chip" data-filter="status" data-value="favorites" type="button">Favorites</button>
         </div>
 
         <!-- Advanced Filter Toggle -->
         <button class="advanced-filter-toggle" id="advanced-filter-toggle" type="button" aria-expanded="false" aria-controls="advanced-filter-panel">
-          <span class="filter-toggle-icon">🔍</span>
+          <span class="filter-toggle-icon"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           <span class="filter-toggle-text">Advanced Filters</span>
           <span class="filter-toggle-arrow">▶</span>
         </button>

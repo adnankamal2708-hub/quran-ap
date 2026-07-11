@@ -50,8 +50,7 @@ function getActiveLessonWordCount() {
   return words ? words.length : 0;
 }
 
-/** Navigate to a specific Foundation Course lesson. */
-
+/** Get the current word being displayed (from review queue, lesson, or surah). */
 function getCurrentWord() {
   if (reviewMode) return reviewQueue[currentWord];
   var words = getActiveLessonWords();
@@ -204,7 +203,7 @@ function updateLessonProgressDisplay() {
     if (lessonLabel) {
       // R1: Clear lesson header answering: What am I learning? Why is it important? What will I understand?
       var thematicTitle = fCtx.title || (isReview ? 'Review ' + fCurrent : 'Foundation ' + fCurrent);
-      lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + (isReview ? '🔄 Review Lesson' : '📘 Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
+      lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + (isReview ? '\u27F3 Review Lesson' : '\u25A0 Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
         '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' +
         'Covers ~' + (fLesson ? fLesson.lessonCoverageNum.toFixed(1) : '0') + '% of Quran word occurrences' +
         (fLesson && fLesson.comprehensionGain > 0 ? ' \u00B7 Understanding: ' + $beforeComp.toFixed(1) + '% → ' + fLesson.projectedComprehension + '%' : '') +
@@ -497,7 +496,7 @@ function updateLessonProgressDisplay() {
       var surahCompPct = surahComp ? surahComp.estimatedComprehension : 0;
       var surahCompLabel = surahCompPct > 0 ? ' \u00B7 ' + surahCompPct + '% comprehension' : '';
       lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + 
-        '\uD83D\uDCD6 ' + surahInfo.name + ' \u2014 ' + surahInfo.english + 
+        surahInfo.name + ' \u2014 ' + surahInfo.english + 
         (surahInfo.verses ? ' (' + surahInfo.verses + ' verses)' : '') + '</div>' +
         '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' +
         (curIdx >= 0 ? 'Surah ' + curIdx + 1 + ' of ' + surahIds.length : '') + 
@@ -728,10 +727,10 @@ function toggleQuickMode() {
   if (btn) {
     if (quickMode) {
       btn.classList.add('active-qa');
-      btn.textContent = '⚡ Quick: ON';
+      btn.innerHTML = '<span class="qa-btn-icon">\u26A1</span> Quick: ON';
     } else {
       btn.classList.remove('active-qa');
-      btn.textContent = '⚡ Quick';
+      btn.innerHTML = '<span class="qa-btn-icon">\u26A1</span> Quick';
     }
   }
   // Scroll word card into view in quick mode
@@ -1427,13 +1426,8 @@ function init() {
   }
 }
 
-/**
- * Validate that the loaded vocabulary covers enough surahs.
- * Warns in the console if coverage seems incomplete.
- * This is a safety net to catch deployment issues where data
- * files were added but not properly bundled.
- */
 // ── Learning Path Navigation Functions ─────────────────────────
+// (Functions are defined in js/ui/navigation.js)
 
 /**
  * Start a Mixed Review session.
