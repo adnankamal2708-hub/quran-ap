@@ -95,7 +95,7 @@ function loadSRS() {
     if (!raw) return {};
     var parsed = JSON.parse(raw);
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-      console.warn('SRS data malformed, resetting.');
+      window.__DEV__ && console.warn('SRS data malformed, resetting.');
       return {};
     }
     
@@ -185,7 +185,7 @@ function loadSRS() {
     if (needsSave) saveSRS(migrated);
     return migrated;
   } catch (e) {
-    console.warn('Could not load SRS data:', e.message);
+    window.__DEV__ && console.warn('Could not load SRS data:', e.message);
     return {};
   }
 }
@@ -307,7 +307,7 @@ function saveSRS(data) {
     if (typeof invalidateReviewForecast === "function") invalidateReviewForecast();
     localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
-    console.warn('Could not save SRS data:', e.message);
+    window.__DEV__ && console.warn('Could not save SRS data:', e.message);
   }
 }
 

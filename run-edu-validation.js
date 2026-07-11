@@ -1,6 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
 // run-edu-validation.js — Educational Consistency Validation v3
 // ═══════════════════════════════════════════════════════════════
+// NOTE: Run with: node run-edu-validation.js
+// This script validates the educational integrity of Quranic vocabulary data.
+// It does NOT modify any files and is safe to run repeatedly.
 
 console.log('=== Bayan Educational Consistency Validation ===\n');
 
@@ -31,11 +34,55 @@ if (surahMatch) {
   }
 }
 
-// Load word data — each file pushes to ALL_WORDS
+// Load core data modules in the correct order (matching build.js order)
 global.ALL_WORDS = [];
-var wordFiles = fs.readdirSync(path.join(__dirname, 'js/data')).filter(function(f) {
-  return f.match(/^words-.+\.js$/);
-});
+
+// 1. Load data-core modules (which define ALL_WORDS, CANONICAL_WORDS, etc.)
+var dataCoreDir = path.join(__dirname, 'js/data-core');
+var coreModules = [
+  'js/data-core/vocab-data.js',
+  'js/data-core/surah-org.js',
+  'js/data-core/foundation.js',
+  'js/data-core/lesson-system.js',
+  'js/data-core/progress-aggregator.js',
+  'js/data-core/adaptive.js',
+  'js/data-core/quiz-history.js',
+  'js/data-core/surah-progress.js',
+];
+
+if (fs.existsSync(dataCoreDir)) {
+  coreModules.forEach(function(relPath) {
+    var fullPath = path.join(__dirname, relPath);
+    if (fs.existsSync(fullPath)) {
+      try {
+        var code = fs.readFileSync(fullPath, 'utf8');
+        eval(code);
+      } catch(e) {
+        console.log('  ⚠ Error loading ' + relPath + ': ' + e.message.substring(0, 80));
+      }
+    }
+  });
+  console.log('  ✓ data-core modules loaded');
+} else {
+  // Fallback to monolithic data.js
+  try {
+    var dataJsContent = fs.readFileSync(path.join(__dirname, 'js/data.js'), 'utf8');
+    eval(dataJsContent);
+    console.log('  ✓ data.js loaded (monolithic fallback)');
+  } catch(e) {
+    console.log('  ✗ data.js error: ' + e.message.substring(0, 100));
+  }
+}
+
+// 2. Load per-surah word data files
+var wordFiles = [];
+try {
+  wordFiles = fs.readdirSync(path.join(__dirname, 'js/data')).filter(function(f) {
+    return f.match(/^words-.+\.js$/);
+  });
+} catch(e) {
+  console.log('  ⚠ Could not read js/data/ directory');
+}
 console.log('  Loading ' + wordFiles.length + ' word data files...');
 
 wordFiles.forEach(function(f) {
@@ -45,29 +92,15 @@ wordFiles.forEach(function(f) {
     var fn = new Function('ALL_WORDS', code + '\n//# sourceURL=' + f);
     fn(global.ALL_WORDS);
   } catch(e) {
-    console.log('  ✗ Error in ' + f + ': ' + e.message.substring(0, 80));
+    console.log('  ⚠ Error in ' + f + ': ' + e.message.substring(0, 80));
   }
 });
-console.log('  ✓ Total words loaded: ' + global.ALL_WORDS.length);
 
-// Load data.js functions (this defines ALL_WORDS, CANONICAL_WORDS, functions, etc.)
-var dataJsContent = fs.readFileSync(path.join(__dirname, 'js/data.js'), 'utf8');
-
-// data.js uses const for ALL_WORDS, CANONICAL_WORDS, etc.
-// We need to evaluate it in a scope where these are captured
-try {
-  // Execute in global context so ALL_WORDS is available
-  eval(dataJsContent);
-  console.log('  ✓ data.js loaded');
-  if (typeof CANONICAL_WORDS !== 'undefined') {
-    console.log('    CANONICAL_WORDS: ' + CANONICAL_WORDS.length);
-  }
-  if (typeof FOUNDATION_LESSONS !== 'undefined') {
-    console.log('    FOUNDATION_LESSONS: ' + FOUNDATION_LESSONS.length);
-  }
-} catch(e) {
-  console.log('  ✗ data.js error: ' + e.message.substring(0, 100));
+// Report word count
+if (typeof CANONICAL_WORDS !== 'undefined' && CANONICAL_WORDS && CANONICAL_WORDS.length > 0) {
+  console.log('  ✓ CANONICAL_WORDS: ' + CANONICAL_WORDS.length + ' words');
 }
+console.log('  ✓ ALL_WORDS: ' + (global.ALL_WORDS ? global.ALL_WORDS.length : 0) + ' raw entries');
 
 // Helper: get words regardless of canonical pipeline
 function getWords() {
@@ -248,7 +281,6 @@ for (var cci = 0; cci < words.length; cci++) {
 }
 console.log('  Words with contrast data: ' + cc + '/' + words.length);
 if (cc > 0) {
-  // Show some examples
   for (var exi = 0; exi < words.length && exi < 5; exi++) {
     if (words[exi].contrastWords && words[exi].contrastWords.length > 0) {
       console.log('    ' + words[exi].arabic + ' contrasts: ' + words[exi].contrastWords.join(', '));
@@ -280,10 +312,7 @@ console.log('  VALIDATION SUMMARY');
 console.log('═══════════════════════════════════════════════');
 console.log('  Words: ' + words.length);
 console.log('  Missing field instances: ' + totalMissing);
-console.log('  Foundation lessons: ' + (FOUNDATION_LESSONS ? FOUNDATION_LESSONS.length : 0));
+console.log('  Foundation lessons: ' + (typeof FOUNDATION_LESSONS !== 'undefined' && FOUNDATION_LESSONS ? FOUNDATION_LESSONS.length : 0));
 console.log('  Words with contrast data: ' + cc);
 console.log('  Broken root family refs: ' + rfBroken + '/' + rfTotal);
-console.log('═══════════════════════════════════════════════');
-
-// Clean up temp script
-try { fs.unlinkSync(path.join(__dirname, 'run-edu-validation.js')); } catch(e) {}
+console.log('═══════════════════════════════════════════════\n');
