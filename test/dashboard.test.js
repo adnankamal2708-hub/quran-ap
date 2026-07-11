@@ -108,6 +108,18 @@ function makeEl(tag) {
     }
     return null;
   };
+  el.querySelectorAll = function(sel) {
+    var results = [];
+    if (sel.startsWith('.')) {
+      var cls = sel.substring(1);
+      if ((el._className || '').indexOf(cls) >= 0) results.push(el);
+      for (var ci = 0; ci < el.children.length; ci++) {
+        var child = el.children[ci];
+        if ((child._className || '').indexOf(cls) >= 0) results.push(child);
+      }
+    }
+    return results;
+  };
   return el;
 }
 
@@ -191,8 +203,7 @@ var _switchViewCalled = '';
 var _goToFoundationCalled = false;
 var _startReviewCalled = false;
 
-function resetState() {
-  _mockSRS = {};
+function resetState() {  _mockSRS = {};
   _mockDueReviews = [];
   _mockStreakData = { streak: 0, lastDate: null };
   _mockFoundationCompleted = 0;
@@ -204,6 +215,11 @@ function resetState() {
   _switchViewCalled = '';
   _goToFoundationCalled = false;
   _startReviewCalled = false;
+  _mixedCount = 0;
+  _diffCompleted = 0;
+  _diffTotal = 5;
+  _rfCompleted = 0;
+  _rfTotal = 0;
 }
 
 function setupGlobals() {
@@ -227,6 +243,16 @@ function setupGlobals() {
   global.calculateCoverage = function() { return _mockCoverage ? JSON.parse(JSON.stringify(_mockCoverage)) : null; };
   global.getCanonicalWordCount = function() { return _mockCanonicalWordCount; };
   global.getSurahLessonProgress = function() { return _mockSurahProgress; };
+  global.getTotalRootFamilyCount = function() { return _rfTotal; };
+  global.getCompletedRootFamilyCount = function() { return _rfCompleted; };
+  global.getCompletedDifficultyLevelCount = function() { return _diffCompleted; };
+  global.loadDifficultyProgress = function() { return { currentDifficulty: 1 }; };
+  global.getMixedReviewQueue = function() { return []; };
+  global.getAllSurahComprehension = function() { return []; };
+  global.getMilestoneStatus = function() { return null; };
+  global.getCurrentFoundationLessonIndex = function() { return 0; };
+  global.getNextIncompleteFoundationLesson = function() { return 0; };
+  global.calculateCoverage = function() { return _mockCoverage ? JSON.parse(JSON.stringify(_mockCoverage)) : null; };
   global.switchView = function(v) { _switchViewCalled = v; };
   global.goToFoundationLesson = function() { _goToFoundationCalled = true; };
   global.startReview = function() { _startReviewCalled = true; };
@@ -351,7 +377,7 @@ suite('Comprehension Ring', function() {
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('65%') >= 0, 'should show 65% comprehension');
-    assert.ok(html.indexOf('Quran Comprehension') >= 0, 'should show Quran Comprehension label');
+    assert.ok(html.indexOf('Comprehension') >= 0, 'should show Comprehension label');
   });
 
   test('ring shows mastered word count', function() {
@@ -375,12 +401,13 @@ suite('Comprehension Ring', function() {
   });
 });
 
-suite('Continue Learning Card', function() {
+suite('Hero Continue Button', function() {
   test('empty state shows Start Foundation Course', function() {
     resetState();
     setupGlobals();
     _mockFoundationCompleted = 0;
     _mockFoundationTotal = 10;
+    _mockSRSStats = { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0, overdue: 0 };
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
@@ -400,17 +427,17 @@ suite('Continue Learning Card', function() {
     assert.ok(html.indexOf('40%') >= 0 || html.indexOf('4 /') >= 0, 'should show 40% progress');
   });
 
-  test('has db-continue id and is clickable', function() {
+  test('has db-hero-continue id and is clickable', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    var el = document.getElementById('db-continue');
-    assert.ok(el !== null, 'db-continue should exist');
+    var el = document.getElementById('db-hero-continue');
+    assert.ok(el !== null, 'db-hero-continue should exist');
   });
 });
 
-suite('Foundation Course Card', function() {
+suite('Foundation Course Path', function() {
   test('shows Foundation Course title', function() {
     resetState();
     setupGlobals();
@@ -430,9 +457,18 @@ suite('Foundation Course Card', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('6 of 10') >= 0, 'should show 6/10 progress');
   });
+
+  test('has db-path-foundation id', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var el = document.getElementById('db-path-foundation');
+    assert.ok(el !== null, 'db-path-foundation should exist');
+  });
 });
 
-suite('Learn by Surah Card', function() {
+suite('Learn by Surah Path', function() {
   test('shows Learn by Surah title', function() {
     resetState();
     setupGlobals();
@@ -452,13 +488,13 @@ suite('Learn by Surah Card', function() {
     assert.ok(html.indexOf('5 of 90') >= 0, 'should show 5/90 progress');
   });
 
-  test('has db-surah id', function() {
+  test('has db-path-surah id', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    var el = document.getElementById('db-surah');
-    assert.ok(el !== null, 'db-surah should exist');
+    var el = document.getElementById('db-path-surah');
+    assert.ok(el !== null, 'db-path-surah should exist');
   });
 });
 
@@ -470,19 +506,19 @@ suite('Due Reviews Card', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('words ready for review') >= 0 || html.indexOf('word ready for review') >= 0, 'should show due count');
+    assert.ok(html.indexOf('words need reinforcement') >= 0 || html.indexOf('word needs reinforcement') >= 0, 'should show due count');
     assert.ok(html.indexOf('db-badge') >= 0 || html.indexOf('5') >= 0, 'should show badge with count');
   });
 
-  test('with 1 due review: shows singular "word due"', function() {
+  test('with 1 due review: shows singular', function() {
     resetState();
     setupGlobals();
     _mockDueReviews = ['r1'];
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('word ready for review') >= 0, 'should show singular "word ready for review"');
-    assert.ok(html.indexOf('words ready for review') < 0, 'should not show plural');
+    assert.ok(html.indexOf('word needs reinforcement') >= 0, 'should show singular "word needs reinforcement"');
+    assert.ok(html.indexOf('words need reinforcement') < 0, 'should not show plural');
   });
 
   test('with no due reviews: review card is hidden', function() {
@@ -493,7 +529,7 @@ suite('Due Reviews Card', function() {
     renderDashboard();
     var html = getInnerHTML();
     // Should not show any due review section
-    assert.ok(html.indexOf('Due Reviews') < 0, 'should not show due review when none');
+    assert.ok(html.indexOf('Due for Review') < 0, 'should not show due review when none');
   });
 
   test('has db-review id when due reviews exist', function() {
@@ -539,13 +575,13 @@ suite('Achievements Section', function() {
 });
 
 suite('Card Interactivity', function() {
-  test('Continue card click calls goToFoundationLesson', function() {
+  test('Hero continue click calls goToFoundationLesson', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    var el = document.getElementById('db-continue');
-    assert.ok(el !== null, 'db-continue should exist');
+    var el = document.getElementById('db-hero-continue');
+    assert.ok(el !== null, 'db-hero-continue should exist');
     if (el && el._onclick) {
       el._onclick();
       assert.ok(_goToFoundationCalled, 'goToFoundationLesson should be called');
@@ -565,12 +601,12 @@ suite('Card Interactivity', function() {
     }
   });
 
-  test('Surah card click calls switchView', function() {
+  test('Surah path click calls switchView', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    var el = document.getElementById('db-surah');
+    var el = document.getElementById('db-path-surah');
     if (el && el._onclick) {
       el._onclick();
       assert.ok(_switchViewCalled === 'learn', 'switchView should be called with learn');
@@ -607,9 +643,12 @@ suite('Edge Cases', function() {
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    assert.ok(document.getElementById('db-continue') !== null, 'Continue card should exist');
-    assert.ok(document.getElementById('db-foundation') !== null, 'Foundation card should exist');
-    assert.ok(document.getElementById('db-surah') !== null, 'Surah card should exist');
+    assert.ok(document.getElementById('db-hero-continue') !== null, 'Hero continue button should exist');
+    assert.ok(document.getElementById('db-path-foundation') !== null, 'Foundation path should exist');
+    assert.ok(document.getElementById('db-path-surah') !== null, 'Surah path should exist');
+    assert.ok(document.getElementById('db-path-root') !== null, 'Root words path should exist');
+    assert.ok(document.getElementById('db-path-difficulty') !== null, 'Difficulty path should exist');
+    assert.ok(document.getElementById('db-path-mixed') !== null, 'Mixed path should exist');
   });
 
   test('produces valid HTML structure', function() {
@@ -679,7 +718,7 @@ suite('Comprehensive State', function() {
     // Verify all expected sections
     assert.ok(html.indexOf('Assalamu Alaikum') >= 0, 'greeting');
     assert.ok(html.indexOf('62%') >= 0, 'comprehension percent');
-    assert.ok(html.indexOf('ready for review') >= 0, 'due reviews');
+    assert.ok(html.indexOf('need reinforcement') >= 0, 'due reviews');
     assert.ok(html.indexOf('Foundation Course') >= 0, 'Foundation card');
     assert.ok(html.indexOf('Learn by Surah') >= 0, 'Surah card');
     assert.ok(html.indexOf('Recent Achievements') >= 0, 'achievements');
