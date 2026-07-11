@@ -748,10 +748,6 @@ function toggleQuickMode() {
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Check for overdue reviews and weak vocabulary before proceeding
- * to a new lesson. Returns an object with the number of words
- * needing reinforcement, or null if all is well.
- */
  * Safely set onclick for an element. Returns the element or null.
  * Prevents Uncaught TypeError crashes when a DOM element is missing.
  */
@@ -1461,7 +1457,6 @@ function init() {
 /**
  * Navigate to a root family for study.
  */
-}
 
 /**
  * Start a Mixed Review session.
