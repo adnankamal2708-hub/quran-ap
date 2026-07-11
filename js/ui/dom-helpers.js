@@ -40,6 +40,32 @@ function setView(viewName) {
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
   }
+  // Update the sliding bn-indicator position to match the active tab
+  var indicator = document.getElementById('bn-indicator');
+  if (indicator) {
+    var activeTab = document.querySelector('.nav-tab.active');
+    if (activeTab) {
+      var tabs = document.querySelectorAll('.nav-tab');
+      var activeIdx = Array.prototype.indexOf.call(tabs, activeTab);
+      if (activeIdx >= 0) {
+        indicator.style.transform = 'translateX(' + (activeIdx * 100) + '%)';
+      }
+    }
+  }
+
+  // Update aria-current on nav tabs for accessibility
+  var navTabs = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics'];
+  for (var ti = 0; ti < navTabs.length; ti++) {
+    var tabEl = DOM.get('tab-' + navTabs[ti]);
+    if (tabEl) {
+      if (navTabs[ti] === viewName) {
+        tabEl.setAttribute('aria-current', 'page');
+      } else {
+        tabEl.removeAttribute('aria-current');
+      }
+    }
+  }
+
   // Animate the newly activated view (skip on first render to avoid flicker)
   if (window.__viewHasBeenSet) {
     var viewEl = DOM.get('view-' + viewName);
@@ -54,6 +80,23 @@ function setView(viewName) {
 
   var content = DOM.get('content');
   if (content) content.scrollTop = 0;
+}
+
+/**
+ * Initialize the bn-indicator position on first render.
+ * Called once after DOM is ready, before the first setView().
+ */
+function initBNIndicator() {
+  var indicator = document.getElementById('bn-indicator');
+  if (!indicator) return;
+  var activeTab = document.querySelector('.nav-tab.active');
+  if (activeTab) {
+    var tabs = document.querySelectorAll('.nav-tab');
+    var activeIdx = Array.prototype.indexOf.call(tabs, activeTab);
+    if (activeIdx >= 0) {
+      indicator.style.transform = 'translateX(' + (activeIdx * 100) + '%)';
+    }
+  }
 }
 
 /** Track current occurrence index when viewing a canonical word */

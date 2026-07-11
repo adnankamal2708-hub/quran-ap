@@ -201,9 +201,8 @@ var _mockSurahProgress = null;
 var _mockSRSStats = null;
 var _switchViewCalled = '';
 var _goToFoundationCalled = false;
-var _startReviewCalled = false;
-
-function resetState() {  _mockSRS = {};
+var _startReviewCalled = false;function resetState() {
+  _mockSRS = {};
   _mockDueReviews = [];
   _mockStreakData = { streak: 0, lastDate: null };
   _mockFoundationCompleted = 0;
@@ -220,6 +219,8 @@ function resetState() {  _mockSRS = {};
   _diffTotal = 5;
   _rfCompleted = 0;
   _rfTotal = 0;
+  // Clear forecast cache to prevent cross-test pollution
+  if (typeof _forecastCache !== 'undefined') { _forecastCache = null; _forecastCacheKey = null; }
 }
 
 function setupGlobals() {
@@ -269,23 +270,37 @@ var fs = require('fs');
 var path = require('path');
 
 (function() {
-  // Load split UI modules instead of monolithic ui.js
   var uiModulePath = path.join(__dirname, '..', 'js', 'ui', 'dashboard.js');
   if (!fs.existsSync(uiModulePath)) {
     throw new Error('dashboard.js split module not found');
   }
   var uiCode = fs.readFileSync(uiModulePath, 'utf8');
-  var idx = uiCode.indexOf('function renderDashboard()');
-  if (idx < 0) throw new Error('renderDashboard() not found in dashboard.js');
 
-  var braceIdx = uiCode.indexOf('{', idx);
+  // Extract all code before renderDashboard() — cache functions, vars, etc.
+  var fnIdx = uiCode.indexOf('function renderDashboard()');
+  if (fnIdx < 0) throw new Error('renderDashboard() not found in dashboard.js');
+
+  // Find the start of the forecast cache preamble
+  var codeStart = uiCode.lastIndexOf('// ── Review Forecast Cache', fnIdx);
+  if (codeStart < 0) codeStart = 0;
+  // Walk back to the start of that line
+  while (codeStart > 0 && uiCode[codeStart - 1] !== '\n') codeStart--;
+
+  // Extract + eval the cache function preamble
+  var preCode = uiCode.substring(codeStart, fnIdx);
+  if (preCode.indexOf('var _forecastCache') >= 0) {
+    global.eval(preCode);
+  }
+
+  // Extract + eval renderDashboard()
+  var braceIdx = uiCode.indexOf('{', fnIdx);
   var depth = 1;
   var bodyEnd = -1;
   for (var i = braceIdx + 1; i < uiCode.length && depth > 0; i++) {
     if (uiCode[i] === '{') depth++;
     else if (uiCode[i] === '}') { depth--; if (depth === 0) bodyEnd = i; }
   }
-  var fnBody = uiCode.substring(idx, bodyEnd + 1);
+  var fnBody = uiCode.substring(fnIdx, bodyEnd + 1);
   global.eval(fnBody);
 })();
 

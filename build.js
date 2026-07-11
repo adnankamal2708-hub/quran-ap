@@ -132,6 +132,7 @@ const APP_FILES = [
   'js/diagnostics.js',
   'js/validation.js',
   'js/analytics.js',
+  'js/adaptive-engine.js',
   'js/ux-polish.js',
   'js/app.js',
 ]);

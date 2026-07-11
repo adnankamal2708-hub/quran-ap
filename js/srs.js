@@ -304,6 +304,7 @@ function saveSRS(data) {
   try {
     _srsCache = null;
     if (typeof invalidateCoverageCache === "function") invalidateCoverageCache();
+    if (typeof invalidateReviewForecast === "function") invalidateReviewForecast();
     localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
     console.warn('Could not save SRS data:', e.message);

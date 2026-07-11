@@ -8,12 +8,76 @@
 //   4. Learning Paths (5 tiles)
 //   5. Today's Reviews (conditional)
 //   6. Progress Snapshot
-//   7. Weekly Review Forecast
+//   7. Weekly Review Forecast (CACHED — avoids 312K iterations per render)
 //   8. Recent Achievements
 //
 // Every interactive element has a direct onclick handler.
 // No stale DOM cache references — uses document.getElementById directly.
 // ═══════════════════════════════════════════════════════════════
+
+// ── Review Forecast Cache ────────────────────────────────────
+// Prevents re-iterating over ALL_WORDS (78K) × 4 intervals = 312K iterations
+// on every dashboard render. Only recomputes when SRS data changes.
+var _forecastCache = null;
+var _forecastCacheKey = null;
+
+/** Build a cache key that changes when SRS stats or word set changes. */
+function _getForecastCacheKey() {
+  var $st = typeof getSRSStats === 'function' ? getSRSStats() : {};
+  return ($st.total || 0) + '|' + ($st.dueToday || 0) + '|' + ($st.reviewsToday || 0) + '|' + (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS.length : 0);
+}
+
+/** Compute the 4-interval forecast: count of words due within Today, 3d, 7d, 14d. */
+function _computeForecast() {
+  var $srsDataRaw = typeof loadSRS === 'function' ? loadSRS() : {};
+  var $now = Date.now();
+  var $dayMs = 24 * 60 * 60 * 1000;
+  var $intervals = [
+    { label: 'Today', days: 0, color: 'var(--gold)' },
+    { label: '3 Days', days: 3, color: 'var(--blue)' },
+    { label: '7 Days', days: 7, color: 'var(--green)' },
+    { label: '14 Days', days: 14, color: 'var(--purple)' },
+  ];
+  var $allWordsArr = typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : [];
+  var $result = [];
+  for (var $ii = 0; $ii < $intervals.length; $ii++) {
+    var $int = $intervals[$ii];
+    var $cut = $now + $int.days * $dayMs;
+    var $cnt = 0;
+    for (var $wi = 0; $wi < $allWordsArr.length; $wi++) {
+      var $e = $srsDataRaw[$allWordsArr[$wi].id];
+      if ($e && $e.dueDate && $e.dueDate <= $cut) $cnt++;
+    }
+    $result.push({ label: $int.label, color: $int.color, count: $cnt });
+  }
+  return $result;
+}
+
+/**
+ * Get cached forecast. Recomputes only when SRS stats change.
+ * Exposed globally as getCachedReviewForecast() for external use.
+ */
+function getCachedReviewForecast() {
+  var $key = _getForecastCacheKey();
+  if (_forecastCache !== null && _forecastCacheKey === $key) {
+    return _forecastCache;
+  }
+  _forecastCache = _computeForecast();
+  _forecastCacheKey = $key;
+  return _forecastCache;
+}
+
+/** Force recompute on next call. Call after SRS data is saved. */
+function invalidateReviewForecast() {
+  _forecastCache = null;
+  _forecastCacheKey = null;
+}
+
+// Export globally so srs.js can call invalidate on save
+if (typeof window !== 'undefined') {
+  window.getCachedReviewForecast = getCachedReviewForecast;
+  window.invalidateReviewForecast = invalidateReviewForecast;
+}
 
 function renderDashboard() {
   try {
@@ -22,6 +86,14 @@ function renderDashboard() {
 
   // Invalidate DOM cache to prevent stale references from re-renders
   if (typeof DOM === 'object' && DOM._cache) DOM._cache = {};
+
+  // ── Adaptive engine data ──
+  var $adaptive = window.__adaptive ? window.__adaptive.getDashboardData() : null;
+  var $dailyPlan = $adaptive ? $adaptive.dailyPlan : [];
+  var $smartRec = $adaptive ? $adaptive.recommendation : null;
+  var $weaknesses = $adaptive ? $adaptive.weaknesses : [];
+  var $streakQuality = $adaptive ? $adaptive.streakQuality : null;
+  var $goalProgress = $adaptive ? $adaptive.goalProgress : null;
 
   // ── Gather ALL data once ──
   var $srsObj = window.__srs;
@@ -355,29 +427,14 @@ function renderDashboard() {
     $h += '<span class="db-collapse-arrow" id="db-weekly-arrow">▶</span>';
     $h += '</div>';
     $h += '<div id="db-weekly-body" style="display:none">';
-    var $srsDataRaw = typeof loadSRS === 'function' ? loadSRS() : {};
-    var $now = Date.now();
-    var $dayMs = 24 * 60 * 60 * 1000;
-    var $intervals = [
-      { label: 'Today', days: 0, color: 'var(--gold)' },
-      { label: '3 Days', days: 3, color: 'var(--blue)' },
-      { label: '7 Days', days: 7, color: 'var(--green)' },
-      { label: '14 Days', days: 14, color: 'var(--purple)' },
-    ];
-    var $allWordsArr = typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : [];
-    for (var $ii = 0; $ii < $intervals.length; $ii++) {
-      var $int = $intervals[$ii];
-      var $cut = $now + $int.days * $dayMs;
-      var $cnt = 0;
-      for (var $wi = 0; $wi < $allWordsArr.length; $wi++) {
-        var $e = $srsDataRaw[$allWordsArr[$wi].id];
-        if ($e && $e.dueDate && $e.dueDate <= $cut) $cnt++;
-      }
-      var $pct = Math.min(100, Math.round($totalWords > 0 ? ($cnt / $totalWords) * 100 : 0));
+    var $forecastData = getCachedReviewForecast();
+    for (var $fi = 0; $fi < $forecastData.length; $fi++) {
+      var $f = $forecastData[$fi];
+      var $pct = Math.min(100, Math.round($totalWords > 0 ? ($f.count / $totalWords) * 100 : 0));
       $h += '<div class="db-weekly-item">';
-      $h += '<span class="db-weekly-label">' + $int.label + '</span>';
-      $h += '<div class="db-weekly-track"><div class="db-weekly-fill" style="width:' + $pct + '%;background:' + $int.color + '"></div></div>';
-      $h += '<span class="db-weekly-value">' + $cnt + '</span>';
+      $h += '<span class="db-weekly-label">' + $f.label + '</span>';
+      $h += '<div class="db-weekly-track"><div class="db-weekly-fill" style="width:' + $pct + '%;background:' + $f.color + '"></div></div>';
+      $h += '<span class="db-weekly-value">' + $f.count + '</span>';
       $h += '</div>';
     }
     $h += '</div></div>';
@@ -395,6 +452,79 @@ function renderDashboard() {
   if ($fCompleted > 0) $h += '<span class="db-ach-item">📘 ' + $fCompleted + ' foundation lessons</span>';
   if ($surahsWith50Plus > 0) $h += '<span class="db-ach-item">📖 ' + $surahsWith50Plus + ' surahs (50%+)</span>';
   $h += '</div></div></div>';
+
+  // ═══ 8b. DAILY LEARNING PLAN (from adaptive engine) ═══
+  if ($dailyPlan && $dailyPlan.length > 0) {
+    $h += '<div class="db-section-label" style="margin-top:16px">Today\'s Plan</div>';
+    $h += '<div class="db-card" id="db-daily-plan">';
+    $h += '<div class="db-daily-plan">';
+    for (var $dpi = 0; $dpi < $dailyPlan.length; $dpi++) {
+      var $task = $dailyPlan[$dpi];
+      var $taskDone = typeof $task.done === 'function' ? $task.done() : false;
+      if ($taskDone) continue; // Hide completed tasks
+      var $taskIcon = $taskDone ? '✅' : ($task.icon || '📋');
+      $h += '<div class="db-daily-item" data-plan-id="' + $task.id + '">';
+      $h += '<span class="db-daily-icon" aria-hidden="true">' + $taskIcon + '</span>';
+      $h += '<span class="db-daily-label">' + $task.label + '</span>';
+      $h += '<span class="db-daily-status">' + ($taskDone ? '✓ Done' : '') + '</span>';
+      $h += '</div>';
+    }
+    $h += '</div></div>';
+  }
+
+  // ═══ 8c. SMART RECOMMENDATION ═══
+  if ($smartRec && $smartRec.actionType) {
+    $h += '<div class="db-card db-smart-rec" id="db-smart-rec" tabindex="0" role="button" aria-label="' + ($smartRec.title || '') + '">';
+    $h += '<div class="db-card-row">';
+    $h += '<span style="font-size:18px;flex-shrink:0">' + ($smartRec.icon || '💡') + '</span>';
+    $h += '<div style="flex:1;min-width:0">';
+    $h += '<div class="db-card-title" style="font-size:12px">' + ($smartRec.title || 'Recommendation') + '</div>';
+    $h += '<div class="db-card-sub" style="font-size:10px;line-height:1.4">' + ($smartRec.message || '') + '</div>';
+    $h += '</div>';
+    $h += '<span class="db-rec-action">' + ($smartRec.action || '→') + '</span>';
+    $h += '</div></div>';
+  }
+
+  // ═══ 8d. WEAKNESS DETECTION ═══
+  if ($weaknesses && $weaknesses.length > 0) {
+    $h += '<div class="db-section-label" style="margin-top:16px">Weak Areas</div>';
+    $h += '<div class="db-card">';
+    for (var $wi = 0; $wi < Math.min($weaknesses.length, 4); $wi++) {
+      var $w = $weaknesses[$wi];
+      var $sevIcon = $w.severity === 'high' ? '🔴' : ($w.severity === 'medium' ? '🟡' : '🟢');
+      $h += '<div class="db-week-area-item">';
+      $h += '<span>' + $sevIcon + '</span>';
+      $h += '<span style="flex:1;font-size:11px">' + $w.name + '</span>';
+      if ($w.severity === 'high') $h += '<span class="db-badge db-badge-pulse" style="background:var(--danger);color:#fff;font-size:9px">!</span>';
+      $h += '</div>';
+    }
+    $h += '</div>';
+  }
+
+  // ═══ 8e. STREAK QUALITY & GOAL PROGRESS ═══
+  if ($goalProgress || $streakQuality) {
+    $h += '<div class="db-section-label" style="margin-top:16px">Your Progress</div>';
+    $h += '<div class="db-card" style="display:flex;gap:12px;flex-wrap:wrap">';
+    // Goal progress
+    if ($goalProgress) {
+      var $gpPct = $goalProgress.progressPercent || 0;
+      $h += '<div style="flex:1;min-width:100px">';
+      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">🎯 Daily Goal: ' + $goalProgress.targetMinutes + ' min</div>';
+      $h += '<div class="db-progress"><div class="db-progress-track" style="height:6px"><div class="db-progress-fill" style="width:' + $gpPct + '%;height:6px;background:var(--gold)"></div></div><span class="db-progress-text" style="font-size:10px">' + $goalProgress.progressMinutes + ' / ' + $goalProgress.targetMinutes + ' min</span></div>';
+      $h += '</div>';
+    }
+    // Streak quality
+    if ($streakQuality) {
+      $h += '<div style="flex:1;min-width:100px">';
+      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">🔥 Consistency</div>';
+      $h += '<div style="display:flex;align-items:center;gap:8px">';
+      $h += '<span style="font-size:16px;font-weight:600;color:var(--gold)">' + $streakQuality.streak + '</span>';
+      $h += '<span style="font-size:10px;color:var(--text-muted)">day streak</span>';
+      $h += '<span style="font-size:10px;color:var(--green);margin-left:auto">' + $streakQuality.avgRetention + '% retention</span>';
+      $h += '</div></div>';
+    }
+    $h += '</div>';
+  }
 
   // ── Inject HTML ──
   $d.innerHTML = $h;
