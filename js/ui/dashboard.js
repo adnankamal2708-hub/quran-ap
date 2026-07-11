@@ -222,6 +222,39 @@ function renderDashboard() {
   $h += '<div class="db-hero-stat-label">Reviews</div></div>';
   $h += '</div>';
 
+  // ═══ 2b. RESUME READING (conditional) ═══
+  var $lastRead = null;
+  if (window.__reader && typeof window.__reader.getLastReadPosition === 'function') {
+    $lastRead = window.__reader.getLastReadPosition();
+  }
+  if ($lastRead && $lastRead.surahId) {
+    var $lastSurahInfo = typeof getSurahInfo === 'function' ? getSurahInfo($lastRead.surahId) : null;
+    var $lastSurahName = $lastSurahInfo ? $lastSurahInfo.name : 'Surah ' + $lastRead.surahId;
+    var $lastSurahEnglish = $lastSurahInfo ? $lastSurahInfo.english : '';
+    var $lastVerseLabel = '';
+    if ($lastRead.verseKey) {
+      var $vNum = parseInt($lastRead.verseKey.split(':')[1], 10) || 0;
+      $lastVerseLabel = ' — Verse ' + $vNum;
+    }
+    var $lastTimeAgo = '';
+    if ($lastRead.date) {
+      var $hoursAgo = Math.round((Date.now() - $lastRead.date) / (1000 * 60 * 60));
+      if ($hoursAgo < 1) $lastTimeAgo = 'Just now';
+      else if ($hoursAgo < 24) $lastTimeAgo = $hoursAgo + 'h ago';
+      else $lastTimeAgo = Math.round($hoursAgo / 24) + 'd ago';
+    }
+
+    $h += '<div class="db-card db-action-card db-card-highlight" id="db-resume-reading" tabindex="0" role="button" aria-label="Resume reading ' + $lastSurahName + $lastVerseLabel + '">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">📖</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">Resume Reading</div>';
+    $h += '<div class="db-card-sub">' + $lastSurahName + ' — ' + $lastSurahEnglish + $lastVerseLabel + ' · ' + $lastTimeAgo + '</div>';
+    $h += '</div>';
+    $h += '<span class="db-arrow">→</span>';
+    $h += '</div></div>';
+  }
+
   // ═══ 3. RECOMMENDED PATH — FOUNDATION COURSE HERO ═══
   if ($fTotal > 0) {
     var $ringOffset = Math.min(100, Math.max(0, Math.round(($comprehensionPct / 100) * 100)));
@@ -617,6 +650,15 @@ function renderDashboard() {
     if (typeof startMixedReview === 'function') startMixedReview();
     else if (typeof startReview === 'function') startReview();
     else if (typeof switchView === 'function') switchView('learn');
+  });
+
+  // Resume Reading card
+  $wire('db-resume-reading', function() {
+    if (typeof switchView === 'function') switchView('reader');
+    if (window.__reader && typeof window.__reader.resumeReading === 'function') {
+      // Defer to next tick so switchView completes before resume reads state
+      setTimeout(function() { window.__reader.resumeReading(); }, 0);
+    }
   });
 
   // Review card

@@ -398,6 +398,41 @@
               <div class="reader-sidebar-title">📖 Surahs</div>
               <button class="reader-close-btn" id="reader-back-to-list" type="button" title="Browse surahs" aria-label="Browse surahs">📋</button>
             </div>
+            <div class="reader-juz-row">
+              <select class="reader-juz-select" id="reader-juz-select" aria-label="Filter by juz">
+                <option value="0">📖 All Juz'</option>
+                <option value="1">Juz' 1 — الم (Alif Lam Meem)</option>
+                <option value="2">Juz' 2 — سيقول (Sayaqool)</option>
+                <option value="3">Juz' 3 — تلك الرسل (Tilka Ar-Rusul)</option>
+                <option value="4">Juz' 4 — لن تنالوا (Lan Tanalu)</option>
+                <option value="5">Juz' 5 — والمحصنات (Wal-Muhsanat)</option>
+                <option value="6">Juz' 6 — لا يحب الله (La Yuhibb Allah)</option>
+                <option value="7">Juz' 7 — وإذا سمعوا (Wa Itha Sami'u)</option>
+                <option value="8">Juz' 8 — ولو أننا (Wa Law Annana)</option>
+                <option value="9">Juz' 9 — قال الملأ (Qala Al-Mala'u)</option>
+                <option value="10">Juz' 10 — واعلموا (Wa A'lamu)</option>
+                <option value="11">Juz' 11 — يعتذرون (Ya'tadhirun)</option>
+                <option value="12">Juz' 12 — وما من دابة (Wa Ma Min Da'bbah)</option>
+                <option value="13">Juz' 13 — وما أبرئ (Wa Ma Ubari'u)</option>
+                <option value="14">Juz' 14 — الحجر (Al-Hijr)</option>
+                <option value="15">Juz' 15 — سبحان (Subhan)</option>
+                <option value="16">Juz' 16 — قل أوحي (Qul Oohi)</option>
+                <option value="17">Juz' 17 — اقترب (Iqtaraba)</option>
+                <option value="18">Juz' 18 — قد أفلح (Qad Aflaha)</option>
+                <option value="19">Juz' 19 — وقال الذين (Wa Qalalladhina)</option>
+                <option value="20">Juz' 20 — أمن خلق (A Man Khalaqa)</option>
+                <option value="21">Juz' 21 — اتل ما أوحي (Utlu Ma Oohiya)</option>
+                <option value="22">Juz' 22 — ومن يقنت (Wa Ma Yaqnut)</option>
+                <option value="23">Juz' 23 — وما لي (Wa Ma Liya)</option>
+                <option value="24">Juz' 24 — فمن أظلم (Fa Man Azlamu)</option>
+                <option value="25">Juz' 25 — إليه يرد (Ilayhi Yuraddu)</option>
+                <option value="26">Juz' 26 — حم (Ha Meem)</option>
+                <option value="27">Juz' 27 — قال فما خطبكم (Qala Fa Ma Khatbukum)</option>
+                <option value="28">Juz' 28 — قد سمع (Qad Sami'a)</option>
+                <option value="29">Juz' 29 — تبارك (Tabarak)</option>
+                <option value="30">Juz' 30 — عم ('Amma)</option>
+              </select>
+            </div>
             <div class="reader-search-row">
               <input class="reader-search-input" id="reader-search-input" type="text" placeholder="Search surah…" aria-label="Search surah" />
             </div>
@@ -448,6 +483,119 @@
             <!-- Verses Container -->
             <div class="reader-verses" id="reader-verses">
               <!-- Rendered dynamically by renderAyahs() -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Word Detail Bottom Sheet -->
+        <div class="reader-sheet-overlay" id="reader-word-sheet-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Word details">
+          <div class="reader-sheet-panel" id="reader-word-sheet-panel" style="display:none">
+            <!-- Close button -->
+            <div class="reader-sheet-handle">
+              <div class="reader-sheet-handle-bar"></div>
+            </div>
+            <button class="reader-sheet-close-btn" id="reader-sheet-close" type="button" aria-label="Close word details">✕</button>
+
+            <!-- Arabic & Meaning Header -->
+            <div class="reader-sheet-header">
+              <div class="reader-sheet-arabic-wrap">
+                <div class="reader-sheet-arabic" id="sheet-word-arabic" lang="ar" dir="rtl"></div>
+                <div class="reader-sheet-translit" id="sheet-word-translit"></div>
+              </div>
+              <div class="reader-sheet-mastery-wrap">
+                <div class="reader-sheet-badge" id="sheet-word-mastery">🆕 New</div>
+              </div>
+            </div>
+            <div class="reader-sheet-meaning" id="sheet-word-meaning"></div>
+
+            <!-- Quick Stats Row -->
+            <div class="reader-sheet-stats">
+              <div class="reader-sheet-stat-item">
+                <span class="reader-sheet-stat-label">Root</span>
+                <span class="reader-sheet-stat-value" id="sheet-root" lang="ar" dir="rtl">—</span>
+              </div>
+              <div class="reader-sheet-stat-item">
+                <span class="reader-sheet-stat-label">Pattern</span>
+                <span class="reader-sheet-stat-value" id="sheet-pattern">—</span>
+              </div>
+              <div class="reader-sheet-stat-item">
+                <span class="reader-sheet-stat-label">Type</span>
+                <span class="reader-sheet-stat-value" id="sheet-type">—</span>
+              </div>
+              <div class="reader-sheet-stat-item">
+                <span class="reader-sheet-stat-label">Occurrences</span>
+                <span class="reader-sheet-stat-value" id="sheet-occ">—</span>
+              </div>
+              <div class="reader-sheet-stat-item">
+                <span class="reader-sheet-stat-label">Frequency</span>
+                <span class="reader-sheet-stat-value" id="sheet-freq">—</span>
+              </div>
+              <div class="reader-sheet-stat-item">
+                <span class="reader-sheet-stat-label">Difficulty</span>
+                <span class="reader-sheet-stat-value" id="sheet-difficulty">—</span>
+              </div>
+            </div>
+
+            <!-- Root Meaning (shown when available) -->
+            <div class="reader-sheet-root-meaning" id="sheet-root-meaning-container" style="display:none">
+              <span class="reader-sheet-root-meaning-label">Root Meaning:</span>
+              <span id="sheet-root-meaning"></span>
+            </div>
+
+            <!-- SRS Progress -->
+            <div class="reader-sheet-section">
+              <div class="reader-sheet-section-title">📊 Learning Progress</div>
+              <div class="reader-sheet-progress-grid">
+                <div class="reader-sheet-progress-item">
+                  <span class="reader-sheet-progress-value" id="sheet-srs-stage">🆕 New</span>
+                  <span class="reader-sheet-progress-label">Status</span>
+                </div>
+                <div class="reader-sheet-progress-item">
+                  <span class="reader-sheet-progress-value" id="sheet-next-review">—</span>
+                  <span class="reader-sheet-progress-label">Next Review</span>
+                </div>
+                <div class="reader-sheet-progress-item">
+                  <span class="reader-sheet-progress-value" id="sheet-retention">—</span>
+                  <span class="reader-sheet-progress-label">Retention</span>
+                </div>
+                <div class="reader-sheet-progress-item">
+                  <span class="reader-sheet-progress-value" id="sheet-total-reviews">0</span>
+                  <span class="reader-sheet-progress-label">Reviews</span>
+                </div>
+                <div class="reader-sheet-progress-item">
+                  <span class="reader-sheet-progress-value" id="sheet-foundation-lesson">—</span>
+                  <span class="reader-sheet-progress-label">Foundation</span>
+                </div>
+                <div class="reader-sheet-progress-item">
+                  <span class="reader-sheet-progress-value" id="sheet-priority">—</span>
+                  <span class="reader-sheet-progress-label">Priority</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Root Family -->
+            <div class="reader-sheet-section" id="sheet-root-family-section">
+              <div class="reader-sheet-section-title">🌱 Root Family</div>
+              <div class="reader-sheet-chips" id="sheet-root-family"></div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="reader-sheet-section">
+              <div class="reader-sheet-section-title">🎯 Actions</div>
+              <div class="reader-sheet-actions">
+                <button class="reader-sheet-action-btn" id="reader-sheet-btn-bookmark" type="button">☆ Bookmark</button>
+                <button class="reader-sheet-action-btn" id="reader-sheet-btn-explore" type="button">📖 Open Explorer</button>
+              </div>
+              <!-- Rating buttons (only shown if word has been studied) -->
+              <div class="reader-sheet-rate-row" id="reader-sheet-btn-review">
+                <div class="reader-sheet-rate-label">Rate your recall:</div>
+                <div class="reader-sheet-rate-btns">
+                  <button class="reader-sheet-rate-btn reader-sheet-rate-again" id="reader-sheet-rate-again" type="button" title="Again — forgot the word">Again</button>
+                  <button class="reader-sheet-rate-btn reader-sheet-rate-hard" id="reader-sheet-rate-hard" type="button" title="Hard — difficult to recall">Hard</button>
+                  <button class="reader-sheet-rate-btn reader-sheet-rate-good" id="reader-sheet-rate-good" type="button" title="Good — remembered correctly">Good</button>
+                  <button class="reader-sheet-rate-btn reader-sheet-rate-easy" id="reader-sheet-rate-easy" type="button" title="Easy — effortless recall">Easy</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

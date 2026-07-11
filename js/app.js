@@ -1433,3 +1433,9 @@ function init() {
  * Start a Mixed Review session.
  */
 // (Stub — see js/ui/review.js for the implementation)
+
+// ── Bootstrap the Application ────────────────────────────────────
+// Init is called here at the end of the bundle, after all function
+// definitions have been parsed. Because app.bundle.min.js is loaded
+// with the 'defer' attribute, the DOM is fully available at this point.
+init();

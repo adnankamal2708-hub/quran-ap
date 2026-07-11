@@ -15,6 +15,8 @@ let _readerVerseKeys = [];       // Sorted verseKey array for the surah
 let _readerSRSData = {};         // Cached SRS data for coloring
 let _readerScrollVerse = null;   // Verse to scroll to after render
 let _readerWordData = {};        // Quick lookup: arabic text → word object for the surah
+let _readerJuzFilter = 0;        // 0 = All, 1-30 = specific juz
+
 let _readerFilters = {           // Active reader filters
   hideTranslation: false,
   showUnknownOnly: false,
@@ -31,10 +33,10 @@ const READER_JOURNEY_KEY = 'quran_reader_journey';
 function _loadReaderJourney() {
   try {
     var raw = localStorage.getItem(READER_JOURNEY_KEY);
-    if (!raw) return { surahs: {}, totalAyahsRead: 0, readingStreak: 0, lastReadDate: null, openings: 0 };
+    if (!raw) return { surahs: {}, totalAyahsRead: 0, readingStreak: 0, lastReadDate: null, openings: 0, lastReadSurah: null, lastReadVerseKey: null };
     return JSON.parse(raw);
   } catch (e) {
-    return { surahs: {}, totalAyahsRead: 0, readingStreak: 0, lastReadDate: null, openings: 0 };
+    return { surahs: {}, totalAyahsRead: 0, readingStreak: 0, lastReadDate: null, openings: 0, lastReadSurah: null, lastReadVerseKey: null };
   }
 }
 
@@ -42,6 +44,49 @@ function _saveReaderJourney(data) {
   try {
     localStorage.setItem(READER_JOURNEY_KEY, JSON.stringify(data));
   } catch (e) { /* ignore */ }
+}
+
+// ── Last Read Position ──────────────────────────────────────────
+
+function _saveLastReadPosition(surahId, verseKey) {
+  if (!surahId) return;
+  var journey = _loadReaderJourney();
+  journey.lastReadSurah = surahId;
+  journey.lastReadVerseKey = verseKey || null;
+  journey.lastReadDate = Date.now();
+  // Ensure surah tracking exists
+  if (!journey.surahs) journey.surahs = {};
+  if (!journey.surahs[surahId]) {
+    journey.surahs[surahId] = { firstRead: Date.now(), readCount: 0, ayahsRead: 0 };
+  }
+  _saveReaderJourney(journey);
+}
+
+function getLastReadPosition() {
+  var journey = _loadReaderJourney();
+  if (!journey.lastReadSurah) return null;
+  return {
+    surahId: journey.lastReadSurah,
+    verseKey: journey.lastReadVerseKey || null,
+    date: journey.lastReadDate,
+  };
+}
+
+function resumeReading() {
+  var pos = getLastReadPosition();
+  if (!pos) return;
+  var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(pos.surahId) : null;
+  if (!surahInfo) return;
+  
+  // Open the surah first
+  openSurahForReading(pos.surahId);
+  
+  // If a specific verse key was saved, scroll to it
+  if (pos.verseKey) {
+    _readerScrollVerse = pos.verseKey;
+    // Re-render ayahs with scroll target
+    renderAyahs();
+  }
 }
 
 // ── Mastery Color Map ─────────────────────────────────────────
@@ -110,11 +155,89 @@ function renderSurahBrowser() {
   // Load reading journey
   var journey = _loadReaderJourney();
 
+  // Continue Reading button (shown when a last read position exists)
+  var lastReadPos = getLastReadPosition();
+  if (lastReadPos) {
+    var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(lastReadPos.surahId) : null;
+    var surahName = surahInfo ? surahInfo.name : 'Surah ' + lastReadPos.surahId;
+    var verseLabel = '';
+    if (lastReadPos.verseKey) {
+      var vNum = parseInt(lastReadPos.verseKey.split(':')[1], 10) || 0;
+      verseLabel = ' · Verse ' + vNum;
+    }
+    var timeAgo = '';
+    if (lastReadPos.date) {
+      var hoursAgo = Math.round((Date.now() - lastReadPos.date) / (1000 * 60 * 60));
+      if (hoursAgo < 1) timeAgo = ' just now';
+      else if (hoursAgo < 24) timeAgo = ' ' + hoursAgo + 'h ago';
+      else timeAgo = ' ' + Math.round(hoursAgo / 24) + 'd ago';
+    }
+    html += '<div class="reader-continue-card" id="reader-continue-btn" tabindex="0" role="button" aria-label="Continue reading ' + surahName + verseLabel + '">';
+    html += '<div class="reader-continue-icon">📖</div>';
+    html += '<div class="reader-continue-info">';
+    html += '<div class="reader-continue-title">Continue Reading</div>';
+    html += '<div class="reader-continue-sub">' + surahName + verseLabel + '<span class="reader-continue-time">' + timeAgo + '</span></div>';
+    html += '</div>';
+    html += '<div class="reader-continue-arrow">→</div>';
+    html += '</div>';
+  }
+
+  // Juz filter
+  if (_readerJuzFilter > 0 && typeof getSurahIdsForJuz === 'function') {
+    var juzSurahIds = getSurahIdsForJuz(_readerJuzFilter);
+    var juzSet = {};
+    for (var jsi = 0; jsi < juzSurahIds.length; jsi++) {
+      juzSet[juzSurahIds[jsi]] = true;
+    }
+    // Filter surahIds to only those in the selected juz
+    var filtered = [];
+    for (var fsi = 0; fsi < surahIds.length; fsi++) {
+      if (juzSet[surahIds[fsi]]) {
+        filtered.push(surahIds[fsi]);
+      }
+    }
+    surahIds = filtered;
+  }
+
   // Search filter
   var searchInput = document.getElementById('reader-search-input');
   var searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-  var html = '';
+  // Juz comprehension summary (shown above surah list when juz filter is active)
+  if (_readerJuzFilter > 0 && typeof getJuzComprehension === 'function') {
+    var juzComp = getJuzComprehension(_readerJuzFilter, _readerSRSData);
+    var juzInfo = typeof getJuzInfo === 'function' ? getJuzInfo(_readerJuzFilter) : null;
+    if (juzComp && juzInfo) {
+      var juzCompPct = juzComp.pct;
+      var juzCompClass = 'reader-comp-green';
+      if (juzCompPct >= 70) juzCompClass = 'reader-comp-gold';
+      else if (juzCompPct >= 40) juzCompClass = 'reader-comp-green';
+      else if (juzCompPct >= 20) juzCompClass = 'reader-comp-blue';
+      else if (juzCompPct > 0) juzCompClass = 'reader-comp-gray';
+      else juzCompClass = 'reader-comp-red';
+      
+      html += '<div class="reader-juz-summary">';
+      html += '<div class="reader-juz-summary-top">';
+      html += '<span class="reader-juz-summary-name">📖 Juz\' ' + _readerJuzFilter + ' — ' + juzInfo.english + '</span>';
+      html += '<span class="reader-comp-pct ' + juzCompClass + '">' + juzCompPct + '%</span>';
+      html += '</div>';
+      html += '<div class="reader-surah-meta">' + juzComp.masteredWords + '/' + juzComp.totalWords + ' words · ' + surahIds.length + ' surahs</div>';
+      html += '<div class="reader-comp-bar"><div class="reader-comp-fill ' + juzCompClass + '" style="width:' + juzCompPct + '%"></div></div>';
+      html += '</div>';
+    }
+  }
+
+  // Handle empty filtered state
+  if (surahIds.length === 0) {
+    if (_readerJuzFilter > 0) {
+      html += '<div class="reader-empty-sidebar">No vocabulary data available for this juz.</div>';
+    } else if (searchTerm) {
+      html += '<div class="reader-empty-sidebar">No surahs match your search.</div>';
+    }
+    container.innerHTML = html;
+    return;
+  }
+
   for (var si = 0; si < surahIds.length; si++) {
     var sid = surahIds[si];
     var info = typeof getSurahInfo === 'function' ? getSurahInfo(sid) : null;
@@ -167,6 +290,15 @@ function renderSurahBrowser() {
   
   container.innerHTML = html;
   
+  // Wire continue reading card
+  var continueCard = document.getElementById('reader-continue-btn');
+  if (continueCard) {
+    continueCard.onclick = function() { resumeReading(); };
+    continueCard.onkeydown = function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); resumeReading(); }
+    };
+  }
+
   // Wire surah clicks
   var items = container.querySelectorAll('.reader-surah-item');
   for (var ii = 0; ii < items.length; ii++) {
@@ -185,9 +317,9 @@ function renderSurahBrowser() {
 function openSurahForReading(surahId) {
   if (!surahId) return;
   
-  // Track reading session
+  // Track reading session and save last read position
+  _saveLastReadPosition(surahId, null);
   var journey = _loadReaderJourney();
-  journey.lastReadDate = Date.now();
   journey.openings = (journey.openings || 0) + 1;
   if (!journey.surahs) journey.surahs = {};
   if (!journey.surahs[surahId]) {
@@ -371,8 +503,8 @@ function renderAyahs() {
               break;
             }
           }
-          if (word && typeof openExplorer === 'function') {
-            openExplorer(word);
+          if (word && typeof openWordSheet === 'function') {
+            openWordSheet(word);
           }
         }
       };
@@ -760,6 +892,10 @@ function getReadingJourneySummary() {
 
 function trackAyahRead(verseKey) {
   if (!_readerSurahId || !verseKey) return;
+  
+  // Save last read position with specific verse
+  _saveLastReadPosition(_readerSurahId, verseKey);
+  
   var journey = _loadReaderJourney();
   if (!journey.surahs) journey.surahs = {};
   if (!journey.surahs[_readerSurahId]) {
@@ -769,7 +905,6 @@ function trackAyahRead(verseKey) {
   var ayahNum = parseInt(verseKey.split(':')[1], 10) || 0;
   journey.totalAyahsRead = (journey.totalAyahsRead || 0) + 1;
   journey.surahs[_readerSurahId].ayahsRead = (journey.surahs[_readerSurahId].ayahsRead || 0) + 1;
-  journey.lastReadDate = Date.now();
   _saveReaderJourney(journey);
   
   // Update reading streak
@@ -829,6 +964,15 @@ function wireReaderEvents() {
     };
   }
   
+  // Juz filter select
+  var juzSelect = document.getElementById('reader-juz-select');
+  if (juzSelect) {
+    juzSelect.onchange = function() {
+      _readerJuzFilter = parseInt(juzSelect.value, 10) || 0;
+      renderSurahBrowser();
+    };
+  }
+
   // Surah search input
   wireSurahSearch();
   
@@ -870,4 +1014,7 @@ window.__reader = {
   getInsights: getSurahReadingInsights,
   getJourneySummary: getReadingJourneySummary,
   setFilter: toggleReaderFilter,
+  resumeReading: resumeReading,
+  getLastReadPosition: getLastReadPosition,
+  getJourney: _loadReaderJourney,
 };
