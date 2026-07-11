@@ -41,12 +41,27 @@ function renderExplorerAllOccurrences(listEl, w) {
  * Called by switchView('analytics').
  * Displays: overview, trends, insights, achievements tabs
  */
+
+function showEmptyAnalytics() {
+  var el = DOM.get('analytics-content');
+  if (!el) return;
+  el.innerHTML = '';
+  var icon = createSVGIcon('book', {size: 56});
+  var state = createEmptyState({
+    iconSvg: icon,
+    title: 'Your analytics are waiting',
+    message: 'Start studying words and reviewing regularly. After a few sessions, your learning data will appear here automatically.',
+    actionLabel: 'Start Learning',
+    actionOnClick: function() { switchView('learn'); }
+  });
+  el.appendChild(state);
+}
 function renderAnalytics() {
   try {
 
   var analytics = (window.__analytics && window.__analytics.getComprehensiveInsights) ? window.__analytics.getComprehensiveInsights() : null;
   if (!analytics) {
-    DOM.get('analytics-content').innerHTML = '<div class="analytics-empty">Start learning to see your analytics!</div>';
+      showEmptyAnalytics();
     return;
   }
   
@@ -455,7 +470,7 @@ function renderAnalyticsTrends(analytics) {
         html += '</div>';
       }
     } else {
-      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying!</div>';
+      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying to unlock more insights!</div>';
     }
     html += '</div>';
     
@@ -473,7 +488,7 @@ function renderAnalyticsTrends(analytics) {
         html += '</div>';
       }
     } else {
-      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying!</div>';
+      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying to unlock more insights!</div>';
     }
     html += '</div>';
     
@@ -495,12 +510,12 @@ function renderAnalyticsTrends(analytics) {
         html += '</div>';
       }
     } else {
-      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying!</div>';
+      html += '<div style="font-size:12px;color:var(--text-muted);padding:8px;text-align:center">Not enough data yet. Keep studying to unlock more insights!</div>';
     }
     html += '</div>';
     
   } else {
-    html += '<div class="analytics-empty">Not enough data yet. Study for at least 2 days to see trends.</div>';
+    html += '<div class="analytics-empty">Not enough data yet — study for at least 2 days to build learning trends.</div>';
   }
   
   // Wire trend period switchers
@@ -678,7 +693,7 @@ function renderAnalyticsAchievements() {
     var achievementStats = (window.__analytics && window.__analytics.getAchievementStats) ? window.__analytics.getAchievementStats() : null;
 
     if (!achievementStats) {
-      html += '<div class="analytics-empty">Keep learning to earn achievements!</div>';
+      html += '<div class="analytics-empty">No achievements yet — your first complete lesson will unlock your first one!</div>';
       return html;
     }
 

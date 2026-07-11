@@ -566,7 +566,7 @@ function renderStats() {
         foundationStatsContainer.appendChild(covRow);
       }
     } else {
-      foundationStatsContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Foundation Course not available</div>';
+      foundationStatsContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Start the Foundation Course to track your Quran comprehension growth lesson by lesson</div>';
     }
   }
 
@@ -613,7 +613,7 @@ function renderStats() {
         surahCompContainer.appendChild(moreRow);
       }
     } else {
-      surahCompContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Study words to see surah comprehension</div>';
+      surahCompContainer.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:4px 0">Study vocabulary to unlock comprehension scores for each of the 114 surahs</div>';
     }
   }
 

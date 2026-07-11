@@ -106,6 +106,7 @@ const UI_FILES = (function () {
     // Load UI modules in dependency order
     return [
       'js/ui/dom-helpers.js',
+      'js/ui/components.js',
       'js/ui/word-card.js',
       'js/ui/stats-ui.js',
       'js/ui/quiz-ui.js',
