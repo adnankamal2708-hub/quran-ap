@@ -203,7 +203,7 @@ function updateLessonProgressDisplay() {
     if (lessonLabel) {
       // R1: Clear lesson header answering: What am I learning? Why is it important? What will I understand?
       var thematicTitle = fCtx.title || (isReview ? 'Review ' + fCurrent : 'Foundation ' + fCurrent);
-      lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + (isReview ? '\u27F3 Review Lesson' : '\u25A0 Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
+      lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + (isReview ? '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Review Lesson' : '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
         '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' +
         'Covers ~' + (fLesson ? fLesson.lessonCoverageNum.toFixed(1) : '0') + '% of Quran word occurrences' +
         (fLesson && fLesson.comprehensionGain > 0 ? ' \u00B7 Understanding: ' + $beforeComp.toFixed(1) + '% → ' + fLesson.projectedComprehension + '%' : '') +
@@ -330,7 +330,7 @@ function updateLessonProgressDisplay() {
           // Grammar notes section (collapsed by default)
           ctxHtml += '<div class="foundation-acc-section">';
           ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="false">';
-          ctxHtml += '<span>📝 Grammar notes</span><span class="foundation-acc-arrow">▶</span>';
+          ctxHtml += '<span>📝 Grammar notes</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
           ctxHtml += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;line-height:1.6">Focus on the root letters and their core meaning. Notice how different patterns (wazn) modify the meaning. Pay attention to how this word functions in its ayah context.</div>';
@@ -339,7 +339,7 @@ function updateLessonProgressDisplay() {
           // Learning tips section (collapsed by default)
           ctxHtml += '<div class="foundation-acc-section">';
           ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="false">';
-          ctxHtml += '<span>💡 Learning tips</span><span class="foundation-acc-arrow">▶</span>';
+          ctxHtml += '<span>💡 Learning tips</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
           ctxHtml += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;line-height:1.6">Review the root family words together to see patterns. Try to recognize this word when you see it in Quranic verses. Consistent daily review is more effective than cramming.</div>';

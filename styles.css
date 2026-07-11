@@ -4787,16 +4787,6 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Section Label ── */
-.db-section-label {
-  font-size: 13px;
-  color: var(--text-muted);
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  margin-bottom: 12px;
-  padding: 0 4px;
-}
-
 /* ── Error State ── */
 .db-error {
   text-align: center;
