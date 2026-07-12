@@ -1138,15 +1138,7 @@ function invalidateStatsCaches() {
 // Detailed analytics live in Profile > Progress and Profile > Insights.
 
 // createBarRow() was also removed — it was only called by renderStats()
-// and renderReviewForecast(), both now removed.(label, count, pct) {
-  var row = document.createElement('div');
-  row.className = 'stats-bar-row';
-  row.innerHTML =
-    '<span class="stats-bar-label">' + label + '</span>' +
-    '<div class="stats-bar-track"><div class="stats-bar-fill" style="width:' + pct + '%"></div></div>' +
-    '<span class="stats-bar-value">' + count + '</span>';
-  return row;
-}
+// and renderReviewForecast(), both now removed.
 
 /**
  * Update streak display with localStorage tracking.
