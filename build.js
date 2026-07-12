@@ -328,14 +328,14 @@ async function build() {
   try {
     var terser = require('terser');
     var dataResult = await terser.minify(readFile('dist/js/data.bundle.js'), {
-      compress: { passes: 3, drop_console: true, booleans: true, comparisons: true, reduce_vars: true, side_effects: true },
+      compress: { passes: 2, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
       mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS'] },
       output: { comments: false },
     });
     if (dataResult.code) writeFile('js/data.bundle.min.js', dataResult.code);
 
     var appResult = await terser.minify(readFile('dist/js/app.bundle.js'), {
-      compress: { passes: 3, drop_console: true, booleans: true, comparisons: true, reduce_vars: true, side_effects: true },
+      compress: { passes: 2, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
       mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS'] },
       output: { comments: false },
     });
