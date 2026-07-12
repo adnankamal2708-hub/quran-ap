@@ -30,6 +30,9 @@ function switchView(viewName) {
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderDashboard() not found');
   }
   if (viewName === 'learn') {
+    if (typeof window.__learnScreen !== 'undefined' && window.__learnScreen.render) {
+      window.__learnScreen.render();
+    }
     if (typeof updateReviewBanner === 'function') updateReviewBanner();
     if (typeof updateLessonProgressDisplay === 'function') updateLessonProgressDisplay();
   }

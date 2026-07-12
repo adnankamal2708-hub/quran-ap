@@ -48,12 +48,19 @@ function _saveReaderJourney(data) {
 
 // ── Last Read Position ──────────────────────────────────────────
 
-function _saveLastReadPosition(surahId, verseKey) {
+function _saveLastReadPosition(surahId, verseKey, encounteredWordIds, sessionWordIds) {
   if (!surahId) return;
   var journey = _loadReaderJourney();
   journey.lastReadSurah = surahId;
   journey.lastReadVerseKey = verseKey || null;
   journey.lastReadDate = Date.now();
+  // Store encountered word IDs for Smart Learning Engine post-reading recommendations
+  if (encounteredWordIds && encounteredWordIds.length > 0) {
+    journey.encounteredWordIds = encounteredWordIds;
+  }
+  if (sessionWordIds && sessionWordIds.length > 0) {
+    journey.sessionWordIds = sessionWordIds;
+  }
   // Ensure surah tracking exists
   if (!journey.surahs) journey.surahs = {};
   if (!journey.surahs[surahId]) {
@@ -318,7 +325,13 @@ function openSurahForReading(surahId) {
   if (!surahId) return;
   
   // Track reading session and save last read position
-  _saveLastReadPosition(surahId, null);
+  // Store all word IDs from this surah so the Smart Learning Engine
+  // can generate post-reading recommendations
+  var allWordIds = [];
+  for (var wi = 0; wi < _readerSurahWords.length; wi++) {
+    allWordIds.push(_readerSurahWords[wi].id);
+  }
+  _saveLastReadPosition(surahId, null, allWordIds, allWordIds);
   var journey = _loadReaderJourney();
   journey.openings = (journey.openings || 0) + 1;
   if (!journey.surahs) journey.surahs = {};
@@ -1017,4 +1030,8 @@ window.__reader = {
   resumeReading: resumeReading,
   getLastReadPosition: getLastReadPosition,
   getJourney: _loadReaderJourney,
+  getEncounteredWordIds: function() {
+    var journey = _loadReaderJourney();
+    return journey.encounteredWordIds || [];
+  },
 };

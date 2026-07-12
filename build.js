@@ -115,6 +115,7 @@ const UI_FILES = (function () {
       'js/ui/dashboard.js',
       'js/ui/reader.js',
       'js/ui/reader-word-sheet.js',
+  'js/ui/learn-screen.js',
     ];
   }
   return ['js/ui.js']; // Fallback to monolithic file
@@ -135,6 +136,7 @@ const APP_FILES = [
   'js/validation.js',
   'js/analytics.js',
   'js/adaptive-engine.js',
+  'js/smart-learning-engine.js',
   'js/ux-polish.js',
   'js/ui/navigation.js',
   'js/ui/review.js',

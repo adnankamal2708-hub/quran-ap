@@ -536,7 +536,34 @@ function renderDashboard() {
     $h += '</div></div>';
   }
 
-  // ═══ 8d. WEAKNESS DETECTION ═══
+  // ═══ 8d. SMART LEARNING ENGINE RECOMMENDATIONS ═══
+  if (window.__smartLearning) {
+    var $sleRecs = window.__smartLearning.getScoredRecommendations();
+    var $primaryRecs = $sleRecs.slice(0, 4);
+    if ($primaryRecs.length > 0 && $primaryRecs[0].score >= 20) {
+      $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('lightbulb', 14) + ' Smart Recommendations</div>';
+      $h += '<div class="db-sle-cards">';
+      for (var $slei = 0; $slei < $primaryRecs.length; $slei++) {
+        var $rec = $primaryRecs[$slei];
+        var $recPriority = $rec.priority === 'high' ? ' db-sle-high' : ($rec.priority === 'medium' ? ' db-sle-medium' : '');
+        var $recIcon = $rec.icon ? $icon($rec.icon, 16) : $icon('lightbulb', 16);
+        $h += '<div class="db-card db-card-action db-sle-card' + $recPriority + '" id="sle-' + $rec.id + '" tabindex="0" role="button" aria-label="' + $rec.title + '">';
+        $h += '<div class="db-card-row">';
+        $h += '<div class="db-sle-score">' + $rec.score + '</div>';
+        $h += '<div class="db-card-body" style="flex:1;min-width:0">';
+        $h += '<div class="db-card-title" style="font-size:12px">' + $recIcon + ' ' + $rec.title + '</div>';
+        $h += '<div class="db-card-sub" style="font-size:10px;line-height:1.4">' + $rec.message + '</div>';
+        $h += '</div>';
+        $h += '<span class="db-rec-action">' + $rec.action + '</span>';
+        $h += '</div>';
+        $h += '<div class="db-sle-score-bar"><div class="db-sle-score-fill" style="width:' + $rec.score + '%"></div></div>';
+        $h += '</div>';
+      }
+      $h += '</div>';
+    }
+  }
+
+  // ═══ 8e. WEAKNESS DETECTION ═══
   if ($weaknesses && $weaknesses.length > 0) {
     $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('alert-triangle', 14) + ' Weak Areas</div>';
     $h += '<div class="db-card">';
@@ -682,6 +709,79 @@ function renderDashboard() {
     $weeklyToggle.onkeydown = function(e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $weeklyToggle.onclick(); }
     };
+  }
+
+  // ── SLE Smart Recommendation Card (from adaptive engine) ──
+  $wire('db-smart-rec', function() {
+    if (!$smartRec || !$smartRec.actionType) return;
+    var action = $smartRec.actionType;
+    if (action === 'review' || action === 'review-difficult') {
+      if (typeof startReview === 'function') startReview();
+      else if (typeof switchView === 'function') switchView('learn');
+    } else if (action === 'foundation' || action === 'foundation-reinforcement') {
+      if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
+      else if (typeof switchView === 'function') switchView('learn');
+    } else if (action === 'surah') {
+      if (typeof switchView === 'function') switchView('learn');
+    } else if (action === 'reading-review' || action === 'reading') {
+      if (typeof switchView === 'function') switchView('reader');
+    } else if (action === 'root-family') {
+      if (typeof goToRootFamily === 'function') goToRootFamily();
+      else if (typeof switchView === 'function') switchView('learn');
+    } else {
+      if (typeof switchView === 'function') switchView('learn');
+    }
+  });
+
+  // ── SLE Recommendation Cards (Smart Learning Engine) ──
+  var $sleCardIds = ['sle-rec-continue-learning', 'sle-rec-review-due', 'sle-rec-weak-vocabulary', 'sle-rec-weak-roots', 'sle-rec-low-comp-surah', 'sle-rec-foundation-reinforcement', 'sle-rec-reading', 'sle-rec-surah-learning'];
+  for (var $sci = 0; $sci < $sleCardIds.length; $sci++) {
+    (function($cardId) {
+      $wire($cardId, function() {
+        if (!$cardId || !$primaryRecs) return;
+        // Find the matching recommendation
+        var $matchedRec = null;
+        var $recPrefix = 'sle-';
+        var $recId = $cardId.substring($recPrefix.length);
+        for (var $ri = 0; $ri < $primaryRecs.length; $ri++) {
+          if ($primaryRecs[$ri].id === $recId) {
+            $matchedRec = $primaryRecs[$ri];
+            break;
+          }
+        }
+        if (!$matchedRec) return;
+        var actionType = $matchedRec.actionType;
+        if (actionType === 'review' || actionType === 'review-difficult') {
+          if (typeof startReview === 'function') startReview();
+          else if (typeof switchView === 'function') switchView('learn');
+        } else if (actionType === 'foundation' || actionType === 'foundation-reinforcement') {
+          if ($matchedRec.type === 'foundation-reinforcement') {
+            // Go to foundation to reinforce
+            if (typeof goToFoundationLesson === 'function') goToFoundationLesson(0);
+            else if (typeof switchView === 'function') switchView('learn');
+          } else {
+            if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
+            else if (typeof switchView === 'function') switchView('learn');
+          }
+        } else if (actionType === 'surah' || actionType === 'surah-learning') {
+          // Navigate to the surah either in reading mode or learn mode
+          if ($matchedRec.surahId && typeof goToSurah === 'function') {
+            goToSurah($matchedRec.surahId);
+          } else if ($matchedRec.surahId && typeof switchView === 'function') {
+            switchView('reader');
+          } else if (typeof switchView === 'function') {
+            switchView('learn');
+          }
+        } else if (actionType === 'reading-review' || actionType === 'reading') {
+          if (typeof switchView === 'function') switchView('reader');
+        } else if (actionType === 'root-family') {
+          if (typeof goToRootFamily === 'function') goToRootFamily($matchedRec.rootKey || undefined);
+          else if (typeof switchView === 'function') switchView('learn');
+        } else {
+          if (typeof switchView === 'function') switchView('learn');
+        }
+      });
+    })($sleCardIds[$sci]);
   }
 
   // ── Animation: animate comprehension ring on mount ──

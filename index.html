@@ -90,6 +90,8 @@
 
       <!-- ── LEARN VIEW ── -->
       <section class="mode-view" id="view-learn" aria-label="Learn words">
+        <!-- Action-oriented header (rendered by learn-screen.js) -->
+        <div id="learn-action-header"></div>
         <div class="lesson-header">
           <div class="lesson-header-top">
             <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -984,6 +986,8 @@
       <!-- ── PROFILE VIEW ── -->
       <section class="mode-view" id="view-profile" aria-label="User profile">
         <div class="profile-container">
+          <!-- ═══ ACCOUNT SECTION ═══ -->
+          <div class="profile-section-title mt-0">👤 Account</div>
           <div class="profile-header">
             <div class="profile-avatar" id="profile-avatar">U</div>
             <div class="profile-header-info">
@@ -1000,29 +1004,14 @@
               <span class="profile-detail-value" id="profile-join-date">—</span>
             </div>
             <div class="profile-detail-row">
+              <span class="profile-detail-label">Current Streak</span>
+              <span class="profile-detail-value" id="profile-stats-streak">0</span>
+            </div>
+            <div class="profile-detail-row">
               <span class="profile-detail-label">Sync</span>
               <span class="profile-detail-value" id="profile-sync-status">○ Offline</span>
             </div>
-            <div class="profile-section-title mt-20">📊 Learning Stats</div>
-            <div class="profile-stats-grid">
-              <div class="profile-stat">
-                <div class="profile-stat-value" id="profile-stats-mastered">0</div>
-                <div class="profile-stat-label">Mastered</div>
-              </div>
-              <div class="profile-stat">
-                <div class="profile-stat-value" id="profile-stats-reviews">0</div>
-                <div class="profile-stat-label">Reviews</div>
-              </div>
-              <div class="profile-stat">
-                <div class="profile-stat-value" id="profile-stats-streak">0</div>
-                <div class="profile-stat-label">Streak</div>
-              </div>
-              <div class="profile-stat">
-                <div class="profile-stat-value" id="profile-stats-retention">0%</div>
-                <div class="profile-stat-label">Retention</div>
-              </div>
-            </div>
-            <button class="btn btn-sm w-full mt-14" id="btn-edit-profile" type="button">✏️ Edit Profile</button>
+            <button class="btn btn-sm w-full mt-10" id="btn-edit-profile" type="button">✏️ Edit Profile</button>
           </div>
           <div id="profile-edit" style="display:none">
             <div class="profile-section-title mt-0">✏️ Edit Profile</div>
@@ -1088,6 +1077,57 @@
           <button class="account-action-btn" id="btn-import-data" type="button">📥 Import Learning Data</button>
           <button class="account-action-btn account-action-danger" id="btn-delete-account" type="button">🗑️ Delete Account</button>
           <button class="btn btn-sm btn-outline w-full mt-16" id="btn-logout" type="button">🚪 Sign Out</button>
+
+          <!-- ═══ PROGRESS SECTION ═══ -->
+          <div class="profile-section-title mt-24" id="profile-progress-title">📊 Progress</div>
+          <div id="profile-progress" class="profile-progress-section">
+            <!-- Rendered dynamically by renderProfileProgress() -->
+          </div>
+
+          <!-- ═══ INSIGHTS SECTION ═══ -->
+          <div class="profile-section-title mt-24" id="profile-insights-title">💡 Insights</div>
+          <div id="profile-insights" class="profile-insights-section">
+            <!-- Rendered dynamically by renderProfileInsights() -->
+          </div>
+
+          <!-- ═══ ACHIEVEMENTS SECTION ═══ -->
+          <div class="profile-section-title mt-24" id="profile-achievements-title">🏆 Achievements</div>
+          <div id="profile-achievements" class="profile-achievements-section">
+            <!-- Rendered dynamically by renderProfileAchievements() -->
+          </div>
+
+          <!-- ═══ CALENDAR SECTION ═══ -->
+          <div class="profile-section-title mt-24" id="profile-calendar-title">📅 Activity</div>
+          <div id="profile-calendar" class="profile-calendar-section">
+            <!-- Rendered dynamically by renderProfileCalendar() -->
+          </div>
+
+          <!-- ═══ ABOUT SECTION ═══ -->
+          <div class="profile-section-title mt-24" id="profile-about-title">ℹ️ About</div>
+          <div id="profile-about" class="profile-about-section">
+            <div class="profile-about-content">
+              <div class="profile-detail-row">
+                <span class="profile-detail-label">App</span>
+                <span class="profile-detail-value">Bayan v2.0</span>
+              </div>
+              <div class="profile-detail-row">
+                <span class="profile-detail-label">Privacy</span>
+                <span class="profile-detail-value"><a href="#" id="profile-privacy-link" style="color:var(--gold);text-decoration:none">View Policy</a></span>
+              </div>
+              <div class="profile-detail-row">
+                <span class="profile-detail-label">Terms</span>
+                <span class="profile-detail-value"><a href="#" id="profile-terms-link" style="color:var(--gold);text-decoration:none">View Terms</a></span>
+              </div>
+              <div class="profile-detail-row">
+                <span class="profile-detail-label">Support</span>
+                <span class="profile-detail-value"><a href="#" id="profile-support-link" style="color:var(--gold);text-decoration:none">Contact</a></span>
+              </div>
+              <div class="profile-detail-row">
+                <span class="profile-detail-label">License</span>
+                <span class="profile-detail-value">MIT License</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
