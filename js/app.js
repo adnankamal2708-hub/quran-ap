@@ -1372,7 +1372,8 @@ function init() {
         var onbDone = window.__ux.hasCompletedOnboarding();
         window.__DEV__ && console.log('[startup] [13a] Onboarding completed earlier:', onbDone);
         if (!onbDone) {
-          setTimeout(function() { window.__DEV__ && console.log('[startup] [13b] Showing onboarding overlay'); window.__ux.showOnboarding(); }, 800);
+          // Show onboarding after splash screen is fully removed (~1500ms min + 800ms hide + 800ms remove + buffer)
+          setTimeout(function() { window.__DEV__ && console.log('[startup] [13b] Showing onboarding overlay'); window.__ux.showOnboarding(); }, 3000);
         }
         window.__ux.updateOfflineIndicator();
         window.__DEV__ && console.log('[startup] [13c] Offline indicator updated');

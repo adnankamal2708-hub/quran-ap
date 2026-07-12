@@ -124,17 +124,17 @@ window.__diag = (function() {
     if (report.severity === SEVERITY.ERROR) {
       console.groupCollapsed(
         '%c✗ ' + prefix + ' ' + report.message,
-        'color:#ef4444;font-weight:bold'
+        'color:#c25050;font-weight:bold'
       );
     } else if (report.severity === SEVERITY.WARNING) {
       console.groupCollapsed(
         '%c⚠ ' + prefix + ' ' + report.message,
-        'color:#f59e0b;font-weight:bold'
+        'color:#c9a84c;font-weight:bold'
       );
     } else {
       console.groupCollapsed(
         '%cℹ ' + prefix + ' ' + report.message,
-        'color:#3b82f6'
+        'color:#4a7ec2'
       );
     }
 

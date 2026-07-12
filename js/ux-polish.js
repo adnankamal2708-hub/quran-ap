@@ -400,24 +400,28 @@ function navigateToFirstAction() {
     } catch (e) {}
   }
 
-  // Navigate to Foundation Course
+  // Navigate to Foundation Course (go directly, skip intermediate dashboard)
   setTimeout(function() {
-    if (typeof switchView === 'function') {
+    if (typeof goToFoundationLesson === 'function') {
+      var firstLesson = 0;
+      if (typeof getNextIncompleteFoundationLesson === 'function') {
+        firstLesson = getNextIncompleteFoundationLesson();
+      }
+      // Small delay to let hideOnboarding()/overlay cleanup finish
+      setTimeout(function() {
+        goToFoundationLesson(firstLesson);
+      }, 200);
+    } else if (typeof switchView === 'function') {
       switchView('dashboard');
-      // After dashboard renders, navigate to Foundation Course
       setTimeout(function() {
         if (typeof goToFoundationLesson === 'function') {
-          var firstLesson = 0;
-          if (typeof getNextIncompleteFoundationLesson === 'function') {
-            firstLesson = getNextIncompleteFoundationLesson();
-          }
-          goToFoundationLesson(firstLesson);
-        } else if (typeof switchView === 'function') {
+          goToFoundationLesson(0);
+        } else {
           switchView('learn');
         }
-      }, 300);
+      }, 500);
     }
-  }, 100);
+  }, 200);
 }
 
 // ── Wire Onboarding Events ───────────────────────────────────
