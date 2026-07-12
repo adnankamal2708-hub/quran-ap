@@ -764,6 +764,7 @@ function wireEvents() {
   safeOnClick('tab-list', function () { switchView('list'); });
   safeOnClick('tab-stats', function () { switchView('stats'); });
   safeOnClick('tab-analytics', function () { switchView('analytics'); });
+  safeOnClick('tab-reader', function () { switchView('reader'); });
 
   // Learn navigation
   safeOnClick('btn-prev', prevWord);

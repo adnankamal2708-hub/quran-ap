@@ -42,14 +42,14 @@ function getShortMeaning(meaning) {
  */
 function setView(viewName) {
   // All possible views — both main content and overlay views
-  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'explorer', 'auth', 'profile', 'settings'];
+  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'reader', 'explorer', 'auth', 'profile', 'settings'];
   for (var i = 0; i < views.length; i++) {
     var name = views[i];
     var viewEl = DOM.get('view-' + name);
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
     // Only toggle tab highlights for main nav tabs
-    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics') {
+    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics' || name === 'reader') {
       var tabEl = DOM.get('tab-' + name);
       if (tabEl) {
         tabEl.classList.toggle('active', name === viewName);
