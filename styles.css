@@ -6581,3 +6581,414 @@ body::before {
   white-space: nowrap;
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   LEARN SCREEN — Action-Oriented Cards (learn-screen.js)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Greeting ── */
+.ls-greeting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0 2px;
+}
+.ls-greeting-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(201,168,76,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.ls-greeting-text {
+  flex: 1;
+  min-width: 0;
+}
+.ls-greeting-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.ls-greeting-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.ls-streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.ls-streak-num {
+  font-family: var(--serif);
+  font-size: 14px;
+}
+
+/* ── Comprehension Headline ── */
+.ls-comp-headline {
+  text-align: center;
+  padding: 14px 12px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(74,158,107,0.04));
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
+.ls-comp-value {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.ls-comp-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.ls-comp-detail {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+/* ── Today's Goal ── */
+.ls-goal-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+.ls-goal-ring-wrap {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.ls-goal-ring-wrap:hover {
+  transform: scale(1.08);
+}
+.ls-goal-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.ls-goal-info {
+  flex: 1;
+  min-width: 0;
+}
+.ls-goal-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+.ls-goal-progress {
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 2px;
+  font-weight: 500;
+}
+.ls-goal-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.ls-goal-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), #6abf8a);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* ── Action Cards ── */
+.ls-action-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-height: 56px;
+}
+.ls-action-card:hover {
+  border-color: rgba(201,168,76,0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+.ls-action-card:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.ls-action-card:active {
+  transform: translateY(0) scale(0.995);
+}
+.ls-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(201,168,76,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.ls-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.ls-card-title {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ls-card-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  line-height: 1.3;
+}
+.ls-card-arrow {
+  font-size: 14px;
+  color: var(--gold-dim);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.ls-action-card:hover .ls-card-arrow {
+  transform: translateX(4px);
+}
+
+/* ── Smart Recommendation Badge ── */
+.ls-smart-rec-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ls-smart-score {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--gold);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Reviews Due Badge ── */
+.ls-badge-pulse {
+  background: var(--red);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  animation: pulse 2s ease infinite;
+}
+
+/* ── Continue Learning Progress Ring ── */
+.ls-progress-ring {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.ls-progress-ring svg {
+  display: block;
+}
+
+/* ── Learning Paths Grid ── */
+.ls-paths-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.ls-path-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+.ls-path-item:hover {
+  border-color: rgba(201,168,76,0.2);
+  color: var(--text);
+  background: rgba(201,168,76,0.04);
+}
+.ls-path-item:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.ls-path-item:active {
+  transform: scale(0.98);
+}
+.ls-path-item span {
+  flex: 1;
+  min-width: 0;
+}
+.ls-path-pct {
+  font-size: 10px;
+  color: var(--gold-dim);
+  font-weight: 600;
+  text-align: right;
+  flex: 0 !important;
+}
+
+/* ── Motivation Card ── */
+.ls-motivation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.12);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.ls-motivation-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.ls-motivation-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── Daily Plan ── */
+.ls-daily-plan {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.ls-daily-title {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ls-daily-task {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  font-size: 11px;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+}
+.ls-daily-task:first-of-type {
+  border-top: none;
+}
+.ls-daily-icon {
+  flex-shrink: 0;
+  color: var(--gold-dim);
+}
+.ls-daily-label {
+  flex: 1;
+}
+
+/* ── Profile Progress Section ── */
+.profile-progress-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.profile-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.profile-pstat {
+  text-align: center;
+  padding: 12px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.profile-pstat-value {
+  font-size: 20px;
+  font-family: var(--serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.profile-pstat-label {
+  font-size: 8px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.profile-subsection {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.profile-subsection-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gold-dim);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.profile-bar-row {
+  display: flex;
+  align-it

@@ -150,11 +150,16 @@ async function renderProfileView() {
   }
 
   // Load stats
-  var stats = computeLearningSummary();
-  document.getElementById('profile-stats-mastered').textContent = stats.wordsMastered;
-  document.getElementById('profile-stats-reviews').textContent = stats.totalReviews;
-  document.getElementById('profile-stats-streak').textContent = stats.streak + ' days';
-  document.getElementById('profile-stats-retention').textContent = (stats.averageRetention || 0) + '%';
+  var stats = computeLearningSummary && typeof computeLearningSummary === 'function' ? computeLearningSummary() : {};
+  // Stats elements — guard against missing DOM (moved to new Profile sections)
+  var $pMastered = document.getElementById('profile-stats-mastered');
+  if ($pMastered) $pMastered.textContent = stats.wordsMastered || 0;
+  var $pReviews = document.getElementById('profile-stats-reviews');
+  if ($pReviews) $pReviews.textContent = stats.totalReviews || 0;
+  var $pStreak = document.getElementById('profile-stats-streak');
+  if ($pStreak) $pStreak.textContent = (stats.streak || 0) + ' days';
+  var $pRetention = document.getElementById('profile-stats-retention');
+  if ($pRetention) $pRetention.textContent = (stats.averageRetention || 0) + '%';
 
   // Load profile from server for settings
   var profile = await loadProfile(user.uid);
@@ -520,6 +525,425 @@ function handleImportData() {
   input.click();
 }
 
+// ── SVG icon helper ────────────────────────────────────────────
+
+function _pIcon(name, size) {
+  var icons = window.__components && window.__components.createSVGIcon;
+  if (icons) return icons(name, { size: size || 16 });
+  var fallback = {
+    fire: '🔥', book: '📖', star: '⭐', brain: '🧠', repeat: '🔄',
+    leaf: '🌱', award: '🏆', target: '🎯', layers: '📚', bolt: '⚡',
+    chart: '📊', clock: '⏰', calendar: '📅', heart: '❤️',
+    check: '✓', 'check-circle': '✅', trending: '📈', lightbulb: '💡',
+    'book-open': '📖', crown: '👑', zap: '⚡', 'arrow-right': '→',
+  };
+  return fallback[name] || '✦';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROFILE — Progress Section (moved from Stats view)
+// ═══════════════════════════════════════════════════════════════
+
+function renderProfileProgress() {
+  var container = document.getElementById('profile-progress');
+  if (!container) return;
+
+  var srsObj = window.__srs;
+  var srsStats = (srsObj && srsObj.getStats) ? srsObj.getStats() : (typeof getSRSStats === 'function' ? getSRSStats() : {});
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var now = Date.now();
+
+  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var fPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var compPct = coverage ? coverage.estimatedComprehension : 0;
+
+  var h = '';
+
+  // Core progress metrics grid
+  h += '<div class="profile-progress-grid">';
+  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + (srsStats.mature || 0) + '</div><div class="profile-pstat-label">Words Mastered</div></div>';
+  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + compPct + '%</div><div class="profile-pstat-label">Quran Comprehension</div></div>';
+  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + (srsStats.totalReviews || 0).toLocaleString() + '</div><div class="profile-pstat-label">Total Reviews</div></div>';
+  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + (srsStats.avgRetention || 0) + '%</div><div class="profile-pstat-label">Avg Retention</div></div>';
+  h += '</div>';
+
+  // Foundation Course
+  if (fTotal > 0) {
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">📘 Foundation Course</div>';
+    h += '<div class="profile-bar-row"><span class="profile-bar-label">Progress</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + fPct + '%;background:var(--gold)"></div></div><span class="profile-bar-value">' + fCompleted + '/' + fTotal + '</span></div>';
+    if (coverage) {
+      var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
+      h += '<div class="profile-bar-row"><span class="profile-bar-label">Coverage</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%;background:var(--green)"></div></div><span class="profile-bar-value">' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%</span></div>';
+    }
+    h += '</div>';
+  }
+
+  // Surah Progress
+  var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  var surahComp = typeof getAllSurahComprehension === 'function' ? getAllSurahComprehension() : [];
+  var sCompleted = typeof getCompletedSurahCount === 'function' ? getCompletedSurahCount() : 0;
+  h += '<div class="profile-subsection">';
+  h += '<div class="profile-subsection-title">📖 Surah Learning</div>';
+  h += '<div class="profile-bar-row"><span class="profile-bar-label">Studied</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (surahIds.length > 0 ? Math.round((sCompleted / surahIds.length) * 100) : 0) + '%;background:var(--blue)"></div></div><span class="profile-bar-value">' + sCompleted + '/' + surahIds.length + '</span></div>';
+
+  // Show top 5 surahs by comprehension
+  if (surahComp.length > 0) {
+    surahComp.sort(function(a, b) { return a.estimatedComprehension - b.estimatedComprehension; });
+    h += '<div style="font-size:10px;color:var(--text-muted);margin:6px 0 4px">Lowest comprehension:</div>';
+    for (var si = 0; si < Math.min(3, surahComp.length); si++) {
+      var sc = surahComp[si];
+      var sName = typeof getSurahInfo === 'function' && getSurahInfo(sc.surahId) ? getSurahInfo(sc.surahId).name : 'Surah ' + sc.surahId;
+      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.max(1, sc.estimatedComprehension) + '%;background:' + (sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)') + '"></div></div><span class="profile-bar-value" style="font-size:10px">' + sc.estimatedComprehension + '%</span></div>';
+    }
+    if (surahComp.length > 3) {
+      h += '<div style="font-size:9px;color:var(--text-muted);text-align:center;margin-top:4px">+' + (surahComp.length - 3) + ' more surahs</div>';
+    }
+  }
+  h += '</div>';
+
+  // Root Progress
+  var rfTotal = typeof getTotalRootFamilyCount === 'function' ? getTotalRootFamilyCount() : 0;
+  var rfCompleted = typeof getCompletedRootFamilyCount === 'function' ? getCompletedRootFamilyCount() : 0;
+  var rootMastery = typeof getRootFamilyMastery === 'function' ? getRootFamilyMastery() : null;
+  h += '<div class="profile-subsection">';
+  h += '<div class="profile-subsection-title">🌱 Root Families</div>';
+  if (rootMastery) {
+    h += '<div class="profile-bar-row"><span class="profile-bar-label">Mastered</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (rootMastery.totalRoots > 0 ? Math.round((rootMastery.fullyMasteredRoots / rootMastery.totalRoots) * 100) : 0) + '%;background:var(--purple)"></div></div><span class="profile-bar-value">' + rootMastery.fullyMasteredRoots + '/' + rootMastery.totalRoots + '</span></div>';
+  } else {
+    h += '<div class="profile-bar-row"><span class="profile-bar-label">Studied</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (rfTotal > 0 ? Math.round((rfCompleted / rfTotal) * 100) : 0) + '%;background:var(--purple)"></div></div><span class="profile-bar-value">' + rfCompleted + '/' + rfTotal + '</span></div>';
+  }
+  h += '</div>';
+
+  // Learning stages breakdown
+  var stageItems = [
+    { key: 'newCount', label: '🆕 New', val: srsStats.newCount || 0 },
+    { key: 'learning', label: '🔍 Learning', val: srsStats.learning || 0 },
+    { key: 'young', label: '🌱 Young', val: srsStats.young || 0 },
+    { key: 'mature', label: '💡 Mature', val: srsStats.mature || 0 },
+  ];
+  h += '<div class="profile-subsection">';
+  h += '<div class="profile-subsection-title">📊 Learning Stages</div>';
+  var totalStaged = stageItems.reduce(function(s, it) { return s + it.val; }, 0) || 1;
+  for (var sti = 0; sti < stageItems.length; sti++) {
+    var st = stageItems[sti];
+    var stPct = Math.round((st.val / totalStaged) * 100);
+    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + st.label + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + stPct + '%;background:' + (sti === 0 ? 'var(--blue)' : sti === 1 ? 'var(--purple)' : sti === 2 ? 'var(--gold-dim)' : 'var(--green)') + '"></div></div><span class="profile-bar-value" style="font-size:10px">' + st.val + '</span></div>';
+  }
+  h += '</div>';
+
+  // Reading Progress
+  var readingSummary = null;
+  if (window.__reader && typeof window.__reader.getJourneySummary === 'function') {
+    readingSummary = window.__reader.getJourneySummary();
+  }
+  if (readingSummary) {
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">📖 Reading</div>';
+    h += '<div class="profile-reading-grid">';
+    h += '<div><span class="profile-bar-value">' + readingSummary.totalSurahsRead + '</span><span class="profile-pstat-label">Surahs Read</span></div>';
+    h += '<div><span class="profile-bar-value">' + (readingSummary.totalAyahs || 0) + '</span><span class="profile-pstat-label">Ayahs Read</span></div>';
+    h += '<div><span class="profile-bar-value">' + readingSummary.avgComprehension + '%</span><span class="profile-pstat-label">Avg Comp</span></div>';
+    h += '</div></div>';
+  }
+
+  // SRS Health
+  h += '<div class="profile-subsection">';
+  h += '<div class="profile-subsection-title">❤️ SRS Health</div>';
+  h += '<div class="profile-srs-grid">';
+  h += '<div><span class="profile-bar-value" style="color:var(--green)">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
+  h += '<div><span class="profile-bar-value" style="color:var(--blue)">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Avg Ease</span></div>';
+  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.overdue || 0) > 0 ? 'var(--red)' : 'var(--green)') + '">' + (srsStats.overdue || 0) + '</span><span class="profile-pstat-label">Overdue</span></div>';
+  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
+  h += '</div></div>';
+
+  // Review Forecast (compact)
+  h += '<div class="profile-subsection">';
+  h += '<div class="profile-subsection-title">📅 Review Forecast</div>';
+  var intervals = [0, 3, 7, 14, 30];
+  var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
+  for (var ii = 0; ii < intervals.length; ii++) {
+    var cutoff = now + intervals[ii] * 86400000;
+    var cnt = 0;
+    if (typeof ALL_WORDS !== 'undefined') {
+      for (var wi = 0; wi < ALL_WORDS.length; wi++) {
+        var entry = srsData[ALL_WORDS[wi].id];
+        if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
+      }
+    }
+    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, ALL_WORDS ? ALL_WORDS.length : 1)) * 100)) + '%;background:' + (ii < 2 ? 'var(--gold)' : ii < 3 ? 'var(--green)' : 'var(--blue)') + '"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
+  }
+  h += '</div>';
+
+  container.innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROFILE — Insights Section (moved from Analytics)
+// ═══════════════════════════════════════════════════════════════
+
+function renderProfileInsights() {
+  var container = document.getElementById('profile-insights');
+  if (!container) return;
+
+  var analytics = (window.__analytics && window.__analytics.getComprehensiveInsights) ? window.__analytics.getComprehensiveInsights() : null;
+  var h = '';
+
+  if (!analytics) {
+    h += '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text-muted)">' +
+      '📊 Start learning to unlock insights about your progress. Study words and complete reviews to build your learning profile.' +      '</div>';
+    container.innerHTML = h;
+    return;
+  }
+
+  var profile = analytics.profile;
+  var periods = analytics.periods;
+
+  // Weekly Summary
+  if (periods && periods.week) {
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">📈 This Week</div>';
+    h += '<div class="profile-insight-grid">';
+    h += '<div><span class="profile-bar-value">+' + (periods.week.gainMastered || 0) + '</span><span class="profile-pstat-label">Words Gained</span></div>';
+    h += '<div><span class="profile-bar-value">' + periods.week.totalReviews + '</span><span class="profile-pstat-label">Reviews</span></div>';
+    h += '<div><span class="profile-bar-value">' + periods.week.daysActive + '</span><span class="profile-pstat-label">Active Days</span></div>';
+    h += '<div><span class="profile-bar-value">' + (periods.week.avgReviewsPerDay || 0) + '</span><span class="profile-pstat-label">Avg/Day</span></div>';
+    h += '</div></div>';
+  }
+
+  // Monthly Summary
+  if (periods && periods.month) {
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">📊 This Month</div>';
+    h += '<div class="profile-insight-grid">';
+    h += '<div><span class="profile-bar-value">+' + (periods.month.gainMastered || 0) + '</span><span class="profile-pstat-label">Words Gained</span></div>';
+    h += '<div><span class="profile-bar-value">' + periods.month.totalReviews + '</span><span class="profile-pstat-label">Reviews</span></div>';
+    h += '<div><span class="profile-bar-value">' + periods.month.daysActive + '</span><span class="profile-pstat-label">Active Days</span></div>';
+    h += '</div></div>';
+  }
+
+  // Strong & Weak Roots
+  if (profile) {
+    if (profile.strongRoots && profile.strongRoots.length > 0) {
+      h += '<div class="profile-subsection">';
+      h += '<div class="profile-subsection-title">💪 Strongest Roots</div>';
+      for (var sri = 0; sri < Math.min(profile.strongRoots.length, 5); sri++) {
+        var sr = profile.strongRoots[sri];
+        h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + sr.root + '</span><span style="font-size:10px;color:var(--text-muted);flex:1">' + (sr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:10px;color:var(--green)">' + sr.masteryScore + '%</span></div>';
+      }
+      h += '</div>';
+    }
+    if (profile.weakRoots && profile.weakRoots.length > 0) {
+      h += '<div class="profile-subsection">';
+      h += '<div class="profile-subsection-title">🌱 Needs Practice</div>';
+      for (var wri = 0; wri < Math.min(profile.weakRoots.length, 5); wri++) {
+        var wr = profile.weakRoots[wri];
+        h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + wr.root + '</span><span style="font-size:10px;color:var(--text-muted);flex:1">' + (wr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:10px;color:var(--red)">' + wr.masteryScore + '%</span></div>';
+      }
+      h += '</div>';
+    }
+
+    // Quiz Performance
+    var quizHistory = typeof loadQuizHistory === 'function' ? loadQuizHistory() : null;
+    if (quizHistory && quizHistory.total > 0) {
+      var qAcc = Math.round((quizHistory.correct / quizHistory.total) * 100);
+      h += '<div class="profile-subsection">';
+      h += '<div class="profile-subsection-title">📝 Quiz Performance</div>';
+      h += '<div class="profile-insight-grid">';
+      h += '<div><span class="profile-bar-value">' + quizHistory.total + '</span><span class="profile-pstat-label">Questions</span></div>';
+      h += '<div><span class="profile-bar-value">' + qAcc + '%</span><span class="profile-pstat-label">Accuracy</span></div>';
+      h += '</div></div>';
+    }
+
+    // Learning trends (consistency)
+    if (periods && periods.consistency !== undefined) {
+      h += '<div class="profile-subsection">';
+      h += '<div class="profile-subsection-title">🎯 Consistency</div>';
+      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">Active days</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + periods.consistency + '%;background:var(--gold)"></div></div><span class="profile-bar-value" style="font-size:10px">' + periods.consistency + '%</span></div>';
+      h += '</div>';
+    }
+
+    // Forecasts
+    if (analytics.forecasts) {
+      h += '<div class="profile-subsection">';
+      h += '<div class="profile-subsection-title">🔮 Forecasts</div>';
+      h += '<div class="profile-insight-grid">';
+      h += '<div><span class="profile-bar-value">' + (analytics.forecasts.predictedMastered['7'] || 0) + '</span><span class="profile-pstat-label">7 Day</span></div>';
+      h += '<div><span class="profile-bar-value">' + (analytics.forecasts.predictedMastered['30'] || 0) + '</span><span class="profile-pstat-label">30 Day</span></div>';
+      h += '<div><span class="profile-bar-value">' + (analytics.forecasts.predictedMastered['90'] || 0) + '</span><span class="profile-pstat-label">90 Day</span></div>';
+      h += '</div></div>';
+    }
+  }
+
+  // Milestone insight
+  var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var covPct = coverage ? coverage.coveragePercent : 0;
+  var ms = typeof getMilestoneStatus === 'function' ? getMilestoneStatus(covPct) : null;
+  if (ms && ms.nextMilestone) {
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">🎯 Next Milestone</div>';
+    h += '<div style="padding:8px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">';
+    h += '<div style="font-size:12px;font-weight:500;color:var(--gold);margin-bottom:2px">' + ms.nextMilestone.icon + ' ' + ms.nextMilestone.label + '</div>';
+    h += '<div style="font-size:10px;color:var(--text-muted)">~' + ms.wordsToNextMilestone + ' words, ~' + ms.lessonsToNextMilestone + ' lessons away</div>';
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROFILE — Achievements Section
+// ═══════════════════════════════════════════════════════════════
+
+function renderProfileAchievements() {
+  var container = document.getElementById('profile-achievements');
+  if (!container) return;
+
+  var achievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
+  var h = '';
+
+  if (achievements.length === 0) {
+    h += '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text-muted)">' +
+      '🏆 Complete your first lesson to start earning achievements. Milestones are unlocked as you master words, maintain streaks, and progress through the Foundation Course.' +
+      '</div>';
+    container.innerHTML = h;
+    return;
+  }
+
+  // Stats summary
+  var earned = achievements.filter(function(a) { return a.earned; });
+  var totalPct = achievements.length > 0 ? Math.round((earned.length / achievements.length) * 100) : 0;
+
+  h += '<div style="margin-bottom:10px">';
+  h += '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:6px">';
+  h += '<span>' + earned.length + ' / ' + achievements.length + ' unlocked</span>';
+  h += '<span>' + totalPct + '%</span>';
+  h += '</div>';
+  h += '<div class="profile-bar-track" style="height:8px"><div class="profile-bar-fill" style="width:' + totalPct + '%;height:8px;background:var(--gold);border-radius:4px"></div></div>';
+  h += '</div>';
+
+  // Achievement cards
+  h += '<div class="profile-ach-grid">';
+  for (var ai = 0; ai < achievements.length; ai++) {
+    var ach = achievements[ai];
+    h += '<div class="profile-ach-card' + (ach.earned ? ' earned' : ' locked') + '">';
+    h += '<div class="profile-ach-icon">' + (ach.icon || '🏆') + '</div>';
+    h += '<div class="profile-ach-title">' + ach.title + '</div>';
+    h += '<div class="profile-ach-desc">' + ach.description + '</div>';
+    if (ach.earned && ach.earnedDate) {
+      h += '<div class="profile-ach-date">' + ach.earnedDate + '</div>';
+    }
+    h += '</div>';
+  }
+  h += '</div>';
+
+  container.innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROFILE — Calendar / Activity Section
+// ═══════════════════════════════════════════════════════════════
+
+function renderProfileCalendar() {
+  var container = document.getElementById('profile-calendar');
+  if (!container) return;
+
+  var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : {};
+  var streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
+  var readingJourney = null;
+  if (window.__reader && typeof window.__reader.getJourney === 'function') {
+    readingJourney = window.__reader.getJourney();
+  }
+
+  var h = '';
+
+  // Compact activity stats
+  h += '<div class="profile-calendar-stats">';
+  h += '<div class="profile-cal-stat"><span class="profile-bar-value">' + (srsStats.totalReviews || 0) + '</span><span class="profile-pstat-label">Total Reviews</span></div>';
+  h += '<div class="profile-cal-stat"><span class="profile-bar-value">' + (srsStats.reviewsToday || 0) + '</span><span class="profile-pstat-label">Today</span></div>';
+  h += '<div class="profile-cal-stat"><span class="profile-bar-value">' + streakData.streak + '</span><span class="profile-pstat-label">Day Streak</span></div>';
+  h += '<div class="profile-cal-stat"><span class="profile-bar-value">' + (streakData.lastDate || '—') + '</span><span class="profile-pstat-label">Last Active</span></div>';
+  h += '</div>';
+
+  // Reading activity
+  if (readingJourney) {
+    var surahCount = readingJourney.surahs ? Object.keys(readingJourney.surahs).length : 0;
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">📖 Reading Activity</div>';
+    h += '<div class="profile-insight-grid">';
+    h += '<div><span class="profile-bar-value">' + surahCount + '</span><span class="profile-pstat-label">Surahs Read</span></div>';
+    h += '<div><span class="profile-bar-value">' + (readingJourney.totalAyahsRead || 0) + '</span><span class="profile-pstat-label">Ayahs Read</span></div>';
+    h += '<div><span class="profile-bar-value">' + (readingJourney.openings || 0) + '</span><span class="profile-pstat-label">Sessions</span></div>';
+    h += '<div><span class="profile-bar-value">' + (readingJourney.readingStreak || 0) + '</span><span class="profile-pstat-label">Reading Streak</span></div>';
+    h += '</div></div>';
+  }
+
+  // Learning milestones summary
+  var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+  var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+  var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  var sCompleted = typeof getCompletedSurahCount === 'function' ? getCompletedSurahCount() : 0;
+
+  h += '<div class="profile-subsection">';
+  h += '<div class="profile-subsection-title">🎯 Learning Milestones</div>';
+  h += '<div style="display:flex;flex-direction:column;gap:6px">';
+  h += '<div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface2);border-radius:6px"><span>Foundation Lessons</span><span style="color:var(--gold)">' + fCompleted + '/' + fTotal + '</span></div>';
+  h += '<div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface2);border-radius:6px"><span>Surahs Studied</span><span style="color:var(--gold)">' + sCompleted + '/' + surahIds.length + '</span></div>';
+  h += '</div></div>';
+
+  container.innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WIRE — Profile section events
+// ═══════════════════════════════════════════════════════════════
+
+function wireProfileSectionEvents() {
+  function $pwire(id, fn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.onclick = fn;
+    el.onkeydown = function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+    };
+  }
+
+  // Profile path clicks (stats sections)
+  var pathEls = document.querySelectorAll('.profile-bar-row.clickable');
+  for (var pi = 0; pi < pathEls.length; pi++) {
+    (function(el) {
+      var action = el.getAttribute('data-action');
+      el.onclick = function() {
+        if (action === 'foundation' && typeof goToFoundationLesson === 'function') {
+          goToFoundationLesson(typeof getCurrentFoundationLessonIndex === 'function' ? getCurrentFoundationLessonIndex() : 0);
+        } else if (action === 'review' && typeof startReview === 'function') {
+          startReview();
+        } else if (action === 'list' && typeof switchView === 'function') {
+          switchView('list');
+        } else if (typeof switchView === 'function') {
+          switchView('learn');
+        }
+      };
+    })(pathEls[pi]);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UPDATE — renderProfileView to include all sections
+// ═══════════════════════════════════════════════════════════════
+
+async function renderFullProfile() {
+  await renderProfileView();
+  renderProfileProgress();
+  renderProfileInsights();
+  renderProfileAchievements();
+  renderProfileCalendar();
+  wireProfileSectionEvents();
+}
+
 // ── Helpers ───────────────────────────────────────────────────
 
 function hideProfileMessage(el) {
@@ -533,4 +957,9 @@ function hideProfileMessage(el) {
 window.__profileUI = {
   init: initProfileUI,
   render: renderProfileView,
+  renderFullProfile: renderFullProfile,
+  renderProgress: renderProfileProgress,
+  renderInsights: renderProfileInsights,
+  renderAchievements: renderProfileAchievements,
+  renderCalendar: renderProfileCalendar,
 };

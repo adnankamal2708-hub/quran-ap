@@ -49,8 +49,13 @@ function switchView(viewName) {
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderStats() not found');
   }
   if (viewName === 'profile') {
-    if (typeof renderProfileView === 'function') renderProfileView();
-    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderProfileView() not found');
+    if (window.__profileUI && typeof window.__profileUI.renderFullProfile === 'function') {
+      window.__profileUI.renderFullProfile();
+    } else if (typeof renderProfileView === 'function') {
+      renderProfileView();
+    } else if (window.__diag) {
+      window.__diag.warn('App', 'switchView', 'renderProfileView() not found');
+    }
   }
   if (viewName === 'explorer') {
     if (typeof renderExplorer === 'function') renderExplorer();

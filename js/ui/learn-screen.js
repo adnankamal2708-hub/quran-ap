@@ -218,9 +218,8 @@ function renderLearnScreen() {
   // ── Inject ──
   container.innerHTML = h;
 
-  // Hide action header when the user starts studying (quick mode or active lesson)
-  // The action header is always visible, but lesson header and word card are below it.
-  // This keeps the action items accessible while studying.
+  // Wire events for the action cards
+  wireLearnScreenEvents();
 }
 
 // ═══════════════════════════════════════════════════════════════
