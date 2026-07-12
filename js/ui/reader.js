@@ -551,7 +551,7 @@ function renderSurahComprehensionHeader() {
   if (!headerEl) return;
   
   if (!_readerSurahId || _readerVerseKeys.length === 0) {
-    headerEl.innerHTML = '<div class=\"reader-comp-header-empty\">Select a surah to start reading</div>';
+    headerEl.innerHTML = '<div class="reader-comp-header-empty">Select a surah to start reading</div>';
     return;
   }
   
@@ -1004,9 +1004,13 @@ function wireReaderEvents() {
   
   // Track ayah reads — unobtrusively observe verses as they scroll into view
   _readerTrackedAyahs = {};
+  // Disconnect previous observer to prevent memory leaks on repeated reader visits
+  if (window.__readerObserver) {
+    window.__readerObserver.disconnect();
+    window.__readerObserver = null;
+  }
   var readerVersesContainer = document.getElementById('reader-verses');
   if (readerVersesContainer) {
-    // Use a mutation observer to detect new ayah elements
     var renderObserver = new MutationObserver(function() {
       var ayahs = readerVersesContainer.querySelectorAll('[id^="reader-ayah-"]');
       for (var ai = 0; ai < ayahs.length; ai++) {
@@ -1019,6 +1023,7 @@ function wireReaderEvents() {
       }
     });
     renderObserver.observe(readerVersesContainer, { childList: true, subtree: true });
+    window.__readerObserver = renderObserver;
   }
 }
 

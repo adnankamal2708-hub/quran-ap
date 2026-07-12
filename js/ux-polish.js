@@ -194,7 +194,10 @@ function wireOnboardingEvents() {
 /** Handle keyboard navigation during onboarding */
 var _onboardingKeyHandler = function(e) {
   var overlay = document.getElementById('onboarding-overlay');
-  if (!overlay || overlay.style.display !== 'flex') {
+  if (!overlay) return;
+  // Use computed style so CSS-based display:none is also detected
+  var overlayStyle = window.getComputedStyle ? window.getComputedStyle(overlay) : overlay.style;
+  if (overlayStyle.display === 'none') {
     document.body.classList.remove('body-overflow-locked');
     return;
   }

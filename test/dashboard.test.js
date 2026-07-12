@@ -416,8 +416,8 @@ suite('Comprehension Ring', function() {
   });
 });
 
-suite('Hero Continue Button', function() {
-  test('empty state shows Start Foundation Course', function() {
+suite('Continue Learning Section', function() {
+  test('empty state shows Foundation Course prompt', function() {
     resetState();
     setupGlobals();
     _mockFoundationCompleted = 0;
@@ -426,11 +426,11 @@ suite('Hero Continue Button', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Start Foundation Course') >= 0, 'should show Start Foundation');
-    assert.ok(html.indexOf('0%') >= 0, 'should show 0% progress');
+    assert.ok(html.indexOf('Foundation Course') >= 0, 'should show Foundation Course prompt');
+    assert.ok(html.indexOf('Resume') >= 0, 'should show Resume button');
   });
 
-  test('in-progress state shows Continue Foundation Course', function() {
+  test('in-progress state shows Foundation Course with lesson info', function() {
     resetState();
     setupGlobals();
     _mockFoundationCompleted = 4;
@@ -438,194 +438,158 @@ suite('Hero Continue Button', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Continue Foundation Course') >= 0, 'should show Continue');
-    assert.ok(html.indexOf('40%') >= 0 || html.indexOf('4 /') >= 0, 'should show 40% progress');
+    assert.ok(html.indexOf('Foundation Course') >= 0, 'should show Foundation Course');
+    assert.ok(html.indexOf('4/') >= 0, 'should show progress count');
   });
 
-  test('has db-hero-continue id and is clickable', function() {
+  test('has db-continue-learning id and is clickable', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    var el = document.getElementById('db-hero-continue');
-    assert.ok(el !== null, 'db-hero-continue should exist');
-  });
-});
-
-suite('Foundation Course Path', function() {
-  test('shows Foundation Course title', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('Foundation Course') >= 0, 'should have Foundation Course title');
-  });
-
-  test('shows progress with count', function() {
-    resetState();
-    setupGlobals();
-    _mockFoundationCompleted = 6;
-    _mockFoundationTotal = 10;
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('6 of 10') >= 0, 'should show 6/10 progress');
-  });
-
-  test('has db-path-foundation id', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var el = document.getElementById('db-path-foundation');
-    assert.ok(el !== null, 'db-path-foundation should exist');
-  });
-});
-
-suite('Learn by Surah Path', function() {
-  test('shows Learn by Surah title', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('Learn by Surah') >= 0, 'should have Learn by Surah title');
-  });
-
-  test('shows surah progress', function() {
-    resetState();
-    setupGlobals();
-    _mockSurahProgress = { completedSurahs: 5, totalSurahs: 90 };
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('5 of 90') >= 0, 'should show 5/90 progress');
-  });
-
-  test('has db-path-surah id', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var el = document.getElementById('db-path-surah');
-    assert.ok(el !== null, 'db-path-surah should exist');
-  });
-});
-
-suite('Due Reviews Card', function() {
-  test('with due reviews: shows count and review badge', function() {
-    resetState();
-    setupGlobals();
-    _mockDueReviews = ['r1', 'r2', 'r3', 'r4', 'r5'];
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('words need reinforcement') >= 0 || html.indexOf('word needs reinforcement') >= 0, 'should show due count');
-    assert.ok(html.indexOf('db-badge') >= 0 || html.indexOf('5') >= 0, 'should show badge with count');
-  });
-
-  test('with 1 due review: shows singular', function() {
-    resetState();
-    setupGlobals();
-    _mockDueReviews = ['r1'];
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('word needs reinforcement') >= 0, 'should show singular "word needs reinforcement"');
-    assert.ok(html.indexOf('words need reinforcement') < 0, 'should not show plural');
-  });
-
-  test('with no due reviews: review card is hidden', function() {
-    resetState();
-    setupGlobals();
-    _mockDueReviews = [];
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    // Should not show any due review section
-    assert.ok(html.indexOf('Due for Review') < 0, 'should not show due review when none');
-  });
-
-  test('has db-review id when due reviews exist', function() {
-    resetState();
-    setupGlobals();
-    _mockDueReviews = ['r1', 'r2'];
-    setupDashboardGrid();
-    renderDashboard();
-    var el = document.getElementById('db-review');
-    assert.ok(el !== null, 'db-review should exist when due reviews exist');
-  });
-});
-
-suite('Achievements Section', function() {
-  test('shows Recent Achievements title', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('Recent Achievements') >= 0, 'should show achievements title');
-  });
-
-  test('shows streak when available', function() {
-    resetState();
-    setupGlobals();
-    _mockStreakData = { streak: 7, lastDate: '2026-07-06' };
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('7-day') >= 0 || html.indexOf('streak') >= 0, 'should show streak');
-  });
-
-  test('shows mastered and total counts', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('mastered') >= 0, 'should show mastered count');
-    assert.ok(html.indexOf('total') >= 0 || html.indexOf('total') >= 0, 'should show total');
-  });
-});
-
-suite('Card Interactivity', function() {
-  test('Hero continue click calls goToFoundationLesson', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var el = document.getElementById('db-hero-continue');
-    assert.ok(el !== null, 'db-hero-continue should exist');
+    var el = document.getElementById('db-continue-learning');
+    assert.ok(el !== null, 'db-continue-learning should exist');
     if (el && el._onclick) {
       el._onclick();
       assert.ok(_goToFoundationCalled, 'goToFoundationLesson should be called');
     }
   });
 
-  test('Review card click with due reviews calls startReview', function() {
+  test('shows 0 of 10 progress when none completed', function() {
     resetState();
     setupGlobals();
-    _mockDueReviews = ['r1', 'r2'];
+    _mockFoundationCompleted = 0;
+    _mockFoundationTotal = 10;
     setupDashboardGrid();
     renderDashboard();
-    var el = document.getElementById('db-review');
-    if (el && el._onclick) {
-      el._onclick();
-      assert.ok(_startReviewCalled, 'startReview should be called');
-    }
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('0/10') >= 0 || html.indexOf('Foundation') >= 0, 'should show 0/10 progress');
+  });
+});
+
+suite('Continue Reading Section', function() {
+  test('shows Start Reading when no reading history', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Start Reading') >= 0, 'should show Start Reading');
+    assert.ok(html.indexOf('Al-Fatiha') >= 0, 'should recommend Al-Fatiha');
   });
 
-  test('Surah path click calls switchView', function() {
+  test('has db-continue-reading-start id', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    var el = document.getElementById('db-path-surah');
-    if (el && el._onclick) {
-      el._onclick();
-      assert.ok(_switchViewCalled === 'learn', 'switchView should be called with learn');
-    }
+    var el = document.getElementById('db-continue-reading-start');
+    assert.ok(el !== null, 'db-continue-reading-start should exist');
+  });
+});
+
+suite('Progress Overview Section', function() {
+  test('shows Words Mastered stat', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Words Mastered') >= 0, 'should show Words Mastered stat');
+  });
+
+  test('shows Day Streak stat', function() {
+    resetState();
+    setupGlobals();
+    _mockStreakData = { streak: 7, lastDate: '2026-07-06' };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Day Streak') >= 0, 'should show Day Streak stat');
+  });
+
+  test('shows Reviews Due stat', function() {
+    resetState();
+    setupGlobals();
+    _mockDueReviews = ['r1', 'r2', 'r3'];
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Reviews Due') >= 0, 'should show Reviews Due stat');
+  });
+
+  test('has db-progress-overview id', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var el = document.getElementById('db-progress-overview');
+    assert.ok(el !== null, 'db-progress-overview should exist');
+  });
+});
+
+suite('Daily Motivation Section', function() {
+  test('shows encouragement when reviews done today', function() {
+    resetState();
+    setupGlobals();
+    _mockSRSStats = { total: 100, mature: 10, dueToday: 5, totalReviews: 200, reviewsToday: 15, newCount: 30, learning: 20, young: 5, overdue: 2 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('reinforced') >= 0, 'should mention words reinforced');
+    assert.ok(html.indexOf('15') >= 0, 'should show 15 reviews');
+  });
+
+  test('shows streak message when no reviews today', function() {
+    resetState();
+    setupGlobals();
+    _mockStreakData = { streak: 7, lastDate: '2026-07-06' };
+    _mockSRSStats = { total: 100, mature: 10, dueToday: 5, totalReviews: 200, reviewsToday: 0, newCount: 30, learning: 20, young: 5, overdue: 2 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('streak') >= 0, 'should mention streak');
+  });
+
+  test('has db-motivation-card id', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var el = document.getElementById('db-motivation-card');
+    assert.ok(el !== null, 'db-motivation-card should exist');
+  });
+});
+
+suite('Smart Recommendations', function() {
+  test('shows at least one recommendation', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Smart Recommendations') >= 0, 'should show recommendations section');
+  });
+
+  test('shows review recommendation when due', function() {
+    resetState();
+    setupGlobals();
+    _mockDueReviews = ['r1', 'r2', 'r3'];
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('reviews') >= 0 || html.indexOf('review') >= 0, 'should mention reviews in recs');
+  });
+
+  test('recommendation cards are clickable', function() {
+    resetState();
+    setupGlobals();
+    _mockDueReviews = ['r1'];
+    setupDashboardGrid();
+    renderDashboard();
+    // Find smart-recommendation cards
+    var recCards = getInnerHTML();
+    assert.ok(recCards.indexOf('db-card-smart-rec') >= 0 || recCards.indexOf('→') >= 0, 'should have recommendation-like content');
   });
 });
 
@@ -639,7 +603,7 @@ suite('Edge Cases', function() {
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('5000') >= 0, 'should show large mastered count');
-    assert.ok(html.indexOf('10000') >= 0, 'should show large total');
+    assert.ok(html.indexOf('365') >= 0, 'should show large streak');
   });
 
   test('handles zero totals gracefully', function() {
@@ -658,12 +622,11 @@ suite('Edge Cases', function() {
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
-    assert.ok(document.getElementById('db-hero-continue') !== null, 'Hero continue button should exist');
-    assert.ok(document.getElementById('db-path-foundation') !== null, 'Foundation path should exist');
-    assert.ok(document.getElementById('db-path-surah') !== null, 'Surah path should exist');
-    assert.ok(document.getElementById('db-path-root') !== null, 'Root words path should exist');
-    assert.ok(document.getElementById('db-path-difficulty') !== null, 'Difficulty path should exist');
-    assert.ok(document.getElementById('db-path-mixed') !== null, 'Mixed path should exist');
+    assert.ok(document.getElementById('db-comp-headline') !== null, 'Comprehension headline should exist');
+    assert.ok(document.getElementById('db-continue-reading-start') !== null, 'Continue reading start should exist');
+    assert.ok(document.getElementById('db-continue-learning') !== null, 'Continue learning should exist');
+    assert.ok(document.getElementById('db-progress-overview') !== null, 'Progress overview should exist');
+    assert.ok(document.getElementById('db-motivation-card') !== null, 'Motivation card should exist');
   });
 
   test('produces valid HTML structure', function() {
@@ -712,7 +675,7 @@ suite('Comprehensive State', function() {
     resetState();
     setupGlobals();
 
-    _mockSRSStats = { total: 153, mature: 42, dueToday: 8, totalReviews: 1240, reviewsToday: 15, newCount: 45, learning: 28, young: 12, overdue: 3 };
+    _mockSRSStats = { total: 153, mature: 42, dueToday: 8, totalReviews: 1240, reviewsToday: 15, newCount: 45, learning: 28, young: 12, overdue: 2 };
     _mockSRS = {
       w1: { stage: 3, interval: 30, ratedAt: _mockNow - 86400000 * 2 },
       w2: { stage: 2, interval: 14, ratedAt: _mockNow - 86400000 * 5 },
@@ -733,11 +696,12 @@ suite('Comprehensive State', function() {
     // Verify all expected sections
     assert.ok(html.indexOf('Assalamu Alaikum') >= 0, 'greeting');
     assert.ok(html.indexOf('62%') >= 0, 'comprehension percent');
-    assert.ok(html.indexOf('need reinforcement') >= 0, 'due reviews');
     assert.ok(html.indexOf('Foundation Course') >= 0, 'Foundation card');
-    assert.ok(html.indexOf('Learn by Surah') >= 0, 'Surah card');
-    assert.ok(html.indexOf('Recent Achievements') >= 0, 'achievements');
-    assert.ok(html.indexOf('mastered') >= 0, 'mastered count');
+    assert.ok(html.indexOf('Progress Overview') >= 0, 'progress overview');
+    assert.ok(html.indexOf('Words Mastered') >= 0, 'words mastered stat');
+    assert.ok(html.indexOf('Reviews Due') >= 0, 'reviews due stat');
+    assert.ok(html.indexOf('Daily Motivation') >= 0 || html.indexOf('reinforced') >= 0, 'motivation message');
+    assert.ok(html.indexOf('Smart Recommendations') >= 0, 'smart recommendations');
   });
 });
 

@@ -2,14 +2,17 @@
 // sw.js — Bayan Service Worker v4
 // Provides offline support with optimized caching strategies:
 //   • Cache-first for static assets (instant load)
-//   • Stale-while-revalidate for Firebase API calls
+//   • Stale-while-revalidate for dynamic content
 //   • Font caching with dedicated cache
+//   • Network-first for Firebase CDN (with cache fallback)
 //   • Automatic cleanup of stale caches
 //   • Periodic cache refresh for versioned assets
+//   • Offline reader support via aggressive vocabulary caching
 // ═══════════════════════════════════════════════════════════════
 
 const CACHE_NAME = 'bayan-v4';
 const FONTS_CACHE = 'bayan-fonts-v1';
+const DYNAMIC_CACHE = 'bayan-dynamic-v1';
 
 // Production assets only — individual dev files are NOT cached.
 // The build script (build.js) generates these bundles from all source files,
@@ -39,7 +42,7 @@ self.addEventListener('install', function (event) {
 
 // Activate: clean up old caches and take control of all open clients immediately
 self.addEventListener('activate', function (event) {
-  var cacheWhitelist = [CACHE_NAME, FONTS_CACHE];
+  var cacheWhitelist = [CACHE_NAME, FONTS_CACHE, DYNAMIC_CACHE];
   event.waitUntil(
     caches.keys().then(function (cacheNames) {
       return Promise.all(
@@ -57,6 +60,24 @@ self.addEventListener('activate', function (event) {
     })
   );
 });
+
+// Helper: stale-while-revalidate strategy
+function staleWhileRevalidate(request, cacheName) {
+  cacheName = cacheName || DYNAMIC_CACHE;
+  return caches.open(cacheName).then(function (cache) {
+    return cache.match(request).then(function (cachedResponse) {
+      var fetchPromise = fetch(request).then(function (networkResponse) {
+        if (networkResponse && networkResponse.status === 200) {
+          cache.put(request, networkResponse.clone());
+        }
+        return networkResponse;
+      }).catch(function () {
+        return cachedResponse;
+      });
+      return cachedResponse || fetchPromise;
+    });
+  });
+}
 
 // Fetch: only handle GET requests (avoids cache poisoning from non-GET requests)
 self.addEventListener('fetch', function (event) {
@@ -96,7 +117,57 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // Static assets: cache-first, falling back to network
+  // App image/icon assets: cache-first with dynamic cache fallback
+  if (url.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/)) {
+    event.respondWith(
+      caches.open(DYNAMIC_CACHE).then(function (cache) {
+        return cache.match(event.request).then(function (cachedResponse) {
+          if (cachedResponse) return cachedResponse;
+          return fetch(event.request).then(function (networkResponse) {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // JS/JSON data files: stale-while-revalidate for fresh data with offline fallback
+  if (url.pathname.match(/\.(js|json)$/) && !url.pathname.match(/\/sw\.js$/)) {
+    event.respondWith(staleWhileRevalidate(event.request, DYNAMIC_CACHE));
+    return;
+  }
+
+  // CSS files: cache-first with periodic revalidation
+  if (url.pathname.match(/\.css$/)) {
+    event.respondWith(
+      caches.open(DYNAMIC_CACHE).then(function (cache) {
+        return cache.match(event.request).then(function (cachedResponse) {
+          if (cachedResponse) {
+            // Revalidate in background
+            fetch(event.request).then(function (networkResponse) {
+              if (networkResponse && networkResponse.status === 200) {
+                cache.put(event.request, networkResponse.clone());
+              }
+            }).catch(function () {});
+            return cachedResponse;
+          }
+          return fetch(event.request).then(function (networkResponse) {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // Static assets: cache-first, falling back to network (primary strategy)
   event.respondWith(
     caches.open(CACHE_NAME).then(function (cache) {
       return cache.match(event.request).then(function (cachedResponse) {

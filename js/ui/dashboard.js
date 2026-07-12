@@ -1,15 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
 // dashboard.js — Premium Learning Hub Dashboard
 //
-// Redesigned dashboard hierarchy:
+// Enhanced dashboard layout:
 //   1. Greeting + Compact Stats Bar
-//   2. ⭐ Recommended: Foundation Course Hero
-//   3. Continue Learning Button
-//   4. Learning Paths (5 tiles)
-//   5. Today's Reviews (conditional)
-//   6. Progress Snapshot
-//   7. Weekly Review Forecast (CACHED — avoids 312K iterations per render)
-//   8. Recent Achievements
+//   2. Quran Comprehension Headline (prominent card)
+//   3. Today's Goal (personalized with progress bar)
+//   4. Continue Reading (last read or recommendation)
+//   5. Continue Learning (resume current path)
+//   6. Smart Recommendations (up to 3 personalized)
+//   7. Progress Overview (compact stat cards)
+//   8. Daily Motivation (dynamic, real-progress-based message)
 //
 // Every interactive element has a direct onclick handler.
 // No stale DOM cache references — uses document.getElementById directly.
@@ -85,11 +85,10 @@ function renderDashboard() {
   if (!$d) return;
 
   // Invalidate DOM cache to prevent stale references from re-renders
-  if (typeof DOM === 'object' && DOM._cache) DOM._cache = {};
+  if (typeof DOM === 'object' && DOM.invalidateCache) DOM.invalidateCache();
 
   // ── Adaptive engine data ──
   var $adaptive = window.__adaptive ? window.__adaptive.getDashboardData() : null;
-  var $dailyPlan = $adaptive ? $adaptive.dailyPlan : [];
   var $smartRec = $adaptive ? $adaptive.recommendation : null;
   var $weaknesses = $adaptive ? $adaptive.weaknesses : [];
   var $streakQuality = $adaptive ? $adaptive.streakQuality : null;
@@ -197,6 +196,17 @@ function renderDashboard() {
   // ── Build HTML ──
   var $h = '';
 
+  // ── Reading position (used by multiple sections) ──
+  var $lastRead = null;
+  if (window.__reader && typeof window.__reader.getLastReadPosition === 'function') {
+    $lastRead = window.__reader.getLastReadPosition();
+  }
+
+  // ── Comprehension insight (for motivation & headline) ──
+  var $compInsight = (typeof getComprehensionInsight === 'function') ? getComprehensionInsight() : null;
+  var $compDeltas = $compInsight || {};
+  var $compMilestone = $compInsight ? ($compInsight.milestoneCurrent ? $compInsight.milestoneCurrent.label : '') : '';
+
   // ═══ 1. GREETING ═══
   $h += '<div class="db-greeting">';
   $h += '<div class="db-greeting-icon" aria-hidden="true">' + $icon('book', 28) + '</div>';
@@ -205,29 +215,95 @@ function renderDashboard() {
   $h += '<p class="db-greeting-sub">Your journey to understand the Quran</p>';
   $h += '</div></div>';
 
-  // ═══ 2. COMPACT HERO STATS BAR ═══
-  $h += '<div class="db-hero-bar">';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="stats" tabindex="0" role="button" aria-label="Streak: ' + $streak + ' days">';
-  $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
-  $h += '<div class="db-hero-stat-value">' + $streak + '</div>';
-  $h += '<div class="db-hero-stat-label">Streak</div></div>';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="list" tabindex="0" role="button" aria-label="Words mastered: ' + $masteredCount + '">';
-  $h += '<div class="db-hero-stat-value">' + $masteredCount + '</div>';
-  $h += '<div class="db-hero-stat-label">Mastered</div></div>';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="analytics" tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%">';
-  $h += '<div class="db-hero-stat-value">' + $comprehensionPct + '%</div>';
-  $h += '<div class="db-hero-stat-label">Comprehension</div></div>';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="review" tabindex="0" role="button" aria-label="Reviews today: ' + $reviewsToday + '">';
-  $h += '<div class="db-hero-stat-value">' + $reviewsToday + '</div>';
-  $h += '<div class="db-hero-stat-label">Reviews</div></div>';
+  // ═══ 2. QURAN COMPREHENSION HEADLINE ═══
+  $h += '<div class="db-card db-comp-headline" id="db-comp-headline" tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%">';
+  $h += '<div class="db-comp-headline-ring-wrap">';
+  $h += '<svg class="db-ring db-comp-headline-ring" viewBox="0 0 36 36" aria-hidden="true">';
+  $h += '<defs><linearGradient id="compGrad" x1="0%" y1="0%" x2="100%" y2="100%">';
+  $h += '<stop offset="0%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#e8c97a"/>';
+  $h += '</linearGradient></defs>';
+  var $compRing = Math.min(100, Math.max(0, Math.round(($comprehensionPct / 100) * 100)));
+  $h += '<path class="db-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>';
+  $h += '<path class="db-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $compRing + ', 100" stroke="url(#compGrad)"/>';
+  $h += '<text class="db-ring-text" x="18" y="20.5" font-weight="700" font-size="9">' + $comprehensionPct + '%</text>';
+  $h += '</svg></div>';
+  $h += '<div class="db-comp-headline-info">';
+  $h += '<div class="db-comp-headline-value">' + $comprehensionPct + '% Quran Comprehension</div>';
+  // Encouraging message based on progress level
+  var $encouragementMsg = '';
+  if ($comprehensionPct >= 80) {
+    $encouragementMsg = 'Exceptional! You understand the vast majority of Quranic vocabulary. ✨';
+  } else if ($comprehensionPct >= 60) {
+    $encouragementMsg = 'Strong progress! Most verses are now accessible to you. 📖';
+  } else if ($comprehensionPct >= 40) {
+    $encouragementMsg = 'Building steadily! You can follow the flow of longer passages. 📚';
+  } else if ($comprehensionPct >= 20) {
+    $encouragementMsg = 'Growing familiarity! Short verses are becoming recognizable. 🌱';
+  } else if ($comprehensionPct > 0) {
+    $encouragementMsg = 'Every word counts! Keep going — you are building real understanding. 💪';
+  } else {
+    $encouragementMsg = 'Start learning Quranic vocabulary to unlock comprehension.';
+  }
+  $h += '<div class="db-comp-headline-msg">' + $encouragementMsg + '</div>';
+  if ($compMilestone) {
+    $h += '<div class="db-comp-headline-milestone">🎯 ' + $compMilestone + '</div>';
+  }
+  $h += '</div></div>';
+  // ═══ 3. TODAY'S GOAL ═══
+  $h += '<div class="db-card db-goal-card" id="db-goal-card">';
+  $h += '<div class="db-section-label" style="margin-bottom:12px;padding:0"><span class="db-section-icon" aria-hidden="true">' + $icon('target', 14) + '</span> Today\'s Goal</div>';
+  
+  // Compute goal: daily review target (default 25) or from goal progress
+  var $dailyGoalTarget = 25;
+  var $dailyGoalProgress = $reviewsToday;
+  if ($goalProgress && $goalProgress.targetMinutes) {
+    $dailyGoalTarget = $goalProgress.targetMinutes;
+    $dailyGoalProgress = $goalProgress.progressMinutes || 0;
+  } else if ($dueCount > 0) {
+    $dailyGoalTarget = Math.max($dueCount, 10);
+    $dailyGoalProgress = $reviewsToday;
+  }
+  var $goalPct = Math.min(100, $dailyGoalTarget > 0 ? Math.round(($dailyGoalProgress / $dailyGoalTarget) * 100) : 0);
+  var $remaining = Math.max(0, $dailyGoalTarget - $dailyGoalProgress);
+  
+  $h += '<div class="db-goal-progress-wrap">';
+  $h += '<div class="db-goal-bar">';
+  $h += '<div class="db-goal-bar-track">';
+  $h += '<div class="db-goal-bar-fill" style="width:' + $goalPct + '%"></div>';
+  $h += '</div>';
+  $h += '<span class="db-goal-bar-text">' + $dailyGoalProgress + ' / ' + $dailyGoalTarget + '</span>';
+  $h += '</div>';
+  $h += '</div>';
+  
+  // Remaining tasks and estimated completion time
+  $h += '<div class="db-goal-details">';
+  if ($remaining > 0) {
+    $h += '<div class="db-goal-remaining">';
+    $h += '<span class="db-goal-remaining-icon" aria-hidden="true">' + $icon('clock', 14) + '</span>';
+    $h += '<span>' + $remaining + ' item' + ($remaining !== 1 ? 's' : '') + ' remaining</span>';
+    // Estimate: ~30 seconds per review item
+    var $estMinutes = Math.ceil($remaining * 0.5);
+    if ($estMinutes < 1) $estMinutes = 1;
+    $h += '<span class="db-goal-estimate">~' + $estMinutes + ' min</span>';
+    $h += '</div>';
+  } else if ($dailyGoalProgress > 0) {
+    $h += '<div class="db-goal-complete">';
+    $h += '<span>' + $icon('check-circle', 14) + ' Goal complete! 🎉</span>';
+    $h += '</div>';
+  } else {
+    $h += '<div class="db-goal-remaining">';
+    $h += '<span class="db-goal-remaining-icon" aria-hidden="true">' + $icon('clock', 14) + '</span>';
+    $h += '<span>' + $dailyGoalTarget + ' reviews to start</span>';
+    $h += '</div>';
+  }
+  $h += '</div>';
   $h += '</div>';
 
-  // ═══ 2b. RESUME READING (conditional) ═══
-  var $lastRead = null;
-  if (window.__reader && typeof window.__reader.getLastReadPosition === 'function') {
-    $lastRead = window.__reader.getLastReadPosition();
-  }
+  // ═══ 4. CONTINUE READING ═══
+  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> Continue Reading</div>';
+  
   if ($lastRead && $lastRead.surahId) {
+    // Last read position available — show resume card
     var $lastSurahInfo = typeof getSurahInfo === 'function' ? getSurahInfo($lastRead.surahId) : null;
     var $lastSurahName = $lastSurahInfo ? $lastSurahInfo.name : 'Surah ' + $lastRead.surahId;
     var $lastSurahEnglish = $lastSurahInfo ? $lastSurahInfo.english : '';
@@ -244,388 +320,298 @@ function renderDashboard() {
       else $lastTimeAgo = Math.round($hoursAgo / 24) + 'd ago';
     }
 
-    $h += '<div class="db-card db-action-card db-card-highlight" id="db-resume-reading" tabindex="0" role="button" aria-label="Resume reading ' + $lastSurahName + $lastVerseLabel + '">';
+    $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-reading" tabindex="0" role="button" aria-label="Continue reading ' + $lastSurahName + $lastVerseLabel + '">';
     $h += '<div class="db-card-row">';
     $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">📖</div>';
     $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">Resume Reading</div>';
-    $h += '<div class="db-card-sub">' + $lastSurahName + ' — ' + $lastSurahEnglish + $lastVerseLabel + ' · ' + $lastTimeAgo + '</div>';
+    $h += '<div class="db-card-title">' + $lastSurahName + '</div>';
+    $h += '<div class="db-card-sub">' + $lastSurahEnglish + $lastVerseLabel + ' · ' + $lastTimeAgo + '</div>';
     $h += '</div>';
-    $h += '<span class="db-arrow">→</span>';
+    $h += '<button class="btn btn-sm" type="button">Continue</button>';
     $h += '</div></div>';
-  }
-
-  // ═══ 3. RECOMMENDED PATH — FOUNDATION COURSE HERO ═══
-  if ($fTotal > 0) {
-    var $ringOffset = Math.min(100, Math.max(0, Math.round(($comprehensionPct / 100) * 100)));
-
-    $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('star', 14) + '</span> Recommended Path</div>';
-
-    $h += '<div class="db-hero-card" id="db-hero-card">';
-    $h += '<div class="db-hero-card-bg" aria-hidden="true"></div>';
-
-    // Top row: ring + info
-    $h += '<div class="db-hero-row">';
-    $h += '<div class="db-hero-ring-wrap">';
-    $h += '<svg class="db-ring" viewBox="0 0 36 36" aria-hidden="true">';
-    $h += '<defs><linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">';
-    $h += '<stop offset="0%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#e8c97a"/>';
-    $h += '</linearGradient></defs>';
-    $h += '<path class="db-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>';
-    $h += '<path class="db-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $ringOffset + ', 100" stroke="url(#heroGrad)"/>';
-    $h += '<text class="db-ring-text" x="18" y="20.5" font-weight="700" font-size="9">' + $comprehensionPct + '%</text>';
-    $h += '</svg></div>';
-
-    $h += '<div class="db-hero-info">';
-    if (!$foundationComplete) {
-      $h += '<div class="db-hero-title">Foundation Course</div>';
-      $h += '<div class="db-hero-subtitle">' + $nextLessonTitle + '</div>';
-      $h += '<div class="db-hero-detail">Lesson ' + $nextLessonNum + ' of ' + $fTotal + '</div>';
-    } else {
-      $h += '<div class="db-hero-title">' + $comprehensionPct + '% Comprehension</div>';
-      $h += '<div class="db-hero-subtitle">Foundation Course Complete! 🎉</div>';
-      $h += '<div class="db-hero-detail">' + $masteredCount + ' words mastered · ' + $coveragePct + '% Quran coverage</div>';
-    }
-    $h += '</div></div>'; // end ring + info row
-
-    // Bottom row: meta + action
-    $h += '<div class="db-hero-meta">';
-    if ($milestoneText) {
-      $h += '<span class="db-hero-milestone">' + $milestoneText + '</span>';
-    }
-    if (!$foundationComplete && $nextLessonTitle) {
-      $h += '<span class="db-hero-meta-text">';
-      if ($compGain > 0) $h += '📈 +' + $compGain + '% comprehension';
-      $h += ' · Covers ' + $lessonCoverage + ' of occurrences';
-      $h += '</span>';
-    }
-    if ($foundationComplete) {
-      var $sortedComp = $allSurahComp.slice().sort(function(a,b){return b.estimatedComprehension - a.estimatedComprehension;});
-      var $bestSurah = $sortedComp.length > 0 ? $sortedComp[0] : null;
-      if ($bestSurah) {
-        var $bestName = typeof getSurahInfo === 'function' && getSurahInfo($bestSurah.surahId) ? getSurahInfo($bestSurah.surahId).name : 'Surah ' + $bestSurah.surahId;
-        $h += '<span class="db-hero-meta-text">📖 Best: ' + $bestName + ' (' + $bestSurah.estimatedComprehension + '%)</span>';
-      }
-    }
-    $h += '</div>';
-
-    $h += '<div class="db-hero-action">';
-    $h += '<button class="btn db-hero-btn" id="db-hero-continue" type="button">' + $continueLabel + '</button>';
-    $h += '</div></div>'; // end hero card
-  }
-
-  // ═══ 4. LEARNING PATHS ═══
-  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> Learning Paths</div>';
-  $h += '<div class="db-paths-grid">';
-
-  // Path 1: Foundation Course (⭐ Recommended)
-  $h += '<div class="db-path-tile db-path-recommended" id="db-path-foundation" tabindex="0" role="button" aria-label="Foundation Course: ' + $fCompleted + ' of ' + $fTotal + ' lessons">';
-  $h += '<div class="db-path-tile-header">';
-  $h += '<div class="db-path-icon" style="background:rgba(201,168,76,0.12)">' + $icon('layers', 20) + '</div>';
-  $h += '<div class="db-path-body">';
-  $h += '<div class="db-path-title">Foundation Course <span class="db-path-badge">' + $icon('star', 10) + ' Recommended</span></div>';
-  $h += '<div class="db-path-sub">' + $fCompleted + ' of ' + $fTotal + ' lessons · ~' + $coveragePct + '% Quran coverage</div>';
-  $h += '</div></div>';
-  $h += '<div class="db-progress">';
-  $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $fPct + '%"></div></div>';
-  $h += '<span class="db-progress-text">' + $fPct + '%</span>';
-  $h += '</div></div>';
-
-  // Path 2: Learn by Surah
-  var $surahPct = $surahTotal > 0 ? Math.round(($surahCompleted / $surahTotal) * 100) : 0;
-  $h += '<div class="db-path-tile" id="db-path-surah" tabindex="0" role="button" aria-label="Learn by Surah: ' + $surahCompleted + ' of ' + $surahTotal + ' surahs">';
-  $h += '<div class="db-path-tile-header">';
-  $h += '<div class="db-path-icon" style="background:rgba(74,126,194,0.12)">' + $icon('book', 20) + '</div>';
-  $h += '<div class="db-path-body">';
-  $h += '<div class="db-path-title">Learn by Surah</div>';
-  $h += '<div class="db-path-sub">' + $surahCompleted + ' of ' + $surahTotal + ' surahs studied</div>';
-  $h += '</div></div>';
-  $h += '<div class="db-progress">';
-  $h += '<div class="db-progress-track"><div class="db-progress-fill db-fill-blue" style="width:' + $surahPct + '%"></div></div>';
-  $h += '<span class="db-progress-text db-text-blue">' + $surahPct + '%</span>';
-  $h += '</div></div>';
-
-  // Path 3: Learn by Root Words
-  $h += '<div class="db-path-tile" id="db-path-root" tabindex="0" role="button" aria-label="Learn by Root Words: ' + $rfCompleted + ' of ' + $rfTotal + ' roots">';
-  $h += '<div class="db-path-tile-header">';
-  $h += '<div class="db-path-icon" style="background:rgba(138,107,191,0.12)">' + $icon('star', 20) + '</div>';
-  $h += '<div class="db-path-body">';
-  $h += '<div class="db-path-title">Learn by Root Words</div>';
-  $h += '<div class="db-path-sub">' + $rfCompleted + ' of ' + $rfTotal + ' root families</div>';
-  $h += '</div></div>';
-  $h += '<div class="db-progress">';
-  $h += '<div class="db-progress-track"><div class="db-progress-fill db-fill-purple" style="width:' + $rfPct + '%"></div></div>';
-  $h += '<span class="db-progress-text db-text-purple">' + $rfPct + '%</span>';
-  $h += '</div></div>';
-
-  // Path 4: Learn by Difficulty
-  $h += '<div class="db-path-tile" id="db-path-difficulty" tabindex="0" role="button" aria-label="Learn by Difficulty: ' + $diffCompleted + ' of ' + $diffTotal + ' levels">';
-  $h += '<div class="db-path-tile-header">';
-  $h += '<div class="db-path-icon" style="background:rgba(74,158,107,0.12)">' + $icon('target', 20) + '</div>';
-  $h += '<div class="db-path-body">';
-  $h += '<div class="db-path-title">Learn by Difficulty</div>';
-  $h += '<div class="db-path-sub">' + $diffCompleted + ' of ' + $diffTotal + ' levels complete</div>';
-  $h += '</div></div>';
-  $h += '<div class="db-progress">';
-  $h += '<div class="db-progress-track"><div class="db-progress-fill db-fill-green" style="width:' + $diffPct + '%"></div></div>';
-  $h += '<span class="db-progress-text db-text-green">' + $diffPct + '%</span>';
-  $h += '</div></div>';
-
-  // Path 5: Mixed Review
-  var $mixedLabel = $mixedCount > 0 ? $mixedCount + ' words ready' : 'Review all due words';
-  $h += '<div class="db-path-tile" id="db-path-mixed" tabindex="0" role="button" aria-label="Mixed Review: ' + $mixedLabel + '">';
-  $h += '<div class="db-path-tile-header">';
-  $h += '<div class="db-path-icon" style="background:rgba(201,168,76,0.1)">' + $icon('bolt', 20) + '</div>';
-  $h += '<div class="db-path-body">';
-  $h += '<div class="db-path-title">Mixed Review</div>';
-  $h += '<div class="db-path-sub">' + $mixedLabel + '</div>';
-  $h += '</div></div>';
-  $h += '<div class="db-path-action-hint">Review →</div>';
-  $h += '</div>';
-
-  $h += '</div>'; // end paths grid
-
-  // ═══ 5. TODAY'S REVIEWS (conditional) ═══
-  if ($dueCount > 0) {
-    $h += '<div class="db-card db-card-due db-action-card" id="db-review" tabindex="0" role="button" aria-label="' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' due for review">';
+  } else {
+    // No reading history — recommend a starting surah
+    $h += '<div class="db-card db-action-card" id="db-continue-reading-start" tabindex="0" role="button" aria-label="Start reading the Quran">';
     $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">' + $icon('repeat', 22) + '</div>';
+    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.12)">📖</div>';
     $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">Due for Review</div>';
-    $h += '<div class="db-card-sub">' + ($dueCount === 1 ? '1 word needs reinforcement' : $dueCount + ' words need reinforcement') + '</div>';
+    $h += '<div class="db-card-title">Start Reading</div>';
+    $h += '<div class="db-card-sub">Begin your Quran reading journey with Surah Al-Fatiha</div>';
     $h += '</div>';
-    $h += '<span class="db-badge db-badge-pulse">' + $dueCount + '</span>';
+    $h += '<button class="btn btn-sm" type="button">Begin</button>';
     $h += '</div></div>';
-  } else if ($reviewsToday > 0) {
-    // Show positive reinforcement when all caught up
-    $h += '<div class="db-card db-card-caught-up">';
+  }
+
+  // ═══ 5. CONTINUE LEARNING ═══
+  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> Continue Learning</div>';
+  
+  // Determine next learning step
+  if ($fTotal > 0 && !$foundationComplete) {
+    $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="Continue Foundation Course">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">' + $icon('layers', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">Foundation Course</div>';
+    $h += '<div class="db-card-sub">';
+    if ($nextLessonTitle) $h += $nextLessonTitle + ' · ';
+    $h += 'Lesson ' + $nextLessonNum + ' of ' + $fTotal + '</div>';
+    $h += '</div>';
+    $h += '<button class="btn btn-sm" type="button">Resume</button>';
+    $h += '</div>';
+    // Foundation progress bar
+    $h += '<div class="db-progress" style="margin:10px 0 0">';
+    $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $fPct + '%"></div></div>';
+    $h += '<span class="db-progress-text">' + $fCompleted + '/' + $fTotal + '</span>';
+    $h += '</div></div>';
+  } else if ($dueCount > 0 && $reviewsToday === 0) {
+    // No foundation or complete — show reviews as next step
+    $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-learning-review" tabindex="0" role="button" aria-label="' + $dueCount + ' reviews due">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.12)">' + $icon('repeat', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">Review Due Words</div>';
+    $h += '<div class="db-card-sub">' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' due for reinforcement</div>';
+    $h += '</div>';
+    $h += '<span class="db-badge">' + $dueCount + '</span>';
+    $h += '</div></div>';
+  } else if ($masteredCount > 0) {
+    // Already reviewed or nothing due — show mastery milestone
+    $h += '<div class="db-card">';
     $h += '<div class="db-card-row">';
     $h += '<div class="db-card-icon" style="background:rgba(74,158,107,0.1)">' + $icon('check-circle', 22) + '</div>';
     $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">All Caught Up!</div>';
-    $h += '<div class="db-card-sub">' + $reviewsToday + ' reviews done today — great consistency</div>';
+    $h += '<div class="db-card-title">' + $masteredCount + ' Words Mastered</div>';
+    $h += '<div class="db-card-sub">' + $coveragePct + '% Quran coverage · ' + $totalWords + ' total words</div>';
     $h += '</div></div></div>';
-  }
-
-  // ═══ 6. PROGRESS OVERVIEW (compact, stats-style) ═══
-  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Overview</div>';
-  
-  // Quick stat grid
-  $h += '<div class="db-card">';
-  $h += '<div class="db-snapshot-grid">';
-  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $comprehensionPct + '%</div><div class="db-snapshot-label">Comprehension</div></div>';
-  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $masteredCount + '</div><div class="db-snapshot-label">Words Mastered</div></div>';
-  $h += '<div class="db-snapshot-item"><div class="db-snapshot-icon" aria-hidden="true">' + $icon('fire', 14) + '</div><div class="db-snapshot-value">' + $streak + '</div><div class="db-snapshot-label">Day Streak</div></div>';
-  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $dueCount + '</div><div class="db-snapshot-label">Due Reviews</div></div>';
-  if ($fTotal > 0) {
-    $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $fPct + '%</div><div class="db-snapshot-label">Foundation</div></div>';
-  }
-  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $surahsWith50Plus + '/' + $surahsTotalC + '</div><div class="db-snapshot-label">Surahs (50%+)</div></div>';
-  $h += '</div>';
-  
-  // Streak detail message
-  var $streakMsg = '';
-  if ($streak > 0 && $reviewsToday > 0) {
-    $streakMsg = '✓ Reviewed today! Come back tomorrow.';
-    var $streakMsgColor = 'var(--green)';
-  } else if ($streak > 0) {
-    $streakMsg = $streak + '-day streak! Review today to continue.';
-    var $streakMsgColor = 'var(--gold)';
-  } else if ($reviewsToday > 0) {
-    $streakMsg = 'Reviewed ' + $reviewsToday + ' words today. Start your streak tomorrow!';
-    var $streakMsgColor = 'var(--gold-dim)';
   } else {
-    $streakMsg = 'Start your streak by reviewing a word today!';
-    var $streakMsgColor = 'var(--text-muted)';
-  }
-  $h += '<div style="padding:8px 4px 2px;font-size:11px;color:' + ($streakMsgColor || 'var(--text-muted)') + ';line-height:1.4">🔥 ' + $streakMsg + '</div>';
-  
-  // Foundation progress bar (if not completed)
-  if ($fTotal > 0 && !$foundationComplete) {
-    $h += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">';
-    $h += '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:6px">';
-    $h += '<span>📘 Foundation Course — ' + $fCompleted + ' of ' + $fTotal + ' lessons</span>';
-    $h += '<span>' + $fPct + '%</span></div>';
-    $h += '<div class="db-progress-track" style="height:6px;background:rgba(46,43,36,0.6);border-radius:3px;overflow:hidden"><div class="db-progress-fill" style="width:' + $fPct + '%;height:6px;background:var(--gold);border-radius:3px"></div></div>';
-    if ($nextLessonTitle) {
-      $h += '<div style="font-size:10px;color:var(--gold-dim);margin-top:4px">Next: Foundation ' + $nextLessonNum + ' — ' + $nextLessonTitle + '</div>';
-    }
-    $h += '</div>';
-  }
-  
-  // Reading progress (if available)
-  if ($lastRead && $lastRead.surahId) {
-    var $lastSurahInfo = typeof getSurahInfo === 'function' ? getSurahInfo($lastRead.surahId) : null;
-    var $lastSurahName = $lastSurahInfo ? $lastSurahInfo.name : 'Surah ' + $lastRead.surahId;
-    $h += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">';
-    $h += '<span style="font-size:16px;flex-shrink:0">📖</span>';
-    $h += '<div style="flex:1;min-width:0">';
-    $h += '<div style="font-size:11px;color:var(--text)">' + $lastSurahName + '</div>';
-    $h += '<div style="font-size:9px;color:var(--text-muted)">Last read</div>';
-    $h += '</div>';
-    $h += '</div>';
-  }
-  
-  $h += '</div>'; // end progress overview card
-
-  // Milestone insight (compact, if available)
-  if ($ms && $ms.nextMilestone) {
-    $h += '<div class="db-card db-card-milestone">';
+    // Fresh start — foundation course
+    $h += '<div class="db-card db-action-card" id="db-continue-learning-start" tabindex="0" role="button" aria-label="Start Foundation Course">';
     $h += '<div class="db-card-row">';
-    // Map milestone icon emoji to SVG icon names
-  var $milestoneIconMap = {'🔥':'fire','⭐':'star','📖':'book','🏆':'award','💡':'lightbulb','🎯':'target','👑':'crown','💎':'star','🌟':'star','📚':'layers','🌱':'leaf','🌿':'leaf','🧱':'layers','📝':'edit','⚡':'bolt','🏅':'award','🎓':'award','📅':'calendar','💪':'fire','💬':'message-circle','🧠':'brain','🗡️':'zap-off'};
-  var $msIconName = ($ms && $ms.currentMilestone && $milestoneIconMap[$ms.currentMilestone.icon]) || 'target';
-  $h += '<span style="font-size:16px;line-height:1;flex-shrink:0">' + $icon($msIconName, 18) + '</span>';
-    $h += '<div style="flex:1;font-size:11px;color:var(--text-muted);line-height:1.5">';
-    if ($ms.nextMilestone) {
-      $h += 'Next milestone: ' + $ms.nextMilestone.icon + ' ' + $ms.nextMilestone.label + ' — ~' + $ms.lessonsToNextMilestone + ' lessons away';
-    }
-    if ($ms.currentMilestone && $ms.currentMilestone.insight) {
-      $h += '<div style="font-size:10px;color:var(--gold-dim);margin-top:4px;font-style:italic">' + $ms.currentMilestone.insight + '</div>';
-    }
-    $h += '</div></div></div>';
-  }
-
-  // ═══ 7. WEEKLY REVIEW FORECAST (compact, collapsible) ═══
-  if ($totalWords > 0) {
-    $h += '<div class="db-card db-card-collapsible" id="db-weekly-section">';
-    $h += '<div class="db-card-row db-card-collapsible-header" id="db-weekly-toggle" tabindex="0" role="button" aria-expanded="false" aria-label="Toggle weekly forecast">';
-    $h += '<span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:500">' + $icon('calendar', 14) + ' Review Forecast</span>';
-    $h += '<span class="db-collapse-arrow" id="db-weekly-arrow">▶</span>';
+    $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">' + $icon('star', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">Start Foundation Course</div>';
+    $h += '<div class="db-card-sub">Master the 100 most frequent Quranic words</div>';
     $h += '</div>';
-    $h += '<div id="db-weekly-body" style="display:none">';
-    var $forecastData = getCachedReviewForecast();
-    for (var $fi = 0; $fi < $forecastData.length; $fi++) {
-      var $f = $forecastData[$fi];
-      var $pct = Math.min(100, Math.round($totalWords > 0 ? ($f.count / $totalWords) * 100 : 0));
-      $h += '<div class="db-weekly-item">';
-      $h += '<span class="db-weekly-label">' + $f.label + '</span>';
-      $h += '<div class="db-weekly-track"><div class="db-weekly-fill" style="width:' + $pct + '%;background:' + $f.color + '"></div></div>';
-      $h += '<span class="db-weekly-value">' + $f.count + '</span>';
-      $h += '</div>';
-    }
+    $h += '<button class="btn btn-sm" type="button">Begin</button>';
     $h += '</div></div>';
   }
 
-  // ═══ 8. RECENT ACHIEVEMENTS ═══
-  $h += '<div class="db-card">';
-  $h += '<div class="db-achievement">';
-  $h += '<div class="db-ach-title">' + $icon('award', 16) + ' Recent Achievements</div>';
-  $h += '<div class="db-ach-row">';
-  if ($streak > 0) $h += '<span class="db-ach-item">' + $icon('fire', 12) + ' ' + $streak + '-day streak</span>';
-  if ($masteredCount > 0) $h += '<span class="db-ach-item">' + $icon('brain', 12) + ' ' + $masteredCount + ' words mastered</span>';
-  $h += '<span class="db-ach-item">' + $icon('book', 12) + ' ' + $totalWords + ' total words</span>';
-  if ($reviewsToday > 0) $h += '<span class="db-ach-item">' + $icon('repeat', 12) + ' ' + $reviewsToday + ' reviewed today</span>';
-  if ($fCompleted > 0) $h += '<span class="db-ach-item">' + $icon('layers', 12) + ' ' + $fCompleted + ' foundation lessons</span>';
-  if ($surahsWith50Plus > 0) $h += '<span class="db-ach-item">' + $icon('book-open', 12) + ' ' + $surahsWith50Plus + ' surahs (50%+)</span>';
-  $h += '</div></div></div>';
-
-  // ═══ 8b. DAILY LEARNING PLAN (from adaptive engine) ═══
-  if ($dailyPlan && $dailyPlan.length > 0) {
-    $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('calendar', 14) + ' Today\'s Plan</div>';
-    $h += '<div class="db-card" id="db-daily-plan">';
-    $h += '<div class="db-daily-plan">';
-    for (var $dpi = 0; $dpi < $dailyPlan.length; $dpi++) {
-      var $task = $dailyPlan[$dpi];
-      var $taskDone = typeof $task.done === 'function' ? $task.done() : false;
-      if ($taskDone) continue; // Hide completed tasks
-      var $taskIcon = $taskDone ? '✅' : ($task.icon || '📋');
-      $h += '<div class="db-daily-item" data-plan-id="' + $task.id + '">';
-      $h += '<span class="db-daily-icon" aria-hidden="true">' + ($taskDone ? $icon('check-circle', 16) : ($task.icon ? $icon($task.icon, 16) : $icon('list', 16))) + '</span>';
-      $h += '<span class="db-daily-label">' + $task.label + '</span>';
-      $h += '<span class="db-daily-status">' + ($taskDone ? '✓ Done' : '') + '</span>';
-      $h += '</div>';
-    }
-    $h += '</div></div>';
-  }
-
-  // ═══ 8c. SMART RECOMMENDATION ═══
+  // ═══ 6. SMART RECOMMENDATIONS ═══
+  // Collect up to 3 personalized recommendations from available data
+  var $recommendations = [];
+  
+  // 1. From adaptive engine's single recommendation
   if ($smartRec && $smartRec.actionType) {
-    $h += '<div class="db-card db-smart-rec" id="db-smart-rec" tabindex="0" role="button" aria-label="' + ($smartRec.title || '') + '">';
-    $h += '<div class="db-card-row">';
-    $h += '<span style="font-size:18px;flex-shrink:0">' + $icon($smartRec.icon || 'lightbulb', 18) + '</span>';
-    $h += '<div style="flex:1;min-width:0">';
-    $h += '<div class="db-card-title" style="font-size:12px">' + ($smartRec.title || 'Recommendation') + '</div>';
-    $h += '<div class="db-card-sub" style="font-size:10px;line-height:1.4">' + ($smartRec.message || '') + '</div>';
-    $h += '</div>';
-    $h += '<span class="db-rec-action">' + ($smartRec.action || '→') + '</span>';
-    $h += '</div></div>';
+    $recommendations.push({
+      icon: $smartRec.icon || 'lightbulb',
+      title: $smartRec.title || 'Recommendation',
+      message: $smartRec.message || '',
+      action: $smartRec.action || '→',
+      id: 'smart-rec-adaptive',
+      actionType: $smartRec.actionType,
+    });
   }
-
-  // ═══ 8d. SMART LEARNING ENGINE RECOMMENDATIONS ═══
-  if (window.__smartLearning) {
-    var $sleRecs = window.__smartLearning.getScoredRecommendations();
-    var $primaryRecs = $sleRecs.slice(0, 4);
-    if ($primaryRecs.length > 0 && $primaryRecs[0].score >= 20) {
-      $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('lightbulb', 14) + ' Smart Recommendations</div>';
-      $h += '<div class="db-sle-cards">';
-      for (var $slei = 0; $slei < $primaryRecs.length; $slei++) {
-        var $rec = $primaryRecs[$slei];
-        var $recPriority = $rec.priority === 'high' ? ' db-sle-high' : ($rec.priority === 'medium' ? ' db-sle-medium' : '');
-        var $recIcon = $rec.icon ? $icon($rec.icon, 16) : $icon('lightbulb', 16);
-        $h += '<div class="db-card db-card-action db-sle-card' + $recPriority + '" id="sle-' + $rec.id + '" tabindex="0" role="button" aria-label="' + $rec.title + '">';
-        $h += '<div class="db-card-row">';
-        $h += '<div class="db-sle-score">' + $rec.score + '</div>';
-        $h += '<div class="db-card-body" style="flex:1;min-width:0">';
-        $h += '<div class="db-card-title" style="font-size:12px">' + $recIcon + ' ' + $rec.title + '</div>';
-        $h += '<div class="db-card-sub" style="font-size:10px;line-height:1.4">' + $rec.message + '</div>';
-        $h += '</div>';
-        $h += '<span class="db-rec-action">' + $rec.action + '</span>';
-        $h += '</div>';
-        $h += '<div class="db-sle-score-bar"><div class="db-sle-score-fill" style="width:' + $rec.score + '%"></div></div>';
-        $h += '</div>';
-      }
-      $h += '</div>';
-    }
+  
+  // 2. Reviews due recommendation
+  if ($dueCount > 0) {
+    $recommendations.push({
+      icon: 'repeat',
+      title: ($dueCount === 1 ? '1 review' : $dueCount + ' reviews') + ' due',
+      message: 'Strengthen your memory by reviewing ' + ($dueCount === 1 ? 'this word' : 'these ' + $dueCount + ' words') + ' now.',
+      action: 'Start Review',
+      id: 'smart-rec-review',
+      actionType: 'review',
+    });
   }
-
-  // ═══ 8e. WEAKNESS DETECTION ═══
+  
+  // 3. Weak vocabulary/roots recommendation (from adaptive engine)
   if ($weaknesses && $weaknesses.length > 0) {
-    $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('alert-triangle', 14) + ' Weak Areas</div>';
-    $h += '<div class="db-card">';
-    for (var $wi = 0; $wi < Math.min($weaknesses.length, 4); $wi++) {
-      var $w = $weaknesses[$wi];
-      var $sevIcon = $w.severity === 'high' ? '🔴' : ($w.severity === 'medium' ? '🟡' : '🟢');
-      $h += '<div class="db-week-area-item">';
-      $h += '<span class="db-severity-icon" style="font-size:12px">' + $sevIcon + '</span>';
-      $h += '<span style="flex:1;font-size:11px">' + $w.name + '</span>';
-      if ($w.severity === 'high') $h += '<span class="db-badge db-badge-pulse" style="background:var(--danger);color:#fff;font-size:9px">!</span>';
-      $h += '</div>';
+    var $weakCount = $weaknesses.length;
+    $recommendations.push({
+      icon: 'alert-triangle',
+      title: $weakCount + ' weak area' + ($weakCount > 1 ? 's' : '') + ' detected',
+      message: 'Focus on ' + $weaknesses[0].name + ($weakCount > 1 ? ' and ' + ($weakCount - 1) + ' more' : '') + ' to strengthen your foundation.',
+      action: 'Review',
+      id: 'smart-rec-weak',
+      actionType: 'review',
+    });
+  }
+  
+  // 4. SLE recommendation (up to 1, highest priority)
+  if (window.__smartLearning && window.__smartLearning.getScoredRecommendations) {
+    var $sleRecs = window.__smartLearning.getScoredRecommendations();
+    if ($sleRecs.length > 0 && $sleRecs[0].score >= 20) {
+      var $topSle = $sleRecs[0];
+      // Only add if we don't have a similar recommendation
+      var $alreadyHasReview = false;
+      for (var $ri = 0; $ri < $recommendations.length; $ri++) {
+        if ($recommendations[$ri].actionType === 'review') $alreadyHasReview = true;
+      }
+      if (!$alreadyHasReview) {
+        $recommendations.push({
+          icon: $topSle.icon || 'lightbulb',
+          title: $topSle.title,
+          message: $topSle.message,
+          action: $topSle.action || '→',
+          id: 'sle-' + $topSle.id,
+          actionType: $topSle.actionType,
+        });
+      }
     }
-    $h += '</div>';
+  }
+  
+  // 5. Reading recommendation (if not read yet)
+  if (!$lastRead || !$lastRead.surahId) {
+    $recommendations.push({
+      icon: 'book',
+      title: 'Begin reading the Quran',
+      message: 'Reading the Quran alongside vocabulary study reinforces your learning in real context.',
+      action: 'Open Reader',
+      id: 'smart-rec-reading',
+      actionType: 'reading',
+    });
+  }
+  
+  // Take up to 3 recommendations, prioritizing unique action types
+  // Simple dedup: take first 3 unique action types
+  var $seenTypes = {};
+  var $finalRecs = [];
+  for (var $ri = 0; $ri < $recommendations.length && $finalRecs.length < 3; $ri++) {
+    var $recItem = $recommendations[$ri];
+    if (!$seenTypes[$recItem.actionType]) {
+      $seenTypes[$recItem.actionType] = true;
+      $finalRecs.push($recItem);
+    }
   }
 
-  // ═══ 8e. STREAK QUALITY & GOAL PROGRESS ═══
-  if ($goalProgress || $streakQuality) {
-    $h += '<div class="db-section-label" style="margin-top:16px">' + $icon('trending', 14) + ' Your Progress</div>';
-    $h += '<div class="db-card" style="display:flex;gap:12px;flex-wrap:wrap">';
-    // Goal progress
-    if ($goalProgress) {
-      var $gpPct = $goalProgress.progressPercent || 0;
-      $h += '<div style="flex:1;min-width:100px">';
-      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">' + $icon('target', 12) + ' Daily Goal: ' + $goalProgress.targetMinutes + ' min</div>';
-      $h += '<div class="db-progress"><div class="db-progress-track" style="height:6px"><div class="db-progress-fill" style="width:' + $gpPct + '%;height:6px;background:var(--gold)"></div></div><span class="db-progress-text" style="font-size:10px">' + $goalProgress.progressMinutes + ' / ' + $goalProgress.targetMinutes + ' min</span></div>';
+  
+  if ($finalRecs.length > 0) {
+    $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('lightbulb', 14) + '</span> Smart Recommendations</div>';
+    for (var $fri = 0; $fri < $finalRecs.length; $fri++) {
+      var $fr = $finalRecs[$fri];
+      $h += '<div class="db-card db-card-smart-rec db-action-card" id="' + $fr.id + '" tabindex="0" role="button" aria-label="' + $fr.title + '">';
+      $h += '<div class="db-card-row">';
+      $h += '<div class="db-rec-icon" style="background:rgba(201,168,76,0.1);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + $icon($fr.icon, 18) + '</div>';
+      $h += '<div class="db-card-body">';
+      $h += '<div class="db-card-title" style="font-size:13px">' + $fr.title + '</div>';
+      $h += '<div class="db-card-sub" style="font-size:11px;line-height:1.4">' + $fr.message + '</div>';
       $h += '</div>';
-    }
-    // Streak quality
-    if ($streakQuality) {
-      $h += '<div style="flex:1;min-width:100px">';
-      $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">' + $icon('fire', 12) + ' Consistency</div>';
-      $h += '<div style="display:flex;align-items:center;gap:8px">';
-      $h += '<span style="font-size:16px;font-weight:600;color:var(--gold)">' + $streakQuality.streak + '</span>';
-      $h += '<span style="font-size:10px;color:var(--text-muted)">day streak</span>';
-      $h += '<span style="font-size:10px;color:var(--green);margin-left:auto">' + $streakQuality.avgRetention + '% retention</span>';
+      $h += '<span class="db-arrow" style="opacity:0.6">→</span>';
       $h += '</div></div>';
     }
+  }
+
+  // ═══ 7. PROGRESS OVERVIEW ═══
+  $h += '<div class="db-card db-progress-overview" id="db-progress-overview">';
+  $h += '<div class="db-section-label" style="margin-bottom:14px;padding:0"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Overview</div>';
+  $h += '<div class="db-pv-grid">';
+  // Words mastered
+  $h += '<div class="db-pv-item"><div class="db-pv-value">' + $masteredCount + '</div><div class="db-pv-label">Words Mastered</div></div>';
+  // Streak
+  $h += '<div class="db-pv-item"><div class="db-pv-value">' + $streak + '</div><div class="db-pv-label">Day Streak</div></div>';
+  // Reviews due
+  $h += '<div class="db-pv-item"><div class="db-pv-value">' + $dueCount + '</div><div class="db-pv-label">Reviews Due</div></div>';
+  // Foundation course (if applicable)
+  if ($fTotal > 0) {
+    $h += '<div class="db-pv-item"><div class="db-pv-value">' + $fPct + '%</div><div class="db-pv-label">Foundation</div></div>';
+  }
+  $h += '</div>';
+  
+  // Foundation progress bar (if applicable and not completed)
+  if ($fTotal > 0 && !$foundationComplete) {
+    $h += '<div class="db-pv-foundation-row">';
+    $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;display:flex;justify-content:space-between">';
+    $h += '<span>Foundation Course</span><span>' + $fCompleted + ' of ' + $fTotal + ' lessons</span>';
+    $h += '</div>';
+    $h += '<div class="db-progress-track" style="height:5px"><div class="db-progress-fill" style="width:' + $fPct + '%;height:5px"></div></div>';
     $h += '</div>';
   }
+  $h += '</div>';
+
+  // ═══ 8. DAILY MOTIVATION ═══
+  // Generate a dynamic, progress-based motivational message
+  var $motivationMsg = '';
+  var $motivationIcon = '💪';
+  
+  // Priority 1: Reviews done today
+  if ($reviewsToday > 0) {
+    $motivationMsg = 'You reinforced <strong>' + $reviewsToday + '</strong> word' + ($reviewsToday !== 1 ? 's' : '') + ' today. Every review builds lasting retention!';
+    $motivationIcon = '🔥';
+  }
+  // Priority 2: Comprehension growth (from analytics deltas)
+  else if ($compDeltas && $compDeltas.weekChange && $compDeltas.weekChange > 0) {
+    $motivationMsg = 'Your Quran comprehension increased by <strong>+' + $compDeltas.weekChange.toFixed(1) + '%</strong> this week. Consistent progress!';
+    $motivationIcon = '📈';
+  }
+  // Priority 3: Streak encouragement
+  else if ($streak > 0) {
+    $motivationMsg = 'You\'re on a <strong>' + $streak + '-day streak</strong>! ' + ($streak >= 7 ? 'Impressive consistency! 🔥' : 'Keep it going — ' + (7 - ($streak % 7)) + ' more days to your next milestone.') + '';
+    $motivationIcon = '🔥';
+  }
+  // Priority 4: Low reviews due — almost done
+  else if ($dueCount > 0 && $dueCount <= 5) {
+    $motivationMsg = 'Only <strong>' + $dueCount + '</strong> review' + ($dueCount !== 1 ? 's' : '') + ' remaining. Quick session to stay on top!';
+    $motivationIcon = '🎯';
+  }
+  // Priority 5: Reviews due, but more than 5
+  else if ($dueCount > 0) {
+    $motivationMsg = '<strong>' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + '</strong> due for review. Each review strengthens your Quran comprehension.';
+    $motivationIcon = '📚';
+  }
+  // Priority 6: Foundation milestone
+  else if ($fTotal > 0 && $fCompleted > 0 && !$foundationComplete) {
+    $motivationMsg = 'You\'ve completed <strong>' + $fCompleted + ' of ' + $fTotal + '</strong> foundation lessons. ' + ($fPct >= 50 ? 'More than halfway there! 🎉' : 'Keep going — each lesson unlocks more of the Quran.') + '';
+    $motivationIcon = '🌟';
+  }
+  // Priority 7: Comprehension milestone
+  else if ($comprehensionPct >= 50) {
+    $motivationMsg = 'You understand <strong>' + $comprehensionPct + '%</strong> of Quranic vocabulary. Remarkable achievement! ✨';
+    $motivationIcon = '🏆';
+  }
+  // Priority 8: Words mastered
+  else if ($masteredCount > 0) {
+    $motivationMsg = '<strong>' + $masteredCount + ' words mastered</strong> — ' + $coveragePct + '% of Quran occurrences. Building real understanding!';
+    $motivationIcon = '💪';
+  }
+  // Priority 9: Foundation course milestone
+  else if ($fTotal > 0) {
+    $motivationMsg = 'Start the Foundation Course to unlock <strong>~' + $coveragePct + '%</strong> of Quranic word occurrences in just 10 lessons!';
+    $motivationIcon = '🌱';
+  }
+  // Fallback: Generic encouragement
+  else {
+    $motivationMsg = 'Your journey to understand the Quran begins here. Start with one word today. ✨';
+    $motivationIcon = '💫';
+  }
+  
+  $h += '<div class="db-card db-motivation-card" id="db-motivation-card">';
+  $h += '<div class="db-motivation-row">';
+  $h += '<span class="db-motivation-icon" aria-hidden="true">' + $motivationIcon + '</span>';
+  $h += '<p class="db-motivation-text">' + $motivationMsg + '</p>';
+  $h += '</div></div>';
+
+  // ═══ COMPACT HERO STATS BAR (always visible, after all sections) ═══
+  $h += '<div class="db-hero-bar">';
+  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="streak" tabindex="0" role="button" aria-label="Streak: ' + $streak + ' days">';
+  $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
+  $h += '<div class="db-hero-stat-value">' + $streak + '</div>';
+  $h += '<div class="db-hero-stat-label">Streak</div></div>';
+  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="mastered" tabindex="0" role="button" aria-label="Words mastered: ' + $masteredCount + '">';
+  $h += '<div class="db-hero-stat-value">' + $masteredCount + '</div>';
+  $h += '<div class="db-hero-stat-label">Mastered</div></div>';
+  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="comprehension" tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%">';
+  $h += '<div class="db-hero-stat-value">' + $comprehensionPct + '%</div>';
+  $h += '<div class="db-hero-stat-label">Comprehension</div></div>';
+  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="review" tabindex="0" role="button" aria-label="Reviews today: ' + $reviewsToday + '">';
+  $h += '<div class="db-hero-stat-value">' + $reviewsToday + '</div>';
+  $h += '<div class="db-hero-stat-label">Reviews</div></div>';
+  $h += '</div>';
 
   // ── Inject HTML ──
   $d.innerHTML = $h;
 
   // ═══════════════════════════════════════════════════════════
   // EVENT WIRING — All handlers use direct onclick assignments
-  // No DOM.get() cache — always document.getElementById for freshness
   // ═══════════════════════════════════════════════════════════
 
   // Helper: safe onclick wire
@@ -644,7 +630,7 @@ function renderDashboard() {
     (function($el) {
       var $action = $el.getAttribute('data-db-action');
       $el.onclick = function() {
-        if ($action === 'stats' || $action === 'analytics') switchView('profile');
+        if ($action === 'streak' || $action === 'comprehension' || $action === 'mastered') switchView('profile');
         else if ($action === 'list') switchView('list');
         else if ($action === 'review') { if (typeof startReview === 'function') startReview(); else switchView('learn'); }
       };
@@ -654,155 +640,90 @@ function renderDashboard() {
     })($heroStats[$hsi]);
   }
 
-  // Hero continue button
-  $wire('db-hero-continue', function() {
-    if ($foundationComplete) {
-      // Navigate to surah learning (best next step)
-      var $surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
-      if ($surahIds.length > 0 && typeof goToSurah === 'function') goToSurah($surahIds[0]);
-      else if (typeof switchView === 'function') switchView('learn');
-    } else if (typeof goToFoundationLesson === 'function') {
-      goToFoundationLesson($nextIncompleteF);
-    } else {
-      if (typeof switchView === 'function') switchView('learn');
-    }
+  // Comprehension headline click → profile
+  $wire('db-comp-headline', function() {
+    if (typeof switchView === 'function') switchView('profile');
   });
 
-  // Learning Paths
-  $wire('db-path-foundation', function() {
-    if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
-    else if (typeof switchView === 'function') switchView('learn');
-  });
-  $wire('db-path-surah', function() {
-    if (typeof switchView === 'function') switchView('learn');
-  });
-  $wire('db-path-root', function() {
-    if (typeof goToRootFamily === 'function') {
-      var $nextRF = typeof getNextIncompleteRootFamily === 'function' ? getNextIncompleteRootFamily() : '';
-      goToRootFamily($nextRF || undefined);
-    } else if (typeof switchView === 'function') switchView('learn');
-  });
-  $wire('db-path-difficulty', function() {
-    if (typeof goToDifficultyLevel === 'function') {
-      var $nextD = typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1;
-      goToDifficultyLevel($nextD);
-    } else if (typeof switchView === 'function') switchView('learn');
-  });
-  $wire('db-path-mixed', function() {
-    if (typeof startMixedReview === 'function') startMixedReview();
-    else if (typeof startReview === 'function') startReview();
-    else if (typeof switchView === 'function') switchView('learn');
-  });
-
-  // Resume Reading card
-  $wire('db-resume-reading', function() {
+  // Continue Reading card (with reading history)
+  $wire('db-continue-reading', function() {
     if (typeof switchView === 'function') switchView('reader');
     if (window.__reader && typeof window.__reader.resumeReading === 'function') {
-      // Defer to next tick so switchView completes before resume reads state
       setTimeout(function() { window.__reader.resumeReading(); }, 0);
     }
   });
 
-  // Review card
-  $wire('db-review', function() {
+  // Continue Reading — start new (no history)
+  $wire('db-continue-reading-start', function() {
+    if (typeof switchView === 'function') switchView('reader');
+  });
+
+  // Continue Learning — Foundation Course
+  $wire('db-continue-learning', function() {
+    if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
+    else if (typeof switchView === 'function') switchView('learn');
+  });
+
+  // Continue Learning — Reviews due
+  $wire('db-continue-learning-review', function() {
     if (typeof startReview === 'function') startReview();
     else if (typeof switchView === 'function') switchView('learn');
   });
 
-  // Weekly forecast collapsible
-  var $weeklyToggle = document.getElementById('db-weekly-toggle');
-  if ($weeklyToggle) {
-    $weeklyToggle.onclick = function() {
-      var $body = document.getElementById('db-weekly-body');
-      var $arrow = document.getElementById('db-weekly-arrow');
-      if (!$body || !$arrow) return;
-      var $isOpen = $body.style.display === 'block';
-      $body.style.display = $isOpen ? 'none' : 'block';
-      $arrow.style.transform = $isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
-      $weeklyToggle.setAttribute('aria-expanded', $isOpen ? 'false' : 'true');
-    };
-    $weeklyToggle.onkeydown = function(e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $weeklyToggle.onclick(); }
-    };
-  }
+  // Continue Learning — Start Foundation
+  $wire('db-continue-learning-start', function() {
+    if (typeof goToFoundationLesson === 'function') goToFoundationLesson(0);
+    else if (typeof switchView === 'function') switchView('learn');
+  });
 
-  // ── SLE Smart Recommendation Card (from adaptive engine) ──
-  $wire('db-smart-rec', function() {
-    if (!$smartRec || !$smartRec.actionType) return;
-    var action = $smartRec.actionType;
-    if (action === 'review' || action === 'review-difficult') {
+  // ── Smart Recommendation Cards ──
+  // Helper to handle recommendation clicks based on actionType
+  function $handleRecClick(actionType) {
+    if (actionType === 'review' || actionType === 'review-difficult') {
       if (typeof startReview === 'function') startReview();
       else if (typeof switchView === 'function') switchView('learn');
-    } else if (action === 'foundation' || action === 'foundation-reinforcement') {
+    } else if (actionType === 'foundation' || actionType === 'foundation-reinforcement') {
       if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
       else if (typeof switchView === 'function') switchView('learn');
-    } else if (action === 'surah') {
-      if (typeof switchView === 'function') switchView('learn');
-    } else if (action === 'reading-review' || action === 'reading') {
+    } else if (actionType === 'reading' || actionType === 'reading-review') {
       if (typeof switchView === 'function') switchView('reader');
-    } else if (action === 'root-family') {
+    } else if (actionType === 'surah' || actionType === 'surah-learning') {
+      if (typeof switchView === 'function') switchView('learn');
+    } else if (actionType === 'root-family') {
       if (typeof goToRootFamily === 'function') goToRootFamily();
       else if (typeof switchView === 'function') switchView('learn');
     } else {
       if (typeof switchView === 'function') switchView('learn');
     }
-  });
+  }
 
-  // ── SLE Recommendation Cards (Smart Learning Engine) ──
-  var $sleCardIds = ['sle-rec-continue-learning', 'sle-rec-review-due', 'sle-rec-weak-vocabulary', 'sle-rec-weak-roots', 'sle-rec-low-comp-surah', 'sle-rec-foundation-reinforcement', 'sle-rec-reading', 'sle-rec-surah-learning'];
-  for (var $sci = 0; $sci < $sleCardIds.length; $sci++) {
-    (function($cardId) {
-      $wire($cardId, function() {
-        if (!$cardId || !$primaryRecs) return;
-        // Find the matching recommendation
-        var $matchedRec = null;
-        var $recPrefix = 'sle-';
-        var $recId = $cardId.substring($recPrefix.length);
-        for (var $ri = 0; $ri < $primaryRecs.length; $ri++) {
-          if ($primaryRecs[$ri].id === $recId) {
-            $matchedRec = $primaryRecs[$ri];
+  // Find all smart recommendation cards and wire them
+  var $smartRecCards = $d.querySelectorAll('.db-card-smart-rec');
+  for (var $sri = 0; $sri < $smartRecCards.length; $sri++) {
+    (function($recEl) {
+      var $recId2 = $recEl.id;
+      $recEl.onclick = function() {
+        // Find matching recommendation from our list
+        var $matchedRec2 = null;
+        for (var $ri3 = 0; $ri3 < $finalRecs.length; $ri3++) {
+          if ($finalRecs[$ri3].id === $recId2) {
+            $matchedRec2 = $finalRecs[$ri3];
             break;
           }
         }
-        if (!$matchedRec) return;
-        var actionType = $matchedRec.actionType;
-        if (actionType === 'review' || actionType === 'review-difficult') {
-          if (typeof startReview === 'function') startReview();
-          else if (typeof switchView === 'function') switchView('learn');
-        } else if (actionType === 'foundation' || actionType === 'foundation-reinforcement') {
-          if ($matchedRec.type === 'foundation-reinforcement') {
-            // Go to foundation to reinforce
-            if (typeof goToFoundationLesson === 'function') goToFoundationLesson(0);
-            else if (typeof switchView === 'function') switchView('learn');
-          } else {
-            if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
-            else if (typeof switchView === 'function') switchView('learn');
-          }
-        } else if (actionType === 'surah' || actionType === 'surah-learning') {
-          // Navigate to the surah either in reading mode or learn mode
-          if ($matchedRec.surahId && typeof goToSurah === 'function') {
-            goToSurah($matchedRec.surahId);
-          } else if ($matchedRec.surahId && typeof switchView === 'function') {
-            switchView('reader');
-          } else if (typeof switchView === 'function') {
-            switchView('learn');
-          }
-        } else if (actionType === 'reading-review' || actionType === 'reading') {
-          if (typeof switchView === 'function') switchView('reader');
-        } else if (actionType === 'root-family') {
-          if (typeof goToRootFamily === 'function') goToRootFamily($matchedRec.rootKey || undefined);
-          else if (typeof switchView === 'function') switchView('learn');
-        } else {
-          if (typeof switchView === 'function') switchView('learn');
-        }
-      });
-    })($sleCardIds[$sci]);
+        if ($matchedRec2) $handleRecClick($matchedRec2.actionType);
+        else if (typeof switchView === 'function') switchView('learn');
+      };
+      $recEl.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $recEl.onclick(); }
+      };
+    })($smartRecCards[$sri]);
   }
 
   // ── Animation: animate comprehension ring on mount ──
   if (typeof animateDashboardComprehension === 'function') {
-    var $heroCard = document.getElementById('db-hero-card');
-    if ($heroCard) animateDashboardComprehension($heroCard, $comprehensionPct, false);
+    var $compHeadline = document.getElementById('db-comp-headline');
+    if ($compHeadline) animateDashboardComprehension($compHeadline, $comprehensionPct, false);
   }
 
   // ── Update external displays ──
@@ -815,7 +736,7 @@ function renderDashboard() {
     } else {
       console.error('[dashboard] renderDashboard error:', e);
     }
-    var $d = document.getElementById('dashboard-grid');
-    if ($d) $d.innerHTML = '<div class="db-error">⚠️ We encountered an issue loading the dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
+    var $d2 = document.getElementById('dashboard-grid');
+    if ($d2) $d2.innerHTML = '<div class="db-error">⚠️ We encountered an issue loading the dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
   }
 }

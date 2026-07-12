@@ -1421,7 +1421,71 @@ body::before {
   outline: none;
 }
 
-/* ── High Contrast Mode Support ───────────────────────────── */
+/* Enhanced focus indicators for specific interactive elements */
+/* All use consistent 3px gold outline for accessibility compliance */
+.nav-tab:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: -2px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 2px rgba(201,168,76,0.3);
+}
+
+.reader-word-token:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(201,168,76,0.3);
+}
+
+.reader-surah-item:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: -1px;
+  border-radius: 8px;
+}
+
+.reader-sheet-close-btn:focus-visible,
+.reader-filter-btn:focus-visible,
+.reader-jump-btn:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.reader-continue-card:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.quiz-opt:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+}
+
+.srs-btn:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+}
+
+.lesson-nav-btn:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.filter-select:focus-visible,
+.filter-input:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.db-path-item:focus-visible,
+.db-action-card:focus-visible,
+.db-cta:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}/* ── High Contrast Mode Support ───────────────────────────── */
 @media (prefers-contrast: more) {
   :root {
     --text-muted: #b8a898;
@@ -3602,21 +3666,32 @@ body::before {
 }
 
 /* ── Skip Link ─────────────────────────────────────────────── */
+/* ── Skip Link (first focusable element for accessibility) ── */
 .skip-link {
-  position: absolute;
+  position: fixed;
   top: -100%;
   left: 0;
   background: var(--gold);
   color: var(--bg);
-  padding: 8px 16px;
-  z-index: 1000;
+  padding: 12px 20px;
+  z-index: 10000;
   font-size: 14px;
+  font-weight: 600;
+  font-family: var(--body);
+  text-decoration: none;
   border-radius: 0 0 8px 0;
-  transition: top 0.1s ease;
+  transition: top 0.15s ease, box-shadow 0.15s ease;
+  min-height: 44px;
+  min-width: 44px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .skip-link:focus {
   top: 0;
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  box-shadow: 0 4px 16px rgba(201,168,76,0.3);
 }
 
 /* ── PREMIUM ANALYTICS DASHBOARD
@@ -4865,6 +4940,285 @@ body::before {
 @media (max-width: 380px) {
   .db-snapshot-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ENHANCED DASHBOARD — New Section Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Comprehension Headline ── */
+.db-comp-headline {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(74,158,107,0.06));
+  border-color: rgba(201,168,76,0.25);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.db-comp-headline:hover {
+  border-color: rgba(201,168,76,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.db-comp-headline:active {
+  transform: translateY(0) scale(0.995);
+}
+.db-comp-headline:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.db-comp-headline-ring-wrap {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  position: relative;
+}
+.db-comp-headline-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.db-comp-headline-ring .db-ring-bg {
+  stroke-width: 2.5;
+}
+.db-comp-headline-ring .db-ring-fill {
+  stroke-width: 2.5;
+}
+.db-comp-headline-ring .db-ring-text {
+  font-size: 7px;
+}
+.db-comp-headline-info {
+  flex: 1;
+  min-width: 0;
+}
+.db-comp-headline-value {
+  font-size: 20px;
+  font-family: var(--serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+.db-comp-headline-msg {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.db-comp-headline-milestone {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--gold-dim);
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 8px;
+  padding: 3px 10px;
+  margin-top: 6px;
+}
+
+/* ── Today's Goal ── */
+.db-goal-card {
+  background: var(--surface);
+}
+.db-goal-progress-wrap {
+  margin-bottom: 10px;
+}
+.db-goal-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.db-goal-bar-track {
+  flex: 1;
+  height: 10px;
+  background: rgba(46,43,36,0.6);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.db-goal-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), #6abf8a);
+  border-radius: 5px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.db-goal-bar-text {
+  font-size: 13px;
+  font-family: var(--serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  text-align: right;
+}
+.db-goal-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.db-goal-remaining {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.db-goal-remaining-icon {
+  color: var(--gold-dim);
+  display: inline-flex;
+  align-items: center;
+}
+.db-goal-remaining-icon svg {
+  width: 14px;
+  height: 14px;
+}
+.db-goal-estimate {
+  margin-left: auto;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10px;
+  color: var(--gold-dim);
+  font-weight: 500;
+}
+.db-goal-complete {
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 500;
+}
+
+/* ── Progress Overview (compact stat cards) ── */
+.db-progress-overview {
+  background: var(--surface);
+}
+.db-pv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.db-pv-item {
+  text-align: center;
+  padding: 14px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+.db-pv-item:hover {
+  border-color: rgba(201,168,76,0.2);
+  transform: translateY(-1px);
+}
+.db-pv-value {
+  font-size: 24px;
+  font-family: var(--serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.db-pv-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+.db-pv-foundation-row {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Daily Motivation Card ── */
+.db-motivation-card {
+  background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(74,158,107,0.03));
+  border-color: rgba(201,168,76,0.15);
+}
+.db-motivation-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.db-motivation-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.db-motivation-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  font-family: var(--serif);
+  font-style: italic;
+  margin: 0;
+}
+.db-motivation-text strong {
+  color: var(--gold-light);
+  font-style: normal;
+}
+
+/* ── Smart Recommendation Cards ── */
+.db-card-smart-rec {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.db-card-smart-rec:hover {
+  border-color: rgba(201,168,76,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.db-card-smart-rec:active {
+  transform: translateY(0) scale(0.995);
+}
+.db-card-smart-rec:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.db-rec-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 380px) {
+  .db-comp-headline {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  .db-comp-headline-ring-wrap {
+    width: 64px;
+    height: 64px;
+  }
+  .db-comp-headline-value {
+    font-size: 17px;
+  }
+  .db-pv-grid {
+    gap: 8px;
+  }
+  .db-pv-value {
+    font-size: 20px;
+  }
+  .db-motivation-icon {
+    font-size: 24px;
+  }
+  .db-motivation-text {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 481px) {
+  .db-pv-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .db-comp-headline-ring-wrap {
+    width: 80px;
+    height: 80px;
   }
 }
 
