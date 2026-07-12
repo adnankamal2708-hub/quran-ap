@@ -25,6 +25,42 @@ let _readerFilters = {           // Active reader filters
 };
 let _readerTrackedAyahs = {};    // Set of tracked ayahs for deduplication
 
+// ── Vocabulary Data Readiness Check ───────────────────────────
+// Prevents empty surah list if the Reader tab is opened before
+// vocabulary data finishes loading (deduplicateVocabulary runs
+// lazily on ~78K entries and can cause timing issues).
+
+let _readerDataCheckTimer = null;  // Interval handle for data-ready polling
+let _readerDataCheckAttempts = 0;  // Max 30 attempts (15 seconds at 500ms)
+const _READER_MAX_DATA_WAIT_MS = 15000;
+
+/**
+ * Check if vocabulary data is fully loaded and ready for rendering.
+ * Uses a cheap check (ALL_WORDS.length) instead of calling
+ * getSurahsWithVocabulary() which iterates 78K+ entries.
+ * The expensive call is deferred to renderSurahBrowser(), which
+ * already handles the empty-list case gracefully.
+ */
+function _isVocabularyDataReady() {
+  // ALL_WORDS is populated synchronously by the data bundle.
+  // If it has entries, getSurahsWithVocabulary() (defined in the
+  // same bundle) is guaranteed to be available and return data.
+  if (typeof ALL_WORDS === 'undefined') return false;
+  if (typeof getSurahsWithVocabulary !== 'function') return false;
+  return ALL_WORDS.length > 0;
+}
+
+/**
+ * Cancel any pending data-readiness poll.
+ */
+function _cancelDataCheck() {
+  if (_readerDataCheckTimer) {
+    clearInterval(_readerDataCheckTimer);
+    _readerDataCheckTimer = null;
+  }
+  _readerDataCheckAttempts = 0;
+}
+
 // ── Reading Journey Storage Key ────────────────────────────────
 const READER_JOURNEY_KEY = 'quran_reader_journey';
 
@@ -698,6 +734,57 @@ function renderReadingInsightsPanel() {
 
 function renderReader() {
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
+  
+  // Cancel any previous polling to prevent duplicate checks
+  _cancelDataCheck();
+  
+  // Check if vocabulary data is ready before rendering
+  if (!_isVocabularyDataReady()) {
+    // Show a loading placeholder while data initializes
+    var container = document.getElementById('reader-surah-list');
+    if (container) {
+      container.innerHTML = '<div class="reader-loading">' +
+        '<div style="text-align:center;padding:32px 16px;color:var(--text-muted)">' +
+        '<div style="font-size:32px;margin-bottom:12px">📖</div>' +
+        '<div style="font-size:13px;margin-bottom:8px">Loading surahs...</div>' +
+        '<div style="font-size:10px;color:var(--text-muted)">Vocabulary data is being prepared</div>' +
+        '</div></div>';
+    }
+    
+    var versesContainer = document.getElementById('reader-verses');
+    if (versesContainer) {
+      versesContainer.innerHTML = '';
+    }
+    
+    var insightsEl = document.getElementById('reader-insights');
+    if (insightsEl) insightsEl.style.display = 'none';
+    
+    var headerEl = document.getElementById('reader-surah-comp');
+    if (headerEl) headerEl.style.display = 'none';
+    
+    var surahNameEl = document.getElementById('reader-surah-title');
+    if (surahNameEl) surahNameEl.textContent = 'Select a Surah';
+    
+    // Poll for data readiness (every 500ms, up to 15 seconds max)
+    _readerDataCheckAttempts = 0;
+    _readerDataCheckTimer = setInterval(function() {
+      _readerDataCheckAttempts++;
+      if (_isVocabularyDataReady()) {
+        _cancelDataCheck();
+        // Data is now ready — re-render the full reader
+        renderReader();
+      } else if (_readerDataCheckAttempts * 500 >= _READER_MAX_DATA_WAIT_MS) {
+        // Timed out — show a fallback message
+        _cancelDataCheck();
+        var container = document.getElementById('reader-surah-list');
+        if (container) {
+          container.innerHTML = '<div class="reader-empty-sidebar">Unable to load vocabulary data. Try refreshing the page.</div>';
+        }
+      }
+    }, 500);
+    
+    return;
+  }
   
   renderSurahBrowser();
   

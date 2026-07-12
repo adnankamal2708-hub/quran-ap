@@ -25,6 +25,7 @@ var TESTS = [
   "quiz.test.js",
   "data-validation.test.js",
   "dashboard.test.js",
+  "review-center.test.js",
   "services.test.js",
   "foundation-course.test.js",
 ];

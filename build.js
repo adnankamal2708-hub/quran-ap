@@ -140,6 +140,7 @@ const APP_FILES = [
   'js/ux-polish.js',
   'js/ui/navigation.js',
   'js/ui/review.js',
+  'js/ui/review-center.js',
   'js/ui/keyboard.js',
   'js/app.js',
 ]);

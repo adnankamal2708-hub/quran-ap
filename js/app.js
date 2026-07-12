@@ -761,8 +761,8 @@ function wireEvents() {
   safeOnClick('tab-dashboard', function () { switchView('dashboard'); });
   safeOnClick('tab-paths', function () { switchView('learn'); });
   safeOnClick('tab-list', function () { switchView('list'); });
-  safeOnClick('tab-profile', function () { switchView('profile'); });
   safeOnClick('tab-reader', function () { switchView('reader'); });
+  safeOnClick('tab-profile', function () { switchView('profile'); });
 
   // Learn navigation
   safeOnClick('btn-prev', prevWord);

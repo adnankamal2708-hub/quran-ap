@@ -66,6 +66,10 @@ function switchView(viewName) {
     if (typeof renderReader === 'function') renderReader();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderReader() not found');
   }
+  if (viewName === 'review-center') {
+    if (typeof renderReviewCenter === 'function') renderReviewCenter();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderReviewCenter() not found');
+  }
   if (document.activeElement) document.activeElement.blur();
 }
 

@@ -489,33 +489,33 @@ suite('Continue Reading Section', function() {
 });
 
 suite('Progress Overview Section', function() {
-  test('shows Words Mastered stat', function() {
+  test('shows Mastered stat', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Words Mastered') >= 0, 'should show Words Mastered stat');
+    assert.ok(html.indexOf('Mastered') >= 0, 'should show Mastered stat');
   });
 
-  test('shows Day Streak stat', function() {
+  test('shows Streak stat', function() {
     resetState();
     setupGlobals();
     _mockStreakData = { streak: 7, lastDate: '2026-07-06' };
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Day Streak') >= 0, 'should show Day Streak stat');
+    assert.ok(html.indexOf('Streak') >= 0, 'should show Streak stat');
   });
 
-  test('shows Reviews Due stat', function() {
+  test('shows Due stat', function() {
     resetState();
     setupGlobals();
     _mockDueReviews = ['r1', 'r2', 'r3'];
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Reviews Due') >= 0, 'should show Reviews Due stat');
+    assert.ok(html.indexOf('Due') >= 0, 'should show Due stat');
   });
 
   test('has db-progress-overview id', function() {
@@ -698,8 +698,8 @@ suite('Comprehensive State', function() {
     assert.ok(html.indexOf('62%') >= 0, 'comprehension percent');
     assert.ok(html.indexOf('Foundation Course') >= 0, 'Foundation card');
     assert.ok(html.indexOf('Progress Overview') >= 0, 'progress overview');
-    assert.ok(html.indexOf('Words Mastered') >= 0, 'words mastered stat');
-    assert.ok(html.indexOf('Reviews Due') >= 0, 'reviews due stat');
+    assert.ok(html.indexOf('Mastered') >= 0, 'words mastered stat');
+    assert.ok(html.indexOf('Due') >= 0, 'reviews due stat');
     assert.ok(html.indexOf('Daily Motivation') >= 0 || html.indexOf('reinforced') >= 0, 'motivation message');
     assert.ok(html.indexOf('Smart Recommendations') >= 0, 'smart recommendations');
   });

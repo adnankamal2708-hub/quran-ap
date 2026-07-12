@@ -28,7 +28,7 @@ function getShortMeaning(meaning) {
  */
 function setView(viewName) {
   // All possible views — both main content and overlay views
-  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'explorer', 'auth', 'profile', 'settings'];
+  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'explorer', 'auth', 'profile', 'settings', 'reader', 'review-center'];
   for (var i = 0; i < views.length; i++) {
     var name = views[i];
     var viewEl = DOM.get('view-' + name);

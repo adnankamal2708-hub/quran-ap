@@ -196,6 +196,27 @@ function renderDashboard() {
   // ── Build HTML ──
   var $h = '';
 
+  // ═══ REVIEW CENTER PROMPT (top of dashboard) ═══
+  var $rcDue = $dueReviews.length;
+  $h += '<div class="db-card db-action-card db-card-highlight" id="db-review-center-prompt" tabindex="0" role="button" aria-label="Review Center: ' + $rcDue + ' reviews due">';
+  $h += '<div class="db-card-row">';
+  $h += '<div class="db-card-icon" style="background:rgba(201,168,76,0.15)">📋</div>';
+  $h += '<div class="db-card-body">';
+  $h += '<div class="db-card-title">Review Center</div>';
+  $h += '<div class="db-card-sub">';
+  if ($rcDue > 0) {
+    var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));
+    $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' due';
+    if ($srsStats.overdue > 0) $h += ' · ' + $srsStats.overdue + ' overdue';
+    $h += ' · ~' + $rcEst + ' min';
+  } else {
+    $h += 'All caught up — track your revision progress';
+  }
+  $h += '</div>';
+  $h += '</div>';
+  $h += '<span class="db-arrow" style="opacity:0.6">→</span>';
+  $h += '</div></div>';
+
   // ── Reading position (used by multiple sections) ──
   var $lastRead = null;
   if (window.__reader && typeof window.__reader.getLastReadPosition === 'function') {
@@ -249,6 +270,14 @@ function renderDashboard() {
     $h += '<div class="db-comp-headline-milestone">🎯 ' + $compMilestone + '</div>';
   }
   $h += '</div></div>';
+  // ── Comprehension Metrics Row ──
+  $h += '<div class="db-comp-metrics">';
+  $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $coveragePct + '%</div><div class="db-comp-metric-label">Coverage</div></div>';
+  $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $masteredCount + '</div><div class="db-comp-metric-label">Mastered</div></div>';
+  $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $totalWords + '</div><div class="db-comp-metric-label">Total Words</div></div>';
+  $h += '</div>';
+  $h += '</div>';
+
   // ═══ 3. TODAY'S GOAL ═══
   $h += '<div class="db-card db-goal-card" id="db-goal-card">';
   $h += '<div class="db-section-label" style="margin-bottom:12px;padding:0"><span class="db-section-icon" aria-hidden="true">' + $icon('target', 14) + '</span> Today\'s Goal</div>';
@@ -396,6 +425,38 @@ function renderDashboard() {
     $h += '</div></div>';
   }
 
+  // ═══ SURAH PROGRESS — Lowest Comprehension Surahs ═══
+  if ($allSurahComp.length > 0) {
+    $h += '<div class="db-card db-surah-progress" id="db-surah-progress">';
+    $h += '<div class="db-section-label" style="margin-bottom:14px;padding:0"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> Surah Comprehension</div>';
+    // Sort by comprehension ascending and take bottom 5
+    var $sortedSurahs = $allSurahComp.slice().sort(function($a, $b) { return $a.estimatedComprehension - $b.estimatedComprehension; });
+    var $bottomSurahs = $sortedSurahs.slice(0, Math.min(5, $sortedSurahs.length));
+    for (var $sii = 0; $sii < $bottomSurahs.length; $sii++) {
+      var $surah = $bottomSurahs[$sii];
+      var $surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo($surah.surahId) : null;
+      var $surahName = $surahInfo ? $surahInfo.name : 'Surah ' + $surah.surahId;
+      var $surahEnglish = $surahInfo ? $surahInfo.english : '';
+      var $surahCompPct = $surah.estimatedComprehension || 0;
+      var $surahCompClass = $surahCompPct >= 50 ? 'db-sc-gold' : ($surahCompPct >= 25 ? 'db-sc-blue' : 'db-sc-red');
+      $h += '<div class="db-surah-row" data-surah-id="' + $surah.surahId + '" tabindex="0" role="button" aria-label="' + $surahName + ': ' + $surahCompPct + '% comprehension">';
+      $h += '<div class="db-surah-row-info">';
+      $h += '<span class="db-surah-row-name">' + $surahName + '</span>';
+      $h += '<span class="db-surah-row-english">' + $surahEnglish + '</span>';
+      $h += '</div>';
+      $h += '<div class="db-surah-row-bar-wrap">';
+      $h += '<div class="db-surah-row-track"><div class="db-surah-row-fill ' + $surahCompClass + '" style="width:' + Math.max(1, $surahCompPct) + '%"></div></div>';
+      $h += '</div>';
+      $h += '<span class="db-surah-row-pct ' + $surahCompClass + '">' + $surahCompPct + '%</span>';
+      $h += '</div>';
+    }
+    // Click handler for surah rows — navigate to that surah in learn mode
+    $h += '<div class="db-surah-footer" id="db-surah-footer">';
+    $h += '<span>' + $surahsWith50Plus + '/' + $surahsTotalC + ' surahs above 50% comprehension</span>';
+    $h += '</div>';
+    $h += '</div>';
+  }
+
   // ═══ 6. SMART RECOMMENDATIONS ═══
   // Collect up to 3 personalized recommendations from available data
   var $recommendations = [];
@@ -504,28 +565,41 @@ function renderDashboard() {
   // ═══ 7. PROGRESS OVERVIEW ═══
   $h += '<div class="db-card db-progress-overview" id="db-progress-overview">';
   $h += '<div class="db-section-label" style="margin-bottom:14px;padding:0"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Overview</div>';
-  $h += '<div class="db-pv-grid">';
-  // Words mastered
-  $h += '<div class="db-pv-item"><div class="db-pv-value">' + $masteredCount + '</div><div class="db-pv-label">Words Mastered</div></div>';
-  // Streak
-  $h += '<div class="db-pv-item"><div class="db-pv-value">' + $streak + '</div><div class="db-pv-label">Day Streak</div></div>';
-  // Reviews due
-  $h += '<div class="db-pv-item"><div class="db-pv-value">' + $dueCount + '</div><div class="db-pv-label">Reviews Due</div></div>';
-  // Foundation course (if applicable)
+  // Foundation course progress bar
   if ($fTotal > 0) {
-    $h += '<div class="db-pv-item"><div class="db-pv-value">' + $fPct + '%</div><div class="db-pv-label">Foundation</div></div>';
+    $h += '<div class="db-progress-block">';
+    $h += '<div class="db-progress-block-header"><span>Foundation Course</span><span class="db-progress-block-value">' + $fCompleted + '/' + $fTotal + '</span></div>';
+    $h += '<div class="db-progress-track" style="height:8px"><div class="db-progress-fill" style="width:' + $fPct + '%;height:8px"></div></div>';
+    $h += '</div>';
   }
+  // Root family progress
+  if ($rfTotal > 0) {
+    var $rfPctLocal = Math.round(($rfCompleted / $rfTotal) * 100);
+    $h += '<div class="db-progress-block">';
+    $h += '<div class="db-progress-block-header"><span>Root Families</span><span class="db-progress-block-value">' + $rfCompleted + '/' + $rfTotal + '</span></div>';
+    $h += '<div class="db-progress-track" style="height:8px"><div class="db-progress-fill db-fill-purple" style="width:' + $rfPctLocal + '%;height:8px"></div></div>';
+    $h += '</div>';
+  }
+  // Difficulty progress
+  $h += '<div class="db-progress-block">';
+  $h += '<div class="db-progress-block-header"><span>Difficulty Levels</span><span class="db-progress-block-value">' + $diffCompleted + '/' + $diffTotal + '</span></div>';
+  $h += '<div class="db-progress-track" style="height:8px"><div class="db-progress-fill db-fill-blue" style="width:' + $diffPct + '%;height:8px"></div></div>';
   $h += '</div>';
-  
-  // Foundation progress bar (if applicable and not completed)
-  if ($fTotal > 0 && !$foundationComplete) {
-    $h += '<div class="db-pv-foundation-row">';
-    $h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;display:flex;justify-content:space-between">';
-    $h += '<span>Foundation Course</span><span>' + $fCompleted + ' of ' + $fTotal + ' lessons</span>';
-    $h += '</div>';
-    $h += '<div class="db-progress-track" style="height:5px"><div class="db-progress-fill" style="width:' + $fPct + '%;height:5px"></div></div>';
+  // Surah progress
+  if ($surahTotal > 0) {
+    var $surahPctLocal = Math.round(($surahCompleted / $surahTotal) * 100);
+    $h += '<div class="db-progress-block">';
+    $h += '<div class="db-progress-block-header"><span>Surahs Completed</span><span class="db-progress-block-value">' + $surahCompleted + '/' + $surahTotal + '</span></div>';
+    $h += '<div class="db-progress-track" style="height:8px"><div class="db-progress-fill db-fill-green" style="width:' + $surahPctLocal + '%;height:8px"></div></div>';
     $h += '</div>';
   }
+  // Quick stats row
+  $h += '<div class="db-pv-quick">';
+  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $masteredCount + '</span><span class="db-pv-quick-label">Mastered</span></div>';
+  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $streak + '</span><span class="db-pv-quick-label">Streak</span></div>';
+  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $dueCount + '</span><span class="db-pv-quick-label">Due</span></div>';
+  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $reviewsToday + '</span><span class="db-pv-quick-label">Today</span></div>';
+  $h += '</div>';
   $h += '</div>';
 
   // ═══ 8. DAILY MOTIVATION ═══
@@ -643,6 +717,26 @@ function renderDashboard() {
   // Comprehension headline click → profile
   $wire('db-comp-headline', function() {
     if (typeof switchView === 'function') switchView('profile');
+  });
+
+  // Surah rows click → navigate to that surah in learn mode
+  var $surahRows = $d.querySelectorAll('.db-surah-row');
+  for (var $suri = 0; $suri < $surahRows.length; $suri++) {
+    (function($surahEl) {
+      var $sid = parseInt($surahEl.getAttribute('data-surah-id'), 10);
+      $surahEl.onclick = function() {
+        if (typeof goToSurah === 'function') goToSurah($sid);
+        else if (typeof switchView === 'function') switchView('learn');
+      };
+      $surahEl.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $surahEl.onclick(); }
+      };
+    })($surahRows[$suri]);
+  }
+
+  // Review Center prompt — navigate to review-center view
+  $wire('db-review-center-prompt', function() {
+    if (typeof switchView === 'function') switchView('review-center');
   });
 
   // Continue Reading card (with reading history)
