@@ -182,6 +182,7 @@ function renderLearnScreen() {
   h += '<div class="ls-path-item" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah">' + _lsIcon('book', 14) + ' <span>Surahs</span> <span class="ls-path-pct">' + ($surahTotal > 0 ? Math.round(($surahDone / $surahTotal) * 100) : 0) + '%</span></div>';
   h += '<div class="ls-path-item" id="ls-path-roots" tabindex="0" role="button" aria-label="Learn by roots">' + _lsIcon('leaf', 14) + ' <span>Roots</span> <span class="ls-path-pct">' + ($rfTotal > 0 ? Math.round(($rfDone / $rfTotal) * 100) : 0) + '%</span></div>';
   h += '<div class="ls-path-item" id="ls-path-difficulty" tabindex="0" role="button" aria-label="Learn by difficulty">' + _lsIcon('target', 14) + ' <span>Difficulty</span> <span class="ls-path-pct">' + Math.round(($diffDone / 5) * 100) + '%</span></div>';
+  h += '<div class="ls-path-item" id="ls-path-quiz" tabindex="0" role="button" aria-label="Take a quiz">' + _lsIcon('bolt', 14) + ' <span>Quiz</span> <span class="ls-path-pct">⚡</span></div>';
   h += '</div>';
 
   // ═══ 9. MOTIVATION CARD ═══
@@ -302,6 +303,10 @@ function wireLearnScreenEvents() {
   $lwire('ls-path-difficulty', function() {
     if (typeof goToDifficultyLevel === 'function') goToDifficultyLevel(typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1);
     else if (typeof switchView === 'function') switchView('learn');
+  });
+  // Quiz — launch from Paths
+  $lwire('ls-path-quiz', function() {
+    if (typeof switchView === 'function') switchView('quiz');
   });
 }
 

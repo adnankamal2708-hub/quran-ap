@@ -407,50 +407,66 @@ function renderDashboard() {
     $h += '</div></div></div>';
   }
 
-  // ═══ 6. PROGRESS SNAPSHOT ═══
-  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Snapshot</div>';
+  // ═══ 6. PROGRESS OVERVIEW (compact, stats-style) ═══
+  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Overview</div>';
+  
+  // Quick stat grid
   $h += '<div class="db-card">';
   $h += '<div class="db-snapshot-grid">';
-
-  // Comprehension
-  $h += '<div class="db-snapshot-item">';
-  $h += '<div class="db-snapshot-value">' + $comprehensionPct + '%</div>';
-  $h += '<div class="db-snapshot-label">Comprehension</div>';
-  $h += '</div>';
-
-  // Words
-  $h += '<div class="db-snapshot-item">';
-  $h += '<div class="db-snapshot-value">' + $masteredCount + '</div>';
-  $h += '<div class="db-snapshot-label">Words Mastered</div>';
-  $h += '</div>';
-
-  // Surahs at 50%+
-  $h += '<div class="db-snapshot-item">';
-  $h += '<div class="db-snapshot-value">' + $surahsWith50Plus + '/' + $surahsTotalC + '</div>';
-  $h += '<div class="db-snapshot-label">Surahs (50%+)</div>';
-  $h += '</div>';
-
-  // Foundation
+  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $comprehensionPct + '%</div><div class="db-snapshot-label">Comprehension</div></div>';
+  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $masteredCount + '</div><div class="db-snapshot-label">Words Mastered</div></div>';
+  $h += '<div class="db-snapshot-item"><div class="db-snapshot-icon" aria-hidden="true">' + $icon('fire', 14) + '</div><div class="db-snapshot-value">' + $streak + '</div><div class="db-snapshot-label">Day Streak</div></div>';
+  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $dueCount + '</div><div class="db-snapshot-label">Due Reviews</div></div>';
   if ($fTotal > 0) {
-    $h += '<div class="db-snapshot-item">';
-    $h += '<div class="db-snapshot-value">' + $fCompleted + '/' + $fTotal + '</div>';
-    $h += '<div class="db-snapshot-label">Foundation</div>';
+    $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $fPct + '%</div><div class="db-snapshot-label">Foundation</div></div>';
+  }
+  $h += '<div class="db-snapshot-item"><div class="db-snapshot-value">' + $surahsWith50Plus + '/' + $surahsTotalC + '</div><div class="db-snapshot-label">Surahs (50%+)</div></div>';
+  $h += '</div>';
+  
+  // Streak detail message
+  var $streakMsg = '';
+  if ($streak > 0 && $reviewsToday > 0) {
+    $streakMsg = '✓ Reviewed today! Come back tomorrow.';
+    var $streakMsgColor = 'var(--green)';
+  } else if ($streak > 0) {
+    $streakMsg = $streak + '-day streak! Review today to continue.';
+    var $streakMsgColor = 'var(--gold)';
+  } else if ($reviewsToday > 0) {
+    $streakMsg = 'Reviewed ' + $reviewsToday + ' words today. Start your streak tomorrow!';
+    var $streakMsgColor = 'var(--gold-dim)';
+  } else {
+    $streakMsg = 'Start your streak by reviewing a word today!';
+    var $streakMsgColor = 'var(--text-muted)';
+  }
+  $h += '<div style="padding:8px 4px 2px;font-size:11px;color:' + ($streakMsgColor || 'var(--text-muted)') + ';line-height:1.4">🔥 ' + $streakMsg + '</div>';
+  
+  // Foundation progress bar (if not completed)
+  if ($fTotal > 0 && !$foundationComplete) {
+    $h += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">';
+    $h += '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-bottom:6px">';
+    $h += '<span>📘 Foundation Course — ' + $fCompleted + ' of ' + $fTotal + ' lessons</span>';
+    $h += '<span>' + $fPct + '%</span></div>';
+    $h += '<div class="db-progress-track" style="height:6px;background:rgba(46,43,36,0.6);border-radius:3px;overflow:hidden"><div class="db-progress-fill" style="width:' + $fPct + '%;height:6px;background:var(--gold);border-radius:3px"></div></div>';
+    if ($nextLessonTitle) {
+      $h += '<div style="font-size:10px;color:var(--gold-dim);margin-top:4px">Next: Foundation ' + $nextLessonNum + ' — ' + $nextLessonTitle + '</div>';
+    }
     $h += '</div>';
   }
-
-  // Streak
-  $h += '<div class="db-snapshot-item">';
-  $h += '<div class="db-snapshot-icon" aria-hidden="true">' + $icon('fire', 14) + '</div><div class="db-snapshot-value">' + $streak + '</div>';
-  $h += '<div class="db-snapshot-label">Day Streak</div>';
-  $h += '</div>';
-
-  // Due reviews
-  $h += '<div class="db-snapshot-item">';
-  $h += '<div class="db-snapshot-value">' + $dueCount + '</div>';
-  $h += '<div class="db-snapshot-label">Due Reviews</div>';
-  $h += '</div>';
-
-  $h += '</div></div>';
+  
+  // Reading progress (if available)
+  if ($lastRead && $lastRead.surahId) {
+    var $lastSurahInfo = typeof getSurahInfo === 'function' ? getSurahInfo($lastRead.surahId) : null;
+    var $lastSurahName = $lastSurahInfo ? $lastSurahInfo.name : 'Surah ' + $lastRead.surahId;
+    $h += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px">';
+    $h += '<span style="font-size:16px;flex-shrink:0">📖</span>';
+    $h += '<div style="flex:1;min-width:0">';
+    $h += '<div style="font-size:11px;color:var(--text)">' + $lastSurahName + '</div>';
+    $h += '<div style="font-size:9px;color:var(--text-muted)">Last read</div>';
+    $h += '</div>';
+    $h += '</div>';
+  }
+  
+  $h += '</div>'; // end progress overview card
 
   // Milestone insight (compact, if available)
   if ($ms && $ms.nextMilestone) {
@@ -628,9 +644,8 @@ function renderDashboard() {
     (function($el) {
       var $action = $el.getAttribute('data-db-action');
       $el.onclick = function() {
-        if ($action === 'stats') switchView('stats');
+        if ($action === 'stats' || $action === 'analytics') switchView('profile');
         else if ($action === 'list') switchView('list');
-        else if ($action === 'analytics') switchView('analytics');
         else if ($action === 'review') { if (typeof startReview === 'function') startReview(); else switchView('learn'); }
       };
       $el.onkeydown = function(e) {

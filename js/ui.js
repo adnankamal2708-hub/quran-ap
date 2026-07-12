@@ -48,12 +48,13 @@ function setView(viewName) {
     var viewEl = DOM.get('view-' + name);
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
-    // Only toggle tab highlights for main nav tabs
-    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics' || name === 'reader') {
-      var tabEl = DOM.get('tab-' + name);
+    // Only toggle tab highlights for main nav tabs (5-tab: dashboard, paths, list, profile, reader)
+    if (name === 'dashboard' || name === 'learn' || name === 'list' || name === 'profile' || name === 'reader') {
+      var tabId = name === 'learn' ? 'tab-paths' : 'tab-' + name;
+      var tabEl = DOM.get(tabId);
       if (tabEl) {
-        tabEl.classList.toggle('active', name === viewName);
-        if (name === viewName) {
+        tabEl.classList.toggle('active', name === viewName || (name === 'learn' && viewName === 'learn'));
+        if (name === viewName || (name === 'learn' && viewName === 'learn')) {
           tabEl.setAttribute('aria-current', 'page');
         } else {
           tabEl.removeAttribute('aria-current');

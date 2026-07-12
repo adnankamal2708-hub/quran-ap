@@ -150,6 +150,8 @@ function _calcAyahComprehension(words) {
 function renderSurahBrowser() {
   var container = document.getElementById('reader-surah-list');
   if (!container) return;
+
+  var html = '';
   
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
   var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];

@@ -266,28 +266,22 @@ suite('Navigation Shortcuts', function() {
     assert.ok(_shortcutLog.indexOf('switchView:dashboard') >= 0);
   });
 
-  test('Z key switches to quiz', function() {
-    setupKeyboardShortcuts();
-    fireKey('z');
-    assert.ok(_shortcutLog.indexOf('switchView:quiz') >= 0);
-  });
-
   test('W key switches to list', function() {
     setupKeyboardShortcuts();
     fireKey('w');
     assert.ok(_shortcutLog.indexOf('switchView:list') >= 0);
   });
 
-  test('S key switches to stats', function() {
-    setupKeyboardShortcuts();
-    fireKey('s');
-    assert.ok(_shortcutLog.indexOf('switchView:stats') >= 0);
-  });
-
   test('R key switches to reader', function() {
     setupKeyboardShortcuts();
     fireKey('r');
     assert.ok(_shortcutLog.indexOf('switchView:reader') >= 0);
+  });
+
+  test('P key switches to profile', function() {
+    setupKeyboardShortcuts();
+    fireKey('p');
+    assert.ok(_shortcutLog.indexOf('switchView:profile') >= 0);
   });
 
   test('Uppercase navigation keys work', function() {

@@ -141,21 +141,11 @@ function wireAuthFormEvents() {
 }
 
 function wireUserMenuEvents() {
-  // User button in top bar
-  var userBtn = document.getElementById('user-btn');
-  if (userBtn) {
-    userBtn.onclick = function () {
-      try {
-        var user = getCurrentUser();
-        if (user) {
-          switchView('profile');
-        } else {
-          showAuthView('login');
-          switchView('auth');
-        }
-      } catch (e) {
-        console.error('[auth] Profile button handler error:', e.message, e.stack);
-      }
+  // Avatar display in top bar (clickable but routes to profile via nav tab)
+  var avatarDisplay = document.getElementById('user-avatar-display');
+  if (avatarDisplay) {
+    avatarDisplay.onclick = function () {
+      switchView('profile');
     };
   }
 
@@ -478,16 +468,16 @@ function checkActionCodeOnLoad() {
  * Update UI elements based on authentication state.
  */
 function updateAuthUI(user) {
-  var userBtn = document.getElementById('user-btn');
+  var avatarDisplay = document.getElementById('user-avatar-display');
   var guestBadge = document.getElementById('guest-badge');
   var authViews = ['view-auth', 'view-profile', 'view-settings'];
 
   if (user) {
-    // Update user button text
-    if (userBtn) {
+    // Update avatar display
+    if (avatarDisplay) {
       var initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
-      userBtn.innerHTML = '<span class="user-avatar-small">' + escapeHtml(initial) + '</span>';
-      userBtn.title = user.displayName || user.email || 'Account';
+      avatarDisplay.textContent = initial;
+      avatarDisplay.title = user.displayName || user.email || 'Account';
     }
     if (guestBadge) guestBadge.style.display = 'none';
 
@@ -496,9 +486,9 @@ function updateAuthUI(user) {
       renderProfileView();
     }
   } else {
-    if (userBtn) {
-      userBtn.innerHTML = '<span class="user-avatar-small" style="font-size:12px">👤</span>';
-      userBtn.title = 'Sign in';
+    if (avatarDisplay) {
+      avatarDisplay.textContent = 'U';
+      avatarDisplay.title = 'Sign in';
     }
     if (guestBadge) guestBadge.style.display = 'inline';
   }

@@ -44,10 +44,7 @@ function switchView(viewName) {
     if (typeof renderWordList === 'function') renderWordList();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderWordList() not found');
   }
-  if (viewName === 'stats') {
-    if (typeof renderStats === 'function') renderStats();
-    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderStats() not found');
-  }
+
   if (viewName === 'profile') {
     if (window.__profileUI && typeof window.__profileUI.renderFullProfile === 'function') {
       window.__profileUI.renderFullProfile();

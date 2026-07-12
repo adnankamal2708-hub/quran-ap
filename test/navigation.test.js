@@ -169,11 +169,6 @@ suite('switchView Dispatching', function() {
     assert.ok(_callLog.indexOf('renderWordList') >= 0);
   });
 
-  test('switchView calls renderStats for stats', function() {
-    switchView('stats');
-    assert.ok(_callLog.indexOf('renderStats') >= 0);
-  });
-
   test('switchView calls renderProfileView for profile', function() {
     switchView('profile');
     assert.ok(_callLog.indexOf('renderProfileView') >= 0);

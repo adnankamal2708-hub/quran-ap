@@ -97,14 +97,13 @@ function setupKeyboardShortcuts() {
         break;
     }
 
-    // Global navigation shortcuts (no modifier keys)
+    // Global navigation shortcuts (no modifier keys) — 5-tab nav
     if (!e.ctrlKey && !e.metaKey && !e.altKey) {
       if (e.key === 'l' || e.key === 'L') { e.preventDefault(); switchView('learn'); }
       else if (e.key === 'd' || e.key === 'D') { e.preventDefault(); switchView('dashboard'); }
-      else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); switchView('quiz'); }
       else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); switchView('list'); }
-      else if (e.key === 's' || e.key === 'S') { e.preventDefault(); switchView('stats'); }
       else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); switchView('reader'); }
+      else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); switchView('profile'); }
     }
 
     // Dismiss auto-shown hints on first interaction

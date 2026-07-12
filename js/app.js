@@ -757,13 +757,11 @@ function safeOnClick(id, fn) {
 }
 
 function wireEvents() {
-  // Bottom nav tabs (always present in static HTML)
+  // Bottom nav tabs (5-tab layout: Dashboard, Paths, Words, Profile, Reader)
   safeOnClick('tab-dashboard', function () { switchView('dashboard'); });
-  safeOnClick('tab-learn', function () { switchView('learn'); });
-  safeOnClick('tab-quiz', function () { switchView('quiz'); });
+  safeOnClick('tab-paths', function () { switchView('learn'); });
   safeOnClick('tab-list', function () { switchView('list'); });
-  safeOnClick('tab-stats', function () { switchView('stats'); });
-  safeOnClick('tab-analytics', function () { switchView('analytics'); });
+  safeOnClick('tab-profile', function () { switchView('profile'); });
   safeOnClick('tab-reader', function () { switchView('reader'); });
 
   // Learn navigation
