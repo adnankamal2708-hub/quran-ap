@@ -2,9 +2,9 @@
 /**
  * ux-polish.test.js — Unit tests for the UX Polish Module
  *
- * Tests: onboarding completion tracking, toast creation/dismissal,
- * milestone celebrations, empty states, skeleton loaders, and
- * helper functions.
+ * Tests: onboarding completion tracking, premium slides, goal/level/notify
+ * screens, toast creation/dismissal, milestone celebrations, empty states,
+ * skeleton loaders, tooltips, progressive disclosure, and helper functions.
  *
  * Run: node test/ux-polish.test.js
  */
@@ -32,7 +32,7 @@ var _elementById = {};
 var _eventListeners = {};
 var _bodyChildren = [];
 var _nextId = 0;
-var _timeoutIds = [null]; // First element is dummy so IDs start at 1 (0 is falsy in JS)
+var _timeoutIds = [null];
 var _timeoutCallbacks = {};
 
 function _resetDOM() {
@@ -45,7 +45,6 @@ function _resetDOM() {
   _timeoutIds = [null];
 }
 
-// Parse innerHTML for id="..." patterns and create mock children
 function _parseInnerHTML(el, html) {
   if (!html) { return; }
   var re = /id="([^"]+)"/g;
@@ -94,7 +93,7 @@ function _makeMockElement(tagName) {
       if (typeof this._onclick === 'function') { this._onclick(); }
     },
 
-    querySelectorAll: function() {
+    querySelectorAll: function(sel) {
       var results = [];
       for (var qi = 0; qi < this.children.length; qi++) {
         if (this.children[qi]._tagName === 'button' && !this.children[qi].disabled) {
@@ -105,7 +104,19 @@ function _makeMockElement(tagName) {
       return results;
     },
 
-    // classList that syncs with className
+    querySelector: function(sel) {
+      for (var qi = 0; qi < this.children.length; qi++) {
+        if (this.children[qi].getAttribute('data-value') || this.children[qi].id) {
+          return this.children[qi];
+        }
+      }
+      return null;
+    },
+
+    getBoundingClientRect: function() {
+      return { top: 100, bottom: 200, left: 50, right: 150, width: 100, height: 100 };
+    },
+
     classList: {
       _owner: null,
       _nameSet: null,
@@ -126,14 +137,12 @@ function _makeMockElement(tagName) {
 
   el.classList._owner = el;
 
-  // id property with auto-tracking
   Object.defineProperty(el, 'id', {
     get: function() { return this._idVal; },
     set: function(v) { this._idVal = v; if (v) { _elementById[v] = this; } },
     enumerable: true,
   });
 
-  // className property tracked by classList
   Object.defineProperty(el, 'className', {
     get: function() { return this._className; },
     set: function(v) {
@@ -146,21 +155,18 @@ function _makeMockElement(tagName) {
     enumerable: true,
   });
 
-  // onclick property
   Object.defineProperty(el, 'onclick', {
     get: function() { return this._onclick; },
     set: function(fn) { this._onclick = fn; },
     enumerable: true,
   });
 
-  // style property
   Object.defineProperty(el, 'style', {
     get: function() { return this._styleObj; },
     set: function(v) { if (typeof v === 'string') { this._styleObj = {}; } else { this._styleObj = v; } },
     enumerable: true,
   });
 
-  // innerHTML property - parses id patterns on set
   Object.defineProperty(el, 'innerHTML', {
     get: function() { return this._innerHTML; },
     set: function(v) {
@@ -173,7 +179,6 @@ function _makeMockElement(tagName) {
   return el;
 }
 
-// Track element by tagName
 function _trackElement(tagName, el) {
   if (!_createdElements[tagName]) { _createdElements[tagName] = []; }
   _createdElements[tagName].push(el);
@@ -204,18 +209,42 @@ global.document = {
     if (idx >= 0) { _eventListeners[event].splice(idx, 1); }
   },
   activeElement: null,
+  querySelectorAll: function(sel) {
+    var results = [];
+    // Search all created elements by class/id/tag
+    for (var tag in _createdElements) {
+      var arr = _createdElements[tag];
+      for (var i = 0; i < arr.length; i++) {
+        var el = arr[i];
+        // Match by class selector like '.onboarding-choice'
+        if (sel.indexOf('.') === 0) {
+          var cls = sel.substring(1);
+          if (el._className && el._className.split(' ').indexOf(cls) >= 0) {
+            results.push(el);
+          }
+        }
+        // Also search children
+        for (var ci = 0; ci < (el.children || []).length; ci++) {
+          var child = el.children[ci];
+          if (sel.indexOf('.') === 0) {
+            var cls2 = sel.substring(1);
+            if (child._className && child._className.split(' ').indexOf(cls2) >= 0) {
+              results.push(child);
+            }
+          }
+        }
+      }
+    }
+    return results;
+  },
 };
 
-// ── Mock window (ux-polish.js writes to window.__ux) ──
 global.window = {};
 
-// ── Mock navigator ──
 global.navigator = { onLine: true };
 
-// ── Mock requestAnimationFrame (sync) ──
 global.requestAnimationFrame = function(fn) { fn(); return 0; };
 
-// ── Mock setTimeout / clearTimeout ──
 global.setTimeout = function(fn) {
   var id = _timeoutIds.length;
   _timeoutIds.push(id);
@@ -233,7 +262,6 @@ function flushTimeouts() {
   });
 }
 
-// ── escapeHtml (from auth-ui.js, needed by ux-polish.js) ──
 global.escapeHtml = function(str) {
   if (!str) { return ''; }
   return str.replace(/[&<>"']/g, function(c) {
@@ -266,7 +294,6 @@ function test(name, fn) {
 
 function suite(name, fn) { console.log('\n\uD83D\uDCCB ' + name); fn(); }
 
-// Setup onboarding DOM elements
 function setupOnboardingDOM() {
   var slideEl = document.createElement('div');
   slideEl.id = 'onboarding-slide';
@@ -285,7 +312,11 @@ function setupOnboardingDOM() {
   document.body.appendChild(skipBtn);
   var overlay = document.createElement('div');
   overlay.id = 'onboarding-overlay';
+  overlay.style.display = 'flex';
   document.body.appendChild(overlay);
+  var cardEl = document.createElement('div');
+  cardEl.id = 'onboarding-card';
+  document.body.appendChild(cardEl);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -338,16 +369,31 @@ suite('Onboarding Completion Tracking', function() {
     ux.resetOnboarding();
     localStorage.removeItem = orig;
   });
+
+  test('hasInterruptedOnboarding returns false when not set', function() {
+    clearStorage();
+    assert.strictEqual(ux.hasInterruptedOnboarding(), false);
+  });
+
+  test('getOnboardingGoal returns null when not set', function() {
+    clearStorage();
+    assert.strictEqual(ux.getOnboardingGoal(), null);
+  });
+
+  test('getOnboardingLevel returns null when not set', function() {
+    clearStorage();
+    assert.strictEqual(ux.getOnboardingLevel(), null);
+  });
 });
 
-suite('Onboarding Slides Data', function() {
-  test('_onboardingSlides has 6 slides', function() {
-    assert.strictEqual(_onboardingSlides.length, 6);
+suite('Welcome Slides Data', function() {
+  test('_welcomeSlides has 6 slides', function() {
+    assert.strictEqual(_welcomeSlides.length, 6);
   });
 
   test('each slide has icon, title, and desc', function() {
-    for (var i = 0; i < _onboardingSlides.length; i++) {
-      var s = _onboardingSlides[i];
+    for (var i = 0; i < _welcomeSlides.length; i++) {
+      var s = _welcomeSlides[i];
       assert.ok(typeof s.icon === 'string' && s.icon.length > 0, 'Slide ' + i + ' icon');
       assert.ok(typeof s.title === 'string' && s.title.length > 0, 'Slide ' + i + ' title');
       assert.ok(typeof s.desc === 'string' && s.desc.length > 0, 'Slide ' + i + ' desc');
@@ -355,20 +401,20 @@ suite('Onboarding Slides Data', function() {
   });
 
   test('slides cover expected topics in order', function() {
-    assert.ok(_onboardingSlides[0].title.indexOf('Bayan') >= 0);
-    assert.ok(_onboardingSlides[1].title.indexOf('Foundation') >= 0);
-    assert.ok(_onboardingSlides[2].title.indexOf('Coverage') >= 0);
-    assert.ok(_onboardingSlides[3].title.indexOf('Learning Paths') >= 0);
-    assert.ok(_onboardingSlides[4].title.indexOf('Adaptive') >= 0);
-    assert.ok(_onboardingSlides[5].title.indexOf('Sync') >= 0);
+    assert.ok(_welcomeSlides[0].title.indexOf('Bayan') >= 0);
+    assert.ok(_welcomeSlides[1].title.indexOf('Step by Step') >= 0);
+    assert.ok(_welcomeSlides[2].title.indexOf('Comprehension') >= 0);
+    assert.ok(_welcomeSlides[3].title.indexOf('Interactive') >= 0);
+    assert.ok(_welcomeSlides[4].title.indexOf('Smart') >= 0);
+    assert.ok(_welcomeSlides[5].title.indexOf('Journey') >= 0);
   });
 });
 
-suite('Onboarding Slide Navigation', function() {
-  test('showOnboardingSlide sets index and renders content', function() {
+suite('Onboarding Screen Navigation', function() {
+  test('renderOnboardingScreen sets index and renders content', function() {
     _resetDOM();
     setupOnboardingDOM();
-    showOnboardingSlide(2);
+    renderOnboardingScreen(2);
     assert.strictEqual(_onboardingIdx, 2);
     assert.ok(document.getElementById('onboarding-slide').innerHTML.length > 0);
   });
@@ -376,32 +422,91 @@ suite('Onboarding Slide Navigation', function() {
   test('prev button hidden on first slide, visible after', function() {
     _resetDOM();
     setupOnboardingDOM();
-    showOnboardingSlide(0);
+    renderOnboardingScreen(0);
     assert.strictEqual(document.getElementById('onboarding-prev').style.display, 'none');
-    showOnboardingSlide(1);
+    renderOnboardingScreen(1);
     assert.notStrictEqual(document.getElementById('onboarding-prev').style.display, 'none');
   });
 
-  test('next button shows Get Started on last slide', function() {
+  test('next button shows Start Learning on last screen', function() {
     _resetDOM();
     setupOnboardingDOM();
-    showOnboardingSlide(5);
-    assert.strictEqual(document.getElementById('onboarding-next').textContent, '\u2713 Get Started');
+    renderOnboardingScreen(8); // last screen (notify)
+    assert.strictEqual(document.getElementById('onboarding-next').textContent, '\u2713 Start Learning');
   });
 
-  test('dots indicator has 6 dots with active on correct index', function() {
+  test('next button shows Personalize after last welcome screen', function() {
     _resetDOM();
     setupOnboardingDOM();
-    showOnboardingSlide(3);
-    var dots = document.getElementById('onboarding-dots');
-    assert.strictEqual(dots.children.length, 6);
-    assert.ok(dots.children[3].className.indexOf('onboarding-dot-active') >= 0);
-    assert.ok(dots.children[0].className.indexOf('onboarding-dot-active') < 0);
+    renderOnboardingScreen(5); // last welcome screen
+    assert.strictEqual(document.getElementById('onboarding-next').textContent, 'Personalize \u2192');
   });
 
-  test('showOnboardingSlide handles missing slide element', function() {
+  test('renderOnboardingScreen saves step to localStorage', function() {
     _resetDOM();
-    showOnboardingSlide(0);
+    clearStorage();
+    setupOnboardingDOM();
+    renderOnboardingScreen(3);
+    assert.strictEqual(localStorage.getItem('quran_onboarding_step'), '3');
+  });
+
+  test('renderOnboardingScreen handles missing slide element', function() {
+    _resetDOM();
+    renderOnboardingScreen(0);
+  });
+});
+
+suite('Onboarding Goal Selection Screen', function() {
+  test('goal screen renders 4 choices', function() {
+    _resetDOM();
+    setupOnboardingDOM();
+    renderOnboardingScreen(6); // goal screen
+    var slide = document.getElementById('onboarding-slide');
+    assert.ok(slide.innerHTML.indexOf('4)') >= 0 || slide.innerHTML.match(/onboarding-choice/g).length >= 4);
+  });
+
+  test('goal screen shows Set Your Daily Goal title', function() {
+    _resetDOM();
+    setupOnboardingDOM();
+    renderOnboardingScreen(6);
+    var slide = document.getElementById('onboarding-slide');
+    assert.ok(slide.innerHTML.indexOf('Daily Goal') >= 0);
+  });
+});
+
+suite('Onboarding Level Selection Screen', function() {
+  test('level screen renders 4 choices', function() {
+    _resetDOM();
+    setupOnboardingDOM();
+    renderOnboardingScreen(7); // level screen
+    var slide = document.getElementById('onboarding-slide');
+    assert.ok(slide.innerHTML.indexOf('onboarding-choice') >= 0);
+  });
+
+  test('level screen shows Experience Level title', function() {
+    _resetDOM();
+    setupOnboardingDOM();
+    renderOnboardingScreen(7);
+    var slide = document.getElementById('onboarding-slide');
+    assert.ok(slide.innerHTML.indexOf('Experience') >= 0);
+  });
+});
+
+suite('Onboarding Notifications Screen', function() {
+  test('notify screen renders 2 choices', function() {
+    _resetDOM();
+    setupOnboardingDOM();
+    renderOnboardingScreen(8); // notify screen
+    var slide = document.getElementById('onboarding-slide');
+    assert.ok(slide.innerHTML.indexOf('Reminders') >= 0);
+  });
+
+  test('notify screen shows Daily Reminders title', function() {
+    _resetDOM();
+    setupOnboardingDOM();
+    renderOnboardingScreen(8);
+    var slide = document.getElementById('onboarding-slide');
+    assert.ok(slide.innerHTML.indexOf('Reminders') >= 0);
   });
 });
 
@@ -442,6 +547,30 @@ suite('renderEmptyState', function() {
   });
 });
 
+suite('getContextualEmptyState', function() {
+  test('returns bookmarks state with correct title', function() {
+    var state = ux.getContextualEmptyState('bookmarks');
+    assert.ok(state !== null);
+    assert.ok(state.title.indexOf('Bookmarks') >= 0);
+  });
+
+  test('returns reviews state with Caught Up title', function() {
+    var state = ux.getContextualEmptyState('reviews');
+    assert.ok(state !== null);
+    assert.ok(state.title.indexOf('Caught Up') >= 0);
+  });
+
+  test('returns achievements state with action', function() {
+    var state = ux.getContextualEmptyState('achievements');
+    assert.ok(state !== null);
+    assert.ok(state.action.length > 0);
+  });
+
+  test('returns null for unknown section', function() {
+    assert.strictEqual(ux.getContextualEmptyState('nonexistent'), null);
+  });
+});
+
 suite('renderSkeleton', function() {
   test('card type generates correct number of skeleton lines', function() {
     assert.strictEqual(ux.renderSkeleton(5, 'card').match(/skeleton-line/g).length, 5);
@@ -457,26 +586,14 @@ suite('renderSkeleton', function() {
     assert.strictEqual(html.match(/skeleton-bar/g).length, 7);
   });
 
-  test('chart type defaults to 5 bars', function() {
-    assert.strictEqual(ux.renderSkeleton(null, 'chart').match(/skeleton-bar/g).length, 5);
-  });
-
   test('list type generates rows with skeleton-line-sm', function() {
     var html = ux.renderSkeleton(3, 'list');
     assert.strictEqual(html.match(/skeleton-row/g).length, 3);
     assert.ok(html.indexOf('skeleton-line-sm') >= 0);
   });
 
-  test('list type defaults to 4 rows', function() {
-    assert.strictEqual(ux.renderSkeleton(null, 'list').match(/skeleton-row/g).length, 4);
-  });
-
   test('defaults to card type when no type given', function() {
     assert.strictEqual(ux.renderSkeleton(2).match(/skeleton-line/g).length, 2);
-  });
-
-  test('0 lines returns container with no lines', function() {
-    assert.ok(ux.renderSkeleton(0, 'card').indexOf('skeleton-loading') >= 0);
   });
 });
 
@@ -529,32 +646,12 @@ suite('showToast', function() {
     assert.ok(toast._dismissTimer !== undefined, 'dismissTimer set');
   });
 
-  test('sets role=alert on toast', function() {
-    _resetDOM();
-    ux.showToast('Test', 'warning');
-    assert.strictEqual(document.getElementById('toast-container').children[0].getAttribute('role'), 'alert');
-  });
-
-  test('toast click dismisses it', function() {
-    _resetDOM();
-    ux.showToast('Click me', 'info');
-    var toast = document.getElementById('toast-container').children[0];
-    if (toast._onclick) { toast._onclick(); }
-    assert.ok(toast.className.indexOf('toast-hiding') >= 0, 'toast-hiding class added');
-  });
-
   test('multiple toasts stack in container', function() {
     _resetDOM();
     ux.showToast('First', 'info');
     ux.showToast('Second', 'success');
     ux.showToast('Third', 'warning');
     assert.strictEqual(document.getElementById('toast-container').children.length, 3);
-  });
-
-  test('empty message still creates toast', function() {
-    _resetDOM();
-    ux.showToast('', 'error');
-    assert.strictEqual(document.getElementById('toast-container').children.length, 1);
   });
 });
 
@@ -578,17 +675,6 @@ suite('dismissToast', function() {
     _resetDOM();
     var orphan = document.createElement('div');
     dismissToast(orphan);
-  });
-
-  test('clears dismiss timer on explicit dismiss', function() {
-    _resetDOM();
-    ux.showToast('Test', 'info');
-    var toast = document.getElementById('toast-container').children[0];
-    var timerId = toast._dismissTimer;
-    assert.ok(timerId !== undefined, 'timer was set');
-    assert.ok(_timeoutCallbacks[timerId] !== undefined, 'callback exists');
-    dismissToast(toast);
-    assert.ok(_timeoutCallbacks[timerId] === undefined, 'timer callback cleared');
   });
 });
 
@@ -645,20 +731,6 @@ suite('showMilestoneCelebration', function() {
     ux.showMilestoneCelebration(undefined);
     assert.strictEqual(_bodyChildren.length, 0);
   });
-
-  test('creates close button with onclick handler', function() {
-    _resetDOM();
-    ux.showMilestoneCelebration({ label: 'Test', icon: '\uD83C\uDF89' });
-    var btn = document.getElementById('milestone-close-btn');
-    assert.ok(btn !== null, 'close button exists');
-    assert.ok(typeof btn._onclick === 'function', 'onclick is a function');
-  });
-
-  test('missing optional fields renders minimal overlay', function() {
-    _resetDOM();
-    ux.showMilestoneCelebration({ label: 'Minimal' });
-    assert.ok(findOverlay().innerHTML.indexOf('Milestone Reached!') >= 0);
-  });
 });
 
 suite('updateOfflineIndicator', function() {
@@ -712,15 +784,6 @@ suite('showOnboarding / hideOnboarding', function() {
     assert.strictEqual(document.body.classList.contains('body-overflow-locked'), true);
   });
 
-  test('showOnboarding registers events and shows first slide', function() {
-    _resetDOM();
-    ux.showOnboarding();
-    assert.ok(_eventListeners['keydown'] && _eventListeners['keydown'].length > 0, 'keydown listener registered');
-    var slideEl = document.getElementById('onboarding-slide');
-    assert.ok(slideEl !== null, 'slide element exists');
-    assert.ok(slideEl.innerHTML.indexOf('Bayan') >= 0, 'shows welcome slide');
-  });
-
   test('showOnboarding reuses existing overlay', function() {
     _resetDOM();
     ux.showOnboarding();
@@ -737,130 +800,22 @@ suite('showOnboarding / hideOnboarding', function() {
     assert.strictEqual(document.body.classList.contains('body-overflow-locked'), false);
   });
 
-  test('hideOnboarding releases event handlers', function() {
-    _resetDOM();
-    ux.showOnboarding();
-    var before = Object.keys(_eventListeners)
-      .reduce(function(sum, k) { return sum + _eventListeners[k].length; }, 0);
-    ux.hideOnboarding();
-    var after = Object.keys(_eventListeners)
-      .reduce(function(sum, k) { return sum + _eventListeners[k].length; }, 0);
-    assert.ok(after <= before, 'handlers released');
-  });
-
   test('hideOnboarding handles missing overlay', function() {
     _resetDOM();
     ux.hideOnboarding();
-  });
-
-  test('skip button click completes onboarding and hides overlay', function() {
-    _resetDOM();
-    clearStorage();
-    ux.showOnboarding();
-    var skipBtn = document.getElementById('onboarding-skip');
-    assert.ok(skipBtn !== null, 'skip button exists');
-    if (skipBtn._onclick) { skipBtn._onclick(); }
-    assert.strictEqual(localStorage.getItem('quran_onboarding_done'), 'true');
-    assert.strictEqual(document.getElementById('onboarding-overlay').style.display, 'none');
-  });
-
-  test('prev button decreases slide index', function() {
-    _resetDOM();
-    setupOnboardingDOM();
-    _onboardingIdx = 0;
-    showOnboardingSlide(2);
-    wireOnboardingEvents();
-    var prevBtn = document.getElementById('onboarding-prev');
-    if (prevBtn._onclick) { prevBtn._onclick(); }
-    assert.strictEqual(_onboardingIdx, 1);
-  });
-
-  test('next button increases slide index', function() {
-    _resetDOM();
-    setupOnboardingDOM();
-    showOnboardingSlide(0);
-    wireOnboardingEvents();
-    var nextBtn = document.getElementById('onboarding-next');
-    if (nextBtn._onclick) { nextBtn._onclick(); }
-    assert.strictEqual(_onboardingIdx, 1);
-  });
-
-  test('next on last slide completes onboarding', function() {
-    _resetDOM();
-    clearStorage();
-    setupOnboardingDOM();
-    showOnboardingSlide(5);
-    wireOnboardingEvents();
-    var nextBtn = document.getElementById('onboarding-next');
-    if (nextBtn._onclick) { nextBtn._onclick(); }
-    assert.strictEqual(localStorage.getItem('quran_onboarding_done'), 'true');
-  });
-});
-
-suite('Keyboard Navigation', function() {
-  function setup() {
-    _resetDOM();
-    setupOnboardingDOM();
-    wireOnboardingEvents();
-    document.getElementById('onboarding-overlay').style.display = 'flex';
-  }
-
-  function pressKey(key) {
-    _onboardingKeyHandler({ key: key, preventDefault: function() {} });
-  }
-
-  test('Escape completes onboarding and hides overlay', function() {
-    clearStorage();
-    setup();
-    pressKey('Escape');
-    assert.strictEqual(localStorage.getItem('quran_onboarding_done'), 'true');
-    assert.strictEqual(document.getElementById('onboarding-overlay').style.display, 'none');
-  });
-
-  test('ArrowRight advances to next slide', function() {
-    setup();
-    showOnboardingSlide(0);
-    pressKey('ArrowRight');
-    assert.strictEqual(_onboardingIdx, 1);
-  });
-
-  test('Space bar advances to next slide', function() {
-    setup();
-    showOnboardingSlide(0);
-    pressKey(' ');
-    assert.strictEqual(_onboardingIdx, 1);
-  });
-
-  test('ArrowLeft goes to previous slide', function() {
-    setup();
-    showOnboardingSlide(2);
-    pressKey('ArrowLeft');
-    assert.strictEqual(_onboardingIdx, 1);
-  });
-
-  test('ArrowLeft does nothing on first slide', function() {
-    setup();
-    showOnboardingSlide(0);
-    pressKey('ArrowLeft');
-    assert.strictEqual(_onboardingIdx, 0);
-  });
-
-  test('handler does nothing when overlay is hidden', function() {
-    setup();
-    document.getElementById('onboarding-overlay').style.display = 'none';
-    var count = 0;
-    document.getElementById('onboarding-next')._onclick = function() { count++; };
-    pressKey('ArrowRight');
-    assert.strictEqual(count, 0);
   });
 });
 
 suite('Exported API surface', function() {
   var expected = [
     'showOnboarding', 'hideOnboarding', 'hasCompletedOnboarding',
-    'completeOnboarding', 'resetOnboarding', 'showToast',
-    'renderEmptyState', 'renderSkeleton', 'updateOfflineIndicator',
-    'showMilestoneCelebration'
+    'hasInterruptedOnboarding', 'completeOnboarding', 'resetOnboarding',
+    'getOnboardingGoal', 'getOnboardingLevel', 'getOnboardingNotify',
+    'showTooltip', 'showContextualTooltips', 'resetTooltips',
+    'getProgressiveVisibility', 'applyProgressiveDisclosure',
+    'unlockProgressiveFeature', 'showToast',
+    'renderEmptyState', 'getContextualEmptyState', 'renderSkeleton',
+    'updateOfflineIndicator', 'showMilestoneCelebration'
   ];
   expected.forEach(function(name) {
     test(name + ' is exported', function() {

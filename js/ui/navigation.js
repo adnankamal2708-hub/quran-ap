@@ -24,6 +24,11 @@ function switchView(viewName) {
   currentView = viewName;
   setView(viewName);
   
+  // Apply progressive disclosure (show/hide advanced features based on progress)
+  if (window.__ux && typeof window.__ux.applyProgressiveDisclosure === 'function') {
+    window.__ux.applyProgressiveDisclosure();
+  }
+  
   // Render view content — each wrapped with existence check
   if (viewName === 'dashboard') {
     if (typeof renderDashboard === 'function') renderDashboard();
@@ -70,6 +75,17 @@ function switchView(viewName) {
     if (typeof renderReviewCenter === 'function') renderReviewCenter();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderReviewCenter() not found');
   }
+  
+  // Show contextual tooltips for first-time users after view renders
+  if (window.__ux && typeof window.__ux.showContextualTooltips === 'function') {
+    if (typeof window.__ux.hasCompletedOnboarding === 'function' && !window.__ux.hasCompletedOnboarding()) {
+      // Delay slightly to let the view render first
+      setTimeout(function() {
+        window.__ux.showContextualTooltips(viewName);
+      }, 600);
+    }
+  }
+  
   if (document.activeElement) document.activeElement.blur();
 }
 
