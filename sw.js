@@ -11,6 +11,9 @@
 // ═══════════════════════════════════════════════════════════════
 
 const CACHE_NAME = 'bayan-v4';
+// Note: build.js replaces CACHE_NAME with a timestamp-based version ('quran-vocab-v<timestamp>')
+// at build time. The service worker update cycle (install → wait → activate) then ensures
+// all clients get the fresh cache automatically on their next visit.
 const FONTS_CACHE = 'bayan-fonts-v1';
 const DYNAMIC_CACHE = 'bayan-dynamic-v1';
 

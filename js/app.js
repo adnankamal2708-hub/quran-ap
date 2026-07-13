@@ -1217,6 +1217,64 @@ function validateData() {
   return { valid: errors.length === 0, errors: errors, arabicDuplicates: duplicateArabic };
 }
 
+// ── Startup Fallback ──────────────────────────────────────────
+// If init() fails or something goes wrong, this ensures the user
+// never sees a completely blank screen. Renders a meaningful error
+// with a reload button.
+
+var _startupFallbackTimer = null;
+
+/** Render a fallback UI if the dashboard can't load */
+function renderFallbackUI() {
+  var dashboardGrid = document.getElementById('dashboard-grid');
+  if (!dashboardGrid) return;
+  dashboardGrid.innerHTML = '' +
+    '<div style="text-align:center;padding:40px 20px;max-width:400px;margin:0 auto">' +
+      '<div style="font-size:48px;margin-bottom:16px">📖</div>' +
+      '<h2 style="font-size:18px;color:var(--text);margin:0 0 8px 0">Welcome to Bayan</h2>' +
+      '<p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:0 0 20px 0">' +
+        'Your Quran vocabulary learning app is loading. Please wait or try refreshing.' +
+      '</p>' +
+      '<button class="btn" onclick="window.location.reload()" style="margin-bottom:8px">' +
+        '↻ Reload' +
+      '</button>' +
+      '<div style="font-size:10px;color:var(--text-muted);margin-top:12px">' +
+        'Bayan v2.0' +
+      '</div>' +
+    '</div>';
+}
+
+/** Startup watchdog: detects if init() hung or failed to render */
+function startStartupWatchdog() {
+  _startupFallbackTimer = setTimeout(function() {
+    // Don't trigger fallback if vocabulary data hasn't loaded yet (slow connection)
+    if (typeof ALL_WORDS === 'undefined' || !ALL_WORDS || ALL_WORDS.length === 0) {
+      return;
+    }
+    // Check if the dashboard has any rendered content
+    var grid = document.getElementById('dashboard-grid');
+    if (grid && grid.children.length === 0) {
+      console.warn('[startup] Watchdog triggered — dashboard not rendered, showing fallback');
+      renderFallbackUI();
+    }
+    // Check if NO view is active (all views hidden)
+    var anyActive = document.querySelector('.mode-view.active');
+    if (!anyActive) {
+      console.warn('[startup] Watchdog triggered — no active view found');
+      var dashboardView = document.getElementById('view-dashboard');
+      if (dashboardView) dashboardView.classList.add('active');
+      renderFallbackUI();
+    }
+  }, 15000); // 15 seconds — accommodates slow 3G connections for ~1.6MB bundles
+}
+
+function cancelStartupWatchdog() {
+  if (_startupFallbackTimer) {
+    clearTimeout(_startupFallbackTimer);
+    _startupFallbackTimer = null;
+  }
+}
+
 // ── Initialization ─────────────────────────────────────────────
 
 function registerServiceWorker() {
@@ -1239,6 +1297,12 @@ function registerServiceWorker() {
 
 function init() {
   window.__DEV__ && console.log('[startup] [1] init() called');
+
+  // ── Start watchdog BEFORE try block ────────────────────────────
+  // This ensures the fallback UI triggers even if init() crashes
+  // before any render code runs (e.g., buildLessons crashes).
+  startStartupWatchdog();
+
   try {
     // 0. Capture splash start time for minimum display duration
     window.__splashStart = Date.now();
@@ -1389,9 +1453,15 @@ function init() {
 
   window.__DEV__ && console.log('[startup] [14] init() successful — splash screen scheduled');
 
+  // ── Cancel startup watchdog on success ────────────────────
+  cancelStartupWatchdog();
+
   // ── Hide Splash Screen ─────────────────────────────────────
   // Always hide the splash regardless of init success or failure.
   var splash = document.getElementById('splash-screen');
+  // If init crashed before __splashStart was set, set it now so the
+  // splash hiding logic below still works correctly.
+  if (!window.__splashStart) window.__splashStart = Date.now();
   if (splash) {
     var MIN_SPLASH_MS = 1500;
     var elapsed = Date.now() - window.__splashStart;
