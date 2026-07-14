@@ -111,12 +111,11 @@
       return v + ': var(' + v + ')';
     }).join(';');
 
-    // Guard: if styles.css hasn't loaded yet, the computed style will be empty
-    // for all variables. We detect this by checking the first variable.
-    // If it's empty AND the stylesheet link hasn't loaded, we skip the check.
-    var linkEl = document.querySelector('link[href="styles.css"]');
+    // Guard: if the stylesheet hasn't loaded yet, the computed style will be empty
+    // for all variables. Match both dev (styles.css) and production (styles.min.css) filenames.
+    var linkEl = document.querySelector('link[href$=".css"]');
     if (linkEl && !linkEl.sheet) {
-      window.__DEV__ && console.log('[safeguards] ℹ styles.css not yet loaded — skipping CSS var check');
+      window.__DEV__ && console.log('[safeguards] ℹ stylesheet not yet loaded — skipping CSS var check');
       return [];
     }
 
@@ -173,7 +172,7 @@
           document.documentElement.classList.add('fonts-failed');
         }
         resolve(failed);
-      }, 8000);
+      }, 12000);
 
       document.fonts.ready.then(function () {
         clearTimeout(timeout);
