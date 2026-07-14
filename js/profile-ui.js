@@ -593,14 +593,14 @@ function renderProfileProgress() {
   // Show top 5 surahs by comprehension
   if (surahComp.length > 0) {
     surahComp.sort(function(a, b) { return a.estimatedComprehension - b.estimatedComprehension; });
-    h += '<div style="font-size:10px;color:var(--text-muted);margin:6px 0 4px">Lowest comprehension:</div>';
+    h += '<div class="pui-text-sm pui-muted" style="margin:6px 0 4px">Lowest comprehension:</div>';
     for (var si = 0; si < Math.min(3, surahComp.length); si++) {
       var sc = surahComp[si];
       var sName = typeof getSurahInfo === 'function' && getSurahInfo(sc.surahId) ? getSurahInfo(sc.surahId).name : 'Surah ' + sc.surahId;
       h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.max(1, sc.estimatedComprehension) + '%;background:' + (sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)') + '"></div></div><span class="profile-bar-value" style="font-size:10px">' + sc.estimatedComprehension + '%</span></div>';
     }
     if (surahComp.length > 3) {
-      h += '<div style="font-size:9px;color:var(--text-muted);text-align:center;margin-top:4px">+' + (surahComp.length - 3) + ' more surahs</div>';
+      h += '<div class="pui-value-sm pui-muted pui-center" style="margin-top:4px">+' + (surahComp.length - 3) + ' more surahs</div>';
     }
   }
   h += '</div>';
@@ -654,8 +654,8 @@ function renderProfileProgress() {
   h += '<div class="profile-subsection">';
   h += '<div class="profile-subsection-title">❤️ SRS Health</div>';
   h += '<div class="profile-srs-grid">';
-  h += '<div><span class="profile-bar-value" style="color:var(--green)">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
-  h += '<div><span class="profile-bar-value" style="color:var(--blue)">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Avg Ease</span></div>';
+  h += '<div><span class="profile-bar-value ai-c-green">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
+  h += '<div><span class="profile-bar-value ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Avg Ease</span></div>';
   h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.overdue || 0) > 0 ? 'var(--red)' : 'var(--green)') + '">' + (srsStats.overdue || 0) + '</span><span class="profile-pstat-label">Overdue</span></div>';
   h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
   h += '</div></div>';
@@ -694,7 +694,8 @@ function renderProfileInsights() {
 
   if (!analytics) {
     h += '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text-muted)">' +
-      '📊 Start learning to unlock insights about your progress. Study words and complete reviews to build your learning profile.' +      '</div>';
+      '📊 Start learning to unlock insights about your progress. Study words and complete reviews to build your learning profile.' +
+      '</div>';
     container.innerHTML = h;
     return;
   }
@@ -785,9 +786,9 @@ function renderProfileInsights() {
   if (ms && ms.nextMilestone) {
     h += '<div class="profile-subsection">';
     h += '<div class="profile-subsection-title">🎯 Next Milestone</div>';
-    h += '<div style="padding:8px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">';
-    h += '<div style="font-size:12px;font-weight:500;color:var(--gold);margin-bottom:2px">' + ms.nextMilestone.icon + ' ' + ms.nextMilestone.label + '</div>';
-    h += '<div style="font-size:10px;color:var(--text-muted)">~' + ms.wordsToNextMilestone + ' words, ~' + ms.lessonsToNextMilestone + ' lessons away</div>';
+    h += '<div class="ai-card-sm" style="padding:8px 12px">';
+    h += '<div class="ai-text-sm ai-c-gold" style="font-weight:500;margin-bottom:2px">' + ms.nextMilestone.icon + ' ' + ms.nextMilestone.label + '</div>';
+    h += '<div class="ai-label-xs">~' + ms.wordsToNextMilestone + ' words, ~' + ms.lessonsToNextMilestone + ' lessons away</div>';
     h += '</div></div>';
   }
 
@@ -890,8 +891,8 @@ function renderProfileCalendar() {
   h += '<div class="profile-subsection">';
   h += '<div class="profile-subsection-title">🎯 Learning Milestones</div>';
   h += '<div style="display:flex;flex-direction:column;gap:6px">';
-  h += '<div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface2);border-radius:6px"><span>Foundation Lessons</span><span style="color:var(--gold)">' + fCompleted + '/' + fTotal + '</span></div>';
-  h += '<div style="font-size:11px;display:flex;justify-content:space-between;padding:6px 8px;background:var(--surface2);border-radius:6px"><span>Surahs Studied</span><span style="color:var(--gold)">' + sCompleted + '/' + surahIds.length + '</span></div>';
+  h += '<div class="pui-milestone"><span>Foundation Lessons</span><span class="ai-c-gold">' + fCompleted + '/' + fTotal + '</span></div>';
+  h += '<div class="pui-milestone"><span>Surahs Studied</span><span class="ai-c-gold">' + sCompleted + '/' + surahIds.length + '</span></div>';
   h += '</div></div>';
 
   container.innerHTML = h;

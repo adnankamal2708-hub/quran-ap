@@ -1,6 +1,6 @@
 function renderExplorerAllOccurrences(listEl, w) {
   if (!listEl || !w || !w.occurrences || w.occurrences.length === 0) {
-    listEl.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:12px">No occurrence data available.</div>';
+    listEl.innerHTML = '<div class="ai-empty">No occurrence data available.</div>';
     return;
   }
   
@@ -237,7 +237,7 @@ function renderAnalyticsOverview(analytics) {
     html += '<div class="analytics-section">';
     html += '<div class="analytics-section-title">📖 Surah Comprehension</div>';
     html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
-    html += '<div style="flex:1;min-width:130px"><div style="font-size:10px;color:var(--green);margin-bottom:6px;font-weight:500">✅ Best understood</div>';
+    html += '<div class="ai-flex-1"><div class="ai-label-green">✅ Best understood</div>';
     var topCount = Math.min(3, allSurahComp.length);
     for (var sci = 0; sci < topCount; sci++) {
       var sc = allSurahComp[sci];
@@ -246,7 +246,7 @@ function renderAnalyticsOverview(analytics) {
     }
     html += '</div>';
     allSurahComp.sort(function(a,b) { return a.estimatedComprehension - b.estimatedComprehension; });
-    html += '<div style="flex:1;min-width:130px"><div style="font-size:10px;color:var(--red);margin-bottom:6px;font-weight:500">🌱 Needs work</div>';
+    html += '<div class="ai-flex-1"><div class="ai-label-red">🌱 Needs work</div>';
     var bottomCount = Math.min(3, allSurahComp.length);
     for (var si = 0; si < bottomCount; si++) {
       var sc2 = allSurahComp[si];
@@ -261,7 +261,7 @@ function renderAnalyticsOverview(analytics) {
   if (roots || relStats) {
     html += '<div class="analytics-section">';
     html += '<div class="analytics-section-title">Vocabulary Relationships</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">';
+    html += '<div class="ai-grid-3" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">';
     if (roots) {
       var rootsPct = roots.totalRoots > 0 ? Math.round(roots.fullyMasteredRoots / roots.totalRoots * 100) : 0;
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--gold)">' + roots.fullyMasteredRoots + '<span style="font-size:12px;color:var(--text-muted);font-weight:400">/' + roots.totalRoots + '</span></div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">Root families mastered</div><div style="font-size:9px;color:var(--green);margin-top:2px">' + rootsPct + '%</div></div>';
@@ -281,7 +281,7 @@ function renderAnalyticsOverview(analytics) {
  var avgComp = 0;
     for (var ai = 0; ai < allSurahComp.length; ai++) avgComp += allSurahComp[ai].estimatedComprehension;
     avgComp = allSurahComp.length > 0 ? Math.round(avgComp / allSurahComp.length) : 0;
-    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:center">Average: ' + avgComp + '% across ' + allSurahComp.length + ' surahs with vocabulary</div>';
+    html += '<div class="ai-text-xs ai-c-muted" style="text-align:center;margin-top:8px">Average: ' + avgComp + '% across ' + allSurahComp.length + ' surahs with vocabulary</div>';
     html += '</div>';
   } else {
     html += '<div class="analytics-section">';
@@ -354,13 +354,13 @@ function renderAnalyticsOverview(analytics) {
     html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--gold);line-height:1.2">' + forecasts.predictedMastered['90'] + '</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">90 days</div><div style="font-size:9px;color:var(--text-muted)">reviews forecast</div></div>';
     html += '</div>';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
-    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Current pace</div><div style="font-size:16px;font-weight:600;color:var(--text)">' + forecasts.masteryRatePerDay + ' <span style="font-size:10px;font-weight:400;color:var(--text-muted)">words/day</span></div></div>';
-    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Est. completion</div><div style="font-size:16px;font-weight:600;color:var(--text)">~' + (forecasts.daysToFoundationCompletion != null ? forecasts.daysToFoundationCompletion : (forecasts.daysToNextMilestone != null ? forecasts.daysToNextMilestone : '—')) + ' <span style="font-size:10px;font-weight:400;color:var(--text-muted)">days</span></div></div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px"><div class="ai-label-xs ai-c-muted" style="margin-bottom:4px">Current pace</div><div style="font-size:16px;font-weight:600;color:var(--text)">' + forecasts.masteryRatePerDay + ' <span style="font-size:10px;font-weight:400;color:var(--text-muted)">words/day</span></div></div>';
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px"><div class="ai-label-xs ai-c-muted" style="margin-bottom:4px">Est. completion</div><div style="font-size:16px;font-weight:600;color:var(--text)">~' + (forecasts.daysToFoundationCompletion != null ? forecasts.daysToFoundationCompletion : (forecasts.daysToNextMilestone != null ? forecasts.daysToNextMilestone : '—')) + ' <span style="font-size:10px;font-weight:400;color:var(--text-muted)">days</span></div></div>';
     html += '</div>';
     var completionDate = forecasts.completionDate ? new Date(forecasts.completionDate) : null;
     if (completionDate && !isNaN(completionDate.getTime())) {
       var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      html += '<div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px;padding:6px;background:var(--surface2);border-radius:8px">🎯 Estimated all-vocabulary mastery: ' + monthNames[completionDate.getMonth()] + ' ' + completionDate.getFullYear() + '</div>';
+      html += '<div class="ai-forecast-footer">🎯 Estimated all-vocabulary mastery: ' + monthNames[completionDate.getMonth()] + ' ' + completionDate.getFullYear() + '</div>';
     }
   html += '</div>';
   }
@@ -397,16 +397,16 @@ function renderAnalyticsOverview(analytics) {
     var achPct = Math.min(100, Math.round((earnedCount / totalCount) * 100));
     html += '<div class="analytics-section">';
     html += '<div class="analytics-section-title">Achievements</div>';
-    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-    html += '<span style="font-size:12px;color:var(--text)">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';
+    html += '<div class="ai-card-xl">';
+    html += '<div class="pui-ach-summary">';
+    html += '<span class="ai-text-sm">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';
     html += '<span style="font-size:10px;color:var(--gold)">' + achPct + '%</span>';
     html += '</div>';
-    html += '<div class="analytics-progress-track-big" style="height:8px;margin-bottom:12px"><div class="analytics-progress-fill-big" style="width:' + achPct + '%;height:8px;border-radius:4px"></div></div>';
+    html += '<div class="analytics-progress-track-big" style="margin-bottom:12px"><div class="analytics-progress-fill-big" style="width:' + achPct + '%;height:8px;border-radius:4px"></div></div>';
     html += '<div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:4px">' + earnedCount + '</div>';
-    html += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">' + (earnedCount === 1 ? 'Achievement unlocked' : 'Achievements unlocked') + '</div>';
-    html += '<div style="font-size:10px;color:var(--text-muted);line-height:1.4;margin-bottom:12px">Keep learning to unlock more milestones.</div>';
-    html += '<button id="analytics-view-all-ach" class="btn btn-sm" style="width:100%;padding:8px;border-radius:8px;font-size:11px">View All Achievements →</button>';
+    html += '<div class="ai-text" style="margin-bottom:10px">' + (earnedCount === 1 ? 'Achievement unlocked' : 'Achievements unlocked') + '</div>';
+    html += '<div class="ai-text-xs" style="margin-bottom:12px">Keep learning to unlock more milestones.</div>';
+    html += '<button id="analytics-view-all-ach" class="btn btn-sm ai-ach-btn">View All Achievements →</button>';
     html += '</div></div>';
   }
 
@@ -616,18 +616,18 @@ function renderAnalyticsInsightsPage(analytics) {
       var maturePct = Math.round(matureWords / totalSrsWords * 100);
       var learningPct = Math.round(learningWords / totalSrsWords * 100);
       var youngPct = Math.round(youngWords / totalSrsWords * 100);
-      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">';
+      html += '<div class="ai-grid-3" style="margin-bottom:10px">';
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green)">' + retentionRate + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Retention rate</div></div>';
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:' + (wordsAtRisk > 0 ? 'var(--red)' : 'var(--green)') + '">' + wordsAtRisk + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">' + (wordsAtRisk === 1 ? 'Word' : 'Words') + ' at risk</div></div>';
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--gold)">' + matureWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Mature words</div></div>';
       html += '</div>';
-      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">';
+      html += '<div class="ai-grid-3" style="margin-bottom:10px">';
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:var(--purple)">' + learningWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Learning</div><div style="font-size:9px;color:var(--purple);margin-top:2px">' + learningPct + '%</div></div>';
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:var(--gold-dim)">' + youngWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Young</div><div style="font-size:9px;color:var(--gold-dim);margin-top:2px">' + youngPct + '%</div></div>';
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:var(--green)">' + matureWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Mature</div><div style="font-size:9px;color:var(--green);margin-top:2px">' + maturePct + '%</div></div>';
       html += '</div>';
       html += '<div style="display:flex;gap:8px">';
-      html += '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:600;color:var(--blue)">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Avg ease factor</div></div>';
+      html += '<div class="ai-metric-sm" style="flex:1"><div class="ai-value-xs ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</div><span class="ai-label-xs">Avg ease factor</span></div>';
       html += '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:600;color:' + (srsStats.leechCount > 0 ? 'var(--red)' : 'var(--text)') + '">' + (srsStats.leechCount || 0) + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Leeched words</div></div>';
       html += '</div>';
     } else {
@@ -707,12 +707,12 @@ function renderAnalyticsAchievements() {
     // Progress bar
     html += '<div class="analytics-section">';
     html += '<div class="analytics-section-title">Overall Progress</div>';
-    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-    html += '<span style="font-size:12px;color:var(--text)">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';
+    html += '<div class="ai-card-xl">';
+    html += '<div class="pui-ach-summary">';
+    html += '<span class="ai-text-sm">' + earnedCount + ' / ' + totalCount + ' unlocked</span>';
     html += '<span style="font-size:10px;color:var(--gold)">' + achPct + '%</span>';
     html += '</div>';
-    html += '<div class="analytics-progress-track-big" style="height:10px;margin-bottom:16px">';
+    html += '<div class="analytics-progress-track-big" style="margin-bottom:16px">';
     html += '<div class="analytics-progress-fill-big" style="width:' + achPct + '%;height:10px;border-radius:5px"></div>';
     html += '</div>';
     html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">';
@@ -723,11 +723,11 @@ function renderAnalyticsAchievements() {
       var ck = catKeys[cki];
       var cat = achievementStats.byCategory[ck];
       var catPct = cat.total > 0 ? Math.round((cat.earned / cat.total) * 100) : 0;
-      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">';
-      html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">' + (catNames[ck] || ck) + '</div>';
+      html += '<div class="ai-card-sm">';
+      html += '<div class="ai-label-xs ai-c-muted" style="margin-bottom:4px">' + (catNames[ck] || ck) + '</div>';
       html += '<div style="display:flex;align-items:center;gap:6px">';
       html += '<div style="flex:1;height:4px;background:var(--bg);border-radius:2px"><div style="width:' + catPct + '%;height:4px;background:' + (catColors[ck] || 'var(--gold)') + ';border-radius:2px"></div></div>';
-      html += '<span style="font-size:10px;color:var(--text)">' + cat.earned + '/' + cat.total + '</span>';
+      html += '<span class="ai-label-xs">' + cat.earned + '/' + cat.total + '</span>';
       html += '</div></div>';
     }
     html += '</div></div></div>';

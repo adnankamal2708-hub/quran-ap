@@ -203,8 +203,8 @@ function updateLessonProgressDisplay() {
     if (lessonLabel) {
       // R1: Clear lesson header answering: What am I learning? Why is it important? What will I understand?
       var thematicTitle = fCtx.title || (isReview ? 'Review ' + fCurrent : 'Foundation ' + fCurrent);
-      lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + (isReview ? '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Review Lesson' : '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
-        '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' +
+      lessonLabel.innerHTML = '<div class="db-inline-gold" style="font-size:12px;font-weight:600;margin-bottom:2px">' + (isReview ? '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Review Lesson' : '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
+        '<div class="db-inline-text-sm" style="margin-top:2px">' +
         'Covers ~' + (fLesson ? fLesson.lessonCoverageNum.toFixed(1) : '0') + '% of Quran word occurrences' +
         (fLesson && fLesson.comprehensionGain > 0 ? ' \u00B7 Understanding: ' + $beforeComp.toFixed(1) + '% → ' + fLesson.projectedComprehension + '%' : '') +
         '</div>';
@@ -240,11 +240,11 @@ function updateLessonProgressDisplay() {
       var $sentenceTypes = fLesson && fLesson.cumulativeCoverageNum && fLesson.cumulativeCoverageNum > 30 ? ['basic sentence structures', 'frequent verb forms', 'common prepositions'] : ['common Quranic phrases', 'frequent word patterns', 'basic sentence flow'];
       
       unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-        '<h3 class="foundation-unlock-title" style="font-size:11px;color:var(--gold);font-weight:500;margin:0 0 6px 0">🔓 After this lesson you will:</h3>' +
+        '<h3 class="foundation-unlock-title" class="db-inline-gold" style="font-size:11px;font-weight:500;margin:0 0 6px 0">🔓 After this lesson you will:</h3>' +
         '<div class="foundation-unlock-items" style="display:flex;flex-direction:column;gap:4px">' +
-        '<span style="font-size:10px;color:var(--green)">✓ Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
-        '<span style="font-size:10px;color:var(--green)">✓ Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
-        '<span style="font-size:10px;color:var(--green)">✓ Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
+        '<span class="db-inline-green" style="font-size:10px">✓ Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
+        '<span class="db-inline-green" style="font-size:10px">✓ Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
+        '<span class="db-inline-green" style="font-size:10px">✓ Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
         (fLesson && fLesson.comprehensionGain > 0 ? '<span style="font-size:10px;color:var(--gold-dim)">📈 Estimated comprehension gain: +' + fLesson.comprehensionGain + '%</span>' : '') +
         '</div></div>';
       unlocksEl.style.display = 'block';
@@ -261,17 +261,17 @@ function updateLessonProgressDisplay() {
       
       var $remainingBar = Math.round((($currentComp || 0) / 100) * 24);
       // Create a simple visual progress representation
-      journeyEl.innerHTML = '<div class="foundation-journey-section" style="margin-top:8px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light)">' +
-        '<h4 style="font-size:11px;font-weight:500;color:var(--text);margin:0 0 8px 0">🗺️ Your Journey</h4>' +
+      journeyEl.innerHTML = '<div class="foundation-journey-section" class="db-inline-pill" style="margin-top:8px;padding:10px 12px">' +
+        '<h4 class="db-inline-value-sm" style="margin:0 0 8px 0">🗺️ Your Journey</h4>' +
         '<div class="db-progress" style="margin-bottom:6px">' +
-        '<div class="db-progress-track" style="height:6px;background:var(--surface2);border-radius:3px">' +
+        '<div class="db-progress-track" class="db-progress-track" style="height:6px">' +
         '<div class="db-progress-fill" style="height:6px;width:' + (fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0) + '%;background:var(--gold);border-radius:3px"></div></div>' +
         '<span class="db-progress-text" style="font-size:10px;color:var(--text-muted);margin-top:4px">Foundation: ' + fCompleted + ' / ' + fTotal + ' lessons</span>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' +
-        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--gold)">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
-        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--green)">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
-        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--blue)">' + $surahsWith50Plus + '/' + $surahsTotal + '</div><div style="font-size:9px;color:var(--text-muted)">Surahs (50%+)</div></div>' +
+        '<div style="text-align:center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
+        '<div style="text-align:center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
+        '<div style="text-align:center"><div class="ai-value-md ai-c-blue">' + $surahsWith50Plus + '/' + $surahsTotal + '</div><div style="font-size:9px;color:var(--text-muted)">Surahs (50%+)</div></div>' +
         '</div></div>';
       journeyEl.style.display = 'block';
     }
@@ -495,10 +495,10 @@ function updateLessonProgressDisplay() {
     if (lessonLabel && surahInfo) {
       var surahCompPct = surahComp ? surahComp.estimatedComprehension : 0;
       var surahCompLabel = surahCompPct > 0 ? ' \u00B7 ' + surahCompPct + '% comprehension' : '';
-      lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + 
+      lessonLabel.innerHTML = '<div class="db-inline-gold" style="font-size:12px;font-weight:600;margin-bottom:2px">' + 
         surahInfo.name + ' \u2014 ' + surahInfo.english + 
         (surahInfo.verses ? ' (' + surahInfo.verses + ' verses)' : '') + '</div>' +
-        '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' +
+        '<div class="db-inline-text-sm" style="margin-top:2px">' +
         (curIdx >= 0 ? 'Surah ' + curIdx + 1 + ' of ' + surahIds.length : '') + 
         (surahWords.length > 0 ? ' \u00B7 ' + surahWords.length + ' vocabulary words' : '') +
         surahCompLabel +
@@ -532,12 +532,12 @@ function updateLessonProgressDisplay() {
       var surahRootCount = Object.keys(surahRootSet).length;
       
       unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-        '<h3 class="foundation-unlock-title" style="font-size:11px;color:var(--gold);font-weight:500;margin:0 0 6px 0">\uD83D\uDD13 Studying this surah helps you:</h3>' +
+        '<h3 class="foundation-unlock-title" class="db-inline-gold" style="font-size:11px;font-weight:500;margin:0 0 6px 0">\uD83D\uDD13 Studying this surah helps you:</h3>' +
         '<div class="foundation-unlock-items" style="display:flex;flex-direction:column;gap:4px">' +
-        '<span style="font-size:10px;color:var(--green)">\u2713 Recognize ' + surahNouns + ' noun' + (surahNouns !== 1 ? 's' : '') + 
+        '<span class="db-inline-green" style="font-size:10px">\u2713 Recognize ' + surahNouns + ' noun' + (surahNouns !== 1 ? 's' : '') + 
         ', ' + surahVerbs + ' verb' + (surahVerbs !== 1 ? 's' : '') + 
         ', and ' + surahParticles + ' particle' + (surahParticles !== 1 ? 's' : '') + ' specific to this surah</span>' +
-        '<span style="font-size:10px;color:var(--green)">\u2713 Learn words from ' + surahRootCount + ' root famil' + (surahRootCount !== 1 ? 'ies' : 'y') + ' used in this surah\'s context</span>' +
+        '<span class="db-inline-green" style="font-size:10px">\u2713 Learn words from ' + surahRootCount + ' root famil' + (surahRootCount !== 1 ? 'ies' : 'y') + ' used in this surah\'s context</span>' +
         (surahCompPct > 0 
           ? '<span style="font-size:10px;color:var(--gold-dim)">\uD83D\uDCC8 Current understanding of this surah: ' + surahCompPct + '%</span>'
           : '<span style="font-size:10px;color:var(--text-muted)">\uD83D\uDCC8 Master words in this surah to understand it at a deeper level</span>') +
@@ -553,17 +553,17 @@ function updateLessonProgressDisplay() {
       var $masteredWords = $coverage ? $coverage.masteredWords : 0;
       var $totalWords = $coverage ? $coverage.totalWords : 0;
       
-      journeyEl.innerHTML = '<div class="foundation-journey-section" style="margin-top:8px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light)">' +
-        '<h4 style="font-size:11px;font-weight:500;color:var(--text);margin:0 0 8px 0">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
+      journeyEl.innerHTML = '<div class="foundation-journey-section" class="db-inline-pill" style="margin-top:8px;padding:10px 12px">' +
+        '<h4 class="db-inline-value-sm" style="margin:0 0 8px 0">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
         '<div class="db-progress" style="margin-bottom:6px">' +
-        '<div class="db-progress-track" style="height:6px;background:var(--surface2);border-radius:3px">' +
+        '<div class="db-progress-track" class="db-progress-track" style="height:6px">' +
         '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--blue);border-radius:3px"></div></div>' +
         '<span class="db-progress-text" style="font-size:10px;color:var(--text-muted);margin-top:4px">Surahs: ' + completed + ' / ' + surahIds.length + '</span>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' +
-        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--gold)">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
-        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--green)">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
-        '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--blue)">' + (surahCompPct || 0) + '%</div><div style="font-size:9px;color:var(--text-muted)">This Surah</div></div>' +
+        '<div style="text-align:center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
+        '<div style="text-align:center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
+        '<div style="text-align:center"><div class="ai-value-md ai-c-blue">' + (surahCompPct || 0) + '%</div><div style="font-size:9px;color:var(--text-muted)">This Surah</div></div>' +
         '</div></div>';
       journeyEl.style.display = 'block';
     }
@@ -628,9 +628,9 @@ function updateLessonProgressDisplay() {
 
   // R1: Enhanced lesson header for standard lesson mode
   if (lessonLabel) {
-    lessonLabel.innerHTML = '<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:2px">' + 
+    lessonLabel.innerHTML = '<div class="db-inline-gold" style="font-size:12px;font-weight:600;margin-bottom:2px">' + 
       '\uD83D\uDCD6 Lesson ' + current + ' \u2014 Sequential Vocabulary</div>' +
-      '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' +
+      '<div class="db-inline-text-sm" style="margin-top:2px">' +
       (lessonWords.length > 0 ? lessonWords.length + ' words' : '') + 
       (lessonCoveragePct > 0 ? ' \u00B7 ~' + lessonCoveragePct.toFixed(1) + '% of Quranic occurrences' : '') +
       ' \u00B7 ' + completed + ' of ' + total + ' lessons complete' +
@@ -659,12 +659,12 @@ function updateLessonProgressDisplay() {
   var unlocksEl = DOM.get('foundation-unlocks');
   if (unlocksEl) {
     unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-      '<h3 class="foundation-unlock-title" style="font-size:11px;color:var(--gold);font-weight:500;margin:0 0 6px 0">\uD83D\uDD13 What you will learn in this lesson:</h3>' +
+      '<h3 class="foundation-unlock-title" class="db-inline-gold" style="font-size:11px;font-weight:500;margin:0 0 6px 0">\uD83D\uDD13 What you will learn in this lesson:</h3>' +
       '<div class="foundation-unlock-items" style="display:flex;flex-direction:column;gap:4px">' +
-      '<span style="font-size:10px;color:var(--green)">\u2713 Practice ' + lessonNouns + ' noun' + (lessonNouns !== 1 ? 's' : '') + 
+      '<span class="db-inline-green" style="font-size:10px">\u2713 Practice ' + lessonNouns + ' noun' + (lessonNouns !== 1 ? 's' : '') + 
       ', ' + lessonVerbs + ' verb' + (lessonVerbs !== 1 ? 's' : '') + 
       ', and ' + lessonParticles + ' particle' + (lessonParticles !== 1 ? 's' : '') + '</span>' +
-      '<span style="font-size:10px;color:var(--green)">\u2713 Explore ' + lessonRootCount + ' root famil' + (lessonRootCount !== 1 ? 'ies' : 'y') + ' to see word patterns</span>' +
+      '<span class="db-inline-green" style="font-size:10px">\u2713 Explore ' + lessonRootCount + ' root famil' + (lessonRootCount !== 1 ? 'ies' : 'y') + ' to see word patterns</span>' +
       (lessonCoveragePct > 0 
         ? '<span style="font-size:10px;color:var(--gold-dim)">\uD83D\uDCC8 These words appear ~' + lessonTotalOcc + ' times in the Quran</span>'
         : '') +
@@ -679,17 +679,17 @@ function updateLessonProgressDisplay() {
     var surahsWith50Plus = allSurahComp.filter(function($s) { return $s.estimatedComprehension >= 50; }).length;
     var surahsTotal = allSurahComp.length;
     
-    journeyEl.innerHTML = '<div class="foundation-journey-section" style="margin-top:8px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light)">' +
-      '<h4 style="font-size:11px;font-weight:500;color:var(--text);margin:0 0 8px 0">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
+    journeyEl.innerHTML = '<div class="foundation-journey-section" class="db-inline-pill" style="margin-top:8px;padding:10px 12px">' +
+      '<h4 class="db-inline-value-sm" style="margin:0 0 8px 0">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
       '<div class="db-progress" style="margin-bottom:6px">' +
-      '<div class="db-progress-track" style="height:6px;background:var(--surface2);border-radius:3px">' +
+      '<div class="db-progress-track" class="db-progress-track" style="height:6px">' +
       '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--gold);border-radius:3px"></div></div>' +
       '<span class="db-progress-text" style="font-size:10px;color:var(--text-muted);margin-top:4px">Lessons: ' + completed + ' / ' + total + '</span>' +
       '</div>' +
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' +
-      '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--gold)">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
-      '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--green)">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
-      '<div style="text-align:center"><div style="font-size:16px;font-weight:600;color:var(--blue)">' + surahsWith50Plus + '/' + surahsTotal + '</div><div style="font-size:9px;color:var(--text-muted)">Surahs (50%+)</div></div>' +
+      '<div style="text-align:center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
+      '<div style="text-align:center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
+      '<div style="text-align:center"><div class="ai-value-md ai-c-blue">' + surahsWith50Plus + '/' + surahsTotal + '</div><div style="font-size:9px;color:var(--text-muted)">Surahs (50%+)</div></div>' +
       '</div></div>';
     journeyEl.style.display = 'block';
   }
@@ -1307,6 +1307,15 @@ function init() {
     // 0. Capture splash start time for minimum display duration
     window.__splashStart = Date.now();
 
+    // 0. Log safeguard results
+    if (window.__safeguards) {
+      var issues = window.__safeguards.issues();
+      if (issues.length > 0) {
+        console.warn('[startup] [pre] Safeguards detected ' + issues.length + ' issue(s):');
+        issues.forEach(function(iss) { console.warn('  [' + iss.type + '] ' + iss.detail); });
+      }
+    }
+
     // 0. Ensure lessons and word index are built
     window.__DEV__ && console.log('[startup] [1a] Building lessons and word index...');
     if (LESSONS.length === 0) buildLessons();
@@ -1379,10 +1388,25 @@ function init() {
 
     // 6. Setup other views (dashboard already rendered by switchView('dashboard'))
     window.__DEV__ && console.log('[startup] [8] Setting up initial displays...');
-    try { updateWordCard(); } catch (e) { console.warn('[app] Word card init failed:', e.message); }
-    try { updateReviewBanner(); } catch (e) { console.warn('[app] Review banner update failed:', e.message); }
-    try { updateStatsDisplay(); } catch (e) { console.warn('[app] Stats display update failed:', e.message); }
-    try { updateLessonProgressDisplay(); } catch (e) { console.warn('[app] Lesson progress update failed:', e.message); }
+
+    // Wrap rendering functions with safe boundaries if available
+    var _safeUpdateWordCard = (window.__safeguards && window.__safeguards.createSafeRenderer)
+      ? window.__safeguards.createSafeRenderer(updateWordCard, 'updateWordCard')
+      : updateWordCard;
+    var _safeUpdateReviewBanner = (window.__safeguards && window.__safeguards.createSafeRenderer)
+      ? window.__safeguards.createSafeRenderer(updateReviewBanner, 'updateReviewBanner')
+      : updateReviewBanner;
+    var _safeUpdateStatsDisplay = (window.__safeguards && window.__safeguards.createSafeRenderer)
+      ? window.__safeguards.createSafeRenderer(updateStatsDisplay, 'updateStatsDisplay')
+      : updateStatsDisplay;
+    var _safeUpdateLessonProgress = (window.__safeguards && window.__safeguards.createSafeRenderer)
+      ? window.__safeguards.createSafeRenderer(updateLessonProgressDisplay, 'updateLessonProgressDisplay')
+      : updateLessonProgressDisplay;
+
+    try { _safeUpdateWordCard(); } catch (e) { console.warn('[app] Word card init failed:', e.message); }
+    try { _safeUpdateReviewBanner(); } catch (e) { console.warn('[app] Review banner update failed:', e.message); }
+    try { _safeUpdateStatsDisplay(); } catch (e) { console.warn('[app] Stats display update failed:', e.message); }
+    try { _safeUpdateLessonProgress(); } catch (e) { console.warn('[app] Lesson progress update failed:', e.message); }
 
     // 7. Register service worker
     window.__DEV__ && console.log('[startup] [9] Registering service worker...');

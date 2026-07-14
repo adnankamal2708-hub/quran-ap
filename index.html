@@ -17,6 +17,21 @@
   <link rel="preconnect" href="https://www.gstatic.com" />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- ── SAFEGUARDS: Inline CSS fallback for extreme edge cases ── -->
+  <style>
+    /* Fallback design tokens used when CSS variables fail to resolve (safeguards.js) */
+    html { background: #0f0e0c; color: #e8e2d5; }
+    body { background: inherit; color: inherit; }
+    /* If fonts fail to load, .fonts-failed is set by safeguards.js */
+    html.fonts-failed .arabic-word { font-family: 'Traditional Arabic', 'Arabic Typesetting', serif; }
+    html.fonts-failed .splash-title { font-family: Georgia, 'Times New Roman', serif; }
+    html.fonts-failed,
+    html.fonts-failed body { font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+
+  <!-- ── SAFEGUARDS: Error detection & prevention (loads BEFORE other scripts) ── -->
+  <script src="js/safeguards.js"></script>
 </head>
 <body>
   <!-- ── SKIP TO CONTENT (first focusable element for accessibility) ── -->
