@@ -28,6 +28,7 @@ var TESTS = [
   "review-center.test.js",
   "services.test.js",
   "foundation-course.test.js",
+  "regression.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
