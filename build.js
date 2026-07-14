@@ -380,7 +380,26 @@ async function build() {
   var cssLinkRegex = /<link\s+rel="stylesheet"\s+href="styles\.css"\s*\/?>/;
   devHtml = devHtml.replace(cssLinkRegex, '<style>' + css + '</style>');
 
-  // Step B: Basic HTML minification
+  // Step B: Inline safeguards.js into the inline <script> block
+  // The source index.html already has an inline <script> block as a placeholder.
+  // We replace it with the fresh source content so js/safeguards.js is the
+  // single source of truth and the build always gets the latest version.
+  var safeguardsSrc = readFile('js/safeguards.js');
+  if (safeguardsSrc) {
+    // Remove comments from safeguards for smaller inline footprint
+    safeguardsSrc = stripComments(safeguardsSrc);
+    // Match the existing inline safeguards block (from <!-- SAFEGUARDS comment to </script>)
+    var inlineSafeguardsRegex = /<!-- ── SAFEGUARDS[\s\S]*?<\/script>/;
+    devHtml = devHtml.replace(inlineSafeguardsRegex,
+      '<!-- ── SAFEGUARDS: Error detection & prevention (inlined from js/safeguards.js) ── -->\n' +
+      '  <script>' + safeguardsSrc + '</script>'
+    );
+    console.log('     safeguards.js inlined into production HTML (' + safeguardsSrc.length + ' bytes)');
+  } else {
+    console.warn('     Warning: js/safeguards.js not found — inline safeguards block left as-is');
+  }
+
+  // Step C: Basic HTML minification
   devHtml = minifyHTML(devHtml);
 
   writeFile('index.html', devHtml);
