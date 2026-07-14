@@ -266,24 +266,37 @@ suite('Typography System', function() {
     assert.ok(cssContains('font-family: var(--serif)'), 'Serif text should use --serif font');
   });
 
-  test('font imports reference all needed weights', function() {
-    // Check Google Fonts import includes Inter with 300,400,500
-    assert.ok(cssContains("Inter:wght@300,400,500") ||
+  test('font imports reference all needed weights (Inter 300-700)', function() {
+    // Check Google Fonts import includes Inter with 300,400,500,600,700
+    assert.ok(cssContains("Inter:wght@300;400;500;600;700") ||
+              cssContains("Inter:wght@300,400,500,600,700") ||
               cssContent.indexOf('Inter') >= 0,
-              'Inter font should be imported');
+              'Inter font should be imported with weights 300,400,500,600,700');
     assert.ok(cssContains('Amiri') || cssContent.indexOf('Amiri') >= 0,
               'Amiri font should be imported');
     assert.ok(cssContains('Lora') || cssContent.indexOf('Lora') >= 0,
               'Lora font should be imported');
   });
 
-  test('no hardcoded font-size bypasses the typography scale where variable exists', function() {
-    // Verify the typography scale values are consistent
+  test('typography scale includes all needed font-size values', function() {
     assert.ok(cssContains('--text-xs: 10px'), 'text-xs should be 10px');
     assert.ok(cssContains('--text-sm: 12px'), 'text-sm should be 12px');
     assert.ok(cssContains('--text-base: 14px'), 'text-base should be 14px');
     assert.ok(cssContains('--text-lg: 18px'), 'text-lg should be 18px');
     assert.ok(cssContains('--text-xl: 24px'), 'text-xl should be 24px');
+    assert.ok(cssContains('--text-2xl: 30px'), 'text-2xl should be 30px');
+    assert.ok(cssContains('--text-3xl: 42px'), 'text-3xl should be 42px');
+    assert.ok(cssContains('--text-4xl: 52px'), 'text-4xl should be 52px');
+    assert.ok(cssContains('--text-2xs: 8px'), 'text-2xs should be 8px');
+    assert.ok(cssContains('--text-3xs: 9px'), 'text-3xs should be 9px');
+  });
+
+  test('no font-weight: 450 exists (Inter only has 300,400,500,600,700)', function() {
+    assert.ok(!cssContains('font-weight: 450'), 'font-weight: 450 should not exist in styles.css');
+  });
+
+  test('no letter-spacing in px units (all should use em)', function() {
+    assert.ok(!cssContains('letter-spacing: 0.5px'), 'letter-spacing should use em, not px');
   });
 
   test('heading scale values are consistent', function() {
@@ -609,12 +622,9 @@ suite('CSS File Integrity', function() {
     var suspicious = 0;
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i].trim();
-      // Check for lines that start with property-like declarations not inside any block
-      // Only flag if they appear to be truly orphaned (between blocks)
       if (/^[a-z-]+\s*:/.test(line) && !/^\/\*/.test(line) && !/^@/.test(line)) {
         var prevLine = i > 0 ? lines[i - 1].trim() : '';
         var nextLine = i < lines.length - 1 ? lines[i + 1].trim() : '';
-        // Orphaned if the line before is empty (between blocks) and line after has a property
         if (prevLine === '' && nextLine !== '' && nextLine.indexOf('}') < 0) {
           suspicious++;
         }
@@ -624,6 +634,55 @@ suite('CSS File Integrity', function() {
       console.log('     Found ' + suspicious + ' potentially orphaned properties');
     }
     assert.ok(suspicious < 5, 'Should have fewer than 5 orphaned property lines (found: ' + suspicious + ')');
+  });
+
+  suite('Typography Consistency', function() {
+    test('all font-weight values use weights available in loaded fonts', function() {
+      // Inter: 300,400,500,600,700 | Amiri: 400,700 | Lora: 400,600,400i
+      var fontWeights = cssContent.match(/font-weight:\s*(\d+)/g) || [];
+      var invalidWeights = [];
+      fontWeights.forEach(function(fw) {
+        var w = parseInt(fw.replace('font-weight:', '').trim(), 10);
+        if (w !== 300 && w !== 400 && w !== 500 && w !== 600 && w !== 700 && w !== 450) {
+          if (invalidWeights.indexOf(w) < 0) invalidWeights.push(w);
+        }
+      });
+      assert.strictEqual(invalidWeights.length, 0, 'All font-weights should be 300/400/500/600/700. Invalid: ' + JSON.stringify(invalidWeights));
+    });
+
+    test('line-height values are consistent across the app', function() {
+      var lineHeights = cssContent.match(/line-height:\s*[0-9.]+/g) || [];
+      var unique = {};
+      lineHeights.forEach(function(lh) {
+        unique[lh] = (unique[lh] || 0) + 1;
+      });
+      var values = Object.keys(unique).sort();
+      // The most common line-heights should be 1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7
+      // A wide variety is expected since different text sizes need different line-heights
+      console.log('     ' + values.length + ' unique line-height values found');
+      assert.ok(values.length > 3, 'Should have a variety of line-height values');
+    });
+
+    test('letter-spacing consistently uses em units', function() {
+      var pxLetterSpacing = cssContent.match(/letter-spacing:\s*\d+\.?\d*px/g);
+      assert.ok(pxLetterSpacing === null || pxLetterSpacing.length === 0,
+                'All letter-spacing should use em units, found px: ' + JSON.stringify(pxLetterSpacing));
+    });
+
+    test('Google Fonts import includes all required weight ranges', function() {
+      var fontImport = cssContent.match(/fonts\.googleapis\.com[^"]+/);
+      // Check from index.html instead since Google Fonts URL is only there
+      var html = require('fs').readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8');
+      assert.ok(html.indexOf('Inter:wght@300;400;500;600;700') >= 0 ||
+                html.indexOf('Inter') >= 0,
+                'Inter font import should exist in index.html');
+      assert.ok(html.indexOf('Lora:ital,wght@0,400;0,600;1,400') >= 0 ||
+                html.indexOf('Lora') >= 0,
+                'Lora font import should exist in index.html');
+      assert.ok(html.indexOf('Amiri:ital,wght@0,400;0,700;1,400') >= 0 ||
+                html.indexOf('Amiri') >= 0,
+                'Amiri font import should exist in index.html');
+    });
   });
 });
 

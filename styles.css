@@ -66,7 +66,9 @@
   --heading-xl: 20px;
   --heading-2xl: 28px;
 
-  --spacing-xs: 4px;
+  
+  --text-2xs: 8px;
+  --text-3xs: 9px;--spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 12px;
   --spacing-lg: 16px;
@@ -1841,7 +1843,7 @@ body::before {
   min-width: 80px;
   text-align: right;
   flex-shrink: 0;
-  font-weight: 450;
+  font-weight: 500;
 }
 
 .stats-bar-track {
@@ -6733,7 +6735,7 @@ body::before {
 .reader-sheet-stat-label {
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
   display: block;
   margin-bottom: 2px;
@@ -6765,7 +6767,7 @@ body::before {
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
   margin-bottom: 6px;
 }
 
