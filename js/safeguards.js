@@ -9,6 +9,10 @@
   // ── Internal state ──────────────────────────────────────────
   var _safeguardResults = { dom: [], css: [], fonts: [] };
   var _hasRenderedFallback = false;
+  var _fontCheckStarted = false;
+  var _fontRetryCount = 0;
+  var _fontMaxRetries = 3;
+  var _fontPrimaryCheckDone = false;
 
   // ══════════════════════════════════════════════════════════════
   // 1. DOM ELEMENT DETECTION
@@ -103,24 +107,29 @@
     '--spacing-md',
   ];
 
-  /** Check that required CSS variables resolve to real values. Returns missing var names. */
+  /**
+   * Check that required CSS variables resolve to real values.
+   * Uses getComputedStyle on document.documentElement directly — no DOM mutation.
+   * This is simpler, faster, and more reliable across browsers.
+   * Returns missing var names.
+   */
   function checkCssVariables() {
     var missing = [];
-    var tempEl = document.createElement('div');
-    tempEl.style.cssText = REQUIRED_CSS_VARS.map(function (v) {
-      return v + ': var(' + v + ')';
-    }).join(';');
 
-    // Guard: if the stylesheet hasn't loaded yet, the computed style will be empty
-    // for all variables. Match both dev (styles.css) and production (styles.min.css) filenames.
+    // Guard: if the stylesheet hasn't loaded yet, CSS vars won't resolve
+    // Match both dev (styles.css) and production (styles.min.css) filenames.
     var linkEl = document.querySelector('link[href$=".css"]');
     if (linkEl && !linkEl.sheet) {
       window.__DEV__ && console.log('[safeguards] ℹ stylesheet not yet loaded — skipping CSS var check');
       return [];
     }
 
-    document.body.appendChild(tempEl);
-    var computed = getComputedStyle(tempEl);
+    // Use getComputedStyle on the root element directly.
+    // This is more reliable than creating a temporary element because:
+    // - No DOM mutation needed
+    // - CSS vars inherit from :root to all descendants
+    // - Works consistently in Chrome, Firefox, Safari, and Edge
+    var computed = getComputedStyle(document.documentElement);
     for (var i = 0; i < REQUIRED_CSS_VARS.length; i++) {
       var v = REQUIRED_CSS_VARS[i];
       var val = computed.getPropertyValue(v).trim();
@@ -128,7 +137,6 @@
         missing.push(v);
       }
     }
-    document.body.removeChild(tempEl);
 
     if (missing.length > 0) {
       _safeguardResults.css = missing;
@@ -143,6 +151,13 @@
   // ══════════════════════════════════════════════════════════════
   // 3. FONT LOADING DETECTION
   // ══════════════════════════════════════════════════════════════
+  //
+  // DESIGN PRINCIPLES:
+  // 1. Never permanently mark fonts as failed — web fonts can load asynchronously
+  // 2. Use self-healing: if fonts were marked failed but later load, REMOVE the class
+  // 3. Multiple detection strategies: Font Loading API + polling as fallback
+  // 4. Actionable diagnostics: report exactly which font, why it failed, and timing
+  // ══════════════════════════════════════════════════════════════
 
   var REQUIRED_FONTS = [
     { family: 'Inter',  fallback: 'sans-serif', usage: 'Body text (--body)' },
@@ -150,54 +165,207 @@
     { family: 'Lora',   fallback: 'serif',      usage: 'Headings & serif (--serif)' },
   ];
 
-  /** Monitor font loading and report failures. Returns promise resolving with failed font names. */
+  /**
+   * Check if a specific font is loaded using the Font Loading API.
+   * Tries multiple font sizes and quote styles for cross-browser compatibility.
+   * @param {string} family - The font family name
+   * @returns {boolean} true if the font is available
+   */
+  function isFontLoaded(family) {
+    try {
+      // Try with quoted family name (standard CSS syntax)
+      if (document.fonts.check('1em "' + family + '"')) return true;
+      // Try without quotes (works for single-word family names)
+      if (document.fonts.check('1em ' + family)) return true;
+      // Try with explicit font-weight:400 (safari sometimes needs this)
+      if (document.fonts.check('400 1em "' + family + '"')) return true;
+      // Try with italic variant (for fonts like Lora that have italic faces)
+      if (document.fonts.check('italic 1em "' + family + '"')) return true;
+      // Try with different size (some browsers have edge cases with 1em)
+      if (document.fonts.check('16px "' + family + '"')) return true;
+      // Try with 16px + italic (covers edge cases with italic-only font faces)
+      if (document.fonts.check('italic 16px "' + family + '"')) return true;
+    } catch (e) {
+      // Font check threw an exception — font is not available
+      return false;
+    }
+    return false;
+  }
+
+  /**
+   * Check all required fonts and return array of failed font info objects.
+   * Each failed object includes: family, reason, status
+   */
+  function checkAllFonts() {
+    var failed = [];
+    var fsStatus = document.fonts ? document.fonts.status : 'unavailable';
+
+    for (var fi = 0; fi < REQUIRED_FONTS.length; fi++) {
+      var f = REQUIRED_FONTS[fi];
+      if (!isFontLoaded(f.family)) {
+        failed.push({
+          family: f.family,
+          fallback: f.fallback,
+          usage: f.usage,
+          reason: 'check_failed',
+          status: fsStatus,
+        });
+      }
+    }
+    return failed;
+  }
+
+  /**
+   * Apply the fonts-failed state: add class and update results.
+   */
+  function applyFontsFailed(failed) {
+    if (failed.length === 0) return;
+
+    // Build detailed failure report
+    _safeguardResults.fonts = failed.map(function (f) {
+      return f.family + ' (' + f.reason + ', status: ' + f.status + ')';
+    });
+
+    console.warn('[safeguards] ⚠ Fonts failed to load (' + failed.length + '):');
+    for (var i = 0; i < failed.length; i++) {
+      var f = failed[i];
+      console.warn('  [' + f.family + '] reason=' + f.reason + ' status=' + f.status + ' usage=' + f.usage);
+    }
+
+    document.documentElement.classList.add('fonts-failed');
+  }
+
+  /**
+   * Remove the fonts-failed state: remove class, update results.
+   * Called when fonts eventually load after being marked as failed (self-healing).
+   */
+  function clearFontsFailed() {
+    if (!document.documentElement.classList.contains('fonts-failed')) return;
+
+    document.documentElement.classList.remove('fonts-failed');
+    _safeguardResults.fonts = [];
+
+    console.log('[safeguards] 🔄 Self-healing: Fonts that were previously marked as failed have now loaded.');
+    console.log('[safeguards] fonts-failed class removed — theme restored to full typography.');
+  }
+
+  /**
+   * Retry font check with delay. If fonts now load, self-heal.
+   * This handles the race condition where document.fonts.ready fires
+   * before font data is fully available for document.fonts.check().
+   */
+  function retryFontCheck() {
+    if (_fontRetryCount >= _fontMaxRetries) return;
+    _fontRetryCount++;
+
+    var delay = _fontRetryCount * 2000; // 2s, 4s, 6s
+
+    setTimeout(function () {
+      var stillFailed = checkAllFonts();
+
+      if (stillFailed.length === 0 && document.documentElement.classList.contains('fonts-failed')) {
+        // Fonts loaded successfully now — self-heal
+        clearFontsFailed();
+      }
+    }, delay);
+  }
+
+  /**
+   * Install a MutationObserver to detect when loading completes.
+   * This catches font loading changes that the Font Loading API might miss.
+   */
+  function installFontLoadingObserver() {
+    if (!document.fonts || typeof document.fonts.addEventListener !== 'function') return;
+
+    try {
+      document.fonts.addEventListener('loadingdone', function (e) {
+        if (document.documentElement.classList.contains('fonts-failed')) {
+          // Font loading completed — check if our fonts are now available
+          var stillFailed = checkAllFonts();
+          if (stillFailed.length === 0) {
+            clearFontsFailed();
+          } else {
+            // Schedule retry — some fonts may still be loading
+            retryFontCheck();
+          }
+        }
+      });
+
+      document.fonts.addEventListener('loadingerr', function () {
+        // Some fonts failed to load — the initial check will handle this
+        // But we might still get a loadingdone later for successful fonts
+      });
+    } catch (e) {
+      // Font Loading API events not supported
+    }
+  }
+
+  /** Monitor font loading with self-healing capability. */
   function checkFonts() {
     return new Promise(function (resolve) {
       if (!document.fonts || !document.fonts.ready) {
+        console.log('[safeguards] ℹ Font Loading API not available — skipping font check');
         resolve([]);
         return;
       }
 
-      var failed = [];
-      var timeout = setTimeout(function () {
-        for (var fi = 0; fi < REQUIRED_FONTS.length; fi++) {
-          var f = REQUIRED_FONTS[fi];
-          if (!document.fonts.check('1em ' + f.family)) {
-            failed.push(f.family + ' (timeout)');
-          }
-        }
-        if (failed.length > 0) {
-          _safeguardResults.fonts = failed;
-          console.warn('[safeguards] ⚠ Fonts failed to load: ' + failed.join(', '));
-          document.documentElement.classList.add('fonts-failed');
-        }
-        resolve(failed);
-      }, 12000);
+      _fontCheckStarted = true;
 
+      // Install event listeners for ongoing font loading changes
+      installFontLoadingObserver();
+
+      // Safety timeout reference for cleanup
+      var safetyTimeout = null;
+
+      // Primary check: use document.fonts.ready + check()
       document.fonts.ready.then(function () {
-        clearTimeout(timeout);
-        for (var fi = 0; fi < REQUIRED_FONTS.length; fi++) {
-          var f = REQUIRED_FONTS[fi];
-          try {
-            if (!document.fonts.check('1em "' + f.family + '"')) {
-              failed.push(f.family);
-            }
-          } catch (e) {
-            failed.push(f.family + ' (check error)');
-          }
-        }
+        // Guard against double-apply (race with safety timeout)
+        if (_fontPrimaryCheckDone) return;
+        _fontPrimaryCheckDone = true;
+        // Clear the safety timeout since primary check completed
+        if (safetyTimeout) { clearTimeout(safetyTimeout); safetyTimeout = null; }
+        var failed = checkAllFonts();
+
         if (failed.length > 0) {
-          _safeguardResults.fonts = failed;
-          console.warn('[safeguards] ⚠ Fonts failed to load: ' + failed.join(', '));
-          document.documentElement.classList.add('fonts-failed');
+          applyFontsFailed(failed);
+
+          // Schedule retry checks — fonts may still be loading
+          // document.fonts.ready can fire before all font data is queryable
+          retryFontCheck();
+
+          // Final fallback timeout: if fonts haven't loaded by now,
+          // they're genuinely unavailable (not just slow)
+          setTimeout(function () {
+            var stillFailed = checkAllFonts();
+            if (stillFailed.length === 0) {
+              clearFontsFailed();
+            }
+          }, 12000);
         } else {
           window.__DEV__ && console.log('[safeguards] ✓ All web fonts loaded successfully');
         }
-        resolve(failed);
+
+        resolve(_safeguardResults.fonts);
       }).catch(function () {
-        clearTimeout(timeout);
-        resolve(failed);
+        // document.fonts.ready rejected — fonts unavailable
+        var failed = checkAllFonts();
+        if (failed.length > 0) {
+          applyFontsFailed(failed);
+        }
+        resolve(_safeguardResults.fonts);
       });
+
+      // Safety timeout: if document.fonts.ready never resolves (very rare),
+      // check fonts manually after 10 seconds
+      safetyTimeout = setTimeout(function () {
+        var failed = checkAllFonts();
+        if (failed.length > 0) {
+          applyFontsFailed(failed);
+          // Retry later — fonts might still load
+          retryFontCheck();
+        }
+        resolve(_safeguardResults.fonts);
+      }, 10000);
     });
   }
 
@@ -325,7 +493,11 @@
     var domOk = missingDom.length === 0;
     var cssOk = missingCss.length === 0;
 
-    checkFonts().then(function () {});
+    checkFonts().then(function (fontIssues) {
+      if (fontIssues && fontIssues.length > 0) {
+        console.log('[safeguards] Initial font check found ' + fontIssues.length + ' issue(s). Self-healing will re-check.');
+      }
+    });
 
     if (!domOk || !cssOk) {
       setTimeout(ensureFallbackUI, 500);
