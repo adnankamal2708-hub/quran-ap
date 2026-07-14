@@ -203,8 +203,8 @@ function updateLessonProgressDisplay() {
     if (lessonLabel) {
       // R1: Clear lesson header answering: What am I learning? Why is it important? What will I understand?
       var thematicTitle = fCtx.title || (isReview ? 'Review ' + fCurrent : 'Foundation ' + fCurrent);
-      lessonLabel.innerHTML = '<div class="db-inline-gold" style="font-size:12px;font-weight:600;margin-bottom:2px">' + (isReview ? '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Review Lesson' : '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
-        '<div class="db-inline-text-sm" style="margin-top:2px">' +
+      lessonLabel.innerHTML = '<div class="ai-title-gold">' + (isReview ? '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Review Lesson' : '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
+        '<div class="db-inline-text-sm ai-mt-2">' +
         'Covers ~' + (fLesson ? fLesson.lessonCoverageNum.toFixed(1) : '0') + '% of Quran word occurrences' +
         (fLesson && fLesson.comprehensionGain > 0 ? ' \u00B7 Understanding: ' + $beforeComp.toFixed(1) + '% → ' + fLesson.projectedComprehension + '%' : '') +
         '</div>';
@@ -240,12 +240,12 @@ function updateLessonProgressDisplay() {
       var $sentenceTypes = fLesson && fLesson.cumulativeCoverageNum && fLesson.cumulativeCoverageNum > 30 ? ['basic sentence structures', 'frequent verb forms', 'common prepositions'] : ['common Quranic phrases', 'frequent word patterns', 'basic sentence flow'];
       
       unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-        '<h3 class="foundation-unlock-title" class="db-inline-gold" style="font-size:11px;font-weight:500;margin:0 0 6px 0">🔓 After this lesson you will:</h3>' +
-        '<div class="foundation-unlock-items" style="display:flex;flex-direction:column;gap:4px">' +
-        '<span class="db-inline-green" style="font-size:10px">✓ Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
-        '<span class="db-inline-green" style="font-size:10px">✓ Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
-        '<span class="db-inline-green" style="font-size:10px">✓ Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
-        (fLesson && fLesson.comprehensionGain > 0 ? '<span style="font-size:10px;color:var(--gold-dim)">📈 Estimated comprehension gain: +' + fLesson.comprehensionGain + '%</span>' : '') +
+        '<h3 class="foundation-unlock-title">🔓 After this lesson you will:</h3>' +
+        '<div class="foundation-unlock-items">' +
+        '<span class="db-inline-green ai-unlock-item">✓ Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
+        '<span class="db-inline-green ai-unlock-item">✓ Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
+        '<span class="db-inline-green ai-unlock-item">✓ Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
+        (fLesson && fLesson.comprehensionGain > 0 ? '<span class="ai-unlock-gold-dim">📈 Estimated comprehension gain: +' + fLesson.comprehensionGain + '%</span>' : '') +
         '</div></div>';
       unlocksEl.style.display = 'block';
     }
@@ -261,17 +261,17 @@ function updateLessonProgressDisplay() {
       
       var $remainingBar = Math.round((($currentComp || 0) / 100) * 24);
       // Create a simple visual progress representation
-      journeyEl.innerHTML = '<div class="foundation-journey-section" class="db-inline-pill" style="margin-top:8px;padding:10px 12px">' +
-        '<h4 class="db-inline-value-sm" style="margin:0 0 8px 0">🗺️ Your Journey</h4>' +
-        '<div class="db-progress" style="margin-bottom:6px">' +
-        '<div class="db-progress-track" class="db-progress-track" style="height:6px">' +
+      journeyEl.innerHTML = '<div class="foundation-journey-section">' +
+        '<h4 class="db-inline-value-sm ai-journey-title">🗺️ Your Journey</h4>' +
+        '<div class="db-progress">' +
+        '<div class="db-progress-track">' +
         '<div class="db-progress-fill" style="height:6px;width:' + (fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0) + '%;background:var(--gold);border-radius:3px"></div></div>' +
-        '<span class="db-progress-text" style="font-size:10px;color:var(--text-muted);margin-top:4px">Foundation: ' + fCompleted + ' / ' + fTotal + ' lessons</span>' +
+        '<span class="db-progress-text">Foundation: ' + fCompleted + ' / ' + fTotal + ' lessons</span>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' +
-        '<div style="text-align:center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
-        '<div style="text-align:center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
-        '<div style="text-align:center"><div class="ai-value-md ai-c-blue">' + $surahsWith50Plus + '/' + $surahsTotal + '</div><div style="font-size:9px;color:var(--text-muted)">Surahs (50%+)</div></div>' +
+        '<div class="ai-journey-grid">' +
+        '<div class="db-inline-center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div class="db-inline-text-xs">Comprehension</div></div>' +
+        '<div class="db-inline-center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div class="db-inline-text-xs">Words</div></div>' +
+        '<div class="db-inline-center"><div class="ai-value-md ai-c-blue">' + $surahsWith50Plus + '/' + $surahsTotal + '</div><div class="db-inline-text-xs">Surahs (50%+)</div></div>' +
         '</div></div>';
       journeyEl.style.display = 'block';
     }
@@ -280,9 +280,9 @@ function updateLessonProgressDisplay() {
     var foundationCoverageEl = DOM.get('foundation-coverage');
     if (foundationCoverageEl && fLesson) {
       var compMsg = fCtx.comprehensionGain ? ' · ' + fCtx.comprehensionGain : '';
-      var contextMsg = fCtx.context ? '<div style="color:var(--text-muted);font-size:10px;margin-top:4px">' + fCtx.context + '</div>' : '';
-      foundationCoverageEl.innerHTML = '<div style="color:var(--gold);font-weight:500">' + fCtx.title + compMsg + '</div>' +
-        '<div style="color:var(--green);font-size:10px;margin-top:2px">' + fLesson.lessonCoverage + ' of Quranic vocabulary · Cumulative: ' + fLesson.cumulativeCoverage + '</div>' +
+      var contextMsg = fCtx.context ? '<div class="ai-cov-msg">' + fCtx.context + '</div>' : '';
+      foundationCoverageEl.innerHTML = '<div class="ai-cov-title">' + fCtx.title + compMsg + '</div>' +
+        '<div class="ai-cov-sub">' + fLesson.lessonCoverage + ' of Quranic vocabulary · Cumulative: ' + fLesson.cumulativeCoverage + '</div>' +
         contextMsg;
       foundationCoverageEl.style.display = 'block';
     }
@@ -304,24 +304,24 @@ function updateLessonProgressDisplay() {
           ctxHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
           for (var rfi = 0; rfi < fCtx.rootFamilies.length; rfi++) {
             var rf = fCtx.rootFamilies[rfi];
-            ctxHtml += '<span style="font-size:11px;background:var(--surface2);padding:4px 10px;border-radius:6px;color:var(--gold);border:1px solid rgba(201,168,76,0.15)">' + rf.root + ' <span style="color:var(--text-muted)">(' + rf.rootMeaning + ')</span></span>';
+            ctxHtml += '<span class="ai-chip-root">' + rf.root + ' <span class="ai-chip-sub">(' + rf.rootMeaning + ')</span></span>';
           }
           ctxHtml += '</div>';
           // Already learned related
           if (fCtx.alreadyLearnedRelated && fCtx.alreadyLearnedRelated.length > 0) {
-            ctxHtml += '<div style="font-size:11px;color:var(--green);margin-bottom:4px">✓ Already learned:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
+            ctxHtml += '<div class="ai-chip-al-title">✓ Already learned:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
             for (var ali = 0; ali < fCtx.alreadyLearnedRelated.length; ali++) {
               var al = fCtx.alreadyLearnedRelated[ali];
-              ctxHtml += '<span style="font-size:10px;background:rgba(76,175,80,0.1);padding:3px 8px;border-radius:4px;color:var(--green);border:1px solid rgba(76,175,80,0.15)">' + al.arabic + ' <span style="color:var(--text-muted)">(' + al.english + ')</span></span>';
+              ctxHtml += '<span class="ai-chip-al">' + al.arabic + ' <span class="ai-chip-sub">(' + al.english + ')</span></span>';
             }
             ctxHtml += '</div>';
           }
           // Upcoming related
           if (fCtx.upcomingRelated && fCtx.upcomingRelated.length > 0) {
-            ctxHtml += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:3px">Related words coming in future lessons:</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+            ctxHtml += '<div class="ai-chip-up-title">Related words coming in future lessons:</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
             for (var upi = 0; upi < fCtx.upcomingRelated.length; upi++) {
               var up = fCtx.upcomingRelated[upi];
-              ctxHtml += '<span style="font-size:10px;background:rgba(156,39,176,0.08);padding:3px 8px;border-radius:4px;color:var(--purple);border:1px solid rgba(156,39,176,0.15)">' + up.arabic + ' <span style="color:var(--text-muted)">(' + up.english + ') - Lesson ' + (up.lessonId + 1) + '</span></span>';
+              ctxHtml += '<span class="ai-chip-up">' + up.arabic + ' <span class="ai-chip-sub">(' + up.english + ') - Lesson ' + (up.lessonId + 1) + '</span></span>';
             }
             ctxHtml += '</div>';
           }
@@ -333,7 +333,7 @@ function updateLessonProgressDisplay() {
           ctxHtml += '<span>📝 Grammar notes</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
-          ctxHtml += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;line-height:1.6">Focus on the root letters and their core meaning. Notice how different patterns (wazn) modify the meaning. Pay attention to how this word functions in its ayah context.</div>';
+          ctxHtml += '<div class="ai-acc-body">Focus on the root letters and their core meaning. Notice how different patterns (wazn) modify the meaning. Pay attention to how this word functions in its ayah context.</div>';
           ctxHtml += '</div></div>';
           
           // Learning tips section (collapsed by default)
@@ -342,7 +342,7 @@ function updateLessonProgressDisplay() {
           ctxHtml += '<span>💡 Learning tips</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
-          ctxHtml += '<div style="font-size:11px;color:var(--text-muted);padding:4px 0;line-height:1.6">Review the root family words together to see patterns. Try to recognize this word when you see it in Quranic verses. Consistent daily review is more effective than cramming.</div>';
+          ctxHtml += '<div class="ai-acc-body">Review the root family words together to see patterns. Try to recognize this word when you see it in Quranic verses. Consistent daily review is more effective than cramming.</div>';
           ctxHtml += '</div></div>';
           
           ctxHtml += '</div>'; // end accordion
@@ -495,10 +495,10 @@ function updateLessonProgressDisplay() {
     if (lessonLabel && surahInfo) {
       var surahCompPct = surahComp ? surahComp.estimatedComprehension : 0;
       var surahCompLabel = surahCompPct > 0 ? ' \u00B7 ' + surahCompPct + '% comprehension' : '';
-      lessonLabel.innerHTML = '<div class="db-inline-gold" style="font-size:12px;font-weight:600;margin-bottom:2px">' + 
+      lessonLabel.innerHTML = '<div class="ai-title-gold">' + 
         surahInfo.name + ' \u2014 ' + surahInfo.english + 
         (surahInfo.verses ? ' (' + surahInfo.verses + ' verses)' : '') + '</div>' +
-        '<div class="db-inline-text-sm" style="margin-top:2px">' +
+        '<div class="db-inline-text-sm ai-mt-2">' +
         (curIdx >= 0 ? 'Surah ' + curIdx + 1 + ' of ' + surahIds.length : '') + 
         (surahWords.length > 0 ? ' \u00B7 ' + surahWords.length + ' vocabulary words' : '') +
         surahCompLabel +
@@ -532,15 +532,15 @@ function updateLessonProgressDisplay() {
       var surahRootCount = Object.keys(surahRootSet).length;
       
       unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-        '<h3 class="foundation-unlock-title" class="db-inline-gold" style="font-size:11px;font-weight:500;margin:0 0 6px 0">\uD83D\uDD13 Studying this surah helps you:</h3>' +
-        '<div class="foundation-unlock-items" style="display:flex;flex-direction:column;gap:4px">' +
-        '<span class="db-inline-green" style="font-size:10px">\u2713 Recognize ' + surahNouns + ' noun' + (surahNouns !== 1 ? 's' : '') + 
+        '<h3 class="foundation-unlock-title">\uD83D\uDD13 Studying this surah helps you:</h3>' +
+        '<div class="foundation-unlock-items">' +
+        '<span class="db-inline-green ai-unlock-item">\u2713 Recognize ' + surahNouns + ' noun' + (surahNouns !== 1 ? 's' : '') + 
         ', ' + surahVerbs + ' verb' + (surahVerbs !== 1 ? 's' : '') + 
         ', and ' + surahParticles + ' particle' + (surahParticles !== 1 ? 's' : '') + ' specific to this surah</span>' +
-        '<span class="db-inline-green" style="font-size:10px">\u2713 Learn words from ' + surahRootCount + ' root famil' + (surahRootCount !== 1 ? 'ies' : 'y') + ' used in this surah\'s context</span>' +
+        '<span class="db-inline-green ai-unlock-item">\u2713 Learn words from ' + surahRootCount + ' root famil' + (surahRootCount !== 1 ? 'ies' : 'y') + ' used in this surah\'s context</span>' +
         (surahCompPct > 0 
-          ? '<span style="font-size:10px;color:var(--gold-dim)">\uD83D\uDCC8 Current understanding of this surah: ' + surahCompPct + '%</span>'
-          : '<span style="font-size:10px;color:var(--text-muted)">\uD83D\uDCC8 Master words in this surah to understand it at a deeper level</span>') +
+          ? '<span class="ai-unlock-gold-dim">\uD83D\uDCC8 Current understanding of this surah: ' + surahCompPct + '%</span>'
+          : '<span class="db-inline-text-sm">\uD83D\uDCC8 Master words in this surah to understand it at a deeper level</span>') +
         '</div></div>';
       unlocksEl.style.display = 'block';
     }
@@ -553,17 +553,17 @@ function updateLessonProgressDisplay() {
       var $masteredWords = $coverage ? $coverage.masteredWords : 0;
       var $totalWords = $coverage ? $coverage.totalWords : 0;
       
-      journeyEl.innerHTML = '<div class="foundation-journey-section" class="db-inline-pill" style="margin-top:8px;padding:10px 12px">' +
-        '<h4 class="db-inline-value-sm" style="margin:0 0 8px 0">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
-        '<div class="db-progress" style="margin-bottom:6px">' +
-        '<div class="db-progress-track" class="db-progress-track" style="height:6px">' +
+      journeyEl.innerHTML = '<div class="foundation-journey-section">' +
+        '<h4 class="db-inline-value-sm ai-journey-title">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
+        '<div class="db-progress">' +
+        '<div class="db-progress-track">' +
         '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--blue);border-radius:3px"></div></div>' +
-        '<span class="db-progress-text" style="font-size:10px;color:var(--text-muted);margin-top:4px">Surahs: ' + completed + ' / ' + surahIds.length + '</span>' +
+        '<span class="db-progress-text">Surahs: ' + completed + ' / ' + surahIds.length + '</span>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' +
-        '<div style="text-align:center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
-        '<div style="text-align:center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
-        '<div style="text-align:center"><div class="ai-value-md ai-c-blue">' + (surahCompPct || 0) + '%</div><div style="font-size:9px;color:var(--text-muted)">This Surah</div></div>' +
+        '<div class="ai-journey-grid">' +
+        '<div class="db-inline-center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div class="db-inline-text-xs">Comprehension</div></div>' +
+        '<div class="db-inline-center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div class="db-inline-text-xs">Words</div></div>' +
+        '<div class="db-inline-center"><div class="ai-value-md ai-c-blue">' + (surahCompPct || 0) + '%</div><div class="db-inline-text-xs">This Surah</div></div>' +
         '</div></div>';
       journeyEl.style.display = 'block';
     }
@@ -628,9 +628,9 @@ function updateLessonProgressDisplay() {
 
   // R1: Enhanced lesson header for standard lesson mode
   if (lessonLabel) {
-    lessonLabel.innerHTML = '<div class="db-inline-gold" style="font-size:12px;font-weight:600;margin-bottom:2px">' + 
+    lessonLabel.innerHTML = '<div class="ai-title-gold">' + 
       '\uD83D\uDCD6 Lesson ' + current + ' \u2014 Sequential Vocabulary</div>' +
-      '<div class="db-inline-text-sm" style="margin-top:2px">' +
+      '<div class="db-inline-text-sm ai-mt-2">' +
       (lessonWords.length > 0 ? lessonWords.length + ' words' : '') + 
       (lessonCoveragePct > 0 ? ' \u00B7 ~' + lessonCoveragePct.toFixed(1) + '% of Quranic occurrences' : '') +
       ' \u00B7 ' + completed + ' of ' + total + ' lessons complete' +
@@ -659,14 +659,14 @@ function updateLessonProgressDisplay() {
   var unlocksEl = DOM.get('foundation-unlocks');
   if (unlocksEl) {
     unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-      '<h3 class="foundation-unlock-title" class="db-inline-gold" style="font-size:11px;font-weight:500;margin:0 0 6px 0">\uD83D\uDD13 What you will learn in this lesson:</h3>' +
-      '<div class="foundation-unlock-items" style="display:flex;flex-direction:column;gap:4px">' +
-      '<span class="db-inline-green" style="font-size:10px">\u2713 Practice ' + lessonNouns + ' noun' + (lessonNouns !== 1 ? 's' : '') + 
+      '<h3 class="foundation-unlock-title">\uD83D\uDD13 What you will learn in this lesson:</h3>' +
+      '<div class="foundation-unlock-items">' +
+      '<span class="db-inline-green ai-unlock-item">\u2713 Practice ' + lessonNouns + ' noun' + (lessonNouns !== 1 ? 's' : '') + 
       ', ' + lessonVerbs + ' verb' + (lessonVerbs !== 1 ? 's' : '') + 
       ', and ' + lessonParticles + ' particle' + (lessonParticles !== 1 ? 's' : '') + '</span>' +
-      '<span class="db-inline-green" style="font-size:10px">\u2713 Explore ' + lessonRootCount + ' root famil' + (lessonRootCount !== 1 ? 'ies' : 'y') + ' to see word patterns</span>' +
+      '<span class="db-inline-green ai-unlock-item">\u2713 Explore ' + lessonRootCount + ' root famil' + (lessonRootCount !== 1 ? 'ies' : 'y') + ' to see word patterns</span>' +
       (lessonCoveragePct > 0 
-        ? '<span style="font-size:10px;color:var(--gold-dim)">\uD83D\uDCC8 These words appear ~' + lessonTotalOcc + ' times in the Quran</span>'
+        ? '<span class="ai-unlock-gold-dim">\uD83D\uDCC8 These words appear ~' + lessonTotalOcc + ' times in the Quran</span>'
         : '') +
       '</div></div>';
     unlocksEl.style.display = 'block';
@@ -679,17 +679,17 @@ function updateLessonProgressDisplay() {
     var surahsWith50Plus = allSurahComp.filter(function($s) { return $s.estimatedComprehension >= 50; }).length;
     var surahsTotal = allSurahComp.length;
     
-    journeyEl.innerHTML = '<div class="foundation-journey-section" class="db-inline-pill" style="margin-top:8px;padding:10px 12px">' +
-      '<h4 class="db-inline-value-sm" style="margin:0 0 8px 0">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
-      '<div class="db-progress" style="margin-bottom:6px">' +
-      '<div class="db-progress-track" class="db-progress-track" style="height:6px">' +
+    journeyEl.innerHTML = '<div class="foundation-journey-section">' +
+      '<h4 class="db-inline-value-sm ai-journey-title">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
+      '<div class="db-progress">' +
+      '<div class="db-progress-track">' +
       '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--gold);border-radius:3px"></div></div>' +
-      '<span class="db-progress-text" style="font-size:10px;color:var(--text-muted);margin-top:4px">Lessons: ' + completed + ' / ' + total + '</span>' +
+      '<span class="db-progress-text">Lessons: ' + completed + ' / ' + total + '</span>' +
       '</div>' +
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">' +
-      '<div style="text-align:center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div style="font-size:9px;color:var(--text-muted)">Comprehension</div></div>' +
-      '<div style="text-align:center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div style="font-size:9px;color:var(--text-muted)">Words</div></div>' +
-      '<div style="text-align:center"><div class="ai-value-md ai-c-blue">' + surahsWith50Plus + '/' + surahsTotal + '</div><div style="font-size:9px;color:var(--text-muted)">Surahs (50%+)</div></div>' +
+      '<div class="ai-journey-grid">' +
+      '<div class="db-inline-center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div class="db-inline-text-xs">Comprehension</div></div>' +
+      '<div class="db-inline-center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div class="db-inline-text-xs">Words</div></div>' +
+      '<div class="db-inline-center"><div class="ai-value-md ai-c-blue">' + surahsWith50Plus + '/' + surahsTotal + '</div><div class="db-inline-text-xs">Surahs (50%+)</div></div>' +
       '</div></div>';
     journeyEl.style.display = 'block';
   }
@@ -1229,16 +1229,16 @@ function renderFallbackUI() {
   var dashboardGrid = document.getElementById('dashboard-grid');
   if (!dashboardGrid) return;
   dashboardGrid.innerHTML = '' +
-    '<div style="text-align:center;padding:40px 20px;max-width:400px;margin:0 auto">' +
-      '<div style="font-size:48px;margin-bottom:16px">📖</div>' +
-      '<h2 style="font-size:18px;color:var(--text);margin:0 0 8px 0">Welcome to Bayan</h2>' +
-      '<p style="font-size:13px;color:var(--text-muted);line-height:1.6;margin:0 0 20px 0">' +
+    '<div class="ai-fb-wrap">' +
+      '<div class="ai-fb-icon">📖</div>' +
+      '<h2 class="ai-fb-title">Welcome to Bayan</h2>' +
+      '<p class="ai-fb-text">' +
         'Your Quran vocabulary learning app is loading. Please wait or try refreshing.' +
       '</p>' +
       '<button class="btn" onclick="window.location.reload()" style="margin-bottom:8px">' +
         '↻ Reload' +
       '</button>' +
-      '<div style="font-size:10px;color:var(--text-muted);margin-top:12px">' +
+      '<div class="ai-fb-version">' +
         'Bayan v2.0' +
       '</div>' +
     '</div>';

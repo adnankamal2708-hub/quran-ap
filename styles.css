@@ -4476,9 +4476,9 @@ body::before {
 .ai-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
 .ai-card-sm { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
 .ai-card-md { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
-.ai-card-lg { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; }
+/* .ai-card-lg removed — use .db-inline-section instead */
 .ai-card-xl { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-.ai-card-fc { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+/* .ai-card-fc removed — use .db-inline-section-sm instead */
 
 /* Value / number displays */
 .ai-value-lg { font-size: 22px; font-weight: 700; color: var(--gold); line-height: 1.2; }
@@ -7886,3 +7886,68 @@ padding: 6px 0;
     padding: 12px 14px;
   }
 }
+
+/* ── app.js Lesson Display Classes ── */
+
+/* Lesson header */
+.ai-title-gold { font-size: 12px; font-weight: 600; color: var(--gold); margin-bottom: 2px; display: block; }
+.ai-mt-2 { margin-top: 2px; }
+
+/* Foundation unlock title */
+.foundation-unlock-title { font-size: 11px; font-weight: 500; margin: 0 0 6px 0; color: var(--gold); }
+
+/* Foundation unlock items container */
+.foundation-unlock-items { display: flex; flex-direction: column; gap: 4px; }
+
+/* Unlock item text */
+.ai-unlock-item { font-size: 10px; }
+.ai-unlock-gold-dim { font-size: 10px; color: var(--gold-dim); }
+
+/* Foundation journey section */
+.foundation-journey-section { margin-top: 8px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
+.ai-journey-title { margin: 0 0 8px 0; }
+
+/* Progress bar tweaks */
+.db-progress-track { height: 6px; }
+.db-progress-text { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+.db-progress-fill { height: 6px; border-radius: 3px; }
+
+/* Journey stats grid */
+.ai-journey-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+
+/* Coverage / context text */
+.ai-cov-msg { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+.ai-cov-title { color: var(--gold); font-weight: 500; }
+.ai-cov-sub { font-size: 10px; color: var(--green); margin-top: 2px; }
+
+/* Root family chips */
+.ai-chip-root { font-size: 11px; background: var(--surface2); padding: 4px 10px; border-radius: 6px; color: var(--gold); border: 1px solid rgba(201,168,76,0.15); }
+.ai-chip-sub { color: var(--text-muted); }
+
+/* Already learned chips */
+.ai-chip-al { font-size: 10px; background: rgba(76,175,80,0.1); padding: 3px 8px; border-radius: 4px; color: var(--green); border: 1px solid rgba(76,175,80,0.15); }
+.ai-chip-al-title { font-size: 11px; color: var(--green); margin-bottom: 4px; }
+
+/* Upcoming chips */
+.ai-chip-up { font-size: 10px; background: rgba(156,39,176,0.08); padding: 3px 8px; border-radius: 4px; color: var(--purple); border: 1px solid rgba(156,39,176,0.15); }
+.ai-chip-up-title { font-size: 10px; color: var(--text-muted); margin-bottom: 3px; }
+
+/* Accordion body text */
+.ai-acc-body { font-size: 11px; color: var(--text-muted); padding: 4px 0; line-height: 1.6; }
+
+/* Fallback UI */
+.ai-fb-wrap { text-align: center; padding: 40px 20px; max-width: 400px; margin: 0 auto; }
+.ai-fb-icon { font-size: 48px; margin-bottom: 16px; }
+.ai-fb-title { font-size: 18px; color: var(--text); margin: 0 0 8px 0; }
+.ai-fb-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 0 20px 0; }
+.ai-fb-version { font-size: 10px; color: var(--text-muted); margin-top: 12px; }
+
+.db-progress-fill-blue { background: var(--blue); }
+
+/* -- Dashboard Inline Replacements -- */
+.db-arrow-dim { opacity: 0.6; }
+.db-section-label-compact { margin-bottom: 12px; padding: 0; }
+.db-section-label-spacious { margin-bottom: 14px; padding: 0; }
+.db-progress-tight { margin: 10px 0 0; }
+.db-progress-track-lg { height: 8px; }
+.db-progress-fill-lg { height: 8px; }
