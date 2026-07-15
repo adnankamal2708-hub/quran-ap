@@ -24,6 +24,11 @@ function switchView(viewName) {
   currentView = viewName;
   setView(viewName);
   
+  // ── Force active tab state to match currentView ──
+  // This ensures the bottom-nav highlight is always in sync regardless
+  // of any state issues in setView() or other view-switching paths.
+  _updateActiveTab(viewName);
+  
   // Apply progressive disclosure (show/hide advanced features based on progress)
   if (window.__ux && typeof window.__ux.applyProgressiveDisclosure === 'function') {
     window.__ux.applyProgressiveDisclosure();
@@ -87,6 +92,50 @@ function switchView(viewName) {
   }
   
   if (document.activeElement) document.activeElement.blur();
+}
+
+/**
+ * Force-update the bottom navigation active tab to match the current view.
+ * This is called by switchView() after setView() to ensure the tab highlight
+ * always matches the visible page, regardless of any state issues.
+ */
+function _updateActiveTab(viewName) {
+  // Map view names to their corresponding nav tab IDs
+  var tabMap = {
+    dashboard: 'tab-dashboard',
+    learn: 'tab-paths',
+    list: 'tab-list',
+    reader: 'tab-reader',
+    profile: 'tab-profile',
+  };
+  
+  var navTabs = document.querySelectorAll('.nav-tab');
+  for (var ti = 0; ti < navTabs.length; ti++) {
+    navTabs[ti].classList.remove('active');
+    navTabs[ti].removeAttribute('aria-current');
+  }
+  
+  var tabId = tabMap[viewName];
+  if (tabId) {
+    var tabEl = document.getElementById(tabId);
+    if (tabEl) {
+      tabEl.classList.add('active');
+      tabEl.setAttribute('aria-current', 'page');
+    }
+  }
+  
+  // Update the sliding indicator position
+  var indicator = document.getElementById('bn-indicator');
+  if (indicator) {
+    var activeTab = document.querySelector('.nav-tab.active');
+    if (activeTab) {
+      var tabs = document.querySelectorAll('.nav-tab');
+      var activeIdx = Array.prototype.indexOf.call(tabs, activeTab);
+      if (activeIdx >= 0) {
+        indicator.style.transform = 'translateX(' + (activeIdx * 100) + '%)';
+      }
+    }
+  }
 }
 
 // ── Lesson Navigation Helpers ──────────────────────────────────

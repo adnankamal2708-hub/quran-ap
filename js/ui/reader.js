@@ -361,25 +361,7 @@ function renderSurahBrowser() {
 
 function openSurahForReading(surahId) {
   if (!surahId) return;
-  
-  // Track reading session and save last read position
-  // Store all word IDs from this surah so the Smart Learning Engine
-  // can generate post-reading recommendations
-  var allWordIds = [];
-  for (var wi = 0; wi < _readerSurahWords.length; wi++) {
-    allWordIds.push(_readerSurahWords[wi].id);
-  }
-  _saveLastReadPosition(surahId, null, allWordIds, allWordIds);
-  var journey = _loadReaderJourney();
-  journey.openings = (journey.openings || 0) + 1;
-  if (!journey.surahs) journey.surahs = {};
-  if (!journey.surahs[surahId]) {
-    journey.surahs[surahId] = { firstRead: Date.now(), readCount: 0, ayahsRead: 0 };
-  }
-  journey.surahs[surahId].readCount = (journey.surahs[surahId].readCount || 0) + 1;
-  _saveReaderJourney(journey);
 
-  _readerSurahId = surahId;
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
   
   // Get surah words and group by verse
@@ -426,6 +408,23 @@ function openSurahForReading(surahId) {
     var bParts = b.split(':');
     return (parseInt(aParts[1], 10) || 0) - (parseInt(bParts[1], 10) || 0);
   });
+  
+  // ── Track reading session (AFTER _readerSurahWords is populated) ──
+  // Store all word IDs from this surah so the Smart Learning Engine
+  // can generate post-reading recommendations
+  var allWordIds = [];
+  for (var wsi = 0; wsi < _readerSurahWords.length; wsi++) {
+    allWordIds.push(_readerSurahWords[wsi].id);
+  }
+  _saveLastReadPosition(surahId, null, allWordIds, allWordIds);
+  var journey = _loadReaderJourney();
+  journey.openings = (journey.openings || 0) + 1;
+  if (!journey.surahs) journey.surahs = {};
+  if (!journey.surahs[surahId]) {
+    journey.surahs[surahId] = { firstRead: Date.now(), readCount: 0, ayahsRead: 0 };
+  }
+  journey.surahs[surahId].readCount = (journey.surahs[surahId].readCount || 0) + 1;
+  _saveReaderJourney(journey);
   
   // Update UI
   var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(surahId) : null;
@@ -519,9 +518,10 @@ function renderAyahs() {
     }
     html += '</div>'; // end ayah arabic
     
-    // Translation (hidden by filter)
+    // Translation (hidden by filter) — strip HTML tags for clean text rendering
     if (group.ayahT && !_readerFilters.hideTranslation) {
-      html += '<div class="reader-ayah-translation">' + group.ayahT + '</div>';
+      var cleanTranslation = group.ayahT.replace(/<[^>]+>/g, '');
+      html += '<div class="reader-ayah-translation">' + cleanTranslation + '</div>';
     }
     
     // Ayah root chips

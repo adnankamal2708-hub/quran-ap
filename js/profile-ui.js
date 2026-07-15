@@ -804,49 +804,155 @@ function renderProfileAchievements() {
   if (!container) return;
 
   var achievements = (window.__analytics && window.__analytics.getAllAchievements) ? window.__analytics.getAllAchievements() : [];
+  var stats = (window.__analytics && window.__analytics.getAchievementStats) ? window.__analytics.getAchievementStats() : null;
   var h = '';
 
   if (achievements.length === 0) {
-    h += '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text-muted)">' +
-      '🏆 Complete your first lesson to start earning achievements. Milestones are unlocked as you master words, maintain streaks, and progress through the Foundation Course.' +
+    h += '<div class="profile-ach-empty">' +
+      '<div class="profile-ach-empty-icon">\uD83C\uDFC6</div>' +
+      '<div class="profile-ach-empty-text">Complete your first lesson to start earning achievements.</div>' +
+      '<div class="profile-ach-empty-sub">Milestones are unlocked as you master words, maintain streaks, and progress through the Foundation Course.</div>' +
       '</div>';
     container.innerHTML = h;
     return;
   }
 
-  // Stats summary
   var earned = achievements.filter(function(a) { return a.earned; });
-  var totalPct = achievements.length > 0 ? Math.round((earned.length / achievements.length) * 100) : 0;
+  var locked = achievements.filter(function(a) { return !a.earned; });
+  var totalPct = stats ? stats.progressPercent : (achievements.length > 0 ? Math.round((earned.length / achievements.length) * 100) : 0);
 
-  h += '<div style="margin-bottom:10px">';
-  h += '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:6px">';
-  h += '<span>' + earned.length + ' / ' + achievements.length + ' unlocked</span>';
-  h += '<span>' + totalPct + '%</span>';
+  // ── Premium Progress Summary ──
+  h += '<div class="profile-ach-summary">';
+  h += '<div class="profile-ach-summary-top">';
+  h += '<div class="profile-ach-summary-icon">\uD83C\uDFC6</div>';
+  h += '<div class="profile-ach-summary-info">';
+  h += '<div class="profile-ach-summary-title">Achievements</div>';
+  h += '<div class="profile-ach-summary-sub">' + earned.length + ' of ' + achievements.length + ' unlocked</div>';
   h += '</div>';
-  h += '<div class="profile-bar-track" style="height:8px"><div class="profile-bar-fill" style="width:' + totalPct + '%;height:8px;background:var(--gold);border-radius:4px"></div></div>';
+  h += '<div class="profile-ach-summary-pct">' + totalPct + '%</div>';
   h += '</div>';
+  h += '<div class="profile-ach-progress-track"><div class="profile-ach-progress-fill" style="width:' + totalPct + '%"></div></div>';
 
-  // Achievement cards
-  h += '<div class="profile-ach-grid">';
-  for (var ai = 0; ai < achievements.length; ai++) {
-    var ach = achievements[ai];
-    h += '<div class="profile-ach-card' + (ach.earned ? ' earned' : ' locked') + '">';
-    h += '<div class="profile-ach-icon">' + (ach.icon || '🏆') + '</div>';
-    h += '<div class="profile-ach-title">' + ach.title + '</div>';
-    h += '<div class="profile-ach-desc">' + ach.description + '</div>';
-    if (ach.earned && ach.earnedDate) {
-      h += '<div class="profile-ach-date">' + ach.earnedDate + '</div>';
+  // Category breakdown
+  if (stats && stats.byCategory) {
+    var catKeys = Object.keys(stats.byCategory);
+    if (catKeys.length > 0) {
+      h += '<div class="profile-ach-cats">';
+      for (var cki = 0; cki < catKeys.length; cki++) {
+        var cat = catKeys[cki];
+        var catData = stats.byCategory[cat];
+        var catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
+        h += '<div class="profile-ach-cat-item">';
+        h += '<span class="profile-ach-cat-label">' + catLabel + '</span>';
+        h += '<span class="profile-ach-cat-count">' + catData.earned + '/' + catData.total + '</span>';
+        h += '</div>';
+      }
+      h += '</div>';
     }
-    h += '</div>';
   }
   h += '</div>';
+
+  // ── Completed Section ──
+  if (earned.length > 0) {
+    h += '<div class="profile-ach-section">';
+    h += '<div class="profile-ach-section-header">';
+    h += '<span class="profile-ach-section-icon">\u2713</span>';
+    h += '<span class="profile-ach-section-title">Completed</span>';
+    h += '<span class="profile-ach-section-count">' + earned.length + '</span>';
+    h += '</div>';
+    h += '<div class="profile-ach-grid">';
+    for (var ei = 0; ei < earned.length; ei++) {
+      var ea = earned[ei];
+      h += '<div class="profile-ach-card earned">';
+      h += '<div class="profile-ach-card-top">';
+      h += '<div class="profile-ach-icon earned-icon">' + (ea.icon || '\uD83C\uDFC6') + '</div>';
+      h += '<div class="profile-ach-card-info">';
+      h += '<div class="profile-ach-title">' + ea.title + '</div>';
+      h += '<div class="profile-ach-desc">' + ea.description + '</div>';
+      h += '</div>';
+      h += '<div class="profile-ach-check">\u2713</div>';
+      h += '</div>';
+      if (ea.earnedDate) {
+        h += '<div class="profile-ach-date">Earned ' + ea.earnedDate + '</div>';
+      }
+      h += '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  // ── In Progress Section ──
+  // Determine which locked achievements are "in progress" (category has some earned)
+  var inProgress = [];
+  var trulyLocked = [];
+  var catEarnedMap = {};
+  if (stats && stats.byCategory) {
+    var ckeys = Object.keys(stats.byCategory);
+    for (var czi = 0; czi < ckeys.length; czi++) {
+      catEarnedMap[ckeys[czi]] = stats.byCategory[ckeys[czi]];
+    }
+  }
+  for (var xi = 0; xi < locked.length; xi++) {
+    var lc = locked[xi];
+    var catInfo = catEarnedMap[lc.category];
+    if (catInfo && catInfo.earned > 0 && catInfo.earned < catInfo.total) {
+      inProgress.push(lc);
+    } else {
+      trulyLocked.push(lc);
+    }
+  }
+
+  if (inProgress.length > 0) {
+    h += '<div class="profile-ach-section">';
+    h += '<div class="profile-ach-section-header">';
+    h += '<span class="profile-ach-section-icon">\uD83C\uDFAF</span>';
+    h += '<span class="profile-ach-section-title">In Progress</span>';
+    h += '<span class="profile-ach-section-count">' + inProgress.length + '</span>';
+    h += '</div>';
+    h += '<div class="profile-ach-grid">';
+    for (var pi = 0; pi < inProgress.length; pi++) {
+      var pa = inProgress[pi];
+      h += '<div class="profile-ach-card in-progress">';
+      h += '<div class="profile-ach-card-top">';
+      h += '<div class="profile-ach-icon inprogress-icon">' + (pa.icon || '\uD83C\uDFC6') + '</div>';
+      h += '<div class="profile-ach-card-info">';
+      h += '<div class="profile-ach-title">' + pa.title + '</div>';
+      h += '<div class="profile-ach-desc">' + pa.description + '</div>';
+      h += '</div>';
+      h += '</div>';
+      h += '<div class="profile-ach-progress-row"><div class="profile-ach-progress-dot"></div><span class="profile-ach-progress-text">In progress</span></div>';
+      h += '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  // ── Locked Section ──
+  if (trulyLocked.length > 0) {
+    h += '<div class="profile-ach-section">';
+    h += '<div class="profile-ach-section-header">';
+    h += '<span class="profile-ach-section-icon">\uD83D\uDD12</span>';
+    h += '<span class="profile-ach-section-title">Locked</span>';
+    h += '<span class="profile-ach-section-count">' + trulyLocked.length + '</span>';
+    h += '</div>';
+    h += '<div class="profile-ach-grid">';
+    for (var li = 0; li < trulyLocked.length; li++) {
+      var la = trulyLocked[li];
+      h += '<div class="profile-ach-card locked">';
+      h += '<div class="profile-ach-card-top">';
+      h += '<div class="profile-ach-icon locked-icon">' + (la.icon || '\uD83C\uDFC6') + '</div>';
+      h += '<div class="profile-ach-card-info">';
+      h += '<div class="profile-ach-title">' + la.title + '</div>';
+      h += '<div class="profile-ach-desc">' + la.description + '</div>';
+      h += '</div>';
+      h += '<div class="profile-ach-lock-icon">\uD83D\uDD12</div>';
+      h += '</div>';
+      h += '</div>';
+    }
+    h += '</div></div>';
+  }
 
   container.innerHTML = h;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PROFILE — Calendar / Activity Section
-// ═══════════════════════════════════════════════════════════════
 
 function renderProfileCalendar() {
   var container = document.getElementById('profile-calendar');
