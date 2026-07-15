@@ -2,7 +2,7 @@
 // learn-screen.js — Action-Oriented Learn Screen Header
 //
 // Renders a clean, action-focused header above the word card.
-// Shows only: greeting, comprehension %, today's goal,
+// Shows only: greeting, today's goal,
 // continue reading, continue learning, smart recommendations,
 // reviews due, learning paths, one motivation card.
 //
@@ -91,13 +91,7 @@ function renderLearnScreen() {
   h += _lsIcon('fire', 14) + ' <span class="ls-streak-num">' + $streak + '</span>';
   h += '</div></div>';
 
-  // ═══ 2. COMPREHENSION HEADLINE ═══
-  h += '<div class="ls-comp-headline">';
-  h += '<div class="ls-comp-value">' + $comprehensionPct + '%</div>';
-  h += '<div class="ls-comp-label">Quran Comprehension <span class="ls-comp-detail">(' + $masteredCount + ' of ' + $totalWords + ' words mastered)</span></div>';
-  h += '</div>';
-
-  // ═══ 3. TODAY'S GOAL RING ═══
+  // ═══ 2. TODAY'S GOAL RING ═══
   h += '<div class="ls-goal-row">';
   h += '<div class="ls-goal-ring-wrap" title="Daily review goal: ' + $reviewsToday + ' of ' + $dailyLimit + '">';
   h += '<svg class="ls-goal-ring" viewBox="0 0 36 36">';
