@@ -388,8 +388,9 @@ async function build() {
   if (safeguardsSrc) {
     // Remove comments from safeguards for smaller inline footprint
     safeguardsSrc = stripComments(safeguardsSrc);
-    // Match the existing inline safeguards block (from <!-- SAFEGUARDS comment to </script>)
-    var inlineSafeguardsRegex = /<!-- ── SAFEGUARDS[\s\S]*?<\/script>/;
+    // Match ONLY the JS safeguards script block (from the "(loads BEFORE" comment to </script>).
+    // The CSS fallback style block uses a DIFFERENT <!-- SAFEGUARDS comment and must NOT be matched.
+    var inlineSafeguardsRegex = /<!-- ── SAFEGUARDS: Error detection[\s\S]*?<\/script>/;
     devHtml = devHtml.replace(inlineSafeguardsRegex,
       '<!-- ── SAFEGUARDS: Error detection & prevention (inlined from js/safeguards.js) ── -->\n' +
       '  <script>' + safeguardsSrc + '</script>'
