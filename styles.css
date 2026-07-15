@@ -5139,10 +5139,6 @@ body::before {
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1.6;
-}xt-align: center;
-  padding: 48px 20px;
-  color: var(--text-muted);
-  animation: fadeIn 0.4s ease forwards;
 }
 .empty-state-icon {
   display: flex;

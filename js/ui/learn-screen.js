@@ -105,7 +105,7 @@ function renderLearnScreen() {
   h += '<div class="ls-goal-bar"><div class="ls-goal-fill" style="width:' + $goalPct + '%"></div></div>';
   h += '</div></div>';
 
-  // ═══ 4. CONTINUE READING (conditional) ═══
+  // ═══ 3. CONTINUE READING (conditional) ═══
   if ($lastRead && $lastRead.surahId) {
     var $surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo($lastRead.surahId) : null;
     var $surahName = $surahInfo ? $surahInfo.name : 'Surah ' + $lastRead.surahId;
@@ -126,7 +126,7 @@ function renderLearnScreen() {
     h += '</div>';
   }
 
-  // ═══ 5. SMART RECOMMENDATION (from SLE) ═══
+  // ═══ 4. SMART RECOMMENDATION (from SLE) ═══
   if ($topRec) {
     h += '<div class="ls-action-card ls-smart-rec" id="ls-smart-rec" tabindex="0" role="button" aria-label="' + $topRec.title + '">';
     h += '<div class="ls-smart-rec-badge">' + _lsIcon('lightbulb', 14) + '</div>';
@@ -138,7 +138,7 @@ function renderLearnScreen() {
     h += '</div>';
   }
 
-  // ═══ 6. REVIEWS DUE (conditional) ═══
+  // ═══ 5. REVIEWS DUE (conditional) ═══
   if ($dueCount > 0) {
     h += '<div class="ls-action-card ls-card-review" id="ls-reviews-due" tabindex="0" role="button" aria-label="' + $dueCount + ' words due for review">';
     h += '<div class="ls-card-icon">' + _lsIcon('repeat', 18) + '</div>';
@@ -150,7 +150,7 @@ function renderLearnScreen() {
     h += '</div>';
   }
 
-  // ═══ 7. CONTINUE LEARNING ═══
+  // ═══ 6. CONTINUE LEARNING ═══
   if ($fTotal > 0) {
     var $continueLabel = $foundationComplete ? 'Surah Learning' : 'Foundation ' + ($fNextIdx + 1) + ' of ' + $fTotal;
     h += '<div class="ls-action-card ls-card-learn" id="ls-continue-learning" tabindex="0" role="button" aria-label="Continue learning">';
@@ -163,7 +163,7 @@ function renderLearnScreen() {
     h += '</div>';
   }
 
-  // ═══ 8. LEARNING PATHS (quick compact grid) ═══
+  // ═══ 7. LEARNING PATHS (quick compact grid) ═══
   h += '<div class="ls-paths-grid">';
   var $surahTotal = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary().length : 0;
   var $surahProg = typeof getSurahLessonProgress === 'function' ? getSurahLessonProgress() : null;
@@ -179,7 +179,7 @@ function renderLearnScreen() {
   h += '<div class="ls-path-item" id="ls-path-quiz" tabindex="0" role="button" aria-label="Take a quiz">' + _lsIcon('bolt', 14) + ' <span>Quiz</span> <span class="ls-path-pct">⚡</span></div>';
   h += '</div>';
 
-  // ═══ 9. MOTIVATION CARD ═══
+  // ═══ 8. MOTIVATION CARD ═══
   var $milestone = typeof getMilestoneStatus === 'function' ? getMilestoneStatus($comprehensionPct) : null;
   var $motivationMsg = $streak > 0 ?
     '🔥 ' + $streak + '-day learning streak! ' + ($reviewsToday > 0 ? 'Reviewed ' + $reviewsToday + ' words today.' : 'Review some words to keep it going!') :
@@ -193,7 +193,7 @@ function renderLearnScreen() {
   h += '<div class="ls-motivation-text">' + $motivationMsg + '</div>';
   h += '</div>';
 
-  // ═══ 10. DAILY PLAN (from adaptive engine, condensed) ═══
+  // ═══ 9. DAILY PLAN (from adaptive engine, condensed) ═══
   if ($dailyPlan && $dailyPlan.length > 0) {
     h += '<div class="ls-daily-plan" id="ls-daily-plan">';
     h += '<div class="ls-daily-title">' + _lsIcon('calendar', 12) + ' Today\'s Plan</div>';

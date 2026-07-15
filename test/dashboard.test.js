@@ -515,7 +515,7 @@ suite('Progress Overview Section', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Due') >= 0, 'should show Due stat');
+    assert.ok(html.indexOf('due') >= 0, 'should show due review text in Review Center prompt');
   });
 
   test('has db-progress-overview id', function() {
@@ -699,7 +699,7 @@ suite('Comprehensive State', function() {
     assert.ok(html.indexOf('Foundation Course') >= 0, 'Foundation card');
     assert.ok(html.indexOf('Progress Overview') >= 0, 'progress overview');
     assert.ok(html.indexOf('Mastered') >= 0, 'words mastered stat');
-    assert.ok(html.indexOf('Due') >= 0, 'reviews due stat');
+    assert.ok(html.indexOf('due') >= 0, 'review due text should appear in Review Center prompt');
     assert.ok(html.indexOf('Daily Motivation') >= 0 || html.indexOf('reinforced') >= 0, 'motivation message');
     assert.ok(html.indexOf('Smart Recommendations') >= 0, 'smart recommendations');
   });
