@@ -4874,6 +4874,42 @@ body::before {
 .db-fill-purple {
   background: linear-gradient(90deg, var(--purple), #a081d6);
 }
+
+/* ── Progress Overview Rows ── */
+.db-progress-row {
+  margin-bottom: 14px;
+}
+.db-progress-row:last-child {
+  margin-bottom: 0;
+}
+.db-progress-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text);
+  margin-bottom: 5px;
+  line-height: 1.3;
+}
+.db-progress-row-value {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--serif);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thinner gold-only bars inside progress overview card */
+.db-progress-overview .db-progress-track {
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+}
+.db-progress-overview .db-progress-fill {
+  height: 3px;
+  background: var(--gold);
+  border-radius: 3px;
+}
 .db-progress-text {
   font-size: 12px;
   color: var(--text-muted);
@@ -6592,8 +6628,1359 @@ body::before {
   gap: 4px;
   font-size: 10px;
 
-/* ── Reader Filter Bar ── */
+/* ═══════════════════════════════════════════════════════════════
+   READER (quran-ap reading mode)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Container ── */
+
+.reader-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+}
+
+@media (min-width: 720px) {
+  .reader-container {
+    flex-direction: row;
+  }
+}
+
+/* ── Sidebar (surah list) ── */
+
+.reader-sidebar {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 720px) {
+  .reader-sidebar {
+    width: 240px;
+    max-height: none;
+    border-bottom: none;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+  }
+}
+
+.reader-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.reader-sidebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold-light);
+  font-family: var(--serif);
+}
+
+.reader-close-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+.reader-close-btn:hover {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+
+/* ── Juz Select ── */
+
+.reader-juz-row {
+  padding: 6px 14px;
+  flex-shrink: 0;
+}
+
+.reader-juz-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--body);
+  transition: border-color 0.15s ease;
+}
+.reader-juz-select:hover {
+  border-color: var(--gold-dim);
+}
+.reader-juz-select:focus {
+  border-color: var(--gold-dim);
+  outline: none;
+}
+.reader-juz-select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ── Search ── */
+
+.reader-search-row {
+  padding: 4px 14px 8px;
+  flex-shrink: 0;
+}
+
+.reader-search-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--text);
+  font-family: var(--body);
+  transition: border-color 0.15s ease;
+}
+.reader-search-input:focus {
+  border-color: var(--gold-dim);
+  outline: none;
+}
+.reader-search-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ── Surah List ── */
+
+.reader-surah-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 10px 10px;
+}
+
+.reader-surah-item {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+.reader-surah-item:hover {
+  background: rgba(201,168,76,0.04);
+  border-color: rgba(201,168,76,0.1);
+}
+.reader-surah-item:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: -2px;
+}
+.reader-surah-active {
+  background: rgba(201,168,76,0.08) !important;
+  border-color: rgba(201,168,76,0.2) !important;
+}
+
+.reader-surah-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.reader-surah-num {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  min-width: 24px;
+}
+
+.reader-surah-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--serif);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reader-ready-badge {
+  font-size: 10px;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.reader-comp-pct {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--serif);
+  flex-shrink: 0;
+  min-width: 36px;
+  text-align: right;
+}
+.reader-comp-gold { color: var(--gold) !important; }
+.reader-comp-green { color: var(--green) !important; }
+.reader-comp-blue { color: var(--blue) !important; }
+.reader-comp-gray { color: var(--text-muted) !important; }
+.reader-comp-red { color: var(--red) !important; }
+
+.reader-surah-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.reader-comp-bar {
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.reader-comp-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* ── Juz Summary ── */
+
+.reader-juz-summary {
+  padding: 10px 10px 8px;
+  margin-bottom: 6px;
+  background: rgba(201,168,76,0.04);
+  border-radius: 8px;
+  border: 1px solid rgba(201,168,76,0.1);
+}
+
+.reader-juz-summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.reader-juz-summary-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold-light);
+  font-family: var(--serif);
+}
+
+/* ── Empty Sidebar ── */
+
+.reader-empty-sidebar {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ── Continue Reading Card ── */
+
+.reader-continue-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.03));
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.reader-continue-card:hover {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,0.1);
+}
+.reader-continue-card:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.reader-continue-card:active {
+  transform: scale(0.99);
+}
+
+.reader-continue-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.reader-continue-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.reader-continue-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--serif);
+}
+
+.reader-continue-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.reader-continue-time {
+  color: var(--gold-dim);
+  font-size: 10px;
+}
+
+.reader-continue-arrow {
+  font-size: 16px;
+  color: var(--gold-dim);
+  transition: transform 0.15s ease;
+}
+.reader-continue-card:hover .reader-continue-arrow {
+  transform: translateX(4px);
+}
+
+/* ── Main Reading Area ── */
+
+.reader-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ── Top Bar ── */
+
+.reader-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+}
+
+.reader-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gold-light);
+  font-family: var(--serif);
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reader-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.reader-jump-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reader-jump-input {
+  width: 70px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--text);
+  font-family: var(--body);
+  transition: border-color 0.15s ease;
+}
+.reader-jump-input:focus {
+  border-color: var(--gold-dim);
+  outline: none;
+}
+
+.reader-jump-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--body);
+  transition: all 0.15s ease;
+}
+.reader-jump-btn:hover {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,0.08);
+  color: var(--gold-light);
+}
+.reader-jump-btn:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+
+/* ── Comprehension Header ── */
+
+.reader-surah-comp {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.reader-comp-header-empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 12px;
+}
+
+/* Wrapper for comprehension header content */
+.reader-comp-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.reader-comp-header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.reader-comp-large {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold-light);
+  font-family: var(--serif);
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 56px;
+  text-align: center;
+}
+
+.reader-comp-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.reader-comp-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.reader-comp-detail {
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.reader-readiness-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.reader-readiness-badge.reader-ready {
+  background: rgba(74,158,107,0.15);
+  color: var(--green);
+}
+.reader-readiness-badge.reader-not-ready {
+  background: rgba(194,80,80,0.15);
+  color: var(--red);
+}
+
+/* ── Comprehension Breakdown ── */
+
+.reader-comp-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.reader-comp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reader-comp-row-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.reader-comp-row-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.reader-comp-row-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.reader-comp-row-unknown {
+  background: var(--text-muted) !important;
+  opacity: 0.3;
+}
+
+.reader-comp-row-value {
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 28px;
+  text-align: right;
+  font-weight: 600;
+  font-family: var(--serif);
+}
+
+.reader-comp-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.reader-rec-message {
+  font-size: 11px;
+  color: var(--gold-dim);
+  padding: 6px 10px;
+  background: rgba(201,168,76,0.05);
+  border-radius: 6px;
+  line-height: 1.4;
+  border: 1px solid rgba(201,168,76,0.08);
+}
+
+/* ── Type Breakdown ── */
+
+.reader-type-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.reader-type-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.reader-type-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 40px;
+}
+
+.reader-type-track {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.reader-type-fill {
+  height: 100%;
+  background: var(--gold-dim);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.reader-type-value {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--serif);
+  font-weight: 600;
+}
+
+/* ── Legend ── */
+
+.reader-legend {
+  display: flex;
+  gap: 10px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  background: var(--surface);
+}
+
+.reader-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.reader-legend-dot,
+.reader-legend-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.reader-token-mastered.reader-legend-dot,
+.reader-legend-swatch.reader-token-mastered {
+  background: var(--gold);
+}
+.reader-token-known.reader-legend-dot,
+.reader-legend-swatch.reader-token-known {
+  background: var(--green);
+}
+.reader-token-learning.reader-legend-dot,
+.reader-legend-swatch.reader-token-learning {
+  background: var(--blue);
+}
+.reader-token-seen.reader-legend-dot,
+.reader-legend-swatch.reader-token-seen {
+  background: var(--text-muted);
+}
+.reader-token-unknown.reader-legend-dot,
+.reader-legend-swatch.reader-token-unknown {
+  background: var(--red);
+}
+
+/* ── Filter Bar ── */
+
 .reader-filter-bar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+
+.reader-filter-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+  font-family: var(--body);
+}
+.reader-filter-btn:hover {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,0.06);
+}
+.reader-filter-btn:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.reader-filter-active {
+  background: rgba(201,168,76,0.15) !important;
+  border-color: var(--gold-dim) !important;
+}
+
+/* ── Night Mode ── */
+
+.reader-night-mode {
+  background: #0a0a08 !important;
+}
+.reader-night-mode .reader-ayah {
+  background: #11110e !important;
+  border-color: rgba(46,43,36,0.3) !important;
+}
+
+/* ── Focus Mode ── */
+
+.reader-focus-mode .reader-ayah:not(:hover) {
+  opacity: 0.5;
+}
+.reader-focus-mode .reader-ayah:hover {
+  opacity: 1;
+}
+
+/* ── Insights Panel ── */
+
+.reader-insights {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.reader-insights-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.reader-insights-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.reader-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.reader-insight-stat {
+  text-align: center;
+}
+
+.reader-insight-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold-light);
+  display: block;
+  font-family: var(--serif);
+}
+
+.reader-insight-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reader-insights-roots {
+  margin-bottom: 6px;
+}
+
+.reader-insights-subtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.reader-insights-root-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.reader-insight-root-chip {
+  font-size: 10px;
+  color: var(--gold-dim);
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-family: var(--serif);
+}
+
+.reader-insights-recommendation {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: rgba(201,168,76,0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(201,168,76,0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VERSES (reader-ayah)
+   ═══════════════════════════════════════════════════════════════ */
+
+.reader-verses {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+
+.reader-ayah {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+  transition: all 0.15s ease;
+}
+.reader-ayah:hover {
+  border-color: rgba(201,168,76,0.15);
+}
+
+.reader-ayah-focus {
+  /* Handled by .reader-focus-mode */
+}
+
+.reader-ayah-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.reader-ayah-num {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.reader-ayah-comp {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--serif);
+}
+
+/* ── Arabic Verse Text ── */
+
+.reader-ayah-arabic {
+  font-family: var(--arabic);
+  font-size: 24px;
+  line-height: 1.9;
+  color: var(--gold-light);
+  text-align: center;
+  direction: rtl;
+  unicode-bidi: embed;
+  padding: 4px 0 8px;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga' 1;
+}
+
+@media (min-width: 480px) {
+  .reader-ayah-arabic {
+    font-size: 26px;
+    line-height: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .reader-ayah-arabic {
+    font-size: 28px;
+  }
+}
+
+/* ── Word Tokens ── */
+
+.reader-word-token {
+  display: inline;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.12s ease;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+.reader-word-token:hover {
+  background: rgba(201,168,76,0.1);
+  border-bottom-color: var(--gold-dim);
+}
+.reader-word-token:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+
+.reader-token-mastered {
+  color: var(--gold);
+  border-bottom-color: rgba(201,168,76,0.2);
+}
+.reader-token-known {
+  color: var(--green);
+  border-bottom-color: rgba(74,158,107,0.2);
+}
+.reader-token-learning {
+  color: var(--blue);
+  border-bottom-color: rgba(74,126,194,0.2);
+}
+.reader-token-seen {
+  color: var(--text-muted);
+  border-bottom-color: transparent;
+  opacity: 0.7;
+}
+.reader-token-unknown {
+  color: var(--red);
+  border-bottom-color: rgba(194,80,80,0.2);
+}
+
+.reader-token-leech {
+  text-decoration: underline wavy rgba(194,80,80,0.4);
+}
+
+/* ── Translation ── */
+
+.reader-ayah-translation {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  font-style: italic;
+  border-left: 2px solid var(--gold-dim);
+}
+
+/* ── Root Chips ── */
+
+.reader-ayah-roots {
+  margin-top: 8px;
+}
+
+.reader-ayah-root-chip {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--gold-dim);
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.12);
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-family: var(--serif);
+}
+
+/* ── Empty State ── */
+
+.reader-empty {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--text-muted);
+}
+
+.reader-loading {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WORD SHEET (bottom sheet)
+   ═══════════════════════════════════════════════════════════════ */
+
+.reader-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.reader-sheet-visible {
+  opacity: 1;
+}
+
+.reader-sheet-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 201;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-top: 1px solid var(--border);
+  padding: 8px 16px 20px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+.reader-sheet-open {
+  transform: translateY(0);
+}
+
+@media (min-width: 480px) {
+  .reader-sheet-panel {
+    max-width: 440px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    border-radius: 16px 16px 0 0;
+  }
+  .reader-sheet-open {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.reader-sheet-locked {
+  overflow: hidden !important;
+}
+
+.reader-sheet-handle {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 10px;
+  flex-shrink: 0;
+}
+
+.reader-sheet-handle-bar {
+  width: 32px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.reader-sheet-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+.reader-sheet-close-btn:hover {
+  border-color: var(--gold-dim);
+  color: var(--text);
+}
+
+/* ── Sheet Header ── */
+
+.reader-sheet-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.reader-sheet-arabic-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.reader-sheet-arabic {
+  font-family: var(--arabic);
+  font-size: 26px;
+  color: var(--gold-light);
+  line-height: 1.4;
+  direction: rtl;
+  unicode-bidi: embed;
+  -webkit-font-smoothing: antialiased;
+}
+
+.reader-sheet-translit {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.reader-sheet-mastery-wrap {
+  flex-shrink: 0;
+}
+
+.reader-sheet-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.reader-sheet-badge.reader-token-mastered {
+  background: rgba(201,168,76,0.15);
+  color: var(--gold);
+}
+.reader-sheet-badge.reader-token-known {
+  background: rgba(74,158,107,0.15);
+  color: var(--green);
+}
+.reader-sheet-badge.reader-token-learning {
+  background: rgba(74,126,194,0.15);
+  color: var(--blue);
+}
+.reader-sheet-badge.reader-token-seen {
+  background: rgba(138,128,112,0.15);
+  color: var(--text-muted);
+}
+.reader-sheet-badge.reader-token-unknown {
+  background: rgba(194,80,80,0.15);
+  color: var(--red);
+}
+
+.reader-sheet-meaning {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--serif);
+}
+
+/* ── Sheet Stats ── */
+
+.reader-sheet-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.reader-sheet-stat-item {
+  text-align: center;
+}
+
+.reader-sheet-stat-label {
+  display: block;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.reader-sheet-stat-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold-light);
+  font-family: var(--serif);
+}
+
+.reader-sheet-stat-value[lang="ar"] {
+  font-family: var(--arabic);
+  font-size: 18px;
+}
+
+/* ── Sheet Root Meaning ── */
+
+.reader-sheet-root-meaning {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: rgba(201,168,76,0.04);
+  border-radius: 6px;
+  border: 1px solid rgba(201,168,76,0.08);
+}
+
+.reader-sheet-root-meaning-label {
+  color: var(--gold-dim);
+  font-weight: 600;
+}
+
+/* ── Sheet Sections ── */
+
+.reader-sheet-section {
+  margin-bottom: 12px;
+}
+
+.reader-sheet-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.reader-sheet-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.reader-sheet-progress-item {
+  text-align: center;
+}
+
+.reader-sheet-progress-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+  font-family: var(--serif);
+}
+
+.reader-sheet-progress-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-top: 1px;
+}
+
+/* ── Sheet Chips ── */
+
+.reader-sheet-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.reader-sheet-chip {
+  font-size: 11px;
+  color: var(--gold-dim);
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.12);
+  border-radius: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-family: var(--serif);
+}
+.reader-sheet-chip:hover {
+  background: rgba(201,168,76,0.12);
+  border-color: var(--gold-dim);
+}
+.reader-sheet-chip:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+
+.reader-sheet-empty {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Sheet Actions ── */
+
+.reader-sheet-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.reader-sheet-action-btn {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--body);
+  transition: all 0.15s ease;
+  font-weight: 500;
+  text-align: center;
+}
+.reader-sheet-action-btn:hover {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,0.06);
+}
+.reader-sheet-action-btn:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
+.reader-sheet-active {
+  background: rgba(201,168,76,0.12) !important;
+  border-color: var(--gold-dim) !important;
+  color: var(--gold-light) !important;
+}
+
+/* ── Sheet Rate Buttons ── */
+
+.reader-sheet-rate-row {
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.reader-sheet-rate-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.reader-sheet-rate-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.reader-sheet-rate-btn {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 6px;
+  font-size: 10px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--body);
+  transition: all 0.12s ease;
+  font-weight: 500;
+}
+.reader-sheet-rate-btn:hover {
+  transform: translateY(-1px);
+}
+
+.reader-sheet-rate-again:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(194,80,80,0.08);
+}
+.reader-sheet-rate-hard:hover {
+  border-color: #d48806;
+  color: #d48806;
+  background: rgba(212,136,6,0.08);
+}
+.reader-sheet-rate-good:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(74,158,107,0.08);
+}
+.reader-sheet-rate-easy:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(74,126,194,0.08);
+}
+
+.reader-sheet-rate-btn:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 2px;
+}
   display: flex;
   gap: 6px;
   padding: 8px 0;

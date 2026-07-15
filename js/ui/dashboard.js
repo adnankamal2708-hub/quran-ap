@@ -565,41 +565,35 @@ function renderDashboard() {
   // ═══ 7. PROGRESS OVERVIEW ═══
   $h += '<div class="db-card db-progress-overview" id="db-progress-overview">';
   $h += '<div class="db-section-label db-section-label-spacious"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Overview</div>';
-  // Foundation course progress bar
+  // Foundation course
   if ($fTotal > 0) {
-    $h += '<div class="db-progress-block">';
-    $h += '<div class="db-progress-block-header"><span>Foundation Course</span><span class="db-progress-block-value">' + $fCompleted + '/' + $fTotal + '</span></div>';
-    $h += '<div class="db-progress-track db-progress-track-lg"><div class="db-progress-fill" class="db-progress-fill db-progress-fill-lg" style="width:$fPct%;"></div></div>';
+    var $fPctVal = Math.round(($fCompleted / $fTotal) * 100);
+    $h += '<div class="db-progress-row">';
+    $h += '<div class="db-progress-row-header"><span>Foundation Course</span><span class="db-progress-row-value">' + $fCompleted + ' / ' + $fTotal + '</span></div>';
+    $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $fPctVal + '%;"></div></div>';
     $h += '</div>';
   }
-  // Root family progress
+  // Root families
   if ($rfTotal > 0) {
-    var $rfPctLocal = Math.round(($rfCompleted / $rfTotal) * 100);
-    $h += '<div class="db-progress-block">';
-    $h += '<div class="db-progress-block-header"><span>Root Families</span><span class="db-progress-block-value">' + $rfCompleted + '/' + $rfTotal + '</span></div>';
-    $h += '<div class="db-progress-track db-progress-track-lg"><div class="db-progress-fill db-fill-purple" class="db-progress-fill db-progress-fill-lg" style="width:$rfPctLocal%;"></div></div>';
+    var $rfPctVal = Math.round(($rfCompleted / $rfTotal) * 100);
+    $h += '<div class="db-progress-row">';
+    $h += '<div class="db-progress-row-header"><span>Root Families</span><span class="db-progress-row-value">' + $rfCompleted + ' / ' + $rfTotal + '</span></div>';
+    $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $rfPctVal + '%;"></div></div>';
     $h += '</div>';
   }
-  // Difficulty progress
-  $h += '<div class="db-progress-block">';
-  $h += '<div class="db-progress-block-header"><span>Difficulty Levels</span><span class="db-progress-block-value">' + $diffCompleted + '/' + $diffTotal + '</span></div>';
-  $h += '<div class="db-progress-track db-progress-track-lg"><div class="db-progress-fill db-fill-blue" class="db-progress-fill db-progress-fill-lg" style="width:$diffPct%;"></div></div>';
+  // Difficulty levels
+  $h += '<div class="db-progress-row">';
+  $h += '<div class="db-progress-row-header"><span>Difficulty Levels</span><span class="db-progress-row-value">' + $diffCompleted + ' / ' + $diffTotal + '</span></div>';
+  $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $diffPct + '%;"></div></div>';
   $h += '</div>';
-  // Surah progress
+  // Surahs completed
   if ($surahTotal > 0) {
-    var $surahPctLocal = Math.round(($surahCompleted / $surahTotal) * 100);
-    $h += '<div class="db-progress-block">';
-    $h += '<div class="db-progress-block-header"><span>Surahs Completed</span><span class="db-progress-block-value">' + $surahCompleted + '/' + $surahTotal + '</span></div>';
-    $h += '<div class="db-progress-track db-progress-track-lg"><div class="db-progress-fill db-fill-green" class="db-progress-fill db-progress-fill-lg" style="width:$surahPctLocal%;"></div></div>';
+    var $surahPctVal = Math.round(($surahCompleted / $surahTotal) * 100);
+    $h += '<div class="db-progress-row">';
+    $h += '<div class="db-progress-row-header"><span>Surahs Completed</span><span class="db-progress-row-value">' + $surahCompleted + ' / ' + $surahTotal + '</span></div>';
+    $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $surahPctVal + '%;"></div></div>';
     $h += '</div>';
   }
-  // Quick stats row
-  $h += '<div class="db-pv-quick">';
-  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $masteredCount + '</span><span class="db-pv-quick-label">Mastered</span></div>';
-  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $streak + '</span><span class="db-pv-quick-label">Streak</span></div>';
-  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $dueCount + '</span><span class="db-pv-quick-label">Due</span></div>';
-  $h += '<div class="db-pv-quick-item"><span class="db-pv-quick-value">' + $reviewsToday + '</span><span class="db-pv-quick-label">Today</span></div>';
-  $h += '</div>';
   $h += '</div>';
 
   // ═══ 8. DAILY MOTIVATION ═══
