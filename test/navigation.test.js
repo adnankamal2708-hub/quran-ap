@@ -45,6 +45,7 @@ global.document = {
   },
   activeElement: null,
   querySelector: function() { return { style: {} }; },
+  querySelectorAll: function() { return []; },
   addEventListener: function() {},
 };
 global.console = { log: console.log, warn: function() {}, error: function() {} };
@@ -124,7 +125,13 @@ var activeLessonIndex = 0;
 var fs = require('fs');
 var path = require('path');
 var navCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'navigation.js'), 'utf8');
-eval(navCode);
+try {
+  eval(navCode);
+} catch (e) {
+  console.error('Failed to load navigation.js:', e.message);
+  console.error('Stack:', e.stack);
+  process.exit(1);
+}
 
 // ═══════════════════════════════════════════════════════════════
 // TEST HELPERS

@@ -55,19 +55,7 @@ function setView(viewName) {
     var viewEl = DOM.get('view-' + name);
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
-    // Only toggle tab highlights for main nav tabs (5-tab: dashboard, paths, list, profile, reader)
-    if (name === 'dashboard' || name === 'learn' || name === 'list' || name === 'profile' || name === 'reader') {
-      var tabId = name === 'learn' ? 'tab-paths' : 'tab-' + name;
-      var tabEl = DOM.get(tabId);
-      if (tabEl) {
-        tabEl.classList.toggle('active', name === viewName || (name === 'learn' && viewName === 'learn'));
-        if (name === viewName || (name === 'learn' && viewName === 'learn')) {
-          tabEl.setAttribute('aria-current', 'page');
-        } else {
-          tabEl.removeAttribute('aria-current');
-        }
-      }
-    }
+    // Tab highlighting removed — now handled by _updateActiveTab() in navigation.js
   }
   // Update the sliding indicator position
   var indicator = document.getElementById('bn-indicator');
