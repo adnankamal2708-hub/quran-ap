@@ -196,18 +196,11 @@ function updateLessonProgressDisplay() {
     var fCtx = typeof getFoundationLessonContextMsg === 'function' ? getFoundationLessonContextMsg(activeLessonIndex) : { title: '', context: '', comprehensionGain: '', cumulativeMsg: '' };
     var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
     var $currentComp = $coverage ? $coverage.estimatedComprehension : 0;
-    var $beforeComp = fLesson && fLesson.projectedComprehension > 0 
-      ? Math.max(0, $currentComp - fLesson.comprehensionGain) 
-      : $currentComp;
 
     if (lessonLabel) {
-      // R1: Clear lesson header answering: What am I learning? Why is it important? What will I understand?
+      // Minimal header: learning path + lesson title only
       var thematicTitle = fCtx.title || (isReview ? 'Review ' + fCurrent : 'Foundation ' + fCurrent);
-      lessonLabel.innerHTML = '<div class="ai-title-gold">' + (isReview ? '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Review Lesson' : '<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Foundation Lesson') + ' ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>' +
-        '<div class="db-inline-text-sm ai-mt-2">' +
-        'Covers ~' + (fLesson ? fLesson.lessonCoverageNum.toFixed(1) : '0') + '% of Quran word occurrences' +
-        (fLesson && fLesson.comprehensionGain > 0 ? ' \u00B7 Understanding: ' + $beforeComp.toFixed(1) + '% → ' + fLesson.projectedComprehension + '%' : '') +
-        '</div>';
+      lessonLabel.innerHTML = '<div class="ai-title-gold">Foundation \u2022 Lesson ' + fCurrent + ' \u2014 ' + thematicTitle + '</div>';
     }
 
     var lessonProgress = DOM.get('lesson-progress');
@@ -218,11 +211,7 @@ function updateLessonProgressDisplay() {
 
     var lessonProgressText = DOM.get('lesson-progress-text');
     if (lessonProgressText) {
-      var comprehensionText = '';
-      if (fLesson && fLesson.projectedComprehension > 0) {
-        comprehensionText = ' \u00B7 ~' + fLesson.projectedComprehension + '% comprehension';
-      }
-      lessonProgressText.textContent = fCompleted + ' of ' + fTotal + ' foundation lessons complete' + comprehensionText;
+      lessonProgressText.textContent = fCompleted + ' of ' + fTotal + ' foundation lessons complete';
     }
 
     // R2: "What This Unlocks" — educational section explaining what becomes easier after mastery
@@ -393,9 +382,9 @@ function updateLessonProgressDisplay() {
     }
     
     if (lessonLabel && currentFamily) {
-      lessonLabel.textContent = 'Root Family: ' + currentFamily.root + ' (' + (currentFamily.rootMeaning || '') + ')';
+      lessonLabel.innerHTML = '<div class="ai-title-gold">Root Family \u2022 ' + currentFamily.root + ' <span class="db-inline-text-sm">(' + (currentFamily.rootMeaning || '') + ')</span></div>';
     } else if (lessonLabel) {
-      lessonLabel.textContent = 'Root Family Learning';
+      lessonLabel.innerHTML = '<div class="ai-title-gold">Root Family Learning</div>';
     }
     
     var lessonProgress = DOM.get('lesson-progress');
@@ -433,7 +422,7 @@ function updateLessonProgressDisplay() {
     var dCompleted = typeof getCompletedDifficultyLevelCount === 'function' ? getCompletedDifficultyLevelCount() : 0;
     
     if (lessonLabel) {
-      lessonLabel.textContent = 'Difficulty Level ' + dLevel + ' of 5';
+      lessonLabel.innerHTML = '<div class="ai-title-gold">Difficulty \u2022 Level ' + dLevel + '</div>';
     }
     
     var lessonProgress = DOM.get('lesson-progress');
@@ -493,16 +482,8 @@ function updateLessonProgressDisplay() {
     
     // R1: Enhanced lesson header for surah mode
     if (lessonLabel && surahInfo) {
-      var surahCompPct = surahComp ? surahComp.estimatedComprehension : 0;
-      var surahCompLabel = surahCompPct > 0 ? ' \u00B7 ' + surahCompPct + '% comprehension' : '';
-      lessonLabel.innerHTML = '<div class="ai-title-gold">' + 
-        surahInfo.name + ' \u2014 ' + surahInfo.english + 
-        (surahInfo.verses ? ' (' + surahInfo.verses + ' verses)' : '') + '</div>' +
-        '<div class="db-inline-text-sm ai-mt-2">' +
-        (curIdx >= 0 ? 'Surah ' + curIdx + 1 + ' of ' + surahIds.length : '') + 
-        (surahWords.length > 0 ? ' \u00B7 ' + surahWords.length + ' vocabulary words' : '') +
-        surahCompLabel +
-        '</div>';
+      lessonLabel.innerHTML = '<div class="ai-title-gold">Surah \u2014 ' + surahInfo.name + ' (' + surahInfo.english + ')' + 
+        (surahInfo.verses ? ' <span class="db-inline-text-sm">\u00B7 ' + surahInfo.verses + ' verses</span>' : '') + '</div>';
     }
     
     var completed = getCompletedSurahCount();
@@ -628,13 +609,7 @@ function updateLessonProgressDisplay() {
 
   // R1: Enhanced lesson header for standard lesson mode
   if (lessonLabel) {
-    lessonLabel.innerHTML = '<div class="ai-title-gold">' + 
-      '\uD83D\uDCD6 Lesson ' + current + ' \u2014 Sequential Vocabulary</div>' +
-      '<div class="db-inline-text-sm ai-mt-2">' +
-      (lessonWords.length > 0 ? lessonWords.length + ' words' : '') + 
-      (lessonCoveragePct > 0 ? ' \u00B7 ~' + lessonCoveragePct.toFixed(1) + '% of Quranic occurrences' : '') +
-      ' \u00B7 ' + completed + ' of ' + total + ' lessons complete' +
-      '</div>';
+    lessonLabel.innerHTML = '<div class="ai-title-gold">Lesson ' + current + ' \u2014 Sequential Vocabulary</div>';
   }
 
   var lessonProgress = DOM.get('lesson-progress');

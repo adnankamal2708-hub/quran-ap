@@ -468,7 +468,7 @@ getResults: function () { return _safeguardResults; },
           <div class="lesson-header-top">
             <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
             <div class="lesson-progress-info">
-              <div class="lesson-progress-text" id="lesson-progress-text">3 of 16 lessons</div>
+              <div class="lesson-progress-text" id="lesson-progress-text" aria-live="polite">3 of 16 lessons</div>
               <div class="lesson-progress-track">
                 <div class="lesson-progress-fill" id="lesson-progress" style="width:0%"></div>
               </div>
@@ -497,7 +497,7 @@ getResults: function () { return _safeguardResults; },
         </div>
 
         <article class="word-card fade-in" id="word-card" aria-label="Current word">
-          <div class="word-num" id="word-num">Word 1 of 20</div>
+          <div class="word-num" id="word-num" aria-live="polite">Word 1 of 20</div>
           <div class="arabic-word" id="arabic-word" lang="ar" dir="rtl">اللَّهُ</div>
           <div class="transliteration" id="transliteration">Allāhu</div>
           <div style="font-size:10px;color:var(--gold-dim);margin:0 0 4px;min-height:16px" id="surah-badge"></div>
@@ -509,13 +509,13 @@ getResults: function () { return _safeguardResults; },
           <div class="word-type" id="word-type">Proper Noun</div>
           <div class="word-pattern" id="word-pattern"></div>
           <div class="meaning" id="meaning">Allah — God</div>
-          <div id="sr-pill" class="sr-pill sr-new" aria-live="polite">🆕 New word</div>
+          <div id="sr-pill" class="sr-pill sr-new" aria-live="polite"><span aria-hidden="true">🆕</span> New word</div>
           <div class="occurrence-tag" id="occurrences"><svg viewBox="0 0 24 24" width="10" height="10" stroke="var(--green)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Appears 2,699 times</div>
         </article>
 
         <div class="nav-row" id="nav-row">
-          <button class="btn btn-outline btn-sm" id="btn-prev" type="button">← Prev</button>
-          <button class="btn btn-sm" id="btn-next" type="button">Next →</button>
+          <button class="btn btn-outline btn-sm" id="btn-prev" type="button" aria-label="Previous word">← Prev</button>
+          <button class="btn btn-sm" id="btn-next" type="button" aria-label="Next word">Next →</button>
         </div>
 
         <div class="srs-label" id="srs-label" style="display:none">How well did you know this word?</div>
@@ -610,12 +610,12 @@ getResults: function () { return _safeguardResults; },
       <section class="mode-view" id="view-quiz" aria-label="Quiz mode">
         <div class="quiz-card" id="quiz-card">
           <div class="quiz-q">What does this word mean?</div>
-          <div class="quiz-arabic" id="quiz-word" lang="ar" dir="rtl"></div>
+          <div class="quiz-arabic" id="quiz-word" lang="ar" dir="rtl" aria-live="polite"></div>
           <div class="quiz-options" id="quiz-options" role="group" aria-label="Answer choices"></div>
           <div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div>
         </div>
         <div class="text-center mt-10">
-          <button class="btn" id="btn-next-quiz" type="button" style="display:none">Next →</button>
+          <button class="btn" id="btn-next-quiz" type="button" style="display:none" aria-label="Next question">Next →</button>
         </div>
         <div class="quiz-score" id="quiz-score-display" aria-live="polite"></div>
       </section>

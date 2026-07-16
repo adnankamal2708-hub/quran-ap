@@ -35,8 +35,6 @@ function renderLearnScreen() {
   // ── Gather data once ──
   var $dueReviews = typeof getDueReviews === 'function' ? getDueReviews() : [];
   var $dueCount = $dueReviews.length;
-  var $streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
-  var $streak = $streakData.streak || 0;
 
   // Foundation data
   var $fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
@@ -45,17 +43,8 @@ function renderLearnScreen() {
   var $fNextIdx = typeof getNextIncompleteFoundationLesson === 'function' ? getNextIncompleteFoundationLesson() : 0;
   var $foundationComplete = $fTotal > 0 && $fCompleted >= $fTotal;
 
-  // Coverage & comprehension
-  var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-  var $comprehensionPct = $coverage ? $coverage.estimatedComprehension : 0;
-
   // ── Build HTML ──
   var h = '';
-
-  // ═══ STREAK BADGE (compact, above all cards) ═══
-  h += '<div class="ls-streak-badge" id="ls-streak-badge" title="' + $streak + '-day streak">';
-  h += _lsIcon('fire', 14) + ' <span class="ls-streak-num">' + $streak + '</span>';
-  h += '</div>';
 
   // ═══ CONTINUE LEARNING (primary action — first visible) ═══
   if ($fTotal > 0) {
@@ -64,7 +53,7 @@ function renderLearnScreen() {
     h += '<div class="ls-card-icon">' + _lsIcon('layers', 18) + '</div>';
     h += '<div class="ls-card-body">';
     h += '<div class="ls-card-title">' + $continueLabel + '</div>';
-    h += '<div class="ls-card-sub">' + ($foundationComplete ? 'Foundation complete! Study by surah.' : $fPct + '% complete · ~' + $comprehensionPct + '% comprehension') + '</div>';
+    h += '<div class="ls-card-sub">' + ($foundationComplete ? 'Foundation complete!' : $fPct + '% complete') + '</div>';
     h += '</div>';
     h += '<div class="ls-progress-ring"><svg viewBox="0 0 36 36" width="28" height="28"><path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path class="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $fPct + ', 100" stroke="var(--gold)"/></svg></div>';
     h += '</div>';
