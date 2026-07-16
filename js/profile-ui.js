@@ -817,10 +817,13 @@ function renderProfileAbout() {
   // Links
   h += '<div class="pf-about-links">';
   h += '<button class="pf-about-link" id="btn-revisit-onboarding" type="button">🔄 Replay Tour</button>';
-  h += '<a class="pf-about-link pf-about-link-ext" href="https://github.com/adnankamal2708-hub/quran-ap" target="_blank" rel="noopener noreferrer">🌐 GitHub</a>';
-  h += '<a class="pf-about-link pf-about-link-ext" href="https://github.com/adnankamal2708-hub/quran-ap/issues" target="_blank" rel="noopener noreferrer">💬 Feedback</a>';
+  // URLs are split to avoid damage from build.js comment stripper which strips // as line comments
+  var $ghUrl = 'https:' + '/' + '/github.com/adnankamal2708-hub/quran-ap';
+  h += '<a class="pf-about-link pf-about-link-ext" href="' + $ghUrl + '" target="_blank" rel="noopener noreferrer">🌐 GitHub</a>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="' + $ghUrl + '/issues" target="_blank" rel="noopener noreferrer">💬 Feedback</a>';
   h += '<span class="pf-about-link pf-about-link-static">📜 Open Source (MIT)</span>';
-  h += '<span class="pf-about-link pf-about-link-static">🔒 Privacy: No data collected</span>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="#" id="profile-privacy-link">🔒 Privacy Policy</a>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="#" id="profile-terms-link">📜 Terms of Service</a>';
   h += '</div>';
 
   h += '<div class="pf-about-footer">Made with ❤️ for the love of the Quran</div>';
