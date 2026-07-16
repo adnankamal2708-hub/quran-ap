@@ -10595,3 +10595,57 @@ padding: 6px 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* ── Profile Subtab Navigation (pf-tab-*) ─────────────────── */
+.pf-tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.pf-tab {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+.pf-tab:hover {
+  background: rgba(201, 168, 76, 0.08);
+  color: var(--text);
+}
+.pf-tab:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+.pf-tab.active {
+  background: var(--gold);
+  color: #1a180f;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.pf-tab-content {
+  display: none;
+}
+.pf-tab-content.active {
+  display: block;
+  animation: pfFadeIn 0.25s ease;
+}
+@keyframes pfFadeIn {
+  from { opacity: 0.4; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -1109,6 +1109,67 @@ function renderProfileCalendar() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PROFILE — Subtab Navigation
+// ═══════════════════════════════════════════════════════════════
+
+let _activeProfileTab = 'account';
+
+function switchProfileTab(tabName) {
+  _activeProfileTab = tabName;
+
+  // Update tab buttons
+  var tabBtns = document.querySelectorAll('.pf-tab');
+  for (var i = 0; i < tabBtns.length; i++) {
+    var btn = tabBtns[i];
+    var isActive = btn.getAttribute('data-pf-tab') === tabName;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  }
+
+  // Show/hide tab panels
+  var panels = document.querySelectorAll('.pf-tab-content');
+  for (var j = 0; j < panels.length; j++) {
+    var panel = panels[j];
+    var isActive = panel.getAttribute('data-pf-tab') === tabName;
+    panel.classList.toggle('active', isActive);
+  }
+
+  // Render content for the newly active tab if needed
+  if (tabName === 'progress') {
+    renderProfileProgress();
+    renderProfileInsights();
+    renderProfileCalendar();
+  } else if (tabName === 'achievements') {
+    renderProfileAchievements();
+  } else if (tabName === 'about') {
+    renderProfileAbout();
+  } else if (tabName === 'account' && typeof renderProfileView === 'function') {
+    // Account info already rendered in renderFullProfile, refresh if needed
+  }
+}
+
+// ── Wire profile tab clicks ──
+
+function wireProfileTabEvents() {
+  var tabBtns = document.querySelectorAll('.pf-tab');
+  for (var i = 0; i < tabBtns.length; i++) {
+    (function(btn) {
+      btn.onclick = function() {
+        var tabName = btn.getAttribute('data-pf-tab');
+        if (tabName) switchProfileTab(tabName);
+      };
+      btn.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          var tabName = btn.getAttribute('data-pf-tab');
+          if (tabName) switchProfileTab(tabName);
+        }
+      };
+    })(tabBtns[i]);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // WIRE — Profile section events
 // ═══════════════════════════════════════════════════════════════
 
@@ -1146,13 +1207,25 @@ function wireProfileSectionEvents() {
 // UPDATE — renderProfileView to include all sections
 // ═══════════════════════════════════════════════════════════════
 
-async function renderFullProfile() {
+async function renderFullProfile(preferredTab) {
+  // Reset to Account tab by default
+  _activeProfileTab = preferredTab || 'account';
+
+  // Render all sections (they will be shown/hidden by tab state)
   await renderProfileView();
   renderProfileProgress();
   renderProfileInsights();
   renderProfileAchievements();
   renderProfileCalendar();
   renderProfileAbout();
+
+  // Wire subtab navigation
+  wireProfileTabEvents();
+
+  // Activate the correct tab (shows the right panel, hides others)
+  switchProfileTab(_activeProfileTab);
+
+  // Wire section-level events (settings edit, etc.)
   wireProfileSectionEvents();
 }
 

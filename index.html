@@ -1294,12 +1294,16 @@ getResults: function () { return _safeguardResults; },
       <section class="mode-view" id="view-profile" aria-label="Profile">
         <div class="profile-container">
 
-          <!-- ═══ SECTION 1: ACCOUNT ═══ -->
-          <div class="pf-section" id="pf-section-account">
-            <div class="pf-section-header">
-              <span class="pf-section-icon">👤</span>
-              <span class="pf-section-title">Account</span>
-            </div>
+          <!-- ── Profile Subtab Navigation ── -->
+          <div class="pf-tab-bar" role="tablist" aria-label="Profile sections">
+            <button class="pf-tab active" data-pf-tab="account" role="tab" aria-selected="true" type="button">👤 Account</button>
+            <button class="pf-tab" data-pf-tab="progress" role="tab" aria-selected="false" type="button">📊 Progress</button>
+            <button class="pf-tab" data-pf-tab="achievements" role="tab" aria-selected="false" type="button">🏆 Achievements</button>
+            <button class="pf-tab" data-pf-tab="about" role="tab" aria-selected="false" type="button">ℹ️ About</button>
+          </div>
+
+          <!-- ═══ TAB 1: ACCOUNT ═══ -->
+          <div class="pf-tab-content active" data-pf-tab="account" role="tabpanel">
             <div class="pf-card">
               <div class="profile-header">
                 <div class="profile-avatar" id="profile-avatar">U</div>
@@ -1330,7 +1334,6 @@ getResults: function () { return _safeguardResults; },
                 </div>
               </div>
             </div>
-            <!-- Settings & Account actions (collapsible inside Account) -->
             <div class="pf-card">
               <div class="pf-card-title">⚙️ Settings</div>
               <div id="settings-info">
@@ -1366,12 +1369,8 @@ getResults: function () { return _safeguardResults; },
             </div>
           </div>
 
-          <!-- ═══ SECTION 2: PROGRESS & INSIGHTS ═══ -->
-          <div class="pf-section" id="pf-section-progress">
-            <div class="pf-section-header">
-              <span class="pf-section-icon">📊</span>
-              <span class="pf-section-title">Progress &amp; Insights</span>
-            </div>
+          <!-- ═══ TAB 2: PROGRESS & INSIGHTS ═══ -->
+          <div class="pf-tab-content" data-pf-tab="progress" role="tabpanel">
             <div id="profile-stats-row" class="pf-card pf-stats-row">
               <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-mastered">0</span><span class="pf-stat-label">Mastered</span></div>
               <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-reviews">0</span><span class="pf-stat-label">Reviews</span></div>
@@ -1383,17 +1382,13 @@ getResults: function () { return _safeguardResults; },
             <div id="profile-calendar"><!-- renderProfileCalendar() --></div>
           </div>
 
-          <!-- ═══ SECTION 3: ACHIEVEMENTS (collapsible) ═══ -->
-          <div class="pf-section" id="pf-section-achievements">
+          <!-- ═══ TAB 3: ACHIEVEMENTS ═══ -->
+          <div class="pf-tab-content" data-pf-tab="achievements" role="tabpanel">
             <div id="profile-achievements"><!-- renderProfileAchievements() --></div>
           </div>
 
-          <!-- ═══ SECTION 4: ABOUT ═══ -->
-          <div class="pf-section" id="pf-section-about">
-            <div class="pf-section-header">
-              <span class="pf-section-icon">ℹ️</span>
-              <span class="pf-section-title">About</span>
-            </div>
+          <!-- ═══ TAB 4: ABOUT ═══ -->
+          <div class="pf-tab-content" data-pf-tab="about" role="tabpanel">
             <div id="profile-about"><!-- renderProfileAbout() --></div>
           </div>
 
