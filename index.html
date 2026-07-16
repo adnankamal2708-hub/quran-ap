@@ -818,14 +818,27 @@ getResults: function () { return _safeguardResults; },
           <!-- Reading Area (right column) -->
           <div class="reader-main">
             <!-- Surah Title & Comprehension Header -->
-            <div class="reader-top-bar">
-              <h2 class="reader-title" id="reader-surah-title">Select a Surah</h2>
+            <div class="reader-top-bar" id="reader-top-bar">
+              <div class="reader-top-left">
+                <button class="reader-nav-btn" id="reader-prev-surah" type="button" title="Previous surah" aria-label="Previous surah">‹</button>
+                <h2 class="reader-title" id="reader-surah-title">Select a Surah</h2>
+                <button class="reader-nav-btn" id="reader-next-surah" type="button" title="Next surah" aria-label="Next surah">›</button>
+              </div>
               <div class="reader-top-actions">
+                <!-- Reading progress indicator -->
+                <span class="reader-verse-progress" id="reader-verse-progress"></span>
                 <div class="reader-jump-group">
+                  <button class="reader-nav-btn reader-nav-sm" id="reader-prev-verse" type="button" title="Previous verse" aria-label="Previous verse">‹</button>
                   <input class="reader-jump-input" id="reader-jump-input" type="number" min="1" placeholder="Verse #" aria-label="Jump to verse" />
                   <button class="reader-jump-btn" id="reader-jump-btn" type="button">Go</button>
+                  <button class="reader-nav-btn reader-nav-sm" id="reader-next-verse" type="button" title="Next verse" aria-label="Next verse">›</button>
                 </div>
               </div>
+            </div>
+            <!-- Reading progress bar -->
+            <div class="reader-progress-bar-wrap" id="reader-progress-bar-wrap">
+              <div class="reader-progress-fill" id="reader-progress-fill" style="width:0%"></div>
+            </div>
             </div>
 
             <div class="reader-surah-comp" id="reader-surah-comp">
@@ -857,6 +870,10 @@ getResults: function () { return _safeguardResults; },
             <!-- Verses Container -->
             <div class="reader-verses" id="reader-verses">
               <!-- Rendered dynamically by renderAyahs() -->
+            </div>
+            <!-- Floating action buttons -->
+            <div class="reader-float-actions" id="reader-float-actions">
+              <button class="reader-float-btn" id="reader-back-to-top" type="button" title="Back to top" aria-label="Back to top">↑</button>
             </div>
           </div>
         </div>
