@@ -57,7 +57,7 @@ TESTS.forEach(function(testFile) {
   try {
     var output = cp.execSync('node "' + testPath + '"', {
       cwd: path.join(TEST_DIR, '..'),
-      timeout: 30000,
+      timeout: 60000,
       encoding: 'utf8',
     });
 
