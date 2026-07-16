@@ -364,7 +364,43 @@ async function build() {
   var reduction = Math.round((1 - css.length / origCSSLen) * 100);
   console.log('     ' + (origCSSLen / 1024).toFixed(1) + ' KB -> ' + (css.length / 1024).toFixed(1) + ' KB (' + reduction + '% reduction)');
 
-  // 5. Generate production HTML from source index.html
+    // 4b. Generate Quran data bundle (separate, lazy-loaded)
+  console.log('  4b. Creating Quran text bundle...');
+  var quranDir = path.join(ROOT, 'js', 'quran');
+  var quranFiles = [];
+  if (fs.existsSync(quranDir)) {
+    quranFiles = fs.readdirSync(quranDir)
+      .filter(function(f) { return f.endsWith('.js') && f !== 'quran-loader.js' && f !== 'quran-validate.js'; })
+      .sort()
+      .map(function(f) { return 'js/quran/' + f; });
+  }
+  if (quranFiles.length > 0) {
+    var quranBundle = '';
+    quranFiles.forEach(function(f) {
+      var content = readFile(f);
+      if (content) quranBundle += content + '\n';
+    });
+    writeFile('js/quran.bundle.js', basicMinify(stripComments(quranBundle)));
+    console.log('     Quran bundle created (' + quranFiles.length + ' files)');
+
+    // Minify
+    try {
+      var quranResult = await terser.minify(readFile('dist/js/quran.bundle.js'), {
+        compress: { passes: 2, drop_console: true },
+        output: { comments: false },
+      });
+      if (quranResult.code) writeFile('js/quran.bundle.min.js', quranResult.code);
+      var qbSize = fs.statSync(path.join(DIST, 'js/quran.bundle.min.js')).size;
+      console.log('     Minified: ' + (Buffer.byteLength(quranBundle, 'utf8') / 1024).toFixed(1) + ' KB -> ' + (qbSize / 1024).toFixed(1) + ' KB (' + Math.round((1 - qbSize / Buffer.byteLength(quranBundle, 'utf8')) * 100) + '% reduction)');
+    } catch (e) {
+      console.warn('     Warning: terser minification failed for Quran bundle: ' + e.message);
+      writeFile('js/quran.bundle.min.js', readFile('dist/js/quran.bundle.js'));
+    }
+  } else {
+    console.log('     No Quran data files found in js/quran/ — skipping');
+  }
+
+// 5. Generate production HTML from source index.html
   //    The source index.html already uses production bundle references
   //    (data.bundle.min.js + app.bundle.min.js), so we just:
   //    1) Inline the CSS
@@ -424,10 +460,25 @@ async function build() {
   // 7. Copy SW and manifest
   console.log('  7. Copying service worker & assets...');
   var sw = readFile('sw.js');
-  // Update SW precache list to use bundled files
+  // Update SW precache list to use bundled files (include Quran bundle if exists)
+  var precacheItems = [
+    "'./'",
+    "'./index.html'",
+    "'./styles.min.css'",
+    "'./js/data.bundle.min.js'",
+    "'./js/app.bundle.min.js'",
+    "'./js/services/firebase-core.js'",
+    "'./js/ux-polish.js'",
+    "'./manifest.json'",
+    "'./favicon.ico'",
+  ];
+  // Add Quran bundle to precache if it exists
+  if (fs.existsSync(path.join(DIST, 'js/quran.bundle.min.js'))) {
+    precacheItems.push("'./js/quran.bundle.min.js'");
+  }
   sw = sw.replace(
     /const PRECACHE_URLS = \[[\s\S]*?\];/,
-    "const PRECACHE_URLS = [\n  './',\n  './index.html',\n  './styles.min.css',\n  './js/data.bundle.min.js',\n  './js/app.bundle.min.js',\n  './js/services/firebase-core.js',\n  './js/ux-polish.js',\n  './manifest.json',\n  './favicon.ico',\n];"
+    "const PRECACHE_URLS = [\n  " + precacheItems.join(",\n  ") + ",\n];"
   );
   // Bump cache version so service worker detects changes and replaces old cache
   sw = sw.replace(
@@ -448,6 +499,9 @@ async function build() {
     'styles.min.css',
     'sw.js',
   ];
+  if (fs.existsSync(path.join(DIST, 'js/quran.bundle.min.js'))) {
+    artifactsToSync.push('js/quran.bundle.min.js');
+  }
   artifactsToSync.forEach(function (relPath) {
     var srcPath = path.join(DIST, relPath);
     var destPath = path.join(ROOT, relPath);

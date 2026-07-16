@@ -30,6 +30,7 @@ const PRECACHE_URLS = [
   './js/ux-polish.js',
   './manifest.json',
   './favicon.ico',
+  './js/quran.bundle.min.js',
 ];
 
 // Install: pre-cache all static assets, then skip waiting to activate immediately

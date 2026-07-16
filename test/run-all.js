@@ -27,6 +27,7 @@ var TESTS = [
   "dashboard.test.js",
   "review-center.test.js",
   "achievements-ui.test.js",
+  "quran-data.test.js",
   "services.test.js",
   "foundation-course.test.js",
   "regression.test.js",
