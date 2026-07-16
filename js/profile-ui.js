@@ -814,6 +814,16 @@ function renderProfileAbout() {
   h += '<div class="pf-about-desc">Bayan is a free, open-source Quranic Arabic learning app. It uses spaced repetition, root analysis, and context-based learning to help you understand the Quran in its original language.</div>';
   h += '<div class="pf-about-mission"><span class="pf-about-mission-icon">🎯</span> Our mission is to make Quranic Arabic accessible to everyone, anywhere, for free.</div>';
 
+  // Quran Data Attribution
+  h += '<div class="pf-about-attribution">';
+  h += '<div class="pf-about-attrib-icon">📜</div>';
+  h += '<div class="pf-about-attrib-text">';
+  h += '<div class="pf-about-attrib-title">Quran Data Attribution</div>';
+  h += '<div class="pf-about-attrib-line">Arabic text from <a href="https://tanzil.net" target="_blank" rel="noopener noreferrer">Tanzil Project</a> and The Noble Qur'an Encyclopedia.</div>';
+  h += '<div class="pf-about-attrib-line">English translation by <strong>Saheeh International</strong> (from Tanzil.net).</div>';
+  h += '<div class="pf-about-attrib-line" style="font-size:10px;color:var(--text-muted);margin-top:4px">Licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);text-decoration:underline">CC-BY-SA 4.0</a>.</div>';
+  h += '</div></div>';
+
   // Links
   h += '<div class="pf-about-links">';
   h += '<button class="pf-about-link" id="btn-revisit-onboarding" type="button">🔄 Replay Tour</button>';

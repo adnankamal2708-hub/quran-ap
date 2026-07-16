@@ -364,40 +364,146 @@ async function build() {
   var reduction = Math.round((1 - css.length / origCSSLen) * 100);
   console.log('     ' + (origCSSLen / 1024).toFixed(1) + ' KB -> ' + (css.length / 1024).toFixed(1) + ' KB (' + reduction + '% reduction)');
 
-    // 4b. Generate Quran data bundle (separate, lazy-loaded)
-  console.log('  4b. Creating Quran text bundle...');
-  var quranDir = path.join(ROOT, 'js', 'quran');
-  var quranFiles = [];
-  if (fs.existsSync(quranDir)) {
-    quranFiles = fs.readdirSync(quranDir)
-      .filter(function(f) { return f.endsWith('.js') && f !== 'quran-loader.js' && f !== 'quran-validate.js'; })
-      .sort()
-      .map(function(f) { return 'js/quran/' + f; });
-  }
-  if (quranFiles.length > 0) {
-    var quranBundle = '';
-    quranFiles.forEach(function(f) {
-      var content = readFile(f);
-      if (content) quranBundle += content + '\n';
-    });
-    writeFile('js/quran.bundle.js', basicMinify(stripComments(quranBundle)));
-    console.log('     Quran bundle created (' + quranFiles.length + ' files)');
+    // 4b. Split Quran data into per-surah files for progressive loading
+  console.log('  4b. Splitting Quran text into per-surah files...');
+  var quranDataPath = path.join(ROOT, 'js', 'quran', 'quran-data.js');
+  var surahIndexPath = path.join(ROOT, 'js', 'quran', 'surah-index.js');
+  var quranDir = path.join(DIST, 'js', 'quran');
 
-    // Minify
+  if (fs.existsSync(quranDataPath)) {
+    // Create dist/js/quran/ directory
+    if (!fs.existsSync(quranDir)) {
+      fs.mkdirSync(quranDir, { recursive: true });
+    }
+
+    // Read and eval the full Quran data to get the object
+    var quranContent = readFile('js/quran/quran-data.js');
+    global.window = global.window || {};
+
+    // Extract and eval just the QURAN_TEXT object
+    var objStart = quranContent.indexOf('var QURAN_TEXT = {');
+    var objEnd = quranContent.lastIndexOf('};', quranContent.indexOf('window.__QURAN_TEXT'));
+    var objStr = quranContent.substring(objStart, objEnd + 2);
+
     try {
-      var quranResult = await terser.minify(readFile('dist/js/quran.bundle.js'), {
-        compress: { passes: 2, drop_console: true },
-        output: { comments: false },
-      });
-      if (quranResult.code) writeFile('js/quran.bundle.min.js', quranResult.code);
-      var qbSize = fs.statSync(path.join(DIST, 'js/quran.bundle.min.js')).size;
-      console.log('     Minified: ' + (Buffer.byteLength(quranBundle, 'utf8') / 1024).toFixed(1) + ' KB -> ' + (qbSize / 1024).toFixed(1) + ' KB (' + Math.round((1 - qbSize / Buffer.byteLength(quranBundle, 'utf8')) * 100) + '% reduction)');
+      eval(objStr);
     } catch (e) {
-      console.warn('     Warning: terser minification failed for Quran bundle: ' + e.message);
-      writeFile('js/quran.bundle.min.js', readFile('dist/js/quran.bundle.js'));
+      console.warn('     Warning: Could not parse quran-data.js for splitting: ' + e.message);
+      console.log('     Falling back to monolithic bundle...');
+      // Fallback: create monolithic bundle
+      writeFile('js/quran.bundle.js', basicMinify(stripComments(quranContent)));
+      try {
+        var qr = await terser.minify(readFile('dist/js/quran.bundle.js'), {
+          compress: { passes: 2, drop_console: true },
+          output: { comments: false },
+        });
+        if (qr.code) writeFile('js/quran.bundle.min.js', qr.code);
+      } catch (e2) {
+        writeFile('js/quran.bundle.min.js', readFile('dist/js/quran.bundle.js'));
+      }
+      return;
+    }
+
+    if (typeof QURAN_TEXT === 'undefined') {
+      console.warn('     Warning: QURAN_TEXT not defined after eval');
+    } else {
+      // 4b-i. Write surah-index.min.js (metadata only)
+      if (fs.existsSync(surahIndexPath)) {
+        var indexSrc = readFile('js/quran/surah-index.js');
+        writeFile('js/quran/surah-index.js', basicMinify(stripComments(indexSrc)));
+        try {
+          var idxResult = await terser.minify(readFile('dist/js/quran/surah-index.js'), {
+            compress: { passes: 2, drop_console: true },
+            output: { comments: false },
+          });
+          if (idxResult.code) writeFile('js/quran/surah-index.min.js', idxResult.code);
+          var idxSize = fs.statSync(path.join(DIST, 'js/quran/surah-index.min.js')).size;
+          console.log('     surah-index.min.js: ' + (idxSize / 1024).toFixed(1) + ' KB');
+        } catch (e) {
+          console.warn('     Warning: terser failed for surah-index: ' + e.message);
+          writeFile('js/quran/surah-index.min.js', readFile('dist/js/quran/surah-index.js'));
+        }
+      }
+
+      // 4b-ii. Write per-surah files (surah-1.min.js through surah-114.min.js)
+      var totalRawSize = 0;
+      var totalMinSize = 0;
+      var minSurahCount = 0;
+      var bigSurahs = [];
+
+      for (var si = 1; si <= 114; si++) {
+        var s = QURAN_TEXT[si];
+        if (!s) {
+          console.warn('     Warning: Surah ' + si + ' not found in QURAN_TEXT');
+          continue;
+        }
+
+        var surahJs = JSON.stringify(s);
+        var wrapped = '(function(){if(!window.__QURAN_TEXT)window.__QURAN_TEXT={};window.__QURAN_TEXT[' + si + ']=' + surahJs + ';})();\n';
+        var rawSize = Buffer.byteLength(wrapped, 'utf8');
+        totalRawSize += rawSize;
+
+        var surahFilename = 'js/quran/surah-' + si + '.js';
+        writeFile(surahFilename, wrapped);
+
+        try {
+          var minResult = await terser.minify(wrapped, {
+            compress: { passes: 2, drop_console: true },
+            output: { comments: false },
+          });
+          if (minResult.code) {
+            var minFilename = 'js/quran/surah-' + si + '.min.js';
+            writeFile(minFilename, minResult.code);
+            var minSize = Buffer.byteLength(minResult.code, 'utf8');
+            totalMinSize += minSize;
+            minSurahCount++;
+            if (minSize > 30000) {
+              bigSurahs.push({ id: si, name: s.name, size: minSize });
+            }
+          }
+        } catch (e) {
+          console.warn('     Warning: terser failed for surah ' + si + ': ' + e.message);
+          writeFile('js/quran/surah-' + si + '.min.js', wrapped);
+          totalMinSize += rawSize;
+          minSurahCount++;
+        }
+
+        // Progress indicator for large surahs
+        if (si % 20 === 0 || si === 114) {
+          console.log('     Processed ' + si + '/114 surahs...');
+        }
+      }
+
+      var savings = totalRawSize > 0 ? Math.round((1 - totalMinSize / totalRawSize) * 100) : 0;
+      console.log('     ' + minSurahCount + ' surah files created (' + (totalRawSize / 1024).toFixed(1) + ' KB -> ' + (totalMinSize / 1024).toFixed(1) + ' KB, ' + savings + '% reduction)');
+      if (bigSurahs.length > 0) {
+        console.log('     Biggest: ' + bigSurahs.slice(-3).map(function(b) { return b.name + ' (' + (b.size / 1024).toFixed(1) + ' KB)'; }).join(', '));
+      }
+
+      // Also keep a monolithic fallback bundle for legacy support
+      var fullBundle = '';
+      fullBundle += 'var QURAN_TOTAL_SURAHS=' + 114 + ';var QURAN_TOTAL_VERSES=' + 6236 + ';';
+      fullBundle += 'var QURAN_VERSE_INDEX=[null];';
+      fullBundle += 'var QURAN_TEXT=' + JSON.stringify(QURAN_TEXT) + ';';
+      fullBundle += '(function(){var vi=1;for(var sid=1;sid<=114;sid++){var sv=QURAN_TEXT[sid];if(!sv)continue;for(var v=0;v<sv.verses.length;v++){QURAN_VERSE_INDEX[vi]={surahId:sid,verseId:sv.verses[v].id};vi++;}})();';
+      fullBundle += 'window.__QURAN_TEXT=QURAN_TEXT;window.__QURAN_VERSE_INDEX=QURAN_VERSE_INDEX;window.__QURAN_TOTAL_VERSES=QURAN_TOTAL_VERSES;';
+      writeFile('js/quran.bundle.js', basicMinify(stripComments(fullBundle)));
+      try {
+        var fbResult = await terser.minify(readFile('dist/js/quran.bundle.js'), {
+          compress: { passes: 2, drop_console: true },
+          output: { comments: false },
+        });
+        if (fbResult.code) {
+          writeFile('js/quran.bundle.min.js', fbResult.code);
+          var fbSize = fs.statSync(path.join(DIST, 'js/quran.bundle.min.js')).size;
+          console.log('     Monolithic fallback: ' + (Buffer.byteLength(fullBundle, 'utf8') / 1024).toFixed(1) + ' KB -> ' + (fbSize / 1024).toFixed(1) + ' KB');
+        }
+      } catch (e) {
+        writeFile('js/quran.bundle.min.js', basicMinify(stripComments(fullBundle)));
+      }
     }
   } else {
-    console.log('     No Quran data files found in js/quran/ — skipping');
+    console.log('     No quran-data.js found — skipping');
   }
 
 // 5. Generate production HTML from source index.html
@@ -472,7 +578,10 @@ async function build() {
     "'./manifest.json'",
     "'./favicon.ico'",
   ];
-  // Add Quran bundle to precache if it exists
+  // Add Quran assets to precache if they exist
+  if (fs.existsSync(path.join(DIST, 'js/quran', 'surah-index.min.js'))) {
+    precacheItems.push("'./js/quran/surah-index.min.js'");
+  }
   if (fs.existsSync(path.join(DIST, 'js/quran.bundle.min.js'))) {
     precacheItems.push("'./js/quran.bundle.min.js'");
   }

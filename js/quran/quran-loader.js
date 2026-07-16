@@ -1,100 +1,233 @@
 // ═══════════════════════════════════════════════════════════════
-// quran-loader.js — Lazy Loader for Quran Text Data
+// quran-loader.js — Progressive Quran Text Loader
 //
-// Loads the complete Quran text + English translation ONLY when
-// the user enters the Read section. After first load, caches the
-// data in memory for subsequent navigation.
+// Loads Quran data lazily in two stages:
+//   1. Surah Index (metadata only, ~20 KB) — loaded when entering
+//      the Read section. Contains surah names, verse counts, types.
+//   2. Per-surah verse data — loaded on demand when the user
+//      opens a specific surah. Each surah file is ~1-180 KB.
 //
-// The actual text data lives in quran-data.js, which is built as
-// a separate bundle (quran.bundle.min.js) and NOT included in the
-// main app bundle to avoid increasing startup time.
-//
-// After loading, data is available via window.__QURAN_TEXT and
-// utility functions exported below.
+// This avoids loading the full 2.4 MB Quran dataset upfront.
 // ═══════════════════════════════════════════════════════════════
 
-/** @type {boolean} Whether Quran data has been loaded */
-let _quranLoaded = false;
+/** @type {boolean} Whether surah index has been loaded */
+var _indexLoaded = false;
 
-/** @type {boolean} Whether a load is currently in progress */
-let _quranLoading = false;
+/** @type {boolean} Whether a load is in progress */
+var _loading = false;
 
-/** @type {Array<Function>} Pending callbacks waiting for load */
-let _quranCallbacks = [];
+/** @type {Object<number, Promise>} Per-surah load promises */
+var _surahLoads = {};
+
+/** @type {Array<Function>} Pending callbacks for index load */
+var _callbacks = [];
 
 /**
- * Load Quran text data dynamically.
- *
- * Injects a <script> tag pointing to the production bundle
- * (quran.bundle.min.js) which sets window.__QURAN_TEXT.
- *
- * After loading, the data is cached in memory. Subsequent calls
- * resolve immediately from the cache.
- *
- * @returns {Promise<boolean>} Resolves true when Quran data is ready
+ * Load the surah index (metadata only).
+ * Must be called before loading individual surahs.
+ * @returns {Promise<boolean>}
  */
 function loadQuranText() {
-  // Already loaded — resolve immediately
-  if (_quranLoaded && window.__QURAN_TEXT) {
+  if (_indexLoaded && window.__QURAN_INDEX) {
     return Promise.resolve(true);
   }
 
-  // Already loading — queue callback
-  if (_quranLoading) {
+  if (_loading) {
     return new Promise(function (resolve) {
-      _quranCallbacks.push(resolve);
+      _callbacks.push(resolve);
     });
   }
 
-  _quranLoading = true;
+  _loading = true;
 
   return new Promise(function (resolve) {
-    // Check if data is already available (e.g., loaded by another script)
-    if (window.__QURAN_TEXT) {
-      _quranLoaded = true;
-      _quranLoading = false;
+    if (window.__QURAN_INDEX) {
+      _indexLoaded = true;
+      _loading = false;
       resolve(true);
       return;
     }
 
+    // Initialize __QURAN_TEXT container (populated by individual surah scripts)
+    if (!window.__QURAN_TEXT) {
+      window.__QURAN_TEXT = {};
+    }
+
     var script = document.createElement('script');
-    script.src = './js/quran.bundle.min.js';
+    script.src = './js/quran/surah-index.min.js';
     script.async = true;
     script.onload = function () {
-      _quranLoaded = true;
-      _quranLoading = false;
+      _indexLoaded = true;
+      _loading = false;
       resolve(true);
-      // Flush pending callbacks
-      for (var i = 0; i < _quranCallbacks.length; i++) {
-        _quranCallbacks[i](true);
+      for (var i = 0; i < _callbacks.length; i++) {
+        _callbacks[i](true);
       }
-      _quranCallbacks = [];
+      _callbacks = [];
     };
     script.onerror = function () {
-      _quranLoading = false;
-      console.warn('[quran] Failed to load Quran text bundle');
-      resolve(false);
-      for (var i = 0; i < _quranCallbacks.length; i++) {
-        _quranCallbacks[i](false);
-      }
-      _quranCallbacks = [];
+      // Fallback: try loading the monolithic bundle (legacy)
+      _loading = false;
+      loadMonolithicBundle().then(function (ok) {
+        resolve(ok);
+        for (var i = 0; i < _callbacks.length; i++) {
+          _callbacks[i](ok);
+        }
+        _callbacks = [];
+      });
     };
     document.head.appendChild(script);
   });
 }
 
 /**
- * Check if Quran data has been loaded.
- * @returns {boolean}
+ * Fallback: load the complete monolithic Quran bundle.
+ * Used when per-surah files are not available.
+ * @returns {Promise<boolean>}
  */
-function isQuranLoaded() {
-  return _quranLoaded && !!window.__QURAN_TEXT;
+function loadMonolithicBundle() {
+  return new Promise(function (resolve) {
+    if (window.__QURAN_TEXT && Object.keys(window.__QURAN_TEXT).length >= 114) {
+      resolve(true);
+      return;
+    }
+    var script = document.createElement('script');
+    script.src = './js/quran/quran.bundle.min.js';
+    script.async = true;
+    script.onload = function () {
+      resolve(true);
+    };
+    script.onerror = function () {
+      console.warn('[quran] Failed to load Quran data');
+      resolve(false);
+    };
+    document.head.appendChild(script);
+  });
 }
 
 /**
- * Get surah info and verses by surah ID (1-114).
+ * Load verse data for a specific surah (1-114).
+ * Requires the surah index to be loaded first.
  * @param {number} surahId
- * @returns {Object|null} Surah object with { id, name, transliteration, type, total_verses, verses[] }
+ * @returns {Promise<boolean>}
+ */
+function loadQuranSurah(surahId) {
+  // Validate surah ID
+  if (surahId < 1 || surahId > 114) {
+    return Promise.reject(new Error('Invalid surah ID: ' + surahId));
+  }
+
+  // Already loaded
+  if (window.__QURAN_TEXT && window.__QURAN_TEXT[surahId]) {
+    return Promise.resolve(true);
+  }
+
+  // Already loading this surah
+  if (_surahLoads[surahId]) {
+    return _surahLoads[surahId];
+  }
+
+  // Ensure index is loaded first
+  if (!_indexLoaded && !window.__QURAN_INDEX) {
+    var promise = loadQuranText().then(function (ok) {
+      if (!ok) return false;
+      return loadSingleSurah(surahId);
+    });
+    _surahLoads[surahId] = promise;
+    return promise;
+  }
+
+  var p = loadSingleSurah(surahId);
+  _surahLoads[surahId] = p;
+  return p;
+}
+
+/**
+ * Internal: load a single surah script.
+ * @param {number} surahId
+ * @returns {Promise<boolean>}
+ */
+function loadSingleSurah(surahId) {
+  return new Promise(function (resolve) {
+    if (window.__QURAN_TEXT && window.__QURAN_TEXT[surahId]) {
+      resolve(true);
+      return;
+    }
+
+    var script = document.createElement('script');
+    script.src = './js/quran/surah-' + surahId + '.min.js';
+    script.async = true;
+    script.onload = function () {
+      resolve(true);
+    };
+    script.onerror = function () {
+      // Fallback: try loading from the monolithic bundle
+      console.warn('[quran] Per-surah file for ' + surahId + ' failed to load, trying monolithic fallback');
+      loadMonolithicBundle().then(function (ok) {
+        if (ok && window.__QURAN_TEXT && window.__QURAN_TEXT[surahId]) {
+          resolve(true);
+        } else {
+          console.warn('[quran] Failed to load surah ' + surahId + ' from fallback either');
+          resolve(false);
+        }
+      });
+    };
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * Check if Quran index has been loaded.
+ * @returns {boolean}
+ */
+function isQuranLoaded() {
+  return _indexLoaded && !!window.__QURAN_INDEX;
+}
+
+/**
+ * Check if a specific surah's verse data has been loaded.
+ * @param {number} surahId
+ * @returns {boolean}
+ */
+function isQuranSurahLoaded(surahId) {
+  return !!(window.__QURAN_TEXT && window.__QURAN_TEXT[surahId]);
+}
+
+/**
+ * Get surah info from the index (no verse data needed).
+ * @param {number} surahId
+ * @returns {Object|null}
+ */
+function getQuranSurahInfo(surahId) {
+  if (window.__QURAN_INDEX_GET) {
+    return window.__QURAN_INDEX_GET(surahId);
+  }
+  if (!window.__QURAN_INDEX) return null;
+  return window.__QURAN_INDEX[surahId - 1] || null;
+}
+
+/**
+ * Search surah index by name.
+ * @param {string} query
+ * @returns {Object[]}
+ */
+function searchQuranSurahs(query) {
+  if (window.__QURAN_INDEX_SEARCH) {
+    return window.__QURAN_INDEX_SEARCH(query);
+  }
+  if (!query || !window.__QURAN_INDEX) return [];
+  var q = query.toLowerCase();
+  return window.__QURAN_INDEX.filter(function(s) {
+    return s.name.indexOf(q) >= 0 ||
+      s.transliteration.toLowerCase().indexOf(q) >= 0 ||
+      s.englishName.toLowerCase().indexOf(q) >= 0;
+  });
+}
+
+/**
+ * Get full surah data (requires per-surah load).
+ * @param {number} surahId
+ * @returns {Object|null}
  */
 function getQuranSurah(surahId) {
   if (!window.__QURAN_TEXT) return null;
@@ -105,18 +238,17 @@ function getQuranSurah(surahId) {
  * Get a specific verse by surah and verse number.
  * @param {number} surahId
  * @param {number} verseId
- * @returns {Object|null} Verse object with { id, text, translation }
+ * @returns {Object|null}
  */
 function getQuranVerse(surahId, verseId) {
   var surah = getQuranSurah(surahId);
   if (!surah || !surah.verses) return null;
-  // verses are 1-indexed
   return surah.verses[verseId - 1] || null;
 }
 
 /**
  * Get the global verse index (1-6236) for a surah+verse.
- * Returns { surahId, verseId }
+ * Only available after the monolithic bundle or after all surahs are loaded.
  * @param {number} globalVerseNumber
  * @returns {Object|null}
  */
@@ -129,7 +261,7 @@ function getQuranGlobalVerse(globalVerseNumber) {
  * Get the Arabic text for a specific verse.
  * @param {number} surahId
  * @param {number} verseId
- * @returns {string} Arabic text or empty string
+ * @returns {string}
  */
 function getQuranArabic(surahId, verseId) {
   var verse = getQuranVerse(surahId, verseId);
@@ -140,7 +272,7 @@ function getQuranArabic(surahId, verseId) {
  * Get the English translation for a specific verse.
  * @param {number} surahId
  * @param {number} verseId
- * @returns {string} Translation text or empty string
+ * @returns {string}
  */
 function getQuranTranslation(surahId, verseId) {
   var verse = getQuranVerse(surahId, verseId);
@@ -148,33 +280,50 @@ function getQuranTranslation(surahId, verseId) {
 }
 
 /**
- * Get total verse count for a surah.
+ * Get total verse count for a surah (from index, no data load needed).
  * @param {number} surahId
  * @returns {number}
  */
 function getQuranSurahVerseCount(surahId) {
-  var surah = getQuranSurah(surahId);
-  return surah ? surah.total_verses : 0;
+  var info = getQuranSurahInfo(surahId);
+  return info ? info.total_verses : 0;
 }
 
 /**
- * List all surah IDs.
+ * List all surah IDs (from index, no data load needed).
  * @returns {number[]}
  */
 function getQuranSurahIds() {
-  if (!window.__QURAN_TEXT) return [];
-  return Object.keys(window.__QURAN_TEXT).map(Number).sort(function (a, b) { return a - b; });
+  if (!window.__QURAN_INDEX) return [];
+  return window.__QURAN_INDEX.map(function(s) { return s.id; });
+}
+
+/**
+ * Load multiple surahs in parallel (useful for reading multiple surahs).
+ * @param {number[]} surahIds
+ * @returns {Promise<boolean[]>}
+ */
+function loadQuranSurahs(surahIds) {
+  var promises = surahIds.map(function(id) {
+    return loadQuranSurah(id);
+  });
+  return Promise.all(promises);
 }
 
 // ── Export ──
 window.__quranLoader = {
   load: loadQuranText,
+  loadSurah: loadQuranSurah,
+  loadSurahs: loadQuranSurahs,
   isLoaded: isQuranLoaded,
+  isSurahLoaded: isQuranSurahLoaded,
   getSurah: getQuranSurah,
+  getSurahInfo: getQuranSurahInfo,
   getVerse: getQuranVerse,
   getGlobalVerse: getQuranGlobalVerse,
   getArabic: getQuranArabic,
   getTranslation: getQuranTranslation,
   getSurahVerseCount: getQuranSurahVerseCount,
   getSurahIds: getQuranSurahIds,
+  searchSurahs: searchQuranSurahs,
 };

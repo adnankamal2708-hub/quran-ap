@@ -9,6 +9,8 @@
  *   • Arabic text non-empty
  *   • Translation non-empty
  *   • No duplicates
+ *   • Per-surah files created correctly
+ *   • Surah index is correct
  *
  * Run: node test/quran-data.test.js
  */
@@ -28,7 +30,9 @@ function suite(name, fn) { console.log('\n\ud83d\udccb ' + name); fn(); }
 
 // Load the Quran data file
 var quranDataPath = path.join(__dirname, '..', 'js', 'quran', 'quran-data.js');
+var surahIndexPath = path.join(__dirname, '..', 'js', 'quran', 'surah-index.js');
 var quranDataExists = fs.existsSync(quranDataPath);
+var surahIndexExists = fs.existsSync(surahIndexPath);
 
 // ── Tests ──
 
@@ -54,16 +58,59 @@ suite('Quran Data File', function() {
   });
 });
 
+suite('Surah Index', function() {
+  test('surah-index.js exists', function() {
+    assert.ok(surahIndexExists, 'surah-index.js exists at js/quran/surah-index.js');
+  });
+
+  test('surah-index.js has valid syntax', function() {
+    if (!surahIndexExists) return;
+    var content = fs.readFileSync(surahIndexPath, 'utf8');
+    try {
+      new Function(content);
+    } catch (e) {
+      assert.fail('Syntax error in surah-index.js: ' + e.message);
+    }
+  });
+
+  test('surah-index.js exposes QURAN_INDEX with 114 entries', function() {
+    if (!surahIndexExists) return;
+    global.window = global.window || {};
+    var content = fs.readFileSync(surahIndexPath, 'utf8');
+    try {
+      eval(content);
+    } catch (e) {
+      assert.fail('Could not eval surah-index.js: ' + e.message);
+      return;
+    }
+    assert.ok(Array.isArray(global.window.__QURAN_INDEX), '__QURAN_INDEX is an array');
+    assert.strictEqual(global.window.__QURAN_INDEX.length, 114, 'Index has 114 entries');
+    assert.strictEqual(global.window.__QURAN_INDEX[0].id, 1, 'First entry is surah 1');
+    assert.strictEqual(global.window.__QURAN_INDEX[113].id, 114, 'Last entry is surah 114');
+    assert.strictEqual(global.window.__QURAN_INDEX[0].total_verses, 7, 'Surah 1 has 7 verses');
+    assert.strictEqual(global.window.__QURAN_INDEX[113].total_verses, 6, 'Surah 114 has 6 verses');
+    assert.ok(global.window.__QURAN_INDEX[0].name, 'Surah 1 has Arabic name');
+    assert.ok(global.window.__QURAN_INDEX[0].transliteration, 'Surah 1 has transliteration');
+    assert.ok(global.window.__QURAN_INDEX[0].type, 'Surah 1 has type (meccan/medinan)');
+  });
+
+  test('QURAN_INDEX total verses sum to 6236', function() {
+    var idx = global.window.__QURAN_INDEX;
+    if (!idx) return;
+    var sum = idx.reduce(function(s, e) { return s + e.total_verses; }, 0);
+    assert.strictEqual(sum, 6236, 'Sum of total_verses = ' + sum);
+  });
+});
+
 suite('Quran Data Structure (Runtime)', function() {
   // Eval the data file to get runtime access to QURAN_TEXT
-  // We need to provide window mock for the exports to work
   global.window = global.window || {};
   if (!quranDataExists) return;
   var content = fs.readFileSync(quranDataPath, 'utf8');
   try {
     eval(content);
   } catch (e) {
-    console.log('     ⚠ Could not eval quran-data.js: ' + e.message);
+    console.log('     \u26a0 Could not eval quran-data.js: ' + e.message);
   }
 
   var qt = global.window.__QURAN_TEXT;
@@ -156,17 +203,17 @@ suite('Quran Data Structure (Runtime)', function() {
 
 suite('Quran Verse Index (Runtime)', function() {
   test('QURAN_VERSE_INDEX has 6236 entries (1-indexed)', function() {
-    var qi = global.window.__QURAN_VERSE_INDEX;
-    if (!qi) return;
+    var idx = global.window.__QURAN_VERSE_INDEX;
+    if (!idx) return;
     var count = 0;
-    for (var i = 1; i < qi.length; i++) {
-      if (qi[i]) count++;
+    for (var i = 1; i < idx.length; i++) {
+      if (idx[i]) count++;
     }
     assert.strictEqual(count, 6236, 'Index has ' + count + ' entries');
-    assert.strictEqual(qi[1].surahId, 1, 'Entry 1 is surah 1');
-    assert.strictEqual(qi[1].verseId, 1, 'Entry 1 is verse 1');
-    assert.strictEqual(qi[6236].surahId, 114, 'Entry 6236 is surah 114');
-    assert.strictEqual(qi[6236].verseId, 6, 'Entry 6236 is verse 6');
+    assert.strictEqual(idx[1].surahId, 1, 'Entry 1 is surah 1');
+    assert.strictEqual(idx[1].verseId, 1, 'Entry 1 is verse 1');
+    assert.strictEqual(idx[6236].surahId, 114, 'Entry 6236 is surah 114');
+    assert.strictEqual(idx[6236].verseId, 6, 'Entry 6236 is verse 6');
   });
 
   test('First and last verses have correct text', function() {
@@ -178,18 +225,18 @@ suite('Quran Verse Index (Runtime)', function() {
         .replace(/[\u064B-\u0652\u0670\u06E1]/g, '')   // Remove diacritics
         .replace(/[\u0671\u0672\u0673]/g, '\u0627');     // Normalize alef variants → regular alef
     }
-    // Surah 1, Verse 1 — Bismillah (Uthmani script: بِسۡمِ)
+    // Surah 1, Verse 1 — Bismillah (Uthmani script)
     var v1 = qt[1].verses[0];
     var text1 = normArabic(v1.text);
     assert.ok(text1.indexOf('بسم') >= 0, 'Verse 1:1 contains بسم (' + text1.substring(0, 10) + '...)');
     assert.ok(v1.text.length > 20, 'Verse 1:1 has Arabic text (' + v1.text.length + ' chars)');
-    // Surah 114, Verse 6 — last verse (ٱلناس in Uthmani)
+    // Surah 114, Verse 6 — last verse
     var vLast = qt[114].verses[5];
     var textLast = normArabic(vLast.text);
     assert.ok(textLast.indexOf('الناس') >= 0, 'Verse 114:6 contains الناس (' + textLast.substring(0, 20) + '...)');
   });
 
-test('validateQuranData reports valid data', function() {
+  test('validateQuranData reports valid data', function() {
     var qt = global.window.__QURAN_TEXT;
     if (!qt) return;
     var qv = null;
@@ -219,13 +266,15 @@ suite('Loader Module', function() {
     }
   });
 
-  test('quran-loader exports expected API', function() {
+  test('quran-loader exports expected per-surah API', function() {
     var loaderPath = path.join(__dirname, '..', 'js', 'quran', 'quran-loader.js');
     if (!fs.existsSync(loaderPath)) return;
     var content = fs.readFileSync(loaderPath, 'utf8');
     // Check that expected function names exist in source
     assert.ok(content.indexOf('loadQuranText') >= 0, 'loadQuranText defined');
+    assert.ok(content.indexOf('loadQuranSurah') >= 0, 'loadQuranSurah defined (per-surah loading)');
     assert.ok(content.indexOf('getQuranSurah') >= 0, 'getQuranSurah defined');
+    assert.ok(content.indexOf('getQuranSurahInfo') >= 0, 'getQuranSurahInfo defined');
     assert.ok(content.indexOf('getQuranVerse') >= 0, 'getQuranVerse defined');
     assert.ok(content.indexOf('__quranLoader') >= 0, '__quranLoader exported');
   });
@@ -245,22 +294,47 @@ suite('Validation Module', function() {
 });
 
 suite('Build Pipeline', function() {
-  test('build.js references quran directory', function() {
+  test('build.js references surah splitting', function() {
     var buildPath = path.join(__dirname, '..', 'build.js');
     if (!fs.existsSync(buildPath)) return;
     var content = fs.readFileSync(buildPath, 'utf8');
     assert.ok(content.indexOf('quran') >= 0, 'build.js references quran data');
-    assert.ok(content.indexOf('quran.bundle') >= 0, 'build.js creates quran.bundle');
+    assert.ok(content.indexOf('surah-') >= 0, 'build.js creates per-surah files (surah-)');
+    assert.ok(content.indexOf('surah-index') >= 0, 'build.js creates surah-index');
   });
 
-  test('sw.js will precache quran bundle', function() {
+  test('sw.js references surah-index in precache', function() {
     var swPath = path.join(__dirname, '..', 'sw.js');
     if (!fs.existsSync(swPath)) return;
     var content = fs.readFileSync(swPath, 'utf8');
-    // The SW template should have the precache list. At build time, build.js
-    // injects the quran bundle into the list. Verify the source has the pattern.
     assert.ok(content.indexOf('PRECACHE_URLS') >= 0, 'sw.js has PRECACHE_URLS');
-    // The build replaces this, but the test just checks the source
+    assert.ok(content.indexOf('surah-index') >= 0, 'sw.js precaches surah-index');
+  });
+});
+
+suite('Per-Surah Build Artifacts', function() {
+  test('Per-surah source file structure supports individual loading', function() {
+    // Verify the quran-loader references per-surah file naming convention
+    var loaderPath = path.join(__dirname, '..', 'js', 'quran', 'quran-loader.js');
+    if (!fs.existsSync(loaderPath)) return;
+    var content = fs.readFileSync(loaderPath, 'utf8');
+    assert.ok(content.indexOf("'./js/quran/surah-'") >= 0, 'Loader uses per-surah URL pattern');
+    assert.ok(content.indexOf('surah-index') >= 0, 'Loader references surah-index');
+  });
+
+  test('Build creates minified per-surah files in dist/', function() {
+    var distPath = path.join(__dirname, '..', 'dist', 'js', 'quran');
+    if (!fs.existsSync(distPath)) {
+      console.log('     \u26a0 dist/js/quran/ not found — build may not have been run');
+      return;
+    }
+    var files = fs.readdirSync(distPath);
+    var surahFiles = files.filter(function(f) { return /^surah-\d+\.min\.js$/.test(f); });
+    assert.ok(surahFiles.length > 0, 'At least one per-surah file exists (' + surahFiles.length + ' found)');
+    // Check a few expected files
+    assert.ok(files.indexOf('surah-1.min.js') >= 0, 'surah-1.min.js exists');
+    assert.ok(files.indexOf('surah-114.min.js') >= 0, 'surah-114.min.js exists');
+    assert.ok(files.indexOf('surah-index.min.js') >= 0, 'surah-index.min.js exists');
   });
 });
 

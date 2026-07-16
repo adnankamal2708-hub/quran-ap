@@ -118,8 +118,10 @@ function getLastReadPosition() {
 function resumeReading() {
   var pos = getLastReadPosition();
   if (!pos) return;
+  // Check both vocabulary surah info AND Quran index
   var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(pos.surahId) : null;
-  if (!surahInfo) return;
+  var quranIdxInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET) ? window.__QURAN_INDEX_GET(pos.surahId) : null;
+  if (!surahInfo && !quranIdxInfo) return;
   
   // Open the surah first
   openSurahForReading(pos.surahId);
@@ -146,6 +148,127 @@ function _readerGetMasteryColor(wordId) {
   if (entry.stage >= 2) return 'known';      // Green
   if (entry.stage >= 1) return 'learning';   // Blue
   return 'seen';                              // Gray — rated but reset
+}
+
+// ── Arabic Normalization for Vocabulary Matching ───────────────
+// Strips diacritics and normalizes alef variants so that
+// Quran Uthmani text matches vocabulary entries.
+
+function _normArabicForMatch(text) {
+  if (!text) return '';
+  return text
+    .replace(/[\u064B-\u0652\u0670\u06E1]/g, '')   // Remove diacritics
+    .replace(/[\u0671\u0672\u0673]/g, '\u0627')     // Normalize alef variants → regular alef
+    .trim();
+}
+
+// ── Quran-First Verse Builder ─────────────────────────────────
+// Builds _readerAyahGroups from the Quran dataset for ALL verses,
+// then overlays vocabulary word tokens on top.
+// For verses without vocabulary, plain Arabic + translation is shown.
+
+function _buildFullVerseData(surahId, quranSurah, vocabWords) {
+  var ayahGroups = {};
+  var verseKeys = [];
+
+  // Build normalized vocabulary lookup (Arabic text → word)
+  var vocabByNorm = {};
+  var vocabById = {};
+  for (var i = 0; i < vocabWords.length; i++) {
+    var w = vocabWords[i];
+    var norm = _normArabicForMatch(w.arabic);
+    if (norm) vocabByNorm[norm] = w;
+    vocabById[w.id] = w;
+  }
+
+  // Process every verse from the Quran dataset
+  for (var vi = 0; vi < quranSurah.verses.length; vi++) {
+    var verse = quranSurah.verses[vi];
+    var verseKey = surahId + ':' + verse.id;
+    var matchedWords = [];
+
+    // Tokenize the Arabic text and match against vocabulary
+    var tokens = verse.text.split(' ');
+    var seenWordIds = {};
+    for (var ti = 0; ti < tokens.length; ti++) {
+      var normToken = _normArabicForMatch(tokens[ti]);
+      if (normToken && vocabByNorm[normToken]) {
+        var matched = vocabByNorm[normToken];
+        // Avoid duplicate word entries in the same verse
+        if (!seenWordIds[matched.id]) {
+          matchedWords.push(matched);
+          seenWordIds[matched.id] = true;
+        }
+      }
+    }
+
+    ayahGroups[verseKey] = {
+      words: matchedWords,
+      ayahA: verse.text,
+      ayahT: verse.translation,
+      totalTokens: tokens.length,
+      matchedTokens: matchedWords.length,
+    };
+    verseKeys.push(verseKey);
+  }
+
+  return { ayahGroups: ayahGroups, verseKeys: verseKeys };
+}
+
+// ── Legacy Vocab-Only Fallback ─────────────────────────────────
+// When Quran data is not yet loaded, fall back to the original
+// vocabulary-first rendering using occurrence data.
+
+function _buildFromVocabOnly(surahId) {
+  _readerAyahGroups = {};
+  _readerVerseKeys = [];
+
+  for (var wi = 0; wi < _readerSurahWords.length; wi++) {
+    var word = _readerSurahWords[wi];
+    var processedKeys = {};
+    if (word.occurrences && word.occurrences.length > 0) {
+      for (var oi = 0; oi < word.occurrences.length; oi++) {
+        var occ = word.occurrences[oi];
+        if (!occ.surahId || occ.surahId === surahId) {
+          var vk = occ.verseKey || (surahId + ':1');
+          if (!processedKeys[vk]) {
+            if (!_readerAyahGroups[vk]) {
+              _readerAyahGroups[vk] = {
+                words: [],
+                ayahA: occ.ayahA || '',
+                ayahT: occ.ayahT || '',
+                totalTokens: 0,
+                matchedTokens: 0,
+              };
+              _readerVerseKeys.push(vk);
+            }
+            _readerAyahGroups[vk].words.push(word);
+            processedKeys[vk] = true;
+          }
+        }
+      }
+    }
+  }
+
+  _readerVerseKeys.sort(function(a, b) {
+    var aParts = a.split(':');
+    var bParts = b.split(':');
+    return (parseInt(aParts[1], 10) || 0) - (parseInt(bParts[1], 10) || 0);
+  });
+}
+
+// ── Async Quran Load Trigger ───────────────────────────────────
+// After starting a surah with only vocabulary data, load the
+// Quran surah data in the background and re-render when ready.
+
+function _triggerQuranSurahLoad(surahId) {
+  if (!window.__quranLoader || typeof window.__quranLoader.loadSurah !== 'function') return;
+  window.__quranLoader.loadSurah(surahId).then(function (ok) {
+    if (ok && _readerSurahId === surahId) {
+      // Re-open the surah now that full Quran data is available
+      openSurahForReading(surahId);
+    }
+  });
 }
 
 // ── Occcurrence-Weighted Comprehension ─────────────────────────
@@ -190,7 +313,16 @@ function renderSurahBrowser() {
   var html = '';
   
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
-  var surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  
+  // Use Quran index for ALL surahs, not just vocabulary ones
+  var surahIds = [];
+  if (window.__QURAN_INDEX) {
+    for (var qi = 0; qi < window.__QURAN_INDEX.length; qi++) {
+      surahIds.push(window.__QURAN_INDEX[qi].id);
+    }
+  } else {
+    surahIds = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary() : [];
+  }
   var allSurahComp = typeof getAllSurahComprehension === 'function' ? getAllSurahComprehension() : [];
   var compMap = {};
   for (var ci = 0; ci < allSurahComp.length; ci++) {
@@ -272,12 +404,12 @@ function renderSurahBrowser() {
     }
   }
 
-  // Handle empty filtered state
+  // Handle empty filtered state (only when search or juz filter returns nothing)
   if (surahIds.length === 0) {
-    if (_readerJuzFilter > 0) {
-      html += '<div class="reader-empty-sidebar">No vocabulary data available for this juz.</div>';
-    } else if (searchTerm) {
+    if (searchTerm) {
       html += '<div class="reader-empty-sidebar">No surahs match your search.</div>';
+    } else {
+      html += '<div class="reader-empty-sidebar">No surahs available. Try refreshing the page.</div>';
     }
     container.innerHTML = html;
     return;
@@ -285,7 +417,11 @@ function renderSurahBrowser() {
 
   for (var si = 0; si < surahIds.length; si++) {
     var sid = surahIds[si];
+    // Use Quran index for surah names (covers ALL 114 surahs)
+    var quranIdxInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET) ? window.__QURAN_INDEX_GET(sid) : null;
     var info = typeof getSurahInfo === 'function' ? getSurahInfo(sid) : null;
+    var surahName = quranIdxInfo ? quranIdxInfo.name : (info ? info.name : 'Surah ' + sid);
+    var englishName = quranIdxInfo ? quranIdxInfo.englishName : (info ? info.english : '');
     var comp = compMap[sid] || null;
     var compPct = comp ? comp.estimatedComprehension : 0;
     var masteredInSurah = comp ? comp.masteredWords : 0;
@@ -294,7 +430,7 @@ function renderSurahBrowser() {
     
     // Search filter
     if (searchTerm) {
-      var searchName = (info ? info.name + ' ' + info.english : 'Surah ' + sid).toLowerCase();
+      var searchName = (surahName + ' ' + englishName + ' Surah ' + sid).toLowerCase();
       if (searchName.indexOf(searchTerm) < 0) continue;
     }
 
@@ -307,12 +443,11 @@ function renderSurahBrowser() {
     var readingReady = overdueCount === 0 && totalInSurah > 0;
     
     // Color coding for comprehension
-    var compClass = 'reader-comp-green';
+    var compClass = 'reader-comp-red';
     if (compPct >= 70) compClass = 'reader-comp-gold';
     else if (compPct >= 40) compClass = 'reader-comp-green';
     else if (compPct >= 20) compClass = 'reader-comp-blue';
     else if (compPct > 0) compClass = 'reader-comp-gray';
-    else compClass = 'reader-comp-red';
     
     var isActive = _readerSurahId === sid;
     var activeClass = isActive ? ' reader-surah-active' : '';
@@ -321,14 +456,14 @@ function renderSurahBrowser() {
     var journeyEntry = journey.surahs && journey.surahs[sid];
     var readBadge = journeyEntry ? ' ✓' : '';
     
-    html += '<div class="reader-surah-item' + activeClass + '" data-surah-id="' + sid + '" tabindex="0" role="button" aria-label="' + (info ? info.name : 'Surah ' + sid) + ' — ' + compPct + '% comprehension">';
+    html += '<div class="reader-surah-item' + activeClass + '" data-surah-id="' + sid + '" tabindex="0" role="button" aria-label="' + surahName + ' — ' + compPct + '% comprehension">';
     html += '<div class="reader-surah-top">';
     html += '<span class="reader-surah-num">' + sid + '.</span>';
-    html += '<span class="reader-surah-name">' + (info ? info.name : 'Surah ' + sid) + readBadge + '</span>';
+    html += '<span class="reader-surah-name">' + surahName + readBadge + '</span>';
     if (readingReady && compPct >= 50) html += '<span class="reader-ready-badge">✓</span>';
     html += '<span class="reader-comp-pct ' + compClass + '">' + compPct + '%</span>';
     html += '</div>';
-    html += '<div class="reader-surah-meta">' + (info ? info.english : '') + ' · ' + masteredInSurah + '/' + totalInSurah + ' words</div>';
+    html += '<div class="reader-surah-meta">' + englishName + ' · ' + masteredInSurah + '/' + totalInSurah + ' words</div>';
     html += '<div class="reader-comp-bar"><div class="reader-comp-fill ' + compClass + '" style="width:' + compPct + '%"></div></div>';
     html += '</div>';
   }
@@ -363,55 +498,35 @@ function openSurahForReading(surahId) {
   if (!surahId) return;
 
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
+  _readerSurahId = surahId;
   
-  // Get surah words and group by verse
+  // Get vocabulary words for the surah
   _readerSurahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
-  _readerAyahGroups = {};
-  _readerVerseKeys = [];
   _readerWordData = {};
-  
-  // Build word lookup by arabic text
   for (var i = 0; i < _readerSurahWords.length; i++) {
-    var w = _readerSurahWords[i];
-    _readerWordData[w.arabic] = w;
+    _readerWordData[_readerSurahWords[i].arabic] = _readerSurahWords[i];
   }
   
-  // Group by verseKey
-  for (var wi = 0; wi < _readerSurahWords.length; wi++) {
-    var word = _readerSurahWords[wi];
-    var processedKeys = {};
-    if (word.occurrences && word.occurrences.length > 0) {
-      for (var oi = 0; oi < word.occurrences.length; oi++) {
-        var occ = word.occurrences[oi];
-        if (occ.surahId === surahId || !occ.surahId) {
-          var vk = occ.verseKey || (surahId + ':1');
-          if (!processedKeys[vk]) {
-            if (!_readerAyahGroups[vk]) {
-              _readerAyahGroups[vk] = { words: [], ayahA: occ.ayahA || '', ayahT: occ.ayahT || '' };
-              _readerVerseKeys.push(vk);
-            }
-            _readerAyahGroups[vk].words.push(word);
-            processedKeys[vk] = true;
-            if (occ.ayahA && occ.ayahA.length > (_readerAyahGroups[vk].ayahA || '').length) {
-              _readerAyahGroups[vk].ayahA = occ.ayahA;
-              _readerAyahGroups[vk].ayahT = occ.ayahT || _readerAyahGroups[vk].ayahT;
-            }
-          }
-        }
-      }
-    }
+  // Try to get Quran verse data
+  var quranData = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
+  
+  if (quranData && quranData.verses && quranData.verses.length > 0) {
+    // QURAN-FIRST: Build full verse list from Quran data + vocabulary overlay
+    var fullData = _buildFullVerseData(surahId, quranData, _readerSurahWords);
+    _readerAyahGroups = fullData.ayahGroups;
+    _readerVerseKeys = fullData.verseKeys;
+  } else if (_readerSurahWords.length > 0) {
+    // FALLBACK: Build from vocabulary data only (Quran data not yet loaded)
+    _buildFromVocabOnly(surahId);
+    // Trigger async Quran load for later re-render
+    _triggerQuranSurahLoad(surahId);
+  } else {
+    // No data at all — show empty state
+    _readerAyahGroups = {};
+    _readerVerseKeys = [];
   }
   
-  // Sort verse keys
-  _readerVerseKeys.sort(function(a, b) {
-    var aParts = a.split(':');
-    var bParts = b.split(':');
-    return (parseInt(aParts[1], 10) || 0) - (parseInt(bParts[1], 10) || 0);
-  });
-  
-  // ── Track reading session (AFTER _readerSurahWords is populated) ──
-  // Store all word IDs from this surah so the Smart Learning Engine
-  // can generate post-reading recommendations
+  // ── Track reading session ──
   var allWordIds = [];
   for (var wsi = 0; wsi < _readerSurahWords.length; wsi++) {
     allWordIds.push(_readerSurahWords[wsi].id);
@@ -428,9 +543,12 @@ function openSurahForReading(surahId) {
   
   // Update UI
   var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(surahId) : null;
+  var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET) ? window.__QURAN_INDEX_GET(surahId) : null;
+  var surahName = surahInfo ? surahInfo.name : (quranIndexInfo ? quranIndexInfo.name : 'Surah ' + surahId);
+  var englishName = quranIndexInfo ? quranIndexInfo.englishName : (surahInfo ? surahInfo.english : '');
   var surahNameEl = document.getElementById('reader-surah-title');
   if (surahNameEl) {
-    surahNameEl.textContent = (surahInfo ? surahInfo.name + ' — ' + surahInfo.english : 'Surah ' + surahId);
+    surahNameEl.textContent = surahName + (englishName ? ' — ' + englishName : '');
   }
   
   // Update the surah view
@@ -443,103 +561,117 @@ function openSurahForReading(surahId) {
   if (versesContainer) versesContainer.scrollTop = 0;
 }
 
-// ── Render Ayahs ───────────────────────────────────────────────
+// ── Render Ayahs (Quran-First) ─────────────────────────────────
 
 function renderAyahs() {
   var container = document.getElementById('reader-verses');
   if (!container) return;
-  
+
   if (_readerVerseKeys.length === 0) {
     container.innerHTML = '<div class="reader-empty">' +
       '<div style="font-size: 32px; margin-bottom: 12px">📖</div>' +
-      '<div>No vocabulary words available for this surah.</div>' +
-      '<div style="font-size: 11px; color: var(--text-muted); margin-top: 8px">Select a different surah from the list above.</div>' +
+      '<div>No verses available for this surah.</div>' +
+      '<div style="font-size: 11px; color: var(--text-muted); margin-top: 8px">Quran data may still be loading. Try selecting the surah again.</div>' +
       '</div>';
     return;
   }
-  
-  var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(_readerSurahId) : null;
-  var totalVerses = surahInfo ? surahInfo.verses : 0;
-  
+
+  var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET) ? window.__QURAN_INDEX_GET(_readerSurahId) : null;
+  var totalVerses = quranIndexInfo ? quranIndexInfo.total_verses : 0;
+
   var html = '';
-  
+
   for (var vi = 0; vi < _readerVerseKeys.length; vi++) {
     var verseKey = _readerVerseKeys[vi];
     var group = _readerAyahGroups[verseKey];
     if (!group) continue;
-    
+
     var verseNum = parseInt(verseKey.split(':')[1], 10) || 0;
-    var totalWords = group.words.length;
-    
-    // OCCURRENCE-WEIGHTED ayah comprehension
-    var ayahComp = _calcAyahComprehension(group.words);
-    var ayahCompPct = ayahComp.pct;
+
+    // OCCURRENCE-WEIGHTED ayah comprehension (only for verses WITH vocabulary)
+    var ayahComp = group.words.length > 0 ? _calcAyahComprehension(group.words) : null;
+    var ayahCompPct = ayahComp ? ayahComp.pct : 0;
     var ayahCompColor = ayahCompPct >= 70 ? 'var(--gold)' : (ayahCompPct >= 40 ? 'var(--green)' : (ayahCompPct >= 20 ? 'var(--blue)' : 'var(--text-muted)'));
-    
-    // Skip if filter is "show unknown only" and ayah has no unknown words
-    if (_readerFilters.showUnknownOnly && ayahComp.unknown === 0) continue;
-    
+
+    // Skip if filter is "show unknown only" and ayah has vocabulary but no unknown words
+    if (_readerFilters.showUnknownOnly && ayahComp && ayahComp.unknown === 0) continue;
+    // If "show unknown only" and this verse has NO vocabulary at all, skip it
+    if (_readerFilters.showUnknownOnly && (!ayahComp || group.words.length === 0)) continue;
+
     // Focus mode: dim the ayah
     var focusClass = _readerFilters.focusMode ? ' reader-ayah-focus' : '';
-    
+
     html += '<div class="reader-ayah' + focusClass + '" id="reader-ayah-' + verseKey.replace(':', '-') + '">';
-    
-    // Verse header with occurrence-weighted comprehension
+
+    // Verse header
     html += '<div class="reader-ayah-header">';
     html += '<div class="reader-ayah-num">Verse ' + verseNum + (totalVerses > 0 ? ' of ' + totalVerses : '') + '</div>';
-    html += '<div class="reader-ayah-comp" style="color:' + ayahCompColor + '" title="Estimated comprehension: ' + ayahCompPct + '% (occurrence-weighted)">' + ayahCompPct + '% understood</div>';
+    if (group.words.length > 0) {
+      html += '<div class="reader-ayah-comp" style="color:' + ayahCompColor + '" title="Estimated comprehension: ' + ayahCompPct + '% (occurrence-weighted)">' + ayahCompPct + '% understood</div>';
+    }
+    if (group.words.length === 0) {
+      html += '<div class="reader-ayah-comp" style="color:var(--text-muted)">no vocabulary</div>';
+    }
     html += '</div>';
-    
+
     // Arabic verse with tappable word tokens
     html += '<div class="reader-ayah-arabic" lang="ar" dir="rtl">';
-    
-    // Render word tokens with color coding
-    for (var wi = 0; wi < group.words.length; wi++) {
-      var w = group.words[wi];
-      var colorClass = _readerGetMasteryColor(w.id);
-      var isLeech = _readerSRSData[w.id] && _readerSRSData[w.id].isLeech;
-      
-      // Skip mastered words in "show unknown only" mode
-      if (_readerFilters.showUnknownOnly && (colorClass === 'mastered' || colorClass === 'known')) continue;
-      
-      var extraClass = isLeech ? ' reader-token-leech' : '';
-      html += '<span class="reader-word-token reader-token-' + colorClass + extraClass + '" ' +
-        'data-word-id="' + w.id + '" ' +
-        'data-arabic="' + w.arabic.replace(/\"/g, '&quot;') + '" ' +
-        'tabindex="0" role="button" ' +
-        'aria-label="' + w.arabic + ' — ' + (w.meaning || w.english || '') + ' — ' + colorClass + '" ' +
-        'title="' + w.arabic + ' — ' + (w.english || '') + ' (' + colorClass + ')"' +
-        '>' +
-        w.arabic + '</span>';
-      
-      if (wi < group.words.length - 1) {
-        html += ' ';
+
+    if (group.words.length > 0) {
+      // Render vocabulary word tokens with color coding
+      for (var wi = 0; wi < group.words.length; wi++) {
+        var w = group.words[wi];
+        var colorClass = _readerGetMasteryColor(w.id);
+        var isLeech = _readerSRSData[w.id] && _readerSRSData[w.id].isLeech;
+
+        // Skip mastered words in "show unknown only" mode
+        if (_readerFilters.showUnknownOnly && (colorClass === 'mastered' || colorClass === 'known')) continue;
+
+        var extraClass = isLeech ? ' reader-token-leech' : '';
+        html += '<span class="reader-word-token reader-token-' + colorClass + extraClass + '" ' +
+          'data-word-id="' + w.id + '" ' +
+          'data-arabic="' + w.arabic.replace(/"/g, '&quot;') + '" ' +
+          'tabindex="0" role="button" ' +
+          'aria-label="' + w.arabic + ' — ' + (w.meaning || w.english || '') + ' — ' + colorClass + '" ' +
+          'title="' + w.arabic + ' — ' + (w.english || '') + ' (' + colorClass + ')"' +
+          '>' +
+          w.arabic + '</span>';
+
+        if (wi < group.words.length - 1) {
+          html += ' ';
+        }
       }
+    } else {
+      // No vocabulary for this verse — render plain Arabic text
+      var escapedAyah = group.ayahA.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      html += '<span class="reader-plain-arabic">' + escapedAyah + '</span>';
     }
     html += '</div>'; // end ayah arabic
-    
-    // Translation (hidden by filter) — strip HTML tags for clean text rendering
+
+    // Translation (hidden by filter)
     if (group.ayahT && !_readerFilters.hideTranslation) {
       var cleanTranslation = group.ayahT.replace(/<[^>]+>/g, '');
       html += '<div class="reader-ayah-translation">' + cleanTranslation + '</div>';
     }
-    
-    // Ayah root chips
-    for (var ti = 0; ti < group.words.length; ti++) {
-      var tw = group.words[ti];
-      if (tw.root && tw.root !== '—') {
-        html += '<div class="reader-ayah-roots">';
-        html += '<span class="reader-ayah-root-chip">🌱 Root: ' + tw.root + ' (' + (tw.rootMeaning || '') + ')</span>';
-        html += '</div>';
-        break;
+
+    // Root chip for first vocab word (only if vocab exists)
+    if (group.words.length > 0) {
+      for (var ti = 0; ti < group.words.length; ti++) {
+        var tw = group.words[ti];
+        if (tw.root && tw.root !== '—') {
+          html += '<div class="reader-ayah-roots">';
+          html += '<span class="reader-ayah-root-chip">🌱 Root: ' + tw.root + ' (' + (tw.rootMeaning || '') + ')</span>';
+          html += '</div>';
+          break;
+        }
       }
     }
-    
+
     html += '</div>'; // end ayah
   }
-  
+
   container.innerHTML = html;
-  
+
   // Wire word token clicks
   var tokens = container.querySelectorAll('.reader-word-token');
   for (var ti = 0; ti < tokens.length; ti++) {
@@ -567,11 +699,12 @@ function renderAyahs() {
       };
     })(tokens[ti]);
   }
-  
+
   // Scroll to target verse if set
-  if (_readerScrollVerse && document.getElementById('reader-ayah-' + _readerScrollVerse.replace(':', '-'))) {
-    var target = document.getElementById('reader-ayah-' + _readerScrollVerse.replace(':', '-'));
-    if (target) {
+  if (_readerScrollVerse) {
+    var targetId = 'reader-ayah-' + _readerScrollVerse.replace(':', '-');
+    if (document.getElementById(targetId)) {
+      var target = document.getElementById(targetId);
       setTimeout(function() {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
@@ -593,17 +726,26 @@ function renderSurahComprehensionHeader() {
   
   var comp = typeof getSurahComprehension === 'function' ? getSurahComprehension(_readerSurahId) : null;
   var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(_readerSurahId) : null;
+  // Use Quran index for accurate total verse count
+  var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET) ? window.__QURAN_INDEX_GET(_readerSurahId) : null;
   
   if (!comp) {
-    headerEl.style.display = 'none';
+    headerEl.innerHTML = '<div class="reader-comp-header-empty">Select a surah to start reading</div>';
     return;
   }
   
   headerEl.style.display = 'block';
   
   var knownPct = comp.totalWords > 0 ? Math.round((comp.masteredWords / comp.totalWords) * 100) : 0;
-  var totalVerses = surahInfo ? surahInfo.verses : 0;
-  var versesWithVocab = _readerVerseKeys.length;
+  var totalVerses = quranIndexInfo ? quranIndexInfo.total_verses : (surahInfo ? surahInfo.verses : 0);
+  // Count verses that have vocabulary
+  var versesWithVocab = 0;
+  var vkKeys = Object.keys(_readerAyahGroups);
+  for (var vki = 0; vki < vkKeys.length; vki++) {
+    if (_readerAyahGroups[vkKeys[vki]] && _readerAyahGroups[vkKeys[vki]].words.length > 0) {
+      versesWithVocab++;
+    }
+  }
   
   // Calculate review burden
   var overdueCount = 0;
@@ -786,6 +928,11 @@ function renderReader() {
     return;
   }
   
+  // Start loading Quran text data (cached, non-blocking)
+  if (window.__quranLoader && typeof window.__quranLoader.load === 'function') {
+    window.__quranLoader.load();
+  }
+
   renderSurahBrowser();
   
   if (!_readerSurahId) {

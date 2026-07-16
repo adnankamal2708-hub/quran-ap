@@ -30,6 +30,7 @@ const PRECACHE_URLS = [
   './js/ux-polish.js',
   './manifest.json',
   './favicon.ico',
+  './js/quran/surah-index.min.js',
   './js/quran.bundle.min.js',
 ];
 
