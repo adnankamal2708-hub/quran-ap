@@ -582,7 +582,10 @@ function openSurahForReading(surahId) {
   _updateNavButtons();
   
   var versesContainer = document.getElementById('reader-verses');
-  if (versesContainer) versesContainer.scrollTop = 0;
+  if (versesContainer) {
+    versesContainer.scrollTop = 0;
+    versesContainer.focus({ preventScroll: true });
+  }
 }
 
 // ── Render Ayahs (Quran-First) ─────────────────────────────────
@@ -1051,11 +1054,13 @@ function updateReaderFilterUI() {
   for (var fi = 0; fi < filterBtns.length; fi++) {
     var btn = filterBtns[fi];
     var filterName = btn.getAttribute('data-filter');
-    if (filterName && _readerFilters[filterName]) {
+    var isActive = filterName && _readerFilters[filterName];
+    if (isActive) {
       btn.classList.add('reader-filter-active');
     } else {
       btn.classList.remove('reader-filter-active');
     }
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   }
   
   // Apply night mode to the reader main area
@@ -1262,6 +1267,10 @@ function _renderReadingProgress() {
   
   var progressPct = totalVerses > 0 ? Math.round(((currentIdx + 1) / totalVerses) * 100) : 0;
   progressFill.style.width = Math.min(100, progressPct) + '%';
+  var progressWrap = document.getElementById('reader-progress-bar-wrap');
+  if (progressWrap) {
+    progressWrap.setAttribute('aria-valuenow', progressPct);
+  }
   
   if (progressText) {
     progressText.textContent = 'Verse ' + (currentIdx + 1) + ' of ' + totalVerses;

@@ -769,7 +769,7 @@ getResults: function () { return _safeguardResults; },
           <!-- Surah Browser (left column / top row on mobile) -->
           <div class="reader-sidebar" id="reader-sidebar">
             <div class="reader-sidebar-header">
-              <div class="reader-sidebar-title">📖 Surahs</div>
+              <div class="reader-sidebar-title"><span aria-hidden="true">📖</span> Surahs</div>
               <button class="reader-close-btn" id="reader-back-to-list" type="button" title="Browse surahs" aria-label="Browse surahs">📋</button>
             </div>
             <div class="reader-juz-row">
@@ -810,7 +810,7 @@ getResults: function () { return _safeguardResults; },
             <div class="reader-search-row">
               <input class="reader-search-input" id="reader-search-input" type="text" placeholder="Search surah…" aria-label="Search surah" />
             </div>
-            <div class="reader-surah-list" id="reader-surah-list">
+            <div class="reader-surah-list" id="reader-surah-list" role="list">
               <!-- Rendered dynamically by renderSurahBrowser() -->
             </div>
           </div>
@@ -837,14 +837,14 @@ getResults: function () { return _safeguardResults; },
             </div>
             <!-- Reading progress bar -->
             <div class="reader-progress-row">
-              <div class="reader-progress-bar-wrap" id="reader-progress-bar-wrap">
+              <div class="reader-progress-bar-wrap" id="reader-progress-bar-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Reading progress">
                 <div class="reader-progress-fill" id="reader-progress-fill" style="width:0%"></div>
               </div>
-              <span class="reader-remaining-verses" id="reader-remaining-verses"></span>
+              <span class="reader-remaining-verses" id="reader-remaining-verses" aria-live="polite"></span>
             </div>
             </div>
 
-            <div class="reader-surah-comp" id="reader-surah-comp">
+            <div class="reader-surah-comp" id="reader-surah-comp" aria-live="polite">
               <!-- Rendered dynamically by renderSurahComprehensionHeader() -->
             </div>
 
@@ -859,10 +859,10 @@ getResults: function () { return _safeguardResults; },
 
             <!-- Reader Filters -->
             <div class="reader-filter-bar" id="reader-filter-bar">
-              <button class="reader-filter-btn" data-filter="hideTranslation" type="button" title="Hide translations">🌐</button>
-              <button class="reader-filter-btn" data-filter="showUnknownOnly" type="button" title="Show unknown words only">❓</button>
-              <button class="reader-filter-btn" data-filter="focusMode" type="button" title="Focus mode — dim verses">🎯</button>
-              <button class="reader-filter-btn" data-filter="nightMode" type="button" title="Night mode">🌙</button>
+              <button class="reader-filter-btn" data-filter="hideTranslation" type="button" title="Hide translations" aria-label="Hide translations">🌐</button>
+              <button class="reader-filter-btn" data-filter="showUnknownOnly" type="button" title="Show unknown words only" aria-label="Show unknown words only">❓</button>
+              <button class="reader-filter-btn" data-filter="focusMode" type="button" title="Focus mode — dim verses" aria-label="Focus mode — dim verses">🎯</button>
+              <button class="reader-filter-btn" data-filter="nightMode" type="button" title="Night mode" aria-label="Night mode">🌙</button>
             </div>
 
             <!-- Reading Insights Panel -->
@@ -871,7 +871,7 @@ getResults: function () { return _safeguardResults; },
             </div>
 
             <!-- Verses Container -->
-            <div class="reader-verses" id="reader-verses">
+            <div class="reader-verses" id="reader-verses" tabindex="-1">
               <!-- Rendered dynamically by renderAyahs() -->
             </div>
             <!-- Floating action buttons -->
