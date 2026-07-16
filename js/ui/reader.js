@@ -748,16 +748,20 @@ function renderSurahComprehensionHeader() {
   if (englishName) {
     html += '<div class="reader-comp-surah-english">' + englishName + '</div>';
   }
-  html += '<div class="reader-comp-meta-row">';
-  html += '<span class="reader-comp-verse-count">' + totalVerses + ' verses</span>';
-  html += '<span class="reader-comp-sep">·</span>';
-  html += '<span class="reader-comp-pct-label">Comprehension</span>';
-  html += '<span class="reader-comp-pct-value">' + compPct + '%</span>';
-  html += '</div>';
-  html += '<div class="reader-comp-bar-wrap"><div class="reader-comp-bar-fill" style="width:' + compPct + '%"></div></div>';
+  html += '<div class="reader-comp-verse-count">' + totalVerses + ' verses</div>';
+  html += '<div class="reader-comp-ring-wrap">';
+  html += '<div class="reader-comp-ring" style="background: conic-gradient(var(--gold) 0% ' + compPct + '%, var(--border) ' + compPct + '% 100%)">';
+  html += '<div class="reader-comp-ring-inner">';
+  html += '<span class="reader-comp-ring-text">' + compPct + '%</span>';
+  html += '</div></div></div>';
   html += '<div class="reader-comp-sub">' + comp.masteredWords + ' of ' + comp.totalWords + ' words learned</div>';
   html += '</div>';
   headerEl.innerHTML = html;
+  
+  // Trigger subtle fade-in animation on each surah switch
+  headerEl.classList.remove('reader-comp-animate');
+  void headerEl.offsetWidth; // Force reflow to replay animation
+  headerEl.classList.add('reader-comp-animate');
 }
 
 // ── Reading Insights Panel ────────────────────────────────────

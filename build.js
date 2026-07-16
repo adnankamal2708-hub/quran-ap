@@ -311,7 +311,10 @@ async function build() {
   var dataBundle = '';
   DATA_FILES.forEach(function (f) {
     var content = readFile(f);
-    if (content) dataBundle += content + '\n';
+    if (content) {
+      content = content.replace(/\r\n/g, '\n'); // Normalize line endings
+      dataBundle += content + '\n';
+    }
   });
   writeFile('js/data.bundle.js', basicMinify(stripComments(dataBundle)));
 
@@ -320,7 +323,10 @@ async function build() {
   var appBundle = '';
   APP_FILES.forEach(function (f) {
     var content = readFile(f);
-    if (content) appBundle += content + '\n';
+    if (content) {
+      content = content.replace(/\r\n/g, '\n'); // Normalize line endings
+      appBundle += content + '\n';
+    }
   });
   writeFile('js/app.bundle.js', basicMinify(stripComments(appBundle)));
 

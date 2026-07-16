@@ -7097,6 +7097,11 @@ body::before {
   flex-shrink: 0;
 }
 
+/* Fade-in animation when switching between surahs */
+.reader-comp-animate {
+  animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 .reader-comp-header-empty {
   color: var(--text-muted);
   font-size: 12px;
@@ -7131,58 +7136,54 @@ body::before {
   letter-spacing: 0.03em;
 }
 
-.reader-comp-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  font-size: 11px;
-}
-
 .reader-comp-verse-count {
   color: var(--text-muted);
   font-size: 11px;
+  margin-top: 6px;
 }
 
-.reader-comp-sep {
-  color: var(--border);
-  font-size: 10px;
+/* ── Circular Progress Ring ── */
+.reader-comp-ring-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 }
 
-.reader-comp-pct-label {
-  color: var(--text-muted);
-  font-size: 11px;
+.reader-comp-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.5s var(--ease-default);
 }
 
-.reader-comp-pct-value {
-  color: var(--gold);
-  font-weight: 700;
+.reader-comp-ring-inner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.reader-comp-ring-text {
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
   font-variant-numeric: tabular-nums;
-}
-
-.reader-comp-bar-wrap {
-  width: 100%;
-  max-width: 240px;
-  height: 3px;
-  background: var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-
-.reader-comp-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-  border-radius: 3px;
-  transition: width 0.5s var(--ease-default);
 }
 
 .reader-comp-sub {
   font-size: 10px;
   color: var(--text-muted);
-  margin-top: 6px;
+  margin-top: 8px;
   opacity: 0.75;
 }
 
