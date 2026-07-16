@@ -7003,16 +7003,35 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
-.reader-progress-bar-wrap {
-  height: 2px;
-  background: var(--border);
-  overflow: hidden;
+.reader-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
   flex-shrink: 0;
+}
+
+.reader-progress-bar-wrap {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
 }
 .reader-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-  transition: width 0.4s ease;
+  border-radius: 3px;
+  transition: width 0.5s var(--ease-default);
+}
+
+.reader-remaining-verses {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  opacity: 0.7;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Floating action buttons */

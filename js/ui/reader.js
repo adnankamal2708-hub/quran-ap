@@ -25,6 +25,28 @@ let _readerFilters = {           // Active reader filters
 };
 let _readerTrackedAyahs = {};    // Set of tracked ayahs for deduplication
 
+// ── Filter Persistence ────────────────────────────────────────
+// Save/restore reader filter state across sessions
+
+const _READER_FILTER_KEY = 'quran_reader_filters';
+
+function _saveReaderFilters() {
+  try { localStorage.setItem(_READER_FILTER_KEY, JSON.stringify(_readerFilters)); } catch (e) { /* ignore */ }
+}
+
+function _loadReaderFilters() {
+  try {
+    var raw = localStorage.getItem(_READER_FILTER_KEY);
+    if (!raw) return;
+    var saved = JSON.parse(raw);
+    for (var key in saved) {
+      if (saved.hasOwnProperty(key) && _readerFilters.hasOwnProperty(key)) {
+        _readerFilters[key] = saved[key];
+      }
+    }
+  } catch (e) { /* ignore */ }
+}
+
 // ── Vocabulary Data Readiness Check ───────────────────────────
 // Prevents empty surah list if the Reader tab is opened before
 // vocabulary data finishes loading (deduplicateVocabulary runs
@@ -815,6 +837,9 @@ function renderReadingInsightsPanel() {
 function renderReader() {
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
   
+  // Restore saved filter state from previous session
+  _loadReaderFilters();
+  
   // Cancel any previous polling to prevent duplicate checks
   _cancelDataCheck();
   
@@ -895,9 +920,18 @@ function renderReader() {
     if (surahNameEl) surahNameEl.textContent = 'Select a Surah';
     var insightsEl = document.getElementById('reader-insights');
     if (insightsEl) insightsEl.style.display = 'none';
+    
+    // Auto-restore: if there is a saved reading position, open the last surah
+    var lastPos = getLastReadPosition();
+    if (lastPos && lastPos.surahId) {
+      openSurahForReading(lastPos.surahId);
+    }
   } else {
     openSurahForReading(_readerSurahId);
   }
+  
+  // Apply restored filter state to the UI after rendering
+  updateReaderFilterUI();
 }
 
 // ── Reader Search / Jump to Verse ──────────────────────────────
@@ -1007,6 +1041,8 @@ function toggleReaderFilter(filterName) {
     }
     // Update filter button states
     updateReaderFilterUI();
+    // Persist filter state
+    _saveReaderFilters();
   }
 }
 
@@ -1228,7 +1264,13 @@ function _renderReadingProgress() {
   progressFill.style.width = Math.min(100, progressPct) + '%';
   
   if (progressText) {
-    progressText.textContent = (currentIdx + 1) + ' / ' + totalVerses;
+    progressText.textContent = 'Verse ' + (currentIdx + 1) + ' of ' + totalVerses;
+  }
+  
+  var remainingEl = document.getElementById('reader-remaining-verses');
+  if (remainingEl) {
+    var remaining = totalVerses - (currentIdx + 1);
+    remainingEl.textContent = remaining > 0 ? remaining + ' remaining' : '';
   }
 }
 
