@@ -1290,155 +1290,113 @@ getResults: function () { return _safeguardResults; },
         </div>
       </section>
 
-      <!-- ── PROFILE VIEW ── -->
-      <section class="mode-view" id="view-profile" aria-label="User profile">
+      <!-- ── PROFILE VIEW ── (4 sections: Account, Progress & Insights, Achievements, About) -->
+      <section class="mode-view" id="view-profile" aria-label="Profile">
         <div class="profile-container">
-          <!-- ═══ ACCOUNT SECTION ═══ -->
-          <div class="profile-section-title mt-0">👤 Account</div>
-          <div class="profile-header">
-            <div class="profile-avatar" id="profile-avatar">U</div>
-            <div class="profile-header-info">
-              <div class="profile-name" id="profile-name">User</div>
-              <div class="profile-email-row">
-                <span class="profile-email" id="profile-email"></span>
-                <span class="profile-verified-badge" id="profile-email-verified"></span>
+
+          <!-- ═══ SECTION 1: ACCOUNT ═══ -->
+          <div class="pf-section" id="pf-section-account">
+            <div class="pf-section-header">
+              <span class="pf-section-icon">👤</span>
+              <span class="pf-section-title">Account</span>
+            </div>
+            <div class="pf-card">
+              <div class="profile-header">
+                <div class="profile-avatar" id="profile-avatar">U</div>
+                <div class="profile-header-info">
+                  <div class="profile-name" id="profile-name">User</div>
+                  <div class="profile-email-row">
+                    <span class="profile-email" id="profile-email"></span>
+                    <span class="profile-verified-badge" id="profile-email-verified"></span>
+                  </div>
+                </div>
+              </div>
+              <div id="profile-info">
+                <div class="pf-detail-row"><span class="pf-detail-label">Joined</span><span class="pf-detail-value" id="profile-join-date">—</span></div>
+                <div class="pf-detail-row"><span class="pf-detail-label">Sync</span><span class="pf-detail-value" id="profile-sync-status">○ Offline</span></div>
+                <div class="pf-detail-row"><span class="pf-detail-label">Email verified</span><span class="pf-detail-value" id="profile-email-verified-status"></span></div>
+                <button class="pf-btn" id="btn-edit-profile" type="button">✏️ Edit Profile</button>
+              </div>
+              <div id="profile-edit" style="display:none">
+                <label class="auth-label" for="profile-edit-name">Name</label>
+                <input class="auth-input" id="profile-edit-name" type="text" placeholder="Your name" />
+                <label class="auth-label" for="profile-edit-email">Email</label>
+                <input class="auth-input" id="profile-edit-email" type="email" placeholder="your@email.com" />
+                <div class="auth-error" id="profile-edit-error" style="display:none"></div>
+                <div class="auth-success" id="profile-edit-success" style="display:none"></div>
+                <div class="pf-btn-row">
+                  <button class="btn btn-sm flex-1" id="btn-save-profile" type="button">Save</button>
+                  <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-profile" type="button">Cancel</button>
+                </div>
               </div>
             </div>
-          </div>
-          <div id="profile-info">
-            <div class="profile-detail-row">
-              <span class="profile-detail-label">Joined</span>
-              <span class="profile-detail-value" id="profile-join-date">—</span>
+            <!-- Settings & Account actions (collapsible inside Account) -->
+            <div class="pf-card">
+              <div class="pf-card-title">⚙️ Settings</div>
+              <div id="settings-info">
+                <div class="pf-detail-row"><span class="pf-detail-label">Daily review limit</span><span class="pf-detail-value" id="settings-daily-limit">25</span></div>
+                <div class="pf-detail-row"><span class="pf-detail-label">Session size</span><span class="pf-detail-value" id="settings-session-size">20</span></div>
+                <div class="pf-detail-row"><span class="pf-detail-label">Auto-import</span><span class="pf-detail-value" id="settings-auto-import">On</span></div>
+                <button class="pf-btn" id="btn-edit-settings" type="button">⚙️ Edit Settings</button>
+              </div>
+              <div id="settings-edit" style="display:none">
+                <label class="auth-label" for="settings-edit-limit">Daily review limit (5-100)</label>
+                <input class="auth-input" id="settings-edit-limit" type="number" min="5" max="100" value="25" />
+                <label class="auth-label" for="settings-edit-size">Session word count (5-153)</label>
+                <input class="auth-input" id="settings-edit-size" type="number" min="5" max="500" value="20" />
+                <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-auto" checked /><span>Auto-import local data on login</span></label>
+                <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-dark-theme" checked /><span>Dark theme (default)</span></label>
+                <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-show-celebrations" checked /><span>Show milestone celebrations</span></label>
+                <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-notifications" checked /><span>Daily review reminder</span></label>
+                <div class="auth-error" id="settings-edit-error" style="display:none"></div>
+                <div class="auth-success" id="settings-edit-success" style="display:none"></div>
+                <div class="pf-btn-row">
+                  <button class="btn btn-sm flex-1" id="btn-save-settings" type="button">Save</button>
+                  <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-settings" type="button">Cancel</button>
+                </div>
+              </div>
             </div>
-            <div class="profile-detail-row">
-              <span class="profile-detail-label">Current Streak</span>
-              <span class="profile-detail-value" id="profile-stats-streak">0</span>
+            <div class="pf-card">
+              <div class="pf-card-title">🔐 Account Actions</div>
+              <button class="account-action-btn" id="btn-change-password" type="button">🔑 Change Password</button>
+              <button class="account-action-btn" id="btn-export-data" type="button">📤 Export Learning Data</button>
+              <button class="account-action-btn" id="btn-import-data" type="button">📥 Import Learning Data</button>
+              <button class="account-action-btn account-action-danger" id="btn-delete-account" type="button">🗑️ Delete Account</button>
+              <button class="btn btn-sm btn-outline w-full mt-16" id="btn-logout" type="button">🚪 Sign Out</button>
             </div>
-            <div class="profile-detail-row">
-              <span class="profile-detail-label">Sync</span>
-              <span class="profile-detail-value" id="profile-sync-status">○ Offline</span>
-            </div>
-            <button class="btn btn-sm w-full mt-10" id="btn-edit-profile" type="button">✏️ Edit Profile</button>
-          </div>
-          <div id="profile-edit" style="display:none">
-            <div class="profile-section-title mt-0">✏️ Edit Profile</div>
-            <label class="auth-label" for="profile-edit-name">Name</label>
-            <input class="auth-input" id="profile-edit-name" type="text" placeholder="Your name" />
-            <label class="auth-label" for="profile-edit-email">Email</label>
-            <input class="auth-input" id="profile-edit-email" type="email" placeholder="your@email.com" />
-            <div class="auth-error" id="profile-edit-error" style="display:none"></div>
-            <div class="auth-success" id="profile-edit-success" style="display:none"></div>
-            <div class="profile-edit-actions">
-              <button class="btn btn-sm flex-1" id="btn-save-profile" type="button">Save</button>
-              <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-profile" type="button">Cancel</button>
-            </div>
-          </div>
-          <div class="profile-section-title mt-24">⚙️ Settings</div>
-          <div id="settings-info">
-            <div class="profile-detail-row">
-              <span class="profile-detail-label">Daily review limit</span>
-              <span class="profile-detail-value" id="settings-daily-limit">25</span>
-            </div>
-            <div class="profile-detail-row">
-              <span class="profile-detail-label">Session size</span>
-              <span class="profile-detail-value" id="settings-session-size">20</span>
-            </div>
-            <div class="profile-detail-row">
-              <span class="profile-detail-label">Auto-import</span>
-              <span class="profile-detail-value" id="settings-auto-import">On</span>
-            </div>
-            <button class="btn btn-sm w-full mt-8" id="btn-edit-settings" type="button">⚙️ Edit Settings</button>
-          </div>
-          <div id="settings-edit" style="display:none">
-            <div class="profile-section-title mt-0">⚙️ Edit Settings</div>
-            <label class="auth-label" for="settings-edit-limit">Daily review limit (5-100)</label>
-            <input class="auth-input" id="settings-edit-limit" type="number" min="5" max="100" value="25" />
-            <label class="auth-label" for="settings-edit-size">Session word count (5-153)</label>
-            <input class="auth-input" id="settings-edit-size" type="number" min="5" max="500" value="20" />
-            <label class="auth-checkbox-label mt-12 flex gap-8">
-              <input type="checkbox" id="settings-edit-auto" checked />
-              <span>Auto-import local data on login</span>
-            </label>
-            <label class="auth-checkbox-label mt-12 flex gap-8">
-              <input type="checkbox" id="settings-edit-dark-theme" checked />
-              <span>Dark theme (default)</span>
-            </label>
-            <label class="auth-checkbox-label mt-12 flex gap-8">
-              <input type="checkbox" id="settings-edit-show-celebrations" checked />
-              <span>Show milestone celebrations</span>
-            </label>
-            <label class="auth-checkbox-label mt-12 flex gap-8">
-              <input type="checkbox" id="settings-edit-notifications" checked />
-              <span>Daily review reminder</span>
-            </label>
-            <div class="auth-error" id="settings-edit-error" style="display:none"></div>
-            <div class="auth-success" id="settings-edit-success" style="display:none"></div>
-            <div class="profile-edit-actions">
-              <button class="btn btn-sm flex-1" id="btn-save-settings" type="button">Save</button>
-              <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-settings" type="button">Cancel</button>
-            </div>
-          </div>
-          <div class="profile-section-title mt-24">🔐 Account</div>
-          <button class="account-action-btn" id="btn-change-password" type="button">🔑 Change Password</button>
-          <button class="account-action-btn" id="btn-export-data" type="button">📤 Export Learning Data</button>
-          <button class="account-action-btn" id="btn-import-data" type="button">📥 Import Learning Data</button>
-          <button class="account-action-btn account-action-danger" id="btn-delete-account" type="button">🗑️ Delete Account</button>
-          <button class="btn btn-sm btn-outline w-full mt-16" id="btn-logout" type="button">🚪 Sign Out</button>
-
-          <!-- ═══ PROGRESS SECTION ═══ -->
-          <div class="profile-section-title mt-24" id="profile-progress-title">📊 Progress</div>
-          <div id="profile-progress" class="profile-progress-section">
-            <!-- Rendered dynamically by renderProfileProgress() -->
           </div>
 
-          <!-- ═══ INSIGHTS SECTION ═══ -->
-          <div class="profile-section-title mt-24" id="profile-insights-title">💡 Insights</div>
-          <div id="profile-insights" class="profile-insights-section">
-            <!-- Rendered dynamically by renderProfileInsights() -->
-          </div>
-
-          <!-- ═══ ACHIEVEMENTS SECTION ═══ -->
-          <div class="profile-section-title mt-24" id="profile-achievements-title">🏆 Achievements</div>
-          <div id="profile-achievements" class="profile-achievements-section">
-            <!-- Rendered dynamically by renderProfileAchievements() -->
-          </div>
-
-          <!-- ═══ CALENDAR SECTION ═══ -->
-          <div class="profile-section-title mt-24" id="profile-calendar-title">📅 Activity</div>
-          <div id="profile-calendar" class="profile-calendar-section">
-            <!-- Rendered dynamically by renderProfileCalendar() -->
-          </div>
-
-          <!-- ═══ ABOUT SECTION ═══ -->
-          <div class="profile-section-title mt-24" id="profile-about-title">ℹ️ About</div>
-          <div id="profile-about" class="profile-about-section">
-            <div class="profile-about-content">
-              <div class="profile-detail-row">
-                <span class="profile-detail-label">App</span>
-                <span class="profile-detail-value">Bayan v2.0</span>
-              </div>
-              <div class="profile-detail-row">
-                <span class="profile-detail-label">Onboarding</span>
-                <span class="profile-detail-value"><button class="btn btn-sm btn-outline" id="btn-revisit-onboarding" type="button" style="font-size:10px;padding:4px 10px">🔄 Restart Tour</button></span>
-              </div>
-              <div class="profile-detail-row">
-                <span class="profile-detail-label">Privacy</span>
-                <span class="profile-detail-value"><a href="#" id="profile-privacy-link" style="color:var(--gold);text-decoration:none">View Policy</a></span>
-              </div>
-              <div class="profile-detail-row">
-                <span class="profile-detail-label">Terms</span>
-                <span class="profile-detail-value"><a href="#" id="profile-terms-link" style="color:var(--gold);text-decoration:none">View Terms</a></span>
-              </div>
-              <div class="profile-detail-row">
-                <span class="profile-detail-label">Support</span>
-                <span class="profile-detail-value"><a href="#" id="profile-support-link" style="color:var(--gold);text-decoration:none">Contact</a></span>
-              </div>
-              <div class="profile-detail-row">
-                <span class="profile-detail-label">License</span>
-                <span class="profile-detail-value">MIT License</span>
-              </div>
+          <!-- ═══ SECTION 2: PROGRESS & INSIGHTS ═══ -->
+          <div class="pf-section" id="pf-section-progress">
+            <div class="pf-section-header">
+              <span class="pf-section-icon">📊</span>
+              <span class="pf-section-title">Progress &amp; Insights</span>
             </div>
+            <div id="profile-stats-row" class="pf-card pf-stats-row">
+              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-mastered">0</span><span class="pf-stat-label">Mastered</span></div>
+              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-reviews">0</span><span class="pf-stat-label">Reviews</span></div>
+              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-streak">0</span><span class="pf-stat-label">Streak</span></div>
+              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-retention">0%</span><span class="pf-stat-label">Retention</span></div>
+            </div>
+            <div id="profile-progress"><!-- renderProfileProgress() --></div>
+            <div id="profile-insights"><!-- renderProfileInsights() --></div>
+            <div id="profile-calendar"><!-- renderProfileCalendar() --></div>
           </div>
+
+          <!-- ═══ SECTION 3: ACHIEVEMENTS (collapsible) ═══ -->
+          <div class="pf-section" id="pf-section-achievements">
+            <div id="profile-achievements"><!-- renderProfileAchievements() --></div>
+          </div>
+
+          <!-- ═══ SECTION 4: ABOUT ═══ -->
+          <div class="pf-section" id="pf-section-about">
+            <div class="pf-section-header">
+              <span class="pf-section-icon">ℹ️</span>
+              <span class="pf-section-title">About</span>
+            </div>
+            <div id="profile-about"><!-- renderProfileAbout() --></div>
+          </div>
+
         </div>
       </section>
 

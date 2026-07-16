@@ -796,6 +796,50 @@ function renderProfileInsights() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PROFILE — About Section
+// ═══════════════════════════════════════════════════════════════
+
+function renderProfileAbout() {
+  var container = document.getElementById('profile-about');
+  if (!container) return;
+
+  var h = '';
+  h += '<div class="pf-about-card">';
+  h += '<div class="pf-about-header">';
+  h += '<div class="pf-about-icon">📖</div>';
+  h += '<div class="pf-about-info">';
+  h += '<div class="pf-about-name">Bayan</div>';
+  h += '<div class="pf-about-version">v2.0 · Understand the Quran, one word at a time</div>';
+  h += '</div></div>';
+  h += '<div class="pf-about-desc">Bayan is a free, open-source Quranic Arabic learning app. It uses spaced repetition, root analysis, and context-based learning to help you understand the Quran in its original language.</div>';
+  h += '<div class="pf-about-mission"><span class="pf-about-mission-icon">🎯</span> Our mission is to make Quranic Arabic accessible to everyone, anywhere, for free.</div>';
+
+  // Links
+  h += '<div class="pf-about-links">';
+  h += '<button class="pf-about-link" id="btn-revisit-onboarding" type="button">🔄 Replay Tour</button>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="https://github.com/adnankamal2708-hub/quran-ap" target="_blank" rel="noopener noreferrer">🌐 GitHub</a>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="https://github.com/adnankamal2708-hub/quran-ap/issues" target="_blank" rel="noopener noreferrer">💬 Feedback</a>';
+  h += '<span class="pf-about-link pf-about-link-static">📜 Open Source (MIT)</span>';
+  h += '<span class="pf-about-link pf-about-link-static">🔒 Privacy: No data collected</span>';
+  h += '</div>';
+
+  h += '<div class="pf-about-footer">Made with ❤️ for the love of the Quran</div>';
+  h += '</div>';
+
+  container.innerHTML = h;
+
+  // Wire the replay tour button
+  var tourBtn = document.getElementById('btn-revisit-onboarding');
+  if (tourBtn) {
+    tourBtn.onclick = function() {
+      if (window.__ux && typeof window.__ux.restartOnboarding === 'function') {
+        window.__ux.restartOnboarding();
+      }
+    };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PROFILE — Achievements Section
 // ═══════════════════════════════════════════════════════════════
 
@@ -832,7 +876,7 @@ function renderProfileAchievements() {
   h += '</div>';
 
   // ── Collapsible Body ──
-  h += '<div class="profile-ach-collapsible-body"' + (isOpen ? '' : ' style="display:none"') + '>';
+  h += '<div class="profile-ach-collapsible-body">';
 
   if (achievements.length === 0) {
     h += '<div class="profile-ach-empty">' +
@@ -993,20 +1037,17 @@ function renderProfileAchievements() {
 
 function toggleAchievements() {
   var wrapper = document.getElementById('profile-ach-collapsible');
-  var body = wrapper ? wrapper.querySelector('.profile-ach-collapsible-body') : null;
   var toggle = document.getElementById('profile-ach-toggle');
   var chevron = toggle ? toggle.querySelector('.profile-ach-chevron') : null;
-  if (!wrapper || !body) return;
+  if (!wrapper) return;
 
   var isOpen = wrapper.classList.contains('open');
   if (isOpen) {
     wrapper.classList.remove('open');
-    body.style.display = 'none';
     if (toggle) toggle.setAttribute('aria-expanded', 'false');
     if (chevron) chevron.classList.remove('open');
   } else {
     wrapper.classList.add('open');
-    body.style.display = '';
     if (toggle) toggle.setAttribute('aria-expanded', 'true');
     if (chevron) chevron.classList.add('open');
   }
@@ -1108,6 +1149,7 @@ async function renderFullProfile() {
   renderProfileInsights();
   renderProfileAchievements();
   renderProfileCalendar();
+  renderProfileAbout();
   wireProfileSectionEvents();
 }
 
@@ -1129,4 +1171,5 @@ window.__profileUI = {
   renderInsights: renderProfileInsights,
   renderAchievements: renderProfileAchievements,
   renderCalendar: renderProfileCalendar,
+  renderAbout: renderProfileAbout,
 };
