@@ -819,7 +819,7 @@ function renderProfileAbout() {
   h += '<div class="pf-about-attrib-icon">📜</div>';
   h += '<div class="pf-about-attrib-text">';
   h += '<div class="pf-about-attrib-title">Quran Data Attribution</div>';
-  h += '<div class="pf-about-attrib-line">Arabic text from <a href="https://tanzil.net" target="_blank" rel="noopener noreferrer">Tanzil Project</a> and The Noble Qur'an Encyclopedia.</div>';
+  h += '<div class="pf-about-attrib-line">Arabic text from <a href="https://tanzil.net" target="_blank" rel="noopener noreferrer">Tanzil Project</a> and The Noble Qur\'an Encyclopedia.</div>';
   h += '<div class="pf-about-attrib-line">English translation by <strong>Saheeh International</strong> (from Tanzil.net).</div>';
   h += '<div class="pf-about-attrib-line" style="font-size:10px;color:var(--text-muted);margin-top:4px">Licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);text-decoration:underline">CC-BY-SA 4.0</a>.</div>';
   h += '</div></div>';
