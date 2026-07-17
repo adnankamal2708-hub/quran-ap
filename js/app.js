@@ -337,6 +337,9 @@ function updateLessonProgressDisplay() {
           ctxHtml += '</div>'; // end accordion
           fRelCtx.innerHTML = ctxHtml;
           fRelCtx.style.display = 'block';
+          // Show the parent collapsible section wrapper for root families
+          var fRelCollapsible = DOM.get('ls-collapsible-root-meta');
+          if (fRelCollapsible) fRelCollapsible.style.display = 'block';
         }
       }
     }
@@ -413,6 +416,8 @@ function updateLessonProgressDisplay() {
     // Hide foundation-specific elements
     var foundationCoverageEl = DOM.get('foundation-coverage');
     if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
+    var rootMetaCollapsible = DOM.get('ls-collapsible-root-meta');
+    if (rootMetaCollapsible) rootMetaCollapsible.style.display = 'none';
     return;
   }
   
@@ -453,6 +458,8 @@ function updateLessonProgressDisplay() {
     
     var foundationCoverageEl = DOM.get('foundation-coverage');
     if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
+    var rootMetaCollapsible = DOM.get('ls-collapsible-root-meta');
+    if (rootMetaCollapsible) rootMetaCollapsible.style.display = 'none';
     return;
   }
   
@@ -501,6 +508,8 @@ function updateLessonProgressDisplay() {
 
     var foundationCoverageEl = DOM.get('foundation-coverage');
     if (foundationCoverageEl) foundationCoverageEl.style.display = 'none';
+    var rootMetaCollapsible = DOM.get('ls-collapsible-root-meta');
+    if (rootMetaCollapsible) rootMetaCollapsible.style.display = 'none';
 
     // R2: "What This Unlocks" for surah mode
     var unlocksEl = DOM.get('foundation-unlocks');
@@ -629,6 +638,8 @@ function updateLessonProgressDisplay() {
   if (foundationPrimaryCovEl) foundationPrimaryCovEl.style.display = 'none';
   var foundationRelCtxEl = DOM.get('foundation-relationship-context');
   if (foundationRelCtxEl) foundationRelCtxEl.style.display = 'none';
+  var rootMetaCollapsible = DOM.get('ls-collapsible-root-meta');
+  if (rootMetaCollapsible) rootMetaCollapsible.style.display = 'none';
 
   // R2: "What This Unlocks" for standard lesson mode
   var unlocksEl = DOM.get('foundation-unlocks');

@@ -29,7 +29,7 @@ function _lsIcon(name, size) {
  * Injects HTML into #learn-action-header if present.
  */
 function renderLearnScreen() {
-  var container = document.getElementById('learn-action-header');
+  var container = document.getElementById('ls-collapsible-paths');
   if (!container) return;
 
   // ── Gather data once ──

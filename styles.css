@@ -10595,3 +10595,108 @@ padding: 6px 0;
   from { opacity: 0.4; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Collapsible Info Sections (Learn page — below vocabulary)
+   ═══════════════════════════════════════════════════════════════ */
+
+#ls-info-sections {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ls-collapsible {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-section);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.ls-collapsible:hover {
+  border-color: rgba(201, 168, 76, 0.15);
+}
+
+.ls-collapsible-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  transition: background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.ls-collapsible-btn:hover {
+  background: rgba(201, 168, 76, 0.04);
+}
+
+.ls-collapsible-btn:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: -2px;
+}
+
+.ls-collapsible-icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.ls-collapsible-arrow {
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.ls-open .ls-collapsible-arrow {
+  transform: rotate(180deg);
+}
+
+.ls-collapsible-body {
+  display: none;
+  padding: 0 16px 14px;
+  animation: lsBodyFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ls-open .ls-collapsible-body {
+  display: block;
+}
+
+@keyframes lsBodyFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Collapsible body content spacing */
+.ls-collapsible-body .foundation-journey-section,
+.ls-collapsible-body .foundation-unlock-section {
+  margin-top: 0;
+}
+
+.ls-collapsible-body .foundation-journey-section {
+  margin-bottom: 10px;
+}
+
+.ls-collapsible-body > div:last-child {
+  margin-bottom: 0;
+}
+
+/* Learning Paths content inside collapsible */
+#ls-collapsible-paths .ls-action-card:first-child {
+  margin-top: 0;
+}
+
+#ls-collapsible-paths .ls-paths-grid {
+  margin-bottom: 0;
+}

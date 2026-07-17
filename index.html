@@ -462,8 +462,6 @@ getResults: function () { return _safeguardResults; },
 
       <!-- ── LEARN VIEW ── -->
       <section class="mode-view" id="view-learn" aria-label="Learn words">
-        <!-- Action-oriented header (rendered by learn-screen.js) -->
-        <div id="learn-action-header"></div>
         <div class="lesson-header">
           <div class="lesson-header-top">
             <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -483,11 +481,6 @@ getResults: function () { return _safeguardResults; },
             </select>
             <button class="continue-lesson-btn" id="continue-learning-btn" type="button" style="flex-shrink:0;width:auto;padding:8px 14px;font-size:12px"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> Continue</button>
           </div>
-          <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);margin-top:6px;text-align:center" aria-live="polite"></div>
-          <div id="foundation-unlocks" style="display:none;margin-top:8px" aria-live="polite"></div>
-          <div id="foundation-journey" style="display:none;margin-top:4px" aria-live="polite"></div>
-          <div id="foundation-relationship-context" style="display:none"></div>
-          <div id="foundation-primary-coverage" style="display:none"></div>
         </div>
 
         <div class="review-banner" id="review-banner" role="alert" aria-live="polite">
@@ -604,6 +597,46 @@ getResults: function () { return _safeguardResults; },
           </div>
           <button class="qa-btn w-full text-center mt-10" id="tafsir-btn" type="button" aria-expanded="false" aria-controls="tafsir-box"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Load Ibn Kathir Tafsir</button>
         </section>
+
+        <!-- ═══ COLLAPSIBLE INFO SECTIONS (below vocabulary, learning-focused) ═══ -->
+        <div id="ls-info-sections">
+
+          <!-- Section 1: Learning Paths (Continue card, Reviews due, Paths grid) -->
+          <div class="ls-collapsible">
+            <button class="ls-collapsible-btn" type="button" onclick="this.closest('.ls-collapsible').classList.toggle('ls-open');this.setAttribute('aria-expanded',this.closest('.ls-collapsible').classList.contains('ls-open'))" aria-expanded="false">
+              <svg class="ls-collapsible-icon" viewBox="0 0 24 24" width="16" height="16" stroke="var(--gold-dim)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <span>Learning Paths</span>
+              <svg class="ls-collapsible-arrow" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="ls-collapsible-body" id="ls-collapsible-paths"></div>
+          </div>
+
+          <!-- Section 2: Lesson Statistics (coverage, unlocks, journey) -->
+          <div class="ls-collapsible">
+            <button class="ls-collapsible-btn" type="button" onclick="this.closest('.ls-collapsible').classList.toggle('ls-open');this.setAttribute('aria-expanded',this.closest('.ls-collapsible').classList.contains('ls-open'))" aria-expanded="false">
+              <svg class="ls-collapsible-icon" viewBox="0 0 24 24" width="16" height="16" stroke="var(--gold-dim)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span>Lesson Statistics</span>
+              <svg class="ls-collapsible-arrow" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="ls-collapsible-body">
+              <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);text-align:center" aria-live="polite"></div>
+              <div id="foundation-unlocks" style="display:none" aria-live="polite"></div>
+              <div id="foundation-journey" style="display:none" aria-live="polite"></div>
+            </div>
+          </div>
+
+          <!-- Section 3: Root Families & Learning Context (hidden by default in non-foundation modes) -->
+          <div class="ls-collapsible" id="ls-collapsible-root-meta" style="display:none">
+            <button class="ls-collapsible-btn" type="button" onclick="this.closest('.ls-collapsible').classList.toggle('ls-open');this.setAttribute('aria-expanded',this.closest('.ls-collapsible').classList.contains('ls-open'))" aria-expanded="false">
+              <svg class="ls-collapsible-icon" viewBox="0 0 24 24" width="16" height="16" stroke="var(--gold-dim)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10z"/></svg>
+              <span>Root Families &amp; Learning Context</span>
+              <svg class="ls-collapsible-arrow" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="ls-collapsible-body" id="foundation-relationship-context" style="display:none"></div>
+          </div>
+
+        </div>
+        <!-- end ls-info-sections -->
       </section>
 
       <!-- ── QUIZ VIEW ── -->
