@@ -128,6 +128,8 @@ function suite(name, fn) {
 var cssContent = '';
 try {
   cssContent = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
+  // Normalize line endings so multiline string matching works on all platforms
+  cssContent = cssContent.replace(/\r\n/g, '\n');
 } catch (e) {
   console.log('\u26A0 Could not read styles.css: ' + e.message);
 }

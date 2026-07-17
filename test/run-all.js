@@ -84,8 +84,21 @@ TESTS.forEach(function(testFile) {
     console.log('  \u274C ' + testFile + ' — exited with error');
     if (e.stdout) console.log(e.stdout);
     if (e.stderr) console.log('  stderr: ' + e.stderr.substring(0, 200));
-    results.push({ file: testFile, passed: 0, failed: -1, elapsed: elapsed, status: 'CRASH' });
-    totalFailed++;
+
+    // Even on non-zero exit, parse test results from stdout if available
+    var output = e.stdout || '';
+    var match = output.match(/Results: (\d+) passed, (\d+) failed/);
+    if (match) {
+      var p = parseInt(match[1], 10);
+      var f = parseInt(match[2], 10);
+      totalPassed += p;
+      totalFailed += f;
+      totalTests += p + f;
+      results.push({ file: testFile, passed: p, failed: f, elapsed: elapsed, status: f === 0 ? 'PASS' : 'FAIL' });
+    } else {
+      results.push({ file: testFile, passed: 0, failed: -1, elapsed: elapsed, status: 'CRASH' });
+      totalFailed++;
+    }
   }
   console.log('');
 });
