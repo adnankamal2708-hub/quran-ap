@@ -481,8 +481,12 @@ function updateAuthUI(user) {
     }
     if (guestBadge) guestBadge.style.display = 'none';
 
-    // Update profile view if it's visible
-    if (currentView === 'profile' || currentView === 'settings') {
+    // Update profile view if it's visible, but ONLY if a full profile
+    // render (renderFullProfile) is NOT already in progress. This prevents
+    // a race condition where updateAuthUI fires during the async render,
+    // causing a double render with stale auth state.
+    var _profileBusy = window.__profileUI && typeof window.__profileUI.isRendering === 'function' && window.__profileUI.isRendering();
+    if ((currentView === 'profile' || currentView === 'settings') && !_profileBusy) {
       renderProfileView();
     }
   } else {

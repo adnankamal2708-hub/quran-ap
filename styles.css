@@ -1277,6 +1277,7 @@ body::before {
 .mode-view {
   display: none;
   animation: none;
+  position: relative;
 }
 
 .mode-view.active {
@@ -2227,8 +2228,91 @@ body::before {
   max-width: 420px;
   margin: 0 auto;
   padding: 10px 0;
-  content-visibility: auto;
-  contain-intrinsic-size: 600px;
+}
+
+/* ── Profile Loading Skeleton ── */
+.profile-skeleton {
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background: var(--bg);
+}
+
+.profile-skeleton-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-skeleton-shape {
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+.profile-skeleton-shape.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.profile-skeleton-shape.line {
+  height: 12px;
+  width: 100%;
+}
+
+.profile-skeleton-shape.line.w60 { width: 60%; }
+.profile-skeleton-shape.line.w40 { width: 40%; }
+.profile-skeleton-shape.line.w80 { width: 80%; }
+
+.profile-skeleton-shape.title {
+  height: 16px;
+  width: 55%;
+  border-radius: 4px;
+}
+
+.profile-skeleton-shape.button {
+  height: 36px;
+  width: 100%;
+  border-radius: var(--radius-btn);
+}
+
+.profile-skeleton-shape.bar {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.profile-skeleton-shape.stat-box {
+  height: 60px;
+  border-radius: var(--radius-section);
+}
+
+/* Hidden by default, shown via JS */
+#view-profile .profile-skeleton {
+  display: none;
+}
+
+#view-profile .profile-skeleton.active {
+  display: flex;
+  animation: fadeIn 0.2s ease forwards;
 }
 
 .profile-header {
@@ -4495,6 +4579,8 @@ body::before {
 
 @media (max-width: 380px) {
   .dashboard-hero-stats { grid-template-columns: repeat(2, 1fr); }
+
+/* ── Toast Notification System ── */
   .onboarding-card { padding: 28px 20px 24px; }
   .onboarding-icon { font-size: 44px; }
   .onboarding-title { font-size: 17px; }

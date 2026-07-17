@@ -1043,3 +1043,6 @@ window.__ux = {
   updateOfflineIndicator: updateOfflineIndicator,
   showMilestoneCelebration: showMilestoneCelebration,
 };
+
+// Direct global alias for convenience
+window.showToast = showToast;

@@ -1220,26 +1220,94 @@ function wireProfileSectionEvents() {
 // UPDATE — renderProfileView to include all sections
 // ═══════════════════════════════════════════════════════════════
 
+// ── Loading/rendering guard to prevent race conditions ──
+let _renderingProfile = false;
+
+function _showProfileSkeleton() {
+  var skel = document.getElementById('profile-skeleton');
+  if (skel) skel.classList.add('active');
+}
+
+function _hideProfileSkeleton() {
+  var skel = document.getElementById('profile-skeleton');
+  if (skel) skel.classList.remove('active');
+}
+
+/**
+ * Render the full Profile view with all sub-tabs.
+ * Defensively guards against:
+ *   - Auth not yet initialized (shows skeleton until auth resolves)
+ *   - Double render calls (idempotency via _renderingProfile flag)
+ *   - Null references (guarded DOM access)
+ *   - async race between renderProfileView and updateAuthUI
+ */
 async function renderFullProfile(preferredTab) {
+  // Idempotency guard — prevent concurrent renders
+  if (_renderingProfile) return;
+  _renderingProfile = true;
+
   // Reset to Account tab by default
   _activeProfileTab = preferredTab || 'account';
 
-  // Render all sections (they will be shown/hidden by tab state)
-  await renderProfileView();
-  renderProfileProgress();
-  renderProfileInsights();
-  renderProfileAchievements();
-  renderProfileCalendar();
-  renderProfileAbout();
+  try {
+    // Show loading skeleton immediately — never leaves the view blank
+    _showProfileSkeleton();
 
-  // Wire subtab navigation
-  wireProfileTabEvents();
+    // Wait for auth to be ready (up to 5 seconds)
+    var authReady = false;
+    var authWaitStart = Date.now();
+    while (!authReady && (Date.now() - authWaitStart < 5000)) {
+      if (typeof isAuthReady === 'function' && isAuthReady()) {
+        authReady = true;
+      } else {
+        // Yield to event loop before checking again
+        await new Promise(function (r) { setTimeout(r, 50); });
+      }
+    }
 
-  // Activate the correct tab (shows the right panel, hides others)
-  switchProfileTab(_activeProfileTab);
+    // Check current user status
+    var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
 
-  // Wire section-level events (settings edit, etc.)
-  wireProfileSectionEvents();
+    if (user) {
+      // ── Logged in: render full profile content ──
+      await renderProfileView();
+      renderProfileProgress();
+      renderProfileInsights();
+      renderProfileAchievements();
+      renderProfileCalendar();
+      renderProfileAbout();
+
+      // Wire subtab navigation
+      wireProfileTabEvents();
+
+      // Activate the correct tab
+      switchProfileTab(_activeProfileTab);
+
+      // Wire section-level events
+      wireProfileSectionEvents();
+    } else {
+      // ── Not logged in: show auth view
+      // Show auth form while still in profile view context
+      if (typeof showAuthView === 'function') {
+        showAuthView('login');
+      }
+
+      // Switch to auth view — this ensures the login form is visible
+      // and the profile skeleton is hidden naturally by the view switch.
+      // We call switchView AFTER showAuthView so the auth forms are ready.
+      if (typeof switchView === 'function') {
+        switchView('auth');
+      }
+    }
+  } catch (e) {
+    // Defensive: if anything fails, ensure skeleton is hidden
+    // so the user doesn't see a stuck loading state
+    console.warn('[profile] renderFullProfile error:', e);
+  } finally {
+    // Always hide skeleton and release guard
+    _hideProfileSkeleton();
+    _renderingProfile = false;
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -1261,4 +1329,5 @@ window.__profileUI = {
   renderAchievements: renderProfileAchievements,
   renderCalendar: renderProfileCalendar,
   renderAbout: renderProfileAbout,
+  isRendering: function () { return _renderingProfile; },
 };

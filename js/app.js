@@ -1516,43 +1516,7 @@ function init() {
 
 // ── Toast Notification System ─────────────────────────────────────
 
-/**
- * Show a toast notification at the bottom of the screen.
- * @param {string} message - The message to display.
- * @param {string} type - One of: 'info' (default), 'success', 'error', 'warning'.
- * @param {number} duration - Auto-dismiss time in ms (default 3000). Set to 0 to keep visible.
- * @returns {HTMLElement} The toast element.
- */
-function showToast(message, type, duration) {
-  type = type || 'info';
-  duration = duration !== undefined ? duration : 3000;
 
-  var container = document.getElementById('toast-container');
-  if (!container) return null;
-
-  var toast = document.createElement('div');
-  toast.className = 'toast toast-' + type;
-  toast.textContent = message;
-  toast.setAttribute('role', 'alert');
-
-  container.appendChild(toast);
-
-  if (duration > 0) {
-    setTimeout(function () {
-      toast.classList.add('toast-leaving');
-      setTimeout(function () {
-        if (toast.parentNode) {
-          toast.parentNode.removeChild(toast);
-        }
-      }, 250);
-    }, duration);
-  }
-
-  return toast;
-}
-
-// Export globally for use by other modules
-window.showToast = showToast;
 
 // ── Bootstrap the Application ────────────────────────────────────
 // Init is called here at the end of the bundle, after all function
