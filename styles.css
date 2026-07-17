@@ -143,6 +143,10 @@ body::before {
 
 .bottom-nav {
   flex-shrink: 0;
+  width: 100%;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
   border-top: 1px solid rgba(46,43,36,0.5);
   background: rgba(12,11,10,0.92);
   -webkit-backdrop-filter: blur(20px) saturate(1.6);
@@ -4483,7 +4487,13 @@ body::before {
   .onboarding-card { padding: 28px 20px 24px; }
   .onboarding-icon { font-size: 44px; }
   .onboarding-title { font-size: 17px; }
-  .toast-container { bottom: 72px; }
+  .toast-container {
+  width: 100%;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  bottom: 72px;
+}
 }
 
 /* ── Inline Style Replacement Utilities ────────────────── */
