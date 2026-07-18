@@ -69,9 +69,6 @@ const DATA_FILES = (function () {
   var surahMeta = [];
   var thematic = [];
   var perSurah = [];
-  var surahMeta = [];
-  var thematic = [];
-  var perSurah = [];
 
   entries.forEach(function (f) {
     var fullPath = 'js/data/' + f;
