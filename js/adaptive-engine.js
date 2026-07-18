@@ -976,20 +976,16 @@ function setUserGoal(goalType) {
 /**
  * Get today's goal progress based on user's selected goal type.
  * Returns { goalType, targetMinutes, progressMinutes, progressPercent, done }
+ *
+ * Progress is measured by reviews completed today (each review ~30 seconds).
+ * The target is the user's daily study goal (default 15 min).
+ * Monthly/aggregate session data is NOT used here because it represents
+ * accumulated time over many days, not today's actual progress.
  */
 function getGoalProgress() {
   var goal = loadUserGoal();
-  var sessions = window.__analytics && window.__analytics.getStudyTime
-    ? window.__analytics.getStudyTime() : null;
-
-  var todayMinutes = 0;
-  if (sessions) {
-    todayMinutes = sessions.monthlyTotalMinutes || 0; // Fallback: use recent total
-  }
-  // Simple estimate: reviews today × 30 sec per review
   var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : {};
-  todayMinutes = Math.max(todayMinutes, Math.round((srsStats.reviewsToday || 0) * 0.5));
-
+  var todayMinutes = Math.round((srsStats.reviewsToday || 0) * 0.5);
   var target = goal.targetMinutes || 15;
   var pct = Math.min(100, Math.round((todayMinutes / target) * 100));
 
