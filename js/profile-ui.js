@@ -1226,6 +1226,7 @@ let _profileRenderAttempts = 0;
 let _maxProfileRenderAttempts = 2;
 let _profileRenderTimer = null;
 let _profileShowingFallback = false;
+let _retryScheduled = false;
 
 /**
  * Render a meaningful fallback in the skeleton container when profile
@@ -1370,8 +1371,9 @@ async function renderFullProfile(preferredTab) {
       await new Promise(function (r) { setTimeout(r, 1000); });
       // Only retry if profile view is still the active view
       if (typeof currentView === 'undefined' || currentView === 'profile') {
+        _retryScheduled = true; // Signal finally to preserve the retry's skeleton
         renderFullProfile(retryTab);
-        return; // Don't fall through to finally — retry handles cleanup
+        return; // Return to original call's finally block
       }
     } else {
       // Render fallback UI so the profile is never blank
@@ -1386,10 +1388,12 @@ async function renderFullProfile(preferredTab) {
     }
     // Always hide skeleton and release guard
     // BUT: if fallback was shown (on final failure), keep it visible
-    if (!_profileShowingFallback) {
+    // BUT: if a retry is in flight, don't hide its skeleton
+    if (!_profileShowingFallback && !_retryScheduled) {
       _hideProfileSkeleton();
     }
     _profileShowingFallback = false;
+    _retryScheduled = false;
     _renderingProfile = false;
   }
 }
