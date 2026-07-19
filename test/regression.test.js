@@ -394,12 +394,12 @@ suite('Component Smoke Tests', function() {
     assert.ok(cssContains('.bn-indicator'), 'bn-indicator should exist');
   });
 
-  test('reader component classes exist', function() {
-    assert.ok(cssContains('.reader-surah-item'), 'reader-surah-item should exist');
-    assert.ok(cssContains('.reader-word-token'), 'reader-word-token should exist');
-    assert.ok(cssContains('.reader-sheet-panel'), 'reader-sheet-panel should exist');
-    assert.ok(cssContains('.reader-container'), 'reader-container should exist');
-    assert.ok(cssContains('.reader-main'), 'reader-main should exist');
+  test('quran component classes exist', function() {
+    assert.ok(cssContains('.quran-surah-item'), 'quran-surah-item should exist');
+    assert.ok(cssContains('.quran-word-token'), 'quran-word-token should exist');
+    assert.ok(cssContains('.quran-ayah'), 'quran-ayah should exist');
+    assert.ok(cssContains('.quran-main'), 'quran-main should exist');
+    assert.ok(cssContains('.quran-verses'), 'quran-verses should exist');
   });
 
   test('button component classes exist', function() {
@@ -776,7 +776,7 @@ suite('Words Section — Scroll & CSS Integrity', function() {
 suite('Global View CSS Integrity', function() {
   // Test: All five main views have an .active display rule
   test('Main views have .active display rules in CSS', function() {
-    var viewIds = ['view-dashboard', 'view-learn', 'view-list', 'view-reader', 'view-profile'];
+    var viewIds = ['view-dashboard', 'view-learn', 'view-list', 'view-quran', 'view-profile'];
     for (var i = 0; i < viewIds.length; i++) {
       var specificRule = cssContent.indexOf('#' + viewIds[i] + '.active') >= 0;
       var genericRule = cssContent.indexOf('.mode-view.active') >= 0;
@@ -787,7 +787,7 @@ suite('Global View CSS Integrity', function() {
   
   // Test: No view has overflow: hidden that could clip content
   test('No main view has overflow:hidden that prevents scrolling', function() {
-    var viewSelectors = ['#view-dashboard', '#view-learn', '#view-list', '#view-reader', '#view-profile'];
+    var viewSelectors = ['#view-dashboard', '#view-learn', '#view-list', '#view-quran', '#view-profile'];
     for (var i = 0; i < viewSelectors.length; i++) {
       var sel = viewSelectors[i];
       var lines = cssContent.split('\n');
