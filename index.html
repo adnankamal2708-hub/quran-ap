@@ -1267,7 +1267,7 @@ getResults: function () { return _safeguardResults; },
           <div id="auth-login" class="auth-form-view">
             <form id="auth-login-form" autocomplete="on">
               <label class="auth-label" for="auth-login-email">Email</label>
-              <input class="auth-input" id="auth-login-email" type="email" placeholder="your@email.com" autocomplete="email" required />
+              <input class="auth-input" id="auth-login-email" type="email" placeholder="your@email.com" autocomplete="username" required />
               <label class="auth-label" for="auth-login-password">Password</label>
               <input class="auth-input" id="auth-login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
               <div class="auth-remember-row">
@@ -1290,7 +1290,7 @@ getResults: function () { return _safeguardResults; },
               <label class="auth-label" for="auth-signup-name">Name</label>
               <input class="auth-input" id="auth-signup-name" type="text" placeholder="Your name" autocomplete="name" required />
               <label class="auth-label" for="auth-signup-email">Email</label>
-              <input class="auth-input" id="auth-signup-email" type="email" placeholder="your@email.com" autocomplete="email" required />
+              <input class="auth-input" id="auth-signup-email" type="email" placeholder="your@email.com" autocomplete="username" required />
               <label class="auth-label" for="auth-signup-password">Password (min 6 chars)</label>
               <input class="auth-input" id="auth-signup-password" type="password" placeholder="••••••••" autocomplete="new-password" required />
               <label class="auth-label" for="auth-signup-confirm">Confirm password</label>
@@ -1320,6 +1320,8 @@ getResults: function () { return _safeguardResults; },
             <form id="auth-reset-form" autocomplete="on">
               <p class="auth-description">Enter your new password.</p>
               <input type="hidden" id="auth-reset-code" value="" />
+              <!-- Hidden username field for password manager accessibility -->
+              <input type="text" autocomplete="username" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0.01" tabindex="-1" aria-hidden="true" />
               <label class="auth-label" for="auth-reset-password">New password (min 6 chars)</label>
               <input class="auth-input" id="auth-reset-password" type="password" placeholder="••••••••" autocomplete="new-password" required />
               <label class="auth-label" for="auth-reset-confirm">Confirm new password</label>
@@ -1554,6 +1556,8 @@ getResults: function () { return _safeguardResults; },
         <div class="modal-content">
           <div class="modal-title" id="password-change-title">🔑 Change Password</div>
           <form id="password-change-form" autocomplete="on">
+              <!-- Hidden username field for password manager accessibility -->
+              <input type="text" autocomplete="username" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0.01" tabindex="-1" aria-hidden="true" />
             <label class="auth-label" for="password-change-current">Current password</label>
             <input class="auth-input" id="password-change-current" type="password" placeholder="••••••••" autocomplete="current-password" required />
             <label class="auth-label" for="password-change-new">New password (min 6 chars)</label>
