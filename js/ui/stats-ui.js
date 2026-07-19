@@ -164,6 +164,10 @@ function updateFilterActiveBadge() {
  * Uses advanced search when the advanced filter panel is visible or has active filters.
  */
 function renderWordList() {
+  // Always scroll to top when rendering the word list
+  var contentEl = DOM.get('content');
+  if (contentEl) contentEl.scrollTop = 0;
+  
   var searchInput = DOM.get('search-input');
   var searchQuery = searchInput ? searchInput.value : '';
   var activeType = document.querySelector('#filter-type-chips .chip-active');

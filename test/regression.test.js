@@ -698,6 +698,301 @@ suite('CSS File Integrity', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// WORDS SECTION — Scroll Position & CSS Class Presence
+// ═══════════════════════════════════════════════════════════════
+
+suite('Words Section — Scroll & CSS Integrity', function() {
+  // Test 1: scroll-to-top in renderWordList
+  test('renderWordList scrolls .content to top', function() {
+    var statsContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'stats-ui.js'), 'utf8');
+    var hasScroll = statsContent.indexOf('content.scrollTop = 0') >= 0 ||
+      statsContent.indexOf("contentEl.scrollTop = 0") >= 0;
+    assert.ok(hasScroll, 'renderWordList must contain content.scrollTop = 0');
+  });
+  
+  // Test 2: Explorer CSS classes present in styles.css
+  test('Explorer header CSS classes exist in styles.css', function() {
+    var required = [
+      '.explorer-header',
+      '.explorer-back-btn',
+      '.explorer-header-title',
+      '.explorer-section-title',
+      '.explorer-core-card',
+      '.explorer-info-grid',
+      '.explorer-info-item',
+      '.explorer-info-label',
+      '.explorer-info-value',
+    ];
+    for (var i = 0; i < required.length; i++) {
+      var cls = required[i];
+      assert.ok(cssContent.indexOf(cls + ' {') >= 0 || cssContent.indexOf(cls + '{') >= 0,
+        cls + ' must be defined in styles.css');
+    }
+  });
+  
+  // Test 3: Explorer context CSS classes exist
+  test('Explorer context and occurrence CSS classes exist in styles.css', function() {
+    var required = [
+      '.explorer-context-card',
+      '.explorer-context-stats',
+      '.explorer-context-stat',
+      '.explorer-context-stat-value',
+      '.explorer-context-stat-label',
+      '.explorer-occ-nav',
+      '.explorer-occ-label',
+      '.explorer-occ-view',
+      '.explorer-all-occ-btn',
+      '.explorer-ayah-arabic',
+    ];
+    for (var i = 0; i < required.length; i++) {
+      var cls = required[i];
+      assert.ok(cssContent.indexOf(cls + ' {') >= 0 || cssContent.indexOf(cls + '{') >= 0,
+        cls + ' must be defined in styles.css');
+    }
+  });
+  
+  // Test 4: Explorer responsive breakpoints exist
+  test('Explorer responsive breakpoints exist in styles.css', function() {
+    assert.ok(cssContent.indexOf('@media (max-width: 380px)') >= 0,
+      '380px breakpoint must exist for explorer');
+    assert.ok(cssContent.indexOf('@media (max-width: 480px)') >= 0,
+      '480px breakpoint must exist for explorer');
+    assert.ok(cssContent.indexOf('@media (min-width: 768px)') >= 0,
+      '768px breakpoint must exist for explorer');
+  });
+  
+  // Test 5: setView scrolls content to top on every view switch
+  test('setView() scrolls .content to top', function() {
+    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui.js'), 'utf8');
+    assert.ok(uiContent.indexOf('content.scrollTop = 0') >= 0,
+      'setView() must contain content.scrollTop = 0');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// GLOBAL VIEW CSS INTEGRITY
+// ═══════════════════════════════════════════════════════════════
+
+suite('Global View CSS Integrity', function() {
+  // Test: All five main views have an .active display rule
+  test('Main views have .active display rules in CSS', function() {
+    var viewIds = ['view-dashboard', 'view-learn', 'view-list', 'view-reader', 'view-profile'];
+    for (var i = 0; i < viewIds.length; i++) {
+      var specificRule = cssContent.indexOf('#' + viewIds[i] + '.active') >= 0;
+      var genericRule = cssContent.indexOf('.mode-view.active') >= 0;
+      assert.ok(specificRule || genericRule,
+        viewIds[i] + ' must have .active display handling via specific or generic rule');
+    }
+  });
+  
+  // Test: No view has overflow: hidden that could clip content
+  test('No main view has overflow:hidden that prevents scrolling', function() {
+    var viewSelectors = ['#view-dashboard', '#view-learn', '#view-list', '#view-reader', '#view-profile'];
+    for (var i = 0; i < viewSelectors.length; i++) {
+      var sel = viewSelectors[i];
+      var lines = cssContent.split('\n');
+      var inRule = false;
+      var hasOverflowHidden = false;
+      for (var li = 0; li < lines.length; li++) {
+        var line = lines[li];
+        if (line.indexOf(sel) >= 0 && line.indexOf('{') >= 0) {
+          inRule = true;
+        }
+        if (inRule) {
+          if (line.indexOf('overflow: hidden') >= 0 || line.indexOf('overflow-x: hidden') >= 0) {
+            if (line.indexOf('overflow-y') < 0) {
+              hasOverflowHidden = true;
+            }
+          }
+          if (line.indexOf('}') >= 0) {
+            break;
+          }
+        }
+      }
+      assert.ok(!hasOverflowHidden,
+        sel + ' should not have overflow:hidden (use overflow-y:auto instead)');
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// STYLES2.CSS EXPLORER CONSISTENCY
+// ═══════════════════════════════════════════════════════════════
+
+suite('Styles2.css Explorer Consistency', function() {
+  var css2Content = '';
+  try {
+    css2Content = fs.readFileSync(path.join(__dirname, '..', 'styles2.css'), 'utf8');
+    css2Content = css2Content.replace(/\r\n/g, '\n');
+  } catch (e) {
+    console.log('  ╔ styles2.css not found — skipping');
+    return;
+  }
+  
+  test('Explorer header CSS classes exist in styles2.css', function() {
+    var required = ['.explorer-header', '.explorer-back-btn', '.explorer-core-card', '.explorer-info-grid'];
+    for (var i = 0; i < required.length; i++) {
+      assert.ok(css2Content.indexOf(required[i] + ' {') >= 0 || css2Content.indexOf(required[i] + '{') >= 0,
+        required[i] + ' must be defined in styles2.css');
+    }
+  });
+  
+  test('Explorer responsive breakpoints exist in styles2.css', function() {
+    assert.ok(css2Content.indexOf('@media (max-width: 480px)') >= 0,
+      '480px breakpoint must exist in styles2.css');
+    assert.ok(css2Content.indexOf('@media (min-width: 768px)') >= 0,
+      '768px breakpoint must exist in styles2.css');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// VIEW SWITCH SCROLL PROTECTION
+// ═══════════════════════════════════════════════════════════════
+
+suite('View Switch Scroll Protection', function() {
+  test('setView() in ui.js scrolls to top on view change', function() {
+    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui.js'), 'utf8');
+    var match = uiContent.match(/content\.scrollTop\s*=\s*0/);
+    assert.ok(match, 'setView() must set content.scrollTop = 0');
+  });
+  
+  test('renderExplorer() in explorer.js scrolls to top', function() {
+    var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
+    assert.ok(explorerContent.indexOf('content.scrollTop = 0') >= 0,
+      'renderExplorer() must set content.scrollTop = 0');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// HORIZONTAL OVERFLOW PROTECTION
+// ═══════════════════════════════════════════════════════════════
+
+suite('Horizontal Overflow Protection', function() {
+  // Test: view-list doesn't have overflow:hidden (clips content)
+  test('view-list has no overflow:hidden that could cause horizontal clip', function() {
+    var lines = cssContent.split('\n');
+    var inViewList = false;
+    var hasOverflowHidden = false;
+    for (var li = 0; li < lines.length; li++) {
+      var line = lines[li];
+      if (line.indexOf('#view-list') >= 0 && line.indexOf('{') >= 0) {
+        inViewList = true;
+      }
+      if (inViewList) {
+        var stripped = line.replace(/\s/g, '');
+        if (stripped.indexOf('overflow:hidden') >= 0 && stripped.indexOf('overflow-y') < 0) {
+          hasOverflowHidden = true;
+          break;
+        }
+        if (line.indexOf('}') >= 0) break;
+      }
+    }
+    assert.ok(!hasOverflowHidden, '#view-list should not have overflow:hidden');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PROFILE SCROLL POSITION
+// ═══════════════════════════════════════════════════════════════
+
+suite('Profile Scroll Position (No Hidden Content)', function() {
+  // Test: renderFullProfile finally block scrolls .content to top after rendering
+  test('renderFullProfile scrolls content to top after rendering', function() {
+    var profileContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'profile-ui.js'), 'utf8');
+    // The finally block should have content.scrollTop = 0 after _hideProfileSkeleton()
+    var hideSkelIdx = profileContent.indexOf('_hideProfileSkeleton()');
+    var scrollIdx = profileContent.indexOf('scrollTop = 0');
+    assert.ok(hideSkelIdx >= 0, '_hideProfileSkeleton() must exist in profile-ui.js');
+    assert.ok(scrollIdx >= 0, 'scrollTop = 0 must exist in profile-ui.js');
+    // The scrollTop line should be AFTER the _hideProfileSkeleton call
+    var hideSkelLastIdx = profileContent.lastIndexOf('_hideProfileSkeleton()');
+    var scrollAfterHide = profileContent.indexOf('scrollTop = 0', hideSkelLastIdx);
+    assert.ok(scrollAfterHide > hideSkelLastIdx,
+      'scrollTop = 0 must be set AFTER _hideProfileSkeleton() in the finally block');
+  });
+  
+  // Test: setView scrolls .content to top on view switch
+  test('setView scrolls content to top for all views including profile', function() {
+    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui.js'), 'utf8');
+    assert.ok(uiContent.indexOf('content.scrollTop = 0') >= 0,
+      'setView() must set content.scrollTop = 0');
+  });
+  
+  // Test: Profile tab navigation triggers switchView('profile')
+  test('Profile tab click calls switchView with profile', function() {
+    var appContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+    assert.ok(appContent.indexOf("switchView('profile')") >= 0 ||
+      appContent.indexOf('tab-profile') >= 0,
+      'Profile tab must trigger switchView(\'profile\')');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// EXPLORER STRUCTURED COMPONENTS — JS Generates HTML
+// ═══════════════════════════════════════════════════════════════
+
+suite('Explorer Structured Components', function() {
+  // Test: explorer.js uses innerHTML for structured components (not plain textContent)
+  test('renderExplorer uses innerHTML for difficulty stars', function() {
+    var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
+    assert.ok(explorerContent.indexOf('explorer-difficulty') >= 0,
+      'explorer-difficulty must be populated in renderExplorer');
+    assert.ok(explorerContent.indexOf('explorer-diff-stars') >= 0,
+      'renderExplorer must generate .explorer-diff-stars component');
+    assert.ok(explorerContent.indexOf('explorer-star') >= 0,
+      'renderExplorer must generate .explorer-star elements');
+  });
+  
+  test('renderExplorer uses structured freq pill, badge, chip', function() {
+    var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
+    assert.ok(explorerContent.indexOf('explorer-freq-pill') >= 0,
+      'renderExplorer must generate .explorer-freq-pill');
+    assert.ok(explorerContent.indexOf('explorer-foundation-badge') >= 0,
+      'renderExplorer must generate .explorer-foundation-badge');
+    assert.ok(explorerContent.indexOf('explorer-priority-chip') >= 0,
+      'renderExplorer must generate .explorer-priority-chip');
+  });
+  
+  test('renderExplorer uses structured occ counter', function() {
+    var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
+    assert.ok(explorerContent.indexOf('explorer-occ-count') >= 0,
+      'renderExplorer must generate .explorer-occ-count');
+    assert.ok(explorerContent.indexOf('explorer-occ-unit') >= 0,
+      'renderExplorer must generate .explorer-occ-unit');
+  });
+  
+  test('renderExplorerLearningProgress uses structured components', function() {
+    var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
+    assert.ok(explorerContent.indexOf('explorer-srs-badge') >= 0,
+      'renderExplorerLearningProgress must generate .explorer-srs-badge');
+    assert.ok(explorerContent.indexOf('explorer-time-text') >= 0,
+      'renderExplorerLearningProgress must generate .explorer-time-text');
+  });
+  
+  // Test: CSS class definitions exist for all structured components
+  test('CSS for structured components exists in styles.css', function() {
+    var required = [
+      '.explorer-diff-stars',
+      '.explorer-star.filled',
+      '.explorer-star.empty',
+      '.explorer-freq-pill',
+      '.explorer-foundation-badge',
+      '.explorer-priority-chip',
+      '.explorer-occ-count',
+      '.explorer-srs-badge',
+      '.explorer-time-text',
+    ];
+    for (var i = 0; i < required.length; i++) {
+      assert.ok(cssContent.indexOf(required[i]) >= 0,
+        required[i] + ' must be defined in styles.css');
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SUMMARY
+
+// ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 

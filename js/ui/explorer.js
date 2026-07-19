@@ -68,43 +68,55 @@ function renderExplorer() {
   DOM.get('explorer-pattern').textContent = w.pattern && w.pattern !== '—' ? w.pattern : '—';
   DOM.get('explorer-pos').textContent = w.type || w.typeCategory || '—';
   
-  // Difficulty
+  // Difficulty — structured stars component
   var diffEl = DOM.get('explorer-difficulty');
   if (w.difficulty) {
-    var stars = '';
-    for (var di = 0; di < w.difficulty; di++) stars += '★';
-    for (var dje = w.difficulty; dje < 5; dje++) stars += '☆';
-    diffEl.textContent = w.difficulty + ' ' + stars;
+    var starsHtml = '<span class="explorer-diff-stars" aria-label="Difficulty level ' + w.difficulty + ' of 5">';
+    for (var di = 0; di < 5; di++) {
+      starsHtml += '<span class="explorer-star ' + (di < w.difficulty ? 'filled' : 'empty') + '" aria-hidden="true">' + (di < w.difficulty ? '★' : '☆') + '</span>';
+    }
+    starsHtml += '</span>';
+    diffEl.innerHTML = starsHtml;
   } else {
-    diffEl.textContent = '—';
+    diffEl.innerHTML = '<span class="explorer-empty">—</span>';
   }
   
-  // Frequency rank
+  // Frequency rank — structured pill
   var freqRankEl = DOM.get('explorer-freq-rank');
   if (w.frequencyRank) {
-    var pct = w.frequencyPercentile !== undefined ? ' (top ' + w.frequencyPercentile + '%)' : '';
-    freqRankEl.textContent = '#' + w.frequencyRank + pct;
+    var freqHtml = '<span class="explorer-freq-pill">#' + w.frequencyRank + '</span>';
+    if (w.frequencyPercentile !== undefined) {
+      freqHtml += '<span class="explorer-freq-pct">top ' + w.frequencyPercentile + '%</span>';
+    }
+    freqRankEl.innerHTML = freqHtml;
   } else {
-    freqRankEl.textContent = '—';
+    freqRankEl.innerHTML = '<span class="explorer-empty">—</span>';
   }
   
-  // Total occurrences
-  DOM.get('explorer-occ').textContent = w.occ ? w.occ.toLocaleString() + ' times' : '—';
+  // Total occurrences — structured counter
+  var occEl = DOM.get('explorer-occ');
+  if (w.occ) {
+    occEl.innerHTML = '<span class="explorer-occ-count">' + w.occ.toLocaleString() + '</span> <span class="explorer-occ-unit">occurrences</span>';
+  } else {
+    occEl.innerHTML = '<span class="explorer-empty">—</span>';
+  }
   
-  // Foundation lesson
+  // Foundation lesson — structured badge
   var fLessonEl = DOM.get('explorer-foundation-lesson');
   if (w.foundationLessonId !== undefined && w.foundationLessonId >= 0) {
-    fLessonEl.textContent = 'Foundation ' + (w.foundationLessonId + 1);
+    fLessonEl.innerHTML = '<span class="explorer-foundation-badge">📘 Foundation ' + (w.foundationLessonId + 1) + '</span>';
   } else {
-    fLessonEl.textContent = 'Not in Foundation Course';
+    fLessonEl.innerHTML = '<span class="explorer-foundation-badge not-in-course">Not in Foundation Course</span>';
   }
   
-  // Learning priority
+  // Learning priority — structured chip
   var priorityEl = DOM.get('explorer-priority');
   if (typeof getLearningPriorityLabel === 'function' && w.learningPriority) {
-    priorityEl.textContent = w.learningPriority + ' — ' + getLearningPriorityLabel(w.learningPriority);
+    var pLevel = w.learningPriority;
+    var pClass = 'priority-' + (pLevel <= 2 ? 'high' : pLevel <= 3 ? 'medium' : 'low');
+    priorityEl.innerHTML = '<span class="explorer-priority-chip ' + pClass + '">' + getLearningPriorityLabel(w.learningPriority) + '</span>';
   } else {
-    priorityEl.textContent = '—';
+    priorityEl.innerHTML = '<span class="explorer-empty">—</span>';
   }
   
   // ── Quran Context ──
@@ -399,61 +411,73 @@ function createExplorerChip(arabic, english, subtitle, currentWord) {
  * Render personal learning progress in the explorer.
  */
 function renderExplorerLearningProgress(w, srsStatus, srsEntry) {
-  // Mastery Status / SRS Stage
+  // Mastery Status / SRS Stage — structured badge
   var stageEl = DOM.get('explorer-srs-stage');
-  if (stageEl && srsStatus) {
-    if (srsStatus.status === 'new') {
-      stageEl.textContent = '🆕 New — Not yet studied';
-    } else if (srsStatus.status === 'review') {
+  if (stageEl) {
+    var srsHtml = '';
+    if (srsStatus && srsStatus.status === 'new') {
+      srsHtml = '<span class="explorer-srs-badge status-new">🆕 New — Not yet studied</span>';
+    } else if (srsStatus && srsStatus.status === 'review') {
       var overdueText = srsStatus.daysUntilDue < 0 ? ' (overdue!)' : '';
-      stageEl.textContent = '🔁 Due for review' + overdueText;
-    } else {
+      var overdueClass = srsStatus.daysUntilDue < 0 ? 'due-now' : '';
+      srsHtml = '<span class="explorer-srs-badge status-review">🔁 Due for review' + overdueText + '</span>';
+    } else if (srsStatus) {
       var stageNames = ['', 'Learning', 'Young', 'Mature'];
-      stageEl.textContent = '✓ ' + (stageNames[srsStatus.stage] || 'Mastered');
+      var stageName = stageNames[srsStatus.stage] || 'Mastered';
+      srsHtml = '<span class="explorer-srs-badge status-mastered">✓ ' + stageName + '</span>';
+    } else {
+      srsHtml = '<span class="explorer-srs-badge status-new">🆕 New — Not yet studied</span>';
     }
-  } else if (stageEl) {
-    stageEl.textContent = '🆕 New — Not yet studied';
+    stageEl.innerHTML = srsHtml;
   }
   
-  // Foundation lesson
+  // Foundation lesson — structured status
   var fStatusEl = DOM.get('explorer-foundation-status');
   if (fStatusEl) {
+    var fHtml = '';
     if (w.foundationLessonId !== undefined && w.foundationLessonId >= 0) {
       var isCompleted = typeof isFoundationLessonCompleted === 'function' 
         ? isFoundationLessonCompleted(w.foundationLessonId) : false;
-      fStatusEl.textContent = isCompleted 
-        ? '✓ Foundation ' + (w.foundationLessonId + 1) + ' completed'
-        : '📘 Foundation ' + (w.foundationLessonId + 1) + ' — in progress';
+      fHtml = '<span class="explorer-foundation-badge' + (isCompleted ? '' : '') + '">' 
+        + (isCompleted ? '✓' : '📘') + ' Foundation ' + (w.foundationLessonId + 1) 
+        + (isCompleted ? ' completed' : ' — in progress') + '</span>';
     } else {
-      fStatusEl.textContent = '—';
+      fHtml = '<span class="explorer-foundation-badge not-in-course">—</span>';
     }
+    fStatusEl.innerHTML = fHtml;
   }
   
-  // Last studied
+  // Last studied — structured text
   var lastStudiedEl = DOM.get('explorer-last-studied');
-  if (lastStudiedEl && srsEntry && srsEntry.ratedAt) {
-    var lastDate = new Date(srsEntry.ratedAt);
-    var now = new Date();
-    var diffDays = Math.round((now - lastDate) / (24 * 60 * 60 * 1000));
-    if (diffDays === 0) lastStudiedEl.textContent = 'Today';
-    else if (diffDays === 1) lastStudiedEl.textContent = 'Yesterday';
-    else lastStudiedEl.textContent = diffDays + ' days ago';
-  } else if (lastStudiedEl) {
-    lastStudiedEl.textContent = 'Never studied';
+  if (lastStudiedEl) {
+    var lastText = 'Never studied';
+    var lastClass = '';
+    if (srsEntry && srsEntry.ratedAt) {
+      var lastDate = new Date(srsEntry.ratedAt);
+      var now = new Date();
+      var diffDays = Math.round((now - lastDate) / (24 * 60 * 60 * 1000));
+      if (diffDays === 0) { lastText = 'Today'; lastClass = 'today'; }
+      else if (diffDays === 1) { lastText = 'Yesterday'; }
+      else { lastText = diffDays + ' days ago'; }
+    }
+    lastStudiedEl.innerHTML = '<span class="explorer-time-text ' + lastClass + '">' + lastText + '</span>';
   }
   
-  // Next review
+  // Next review — structured text
   var nextReviewEl = DOM.get('explorer-next-review');
-  if (nextReviewEl && srsEntry && srsEntry.dueDate) {
-    var dueDate = new Date(srsEntry.dueDate);
-    var now = new Date();
-    var diffDays = Math.round((dueDate - now) / (24 * 60 * 60 * 1000));
-    if (diffDays < 0) nextReviewEl.textContent = 'Due now!';
-    else if (diffDays === 0) nextReviewEl.textContent = 'Today';
-    else if (diffDays === 1) nextReviewEl.textContent = 'Tomorrow';
-    else nextReviewEl.textContent = 'In ' + diffDays + ' days';
-  } else if (nextReviewEl) {
-    nextReviewEl.textContent = 'Review when ready';
+  if (nextReviewEl) {
+    var nextText = 'Review when ready';
+    var nextClass = '';
+    if (srsEntry && srsEntry.dueDate) {
+      var dueDate = new Date(srsEntry.dueDate);
+      var now = new Date();
+      var diffDays = Math.round((dueDate - now) / (24 * 60 * 60 * 1000));
+      if (diffDays < 0) { nextText = 'Due now!'; nextClass = 'due-now'; }
+      else if (diffDays === 0) { nextText = 'Today'; nextClass = 'today'; }
+      else if (diffDays === 1) { nextText = 'Tomorrow'; }
+      else { nextText = 'In ' + diffDays + ' days'; }
+    }
+    nextReviewEl.innerHTML = '<span class="explorer-time-text ' + nextClass + '">' + nextText + '</span>';
   }
   
   // Total reviews

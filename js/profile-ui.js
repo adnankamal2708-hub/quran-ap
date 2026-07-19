@@ -1392,6 +1392,10 @@ async function renderFullProfile(preferredTab) {
     if (!_profileShowingFallback && !_retryScheduled) {
       _hideProfileSkeleton();
     }
+    // Ensure content always starts at top after rendering completes
+    // This prevents content from appearing below the viewport
+    var _pContentEl = document.getElementById('content');
+    if (_pContentEl) _pContentEl.scrollTop = 0;
     _profileShowingFallback = false;
     _retryScheduled = false;
     _renderingProfile = false;
