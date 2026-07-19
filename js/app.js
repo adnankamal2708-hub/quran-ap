@@ -185,6 +185,12 @@ function saveNote() {
 function updateLessonProgressDisplay() {
   var lessonLabel = DOM.get('lesson-label');
   
+  // Compute coverage once and reuse across all mode sections to avoid repeated calculations
+  var $_coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var $_currentComp = $_coverage ? $_coverage.estimatedComprehension : 0;
+  var $_masteredWords = $_coverage ? $_coverage.masteredWords : 0;
+  var $_totalWords = $_coverage ? $_coverage.totalWords : 0;
+  
   // ── Foundation Course Mode ──
   if (getOrganizationMode() === FOUNDATION_MODE) {
     var fTotal = getFoundationLessonCount();
@@ -194,8 +200,8 @@ function updateLessonProgressDisplay() {
 
     var fLesson = FOUNDATION_LESSONS[activeLessonIndex];
     var fCtx = typeof getFoundationLessonContextMsg === 'function' ? getFoundationLessonContextMsg(activeLessonIndex) : { title: '', context: '', comprehensionGain: '', cumulativeMsg: '' };
-    var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-    var $currentComp = $coverage ? $coverage.estimatedComprehension : 0;
+    var $coverage = $_coverage;
+    var $currentComp = $_currentComp;
 
     if (lessonLabel) {
       // Minimal header: learning path + lesson title only
@@ -606,13 +612,11 @@ function updateLessonProgressDisplay() {
   for (var lri = 0; lri < lessonWords.length; lri++) {
     if (lessonWords[lri].root && lessonWords[lri].root !== '\u2014') lessonRootSet[lessonWords[lri].root] = true;
   }
-  var lessonRootCount = Object.keys(lessonRootSet).length;
-  
-  // Get overall coverage for comprehension context
-  var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-  var $currentComp = $coverage ? $coverage.estimatedComprehension : 0;
-  var $masteredWords = $coverage ? $coverage.masteredWords : 0;
-  var $totalWords = $coverage ? $coverage.totalWords : 0;
+  var lessonRootCount = Object.keys(lessonRootSet).length;      // Get overall coverage for comprehension context (reuse cached from top of function)
+  var $coverage = $_coverage;
+  var $currentComp = $_currentComp;
+  var $masteredWords = $_masteredWords;
+  var $totalWords = $_totalWords;
   
   var pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
@@ -1217,7 +1221,8 @@ function validateData() {
 // never sees a completely blank screen. Renders a meaningful error
 // with a reload button.
 
-var _startupFallbackTimer = null;
+/** @type {number|null} Startup watchdog timer ID — module-scoped to avoid global pollution */
+let _startupFallbackTimer = null;
 
 /** Render a fallback UI if the dashboard can't load */
 function renderFallbackUI() {

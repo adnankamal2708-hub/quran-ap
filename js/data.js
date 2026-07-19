@@ -1567,18 +1567,25 @@ function validateEducationalConsistency() {
 }
 
 // ── Foundation Progress (localStorage) ──────────────────────────
+// ⚠ DEPRECATED: This file is no longer loaded by the build process.
+// Use js/data-core/foundation.js instead, which is the canonical
+// persistence layer for foundation progress.
+// These functions are kept for test backward compatibility only.
 
 const FOUNDATION_PROGRESS_KEY = 'quran_foundation_progress';
 
 function getDefaultFoundationProgress() {
+  // ⚠ NOTE: Canonical implementation is in js/data-core/foundation.js
+  // This fallback exists only for backward compatibility.
   return {
-    currentLesson: 0,        // 0-based index of the active foundation lesson
-    completedLessons: [],     // array of 0-based foundation lesson indices that are finished
-    quizPassed: {},           // { "0": true, "1": false, ... }
+    currentLesson: 0,
+    completedLessons: [],
+    quizPassed: {},
   };
 }
 
 function loadFoundationProgress() {
+  // Canonical: js/data-core/foundation.js
   try {
     var raw = localStorage.getItem(FOUNDATION_PROGRESS_KEY);
     if (!raw) return getDefaultFoundationProgress();
@@ -1596,9 +1603,6 @@ function saveFoundationProgress(data) {
   }
 }
 
-/**
- * Track root families mastered.
- */
 function getRootFamilyMastery() {
   var mastered = getMasteredWordIds();
   var allCanonical = typeof getCanonicalWords === 'function' ? getCanonicalWords() : ALL_WORDS;
