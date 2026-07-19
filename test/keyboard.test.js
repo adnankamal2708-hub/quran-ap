@@ -272,10 +272,10 @@ suite('Navigation Shortcuts', function() {
     assert.ok(_shortcutLog.indexOf('switchView:list') >= 0);
   });
 
-  test('R key switches to reader', function() {
+  test('R key switches to quran', function() {
     setupKeyboardShortcuts();
     fireKey('r');
-    assert.ok(_shortcutLog.indexOf('switchView:reader') >= 0);
+    assert.ok(_shortcutLog.indexOf('switchView:quran') >= 0);
   });
 
   test('P key switches to profile', function() {

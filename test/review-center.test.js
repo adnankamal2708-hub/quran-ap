@@ -821,7 +821,7 @@ suite('Event Wiring — Mode Cards', function() {
     assert.ok(_callLog.indexOf('goToRootFamily') >= 0, 'goToRootFamily should be called');
   });
 
-  test('#rc-mode-reading click calls switchView to reader', function() {
+  test('#rc-mode-reading click calls switchView to quran', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -831,7 +831,7 @@ suite('Event Wiring — Mode Cards', function() {
 
     renderReviewCenter();
     readBtn.click();
-    assert.ok(_callLog.indexOf('switchView:reader') >= 0, 'should switch to reader');
+    assert.ok(_callLog.indexOf('switchView:quran') >= 0, 'should switch to quran');
   });
 
   test('#rc-mode-mixed click calls startMixedReview', function() {

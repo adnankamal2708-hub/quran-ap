@@ -264,6 +264,57 @@ ts('Explorer — Root Family', function() {
     var rootFamList = document.getElementById('explorer-root-family-list');
     assert.ok(rootFamList.children.length > 0 || rootFamList.innerHTML.indexOf('No root family') >= 0);
   });
+
+  t('word without root family does not crash', function() {
+    var w = { id: 'w_noroot', arabic: 'test', english: 'test', root: '—' };
+    createEl('explorer-root-family-list');
+    createEl('explorer-derived-forms-list');
+    createEl('explorer-morph-list');
+    createEl('explorer-similar-list');
+    createEl('explorer-confused-list');
+    createEl('explorer-semantic-list');
+    createEl('explorer-related-list');
+    createEl('explorer-equiv-list');
+    renderExplorerRelationships(w);
+    var rootFamList = document.getElementById('explorer-root-family-list');
+    assert.ok(rootFamList.innerHTML.indexOf('No root family') >= 0 ||
+             rootFamList.innerHTML.indexOf('n/a') >= 0 ||
+             rootFamList.children.length === 0);
+  });
+
+  t('word with empty root family array shows empty state', function() {
+    var w = { id: 'w_emptyrf', arabic: 'نور', english: 'light', root: 'ن-و-ر', rootFamily: [] };
+    createEl('explorer-root-family-list');
+    createEl('explorer-derived-forms-list');
+    createEl('explorer-morph-list');
+    createEl('explorer-similar-list');
+    createEl('explorer-confused-list');
+    createEl('explorer-semantic-list');
+    createEl('explorer-related-list');
+    createEl('explorer-equiv-list');
+    renderExplorerRelationships(w);
+    var rootFamList = document.getElementById('explorer-root-family-list');
+    assert.ok(rootFamList.innerHTML.indexOf('No root family') >= 0 ||
+             rootFamList.children.length === 0);
+  });
+
+  t('root family shows individual words when data exists', function() {
+    createEl('explorer-root-family-list');
+    createEl('explorer-derived-forms-list');
+    createEl('explorer-morph-list');
+    createEl('explorer-similar-list');
+    createEl('explorer-confused-list');
+    createEl('explorer-semantic-list');
+    createEl('explorer-related-list');
+    createEl('explorer-equiv-list');
+    renderExplorerRelationships(TEST_WORDS[0]);
+    var rootFamList = document.getElementById('explorer-root-family-list');
+    assert.ok(rootFamList.children.length > 0, 'should have root family chips');
+    if (rootFamList.children.length > 0) {
+      var chipText = rootFamList.children[0].textContent || rootFamList.children[0].innerHTML || '';
+      assert.ok(chipText.length > 0, 'root family chip should have content');
+    }
+  });
 });
 
 ts('Explorer — Bookmark', function() {
@@ -296,6 +347,58 @@ ts('Explorer — Bookmark', function() {
     global.toggleFavorite(TEST_WORDS[0].id);
     var favs = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
     assert.ok(favs[TEST_WORDS[0].id]);
+  });
+
+  t('multiple words can be bookmarked independently', function() {
+    global.toggleFavorite(TEST_WORDS[0].id);
+    global.toggleFavorite(TEST_WORDS[1].id);
+    var favs = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
+    assert.ok(favs[TEST_WORDS[0].id], 'first word should be bookmarked');
+    assert.ok(favs[TEST_WORDS[1].id], 'second word should be bookmarked');
+    assert.strictEqual(Object.keys(favs).length, 2, 'exactly 2 bookmarks');
+  });
+
+  t('removing one bookmark does not affect others', function() {
+    global.toggleFavorite(TEST_WORDS[0].id);
+    global.toggleFavorite(TEST_WORDS[1].id);
+    global.toggleFavorite(TEST_WORDS[0].id); // remove first
+    var favs = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
+    assert.ok(!favs[TEST_WORDS[0].id], 'first word should not be bookmarked');
+    assert.ok(favs[TEST_WORDS[1].id], 'second word should still be bookmarked');
+    assert.strictEqual(Object.keys(favs).length, 1, 'exactly 1 bookmark remaining');
+  });
+
+  t('isFavorite returns false for non-bookmarked word', function() {
+    assert.strictEqual(global.isFavorite('nonexistent'), false);
+    assert.strictEqual(global.isFavorite(TEST_WORDS[0].id), false);
+  });
+
+  t('isFavorite returns true after bookmarking', function() {
+    global.toggleFavorite(TEST_WORDS[0].id);
+    assert.strictEqual(global.isFavorite(TEST_WORDS[0].id), true);
+  });
+
+  t('bookmark survives simulated page reload (new localStorage read)', function() {
+    global.toggleFavorite(TEST_WORDS[0].id);
+    // Simulate reload by clearing in-memory and re-reading from localStorage
+    var freshRead = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
+    assert.ok(freshRead[TEST_WORDS[0].id], 'bookmark should persist after reload');
+  });
+
+  t('empty favorites returns empty object', function() {
+    global.localStorage.setItem('quran_favorites', '{}');
+    var favs = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
+    assert.strictEqual(Object.keys(favs).length, 0);
+  });
+
+  // Note: corrupted localStorage data handling is tested in test/vocabulary.test.js
+  // (the real loadFavorites function has try/catch; the mock in this test
+  // file does not replicate the full error handling logic)
+
+  t('bookmarking non-existent word ID does not crash', function() {
+    global.toggleFavorite('nonexistent_word_id');
+    var favs = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
+    assert.ok(favs['nonexistent_word_id'], 'should still store even if word does not exist in ALL_WORDS');
   });
 });
 

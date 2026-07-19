@@ -581,7 +581,7 @@ function wireReviewCenterEvents($data) {
     else if (typeof switchView === 'function') switchView('learn');
   });
   $wire('rc-mode-reading', function() {
-    if (typeof switchView === 'function') switchView('reader');
+    if (typeof switchView === 'function') switchView('quran');
   });
   $wire('rc-mode-mixed', function() {
     if (typeof startMixedReview === 'function') startMixedReview();

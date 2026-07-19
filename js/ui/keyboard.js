@@ -102,7 +102,7 @@ function setupKeyboardShortcuts() {
       if (e.key === 'l' || e.key === 'L') { e.preventDefault(); switchView('learn'); }
       else if (e.key === 'd' || e.key === 'D') { e.preventDefault(); switchView('dashboard'); }
       else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); switchView('list'); }
-      else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); switchView('reader'); }
+      else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); switchView('quran'); }
       else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); switchView('profile'); }
     }
 

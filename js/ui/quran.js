@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// reader.js — Quran Reader (MVP)
+// quran.js — Quran Reader (MVP)
 //
 // A minimal, stable Quran reading experience.
 // Keeps: surah list, reading screen, vocabulary highlighting,
@@ -19,7 +19,7 @@ let _readerVerseKeys = [];
 let _readerSRSData = {};
 let _readerScrollVerse = null;
 
-const READER_LAST_KEY = 'quran_reader_last';
+const QURAN_LAST_KEY = 'quran_reader_last';
 
 // ── Arabic Normalization for Vocabulary Matching ───────────────
 
@@ -48,7 +48,7 @@ function _readerGetMasteryColor(wordId) {
 
 function _loadLastPosition() {
   try {
-    var raw = localStorage.getItem(READER_LAST_KEY);
+    var raw = localStorage.getItem(QURAN_LAST_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (e) { return null; }
@@ -56,7 +56,7 @@ function _loadLastPosition() {
 
 function _saveLastPosition(surahId, verseKey) {
   try {
-    localStorage.setItem(READER_LAST_KEY, JSON.stringify({
+    localStorage.setItem(QURAN_LAST_KEY, JSON.stringify({
       surahId: surahId,
       verseKey: verseKey || null,
       date: Date.now(),
@@ -152,7 +152,7 @@ function _buildFromVocabOnly(surahId) {
 // ── Surah Browser ──────────────────────────────────────────────
 
 function renderSurahBrowser() {
-  var container = document.getElementById('reader-surah-list');
+  var container = document.getElementById('quran-surah-list');
   if (!container) return;
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
 
@@ -166,7 +166,7 @@ function renderSurahBrowser() {
   }
 
   if (surahIds.length === 0) {
-    container.innerHTML = '<div class="reader-empty-sidebar">No surahs available.</div>';
+    container.innerHTML = '<div class="quran-empty-sidebar">No surahs available.</div>';
     return;
   }
 
@@ -178,13 +178,13 @@ function renderSurahBrowser() {
     var quranIdxInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
       ? window.__QURAN_INDEX_GET(lastPos.surahId) : null;
     var surahName = quranIdxInfo ? quranIdxInfo.name : 'Surah ' + lastPos.surahId;
-    html += '<div class="reader-continue-card" id="reader-continue-btn" tabindex="0" role="button" aria-label="Continue reading ' + surahName + '">';
-    html += '<div class="reader-continue-icon">📖</div>';
-    html += '<div class="reader-continue-info">';
-    html += '<div class="reader-continue-title">Continue Reading</div>';
-    html += '<div class="reader-continue-sub">' + surahName + '</div>';
+    html += '<div class="quran-continue-card" id="quran-continue-btn" tabindex="0" role="button" aria-label="Continue reading ' + surahName + '">';
+    html += '<div class="quran-continue-icon">📖</div>';
+    html += '<div class="quran-continue-info">';
+    html += '<div class="quran-continue-title">Continue Reading</div>';
+    html += '<div class="quran-continue-sub">' + surahName + '</div>';
     html += '</div>';
-    html += '<div class="reader-continue-arrow">→</div>';
+    html += '<div class="quran-continue-arrow">→</div>';
     html += '</div>';
   }
 
@@ -195,20 +195,20 @@ function renderSurahBrowser() {
     if (!quranIdxInfo) continue;
 
     var isActive = _readerSurahId === sid;
-    var activeClass = isActive ? ' reader-surah-active' : '';
+    var activeClass = isActive ? ' quran-surah-active' : '';
 
-    html += '<div class="reader-surah-item' + activeClass + '" data-surah-id="' + sid + '" tabindex="0" role="button">';
-    html += '<span class="reader-surah-num">' + sid + '.</span>';
-    html += '<span class="reader-surah-name">' + quranIdxInfo.name + '</span>';
-    html += '<span class="reader-surah-english">' + quranIdxInfo.englishName + '</span>';
-    html += '<span class="reader-surah-verses">' + quranIdxInfo.total_verses + ' verses</span>';
+    html += '<div class="quran-surah-item' + activeClass + '" data-surah-id="' + sid + '" tabindex="0" role="button">';
+    html += '<span class="quran-surah-num">' + sid + '.</span>';
+    html += '<span class="quran-surah-name">' + quranIdxInfo.name + '</span>';
+    html += '<span class="quran-surah-english">' + quranIdxInfo.englishName + '</span>';
+    html += '<span class="quran-surah-verses">' + quranIdxInfo.total_verses + ' verses</span>';
     html += '</div>';
   }
 
   container.innerHTML = html;
 
   // Wire Continue Reading
-  var continueCard = document.getElementById('reader-continue-btn');
+  var continueCard = document.getElementById('quran-continue-btn');
   if (continueCard) {
     continueCard.onclick = resumeReading;
     continueCard.onkeydown = function(e) {
@@ -217,7 +217,7 @@ function renderSurahBrowser() {
   }
 
   // Wire surah clicks
-  var items = container.querySelectorAll('.reader-surah-item');
+  var items = container.querySelectorAll('.quran-surah-item');
   for (var ii = 0; ii < items.length; ii++) {
     (function(el) {
       var sid = parseInt(el.getAttribute('data-surah-id'), 10);
@@ -257,7 +257,7 @@ function openSurahForReading(surahId) {
   // Update surah title
   var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
     ? window.__QURAN_INDEX_GET(surahId) : null;
-  var surahNameEl = document.getElementById('reader-surah-title');
+  var surahNameEl = document.getElementById('quran-surah-title');
   if (surahNameEl) {
     surahNameEl.textContent = quranIndexInfo
       ? quranIndexInfo.name + ' — ' + quranIndexInfo.englishName
@@ -265,15 +265,15 @@ function openSurahForReading(surahId) {
   }
 
   // Show reading view, hide surah list
-  var listEl = document.getElementById('reader-surah-list');
-  var mainEl = document.getElementById('reader-main');
+  var listEl = document.getElementById('quran-surah-list');
+  var mainEl = document.getElementById('quran-main');
   if (listEl) listEl.style.display = 'none';
   if (mainEl) mainEl.style.display = 'block';
 
   renderAyahs();
   renderSurahBrowser(); // Update active state in list
 
-  var versesContainer = document.getElementById('reader-verses');
+  var versesContainer = document.getElementById('quran-verses');
   if (versesContainer) {
     versesContainer.scrollTop = 0;
     versesContainer.focus({ preventScroll: true });
@@ -283,11 +283,11 @@ function openSurahForReading(surahId) {
 // ── Render Ayahs ───────────────────────────────────────────────
 
 function renderAyahs() {
-  var container = document.getElementById('reader-verses');
+  var container = document.getElementById('quran-verses');
   if (!container) return;
 
   if (_readerVerseKeys.length === 0) {
-    container.innerHTML = '<div class="reader-empty">' +
+    container.innerHTML = '<div class="quran-empty">' +
       '<div style="font-size: 32px; margin-bottom: 12px">📖</div>' +
       '<div>No verses available for this surah.</div>' +
       '</div>';
@@ -306,13 +306,13 @@ function renderAyahs() {
 
     var verseNum = parseInt(verseKey.split(':')[1], 10) || 0;
 
-    html += '<div class="reader-ayah" id="reader-ayah-' + verseKey.replace(':', '-') + '">';
-    html += '<div class="reader-ayah-header">';
-    html += '<div class="reader-ayah-num">Verse ' + verseNum + (totalVerses > 0 ? ' of ' + totalVerses : '') + '</div>';
+    html += '<div class="quran-ayah" id="quran-ayah-' + verseKey.replace(':', '-') + '">';
+    html += '<div class="quran-ayah-header">';
+    html += '<div class="quran-ayah-num">Verse ' + verseNum + (totalVerses > 0 ? ' of ' + totalVerses : '') + '</div>';
     html += '</div>';
 
     // Arabic verse (immutable Quran text with vocabulary highlighting)
-    html += '<div class="reader-ayah-arabic" lang="ar" dir="rtl">';
+    html += '<div class="quran-ayah-arabic" lang="ar" dir="rtl">';
     var verseTokens = group.ayahA.split(/\s+/);
     var vocabNormForVerse = {};
     for (var vtwi = 0; vtwi < group.words.length; vtwi++) {
@@ -332,14 +332,14 @@ function renderAyahs() {
         renderedWordIds[matchedWord.id] = true;
         var colorClass = _readerGetMasteryColor(matchedWord.id);
         var escapedArabic = matchedWord.arabic.replace(/"/g, '&quot;');
-        html += '<span class="reader-word-token reader-token-' + colorClass + '" ' +
+        html += '<span class="quran-word-token quran-token-' + colorClass + '" ' +
           'data-word-id="' + matchedWord.id + '" ' +
           'tabindex="0" role="button" ' +
           'aria-label="' + escapedArabic + ' — ' + (matchedWord.meaning || matchedWord.english || '') + '" ' +
           'title="' + escapedArabic + ' — ' + (matchedWord.english || '') + '">' +
           matchedWord.arabic + '</span>';
       } else {
-        html += '<span class="reader-plain-arabic">' +
+        html += '<span class="quran-plain-arabic">' +
           token.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
       }
       if (vti < verseTokens.length - 1) html += ' ';
@@ -348,7 +348,7 @@ function renderAyahs() {
 
     // Translation
     if (group.ayahT) {
-      html += '<div class="reader-ayah-translation">' +
+      html += '<div class="quran-ayah-translation">' +
         group.ayahT.replace(/<[^>]+>/g, '') + '</div>';
     }
 
@@ -358,7 +358,7 @@ function renderAyahs() {
   container.innerHTML = html;
 
   // Wire word token clicks → open Explorer
-  var tokens = container.querySelectorAll('.reader-word-token');
+  var tokens = container.querySelectorAll('.quran-word-token');
   for (var ti = 0; ti < tokens.length; ti++) {
     (function(el) {
       el.onclick = function() {
@@ -380,7 +380,7 @@ function renderAyahs() {
 
   // Scroll to target verse
   if (_readerScrollVerse) {
-    var targetId = 'reader-ayah-' + _readerScrollVerse.replace(':', '-');
+    var targetId = 'quran-ayah-' + _readerScrollVerse.replace(':', '-');
     var target = document.getElementById(targetId);
     if (target) {
       setTimeout(function() { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
@@ -391,7 +391,7 @@ function renderAyahs() {
 
 // ── Reader Main Entry Point ────────────────────────────────────
 
-function renderReader() {
+function renderQuran() {
   _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
 
   // Start loading Quran data (non-blocking)
@@ -400,27 +400,27 @@ function renderReader() {
   }
 
   // Show surah list, hide reading view
-  var listEl = document.getElementById('reader-surah-list');
-  var mainEl = document.getElementById('reader-main');
+  var listEl = document.getElementById('quran-surah-list');
+  var mainEl = document.getElementById('quran-main');
   if (listEl) listEl.style.display = 'block';
   if (mainEl) mainEl.style.display = 'none';
 
   renderSurahBrowser();
 
   // Pre-populate verses container
-  var versesContainer = document.getElementById('reader-verses');
+  var versesContainer = document.getElementById('quran-verses');
   if (versesContainer && !_readerSurahId) {
-    versesContainer.innerHTML = '<div class="reader-empty">' +
+    versesContainer.innerHTML = '<div class="quran-empty">' +
       '<div style="font-size: 42px; margin-bottom: 16px">📖</div>' +
       '<div style="font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px">Select a Surah</div>' +
       '<div style="font-size: 12px; color: var(--text-muted); line-height: 1.6; max-width: 300px; margin: 0 auto">' +
       'Choose a surah from the list to begin reading. Words you have studied are highlighted.</div>' +
       '<div style="display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap">' +
-      '<span class="reader-legend-item"><span class="reader-legend-swatch reader-token-mastered"></span>Mastered</span>' +
-      '<span class="reader-legend-item"><span class="reader-legend-swatch reader-token-known"></span>Known</span>' +
-      '<span class="reader-legend-item"><span class="reader-legend-swatch reader-token-learning"></span>Learning</span>' +
-      '<span class="reader-legend-item"><span class="reader-legend-swatch reader-token-seen"></span>Seen</span>' +
-      '<span class="reader-legend-item"><span class="reader-legend-swatch reader-token-unknown"></span>New</span>' +
+      '<span class="quran-legend-item"><span class="quran-legend-swatch quran-token-mastered"></span>Mastered</span>' +
+      '<span class="quran-legend-item"><span class="quran-legend-swatch quran-token-known"></span>Known</span>' +
+      '<span class="quran-legend-item"><span class="quran-legend-swatch quran-token-learning"></span>Learning</span>' +
+      '<span class="quran-legend-item"><span class="quran-legend-swatch quran-token-seen"></span>Seen</span>' +
+      '<span class="quran-legend-item"><span class="quran-legend-swatch quran-token-unknown"></span>New</span>' +
       '</div></div>';
   } else if (_readerSurahId) {
     openSurahForReading(_readerSurahId);
@@ -431,8 +431,8 @@ function renderReader() {
 
 function goBackToSurahList() {
   _readerSurahId = null;
-  var listEl = document.getElementById('reader-surah-list');
-  var mainEl = document.getElementById('reader-main');
+  var listEl = document.getElementById('quran-surah-list');
+  var mainEl = document.getElementById('quran-main');
   if (listEl) listEl.style.display = 'block';
   if (mainEl) mainEl.style.display = 'none';
   renderSurahBrowser();
@@ -440,8 +440,8 @@ function goBackToSurahList() {
 
 // ── Event Wiring ───────────────────────────────────────────────
 
-function wireReaderEvents() {
-  var backBtn = document.getElementById('reader-back-to-list');
+function wireQuranEvents() {
+  var backBtn = document.getElementById('quran-back-to-list');
   if (backBtn) {
     backBtn.onclick = goBackToSurahList;
   }
