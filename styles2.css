@@ -3809,6 +3809,43 @@ body::before {
   color: var(--green);
 }
 
+/* ── Explorer Card containers (cards for each section) ── */
+.explorer-rel-card,
+.explorer-progress-card,
+.explorer-actions-card,
+.explorer-notes-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* Explorer section subtitle */
+.explorer-section-subtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+
+/* Tafsir display */
+.explorer-tafsir-box {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin: 8px 0;
+}
+.explorer-tafsir-text {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+  font-style: italic;
+}
+
 /* Premium action buttons */
 .explorer-actions-grid {
   display: grid;
