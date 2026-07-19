@@ -1416,6 +1416,7 @@ body::before {
   .view-entrance { animation: none !important; opacity: 1; transform: none; }
   .reader-ayah { animation: none !important; will-change: auto !important; opacity: 1; transform: none; }
   .stat-section-entrance > * { animation: none !important; opacity: 1; transform: none; }
+  .ls-collapsible-body { transition: none !important; }
 }
 
 /* ── Responsive: Compact top bar on narrow screens ──────────── */
@@ -2585,6 +2586,26 @@ body::before {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+}
+
+.lesson-header-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.lesson-header-actions .auth-input {
+  flex: 1;
+  font-size: 11px;
+  padding: 8px 10px;
+}
+
+.lesson-header-actions .continue-lesson-btn {
+  flex-shrink: 0;
+  width: auto;
+  padding: 8px 14px;
+  font-size: 12px;
 }
 
 .lesson-nav-btn {
@@ -10850,19 +10871,20 @@ padding: 6px 0;
 }
 
 .ls-collapsible-body {
-  display: none;
-  padding: 0 16px 14px;
-  animation: lsBodyFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s var(--ease-default), padding 0.3s var(--ease-default), opacity 0.2s var(--ease-default);
+  opacity: 0;
+  padding: 0 16px;
 }
 
 .ls-open .ls-collapsible-body {
-  display: block;
+  max-height: 800px;
+  opacity: 1;
+  padding: 0 16px 14px;
 }
 
-@keyframes lsBodyFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* lsBodyFadeIn removed - replaced by max-height transition on .ls-collapsible-body */
 
 /* Collapsible body content spacing */
 .ls-collapsible-body .foundation-journey-section,

@@ -688,41 +688,9 @@ function updateBookmarkButton(wordId) {
 }
 
 /**
- * Update the daily goal progress ring based on reviews done today.
- */
-function updateGoalRing() {
-  var ringFill = DOM.get('goal-ring-fill');
-  var ringText = DOM.get('goal-ring-text');
-  var ringWrap = DOM.get('goal-ring-wrap');
-  if (!ringFill || !ringText || !ringWrap) return;
-
-  // Get stats and compute progress
-  var srsObj = window.__srs;
-  var stats = (srsObj && srsObj.getStats) ? srsObj.getStats() : null;
-  if (!stats) {
-    ringFill.setAttribute('stroke-dasharray', '0, 100');
-    ringText.textContent = '0';
-    ringWrap.setAttribute('aria-valuenow', '0');
-    return;
-  }
-
-  var dailyLimit = (srsObj && srsObj.getDailyReviewLimit)
-    ? srsObj.getDailyReviewLimit()
-    : 25;
-  var reviewsToday = stats.reviewsToday || 0;
-  if (dailyLimit <= 0) dailyLimit = 25;
-  var pct = Math.min(100, Math.round((reviewsToday / dailyLimit) * 100));
-  var circumference = 100;
-  var offset = Math.round((pct / 100) * circumference);
-
-  ringFill.setAttribute('stroke-dasharray', offset + ', ' + circumference);
-  ringText.textContent = pct;
-  ringWrap.setAttribute('aria-valuenow', String(pct));
-  ringWrap.title = 'Daily review goal: ' + reviewsToday + ' of ' + dailyLimit + ' (' + pct + '%)';
-}
-
-/**
  * Update the top stats bar and total word count.
+ * NOTE: updateGoalRing() is in js/ui/word-card.js and is the live version.
+ * This file (ui.js) is dead code — kept for reference only.
  */
 function updateStatsDisplay() {
   var data = loadSRS();
@@ -742,9 +710,6 @@ function updateStatsDisplay() {
   var due = getDueReviews().length;
   DOM.get('stat-learned').textContent = learned;
   DOM.get('stat-review').textContent = due;
-
-  // Update the goal ring
-  updateGoalRing();
 }
 
 /**
