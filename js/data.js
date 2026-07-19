@@ -1138,6 +1138,28 @@ function getTotalFoundationOccurrences() {
   return total;
 }
 
+/**
+ * Get the total coverage percentage that the Foundation Course provides
+ * upon completion. This represents the proportion of all Quranic word
+ * occurrences covered by the 100 most frequent foundation words.
+ * Returns a number like 84.2 (percent), or 0 if foundation data is unavailable.
+ */
+function getFoundationTotalCoveragePercent() {
+  var totalOcc = typeof getTotalQuranOccurrences === 'function' ? getTotalQuranOccurrences() : 0;
+  var fOcc = typeof getTotalFoundationOccurrences === 'function' ? getTotalFoundationOccurrences() : 0;
+  if (totalOcc > 0 && fOcc > 0) {
+    return Math.round(fOcc / totalOcc * 100 * 10) / 10;
+  }
+  // Fallback: try reading from the last lesson's cumulative coverage
+  if (typeof FOUNDATION_LESSONS !== 'undefined' && FOUNDATION_LESSONS && FOUNDATION_LESSONS.length > 0) {
+    var lastLesson = FOUNDATION_LESSONS[FOUNDATION_LESSONS.length - 1];
+    if (lastLesson && lastLesson.cumulativeCoverageNum > 0) {
+      return Math.round(lastLesson.cumulativeCoverageNum * 10) / 10;
+    }
+  }
+  return 0;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // QURAN COMPREHENSION TRACKER — Understanding & Milestones
 //

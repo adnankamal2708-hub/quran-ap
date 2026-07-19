@@ -643,7 +643,14 @@ function renderDashboard() {
   }
   // Priority 9: Foundation course milestone
   else if ($fTotal > 0) {
-    $motivationMsg = 'Start the Foundation Course to unlock <strong>~' + $coveragePct + '%</strong> of Quranic word occurrences in just 10 lessons!';
+    var $foundationTotalCoverage = typeof getFoundationTotalCoveragePercent === 'function'
+      ? getFoundationTotalCoveragePercent()
+      : 0;
+    if ($foundationTotalCoverage > 0) {
+      $motivationMsg = 'Start the Foundation Course to unlock <strong>~' + $foundationTotalCoverage + '%</strong> of Quranic word occurrences in just ' + $fTotal + ' lessons!';
+    } else {
+      $motivationMsg = 'Start the Foundation Course to master the 100 most frequent Quranic words and unlock most of the Quran!';
+    }
     $motivationIcon = '🌱';
   }
   // Fallback: Generic encouragement

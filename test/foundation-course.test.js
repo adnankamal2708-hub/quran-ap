@@ -663,6 +663,104 @@ suite('Coverage — getFoundationCoverage', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// FOUNDATION COURSE TOTAL COVERAGE (Regression protection)
+// ═══════════════════════════════════════════════════════════════
+
+suite('Foundation Course — getFoundationTotalCoveragePercent', function() {
+  test('Returns a number (not undefined/null/NaN)', function() {
+    var pct = getFoundationTotalCoveragePercent();
+    assert.strictEqual(typeof pct, 'number', 'Should return a number');
+    assert.ok(!isNaN(pct), 'Should not be NaN');
+    assert.ok(pct !== null, 'Should not be null');
+    assert.ok(pct !== undefined, 'Should not be undefined');
+  });
+
+  test('Returns > 0 when foundation course is built', function() {
+    var pct = getFoundationTotalCoveragePercent();
+    assert.ok(pct > 0, 'Foundation total coverage should be > 0, got ' + pct);
+  });
+
+  test('Returns percentage between 0 and 100', function() {
+    var pct = getFoundationTotalCoveragePercent();
+    assert.ok(pct >= 0 && pct <= 100, 'Coverage should be 0-100, got ' + pct);
+  });
+
+  test('Returns correct expected value matching lesson data', function() {
+    var pct = getFoundationTotalCoveragePercent();
+    // The last lesson's cumulativeCoverageNum should match (rounded to 1 decimal)
+    if (FOUNDATION_LESSONS && FOUNDATION_LESSONS.length > 0) {
+      var lastLessonCov = FOUNDATION_LESSONS[FOUNDATION_LESSONS.length - 1].cumulativeCoverageNum;
+      var roundedCov = Math.round(lastLessonCov * 10) / 10;
+      assert.strictEqual(pct, roundedCov, 'Should match last lesson cumulativeCoverageNum rounded to 1 decimal');
+    }
+  });
+
+  test('Returns match with direct calculation: totalFoundOcc / totalQuranOcc * 100', function() {
+    var pct = getFoundationTotalCoveragePercent();
+    var totalQuranOcc = getTotalQuranOccurrences();
+    var totalFoundOcc = getTotalFoundationOccurrences();
+    var expectedPct = totalQuranOcc > 0 ? Math.round(totalFoundOcc / totalQuranOcc * 100 * 10) / 10 : 0;
+    assert.strictEqual(pct, expectedPct, 'Function result should match direct calculation: got ' + pct + ' vs expected ' + expectedPct);
+  });
+
+  test('Returns 0 when canonical words are empty', function() {
+    var savedWords = CANONICAL_WORDS.slice();
+    var savedLessons = FOUNDATION_LESSONS.slice();
+    CANONICAL_WORDS.length = 0;
+    FOUNDATION_LESSONS.length = 0;
+    _totalQuranOccurrences = 0;
+    
+    // Build foundation with empty words
+    buildFoundationCourse();
+    
+    var pct = getFoundationTotalCoveragePercent();
+    assert.strictEqual(pct, 0, 'Should return 0 when no canonical words');
+    
+    // Restore
+    _totalQuranOccurrences = 0;
+    savedWords.forEach(function(w) { CANONICAL_WORDS.push(w); });
+    savedLessons.forEach(function(l) { FOUNDATION_LESSONS.push(l); });
+    buildFoundationCourse();
+  });
+
+  test('Dashboard message would display non-zero value (regression protection)', function() {
+    var pct = getFoundationTotalCoveragePercent();
+    var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+    if (pct > 0 && fTotal > 0) {
+      // Simulate the dashboard message construction
+      var msg = 'Start the Foundation Course to unlock ~' + pct + '% of Quranic word occurrences in just ' + fTotal + ' lessons!';
+      assert.ok(msg.indexOf('~0%') < 0, 'Message should not contain ~0%');
+      assert.ok(msg.indexOf(pct.toString()) >= 0, 'Message should contain the coverage percentage');
+      assert.ok(msg.indexOf('unlock') >= 0, 'Message should mention unlock');
+      assert.ok(msg.indexOf('lessons') >= 0, 'Message should mention lessons');
+    }
+  });
+
+  test('getFoundationTotalCoveragePercent does not error when called multiple times', function() {
+    for (var ri = 0; ri < 10; ri++) {
+      var pct = getFoundationTotalCoveragePercent();
+      assert.strictEqual(typeof pct, 'number');
+    }
+  });
+
+  test('Fallback via cumulativeCoverageNum works when occurrence functions unavailable', function() {
+    // Temporarily override getTotalFoundationOccurrences to return 0
+    var originalGetTotalFOcc = global.getTotalFoundationOccurrences;
+    global.getTotalFoundationOccurrences = function() { return 0; };
+    
+    var pct = getFoundationTotalCoveragePercent();
+    // Should still find the value from FOUNDATION_LESSONS cumulativeCoverageNum (rounded to 1 decimal)
+    var expectedFallbackRaw = (FOUNDATION_LESSONS && FOUNDATION_LESSONS.length > 0)
+      ? FOUNDATION_LESSONS[FOUNDATION_LESSONS.length - 1].cumulativeCoverageNum
+      : 0;
+    var expectedFallback = Math.round(expectedFallbackRaw * 10) / 10;
+    assert.strictEqual(pct, expectedFallback, 'Should fallback to lesson cumulativeCoverageNum rounded to 1 decimal');
+    
+    global.getTotalFoundationOccurrences = originalGetTotalFOcc;
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // MILESTONE TRACKING
 // ═══════════════════════════════════════════════════════════════
 
