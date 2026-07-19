@@ -7,12 +7,11 @@ var server = http.createServer(function(req, res) {
   try {
     var content = fs.readFileSync(filePath);
     var ext = path.extname(filePath);
-    var types = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.ico': 'image/x-icon', '.xml': 'application/xml', '.svg': 'image/svg+xml' };
-    res.writeHead(200, { 'Content-Type': types[ext] || 'text/plain' });
+    var types = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.ico': 'image/x-icon', '.xml': 'application/xml', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+    res.writeHead(200, { 'Content-Type': types[ext] || 'text/plain', 'Access-Control-Allow-Origin': '*' });
     res.end(content);
   } catch(e) {
     try {
-      // Fallback to root index.html
       var content = fs.readFileSync(path.join(__dirname, 'index.html'));
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(content);
@@ -22,6 +21,6 @@ var server = http.createServer(function(req, res) {
     }
   }
 });
-server.listen(8082, '127.0.0.1', function() {
-  console.log('Server on http://127.0.0.1:8082');
+server.listen(8080, '127.0.0.1', function() {
+  console.log('E2E server on http://127.0.0.1:8080');
 });
