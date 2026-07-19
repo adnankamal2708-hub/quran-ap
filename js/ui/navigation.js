@@ -60,8 +60,29 @@ function switchView(viewName) {
       window.__profileUI.renderFullProfile();
     } else if (typeof renderProfileView === 'function') {
       renderProfileView();
-    } else if (window.__diag) {
-      window.__diag.warn('App', 'switchView', 'renderProfileView() not found');
+    } else {
+      // Defensive fallback: if neither render function is available,
+      // show an inline loading state so the profile is never blank.
+      // This handles race conditions during module initialization.
+      var profileView = document.getElementById('view-profile');
+      if (profileView) {
+        var hasContent = false;
+        for (var pci = 0; pci < profileView.children.length; pci++) {
+          if (profileView.children[pci].id !== 'profile-skeleton' &&
+              profileView.children[pci].style.display !== 'none') {
+            hasContent = true;
+            break;
+          }
+        }
+        if (!hasContent) {
+          // Show the skeleton as a loading indicator
+          var skeleton = document.getElementById('profile-skeleton');
+          if (skeleton) skeleton.classList.add('active');
+        }
+      }
+      if (window.__diag) {
+        window.__diag.warn('App', 'switchView', 'renderProfileView() not found');
+      }
     }
   }
   if (viewName === 'explorer') {

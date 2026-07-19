@@ -642,36 +642,66 @@ function renderAyahs() {
     html += '</div>';
 
     // Arabic verse with tappable word tokens
+    // ALWAYS render the complete Quran text. Vocabulary words are wrapped
+    // in interactive <span> elements with color coding; non-vocabulary
+    // tokens are rendered as plain (but preserved) Arabic text.
+    // This ensures the complete verse is always visible, vocabulary never
+    // replaces or truncates the Quran text.
     html += '<div class="reader-ayah-arabic" lang="ar" dir="rtl">';
 
-    if (group.words.length > 0) {
-      // Render vocabulary word tokens with color coding
-      for (var wi = 0; wi < group.words.length; wi++) {
-        var w = group.words[wi];
+    // Tokenize the full verse text and interleave vocabulary highlights
+    var verseTokens = group.ayahA.split(/\s+/);
+    // Build a normalized lookup from the matched vocabulary words for this verse
+    var vocabNormForVerse = {};
+    for (var vtwi = 0; vtwi < group.words.length; vtwi++) {
+      var vtw = group.words[vtwi];
+      var vtn = _normArabicForMatch(vtw.arabic);
+      if (vtn) vocabNormForVerse[vtn] = vtw;
+    }
+    // Track which vocab word IDs have been rendered (dedup multiple matches)
+    var renderedWordIds = {};
+
+    for (var vti = 0; vti < verseTokens.length; vti++) {
+      var token = verseTokens[vti];
+      if (!token) continue;
+      var normToken = _normArabicForMatch(token);
+      var matchedWord = normToken ? vocabNormForVerse[normToken] : null;
+
+      // Handle duplicate vocabulary: only wrap the FIRST occurrence of a
+      // vocabulary word in the verse to avoid duplicate event bindings
+      var isDuplicate = matchedWord && renderedWordIds[matchedWord.id];
+
+      if (matchedWord && !isDuplicate) {
+        var w = matchedWord;
+        renderedWordIds[w.id] = true;
         var colorClass = _readerGetMasteryColor(w.id);
         var isLeech = _readerSRSData[w.id] && _readerSRSData[w.id].isLeech;
 
         // Skip mastered words in "show unknown only" mode
-        if (_readerFilters.showUnknownOnly && (colorClass === 'mastered' || colorClass === 'known')) continue;
-
-        var extraClass = isLeech ? ' reader-token-leech' : '';
-        html += '<span class="reader-word-token reader-token-' + colorClass + extraClass + '" ' +
-          'data-word-id="' + w.id + '" ' +
-          'data-arabic="' + w.arabic.replace(/"/g, '&quot;') + '" ' +
-          'tabindex="0" role="button" ' +
-          'aria-label="' + w.arabic + ' — ' + (w.meaning || w.english || '') + ' — ' + colorClass + '" ' +
-          'title="' + w.arabic + ' — ' + (w.english || '') + ' (' + colorClass + ')"' +
-          '>' +
-          w.arabic + '</span>';
-
-        if (wi < group.words.length - 1) {
-          html += ' ';
+        if (!(_readerFilters.showUnknownOnly && (colorClass === 'mastered' || colorClass === 'known'))) {
+          var extraClass = isLeech ? ' reader-token-leech' : '';
+          html += '<span class="reader-word-token reader-token-' + colorClass + extraClass + '" ' +
+            'data-word-id="' + w.id + '" ' +
+            'data-arabic="' + w.arabic.replace(/"/g, '&quot;') + '" ' +
+            'tabindex="0" role="button" ' +
+            'aria-label="' + w.arabic + ' — ' + (w.meaning || w.english || '') + ' — ' + colorClass + '" ' +
+            'title="' + w.arabic + ' — ' + (w.english || '') + ' (' + colorClass + ')"' +
+            '>' +
+            w.arabic + '</span>';
+        } else {
+          // Filtered out — render as plain text (preserves the token visually)
+          var escapedToken = token.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          html += '<span class="reader-plain-arabic">' + escapedToken + '</span>';
         }
+      } else {
+        // Non-vocabulary token (or duplicate) — render as plain Arabic text
+        var escapedToken = token.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        html += '<span class="reader-plain-arabic">' + escapedToken + '</span>';
       }
-    } else {
-      // No vocabulary for this verse — render plain Arabic text
-      var escapedAyah = group.ayahA.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      html += '<span class="reader-plain-arabic">' + escapedAyah + '</span>';
+
+      if (vti < verseTokens.length - 1) {
+        html += ' ';
+      }
     }
     html += '</div>'; // end ayah arabic
 

@@ -597,7 +597,7 @@ function renderProfileProgress() {
     for (var si = 0; si < Math.min(3, surahComp.length); si++) {
       var sc = surahComp[si];
       var sName = typeof getSurahInfo === 'function' && getSurahInfo(sc.surahId) ? getSurahInfo(sc.surahId).name : 'Surah ' + sc.surahId;
-      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.max(1, sc.estimatedComprehension) + '%;background:' + (sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)') + '"></div></div><span class="profile-bar-value" style="font-size:10px">' + sc.estimatedComprehension + '%</span></div>';
+      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.max(1, sc.estimatedComprehension) + '%;background:' + (sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)') + '\"></div></div><span class="profile-bar-value" style="font-size:10px">' + sc.estimatedComprehension + '%</span></div>';
     }
     if (surahComp.length > 3) {
       h += '<div class="pui-value-sm pui-muted pui-center" style="margin-top:4px">+' + (surahComp.length - 3) + ' more surahs</div>';
@@ -631,7 +631,7 @@ function renderProfileProgress() {
   for (var sti = 0; sti < stageItems.length; sti++) {
     var st = stageItems[sti];
     var stPct = Math.round((st.val / totalStaged) * 100);
-    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + st.label + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + stPct + '%;background:' + (sti === 0 ? 'var(--blue)' : sti === 1 ? 'var(--purple)' : sti === 2 ? 'var(--gold-dim)' : 'var(--green)') + '"></div></div><span class="profile-bar-value" style="font-size:10px">' + st.val + '</span></div>';
+    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + st.label + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + stPct + '%;background:' + (sti === 0 ? 'var(--blue)' : sti === 1 ? 'var(--purple)' : sti === 2 ? 'var(--gold-dim)' : 'var(--green)') + '\"></div></div><span class="profile-bar-value" style="font-size:10px">' + st.val + '</span></div>';
   }
   h += '</div>';
 
@@ -656,8 +656,8 @@ function renderProfileProgress() {
   h += '<div class="profile-srs-grid">';
   h += '<div><span class="profile-bar-value ai-c-green">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
   h += '<div><span class="profile-bar-value ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Avg Ease</span></div>';
-  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.overdue || 0) > 0 ? 'var(--red)' : 'var(--green)') + '">' + (srsStats.overdue || 0) + '</span><span class="profile-pstat-label">Overdue</span></div>';
-  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
+  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.overdue || 0) > 0 ? 'var(--red)' : 'var(--green)') + '\">' + (srsStats.overdue || 0) + '</span><span class="profile-pstat-label">Overdue</span></div>';
+  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '\">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
   h += '</div></div>';
 
   // Review Forecast (compact)
@@ -674,7 +674,7 @@ function renderProfileProgress() {
         if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
       }
     }
-    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, ALL_WORDS ? ALL_WORDS.length : 1)) * 100)) + '%;background:' + (ii < 2 ? 'var(--gold)' : ii < 3 ? 'var(--green)' : 'var(--blue)') + '"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
+    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, ALL_WORDS ? ALL_WORDS.length : 1)) * 100)) + '%;background:' + (ii < 2 ? 'var(--gold)' : ii < 3 ? 'var(--green)' : 'var(--blue)') + '\"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
   }
   h += '</div>';
 
@@ -1222,6 +1222,38 @@ function wireProfileSectionEvents() {
 
 // ── Loading/rendering guard to prevent race conditions ──
 let _renderingProfile = false;
+let _profileRenderAttempts = 0;
+let _maxProfileRenderAttempts = 2;
+let _profileRenderTimer = null;
+let _profileShowingFallback = false;
+
+/**
+ * Render a meaningful fallback in the skeleton container when profile
+ * rendering fails. This ensures the profile page NEVER appears blank.
+ * 
+ * Strategy: instead of hiding the skeleton (which leaves the profile
+ * container empty), we replace the skeleton's inner content with an
+ * informative error state that includes a retry button.
+ */
+function _showProfileFallback() {
+  // Mark that fallback is active so the finally block won't hide it
+  _profileShowingFallback = true;
+  var skel = document.getElementById('profile-skeleton');
+  if (!skel) return;
+  // Replace skeleton placeholder shapes with a fallback message
+  skel.innerHTML =
+    '<div class="profile-skeleton-card" style="text-align:center;padding:40px 20px">' +
+      '<div style="font-size:48px;margin-bottom:12px;opacity:0.6">📖</div>' +
+      '<div style="font-size:16px;color:var(--gold-light,#e8c97a);margin-bottom:8px;font-weight:500">Bayan Profile</div>' +
+      '<p style="font-size:12px;color:var(--text-muted,#8a8070);line-height:1.5;margin:0 auto 16px;max-width:280px">' +
+        'Your profile was temporarily unavailable. Tap retry to try again.' +
+      '</p>' +
+      '<button class="btn" onclick="if(window.__profileUI&&window.__profileUI.renderFullProfile)window.__profileUI.renderFullProfile()" ' +
+        'style="padding:8px 20px;font-size:12px;min-height:36px;cursor:pointer">↻ Retry</button>' +
+    '</div>';
+  // Keep the skeleton visible (active class) so the fallback shows
+  skel.classList.add('active');
+}
 
 function _showProfileSkeleton() {
   var skel = document.getElementById('profile-skeleton');
@@ -1240,18 +1272,44 @@ function _hideProfileSkeleton() {
  *   - Double render calls (idempotency via _renderingProfile flag)
  *   - Null references (guarded DOM access)
  *   - async race between renderProfileView and updateAuthUI
+ *   - ANY rendering error (shows fallback instead of blank page)
+ *   - Rendering timeout (10s safeguard timer)
  */
 async function renderFullProfile(preferredTab) {
-  // Idempotency guard — prevent concurrent renders
-  if (_renderingProfile) return;
+  // Idempotency guard — prevent concurrent renders.
+  // If a previous render is stuck (e.g., timed out), allow retry.
+  if (_renderingProfile) {
+    if (_profileRenderAttempts < _maxProfileRenderAttempts) {
+      _renderingProfile = false;
+    } else {
+      return;
+    }
+  }
   _renderingProfile = true;
+  _profileRenderAttempts++;
 
   // Reset to Account tab by default
   _activeProfileTab = preferredTab || 'account';
 
   try {
+    // Cancel any stale render timer
+    if (_profileRenderTimer) {
+      clearTimeout(_profileRenderTimer);
+      _profileRenderTimer = null;
+    }
+
     // Show loading skeleton immediately — never leaves the view blank
     _showProfileSkeleton();
+
+    // Set a safeguard timer: if rendering takes more than 10s total,
+    // show fallback so the profile is never stuck at skeleton forever
+    _profileRenderTimer = setTimeout(function () {
+      if (_renderingProfile) {
+        console.warn('[profile] renderFullProfile timed out (>10s) — showing fallback');
+        _showProfileFallback();
+        _renderingProfile = false;
+      }
+    }, 10000);
 
     // Wait for auth to be ready (up to 5 seconds)
     var authReady = false;
@@ -1300,17 +1358,43 @@ async function renderFullProfile(preferredTab) {
       }
     }
   } catch (e) {
-    // Defensive: if anything fails, ensure skeleton is hidden
-    // so the user doesn't see a stuck loading state
+    // Defensive: if anything fails, render fallback content
+    // so the user NEVER sees a blank profile page.
     console.warn('[profile] renderFullProfile error:', e);
+
+    // Auto-retry once if this is the first attempt
+    if (_profileRenderAttempts < _maxProfileRenderAttempts) {
+      console.log('[profile] Auto-retrying render in 1s...');
+      _renderingProfile = false; // Release guard for retry
+      var retryTab = _activeProfileTab;
+      await new Promise(function (r) { setTimeout(r, 1000); });
+      // Only retry if profile view is still the active view
+      if (typeof currentView === 'undefined' || currentView === 'profile') {
+        renderFullProfile(retryTab);
+        return; // Don't fall through to finally — retry handles cleanup
+      }
+    } else {
+      // Render fallback UI so the profile is never blank
+      console.warn('[profile] Max retries reached — showing fallback UI');
+      _showProfileFallback();
+    }
   } finally {
+    // Ensure safeguard timer is cleared
+    if (_profileRenderTimer) {
+      clearTimeout(_profileRenderTimer);
+      _profileRenderTimer = null;
+    }
     // Always hide skeleton and release guard
-    _hideProfileSkeleton();
+    // BUT: if fallback was shown (on final failure), keep it visible
+    if (!_profileShowingFallback) {
+      _hideProfileSkeleton();
+    }
+    _profileShowingFallback = false;
     _renderingProfile = false;
   }
 }
 
-// ── Helpers ───────────────────────────────────────────────────
+// ── Helper ────────────────────────────────────────────────────
 
 function hideProfileMessage(el) {
   if (!el) return;
