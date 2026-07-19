@@ -796,239 +796,25 @@ getResults: function () { return _safeguardResults; },
         <div id="wordlist-container" role="list" aria-label="Vocabulary list"></div>
       </section>
 
-      <!-- ── READING MODE VIEW ── -->
+            <!-- ── READING MODE VIEW (MVP) ── -->
       <section class="mode-view" id="view-reader" aria-label="Quran Reading Mode">
-        <div class="reader-container">
-          <!-- Surah Browser (left column / top row on mobile) -->
-          <div class="reader-sidebar" id="reader-sidebar">
-            <div class="reader-sidebar-header">
-              <div class="reader-sidebar-title"><span aria-hidden="true">📖</span> Surahs</div>
-              <button class="reader-close-btn" id="reader-back-to-list" type="button" title="Browse surahs" aria-label="Browse surahs">📋</button>
-            </div>
-            <div class="reader-juz-row">
-              <select class="reader-juz-select" id="reader-juz-select" aria-label="Filter by juz">
-                <option value="0">📖 All Juz'</option>
-                <option value="1">Juz' 1 — الم (Alif Lam Meem)</option>
-                <option value="2">Juz' 2 — سيقول (Sayaqool)</option>
-                <option value="3">Juz' 3 — تلك الرسل (Tilka Ar-Rusul)</option>
-                <option value="4">Juz' 4 — لن تنالوا (Lan Tanalu)</option>
-                <option value="5">Juz' 5 — والمحصنات (Wal-Muhsanat)</option>
-                <option value="6">Juz' 6 — لا يحب الله (La Yuhibb Allah)</option>
-                <option value="7">Juz' 7 — وإذا سمعوا (Wa Itha Sami'u)</option>
-                <option value="8">Juz' 8 — ولو أننا (Wa Law Annana)</option>
-                <option value="9">Juz' 9 — قال الملأ (Qala Al-Mala'u)</option>
-                <option value="10">Juz' 10 — واعلموا (Wa A'lamu)</option>
-                <option value="11">Juz' 11 — يعتذرون (Ya'tadhirun)</option>
-                <option value="12">Juz' 12 — وما من دابة (Wa Ma Min Da'bbah)</option>
-                <option value="13">Juz' 13 — وما أبرئ (Wa Ma Ubari'u)</option>
-                <option value="14">Juz' 14 — الحجر (Al-Hijr)</option>
-                <option value="15">Juz' 15 — سبحان (Subhan)</option>
-                <option value="16">Juz' 16 — قل أوحي (Qul Oohi)</option>
-                <option value="17">Juz' 17 — اقترب (Iqtaraba)</option>
-                <option value="18">Juz' 18 — قد أفلح (Qad Aflaha)</option>
-                <option value="19">Juz' 19 — وقال الذين (Wa Qalalladhina)</option>
-                <option value="20">Juz' 20 — أمن خلق (A Man Khalaqa)</option>
-                <option value="21">Juz' 21 — اتل ما أوحي (Utlu Ma Oohiya)</option>
-                <option value="22">Juz' 22 — ومن يقنت (Wa Ma Yaqnut)</option>
-                <option value="23">Juz' 23 — وما لي (Wa Ma Liya)</option>
-                <option value="24">Juz' 24 — فمن أظلم (Fa Man Azlamu)</option>
-                <option value="25">Juz' 25 — إليه يرد (Ilayhi Yuraddu)</option>
-                <option value="26">Juz' 26 — حم (Ha Meem)</option>
-                <option value="27">Juz' 27 — قال فما خطبكم (Qala Fa Ma Khatbukum)</option>
-                <option value="28">Juz' 28 — قد سمع (Qad Sami'a)</option>
-                <option value="29">Juz' 29 — تبارك (Tabarak)</option>
-                <option value="30">Juz' 30 — عم ('Amma)</option>
-              </select>
-            </div>
-            <div class="reader-search-row">
-              <input class="reader-search-input" id="reader-search-input" type="text" placeholder="Search surah…" aria-label="Search surah" />
-            </div>
-            <div class="reader-surah-list" id="reader-surah-list" role="list">
-              <!-- Rendered dynamically by renderSurahBrowser() -->
-            </div>
-          </div>
-
-          <!-- Reading Area (right column) -->
-          <div class="reader-main">
-            <!-- Surah Title & Comprehension Header -->
-            <div class="reader-top-bar" id="reader-top-bar">
-              <div class="reader-top-left">
-                <button class="reader-nav-btn" id="reader-prev-surah" type="button" title="Previous surah" aria-label="Previous surah">‹</button>
-                <h2 class="reader-title" id="reader-surah-title">Select a Surah</h2>
-                <button class="reader-nav-btn" id="reader-next-surah" type="button" title="Next surah" aria-label="Next surah">›</button>
-              </div>
-              <div class="reader-top-actions">
-                <!-- Reading progress indicator -->
-                <span class="reader-verse-progress" id="reader-verse-progress"></span>
-                <div class="reader-jump-group">
-                  <button class="reader-nav-btn reader-nav-sm" id="reader-prev-verse" type="button" title="Previous verse" aria-label="Previous verse">‹</button>
-                  <input class="reader-jump-input" id="reader-jump-input" type="number" min="1" placeholder="Verse #" aria-label="Jump to verse" />
-                  <button class="reader-jump-btn" id="reader-jump-btn" type="button">Go</button>
-                  <button class="reader-nav-btn reader-nav-sm" id="reader-next-verse" type="button" title="Next verse" aria-label="Next verse">›</button>
-                </div>
-              </div>
-            </div>
-            <!-- Reading progress bar -->
-            <div class="reader-progress-row">
-              <div class="reader-progress-bar-wrap" id="reader-progress-bar-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Reading progress">
-                <div class="reader-progress-fill" id="reader-progress-fill" style="width:0%"></div>
-              </div>
-              <span class="reader-remaining-verses" id="reader-remaining-verses" aria-live="polite"></span>
-            </div>
-            </div>
-
-            <div class="reader-surah-comp" id="reader-surah-comp" aria-live="polite">
-              <!-- Rendered dynamically by renderSurahComprehensionHeader() -->
-            </div>
-
-            <!-- Legend -->
-            <div class="reader-legend" id="reader-legend">
-              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-mastered"></span>Mastered</span>
-              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-known"></span>Known</span>
-              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-learning"></span>Learning</span>
-              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-seen"></span>Seen</span>
-              <span class="reader-legend-item"><span class="reader-legend-dot reader-token-unknown"></span>New</span>
-            </div>
-
-            <!-- Reader Filters -->
-            <div class="reader-filter-bar" id="reader-filter-bar">
-              <button class="reader-filter-btn" data-filter="hideTranslation" type="button" title="Hide translations" aria-label="Hide translations">🌐</button>
-              <button class="reader-filter-btn" data-filter="showUnknownOnly" type="button" title="Show unknown words only" aria-label="Show unknown words only">❓</button>
-              <button class="reader-filter-btn" data-filter="focusMode" type="button" title="Focus mode — dim verses" aria-label="Focus mode — dim verses">🎯</button>
-              <button class="reader-filter-btn" data-filter="nightMode" type="button" title="Night mode" aria-label="Night mode">🌙</button>
-            </div>
-
-            <!-- Reading Insights Panel -->
-            <div class="reader-insights" id="reader-insights" style="display:none">
-              <!-- Rendered dynamically by renderReadingInsightsPanel() -->
-            </div>
-
-            <!-- Verses Container -->
-            <div class="reader-verses" id="reader-verses" tabindex="-1">
-              <!-- Rendered dynamically by renderAyahs() -->
-            </div>
-            <!-- Floating action buttons -->
-            <div class="reader-float-actions" id="reader-float-actions">
-              <button class="reader-float-btn" id="reader-back-to-top" type="button" title="Back to top" aria-label="Back to top">↑</button>
-            </div>
-          </div>
+        <!-- Surah Browser (shown by default) -->
+        <div class="reader-surah-list" id="reader-surah-list">
+          <!-- Rendered dynamically by renderSurahBrowser() -->
         </div>
 
-        <!-- Word Detail Bottom Sheet -->
-        <div class="reader-sheet-overlay" id="reader-word-sheet-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Word details">
-          <div class="reader-sheet-panel" id="reader-word-sheet-panel" style="display:none">
-            <!-- Close button -->
-            <div class="reader-sheet-handle">
-              <div class="reader-sheet-handle-bar"></div>
-            </div>
-            <button class="reader-sheet-close-btn" id="reader-sheet-close" type="button" aria-label="Close word details">✕</button>
-
-            <!-- Arabic & Meaning Header -->
-            <div class="reader-sheet-header">
-              <div class="reader-sheet-arabic-wrap">
-                <div class="reader-sheet-arabic" id="sheet-word-arabic" lang="ar" dir="rtl"></div>
-                <div class="reader-sheet-translit" id="sheet-word-translit"></div>
-              </div>
-              <div class="reader-sheet-mastery-wrap">
-                <div class="reader-sheet-badge" id="sheet-word-mastery">🆕 New</div>
-              </div>
-            </div>
-            <div class="reader-sheet-meaning" id="sheet-word-meaning"></div>
-
-            <!-- Quick Stats Row -->
-            <div class="reader-sheet-stats">
-              <div class="reader-sheet-stat-item">
-                <span class="reader-sheet-stat-label">Root</span>
-                <span class="reader-sheet-stat-value" id="sheet-root" lang="ar" dir="rtl">—</span>
-              </div>
-              <div class="reader-sheet-stat-item">
-                <span class="reader-sheet-stat-label">Pattern</span>
-                <span class="reader-sheet-stat-value" id="sheet-pattern">—</span>
-              </div>
-              <div class="reader-sheet-stat-item">
-                <span class="reader-sheet-stat-label">Type</span>
-                <span class="reader-sheet-stat-value" id="sheet-type">—</span>
-              </div>
-              <div class="reader-sheet-stat-item">
-                <span class="reader-sheet-stat-label">Occurrences</span>
-                <span class="reader-sheet-stat-value" id="sheet-occ">—</span>
-              </div>
-              <div class="reader-sheet-stat-item">
-                <span class="reader-sheet-stat-label">Frequency</span>
-                <span class="reader-sheet-stat-value" id="sheet-freq">—</span>
-              </div>
-              <div class="reader-sheet-stat-item">
-                <span class="reader-sheet-stat-label">Difficulty</span>
-                <span class="reader-sheet-stat-value" id="sheet-difficulty">—</span>
-              </div>
-            </div>
-
-            <!-- Root Meaning (shown when available) -->
-            <div class="reader-sheet-root-meaning" id="sheet-root-meaning-container" style="display:none">
-              <span class="reader-sheet-root-meaning-label">Root Meaning:</span>
-              <span id="sheet-root-meaning"></span>
-            </div>
-
-            <!-- SRS Progress -->
-            <div class="reader-sheet-section">
-              <div class="reader-sheet-section-title">📊 Learning Progress</div>
-              <div class="reader-sheet-progress-grid">
-                <div class="reader-sheet-progress-item">
-                  <span class="reader-sheet-progress-value" id="sheet-srs-stage">🆕 New</span>
-                  <span class="reader-sheet-progress-label">Status</span>
-                </div>
-                <div class="reader-sheet-progress-item">
-                  <span class="reader-sheet-progress-value" id="sheet-next-review">—</span>
-                  <span class="reader-sheet-progress-label">Next Review</span>
-                </div>
-                <div class="reader-sheet-progress-item">
-                  <span class="reader-sheet-progress-value" id="sheet-retention">—</span>
-                  <span class="reader-sheet-progress-label">Retention</span>
-                </div>
-                <div class="reader-sheet-progress-item">
-                  <span class="reader-sheet-progress-value" id="sheet-total-reviews">0</span>
-                  <span class="reader-sheet-progress-label">Reviews</span>
-                </div>
-                <div class="reader-sheet-progress-item">
-                  <span class="reader-sheet-progress-value" id="sheet-foundation-lesson">—</span>
-                  <span class="reader-sheet-progress-label">Foundation</span>
-                </div>
-                <div class="reader-sheet-progress-item">
-                  <span class="reader-sheet-progress-value" id="sheet-priority">—</span>
-                  <span class="reader-sheet-progress-label">Priority</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Root Family -->
-            <div class="reader-sheet-section" id="sheet-root-family-section">
-              <div class="reader-sheet-section-title">🌱 Root Family</div>
-              <div class="reader-sheet-chips" id="sheet-root-family"></div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="reader-sheet-section">
-              <div class="reader-sheet-section-title">🎯 Actions</div>
-              <div class="reader-sheet-actions">
-                <button class="reader-sheet-action-btn" id="reader-sheet-btn-bookmark" type="button">☆ Bookmark</button>
-                <button class="reader-sheet-action-btn" id="reader-sheet-btn-explore" type="button">📖 Open Explorer</button>
-              </div>
-              <!-- Rating buttons (only shown if word has been studied) -->
-              <div class="reader-sheet-rate-row" id="reader-sheet-btn-review">
-                <div class="reader-sheet-rate-label">Rate your recall:</div>
-                <div class="reader-sheet-rate-btns">
-                  <button class="reader-sheet-rate-btn reader-sheet-rate-again" id="reader-sheet-rate-again" type="button" title="Again — forgot the word">Again</button>
-                  <button class="reader-sheet-rate-btn reader-sheet-rate-hard" id="reader-sheet-rate-hard" type="button" title="Hard — difficult to recall">Hard</button>
-                  <button class="reader-sheet-rate-btn reader-sheet-rate-good" id="reader-sheet-rate-good" type="button" title="Good — remembered correctly">Good</button>
-                  <button class="reader-sheet-rate-btn reader-sheet-rate-easy" id="reader-sheet-rate-easy" type="button" title="Easy — effortless recall">Easy</button>
-                </div>
-              </div>
-            </div>
+        <!-- Reading View (shown when a surah is selected) -->
+        <div class="reader-main" id="reader-main" style="display:none">
+          <div class="reader-top-bar">
+            <button class="reader-back-btn" id="reader-back-to-list" type="button" aria-label="Back to surah list">← Back</button>
+            <h2 class="reader-title" id="reader-surah-title">Select a Surah</h2>
+          </div>
+          <div class="reader-verses" id="reader-verses">
+            <!-- Rendered dynamically by renderAyahs() -->
           </div>
         </div>
       </section>
-
-      <!-- ── ANALYTICS VIEW ── -->
+<!-- ── ANALYTICS VIEW ── -->
       <section class="mode-view" id="view-analytics" aria-label="Learning Analytics">
         <div class="analytics-tabs" role="tablist" aria-label="Analytics sections">
           <button class="analytics-tab analytics-tab-active" data-analytics-tab="overview" type="button" role="tab" aria-selected="true">Overview</button>

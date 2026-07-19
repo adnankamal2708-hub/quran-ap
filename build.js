@@ -111,7 +111,6 @@ const UI_FILES = (function () {
       'js/ui/analytics-ui.js',
       'js/ui/dashboard.js',
       'js/ui/reader.js',
-      'js/ui/reader-word-sheet.js',
   'js/ui/learn-screen.js',
     ];
   }
