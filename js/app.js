@@ -762,7 +762,16 @@ function wireEvents() {
     var w = getCurrentWord();
     if (w) showWordContent(w);
   });
-  safeOnClick('qa-root-family', highlightRootBox);
+  safeOnClick('qa-root-family', function() {
+    var w = getCurrentWord();
+    if (w && w.rootFamily && w.rootFamily.length > 0 && typeof openExplorer === 'function') {
+      // Open the Vocabulary Explorer which has full root family navigation
+      openExplorer(w);
+    } else if (w) {
+      // Fallback: scroll to root box if no root family data
+      highlightRootBox();
+    }
+  });
   safeOnClick('qa-bookmark', toggleBookmark);
 
   // Tafsir button

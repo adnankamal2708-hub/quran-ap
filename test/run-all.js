@@ -32,6 +32,9 @@ var TESTS = [
   "reader-quran.test.js",
   "services.test.js",
   "foundation-course.test.js",
+  "profile-ui.test.js",
+  "explorer.test.js",
+  "auth-ui.test.js",
   "regression.test.js",
 ];
 var totalPassed = 0;
