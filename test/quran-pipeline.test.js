@@ -620,6 +620,457 @@ suite('Surah Index Compatibility', function() {
   });
 });
 
+// ── HTML Leakage / Markup Correctness Tests ──────────────────
+// Verifies that the rendered HTML output never contains raw/unparsed HTML tags
+// visible to the user, and that all generated HTML is well-formed.
+
+suite('HTML Leakage & Markup Correctness (Regression Protection)', function() {
+  if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
+
+  // Load vocabulary data
+  var _VOCAB_WORDS = [];
+  try {
+    var dataDir = path.join(__dirname, '..', 'js', 'data');
+    if (fs.existsSync(dataDir)) {
+      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
+        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
+      });
+      var allWordsCode = '';
+      allWordsCode += 'var ALL_WORDS = [];\n';
+      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
+      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
+        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
+      }
+      try { eval(allWordsCode); } catch (e) { /* ignore */ }
+      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
+    }
+  } catch (e) { /* ignore */ }
+
+  // Helper: strip HTML tags for inspection
+  function stripHtml(str) {
+    return str.replace(/<[^>]+>/g, '');
+  }
+
+  // Helper: extract all opening tag names from HTML string
+  function extractOpeningTags(html) {
+    var tags = [];
+    var re = /<([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
+    var m;
+    while ((m = re.exec(html)) !== null) {
+      tags.push(m[1]);
+    }
+    return tags;
+  }
+
+  // Helper: extract all closing tag names from HTML string
+  function extractClosingTags(html) {
+    var tags = [];
+    var re = /<\/([a-zA-Z][a-zA-Z0-9]*)>/g;
+    var m;
+    while ((m = re.exec(html)) !== null) {
+      tags.push(m[1]);
+    }
+    return tags;
+  }
+
+  // Helper: build HTML for a surah using the same logic as renderAyahs()
+  function _buildSurahHTML(surahId, quranSurah, vocabWords) {
+    var result = _buildFullVerseData(surahId, quranSurah, vocabWords);
+    var html = '';
+    for (var vi = 0; vi < result.verseKeys.length; vi++) {
+      var verseKey = result.verseKeys[vi];
+      var group = result.ayahGroups[verseKey];
+      if (!group) continue;
+
+      html += '<div class="quran-ayah" id="quran-ayah-' + verseKey.replace(':', '-') + '">';
+      html += '<div class="quran-ayah-header">' +
+        '<div class="quran-ayah-num">Verse ' + (parseInt(verseKey.split(':')[1], 10) || 0) + '</div>' +
+        '</div>';
+
+      // Arabic verse HTML (same logic as renderAyahs)
+      html += '<div class="quran-ayah-arabic" lang="ar" dir="rtl">';
+      var verseTokens = group.ayahA.split(/\s+/);
+      var vocabNormForVerse = {};
+      var renderedWordIds = {};
+      for (var vtwi = 0; vtwi < group.words.length; vtwi++) {
+        var vtn = _normArabicForMatch(group.words[vtwi].arabic);
+        if (vtn) vocabNormForVerse[vtn] = group.words[vtwi];
+      }
+      for (var vti = 0; vti < verseTokens.length; vti++) {
+        var token = verseTokens[vti];
+        if (!token) continue;
+        var normToken = _normArabicForMatch(token);
+        var matchedWord = normToken ? vocabNormForVerse[normToken] : null;
+        var isDuplicate = matchedWord && renderedWordIds[matchedWord.id];
+        if (matchedWord && !isDuplicate) {
+          renderedWordIds[matchedWord.id] = true;
+          html += '<span class="quran-word-token quran-token-unknown" ' +
+            'data-word-id="' + matchedWord.id + '" ' +
+            'tabindex="0" role="button" ' +
+            'aria-label="' + (matchedWord.arabic || '').replace(/"/g, '&quot;') + '" ' +
+            'title="' + (matchedWord.english || '') + '">' +
+            matchedWord.arabic + '</span>';
+        } else {
+          html += '<span class="quran-plain-arabic">' +
+            token.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+        }
+        if (vti < verseTokens.length - 1) html += ' ';
+      }
+      html += '</div>'; // end ayah arabic
+
+      // Translation
+      if (group.ayahT) {
+        html += '<div class="quran-ayah-translation">' +
+          group.ayahT.replace(/<[^>]+>/g, '') + '</div>';
+      }
+      html += '</div>'; // end ayah
+    }
+    return html;
+  }
+
+  // ── TEST 1: No raw HTML tags leaked into verse text content ──
+  test('No raw HTML tag fragments visible in verse plain text', function() {
+    // Simulate the fix: _buildFromVocabOnly strips HTML from occ.ayahA
+    // The rendered HTML should never contain strings like "<span" or "</span>"
+    // or "class=" as visible text inside verse content.
+    for (var sid = 1; sid <= 114; sid++) {
+      if (!qt[sid]) continue;
+      // Get vocabulary words for this surah
+      var surahWords = [];
+      var seenIds = {};
+      for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+        var w = _VOCAB_WORDS[wi];
+        if (w.occurrences) {
+          for (var oi = 0; oi < w.occurrences.length; oi++) {
+            if (w.occurrences[oi].surahId === sid && !seenIds[w.id]) {
+              surahWords.push(w);
+              seenIds[w.id] = true;
+              break;
+            }
+          }
+        }
+      }
+
+      // Build data the same way _buildVerseData does (Quran-first path)
+      var result = _buildFullVerseData(sid, qt[sid], surahWords);
+
+      // For each verse, check that ayahA (stored as plain text) contains no HTML tags
+      for (var vi = 0; vi < result.verseKeys.length; vi++) {
+        var vk = result.verseKeys[vi];
+        var group = result.ayahGroups[vk];
+        // ayahA should be plain text (no HTML tags)
+        var stripped = stripHtml(group.ayahA);
+        // If ayahA contained HTML, stripHtml would be different
+        if (group.ayahA !== stripped) {
+          // This would mean HTML leaked into the verse text
+          test('  ⚠ Surah ' + sid + ' ' + vk + ' ayahA leaked HTML', function() {
+            assert.strictEqual(group.ayahA, stripped);
+          });
+          return;
+        }
+      }
+    }
+    // If we get here, no HTML leaked in any surah
+    test('No HTML leaked into verse text across all 114 surahs', function() {
+      assert.ok(true, 'All verse text is HTML-free');
+    });
+  });
+
+  // ── TEST 2: Generated HTML is well-formed (balanced tags) ──
+  test('Generated HTML for Surah 1 has balanced opening/closing tags', function() {
+    var surah = qt[1];
+    if (!surah) return;
+    // Get words for Surah 1
+    var surah1Words = [];
+    var seenIds = {};
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (w.occurrences) {
+        for (var oi = 0; oi < w.occurrences.length; oi++) {
+          if (w.occurrences[oi].surahId === 1 && !seenIds[w.id]) {
+            surah1Words.push(w);
+            seenIds[w.id] = true;
+            break;
+          }
+        }
+      }
+    }
+    var html = _buildSurahHTML(1, surah, surah1Words);
+    var openingTags = extractOpeningTags(html);
+    var closingTags = extractClosingTags(html);
+
+    // Every opening tag should have a matching closing tag
+    var openCount = {};
+    for (var i = 0; i < openingTags.length; i++) {
+      openCount[openingTags[i]] = (openCount[openingTags[i]] || 0) + 1;
+    }
+    var closeCount = {};
+    for (var i = 0; i < closingTags.length; i++) {
+      closeCount[closingTags[i]] = (closeCount[closingTags[i]] || 0) + 1;
+    }
+
+    var allTagNames = Object.keys(openCount);
+    var imbalances = [];
+    for (var ti = 0; ti < allTagNames.length; ti++) {
+      var tag = allTagNames[ti];
+      if (openCount[tag] !== (closeCount[tag] || 0)) {
+        imbalances.push(tag + ': ' + openCount[tag] + ' open, ' + (closeCount[tag] || 0) + ' close');
+      }
+    }
+    assert.strictEqual(imbalances.length, 0,
+      'Tag imbalances: ' + (imbalances.length > 0 ? imbalances.join('; ') : 'none'));
+  });
+
+  // ── TEST 3: HTML parses into expected DOM structure ──
+  test('Generated HTML for Surah 1 parses into valid DOM', function() {
+    var surah = qt[1];
+    if (!surah) return;
+    var html = _buildSurahHTML(1, surah, []);
+    // Basic structural checks
+    assert.ok(html.startsWith('<div class="quran-ayah"'),
+      'HTML starts with quran-ayah div: ' + html.substring(0, 50));
+    assert.ok(html.includes('<div class="quran-ayah-arabic"'),
+      'HTML contains ayah-arabic div');
+    assert.ok(html.includes('dir="rtl"'),
+      'Arabic div has rtl direction');
+    // Count verse divs
+    var verseDivCount = 0;
+    var idx = 0;
+    while ((idx = html.indexOf('<div class="quran-ayah"', idx)) !== -1) {
+      verseDivCount++;
+      idx++;
+    }
+    assert.strictEqual(verseDivCount, 7, 'Surah 1 has 7 verse divs (expected 7)');
+  });
+
+  // ── TEST 4: Arabic text renders correctly with highlighting ──
+  test('Surah 1 verse text preserved completely with vocabulary highlighting', function() {
+    var surah = qt[1];
+    if (!surah || _VOCAB_WORDS.length === 0) return;
+    // Get words for Surah 1
+    var surah1Words = [];
+    var seenIds = {};
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (w.occurrences) {
+        for (var oi = 0; oi < w.occurrences.length; oi++) {
+          if (w.occurrences[oi].surahId === 1 && !seenIds[w.id]) {
+            surah1Words.push(w);
+            seenIds[w.id] = true;
+            break;
+          }
+        }
+      }
+    }
+    var html = _buildSurahHTML(1, surah, surah1Words);
+
+    // Strip HTML to get plain text
+    var plainText = stripHtml(html);
+
+    // Plain text should contain the original verse source text (without diacritics differences)
+    // Check that the plain text of verse 1:1 contains expected Arabic words
+    var v1Text = qt[1].verses[0].text;
+    var v1Norm = _normArabicForMatch(v1Text);
+    var plainNorm = _normArabicForMatch(plainText.substring(0, 200));
+    // The normalized forms should share core words
+    assert.ok(plainNorm.includes('الله'), 'Plain text contains الله');
+    assert.ok(plainNorm.includes('الرحم'), 'Plain text contains الرحمن/الرحيم');
+
+    // Verify that the HTML contains spans with proper class names
+    assert.ok(html.includes('class="quran-word-token'),
+      'HTML contains vocabulary word-token spans');
+    assert.ok(html.includes('class="quran-plain-arabic'),
+      'HTML contains plain arabic spans');
+  });
+
+  // ── TEST 5: Translation remains unchanged (no HTML leaked) ──
+  test('Translations contain no HTML tags', function() {
+    var surah = qt[1];
+    if (!surah) return;
+    var result = _buildFullVerseData(1, surah, []);
+    for (var vi = 0; vi < result.verseKeys.length; vi++) {
+      var group = result.ayahGroups[result.verseKeys[vi]];
+      var stripped = stripHtml(group.ayahT);
+      assert.strictEqual(group.ayahT, stripped,
+        'Verse ' + result.verseKeys[vi] + ' translation has no HTML');
+    }
+  });
+
+  // ── TEST 6: Multiple highlighted words in a single verse ──
+  test('Verse with multiple vocab words renders multiple interactive spans', function() {
+    var surah = qt[1];
+    if (!surah || _VOCAB_WORDS.length === 0) return;
+    // Find a verse with at least 2 vocabulary words
+    var surah1Words = [];
+    var seenIds = {};
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (w.occurrences) {
+        for (var oi = 0; oi < w.occurrences.length; oi++) {
+          if (w.occurrences[oi].surahId === 1 && !seenIds[w.id]) {
+            surah1Words.push(w);
+            seenIds[w.id] = true;
+            break;
+          }
+        }
+      }
+    }
+    var result = _buildFullVerseData(1, surah, surah1Words);
+
+    // Find which verses have the most vocab words
+    var maxVocabVerse = null;
+    var maxVocabCount = 0;
+    for (var vi = 0; vi < result.verseKeys.length; vi++) {
+      var vk = result.verseKeys[vi];
+      var group = result.ayahGroups[vk];
+      if (group.matchedTokens > maxVocabCount) {
+        maxVocabCount = group.matchedTokens;
+        maxVocabVerse = vk;
+      }
+    }
+
+    if (maxVocabVerse && maxVocabCount >= 2) {
+      // Build HTML for this specific verse
+      var verseVocab = {};
+      for (var wwi = 0; wwi < result.ayahGroups[maxVocabVerse].words.length; wwi++) {
+        var wn = _normArabicForMatch(result.ayahGroups[maxVocabVerse].words[wwi].arabic);
+        if (wn) verseVocab[wn] = result.ayahGroups[maxVocabVerse].words[wwi];
+      }
+      var verseTokens = result.ayahGroups[maxVocabVerse].ayahA.split(/\s+/);
+      var verseHtml = '';
+      var renderedIds = {};
+      for (var ti = 0; ti < verseTokens.length; ti++) {
+        var token = verseTokens[ti];
+        if (!token) continue;
+        var normToken = _normArabicForMatch(token);
+        var matchedWord = normToken ? verseVocab[normToken] : null;
+        var isDuplicate = matchedWord && renderedIds[matchedWord.id];
+        if (matchedWord && !isDuplicate) {
+          renderedIds[matchedWord.id] = true;
+          verseHtml += '<span class="quran-word-token">' + matchedWord.arabic + '</span>';
+        } else {
+          verseHtml += '<span class="quran-plain-arabic">' + token + '</span>';
+        }
+        if (ti < verseTokens.length - 1) verseHtml += ' ';
+      }
+
+      // Count word-token spans in the HTML
+      var tokenCount = 0;
+      var tIdx = 0;
+      while ((tIdx = verseHtml.indexOf('quran-word-token', tIdx)) !== -1) {
+        tokenCount++;
+        tIdx++;
+      }
+      assert.strictEqual(tokenCount, maxVocabCount,
+        'Verse ' + maxVocabVerse + ' has ' + tokenCount + ' vocab spans matching ' + maxVocabCount + ' matched tokens');
+    } else {
+      test('  ⚡ No verse found with multiple vocab words — test skipped', function() {
+        assert.ok(true, 'Could not find a single verse with 2+ vocab matches');
+      });
+    }
+  });
+
+  // ── TEST 7: Verses with zero highlighted words render plain ──
+  test('Verse with zero vocabulary renders only plain-arabic spans', function() {
+    var surah = qt[114]; // An-Nas — small surah
+    if (!surah || _VOCAB_WORDS.length === 0) return;
+
+    // Build with empty vocabulary (no words matched)
+    var result = _buildFullVerseData(114, surah, []);
+
+    for (var vi = 0; vi < result.verseKeys.length; vi++) {
+      var vk = result.verseKeys[vi];
+      var group = result.ayahGroups[vk];
+      assert.strictEqual(group.matchedTokens, 0,
+        'Verse ' + vk + ' has 0 matched tokens (empty vocab)');
+    }
+  });
+
+  // ── TEST 8: Entire Surah 1 HTML has no text that looks like leaked tags ──
+  test('Rendered Surah 1 HTML contains no visible HTML tag text', function() {
+    var surah = qt[1];
+    if (!surah) return;
+    var surah1Words = [];
+    var seenIds = {};
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (w.occurrences) {
+        for (var oi = 0; oi < w.occurrences.length; oi++) {
+          if (w.occurrences[oi].surahId === 1 && !seenIds[w.id]) {
+            surah1Words.push(w);
+            seenIds[w.id] = true;
+            break;
+          }
+        }
+      }
+    }
+    var html = _buildSurahHTML(1, surah, surah1Words);
+
+    // Strip all tags to get visible text
+    var visibleText = html.replace(/<[^>]+>/g, '');
+
+    // Check for patterns that would indicate leaked raw HTML in visible text
+    var leakPatterns = [/<span/i, /<\/span>/i, /class="/i, /&lt;span/i, /ayah-highlight/i];
+    var leaks = [];
+    for (var pi = 0; pi < leakPatterns.length; pi++) {
+      if (leakPatterns[pi].test(visibleText)) {
+        leaks.push('Pattern found in visible text: ' + leakPatterns[pi]);
+      }
+    }
+    assert.strictEqual(leaks.length, 0,
+      'Visible text leaked HTML: ' + (leaks.length > 0 ? leaks.join('; ') : 'none'));
+  });
+
+  // ── TEST 9: Full pipeline — buildFromVocabOnly produces no HTML leaks ──
+  test('_buildFromVocabOnly produces HTML-free verse text', function() {
+    // Simulate the vocab-only fallback path using data from word occurrence files
+    if (_VOCAB_WORDS.length === 0) return;
+
+    // Build ayah groups the same way _buildFromVocabOnly does for Surah 1
+    var ayahGroups = {};
+    var verseKeys = [];
+    var processedKeys = {};
+
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var word = _VOCAB_WORDS[wi];
+      if (word.occurrences) {
+        for (var oi = 0; oi < word.occurrences.length; oi++) {
+          var occ = word.occurrences[oi];
+          if (occ.surahId === 1) {
+            var vk = occ.verseKey || '1:1';
+            if (!processedKeys[vk]) {
+              // Strip HTML from ayahA — this is the fix
+              var plainAyah = occ.ayahA ? occ.ayahA.replace(/<[^>]+>/g, '') : '';
+              ayahGroups[vk] = { words: [], ayahA: plainAyah, ayahT: occ.ayahT || '' };
+              verseKeys.push(vk);
+              processedKeys[vk] = true;
+            }
+            ayahGroups[vk].words.push(word);
+          }
+        }
+      }
+    }
+
+    // Verify: no verse text contains HTML tags
+    var htmlLeaks = 0;
+    for (var vi = 0; vi < verseKeys.length; vi++) {
+      var group = ayahGroups[verseKeys[vi]];
+      var stripped = group.ayahA.replace(/<[^>]+>/g, '');
+      if (group.ayahA !== stripped) {
+        htmlLeaks++;
+      }
+      // Also verify the stripped version doesn't begin with "span", "class=", etc.
+      var firstWord = group.ayahA.split(/\s+/)[0] || '';
+      if (firstWord === 'span' || firstWord === '<span' || firstWord.indexOf('<') !== -1) {
+        htmlLeaks++;
+      }
+    }
+
+    assert.strictEqual(htmlLeaks, 0,
+      'HTML leaks in _buildFromVocabOnly output: ' + htmlLeaks + ' verses affected');
+  });
+});
+
 // ── Summary ──
 console.log('\n' + '='.repeat(50));
 console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');

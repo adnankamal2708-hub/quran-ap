@@ -159,7 +159,10 @@ function _buildFromVocabOnly(surahId) {
           var vk = occ.verseKey || (surahId + ':1');
           if (!processedKeys[vk]) {
             if (!_quranAyahGroups[vk]) {
-              _quranAyahGroups[vk] = { words: [], ayahA: occ.ayahA || '', ayahT: occ.ayahT || '' };
+              // Strip HTML from ayahA — renderAyahs() splits by whitespace
+              // and expects plain Arabic text, not HTML from word data files
+              var plainAyah = occ.ayahA ? occ.ayahA.replace(/<[^>]+>/g, '') : '';
+              _quranAyahGroups[vk] = { words: [], ayahA: plainAyah, ayahT: occ.ayahT || '' };
               _quranVerseKeys.push(vk);
             }
             _quranAyahGroups[vk].words.push(word);
