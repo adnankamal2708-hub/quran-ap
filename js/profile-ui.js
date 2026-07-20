@@ -162,7 +162,13 @@ async function renderProfileView() {
   if ($pRetention) $pRetention.textContent = (stats.averageRetention || 0) + '%';
 
   // Load profile from server for settings
-  var profile = await loadProfile(user.uid);
+  // Defensively handle Firebase failures so the entire profile doesn't break
+  var profile = null;
+  try {
+    profile = await loadProfile(user.uid);
+  } catch (e) {
+    console.warn('[profile] loadProfile failed, using defaults:', e.message);
+  }
   if (profile && profile.settings) {
     var settings = mergeSettings(profile.settings);
     document.getElementById('settings-daily-limit').textContent = settings.dailyReviewLimit;

@@ -40,6 +40,35 @@ function _quranGetMasteryColor(wordId) {
   return 'seen';
 }
 
+// ── Surah Info Helper (fallback when __QURAN_INDEX hasn't loaded) ──
+
+function _getSurahInfo(sid) {
+  if (window.__QURAN_INDEX && window.__QURAN_INDEX_GET) {
+    return window.__QURAN_INDEX_GET(sid);
+  }
+  // Fallback: use SURAH_INFO from data bundle when index hasn't loaded yet
+  if (typeof SURAH_INFO !== 'undefined' && SURAH_INFO[sid]) {
+    var si = SURAH_INFO[sid];
+    return {
+      name: si.name,
+      englishName: si.english,
+      total_verses: si.verses
+    };
+  }
+  // Secondary fallback: use getSurahInfo if available
+  if (typeof getSurahInfo === 'function') {
+    var si = getSurahInfo(sid);
+    if (si) {
+      return {
+        name: si.name,
+        englishName: si.english,
+        total_verses: si.verses
+      };
+    }
+  }
+  return null;
+}
+
 // ── Continue Reading (simple localStorage save/restore) ────────
 
 function _loadLastPosition() {
@@ -171,8 +200,7 @@ function renderSurahBrowser() {
 
   // Continue Reading card
   if (lastPos) {
-    var quranIdxInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
-      ? window.__QURAN_INDEX_GET(lastPos.surahId) : null;
+    var quranIdxInfo = _getSurahInfo(lastPos.surahId);
     var surahName = quranIdxInfo ? quranIdxInfo.name : 'Surah ' + lastPos.surahId;
     html += '<div class="quran-continue-card" id="quran-continue-btn" tabindex="0" role="button" aria-label="Continue reading ' + surahName + '">';
     html += '<div class="quran-continue-icon">📖</div>';
@@ -186,8 +214,7 @@ function renderSurahBrowser() {
 
   for (var si = 0; si < surahIds.length; si++) {
     var sid = surahIds[si];
-    quranIdxInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
-      ? window.__QURAN_INDEX_GET(sid) : null;
+    quranIdxInfo = _getSurahInfo(sid);
     if (!quranIdxInfo) continue;
 
     var isActive = _quranSurahId === sid;
@@ -235,8 +262,7 @@ function openSurahForReading(surahId) {
   _quranSurahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
 
   // Update surah title immediately
-  var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
-    ? window.__QURAN_INDEX_GET(surahId) : null;
+  var quranIndexInfo = _getSurahInfo(surahId);
   var surahNameEl = document.getElementById('quran-surah-title');
   if (surahNameEl) {
     surahNameEl.textContent = quranIndexInfo
@@ -410,18 +436,24 @@ function renderAyahs() {
 function renderQuran() {
   _quranSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
 
-  // Start loading Quran data (non-blocking)
-  if (window.__quranLoader && typeof window.__quranLoader.load === 'function') {
-    window.__quranLoader.load();
-  }
-
   // Show surah list, hide reading view
   var listEl = document.getElementById('quran-surah-list');
   var mainEl = document.getElementById('quran-main');
   if (listEl) listEl.style.display = 'block';
   if (mainEl) mainEl.style.display = 'none';
 
+  // Render surah list immediately (uses SURAH_INFO fallback if index not loaded)
   renderSurahBrowser();
+
+  // Start loading Quran index (async) — re-render when loaded
+  if (window.__quranLoader && typeof window.__quranLoader.load === 'function') {
+    window.__quranLoader.load().then(function(ok) {
+      if (ok && window.__QURAN_INDEX) {
+        // Re-render with proper surah names from index
+        renderSurahBrowser();
+      }
+    });
+  }
 
   // Pre-populate verses container
   var versesContainer = document.getElementById('quran-verses');
