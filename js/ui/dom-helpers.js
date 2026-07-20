@@ -28,14 +28,14 @@ function getShortMeaning(meaning) {
  */
 function setView(viewName) {
   // All possible views — both main content and overlay views
-  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'explorer', 'auth', 'profile', 'settings', 'reader', 'review-center'];
+  var views = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'explorer', 'auth', 'profile', 'settings', 'quran', 'review-center'];
   for (var i = 0; i < views.length; i++) {
     var name = views[i];
     var viewEl = DOM.get('view-' + name);
     if (viewEl) viewEl.classList.toggle('active', name === viewName);
 
     // Only toggle tab highlights for main nav tabs
-    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics' || name === 'reader') {
+    if (name === 'dashboard' || name === 'learn' || name === 'quiz' || name === 'list' || name === 'stats' || name === 'analytics' || name === 'quran') {
       var tabEl = DOM.get('tab-' + name);
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
@@ -54,7 +54,7 @@ function setView(viewName) {
   }
 
   // Update aria-current on nav tabs for accessibility
-  var navTabs = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'reader'];
+  var navTabs = ['dashboard', 'learn', 'quiz', 'list', 'stats', 'analytics', 'quran'];
   for (var ti = 0; ti < navTabs.length; ti++) {
     var tabEl = DOM.get('tab-' + navTabs[ti]);
     if (tabEl) {

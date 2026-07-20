@@ -355,8 +355,8 @@ function gatherLearningContext() {
   }
 
   // ── Reading Mode data ──
-  if (window.__reader && typeof window.__reader.getLastReadPosition === 'function') {
-    var lastPos = window.__reader.getLastReadPosition();
+  if (window.__quran && typeof window.__quran.getLastReadPosition === 'function') {
+    var lastPos = window.__quran.getLastReadPosition();
     if (lastPos) {
       ctx.lastReadSurahId = lastPos.surahId;
       ctx.lastReadVerseKey = lastPos.verseKey;
@@ -723,7 +723,7 @@ function getDailyFocusPlan() {
     tasks.push({
       id: 'focus-reading',
       score: 30,
-      label: 'Read a surah in Reading Mode',
+      label: 'Read a surah in the Quran view',
       type: 'reading',
       icon: 'book-open',
       priority: 'low',

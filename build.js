@@ -110,7 +110,7 @@ const UI_FILES = (function () {
       'js/ui/explorer.js',
       'js/ui/analytics-ui.js',
       'js/ui/dashboard.js',
-      'js/ui/reader.js',
+      'js/ui/quran.js',
   'js/ui/learn-screen.js',
     ];
   }

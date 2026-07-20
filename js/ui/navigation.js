@@ -102,9 +102,9 @@ function switchView(viewName) {
     if (typeof renderAnalytics === 'function') renderAnalytics();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderAnalytics() not found');
   }
-  if (viewName === 'reader') {
-    if (typeof renderReader === 'function') renderReader();
-    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderReader() not found');
+  if (viewName === 'quran') {
+    if (typeof renderQuran === 'function') renderQuran();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderQuran() not found');
   }
   if (viewName === 'review-center') {
     if (typeof renderReviewCenter === 'function') renderReviewCenter();
@@ -138,7 +138,7 @@ function _updateActiveTab(viewName) {
     dashboard: 'tab-dashboard',
     learn: 'tab-paths',
     list: 'tab-list',
-    reader: 'tab-reader',
+    quran: 'tab-quran',
     profile: 'tab-profile',
   };
   

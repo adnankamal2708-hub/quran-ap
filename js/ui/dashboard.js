@@ -219,8 +219,8 @@ function renderDashboard() {
 
   // ── Reading position (used by multiple sections) ──
   var $lastRead = null;
-  if (window.__reader && typeof window.__reader.getLastReadPosition === 'function') {
-    $lastRead = window.__reader.getLastReadPosition();
+  if (window.__quran && typeof window.__quran.getLastReadPosition === 'function') {
+    $lastRead = window.__quran.getLastReadPosition();
   }
 
   // ── Comprehension insight (for motivation & headline) ──
@@ -527,7 +527,7 @@ function renderDashboard() {
       icon: 'book',
       title: 'Begin reading the Quran',
       message: 'Reading the Quran alongside vocabulary study reinforces your learning in real context.',
-      action: 'Open Reader',
+      action: 'Open Quran',
       id: 'smart-rec-reading',
       actionType: 'reading',
     });
@@ -742,15 +742,15 @@ function renderDashboard() {
 
   // Continue Reading card (with reading history)
   $wire('db-continue-reading', function() {
-    if (typeof switchView === 'function') switchView('reader');
-    if (window.__reader && typeof window.__reader.resumeReading === 'function') {
-      setTimeout(function() { window.__reader.resumeReading(); }, 0);
+    if (typeof switchView === 'function') switchView('quran');
+    if (window.__quran && typeof window.__quran.resumeReading === 'function') {
+      setTimeout(function() { window.__quran.resumeReading(); }, 0);
     }
   });
 
   // Continue Reading — start new (no history)
   $wire('db-continue-reading-start', function() {
-    if (typeof switchView === 'function') switchView('reader');
+    if (typeof switchView === 'function') switchView('quran');
   });
 
   // Continue Learning — Foundation Course
@@ -781,7 +781,7 @@ function renderDashboard() {
       if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
       else if (typeof switchView === 'function') switchView('learn');
     } else if (actionType === 'reading' || actionType === 'reading-review') {
-      if (typeof switchView === 'function') switchView('reader');
+      if (typeof switchView === 'function') switchView('quran');
     } else if (actionType === 'surah' || actionType === 'surah-learning') {
       if (typeof switchView === 'function') switchView('learn');
     } else if (actionType === 'root-family') {

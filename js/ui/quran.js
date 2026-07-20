@@ -1,25 +1,21 @@
 // ═══════════════════════════════════════════════════════════════════
-// quran.js — Quran Reader (MVP)
+// quran.js — Quran view (MVP)
 //
 // A minimal, stable Quran reading experience.
 // Keeps: surah list, reading screen, vocabulary highlighting,
 //         continue reading, word explorer integration.
-// Removed: juz filter, search, comprehension header, insights,
-//          reading filters, inline word sheet, journey tracking,
-//          async data polling, progress bar, back-to-top FAB,
-//          root chips, verse prev/next, surah prev/next.
 // ═══════════════════════════════════════════════════════════════════
 
 // ── Reading State ──────────────────────────────────────────────
 
-let _readerSurahId = null;
-let _readerSurahWords = [];
-let _readerAyahGroups = {};
-let _readerVerseKeys = [];
-let _readerSRSData = {};
-let _readerScrollVerse = null;
+let _quranSurahId = null;
+let _quranSurahWords = [];
+let _quranAyahGroups = {};
+let _quranVerseKeys = [];
+let _quranSRSData = {};
+let _quranScrollVerse = null;
 
-const QURAN_LAST_KEY = 'quran_reader_last';
+const QURAN_LAST_KEY = 'quran_quran_last';
 
 // ── Arabic Normalization for Vocabulary Matching ───────────────
 
@@ -35,8 +31,8 @@ function _normArabicForMatch(text) {
 // Gold → mastered (stage >= 3), Green → known (stage >= 2),
 // Blue → learning (stage >= 1), Gray → seen, Red → unknown
 
-function _readerGetMasteryColor(wordId) {
-  var entry = _readerSRSData[wordId];
+function _quranGetMasteryColor(wordId) {
+  var entry = _quranSRSData[wordId];
   if (!entry) return 'unknown';
   if (entry.stage >= 3) return 'mastered';
   if (entry.stage >= 2) return 'known';
@@ -78,7 +74,7 @@ function resumeReading() {
   if (!quranIdxInfo) return;
   openSurahForReading(pos.surahId);
   if (pos.verseKey) {
-    _readerScrollVerse = pos.verseKey;
+    _quranScrollVerse = pos.verseKey;
     renderAyahs();
   }
 }
@@ -122,10 +118,10 @@ function _buildVerseData(surahId, quranSurah, vocabWords) {
 // ── Vocab-Only Fallback ────────────────────────────────────────
 
 function _buildFromVocabOnly(surahId) {
-  _readerAyahGroups = {};
-  _readerVerseKeys = [];
-  for (var wi = 0; wi < _readerSurahWords.length; wi++) {
-    var word = _readerSurahWords[wi];
+  _quranAyahGroups = {};
+  _quranVerseKeys = [];
+  for (var wi = 0; wi < _quranSurahWords.length; wi++) {
+    var word = _quranSurahWords[wi];
     var processedKeys = {};
     if (word.occurrences && word.occurrences.length > 0) {
       for (var oi = 0; oi < word.occurrences.length; oi++) {
@@ -133,18 +129,18 @@ function _buildFromVocabOnly(surahId) {
         if (!occ.surahId || occ.surahId === surahId) {
           var vk = occ.verseKey || (surahId + ':1');
           if (!processedKeys[vk]) {
-            if (!_readerAyahGroups[vk]) {
-              _readerAyahGroups[vk] = { words: [], ayahA: occ.ayahA || '', ayahT: occ.ayahT || '' };
-              _readerVerseKeys.push(vk);
+            if (!_quranAyahGroups[vk]) {
+              _quranAyahGroups[vk] = { words: [], ayahA: occ.ayahA || '', ayahT: occ.ayahT || '' };
+              _quranVerseKeys.push(vk);
             }
-            _readerAyahGroups[vk].words.push(word);
+            _quranAyahGroups[vk].words.push(word);
             processedKeys[vk] = true;
           }
         }
       }
     }
   }
-  _readerVerseKeys.sort(function(a, b) {
+  _quranVerseKeys.sort(function(a, b) {
     return (parseInt(a.split(':')[1], 10) || 0) - (parseInt(b.split(':')[1], 10) || 0);
   });
 }
@@ -154,7 +150,7 @@ function _buildFromVocabOnly(surahId) {
 function renderSurahBrowser() {
   var container = document.getElementById('quran-surah-list');
   if (!container) return;
-  _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
+  _quranSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
 
   var surahIds = [];
   if (window.__QURAN_INDEX) {
@@ -194,7 +190,7 @@ function renderSurahBrowser() {
       ? window.__QURAN_INDEX_GET(sid) : null;
     if (!quranIdxInfo) continue;
 
-    var isActive = _readerSurahId === sid;
+    var isActive = _quranSurahId === sid;
     var activeClass = isActive ? ' quran-surah-active' : '';
 
     html += '<div class="quran-surah-item' + activeClass + '" data-surah-id="' + sid + '" tabindex="0" role="button">';
@@ -234,21 +230,21 @@ function renderSurahBrowser() {
 function openSurahForReading(surahId) {
   if (!surahId) return;
 
-  _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
-  _readerSurahId = surahId;
-  _readerSurahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
+  _quranSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
+  _quranSurahId = surahId;
+  _quranSurahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
 
   var quranData = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
 
   if (quranData && quranData.verses && quranData.verses.length > 0) {
-    var fullData = _buildVerseData(surahId, quranData, _readerSurahWords);
-    _readerAyahGroups = fullData.ayahGroups;
-    _readerVerseKeys = fullData.verseKeys;
-  } else if (_readerSurahWords.length > 0) {
+    var fullData = _buildVerseData(surahId, quranData, _quranSurahWords);
+    _quranAyahGroups = fullData.ayahGroups;
+    _quranVerseKeys = fullData.verseKeys;
+  } else if (_quranSurahWords.length > 0) {
     _buildFromVocabOnly(surahId);
   } else {
-    _readerAyahGroups = {};
-    _readerVerseKeys = [];
+    _quranAyahGroups = {};
+    _quranVerseKeys = [];
   }
 
   // Save reading position
@@ -286,7 +282,7 @@ function renderAyahs() {
   var container = document.getElementById('quran-verses');
   if (!container) return;
 
-  if (_readerVerseKeys.length === 0) {
+  if (_quranVerseKeys.length === 0) {
     container.innerHTML = '<div class="quran-empty">' +
       '<div style="font-size: 32px; margin-bottom: 12px">📖</div>' +
       '<div>No verses available for this surah.</div>' +
@@ -295,13 +291,13 @@ function renderAyahs() {
   }
 
   var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
-    ? window.__QURAN_INDEX_GET(_readerSurahId) : null;
+    ? window.__QURAN_INDEX_GET(_quranSurahId) : null;
   var totalVerses = quranIndexInfo ? quranIndexInfo.total_verses : 0;
   var html = '';
 
-  for (var vi = 0; vi < _readerVerseKeys.length; vi++) {
-    var verseKey = _readerVerseKeys[vi];
-    var group = _readerAyahGroups[verseKey];
+  for (var vi = 0; vi < _quranVerseKeys.length; vi++) {
+    var verseKey = _quranVerseKeys[vi];
+    var group = _quranAyahGroups[verseKey];
     if (!group) continue;
 
     var verseNum = parseInt(verseKey.split(':')[1], 10) || 0;
@@ -330,7 +326,7 @@ function renderAyahs() {
 
       if (matchedWord && !isDuplicate) {
         renderedWordIds[matchedWord.id] = true;
-        var colorClass = _readerGetMasteryColor(matchedWord.id);
+        var colorClass = _quranGetMasteryColor(matchedWord.id);
         var escapedArabic = matchedWord.arabic.replace(/"/g, '&quot;');
         html += '<span class="quran-word-token quran-token-' + colorClass + '" ' +
           'data-word-id="' + matchedWord.id + '" ' +
@@ -364,9 +360,9 @@ function renderAyahs() {
       el.onclick = function() {
         var wordId = el.getAttribute('data-word-id');
         if (wordId && typeof openExplorer === 'function') {
-          for (var wi = 0; wi < _readerSurahWords.length; wi++) {
-            if (_readerSurahWords[wi].id === wordId) {
-              openExplorer(_readerSurahWords[wi]);
+          for (var wi = 0; wi < _quranSurahWords.length; wi++) {
+            if (_quranSurahWords[wi].id === wordId) {
+              openExplorer(_quranSurahWords[wi]);
               break;
             }
           }
@@ -379,20 +375,20 @@ function renderAyahs() {
   }
 
   // Scroll to target verse
-  if (_readerScrollVerse) {
-    var targetId = 'quran-ayah-' + _readerScrollVerse.replace(':', '-');
+  if (_quranScrollVerse) {
+    var targetId = 'quran-ayah-' + _quranScrollVerse.replace(':', '-');
     var target = document.getElementById(targetId);
     if (target) {
       setTimeout(function() { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
-    _readerScrollVerse = null;
+    _quranScrollVerse = null;
   }
 }
 
 // ── Reader Main Entry Point ────────────────────────────────────
 
 function renderQuran() {
-  _readerSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
+  _quranSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
 
   // Start loading Quran data (non-blocking)
   if (window.__quranLoader && typeof window.__quranLoader.load === 'function') {
@@ -409,7 +405,7 @@ function renderQuran() {
 
   // Pre-populate verses container
   var versesContainer = document.getElementById('quran-verses');
-  if (versesContainer && !_readerSurahId) {
+  if (versesContainer && !_quranSurahId) {
     versesContainer.innerHTML = '<div class="quran-empty">' +
       '<div style="font-size: 42px; margin-bottom: 16px">📖</div>' +
       '<div style="font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px">Select a Surah</div>' +
@@ -422,15 +418,15 @@ function renderQuran() {
       '<span class="quran-legend-item"><span class="quran-legend-swatch quran-token-seen"></span>Seen</span>' +
       '<span class="quran-legend-item"><span class="quran-legend-swatch quran-token-unknown"></span>New</span>' +
       '</div></div>';
-  } else if (_readerSurahId) {
-    openSurahForReading(_readerSurahId);
+  } else if (_quranSurahId) {
+    openSurahForReading(_quranSurahId);
   }
 }
 
 // ── Back to Surah List ─────────────────────────────────────────
 
 function goBackToSurahList() {
-  _readerSurahId = null;
+  _quranSurahId = null;
   var listEl = document.getElementById('quran-surah-list');
   var mainEl = document.getElementById('quran-main');
   if (listEl) listEl.style.display = 'block';
@@ -460,3 +456,10 @@ function getReadingJourneySummary() {
     avgComprehension: 0,
   };
 }
+
+// ── Export window.__quran for Smart Learning Engine ────────────
+window.__quran = {
+  getLastReadPosition: getLastReadPosition,
+  resumeReading: resumeReading,
+  getReadingJourneySummary: getReadingJourneySummary,
+};

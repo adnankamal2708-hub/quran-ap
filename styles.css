@@ -1298,7 +1298,7 @@ body::before {
 }
 
 /* ── Animations ────────────────────────────────────────────── */
-@keyframes readerVerseFadeIn {
+@keyframes quranVerseFadeIn {
   from {
     opacity: 0;
     transform: translateY(12px) scale(0.99);
@@ -6796,7 +6796,7 @@ body::before {
 
 
 /* ═══════════════════════════════════════════════════════════════
-   READER (quran-ap reading mode)
+   QURAN (quran-ap reading mode)
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Container ── */
@@ -10459,7 +10459,7 @@ padding: 6px 0;
 
 /* ── Reading section enhancements ────────────────────────── */
 .quran-ayah {
-  animation: readerVerseFadeIn 0.35s var(--ease-default) forwards;
+  animation: quranVerseFadeIn 0.35s var(--ease-default) forwards;
 }
 
 .quran-word-token {

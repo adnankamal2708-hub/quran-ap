@@ -637,8 +637,8 @@ function renderProfileProgress() {
 
   // Reading Progress
   var readingSummary = null;
-  if (window.__reader && typeof window.__reader.getJourneySummary === 'function') {
-    readingSummary = window.__reader.getJourneySummary();
+  if (window.__quran && typeof window.__quran.getReadingJourneySummary === 'function') {
+    readingSummary = window.__quran.getReadingJourneySummary();
   }
   if (readingSummary) {
     h += '<div class="profile-subsection">';
@@ -1078,8 +1078,8 @@ function renderProfileCalendar() {
   var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : {};
   var streakData = typeof loadStreakData === 'function' ? loadStreakData() : { streak: 0 };
   var readingJourney = null;
-  if (window.__reader && typeof window.__reader.getJourney === 'function') {
-    readingJourney = window.__reader.getJourney();
+  if (window.__quran && typeof window.__quran.getJourney === 'function') {
+    readingJourney = window.__quran.getReadingJourneySummary();
   }
 
   var h = '';

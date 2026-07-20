@@ -31,14 +31,14 @@
     { id: 'view-learn',        name: 'Learn view' },
     { id: 'view-quiz',         name: 'Quiz view' },
     { id: 'view-list',         name: 'Word list view' },
-    { id: 'view-reader',       name: 'Reader view' },
+    { id: 'view-quran',       name: 'Quran view' },
     { id: 'view-auth',         name: 'Auth view' },
     { id: 'view-profile',      name: 'Profile view' },
     // Nav tabs
     { id: 'tab-dashboard',     name: 'Dashboard nav tab' },
     { id: 'tab-paths',         name: 'Paths nav tab' },
     { id: 'tab-list',          name: 'Words nav tab' },
-    { id: 'tab-reader',        name: 'Reader nav tab' },
+    { id: 'tab-quran',        name: 'Quran nav tab' },
     { id: 'tab-profile',       name: 'Profile nav tab' },
     // Top bar stats
     { id: 'stat-learned',      name: 'Learned stat display' },

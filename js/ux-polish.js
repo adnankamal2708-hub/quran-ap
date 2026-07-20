@@ -46,8 +46,8 @@ var _welcomeSlides = [
   {
     icon: '📖',
     title: 'Read with Interactive Words',
-    desc: 'Every vocabulary word in the Quran Reader is color-coded by your mastery level. Tap any word to see its meaning, root, and tafsir — turning reading into active learning.',
-    highlight: 'reader'
+    desc: 'Every vocabulary word in the Quran view is color-coded by your mastery level. Tap any word to see its meaning, root, and tafsir — turning reading into active learning.',
+    highlight: 'quran'
   },
   {
     icon: '🔄',
@@ -549,8 +549,8 @@ function releaseOnboardingFocus() {
 // ═══════════════════════════════════════════════════════════════
 
 var _tooltips = {
-  'reader-mode': {
-    selector: '#view-reader',
+  'quran-mode': {
+    selector: '#view-quran',
     title: '📖 Interactive Reading',
     message: 'Tap any colored word to see its meaning, root, and tafsir. Mastered words appear in gold, new words in red.',
     position: 'bottom'
@@ -654,8 +654,8 @@ function showTooltip(tipId) {
 function showContextualTooltips(viewName) {
   if (hasCompletedOnboarding()) return;
 
-  if (viewName === 'reader') {
-    showTooltip('reader-mode');
+  if (viewName === 'quran') {
+    showTooltip('quran-mode');
   } else if (viewName === 'learn') {
     showTooltip('word-details');
     setTimeout(function() { showTooltip('paths'); }, 1000);
@@ -726,8 +726,8 @@ function getProgressiveVisibility() {
     showSRSHealth: unlocked.srsHealth || totalReviews >= 20,
     // Show analytics after 30+ reviews
     showAnalytics: unlocked.analytics || totalReviews >= 30,
-    // Show reader after completing 1 lesson
-    showReader: unlocked.reader || completedLessons >= 1 || totalReviews > 0,
+    // Show quran after completing 1 lesson
+    showQuran: unlocked.quran || completedLessons >= 1 || totalReviews > 0,
     // Show advanced filters after 50+ reviews
     showAdvancedFilters: unlocked.advancedFilters || totalReviews >= 50,
     // Show review center dashboard prompt
@@ -826,8 +826,8 @@ function getContextualEmptyState(section) {
     'reading-history': {
       icon: '📖',
       title: 'No Reading History',
-      desc: 'Start reading a surah to build your reading history. The Quran Reader shows every word color-coded by your mastery level.',
-      action: '<button class="btn btn-sm" onclick="switchView(\'reader\')">Open Reader</button>'
+      desc: 'Start reading a surah to build your reading history. The Quran view shows every word color-coded by your mastery level.',
+      action: '<button class="btn btn-sm" onclick="switchView(\'quran\')">Open Quran</button>'
     },
     achievements: {
       icon: '🏆',
@@ -845,7 +845,7 @@ function getContextualEmptyState(section) {
       icon: '📖',
       title: 'Start Your Reading Journey',
       desc: 'Select a surah from the list to begin reading interactively. Every word you\'ve studied is color-coded for instant recognition.',
-      action: '<button class="btn btn-sm" onclick="switchView(\'reader\')">Browse Surahs</button>'
+      action: '<button class="btn btn-sm" onclick="switchView(\'quran\')">Browse Surahs</button>'
     },
     'foundation': {
       icon: '📚',

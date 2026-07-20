@@ -760,11 +760,11 @@ function safeOnClick(id, fn) {
 
 
 function wireEvents() {
-  // Bottom nav tabs (5-tab layout: Dashboard, Paths, Words, Profile, Reader)
+  // Bottom nav tabs (5-tab layout: Dashboard, Paths, Words, Profile, Quran)
   safeOnClick('tab-dashboard', function () { switchView('dashboard'); });
   safeOnClick('tab-paths', function () { switchView('learn'); });
   safeOnClick('tab-list', function () { switchView('list'); });
-  safeOnClick('tab-reader', function () { switchView('reader'); });
+  safeOnClick('tab-quran', function () { switchView('quran'); });
   safeOnClick('tab-profile', function () { switchView('profile'); });
 
   // Learn navigation
