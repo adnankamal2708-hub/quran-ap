@@ -19,8 +19,8 @@ A thorough end-to-end QA audit was conducted on the Bayan Quran Learning Applica
 
 | # | Bug | File | Severity | Status |
 |---|-----|------|----------|--------|
-| 1 | Escaped quote issue in `renderSurahComprehensionHeader()` — `\\\"` in single-quoted JS string rendered literal backslash-quote in HTML class attribute | `js/ui/reader.js` | 🔴 High | Fixed |
-| 2 | `MutationObserver` memory leak — observer never disconnected on repeated reader visits | `js/ui/reader.js` | 🟡 Medium | Fixed |
+| 1 | Escaped quote issue in `renderSurahComprehensionHeader()` — `\\\"` in single-quoted JS string rendered literal backslash-quote in HTML class attribute | `js/ui/quran.js` | 🔴 High | Fixed |
+| 2 | `MutationObserver` memory leak — observer never disconnected on repeated reader visits | `js/ui/quran.js` | 🟡 Medium | Fixed |
 | 3 | Onboarding keyboard handler used `overlay.style.display` (inline only) instead of `getComputedStyle` — CSS-based hiding not detected | `js/ux-polish.js` | 🟡 Medium | Fixed |
 | 4 | `DOM.get()` element cache could return stale references after re-renders — no public invalidation method | `js/ui.js` | 🟢 Low | Fixed |
 | 5 | `renderStats()` dead code — no longer called after stats view removal | `js/ui.js` | 🟢 Low | Documented |
@@ -98,7 +98,7 @@ A thorough end-to-end QA audit was conducted on the Bayan Quran Learning Applica
 | Issue | Severity | Reason Not Fixed |
 |-------|----------|------------------|
 | `renderStats()` in `js/ui.js` is dead code (~200 lines)<br>**File:** `js/ui.js:245-560` | 🟢 Low | Non-functional — the function is never called (view-stats removed). Removing it would reduce bundle size slightly (about 2KB) but poses no risk. Documented with comment for future cleanup. |
-| `reader.js` surah list may appear empty if vocabulary data isn't fully loaded on first tab switch | 🟢 Low | This appears to be a timing issue with the vocabulary data bundle loading. No console errors. Functions correctly after data is available. Not a code bug — it's a network/data loading concern. |
+| `quran.js` surah list may appear empty if vocabulary data isn't fully loaded on first tab switch | 🟢 Low | This appears to be a timing issue with the vocabulary data bundle loading. No console errors. Functions correctly after data is available. Not a code bug — it's a network/data loading concern. |
 | `Password forms should have (optionally hidden) username fields` browser console hint | 🟢 Info | This is a Chrome browser heuristic, not an app bug. The auth forms are correct and functional. |
 
 ---

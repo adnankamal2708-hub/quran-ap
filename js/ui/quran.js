@@ -234,23 +234,7 @@ function openSurahForReading(surahId) {
   _quranSurahId = surahId;
   _quranSurahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
 
-  var quranData = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
-
-  if (quranData && quranData.verses && quranData.verses.length > 0) {
-    var fullData = _buildVerseData(surahId, quranData, _quranSurahWords);
-    _quranAyahGroups = fullData.ayahGroups;
-    _quranVerseKeys = fullData.verseKeys;
-  } else if (_quranSurahWords.length > 0) {
-    _buildFromVocabOnly(surahId);
-  } else {
-    _quranAyahGroups = {};
-    _quranVerseKeys = [];
-  }
-
-  // Save reading position
-  _saveLastPosition(surahId, null);
-
-  // Update surah title
+  // Update surah title immediately
   var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
     ? window.__QURAN_INDEX_GET(surahId) : null;
   var surahNameEl = document.getElementById('quran-surah-title');
@@ -265,6 +249,42 @@ function openSurahForReading(surahId) {
   var mainEl = document.getElementById('quran-main');
   if (listEl) listEl.style.display = 'none';
   if (mainEl) mainEl.style.display = 'block';
+
+  // Check if per-surah verse data is already available
+  var quranData = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
+  var dataReady = quranData && quranData.verses && quranData.verses.length > 0;
+
+  if (dataReady) {
+    // Full Quran data available — build verses from it
+    var fullData = _buildVerseData(surahId, quranData, _quranSurahWords);
+    _quranAyahGroups = fullData.ayahGroups;
+    _quranVerseKeys = fullData.verseKeys;
+  } else if (_quranSurahWords.length > 0) {
+    // No Quran data yet — show vocab-only fallback while loading
+    _buildFromVocabOnly(surahId);
+
+    // Trigger async load of per-surah verse data
+    if (window.__quranLoader && typeof window.__quranLoader.loadSurah === 'function') {
+      window.__quranLoader.loadSurah(surahId).then(function (loaded) {
+        // Only re-render if user is still on the same surah
+        if (!loaded || _quranSurahId !== surahId) return;
+        var newData = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
+        if (newData && newData.verses && newData.verses.length > 0) {
+          var fullData2 = _buildVerseData(surahId, newData, _quranSurahWords);
+          _quranAyahGroups = fullData2.ayahGroups;
+          _quranVerseKeys = fullData2.verseKeys;
+          renderAyahs();
+          renderSurahBrowser();
+        }
+      });
+    }
+  } else {
+    _quranAyahGroups = {};
+    _quranVerseKeys = [];
+  }
+
+  // Save reading position
+  _saveLastPosition(surahId, null);
 
   renderAyahs();
   renderSurahBrowser(); // Update active state in list

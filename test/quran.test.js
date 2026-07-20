@@ -620,6 +620,344 @@ suite('Surah Index Compatibility', function() {
   });
 });
 
+// ── Pipeline Integrity Tests ────────────────────────────────────
+// Verifies the rendering pipeline produces correct output at every stage.
+
+suite('Pipeline Integrity: Token Order & Completeness', function() {
+  if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
+
+  // TEST: Arabic token order matches source for EVERY verse
+  test('All 6236 verses: token order matches source', function() {
+    var mismatches = [];
+    for (var si = 0; si < surahIds.length; si++) {
+      var sid = surahIds[si];
+      var surah = qt[sid];
+      if (!surah || !surah.verses) continue;
+      var result = _buildFullVerseData(sid, surah, []);
+      for (var vi = 0; vi < result.verseKeys.length; vi++) {
+        var vk = result.verseKeys[vi];
+        var group = result.ayahGroups[vk];
+        if (!group || !group.ayahA) continue;
+        var sourceTokens = surah.verses[vi].text.split(/\s+/).filter(Boolean);
+        var rebuildTokens = group.ayahA.split(/\s+/).filter(Boolean);
+        if (sourceTokens.length !== rebuildTokens.length) {
+          mismatches.push(vk + ': ' + sourceTokens.length + ' source vs ' + rebuildTokens.length + ' rebuilt');
+        } else {
+          for (var ti = 0; ti < sourceTokens.length; ti++) {
+            if (sourceTokens[ti] !== rebuildTokens[ti]) {
+              mismatches.push(vk + ' token ' + ti + ': "' + sourceTokens[ti] + '" vs "' + rebuildTokens[ti] + '"');
+              break;
+            }
+          }
+        }
+      }
+    }
+    assert.strictEqual(mismatches.length, 0,
+      'Token order mismatches: ' + mismatches.slice(0, 5).join('; ') +
+      (mismatches.length > 5 ? ' (+' + (mismatches.length - 5) + ' more)' : ''));
+  });
+
+  // TEST: No empty verses across entire Quran
+  test('No empty verses: every surah has non-empty text for all verses', function() {
+    var emptyVerses = [];
+    for (var si = 0; si < surahIds.length; si++) {
+      var sid = surahIds[si];
+      var surah = qt[sid];
+      if (!surah || !surah.verses) continue;
+      for (var vi = 0; vi < surah.verses.length; vi++) {
+        var v = surah.verses[vi];
+        if (!v.text || v.text.trim() === '') {
+          emptyVerses.push(sid + ':' + v.id);
+        }
+      }
+    }
+    assert.strictEqual(emptyVerses.length, 0, 'Empty verses: ' + emptyVerses.join(', '));
+  });
+
+  // TEST: First and last token of every verse are preserved
+  test('First and last tokens preserved for all verses', function() {
+    var firstLastErrors = [];
+    for (var si = 0; si < surahIds.length; si++) {
+      var sid = surahIds[si];
+      var surah = qt[sid];
+      if (!surah || !surah.verses) continue;
+      var result = _buildFullVerseData(sid, surah, []);
+      for (var vi = 0; vi < result.verseKeys.length; vi++) {
+        var vk = result.verseKeys[vi];
+        var group = result.ayahGroups[vk];
+        var sourceTokens = surah.verses[vi].text.split(/\s+/).filter(Boolean);
+        var rebuildTokens = group.ayahA.split(/\s+/).filter(Boolean);
+        if (sourceTokens.length === 0 || rebuildTokens.length === 0) continue;
+        if (sourceTokens[0] !== rebuildTokens[0]) {
+          firstLastErrors.push(vk + ' first token: "' + sourceTokens[0] + '" vs "' + rebuildTokens[0] + '"');
+        }
+        if (sourceTokens[sourceTokens.length - 1] !== rebuildTokens[rebuildTokens.length - 1]) {
+          firstLastErrors.push(vk + ' last token: "' + sourceTokens[sourceTokens.length - 1] + '" vs "' + rebuildTokens[rebuildTokens.length - 1] + '"');
+        }
+      }
+    }
+    assert.strictEqual(firstLastErrors.length, 0,
+      'First/last token errors: ' + firstLastErrors.slice(0, 5).join('; ') +
+      (firstLastErrors.length > 5 ? ' (+' + (firstLastErrors.length - 5) + ' more)' : ''));
+  });
+});
+
+suite('Pipeline Integrity: Verse Key Consistency', function() {
+  if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
+
+  // TEST: Every verse key is unique
+  test('All verse keys are unique (no duplicates)', function() {
+    var allKeys = [];
+    for (var si = 0; si < surahIds.length; si++) {
+      var sid = surahIds[si];
+      var surah = qt[sid];
+      if (!surah || !surah.verses) continue;
+      var result = _buildFullVerseData(sid, surah, []);
+      for (var vi = 0; vi < result.verseKeys.length; vi++) {
+        allKeys.push(result.verseKeys[vi]);
+      }
+    }
+    var uniqueKeys = {};
+    var duplicates = [];
+    for (var ki = 0; ki < allKeys.length; ki++) {
+      if (uniqueKeys[allKeys[ki]]) duplicates.push(allKeys[ki]);
+      uniqueKeys[allKeys[ki]] = true;
+    }
+    assert.strictEqual(duplicates.length, 0, 'Duplicate verse keys: ' + duplicates.join(', '));
+    assert.strictEqual(allKeys.length, 6236, 'Total unique verse keys: ' + allKeys.length);
+  });
+
+  // TEST: Verse keys are in correct sequential order per surah
+  test('Verse keys are sequential (1, 2, 3...N) per surah', function() {
+    var orderErrors = [];
+    for (var si = 0; si < surahIds.length; si++) {
+      var sid = surahIds[si];
+      var surah = qt[sid];
+      if (!surah || !surah.verses) continue;
+      var result = _buildFullVerseData(sid, surah, []);
+      for (var vi = 0; vi < result.verseKeys.length; vi++) {
+        var expectedKey = sid + ':' + (vi + 1);
+        if (result.verseKeys[vi] !== expectedKey) {
+          orderErrors.push('Surah ' + sid + ' key ' + vi + ': "' + result.verseKeys[vi] + '" expected "' + expectedKey + '"');
+        }
+      }
+    }
+    assert.strictEqual(orderErrors.length, 0,
+      'Key order errors: ' + orderErrors.slice(0, 5).join('; ') +
+      (orderErrors.length > 5 ? ' (+' + (orderErrors.length - 5) + ' more)' : ''));
+  });
+});
+
+suite('Pipeline Integrity: Vocabulary Alignment', function() {
+  if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
+
+  // Load vocabulary
+  var _VOCAB_WORDS = [];
+  try {
+    var dataDir = path.join(__dirname, '..', 'js', 'data');
+    if (fs.existsSync(dataDir)) {
+      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
+        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
+      });
+      var allWordsCode = '';
+      allWordsCode += 'var ALL_WORDS = [];\n';
+      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
+      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
+        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
+      }
+      try { eval(allWordsCode); } catch (e) { /* ignore */ }
+      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
+    }
+  } catch (e) { /* ignore */ }
+
+  if (_VOCAB_WORDS.length === 0) {
+    console.log('  ⚠ No vocabulary data — skipping vocab alignment tests');
+    return;
+  }
+
+  // TEST: No matched word has empty Arabic text
+  test('Every vocabulary word has non-empty Arabic text for matching', function() {
+    var emptyWords = [];
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      if (!_VOCAB_WORDS[wi].arabic || _VOCAB_WORDS[wi].arabic.trim() === '') {
+        emptyWords.push(_VOCAB_WORDS[wi].id || wi);
+      }
+    }
+    assert.strictEqual(emptyWords.length, 0, 'Words with empty Arabic: ' + emptyWords.join(', '));
+  });
+
+  // TEST: Normalized vocabulary matching is consistent (same input → same output)
+  test('_normArabicForMatch is deterministic and idempotent', function() {
+    for (var wi = 0; wi < Math.min(_VOCAB_WORDS.length, 100); wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (!w.arabic) continue;
+      var norm1 = _normArabicForMatch(w.arabic);
+      var norm2 = _normArabicForMatch(norm1);
+      assert.strictEqual(norm1, norm2, 'Not idempotent for: "' + w.arabic + '" -> "' + norm1 + '" vs "' + norm2 + '"');
+    }
+  });
+
+  // TEST: First verse of Al-Fatihah has expected vocabulary hits
+  if (qt[1] && _VOCAB_WORDS.length > 0) {
+    test('Surah 1:1 has at least one vocabulary match', function() {
+      // Get words for Surah 1
+      var surah1Words = [];
+      var seenIds = {};
+      for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+        var w = _VOCAB_WORDS[wi];
+        if (w.occurrences) {
+          for (var oi = 0; oi < w.occurrences.length; oi++) {
+            if (w.occurrences[oi].surahId === 1 && !seenIds[w.id]) {
+              surah1Words.push(w);
+              seenIds[w.id] = true;
+              break;
+            }
+          }
+        }
+      }
+      var result = _buildFullVerseData(1, qt[1], surah1Words);
+      var v1 = result.ayahGroups['1:1'];
+      assert.ok(v1, 'Verse 1:1 exists in result');
+      assert.ok(v1.matchedTokens >= 1, 'Verse 1:1 has at least 1 vocabulary match');
+      // Every matched word appears in the verse text
+      var verseTokens = v1.ayahA.split(/\s+/).filter(Boolean);
+      var verseNormed = verseTokens.map(function(t) { return _normArabicForMatch(t); }).filter(Boolean);
+      for (var mwi = 0; mwi < v1.words.length; mwi++) {
+        var wordNorm = _normArabicForMatch(v1.words[mwi].arabic);
+        var found = verseNormed.indexOf(wordNorm) >= 0;
+        assert.ok(found, 'Matched word "' + v1.words[mwi].arabic + '" exists in Surah 1:1');
+      }
+    });
+  }
+});
+
+// ── Rename Integrity Tests ────────────────────────────────────
+// Verifies that the Reader→Quran rename was complete and consistent.
+
+suite('Rename Integrity (Reader→Quran Migration)', function() {
+  // TEST: No stale DOM IDs in index.html
+  test('No "view-reader" or "tab-reader" DOM IDs remain in index.html', function() {
+    var htmlPath = path.join(__dirname, '..', 'index.html');
+    if (!fs.existsSync(htmlPath)) return;
+    var html = fs.readFileSync(htmlPath, 'utf8');
+    // Must use the new IDs
+    if (html.indexOf('view-quran') === -1) {
+      assert.fail('view-quran not found in index.html');
+    }
+    if (html.indexOf('tab-quran') === -1) {
+      assert.fail('tab-quran not found in index.html');
+    }
+    // Must NOT contain old IDs
+    var oldViewReader = html.indexOf('id="view-reader"');
+    var oldTabReader = html.indexOf('id="tab-reader"');
+    var navLabel = html.indexOf('>Read<');
+    assert.strictEqual(oldViewReader, -1, 'Found stale id="view-reader" in index.html');
+    assert.strictEqual(oldTabReader, -1, 'Found stale id="tab-reader" in index.html');
+    assert.strictEqual(navLabel, -1, 'Found stale "Read" nav label in index.html');
+  });
+
+  // TEST: No "reader.js" references in build.js
+  test('No "reader.js" reference remains in build.js', function() {
+    var buildPath = path.join(__dirname, '..', 'build.js');
+    if (!fs.existsSync(buildPath)) return;
+    var build = fs.readFileSync(buildPath, 'utf8');
+    // Must reference quran.js
+    if (build.indexOf('quran.js') === -1) {
+      assert.fail('quran.js not referenced in build.js');
+    }
+    // Must NOT reference reader.js
+    var oldRef = build.indexOf('reader.js');
+    if (oldRef !== -1) {
+      // Allow only "js/ui/quran.js" (not "reader.js")
+      var line = build.split('\n').filter(function(l) { return l.indexOf('reader.js') >= 0; });
+      assert.fail('Found reader.js in build.js: ' + (line[0] || '').trim());
+    }
+  });
+
+  // TEST: No stale CSS selectors in styles2.css
+  test('No ".reader-" CSS selectors remain in styles2.css', function() {
+    var cssPath = path.join(__dirname, '..', 'styles2.css');
+    if (!fs.existsSync(cssPath)) return;
+    var css = fs.readFileSync(cssPath, 'utf8');
+    // Must use .quran- selectors
+    if (css.indexOf('.quran-surah-list') === -1) {
+      assert.fail('.quran-surah-list not found in styles2.css');
+    }
+    // Must NOT contain .reader- selectors
+    var dotReaderMatches = css.match(/\.reader-/g);
+    if (dotReaderMatches) {
+      assert.fail('Found ' + dotReaderMatches.length + ' ".reader-" CSS selectors in styles2.css');
+    }
+  });
+
+  // TEST: Keyboard shortcut updated
+  test('Keyboard shortcut updated from Read to Quran', function() {
+    var htmlPath = path.join(__dirname, '..', 'index.html');
+    if (!fs.existsSync(htmlPath)) return;
+    var html = fs.readFileSync(htmlPath, 'utf8');
+    // Must show Q Quran (not R Read)
+    var hasNewShortcut = html.indexOf('<kbd>Q</kbd> Quran') >= 0;
+    var hasOldShortcut = html.indexOf('<kbd>R</kbd> Read') >= 0;
+    assert.ok(hasNewShortcut, 'New shortcut "Q Quran" not found in index.html');
+    assert.ok(!hasOldShortcut, 'Old shortcut "R Read" still present in index.html');
+  });
+
+  // TEST: window.__quran export exists in quran.js
+  test('window.__quran export exists in quran.js', function() {
+    var quranPath = path.join(__dirname, '..', 'js', 'ui', 'quran.js');
+    if (!fs.existsSync(quranPath)) return;
+    var code = fs.readFileSync(quranPath, 'utf8');
+    assert.ok(code.indexOf('window.__quran') >= 0, 'window.__quran not found in js/ui/quran.js');
+    assert.strictEqual(code.indexOf('window.__reader'), -1, 'window.__reader still referenced in js/ui/quran.js');
+  });
+
+  // TEST: All view references updated in navigation
+  test('Navigation view name updated from "reader" to "quran"', function() {
+    var navPath = path.join(__dirname, '..', 'js', 'ui', 'navigation.js');
+    if (!fs.existsSync(navPath)) return;
+    var code = fs.readFileSync(navPath, 'utf8');
+    // The navigation module should handle viewName === 'quran' (not 'reader')
+    assert.ok(code.indexOf("viewName === 'quran'") >= 0 || code.indexOf('viewName === "quran"') >= 0,
+      'viewName === "quran" not found in navigation.js');
+    // Must NOT handle 'reader' as a feature view name
+    var hasReader = code.indexOf("viewName === 'reader'") >= 0 || code.indexOf('viewName === "reader"') >= 0;
+    assert.strictEqual(hasReader, false, 'navigation.js still handles viewName === "reader"');
+    // Must not have stale tab-reader or view-reader references
+    assert.strictEqual(code.indexOf('tab-reader'), -1, 'Found stale tab-reader in navigation.js');
+    assert.strictEqual(code.indexOf('view-reader'), -1, 'Found stale view-reader in navigation.js');
+  });
+
+  // TEST: Production bundle has no stale reader module references
+  test('Production build has no stale reader module references', function() {
+    var bundlePath = path.join(__dirname, '..', 'dist', 'js', 'app.bundle.js');
+    var bundleMinPath = path.join(__dirname, '..', 'dist', 'js', 'app.bundle.min.js');
+    if (!fs.existsSync(bundlePath) && !fs.existsSync(bundleMinPath)) {
+      // Build may not have been run — skip this test
+      console.log('     (no production bundles found — skipping production bundle check)');
+      return;
+    }
+    var bundle = '';
+    if (fs.existsSync(bundlePath)) {
+      bundle += fs.readFileSync(bundlePath, 'utf8');
+    }
+    if (fs.existsSync(bundleMinPath)) {
+      bundle += fs.readFileSync(bundleMinPath, 'utf8');
+    }
+    // Check for stale module references
+    var staleReaderJs = bundle.indexOf('reader.js');
+    var staleReaderFn = bundle.indexOf('__reader');
+    var staleTabReader = bundle.indexOf('tab-reader');
+    var staleViewReader = bundle.indexOf('view-reader');
+    var issues = [];
+    if (staleReaderJs >= 0) issues.push('reader.js');
+    if (staleReaderFn >= 0) issues.push('__reader');
+    if (staleTabReader >= 0) issues.push('tab-reader');
+    if (staleViewReader >= 0) issues.push('view-reader');
+    assert.strictEqual(issues.length, 0,
+      'Stale reader references in production bundle: ' + issues.join(', '));
+  });
+});
+
 // ── Summary ──
 console.log('\n' + '='.repeat(50));
 console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');

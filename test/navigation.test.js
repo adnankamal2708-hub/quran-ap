@@ -83,7 +83,7 @@ global.renderStats = function() { _callLog.push('renderStats'); };
 global.renderProfileView = function() { _callLog.push('renderProfileView'); };
 global.renderExplorer = function() { _callLog.push('renderExplorer'); };
 global.renderAnalytics = function() { _callLog.push('renderAnalytics'); };
-global.renderReader = function() { _callLog.push('renderReader'); };
+global.renderQuran = function() { _callLog.push('renderQuran'); };
 global.updateWordCard = function() { _callLog.push('updateWordCard'); };
 
 global.getFoundationLessonCount = function() { return 5; };
@@ -191,9 +191,9 @@ suite('switchView Dispatching', function() {
     assert.ok(_callLog.indexOf('renderAnalytics') >= 0);
   });
 
-  test('switchView calls renderReader for reader', function() {
-    switchView('reader');
-    assert.ok(_callLog.indexOf('renderReader') >= 0);
+  test('switchView calls renderQuran for quran', function() {
+    switchView('quran');
+    assert.ok(_callLog.indexOf('renderQuran') >= 0);
   });
 
   test('switchView calls learn view updaters', function() {
