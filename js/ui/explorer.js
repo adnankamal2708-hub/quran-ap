@@ -173,7 +173,7 @@ function showExplorerOccurrence(idx) {
   var occ = w.occurrences[idx];
   
   DOM.get('explorer-ayah-arabic').innerHTML = occ.ayahA || '';
-  DOM.get('explorer-ayah-translation').textContent = occ.ayahT || '';
+  DOM.get('explorer-ayah-translation').innerHTML = occ.ayahT || '';
   var ref = occ.ayahR || occ.verseKey || '';
   if (occ.surahId && SURAH_INFO && SURAH_INFO[occ.surahId]) {
     ref = SURAH_INFO[occ.surahId].name + ' ' + ref;

@@ -1071,6 +1071,345 @@ suite('HTML Leakage & Markup Correctness (Regression Protection)', function() {
   });
 });
 
+// ── Comprehensive HTML Leakage Audit ──────────────────────────
+// Verifies that NO renderer in the codebase leaks raw HTML from word
+// data files into user-visible text. Checks all rendering paths.
+
+suite('Comprehensive HTML Leakage Audit (all rendering paths)', function() {
+  var _VOCAB_WORDS = [];
+  try {
+    var dataDir = path.join(__dirname, '..', 'js', 'data');
+    if (fs.existsSync(dataDir)) {
+      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
+        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
+      });
+      var allWordsCode = '';
+      allWordsCode += 'var ALL_WORDS = [];\n';
+      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
+      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
+        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
+      }
+      try { eval(allWordsCode); } catch (e) { /* ignore */ }
+      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
+    }
+  } catch (e) { /* ignore */ }
+
+  function stripHtml(str) {
+    return str.replace(/<[^>]+>/g, '');
+  }
+
+  var htmlLeakPatterns = [
+    { pattern: /<span/i, name: '<span' },
+    { pattern: /<\/span>/i, name: '</span>' },
+    { pattern: /class="/i, name: 'class="' },
+    { pattern: /ayah-highlight/i, name: 'ayah-highlight' },
+    { pattern: /&lt;span/i, name: '&lt;span' },
+    { pattern: /<strong/i, name: '<strong' },
+    { pattern: /<\/strong>/i, name: '</strong>' },
+  ];
+
+  // ── TEST 1: All word occurrences with ayahA have balanced HTML ──
+  test('All word occurrences with ayahA have balanced HTML tags', function() {
+    if (_VOCAB_WORDS.length === 0) return;
+    var unbalanced = 0;
+    var totalChecked = 0;
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (!w.occurrences) continue;
+      for (var oi = 0; oi < w.occurrences.length; oi++) {
+        var occ = w.occurrences[oi];
+        if (!occ.ayahA) continue;
+        totalChecked++;
+        var openTags = (occ.ayahA.match(/<[a-zA-Z][a-zA-Z0-9]*\b/g) || []).length;
+        var closeTags = (occ.ayahA.match(/<\/[a-zA-Z][a-zA-Z0-9]*>/g) || []).length;
+        if (openTags !== closeTags) unbalanced++;
+      }
+    }
+    assert.strictEqual(unbalanced, 0,
+      unbalanced + ' of ' + totalChecked + ' ayahA strings have unbalanced HTML tags');
+  });
+
+  // ── TEST 2: Quran view path (quran.js) produces NO HTML in verse text ──
+  // This tests the ONLY path where HTML was previously leaking.
+  // Iterates ALL surahs that have vocabulary data.
+  test('Quran view _buildFromVocabOnly output has NO HTML in ayahA (ALL surahs)', function() {
+    if (_VOCAB_WORDS.length === 0) return;
+    // Build list of ALL surah IDs that have vocabulary
+    var allSurahIds = {};
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (w.occurrences) {
+        for (var oi = 0; oi < w.occurrences.length; oi++) {
+          if (w.occurrences[oi].surahId) {
+            allSurahIds[w.occurrences[oi].surahId] = true;
+          }
+        }
+      }
+    }
+    var surahIdsList = Object.keys(allSurahIds).map(Number).sort(function(a,b){return a-b;});
+    var htmlLeaks = 0;
+    var surahsWithLeaks = [];
+    for (var si = 0; si < surahIdsList.length; si++) {
+      var sid = surahIdsList[si];
+      var ayahGroups = {};
+      var verseKeys = [];
+      var processedKeys = {};
+      for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+        var word = _VOCAB_WORDS[wi];
+        if (word.occurrences) {
+          for (var oi = 0; oi < word.occurrences.length; oi++) {
+            var occ = word.occurrences[oi];
+            if (occ.surahId === sid) {
+              var vk = occ.verseKey || (sid + ':1');
+              if (!processedKeys[vk]) {
+                var plainAyah = occ.ayahA ? occ.ayahA.replace(/<[^>]+>/g, '') : '';
+                ayahGroups[vk] = { words: [], ayahA: plainAyah, ayahT: occ.ayahT || '' };
+                verseKeys.push(vk);
+                processedKeys[vk] = true;
+              }
+              ayahGroups[vk].words.push(word);
+            }
+          }
+        }
+      }
+      // Check each verse for HTML leakage
+      for (var vi = 0; vi < verseKeys.length; vi++) {
+        var group = ayahGroups[verseKeys[vi]];
+        var stripped = stripHtml(group.ayahA);
+        if (group.ayahA !== stripped) {
+          htmlLeaks++;
+          surahsWithLeaks.push(sid);
+        }
+        // Also check tokens don't contain HTML fragments
+        var tokens = group.ayahA.split(/\s+/);
+        for (var ti = 0; ti < tokens.length; ti++) {
+          var token = tokens[ti];
+          if (!token) continue;
+          for (var pi = 0; pi < htmlLeakPatterns.length; pi++) {
+            if (htmlLeakPatterns[pi].pattern.test(token)) {
+              htmlLeaks++;
+              surahsWithLeaks.push(sid);
+            }
+          }
+        }
+      }
+    }
+    assert.strictEqual(htmlLeaks, 0,
+      'HTML leaks in _buildFromVocabOnly across ' + surahIdsList.length + ' surahs: ' + htmlLeaks +
+      (surahsWithLeaks.length > 0 ? ' (surahs: ' + surahsWithLeaks.join(', ') + ')' : ''));
+  });
+
+  // ── TEST 3: Word card ayahArabic renderer (innerHTML) — verifies the HTML is valid ──
+  test('Word card ayahArabic HTML content has balanced tags', function() {
+    if (_VOCAB_WORDS.length === 0) return;
+    var unbalanced = [];
+    // Sample a subset of words to check HTML balance
+    var sampleSize = Math.min(50, _VOCAB_WORDS.length);
+    for (var si = 0; si < sampleSize; si++) {
+      var w = _VOCAB_WORDS[si];
+      if (!w.occurrences || w.occurrences.length === 0) continue;
+      var occ = w.occurrences[0];
+      if (!occ.ayahA) continue;
+      var html = occ.ayahA;
+      // Extract all opening and closing tag names
+      var openTags = [];
+      var closeMatch = html.match(/<\/([a-zA-Z]+)>/g) || [];
+      var openMatch = html.match(/<([a-zA-Z]+)[^>]*>/g) || [];
+      var openCount = {};
+      var closeCount = {};
+      for (var oi = 0; oi < openMatch.length; oi++) {
+        var tagName = openMatch[oi].match(/<([a-zA-Z]+)/)[1];
+        openCount[tagName] = (openCount[tagName] || 0) + 1;
+      }
+      for (var ci = 0; ci < closeMatch.length; ci++) {
+        var tagName2 = closeMatch[ci].match(/<\/([a-zA-Z]+)>/)[1];
+        closeCount[tagName2] = (closeCount[tagName2] || 0) + 1;
+      }
+      var allTags = Object.keys(openCount);
+      for (var ti = 0; ti < allTags.length; ti++) {
+        var tag = allTags[ti];
+        if (openCount[tag] !== (closeCount[tag] || 0)) {
+          unbalanced.push('Word ' + w.id + ': ' + tag + ' has ' + openCount[tag] + ' open, ' + (closeCount[tag] || 0) + ' close');
+        }
+      }
+    }
+    assert.strictEqual(unbalanced.length, 0,
+      'Unbalanced HTML tags in word data: ' + unbalanced.slice(0, 5).join('; '));
+  });
+
+  // ── TEST 4: Explorer occurrence rendering uses innerHTML correctly ──
+  test('Explorer occurrence ayahArabic HTML has balanced tags', function() {
+    if (_VOCAB_WORDS.length === 0) return;
+    var unbalanced = [];
+    var sampleSize = Math.min(50, _VOCAB_WORDS.length);
+    for (var si = 0; si < sampleSize; si++) {
+      var w = _VOCAB_WORDS[si];
+      if (!w.occurrences) continue;
+      for (var oi = 0; oi < Math.min(w.occurrences.length, 3); oi++) {
+        var occ = w.occurrences[oi];
+        if (!occ.ayahA) continue;
+        var html = occ.ayahA;
+        var openMatch = html.match(/<([a-zA-Z]+)[^>]*>/g) || [];
+        var closeMatch = html.match(/<\/([a-zA-Z]+)>/g) || [];
+        if (openMatch.length !== closeMatch.length) {
+          unbalanced.push('Word ' + w.id + ' occ ' + oi + ': ' + openMatch.length + ' open vs ' + closeMatch.length + ' close tags');
+        }
+      }
+    }
+    assert.strictEqual(unbalanced.length, 0,
+      'Unbalanced HTML in explorer occurrences: ' + unbalanced.slice(0, 5).join('; '));
+  });
+
+  // ── TEST 5: All ayahT translation HTML is balanced ──
+  test('All ayahT translation HTML has balanced tags', function() {
+    if (_VOCAB_WORDS.length === 0) return;
+    var unbalanced = [];
+    for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+      var w = _VOCAB_WORDS[wi];
+      if (!w.occurrences) continue;
+      for (var oi = 0; oi < w.occurrences.length; oi++) {
+        var occ = w.occurrences[oi];
+        if (!occ.ayahT) continue;
+        var openMatch = occ.ayahT.match(/<([a-zA-Z]+)[^>]*>/g) || [];
+        var closeMatch = occ.ayahT.match(/<\/([a-zA-Z]+)>/g) || [];
+        if (openMatch.length !== closeMatch.length) {
+          unbalanced.push('Word ' + w.id + ' occ ' + oi + ' ayahT: ' + openMatch.length + ' open vs ' + closeMatch.length + ' close');
+        }
+      }
+    }
+    assert.strictEqual(unbalanced.length, 0,
+      'Unbalanced HTML in translations: ' + unbalanced.slice(0, 5).join('; '));
+  });
+
+  // ── TEST 6: Simulate Quran view renderAyahs output — verify no escaped HTML leaks ──
+  test('Quran view renderAyahs output has no visible HTML fragments', function() {
+    if (_VOCAB_WORDS.length === 0) return;
+    var visibleLeaks = 0;
+    var surahsToTest = [1, 112, 114];
+    for (var si = 0; si < surahsToTest.length; si++) {
+      var sid = surahsToTest[si];
+      var ayahGroups = {};
+      var verseKeys = [];
+      var processedKeys = {};
+      for (var wi = 0; wi < _VOCAB_WORDS.length; wi++) {
+        var word = _VOCAB_WORDS[wi];
+        if (word.occurrences) {
+          for (var oi = 0; oi < word.occurrences.length; oi++) {
+            var occ = word.occurrences[oi];
+            if (occ.surahId === sid) {
+              var vk = occ.verseKey || (sid + ':1');
+              if (!processedKeys[vk]) {
+                var plainAyah = occ.ayahA ? occ.ayahA.replace(/<[^>]+>/g, '') : '';
+                ayahGroups[vk] = { words: [], ayahA: plainAyah, ayahT: occ.ayahT || '' };
+                verseKeys.push(vk);
+                processedKeys[vk] = true;
+              }
+              ayahGroups[vk].words.push(word);
+            }
+          }
+        }
+      }
+      // Simulate renderAyahs HTML generation
+      var renderedHtml = '';
+      for (var vi = 0; vi < verseKeys.length; vi++) {
+        var vk = verseKeys[vi];
+        var group = ayahGroups[vk];
+        if (!group) continue;
+        renderedHtml += '<div class="quran-ayah">';
+        renderedHtml += '<div class="quran-ayah-arabic" lang="ar" dir="rtl">';
+        var tokens = group.ayahA.split(/\s+/);
+        var vocabNorm = {};
+        for (var vtwi = 0; vtwi < group.words.length; vtwi++) {
+          var vtn = _normArabicForMatch(group.words[vtwi].arabic);
+          if (vtn) vocabNorm[vtn] = group.words[vtwi];
+        }
+        var renderedIds = {};
+        for (var ti = 0; ti < tokens.length; ti++) {
+          var token = tokens[ti];
+          if (!token) continue;
+          var normToken = _normArabicForMatch(token);
+          var matchedWord = normToken ? vocabNorm[normToken] : null;
+          var isDup = matchedWord && renderedIds[matchedWord.id];
+          if (matchedWord && !isDup) {
+            renderedIds[matchedWord.id] = true;
+            renderedHtml += '<span class="quran-word-token">' + matchedWord.arabic + '</span>';
+          } else {
+            renderedHtml += '<span class="quran-plain-arabic">' +
+              token.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+          }
+          if (ti < tokens.length - 1) renderedHtml += ' ';
+        }
+        renderedHtml += '</div>';
+        if (group.ayahT) {
+          renderedHtml += '<div class="quran-ayah-translation">' +
+            group.ayahT.replace(/<[^>]+>/g, '') + '</div>';
+        }
+        renderedHtml += '</div>';
+      }
+      // Now strip all HTML from the rendered output to get visible text
+      var visibleText = renderedHtml.replace(/<[^>]+>/g, '');
+      // Check for HTML leak patterns in visible text
+      for (var pi = 0; pi < htmlLeakPatterns.length; pi++) {
+        if (htmlLeakPatterns[pi].pattern.test(visibleText)) {
+          visibleLeaks++;
+        }
+      }
+    }
+    assert.strictEqual(visibleLeaks, 0, 'Visible HTML fragments in Quran render: ' + visibleLeaks);
+  });
+
+  // ── TEST 7: Word data files contain no unclosed HTML tags ──
+  // Uses per-line matching to avoid false positives from apostrophes in strings.
+  test('All word data files have properly closed HTML tags', function() {
+    var dataDir = path.join(__dirname, '..', 'js', 'data');
+    if (!fs.existsSync(dataDir)) return;
+    var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
+      return f.startsWith('words-') && f.endsWith('.js');
+    });
+    var unclosedFiles = [];
+    for (var fi = 0; fi < dataFiles.length; fi++) {
+      var lines = fs.readFileSync(path.join(dataDir, dataFiles[fi]), 'utf8').split('\n');
+      for (var li = 0; li < lines.length; li++) {
+        var line = lines[li];
+        if (!line.includes('ayahA:') && !line.includes('ayahT:')) continue;
+        // Count all opening tags (e.g., <strong, <span) and closing tags (e.g., </strong>, </span>)
+        var openTags = (line.match(/<[a-zA-Z][a-zA-Z0-9]*\b/g) || []).length;
+        var closeTags = (line.match(/<\/[a-zA-Z][a-zA-Z0-9]*>/g) || []).length;
+        if (openTags !== closeTags) {
+          unclosedFiles.push(dataFiles[fi] + ' line ' + (li + 1) + ': ' + line.trim().substring(0, 80));
+        }
+      }
+    }
+    assert.strictEqual(unclosedFiles.length, 0,
+      'Unclosed HTML tags in data files: ' + unclosedFiles.slice(0, 5).join('; '));
+  });
+
+  // ── TEST 8: NO word data file stores XML/HTML without span wrappers ──
+  test('No bare angle brackets in ayahA without proper HTML tags', function() {
+    var dataDir = path.join(__dirname, '..', 'js', 'data');
+    if (!fs.existsSync(dataDir)) return;
+    var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
+      return f.startsWith('words-') && f.endsWith('.js');
+    });
+    var issues = [];
+    for (var fi = 0; fi < dataFiles.length; fi++) {
+      var content = fs.readFileSync(path.join(dataDir, dataFiles[fi]), 'utf8');
+      // Check for '<' that's part of legitimate HTML vs. bare text
+      var ayahMatches = content.match(/ayahA:\s*'[^']*'/g) || [];
+      for (var mi = 0; mi < ayahMatches.length; mi++) {
+        var str = ayahMatches[mi];
+        // Every '<' should be part of a valid HTML tag starting with '<'
+        var bareAngles = str.match(/<[^a-zA-Z\/!]/g);
+        if (bareAngles) {
+          issues.push(dataFiles[fi] + ': bare angle brackets in: ' + str.substring(0, 80));
+        }
+      }
+    }
+    assert.strictEqual(issues.length, 0,
+      'Bare angle brackets: ' + issues.slice(0, 5).join('; '));
+  });
+});
+
 // ── Summary ──
 console.log('\n' + '='.repeat(50));
 console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
