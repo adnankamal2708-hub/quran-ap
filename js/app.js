@@ -105,7 +105,13 @@ function updateWordCard() {
 
 // ── SRS ────────────────────────────────────────────────────────
 
+/** @type {boolean} Prevents re-entrant SRS rating from rapid double-clicks */
+let _ratingSRS = false;
+
 function rateSRS(rating) {
+  // Prevent double-click / rapid firing
+  if (_ratingSRS) return;
+  _ratingSRS = true;
   
   const w = getCurrentWord();
   if (!w) return;
@@ -134,6 +140,11 @@ function rateSRS(rating) {
     window.__sync.queueSync(user.uid);
   }
 
+  // Release guard asynchronously so rapid clicks are blocked per-cycle
+  var _releaseGuard = setTimeout(function() {
+    _ratingSRS = false;
+  }, 300);
+  
   const total = reviewMode ? reviewQueue.length : getActiveLessonWordCount();
   if (currentWord < total - 1) {
     currentWord++;
@@ -745,6 +756,8 @@ function safeOnClick(id, fn) {
   if (el) el.onclick = fn;
   return el;
 }
+
+
 
 function wireEvents() {
   // Bottom nav tabs (5-tab layout: Dashboard, Paths, Words, Profile, Reader)

@@ -7,9 +7,18 @@
 
 let currentView = 'learn';
 
+/** @type {boolean} Re-entrant guard to prevent race conditions from rapid tab clicks */
+let _switchingView = false;
+
+/** @type {boolean} Ensures online event listener is only registered once */
+let _onlineSyncSetup = false;
+
 // ── View Switching ─────────────────────────────────────────────
 
 function switchView(viewName) {
+  // Re-entrant guard: prevent race conditions from rapid tab clicks
+  if (_switchingView) return;
+  _switchingView = true;
   // Validate route in development mode
   if (window.__validation) {
     window.__validation.onRouteChange(viewName);
@@ -111,6 +120,9 @@ function switchView(viewName) {
       }, 600);
     }
   }
+  
+  // Release the re-entrant guard
+  _switchingView = false;
   
   if (document.activeElement) document.activeElement.blur();
 }
@@ -415,8 +427,13 @@ function validateSurahCoverage() {
 
 /**
  * Auto-sync pending changes when coming back online.
+ * Only registers the event listener once, preventing duplicate listeners
+ * from multiple init() calls or hot-reload scenarios.
  */
 function setupOnlineSync() {
+  if (_onlineSyncSetup) return;
+  _onlineSyncSetup = true;
+  
   window.addEventListener('online', function () {
     var user = getCurrentUser();
     if (user && window.__sync) {
