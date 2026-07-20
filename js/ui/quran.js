@@ -476,6 +476,9 @@ function renderQuran() {
   } else if (_quranSurahId) {
     openSurahForReading(_quranSurahId);
   }
+
+  // Wire Back button and other Quran view events
+  wireQuranEvents();
 }
 
 // ── Back to Surah List ─────────────────────────────────────────
