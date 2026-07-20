@@ -92,7 +92,7 @@ async function checkSelectors(page, viewId, selectors) {
         }
 
         // Screenshot
-        const dir = `test-results/screenshots/${vp.name}`;
+        const dir = `../test-results/screenshots/${vp.name}`;
         fs.mkdirSync(dir, { recursive: true });
         const path = `${dir}/${view.label.toLowerCase().replace(/\s+/g, '-')}.png`;
         await page.screenshot({ path, fullPage: false });
@@ -161,7 +161,7 @@ async function checkSelectors(page, viewId, selectors) {
     const status = r.error ? '✗ ERROR' : (r.overflowOk && r.contentOk ? '✓ PASS' : '⚠ ISSUE');
     console.log(`  ${status} [${r.viewport}] ${r.view}${r.error ? ': ' + r.error.substring(0, 80) : ''}`);
   }
-  console.log(`\n  Screenshots saved in test-results/screenshots/`);
+  console.log(`\n  Screenshots saved in ../test-results/screenshots/`);
 
   process.exit(failed > 0 ? 1 : 0);
 })();

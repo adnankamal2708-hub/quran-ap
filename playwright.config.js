@@ -16,9 +16,10 @@ module.exports = defineConfig({
   fullyParallel: false,
   retries: 1,
   workers: 1,
+  outputDir: '../test-results',
   reporter: [
     ['list'],
-    ['json', { outputFile: 'test-results/e2e-results.json' }],
+    ['json', { outputFile: '../test-results/e2e-results.json' }],
   ],
   use: {
     baseURL: 'http://localhost:8080',

@@ -140,7 +140,7 @@ VIEWPORTS.forEach(vp => {
         await expect(viewEl).toBeVisible({ timeout: 3000 });
 
         // 2. Take screenshot
-        const screenshotPath = `test-results/screenshots/${vp.name}-${view.label.toLowerCase().replace(/\s+/g, '-')}.png`;
+        const screenshotPath = `../test-results/screenshots/${vp.name}-${view.label.toLowerCase().replace(/\s+/g, '-')}.png`;
         await page.screenshot({ path: screenshotPath, fullPage: false });
         console.log(`  Screenshot saved: ${screenshotPath}`);
 
