@@ -78,8 +78,7 @@ global.window.__analytics = null;
 global.window.__reader = null;
 global.window.__profileContentReady = false;
 global.window.__sessionAchievementsOpen = false;
-global.document.querySelector = function() { return null; };
-global.document.querySelectorAll = function() { return []; };
+// Note: document.querySelector/querySelectorAll are provided by shared-mock.js mockDocument()
 
 // Load the profile UI module
 var profileCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'profile-ui.js'), 'utf8');
@@ -388,6 +387,68 @@ ts('Profile — RenderProfileProgress', function() {
     renderProfileProgress();
     var container = document.getElementById('profile-progress');
     assert.ok(container.innerHTML.length > 0);
+  });
+});
+
+ts('Profile — Subsection Tab Interactivity (Regression)', function() {
+  function buildLayout() {
+    var bar = mock.makeEl('div');
+    bar.className = 'pf-tab-bar';
+    bar.id = 'pf-tab-bar';
+    var tabs = {};
+    var panels = {};
+    ['account', 'progress', 'achievements', 'about'].forEach(function(t) {
+      var tab = mock.makeEl('button');
+      tab.className = 'pf-tab';
+      tab.setAttribute('data-pf-tab', t);
+      tab.id = 'pf-tab-' + t;
+      bar.appendChild(tab);
+      tabs[t] = tab;
+      var panel = mock.makeEl('div');
+      panel.className = 'pf-tab-content';
+      panel.setAttribute('data-pf-tab', t);
+      document.body.appendChild(panel);
+      panels[t] = panel;
+    });
+    document.body.appendChild(bar);
+    tabs.account.classList.add('active');
+    panels.account.classList.add('active');
+    return { bar: bar, tabs: tabs, panels: panels };
+  }
+
+  t('Progress tab click activates progress panel via delegation', function() {
+    _tabEventsWired = false;
+    var layout = buildLayout();
+    wireProfileTabEvents();
+    assert.ok(layout.panels.account.classList.contains('active'));
+    layout.tabs.progress.click();
+    assert.ok(layout.panels.progress.classList.contains('active'), 'progress panel visible');
+    assert.ok(!layout.panels.account.classList.contains('active'), 'account panel hidden');
+    assert.ok(layout.tabs.progress.classList.contains('active'), 'progress tab active');
+  });
+
+  t('Click on bar background does not switch tab', function() {
+    _tabEventsWired = false;
+    var layout = buildLayout();
+    wireProfileTabEvents();
+    layout.bar.click();
+    assert.ok(layout.panels.account.classList.contains('active'), 'account unchanged');
+  });
+
+  t('Direct switchProfileTab switches panels correctly', function() {
+    _tabEventsWired = false;
+    var layout = buildLayout();
+    wireProfileTabEvents();
+    switchProfileTab('progress');
+    assert.ok(layout.panels.progress.classList.contains('active'));
+    switchProfileTab('achievements');
+    assert.ok(layout.panels.achievements.classList.contains('active'));
+    switchProfileTab('about');
+    assert.ok(layout.panels.about.classList.contains('active'));
+    switchProfileTab('account');
+    assert.ok(layout.panels.account.classList.contains('active'));
+    switchProfileTab('progress');
+    assert.ok(layout.panels.progress.classList.contains('active'));
   });
 });
 

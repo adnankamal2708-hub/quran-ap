@@ -30,6 +30,7 @@ function mockLocalStorage() {
 
 // ── Mock DOM ──
 var _elementsById = {};
+var _allElements = [];
 var _nextUid = 0;
 
 function makeEl(tagName) {
@@ -49,6 +50,8 @@ function makeEl(tagName) {
     disabled: false,
     title: '',
     offsetHeight: 1,
+    _clickHandlers: null,
+    _keydownHandlers: null,
 
     setAttribute: function(a, v) { this.attributes[a] = v; },
     getAttribute: function(a) { return this.attributes[a] || null; },
@@ -62,8 +65,74 @@ function makeEl(tagName) {
       if (idx >= 0) { this.children.splice(idx, 1); child.parentNode = null; }
     },
     focus: function() {},
-    click: function() { if (typeof this._onclick === 'function') this._onclick(); },
+    click: function() {
+      if (typeof this._onclick === 'function') this._onclick();
+      if (this._clickHandlers) {
+        var ev = { target: this, bubbles: true, preventDefault: function() {} };
+        for (var h = 0; h < this._clickHandlers.length; h++) {
+          this._clickHandlers[h](ev);
+        }
+      }
+      var p = this.parentNode;
+      while (p) {
+        if (p._clickHandlers) {
+          var ev = { target: this, bubbles: true, preventDefault: function() {} };
+          for (var h = 0; h < p._clickHandlers.length; h++) {
+            p._clickHandlers[h](ev);
+          }
+        }
+        p = p.parentNode;
+      }
+    },
+    closest: function(selector) {
+      var parts = selector.split('.');
+      if (parts.length >= 2) {
+        var tag = parts[0];
+        var cls = parts[1];
+        if ((tag === '' || this._tag === tag) && this._className && this._className.split(' ').indexOf(cls) >= 0) {
+          return this;
+        }
+      }
+      var el = this.parentNode;
+      while (el) {
+        var elParts = selector.split('.');
+        if (elParts.length >= 2) {
+          var elTag = elParts[0];
+          var elCls = elParts[1];
+          if ((elTag === '' || el._tag === elTag) && el._className && el._className.split(' ').indexOf(elCls) >= 0) {
+            return el;
+          }
+        }
+        el = el.parentNode;
+      }
+      return null;
+    },
+    addEventListener: function(type, handler) {
+      if (!this['_' + type + 'Handlers']) {
+        this['_' + type + 'Handlers'] = [];
+      }
+      this['_' + type + 'Handlers'].push(handler);
+    },
+    removeEventListener: function(type, handler) {
+      var handlers = this['_' + type + 'Handlers'];
+      if (!handlers) return;
+      var idx = handlers.indexOf(handler);
+      if (idx >= 0) handlers.splice(idx, 1);
+    },
+    dispatchEvent: function(event) {
+      var handlers = this['_' + event.type + 'Handlers'];
+      if (handlers) {
+        event.target = this;
+        for (var h = 0; h < handlers.length; h++) {
+          handlers[h](event);
+        }
+      }
+      if (event.bubbles !== false && this.parentNode) {
+        this.parentNode.dispatchEvent(event);
+      }
+    },
   };
+  _allElements.push(el);
 
   Object.defineProperty(el, 'id', {
     get: function() { return this._id; },
@@ -71,7 +140,16 @@ function makeEl(tagName) {
   });
   Object.defineProperty(el, 'className', {
     get: function() { return this._className; },
-    set: function(v) { this._className = v || ''; },
+    set: function(v) {
+      this._className = v || '';
+      // Sync classList._values from the raw string so that add/remove/toggle
+      // are consistent with className assignments.
+      var parts = this._className.split(' ').filter(Boolean);
+      el.classList._values = {};
+      for (var ci = 0; ci < parts.length; ci++) {
+        el.classList._values[parts[ci]] = true;
+      }
+    },
   });
   Object.defineProperty(el, 'innerHTML', {
     get: function() { return this._innerHTML; },
@@ -110,18 +188,86 @@ function makeEl(tagName) {
     add: function(c) { this._values[c] = true; el._className = Object.keys(this._values).join(' '); },
     remove: function(c) { delete this._values[c]; el._className = Object.keys(this._values).join(' '); },
     contains: function(c) { return !!this._values[c]; },
+    toggle: function(c, force) {
+      if (force === true) { this.add(c); return true; }
+      if (force === false) { this.remove(c); return false; }
+      if (this.contains(c)) { this.remove(c); return false; }
+      this.add(c); return true;
+    },
   };
 
   return el;
 }
 
-function resetDOM() { _elementsById = {}; }
+function resetDOM() { _elementsById = {}; _allElements = []; }
+
+function queryElements(selector) {
+  // Support simple id (#id), class (.class), tag, and attribute selectors
+  var results = [];
+  
+  if (selector.charAt(0) === '#') {
+    var id = selector.slice(1);
+    return _elementsById[id] ? [_elementsById[id]] : [];
+  }
+  
+  // Parse attribute selector: [attr="val"] or [attr]
+  var attrMatch = selector.match(/^\[(\w+)(?:="([^"]*)")?\]$/);
+  
+  // Parse compound selector like: tag.cls or .cls or tag
+  var tagName = '';
+  var className = '';
+  var attrName = '';
+  var attrVal = '';
+  
+  if (attrMatch) {
+    attrName = attrMatch[1];
+    attrVal = attrMatch[2] !== undefined ? attrMatch[2] : '';
+  } else if (selector.indexOf('.') >= 0) {
+    var parts = selector.split('.');
+    tagName = parts[0] || '';
+    className = parts[1] || '';
+  } else {
+    tagName = selector;
+  }
+  
+  for (var i = 0; i < _allElements.length; i++) {
+    var el = _allElements[i];
+    var match = true;
+    
+    if (tagName && el._tag !== tagName) match = false;
+    if (className) {
+      if (!el._className || el._className.split(' ').indexOf(className) < 0) match = false;
+    }
+    if (attrName) {
+      var actual = el.getAttribute(attrName);
+      if (attrVal !== '') {
+        if (actual !== attrVal) match = false;
+      } else {
+        if (actual === null) match = false;
+      }
+    }
+    
+    if (match) results.push(el);
+  }
+  return results;
+}
 
 function mockDocument() {
   return {
     getElementById: function(id) { return _elementsById[id] || null; },
     createElement: function(tag) { return makeEl(tag); },
-    body: { style: {}, appendChild: function(el) { el.parentNode = this; } },
+    querySelector: function(selector) {
+      var results = queryElements(selector);
+      return results.length > 0 ? results[0] : null;
+    },
+    querySelectorAll: function(selector) {
+      return queryElements(selector);
+    },
+    body: {
+      style: {},
+      appendChild: function(el) { el.parentNode = this; },
+      dispatchEvent: function() {},
+    },
     addEventListener: function() {},
   };
 }

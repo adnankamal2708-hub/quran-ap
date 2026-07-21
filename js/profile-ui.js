@@ -1165,27 +1165,46 @@ function switchProfileTab(tabName) {
   } else if (tabName === 'account' && typeof renderProfileView === 'function') {
     // Account info already rendered in renderFullProfile, refresh if needed
   }
+
+  // Re-wire section-level events after content re-render.
+  // The render* functions above use innerHTML which destroys any
+  // previously attached event handlers on elements within the panels.
+  if (typeof wireProfileSectionEvents === 'function') {
+    wireProfileSectionEvents();
+  }
 }
 
-// ── Wire profile tab clicks ──
+// ── Wire profile tab clicks (event delegation on .pf-tab-bar parent) ──
+
+let _tabEventsWired = false;
 
 function wireProfileTabEvents() {
-  var tabBtns = document.querySelectorAll('.pf-tab');
-  for (var i = 0; i < tabBtns.length; i++) {
-    (function(btn) {
-      btn.onclick = function() {
-        var tabName = btn.getAttribute('data-pf-tab');
-        if (tabName) switchProfileTab(tabName);
-      };
-      btn.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          var tabName = btn.getAttribute('data-pf-tab');
-          if (tabName) switchProfileTab(tabName);
-        }
-      };
-    })(tabBtns[i]);
-  }
+  // Guard: only attach once. Each renderFullProfile call re-invokes this
+  // function, but addEventListener would accumulate duplicates. The tab bar
+  // is static HTML that is never replaced, so a single delegation is sufficient.
+  if (_tabEventsWired) return;
+  _tabEventsWired = true;
+
+  var bar = document.querySelector('.pf-tab-bar');
+  if (!bar) return;
+  // Use a single delegated listener instead of per-button onclick.
+  // This is resilient against DOM re-renders, timing issues, and
+  // accidental overwrites of onclick by other code paths.
+  bar.addEventListener('click', function(e) {
+    var btn = e.target.closest('.pf-tab');
+    if (!btn) return;
+    var tabName = btn.getAttribute('data-pf-tab');
+    if (tabName) switchProfileTab(tabName);
+  });
+  // Keyboard support via delegated keydown
+  bar.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var btn = e.target.closest('.pf-tab');
+    if (!btn) return;
+    e.preventDefault();
+    var tabName = btn.getAttribute('data-pf-tab');
+    if (tabName) switchProfileTab(tabName);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
