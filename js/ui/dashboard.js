@@ -486,16 +486,36 @@ function renderDashboard() {
   }
   
   // 3. Weak vocabulary/roots recommendation (from adaptive engine)
+  // Only show weakness analysis when sufficient learning evidence exists.
+  // A brand-new user with no completed lessons, no mastered words, and no
+  // review history cannot have meaningful weakness data.
+  var $noLearningEvidence = $fCompleted === 0 && $masteredCount === 0 && ($srsStats.totalReviews || 0) === 0;
+  var $sufficientForWeakness = $fCompleted >= 1 || $masteredCount >= 3 || ($srsStats.totalReviews || 0) >= 5;
   if ($weaknesses && $weaknesses.length > 0) {
-    var $weakCount = $weaknesses.length;
-    $recommendations.push({
-      icon: 'alert-triangle',
-      title: $weakCount + ' weak area' + ($weakCount > 1 ? 's' : '') + ' detected',
-      message: 'Focus on ' + $weaknesses[0].name + ($weakCount > 1 ? ' and ' + ($weakCount - 1) + ' more' : '') + ' to strengthen your foundation.',
-      action: 'Review',
-      id: 'smart-rec-weak',
-      actionType: 'review',
-    });
+    if ($sufficientForWeakness) {
+      var $weakCount = $weaknesses.length;
+      $recommendations.push({
+        icon: 'alert-triangle',
+        title: $weakCount + ' weak area' + ($weakCount > 1 ? 's' : '') + ' detected',
+        message: 'Focus on ' + $weaknesses[0].name + ($weakCount > 1 ? ' and ' + ($weakCount - 1) + ' more' : '') + ' to strengthen your foundation.',
+        action: 'Review',
+        id: 'smart-rec-weak',
+        actionType: 'review',
+      });
+    } else if ($noLearningEvidence) {
+      // New user: show onboarding recommendation instead of misleading weakness analysis
+      $recommendations.push({
+        icon: 'star',
+        title: 'Build your foundation',
+        message: 'Complete your first lesson to establish your learning baseline. Bayan will personalize future recommendations as you progress.',
+        action: 'Start lesson',
+        id: 'smart-rec-foundation',
+        actionType: 'foundation',
+      });
+    }
+    // Stage 2 (early learner with some activity but below evidence threshold):
+    // weakness card is simply skipped. Other recommendations (reviews due,
+    // reading, continue learning) fill the available slots naturally.
   }
   
   // 4. SLE recommendation (up to 1, highest priority)

@@ -219,6 +219,8 @@ var _startReviewCalled = false;function resetState() {
   _diffTotal = 5;
   _rfCompleted = 0;
   _rfTotal = 0;
+  // Clear adaptive mock to prevent cross-test pollution
+  if (global.window && global.window.__adaptive) { delete global.window.__adaptive; }
   // Clear forecast cache to prevent cross-test pollution
   if (typeof _forecastCache !== 'undefined') { _forecastCache = null; _forecastCacheKey = null; }
 }
@@ -590,6 +592,100 @@ suite('Smart Recommendations', function() {
     // Find smart-recommendation cards
     var recCards = getInnerHTML();
     assert.ok(recCards.indexOf('db-card-smart-rec') >= 0 || recCards.indexOf('→') >= 0, 'should have recommendation-like content');
+  });
+});
+
+suite('Recommendation — Weakness Guard', function() {
+  function setupWeaknessMock() {
+    global.window.__adaptive = {
+      getDashboardData: function() {
+        return {
+          dailyPlan: null,
+          recommendation: null,
+          weaknesses: [
+            { dimension: 'forgotten-words', name: '3 words frequently forgotten', severity: 'medium' },
+            { dimension: 'overdue', name: '5 overdue reviews', severity: 'low' },
+          ],
+          streakQuality: null,
+          adaptiveLimit: null,
+          goalProgress: null,
+        };
+      },
+    };
+  }
+
+  test('brand-new user: weakness does NOT appear, onboarding appears', function() {
+    resetState();
+    setupGlobals();
+    setupWeaknessMock();
+    _mockFoundationCompleted = 0;
+    _mockSRSStats = { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0, overdue: 0 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    // Weakness should NOT appear
+    assert.ok(html.indexOf('weak area') === -1, 'should NOT show weak area for new user');
+    // Onboarding should appear
+    assert.ok(html.indexOf('Build your foundation') >= 0, 'should show onboarding recommendation');
+    assert.ok(html.indexOf('first lesson') >= 0, 'onboarding should mention first lesson');
+  });
+
+  test('early learner (below evidence threshold): weakness does NOT appear, progression does', function() {
+    resetState();
+    setupGlobals();
+    setupWeaknessMock();
+    _mockFoundationCompleted = 0;
+    _mockSRSStats = { total: 2, mature: 1, dueToday: 0, totalReviews: 2, reviewsToday: 0, newCount: 1, learning: 1, young: 0, overdue: 0 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    // Weakness should NOT appear (only 2 total reviews, below 5-threshold)
+    assert.ok(html.indexOf('weak area') === -1, 'should NOT show weak area for early learner');
+    // Progression-based recommendation should appear (Foundation Course, Reading, etc.)
+    assert.ok(html.indexOf('Foundation') >= 0 || html.indexOf('Reading') >= 0 || html.indexOf('Continue') >= 0,
+      'should show progression recommendation for early learner');
+  });
+
+  test('sufficient evidence (≥1 lesson or ≥3 mastered or ≥5 reviews): weakness appears', function() {
+    resetState();
+    setupGlobals();
+    setupWeaknessMock();
+    _mockFoundationCompleted = 5;
+    _mockSRSStats = { total: 50, mature: 20, dueToday: 5, totalReviews: 200, reviewsToday: 10, newCount: 10, learning: 8, young: 4, overdue: 2 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    // Weakness should appear
+    assert.ok(html.indexOf('weak area') >= 0, 'should show weak area for experienced user');
+    assert.ok(html.indexOf('frequently forgotten') >= 0, 'should mention specific weakness');
+  });
+
+  test('no weaknesses despite sufficient activity: next recommendation appears', function() {
+    resetState();
+    setupGlobals();
+    // Set up adaptive with empty weaknesses
+    global.window.__adaptive = {
+      getDashboardData: function() {
+        return {
+          dailyPlan: null,
+          recommendation: null,
+          weaknesses: [],  // No weaknesses detected
+          streakQuality: null,
+          adaptiveLimit: null,
+          goalProgress: null,
+        };
+      },
+    };
+    _mockFoundationCompleted = 5;
+    _mockSRSStats = { total: 50, mature: 20, dueToday: 0, totalReviews: 200, reviewsToday: 0, newCount: 10, learning: 8, young: 4, overdue: 0 };
+    _mockDueReviews = [];  // No due reviews either
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    // Should NOT show weakness
+    assert.ok(html.indexOf('weak area') === -1, 'should NOT show weak area when no weaknesses exist');
+    // Should show some other recommendation (reading is the fallback)
+    assert.ok(html.indexOf('Smart Recommendations') >= 0, 'recommendations section should still appear');
   });
 });
 
