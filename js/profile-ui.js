@@ -1353,6 +1353,13 @@ async function renderFullProfile(preferredTab) {
     var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
 
     if (user) {
+      // ── Wire subtab navigation immediately ──
+      // The .pf-tab-bar is static HTML, so the delegation listener
+      // can be attached before async Firebase operations complete.
+      // This ensures tabs are interactive even while profile content
+      // is still loading from the server.
+      wireProfileTabEvents();
+
       // ── Logged in: render full profile content ──
       await renderProfileView();
       renderProfileProgress();
@@ -1361,13 +1368,10 @@ async function renderFullProfile(preferredTab) {
       renderProfileCalendar();
       renderProfileAbout();
 
-      // Wire subtab navigation
-      wireProfileTabEvents();
-
       // Activate the correct tab
       switchProfileTab(_activeProfileTab);
 
-      // Wire section-level events
+      // Wire section-level events (after DOM is populated)
       wireProfileSectionEvents();
     } else {
       // ── Not logged in: show auth view
