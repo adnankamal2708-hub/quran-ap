@@ -7599,10 +7599,32 @@ body::before {
 }
 .profile-pstat {
   text-align: center;
-  padding: 12px 8px;
-  background: var(--surface2);
+  padding: 16px 10px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.profile-pstat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.profile-pstat:hover {
+  border-color: rgba(201, 168, 76, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.profile-pstat:hover::before {
+  opacity: 1;
 }
 .profile-pstat-value {
   font-size: 20px;
@@ -7621,9 +7643,13 @@ body::before {
 .profile-subsection {
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 12px;
+  padding: 14px;
   margin-bottom: 10px;
+  transition: border-color 0.2s ease;
+}
+.profile-subsection:hover {
+  border-color: rgba(201,168,76,0.2);
 }
 .profile-subsection-title {
   font-size: 10px;
