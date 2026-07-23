@@ -52,6 +52,10 @@ jobs:
         run: node test/dry-load.js
         timeout-minutes: 2
 
+      - name: Verify production bundle integrity
+        run: node test/production-build.test.js
+        timeout-minutes: 2
+
       - name: Run end-to-end tests
         run: node test/e2e/run-all.js 2>/dev/null || echo "No E2E tests found"
         continue-on-error: true

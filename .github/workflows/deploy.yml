@@ -77,6 +77,10 @@ jobs:
         id: validate
         run: node validate.js 2>&1 | tee validation_output.log
 
+      - name: 🔬 Verify production bundle integrity
+        id: prod-check
+        run: node test/production-build.test.js 2>&1 | tee prod_check_output.log
+
       - name: 📊 Generate build summary
         id: summary
         run: |
@@ -90,6 +94,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat validation_output.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔬 Production Bundle Integrity" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat prod_check_output.log 2>/dev/null || echo "(no output)" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🗂️ Deployed Files" >> $GITHUB_STEP_SUMMARY
