@@ -37,6 +37,7 @@ var TESTS = [
   "explorer.test.js",
   "auth-ui.test.js",
   "regression.test.js",
+  "production-build.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
