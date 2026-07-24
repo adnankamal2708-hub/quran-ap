@@ -316,6 +316,12 @@ function openSurahForReading(surahId) {
   _saveLastPosition(surahId, null);
 
   renderAyahs();
+  
+  // Record ayah_read momentum once per surah open (not on re-renders — Part 6)
+  if (window.__learningJourney && window.__learningJourney.recordMomentum && _quranVerseKeys.length > 0) {
+    window.__learningJourney.recordMomentum('ayah_read', _quranVerseKeys.length);
+  }
+  
   renderSurahBrowser(); // Update active state in list
 
   var versesContainer = document.getElementById('quran-verses');
@@ -432,6 +438,7 @@ function renderAyahs() {
     }
     _quranScrollVerse = null;
   }
+  
 }
 
 // ── Reader Main Entry Point ────────────────────────────────────
@@ -466,13 +473,16 @@ function renderQuran() {
     var $coverageQuran = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
     var $compPctQuran = $coverageQuran ? $coverageQuran.estimatedComprehension : 0;
     var $encouragementCard = '';
-    if ($masteredCount2 > 0) {
+    // Check if this card was previously dismissed (Part 7)
+    var $cardDismissed = window.__learningJourney && window.__learningJourney.isCardDismissed
+      ? window.__learningJourney.isCardDismissed('quran-encourage', 24) : false;
+    if ($masteredCount2 > 0 && !$cardDismissed) {
       $encouragementCard = '<div class="quran-encourage-card" id="quran-encourage-card" style="margin-bottom:14px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--text-muted);line-height:1.5;display:flex;align-items:center;gap:8px">' +
         '<span style="font-size:18px">📚</span>' +
         '<span style="flex:1">You have mastered <strong style="color:var(--gold)">' + $masteredCount2 + ' words</strong> — look for highlighted vocabulary while reading.' +
         ($compPctQuran > 0 ? ' Your estimated comprehension is <strong style="color:var(--gold)">' + $compPctQuran + '%</strong>.' : '') +
         '</span>' +
-        '<button class="quran-encourage-dismiss" onclick="var p=this.parentNode;p.style.display=\'none\'" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px" aria-label="Dismiss">✕</button>' +
+        '<button class="quran-encourage-dismiss" id="quran-encourage-dismiss-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px" aria-label="Dismiss">✕</button>' +
         '</div>';
     }
     versesContainer.innerHTML = $encouragementCard +
@@ -490,6 +500,18 @@ function renderQuran() {
       '</div></div>';
   } else if (_quranSurahId) {
     openSurahForReading(_quranSurahId);
+  }
+
+  // Wire encouragement card dismiss button with persistence (Part 7)
+  var $dismissBtn = document.getElementById('quran-encourage-dismiss-btn');
+  if ($dismissBtn) {
+    $dismissBtn.onclick = function() {
+      var $card = document.getElementById('quran-encourage-card');
+      if ($card) $card.style.display = 'none';
+      if (window.__learningJourney && window.__learningJourney.dismissCard) {
+        window.__learningJourney.dismissCard('quran-encourage');
+      }
+    };
   }
 
   // Wire Back button and other Quran view events

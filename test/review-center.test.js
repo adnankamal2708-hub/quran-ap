@@ -572,16 +572,29 @@ suite('renderReviewCenter — Review Modes', function() {
 });
 
 suite('renderReviewCenter — Reviews Due Section', function() {
-  test('shows empty state when no reviews due', function() {
+  test('shows empty state when no reviews due (new user)', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
     _mockDueReviews = [];
+    // Default mock stats have 0 mastered, 0 totalReviews → new user state
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('All caught up') >= 0, 'should show empty state');
+    assert.ok(html.indexOf('review schedule starts') >= 0 || html.indexOf('All caught up') >= 0, 'should show contextual empty state');
     assert.ok(html.indexOf('Reviews Due') >= 0, 'should still have section label');
+  });
+
+  test('shows all-caught-up empty state when user has learning history', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    _mockDueReviews = [];
+    _mockSRSStats = { total: 50, mature: 20, dueToday: 0, totalReviews: 200, reviewsToday: 5, newCount: 10, learning: 5, young: 3, overdue: 0, avgRetention: 85 };
+
+    renderReviewCenter();
+    var html = grid._innerHTML;
+    assert.ok(html.indexOf('All caught up') >= 0, 'should show all-caught-up for returning user');
   });
 
   test('shows start button when reviews due', function() {
@@ -1129,7 +1142,7 @@ suite('Edge Cases — Missing Globals', function() {
 });
 
 suite('Edge Cases — Empty and Zero States', function() {
-  test('renders with zero reviews', function() {
+  test('renders with zero reviews (new user)', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -1138,7 +1151,7 @@ suite('Edge Cases — Empty and Zero States', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('All caught up') >= 0, 'should show empty state');
+    assert.ok(html.indexOf('review schedule starts') >= 0 || html.indexOf('All caught up') >= 0, 'should show contextual empty state');
   });
 
   test('renders with no forgotten, weak roots, bookmarks, or difficulties', function() {

@@ -158,15 +158,52 @@ function renderQuizCompletion(score, total) {
   
   // Build educational milestone message for Foundation Course
   var milestoneHtml = '';
+  var milestoneMsg = '';
   if (mode === FOUNDATION_MODE && typeof getFoundationMilestoneMessage === 'function') {
-    var milestone = getFoundationMilestoneMessage();
-    if (milestone && milestone.message) {
-      milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
-        '<div style="display:flex;align-items:flex-start;gap:8px">' +
-        '<span style="font-size:20px">' + (milestone.icon || '\uD83C\uDF31') + '</span>' +
-        '<span style="color:var(--text);flex:1">' + milestone.message + '</span>' +
-        '</div></div>';
+    milestoneMsg = getFoundationMilestoneMessage();
+  }
+  
+  // More specific celebration based on actual learned content (Part 4)
+  var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+  var $compPct = $coverage ? $coverage.estimatedComprehension || 0 : 0;
+  var $masteredCount = 0;
+  if (window.__srs && window.__srs.getStats) {
+    var $st = window.__srs.getStats();
+    $masteredCount = $st.mature || 0;
+  }
+  
+  // Build specific celebration message
+  var celebrationDetails = '';
+  if (mode === FOUNDATION_MODE && typeof getFoundationLessonCount === 'function') {
+    var $fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+    var $fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+    var $fPct = $fTotal > 0 ? Math.round(($fCompleted / $fTotal) * 100) : 0;
+    
+    if ($fTotal > 0) {
+      if ($fCompleted === 1) {
+        celebrationDetails = 'First lesson complete! You now understand some of the Quran\'s most frequent words.';
+      } else if ($fPct >= 50) {
+        celebrationDetails = 'Halfway through the Foundation Course! You have learned ' + $fCompleted + ' of ' + $fTotal + ' lessons.';
+      } else if ($fCompleted >= $fTotal) {
+        celebrationDetails = 'Foundation complete! You now understand ' + $compPct + '% of Quranic vocabulary.';
+      } else {
+        celebrationDetails = 'Lesson ' + $fCompleted + ' of ' + $fTotal + ' complete. ' + $compPct + '% Quran comprehension so far.';
+      }
     }
+  }
+  
+  if (milestoneMsg && milestoneMsg.message) {
+    milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
+      '<div style="display:flex;align-items:flex-start;gap:8px">' +
+      '<span style="font-size:20px">' + (milestoneMsg.icon || '\uD83C\uDF31') + '</span>' +
+      '<span style="color:var(--text);flex:1">' + milestoneMsg.message + '</span>' +
+      '</div></div>';
+  } else if (celebrationDetails) {
+    milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
+      '<div style="display:flex;align-items:flex-start;gap:8px">' +
+      '<span style="font-size:20px">📊</span>' +
+      '<span style="color:var(--text);flex:1">' + celebrationDetails + '</span>' +
+      '</div></div>';
   }
   
   // Educational feedback based on score
@@ -179,6 +216,13 @@ function renderQuizCompletion(score, total) {
     msg = 'Good effort \u2014 review the words you missed to strengthen your recall.';
   } else {
     msg = "Keep going! Each attempt builds stronger memory. Review the lesson words and try again.";
+  }
+  
+  // Record lesson completion in momentum for all modes (Part 6)
+  if (typeof getOrganizationMode === 'function') {
+    if (window.__learningJourney && window.__learningJourney.recordMomentum) {
+      window.__learningJourney.recordMomentum('lesson_completed', 1);
+    }
   }
   
   feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Done! ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;

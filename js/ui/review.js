@@ -77,6 +77,12 @@ function endReview() {
     sessionTotal: _reviewSessionTotal || 0,
   };
   
+  // Record momentum for today's learning (Part 6)
+  if (window.__learningJourney && window.__learningJourney.recordMomentum) {
+    window.__learningJourney.recordMomentum('word_reviewed', reviewQueue.length);
+    if (newMastered > 0) window.__learningJourney.recordMomentum('word_mastered', newMastered);
+  }
+  
   // Reset recall counters for next session
   _reviewSessionRecalled = 0;
   _reviewSessionTotal = 0;
@@ -313,22 +319,50 @@ function closeSessionSummary() {
 // ── Next Action Recommendation ─────────────────────────────────
 
 /**
- * Get a brief text recommendation for the user's next action.
+ * Get a prioritized text recommendation for the user's next action.
+ * Priority order:
+ *   1. Due reviews (protect retention)
+ *   2. Resume unfinished lesson
+ *   3. Continue Foundation
+ *   4. Quran reading
+ *   5. Word exploration
+ *   6. Root exploration
  */
 function getNextActionRecommendation() {
   var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
   var now = Date.now();
-  var dueCount = 0;
+  var dueCount = 0, overdueCount = 0;
+  var threeDays = 3 * 24 * 60 * 60 * 1000;
   Object.keys(srsData).forEach(function(id) {
     var entry = srsData[id];
-    if (entry && entry.dueDate && now >= entry.dueDate) dueCount++;
+    if (entry && entry.dueDate && now >= entry.dueDate) {
+      dueCount++;
+      if (now - entry.dueDate > threeDays) overdueCount++;
+    }
   });
-  if (dueCount > 0) return dueCount + ' words due for review — reinforce them soon';
   
+  if (dueCount > 0) {
+    if (overdueCount > 0) {
+      return dueCount + ' words due (' + overdueCount + ' overdue) — review now to protect retention';
+    }
+    return dueCount + ' words due for review — reinforce them soon';
+  }
+  
+  // Priority 2-3: Continue Foundation
   var fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
   var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
-  if (fCompleted < fTotal) return 'Continue Foundation ' + (fCompleted + 1) + ' of ' + fTotal;
+  var fPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
+  if (fCompleted < fTotal) {
+    if (fPct >= 50) return 'Continue Foundation ' + (fCompleted + 1) + ' of ' + fTotal + ' — more than halfway!';
+    return 'Continue Foundation ' + (fCompleted + 1) + ' of ' + fTotal;
+  }
   
+  // Priority 4: Quran reading (foundation complete)
+  if (fTotal > 0) {
+    return 'Read the Quran to apply your vocabulary knowledge';
+  }
+  
+  // Default
   return 'Review your progress in Analytics';
 }
 

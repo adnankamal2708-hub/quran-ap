@@ -351,12 +351,18 @@ function renderReviewCenter() {
     }
     $h += '</div>';
   } else {
-    // No reviews due — show empty state
+    // No reviews due — show intelligent empty state (Part 3)
+    var $noProgress = $data.masteredCount === 0 && $data.totalReviews === 0;
+    var $emptyIcon = $noProgress ? '🌱' : '✅';
+    var $emptyTitle = $noProgress ? 'Your review schedule starts here' : 'All caught up!';
+    var $emptySub = $noProgress
+      ? 'Complete your first Foundation lesson and your personalized review schedule will begin. Each lesson adds words to your review queue.'
+      : 'No words due for review right now. Your retention is strong! Learn new vocabulary or read the Quran to keep building.';
     $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">🔁</span> Reviews Due</div>';
     $h += '<div class="rc-empty-state">';
-    $h += '<div class="rc-empty-icon">✅</div>';
-    $h += '<div class="rc-empty-title">All caught up!</div>';
-    $h += '<div class="rc-empty-sub">No words due for review right now. Check back later or learn new vocabulary.</div>';
+    $h += '<div class="rc-empty-icon">' + $emptyIcon + '</div>';
+    $h += '<div class="rc-empty-title">' + $emptyTitle + '</div>';
+    $h += '<div class="rc-empty-sub">' + $emptySub + '</div>';
     $h += '</div>';
   }
 
