@@ -142,18 +142,6 @@ const APP_FILES = [
   'js/app.js',
 ]);
 
-// Validate that all referenced files exist
-UI_FILES.forEach(function(f) {
-  if (!fs.existsSync(path.join(ROOT, f))) {
-    console.warn('  ⚠ UI file not found: ' + f + ' — check js/ui/ directory');
-  }
-});
-DATA_FILES.forEach(function(f) {
-  if (!fs.existsSync(path.join(ROOT, f))) {
-    console.warn('  ⚠ Data file not found: ' + f);
-  }
-});
-
 function readFile(filePath) {
   var full = path.join(ROOT, filePath);
   return fs.existsSync(full) ? fs.readFileSync(full, 'utf8') : '';
@@ -164,6 +152,8 @@ function writeFile(filePath, content) {
   var dir = path.dirname(full);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(full, content, 'utf8');
+  var size = Buffer.byteLength(content, 'utf8');
+  console.log('     ✓ ' + filePath + ' (' + (size / 1024).toFixed(1) + ' KB)');
 }
 
 function stripComments(code) {
@@ -299,9 +289,61 @@ async function build() {
       }
     }
   }
-  if (!fs.existsSync(DIST)) fs.mkdirSync(DIST, { recursive: true });
-  if (!fs.existsSync(path.join(DIST, 'js'))) fs.mkdirSync(path.join(DIST, 'js'), { recursive: true });
-  if (!fs.existsSync(path.join(DIST, 'js', 'services'))) fs.mkdirSync(path.join(DIST, 'js', 'services'), { recursive: true });
+
+  // 0c. Ensure ALL required output directories exist upfront
+  //     This is critical for CI: failures happen early with clear messages,
+  //     rather than silently inside writeFile() when a directory is missing.
+  console.log('  0c. Ensuring output directories...');
+  var requiredDirs = [
+    DIST,
+    path.join(DIST, 'js'),
+    path.join(DIST, 'js', 'services'),
+    path.join(DIST, 'js', 'quran'),   // per-surah async loading files
+  ];
+  requiredDirs.forEach(function (dir) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log('     ' + dir);
+    } catch (e) {
+      console.error('     ✗ Could not create directory: ' + dir);
+      console.error('       ' + e.message);
+      process.exit(1);
+    }
+  });
+
+  // 0d. Validate critical input files exist before proceeding
+  //     A missing source file means the bundle WILL be broken — fail fast.
+  console.log('  0d. Validating required source files...');
+  var allInputFiles = DATA_FILES.concat(APP_FILES);
+  var missingFiles = [];
+  allInputFiles.forEach(function (f) {
+    if (!fs.existsSync(path.join(ROOT, f))) {
+      missingFiles.push(f);
+    }
+  });
+  // Also check critical standalone files not covered by DATA_FILES/APP_FILES
+  [
+    'js/quran/quran-data.js',
+    'js/quran/surah-index.js',
+    'js/services/firebase-core.js',
+    'index.html',
+    'sw.js',
+    'manifest.json',
+  ].forEach(function (f) {
+    if (!fs.existsSync(path.join(ROOT, f))) {
+      missingFiles.push(f);
+    }
+  });
+  if (missingFiles.length > 0) {
+    console.error('');
+    console.error('  ✗ ' + missingFiles.length + ' REQUIRED SOURCE FILE(S) NOT FOUND:');
+    missingFiles.forEach(function (f) { console.error('    • ' + f); });
+    console.error('');
+    console.error('  Build aborted — fix missing files above and re-run.');
+    console.error('');
+    process.exit(1);
+  }
+  console.log('     All ' + allInputFiles.length + ' input files present.');
 
   // 1. Concat data files
   console.log('  1. Concatenating data files (' + DATA_FILES.length + ' files)...');
@@ -615,6 +657,43 @@ async function build() {
   writeFile('sw.js', sw);
   writeFile('manifest.json', readFile('manifest.json'));
   writeFile('favicon.ico', readFile('favicon.ico') || '');
+
+  // 7b. Verify critical production assets were written
+  //     This ensures step 7 completed correctly and catches issues
+  //     like the step 4b early-return bug that previously skipped steps 5-8.
+  console.log('  7b. Verifying production assets...');
+  var criticalAssets = ['sw.js', 'manifest.json', 'favicon.ico'];
+  var allAssetsOk = true;
+  criticalAssets.forEach(function (asset) {
+    var assetPath = path.join(DIST, asset);
+    if (!fs.existsSync(assetPath)) {
+      console.error('     ✗ ' + asset + ' MISSING — build step 7 may have failed');
+      allAssetsOk = false;
+    } else {
+      var size = fs.statSync(assetPath).size;
+      if (size === 0) {
+        console.error('     ✗ ' + asset + ' is EMPTY (' + size + ' bytes)');
+        allAssetsOk = false;
+      }
+    }
+  });
+  // Verify per-surah directory has content if splitting was attempted
+  var quranDir = path.join(DIST, 'js', 'quran');
+  if (fs.existsSync(quranDir)) {
+    var quranFiles = fs.readdirSync(quranDir);
+    if (quranFiles.length > 0) {
+      console.log('     dist/js/quran/: ' + quranFiles.length + ' file(s)');
+    } else {
+      console.log('     dist/js/quran/: (empty — monolithic fallback in use)');
+    }
+  }
+  if (!allAssetsOk) {
+    console.error('');
+    console.error('  ✗ Production asset verification FAILED (see above).');
+    console.error('  Build aborted — fix step 7 and re-run.');
+    console.error('');
+    process.exit(1);
+  }
 
   // 8. Copy build artifacts to root directory so source index.html and sw.js work
   //    (source index.html references js/data.bundle.min.js + js/app.bundle.min.js)
