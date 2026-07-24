@@ -387,17 +387,16 @@ function wireChoiceButtons() {
 
 /** Navigate to the Foundation Course after onboarding */
 function navigateToFirstAction() {
-  // Set daily review limit based on goal
-  if (_selectedGoal && window.__srs && window.__srs.updateDailyReviewLimit) {
+  // Apply onboarding preferences to the adaptive engine.
+  // This is the single integration point — the bridge handles goal,
+  // daily review limits, and session sizing based on onboarding selections.
+  if (window.__learnerProfile && window.__learnerProfile.applyOnboarding) {
+    window.__learnerProfile.applyOnboarding();
+  } else if (_selectedGoal && window.__srs && window.__srs.updateDailyReviewLimit) {
+    // Fallback: if bridge not loaded, apply basic review limit from goal
     var goalMinutes = parseInt(_selectedGoal, 10) || 10;
-    // Estimate: ~1 review per minute for 10 words, scale proportionally
     var reviewLimit = Math.max(10, Math.min(100, goalMinutes * 5));
     window.__srs.updateDailyReviewLimit(reviewLimit);
-
-    // Also set daily goal target for goal card display
-    try {
-      localStorage.setItem('quran_daily_goal_minutes', goalMinutes);
-    } catch (e) {}
   }
 
   // Navigate to Foundation Course (go directly, skip intermediate dashboard)

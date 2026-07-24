@@ -349,11 +349,47 @@ function getSmartRecommendation() {
     };
   }
 
-  // ── Default: Start learning ──
+  // ── Default: Start learning (personalized by onboarding knowledge level) ──
+  var defaultTitle = 'Your Quran learning journey awaits';
+  var defaultMessage = 'Start the Foundation Course to build a strong vocabulary base.';
+
+  // Personalize the default message based on onboarding knowledge level
+  // when no real learning data exists yet
+  if (window.__learnerProfile && window.__learnerProfile.getPreferences) {
+    var prefs = window.__learnerProfile.getPreferences();
+    if (prefs.source === 'onboarding' && prefs.knowledgeLevel) {
+      var levelMessages = {
+        'beginner': {
+          title: 'Start from the beginning',
+          message: 'The Foundation Course teaches you the most frequent Quranic words first — ' +
+            'giving you the highest comprehension gains in the shortest time.',
+        },
+        'some': {
+          title: 'Build on what you know',
+          message: 'The Foundation Course will reinforce your existing knowledge and fill in gaps. ' +
+            'You may find the early lessons go quickly.',
+        },
+        'intermediate': {
+          title: 'Strengthen your foundations',
+          message: 'Even with intermediate knowledge, the Foundation Course helps solidify your understanding ' +
+            'of high-frequency Quranic vocabulary. Review known words and discover patterns.',
+        },
+        'advanced': {
+          title: 'Fine-tune your vocabulary',
+          message: 'Start with the Foundation Course for structured review, then explore Learn by Surah ' +
+            'or Root Families for deeper study.',
+        },
+      };
+      var levelMsg = levelMessages[prefs.knowledgeLevel] || levelMessages['beginner'];
+      defaultTitle = levelMsg.title;
+      defaultMessage = levelMsg.message;
+    }
+  }
+
   return {
     icon: '📖',
-    title: 'Your Quran learning journey awaits',
-    message: 'Start the Foundation Course to build a strong vocabulary base.',
+    title: defaultTitle,
+    message: defaultMessage,
     action: 'Start Foundation Course',
     actionType: 'foundation',
   };
@@ -981,11 +1017,31 @@ function setUserGoal(goalType) {
  * The target is the user's daily study goal (default 15 min).
  * Monthly/aggregate session data is NOT used here because it represents
  * accumulated time over many days, not today's actual progress.
+ *
+ * Falls back to onboarding preferences when no goal is explicitly set.
  */
 function getGoalProgress() {
   var goal = loadUserGoal();
   var srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : {};
   var todayMinutes = Math.round((srsStats.reviewsToday || 0) * 0.5);
+
+  // If no goal has been set yet, fall back to onboarding preferences
+  if (!goal || !goal.setAt) {
+    var prefs = (window.__learnerProfile && window.__learnerProfile.getPreferences)
+      ? window.__learnerProfile.getPreferences() : null;
+    if (prefs && prefs.source === 'onboarding') {
+      var target = prefs.dailyGoalMinutes || 15;
+      var pct = Math.min(100, Math.round((todayMinutes / target) * 100));
+      return {
+        goalType: 'onboarding-' + target + 'min',
+        targetMinutes: target,
+        progressMinutes: todayMinutes,
+        progressPercent: pct,
+        done: pct >= 100,
+      };
+    }
+  }
+
   var target = goal.targetMinutes || 15;
   var pct = Math.min(100, Math.round((todayMinutes / target) * 100));
 

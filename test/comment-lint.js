@@ -75,6 +75,7 @@ var APP_FILES = [
   'js/profile-ui.js',
   'js/analytics.js',
   'js/ux-polish.js',
+  'js/learner-profile-bridge.js',
   'js/app.js',
 ];
 

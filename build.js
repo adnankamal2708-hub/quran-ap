@@ -135,6 +135,7 @@ const APP_FILES = [
   'js/adaptive-engine.js',
   'js/smart-learning-engine.js',
   'js/ux-polish.js',
+  'js/learner-profile-bridge.js',
   'js/ui/navigation.js',
   'js/ui/review.js',
   'js/ui/review-center.js',
