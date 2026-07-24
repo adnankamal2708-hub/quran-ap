@@ -211,6 +211,51 @@ function renderSRSStatusPill(wordId) {
 }
 
 /**
+ * Render learning context — shows why the user is seeing this word.
+ * Displays foundation lesson, frequency rank, occurrence count, and surah count.
+ */
+function renderWordLearningContext(w) {
+  if (!w) return;
+  var ctxEl = document.getElementById('word-learning-context');
+  if (!ctxEl) return;
+  
+  var parts = [];
+  
+  // Foundation lesson source
+  if (typeof getFoundationLessonForWord === 'function') {
+    var fLesson = getFoundationLessonForWord(w.id);
+    if (fLesson !== null && fLesson >= 0) {
+      parts.push('Learned in Foundation Lesson ' + (fLesson + 1));
+    }
+  }
+  
+  // Frequency rank
+  if (w.frequencyRank && w.frequencyRank > 0) {
+    parts.push('#' + w.frequencyRank + ' most frequent');
+  }
+  
+  // Occurrence count
+  if (w.occ && w.occ > 0) {
+    parts.push('Occurs ' + w.occ.toLocaleString() + ' times');
+  }
+  
+  // Surah count
+  if (w.surahCount && w.surahCount > 0) {
+    parts.push('In ' + w.surahCount + ' surah' + (w.surahCount !== 1 ? 's' : ''));
+  } else if (w.surahIds && w.surahIds.length > 0) {
+    parts.push('In ' + w.surahIds.length + ' surah' + (w.surahIds.length !== 1 ? 's' : ''));
+  }
+  
+  if (parts.length > 0) {
+    ctxEl.innerHTML = '<span style="font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap">' +
+      '<span>📍</span><span>' + parts.join(' \u00B7 ') + '</span></span>';
+    ctxEl.style.display = 'block';
+  } else {
+    ctxEl.style.display = 'none';
+  }
+}
+
+/**
  * Render a subtle badge when a word's root was previously learned in an earlier lesson.
  * Connects new vocabulary to existing root knowledge for Arabic pattern recognition.
  */
