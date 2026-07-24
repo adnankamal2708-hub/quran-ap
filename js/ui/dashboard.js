@@ -410,6 +410,70 @@ function renderDashboard() {
     $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $fPct + '%"></div></div>';
     $h += '<span class="db-progress-text">' + $fCompleted + '/' + $fTotal + '</span>';
     $h += '</div></div>';
+  } else if ($foundationComplete && window.__phase2 && window.__phase2.getLearningPhase) {
+    // ── Foundation complete — show Graduation + Phase 2 state ──
+    // Check if this is the first time seeing Foundation complete (graduation moment)
+    var $_gradKey = 'bayan_grad_seen';
+    var $_gradSeen = false;
+    try { $_gradSeen = localStorage.getItem($_gradKey) === '1'; } catch (e) {}
+    
+    // Show graduation celebration card (first time only)
+    if (!$_gradSeen && window.__phase2.getGraduationData) {
+      var $_gradData = window.__phase2.getGraduationData();
+      $h += '<div class="db-card" id="db-graduation" style="background:linear-gradient(135deg,var(--surface2),rgba(201,168,76,0.06));border:1px solid var(--gold);">';
+      $h += '<div class="db-card-row" style="padding:4px 0">';
+      $h += '<span style="font-size:32px">' + $_gradData.icon + '</span>';
+      $h += '<div class="db-card-body">';
+      $h += '<div class="db-card-title" style="font-size:16px;color:var(--gold)">' + $_gradData.title + '</div>';
+      $h += '<div class="db-card-sub" style="font-size:11px;line-height:1.5;margin-top:4px">' + $_gradData.message + '</div>';
+      $h += '</div></div></div>';
+      // Mark graduation as seen
+      try { localStorage.setItem($_gradKey, '1'); } catch (e) {}
+    }
+    
+    var $p2Phase = window.__phase2.getLearningPhase();
+    if ($p2Phase === 'guided-reading') {
+      // Show Guided Reading card
+      var $nextSurah = window.__phase2.getNextGuidedSurah ? window.__phase2.getNextGuidedSurah() : null;
+      var $p2Progress = window.__phase2.getGuidedReadingProgress ? window.__phase2.getGuidedReadingProgress() : null;
+      if ($nextSurah) {
+        var $preview = window.__phase2.getSurahPreview ? window.__phase2.getSurahPreview($nextSurah.surahId) : null;
+        $h += '<div class="db-card db-action-card db-card-highlight" id="db-guided-reading" tabindex="0" role="button" aria-label="Guided Reading: Surah ' + ($preview ? $preview.surahName : $nextSurah.surahId) + '">';
+        $h += '<div class="db-card-row">';
+        $h += '<div class="db-card-icon db-icon-gold-dim">📖</div>';
+        $h += '<div class="db-card-body">';
+        $h += '<div class="db-card-title">Guided Reading</div>';
+        $h += '<div class="db-card-sub">';
+        if ($preview) $h += $preview.surahName + ' · ' + $preview.estimatedComprehension + '% estimated comprehension';
+        $h += '</div>';
+        $h += '</div>';
+        $h += '<button class="btn btn-sm" type="button">Read</button>';
+        $h += '</div>';
+        if ($p2Progress) {
+          $h += '<div class="db-progress db-progress-tight">';
+          $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $p2Progress.percent + '%"></div></div>';
+          $h += '<span class="db-progress-text">' + $p2Progress.completed + '/' + $p2Progress.total + '</span>';
+          $h += '</div>';
+        }
+        $h += '</div>';
+      }
+    } else if ($p2Phase === 'phase2') {
+      // Independent reading — show expand vocabulary recommendation
+      var $expansionWords = window.__phase2.getExpansionVocabulary ? window.__phase2.getExpansionVocabulary(3) : [];
+      $h += '<div class="db-card" id="db-independent-reading">';
+      $h += '<div class="db-card-row">';
+      $h += '<div class="db-card-icon db-icon-green-faint">📚</div>';
+      $h += '<div class="db-card-body">';
+      $h += '<div class="db-card-title">' + $masteredCount + ' Words Mastered — Independent Reading</div>';
+      $h += '<div class="db-card-sub">';
+      if ($expansionWords.length > 0) {
+        $h += $expansionWords.length + ' new words recommended to expand your vocabulary';
+      } else {
+        $h += 'Explore any surah — your vocabulary foundation is strong';
+      }
+      $h += '</div>';
+      $h += '</div></div></div>';
+    }
   } else if ($dueCount > 0 && $reviewsToday === 0) {
     // No foundation or complete — show reviews as next step
     $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-learning-review" tabindex="0" role="button" aria-label="' + $dueCount + ' reviews due">';
@@ -807,6 +871,17 @@ function renderDashboard() {
   $wire('db-continue-learning-start', function() {
     if (typeof goToFoundationLesson === 'function') goToFoundationLesson(0);
     else if (typeof switchView === 'function') switchView('learn');
+  });
+
+  // Guided Reading — open Quran with the next recommended surah
+  $wire('db-guided-reading', function() {
+    if (typeof switchView === 'function') switchView('quran');
+    if (window.__phase2 && typeof window.__phase2.getNextGuidedSurah === 'function') {
+      var $nextS = window.__phase2.getNextGuidedSurah();
+      if ($nextS && typeof openSurahForReading === 'function') {
+        setTimeout(function() { openSurahForReading($nextS.surahId); }, 100);
+      }
+    }
   });
 
   // ── Smart Recommendation Cards ──

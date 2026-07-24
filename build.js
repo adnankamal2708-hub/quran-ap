@@ -137,6 +137,8 @@ const APP_FILES = [
   'js/ux-polish.js',
   'js/learner-profile-bridge.js',
   'js/learning-journey.js',
+  'js/phase2-surahs.js',
+  'js/phase2.js',
   'js/ui/navigation.js',
   'js/ui/review.js',
   'js/ui/review-center.js',

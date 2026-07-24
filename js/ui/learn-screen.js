@@ -64,16 +64,46 @@ function renderLearnScreen() {
   h += '<div class="ls-journey-msg" style="font-size:12px;color:var(--gold-dim);margin-bottom:10px;text-align:center;line-height:1.5">' + $journeyMsg + '</div>';
 
   // ═══ CONTINUE LEARNING (primary action — first visible) ═══
-  if ($fTotal > 0) {
-    var $continueLabel = $foundationComplete ? 'Surah Learning' : 'Foundation ' + ($fNextIdx + 1) + ' of ' + $fTotal;
-    h += '<div class="ls-action-card ls-card-learn" id="ls-continue-learning" tabindex="0" role="button" aria-label="Continue learning">';
+  if ($fTotal > 0 && !$foundationComplete) {
+    var $continueLabel = 'Foundation ' + ($fNextIdx + 1) + ' of ' + $fTotal;
+    h += '<div class="ls-action-card ls-card-learn" id="ls-continue-learning" tabindex="0" role="button" aria-label="Continue Foundation Course">';
     h += '<div class="ls-card-icon">' + _lsIcon('layers', 18) + '</div>';
     h += '<div class="ls-card-body">';
     h += '<div class="ls-card-title">' + $continueLabel + '</div>';
-    h += '<div class="ls-card-sub">' + ($foundationComplete ? 'Foundation complete!' : $fPct + '% complete') + '</div>';
+    h += '<div class="ls-card-sub">' + $fPct + '% complete</div>';
     h += '</div>';
     h += '<div class="ls-progress-ring"><svg viewBox="0 0 36 36" width="28" height="28"><path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path class="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $fPct + ', 100" stroke="var(--gold)"/></svg></div>';
     h += '</div>';
+  } else if ($foundationComplete && window.__phase2 && window.__phase2.getLearningPhase) {
+    // ── Foundation complete — show Phase 2 actions ──
+    var $p2Phase = window.__phase2.getLearningPhase();
+    if ($p2Phase === 'guided-reading') {
+      var $nextSurah = window.__phase2.getNextGuidedSurah ? window.__phase2.getNextGuidedSurah() : null;
+      if ($nextSurah) {
+        var $preview = window.__phase2.getSurahPreview ? window.__phase2.getSurahPreview($nextSurah.surahId) : null;
+        var $gProgress = window.__phase2.getGuidedReadingProgress ? window.__phase2.getGuidedReadingProgress() : null;
+        h += '<div class="ls-action-card ls-card-learn" id="ls-guided-reading" tabindex="0" role="button" aria-label="Guided Reading: ' + ($preview ? $preview.surahName : '') + '">';
+        h += '<div class="ls-card-icon">📖</div>';
+        h += '<div class="ls-card-body">';
+        h += '<div class="ls-card-title">Guided Reading: ' + ($preview ? $preview.surahName : '') + '</div>';
+        h += '<div class="ls-card-sub">';
+        if ($preview) h += $preview.estimatedComprehension + '% estimated comprehension · ' + $preview.newWords + ' new words';
+        h += '</div>';
+        h += '</div>';
+        if ($gProgress) {
+          h += '<div class="ls-progress-ring"><svg viewBox="0 0 36 36" width="28" height="28"><path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path class="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $gProgress.percent + ', 100" stroke="var(--gold)"/></svg></div>';
+        }
+        h += '</div>';
+      }
+    } else if ($p2Phase === 'phase2') {
+      h += '<div class="ls-action-card" id="ls-independent-reading" style="opacity:0.85">';
+      h += '<div class="ls-card-icon">📚</div>';
+      h += '<div class="ls-card-body">';
+      h += '<div class="ls-card-title">Independent Reading</div>';
+      h += '<div class="ls-card-sub">All guided surahs complete! Open the Quran to explore any surah.</div>';
+      h += '</div>';
+      h += '</div>';
+    }
   }
 
   // ═══ REVIEWS DUE (conditional — urgent action) ═══
@@ -140,6 +170,22 @@ function wireLearnScreenEvents() {
     } else {
       if (typeof switchView === 'function') switchView('learn');
     }
+  });
+
+  // Guided Reading — open Quran with next recommended surah
+  $lwire('ls-guided-reading', function() {
+    if (typeof switchView === 'function') switchView('quran');
+    if (window.__phase2 && typeof window.__phase2.getNextGuidedSurah === 'function') {
+      var $gNextS = window.__phase2.getNextGuidedSurah();
+      if ($gNextS && typeof openSurahForReading === 'function') {
+        setTimeout(function() { openSurahForReading($gNextS.surahId); }, 100);
+      }
+    }
+  });
+
+  // Independent Reading — open Quran
+  $lwire('ls-independent-reading', function() {
+    if (typeof switchView === 'function') switchView('quran');
   });
 
   // Learning Paths

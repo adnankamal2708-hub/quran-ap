@@ -468,6 +468,41 @@ function renderQuran() {
   // Pre-populate verses container with vocabulary stats encouragement (Part 3)
   var versesContainer = document.getElementById('quran-verses');
   if (versesContainer && !_quranSurahId) {
+    // ── Check for Phase 2 pre-reading preview ──
+    // If Foundation is complete and user is opening Quran, show the next guided surah preview
+    var $quranPreviewHtml = '';
+    if (window.__phase2 && window.__phase2.isFoundationGraduate && window.__phase2.isFoundationGraduate()) {
+      var $p2Phase = typeof window.__phase2.getLearningPhase === 'function' ? window.__phase2.getLearningPhase() : null;
+      if ($p2Phase === 'guided-reading') {
+        var $nextGSurah = typeof window.__phase2.getNextGuidedSurah === 'function' ? window.__phase2.getNextGuidedSurah() : null;
+        if ($nextGSurah) {
+          var $gPreview = typeof window.__phase2.getSurahPreview === 'function' ? window.__phase2.getSurahPreview($nextGSurah.surahId) : null;
+          if ($gPreview) {
+            var $recurringHtml = '';
+            if ($gPreview.recurringRoots && $gPreview.recurringRoots.length > 0) {
+              $recurringHtml = ' · ' + $gPreview.recurringRoots.length + ' recurring roots';
+            }
+            $quranPreviewHtml = '<div class="quran-encourage-card" id="quran-guided-preview" style="margin-bottom:14px;padding:12px 16px;background:var(--surface2);border:1px solid var(--gold-dim);border-radius:10px;font-size:12px;line-height:1.6">' +
+              '<div style="display:flex;align-items:flex-start;gap:10px">' +
+              '<span style="font-size:22px">📖</span>' +
+              '<div style="flex:1">' +
+              '<div style="font-weight:600;color:var(--gold);margin-bottom:4px;font-size:13px">Next Guided Reading: ' + $gPreview.surahName + '</div>' +
+              '<div style="color:var(--text-muted);font-size:11px">' +
+              'You\'ll encounter <strong style="color:var(--gold)">' + $gPreview.knownWords + '</strong> words you already know' +
+              ($gPreview.newWords > 0 ? ' · <strong style="color:var(--text)">' + $gPreview.newWords + ' new words</strong>' : '') +
+              $recurringHtml +
+              '</div>' +
+              '<div style="margin-top:6px;display:flex;gap:8px">' +
+              '<span style="font-size:11px;color:var(--green)">📈 Estimated comprehension: ' + $gPreview.estimatedComprehension + '%</span>' +
+              '<span style="font-size:11px;color:var(--text-muted)">⏱️ ~' + $gPreview.estMinutes + ' min</span>' +
+              '</div>' +
+              '<button class="btn btn-sm" id="quran-guided-start" type="button" style="margin-top:8px;background:var(--gold);color:var(--bg);border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:11px">Start Reading →</button>' +
+              '</div></div></div>';
+          }
+        }
+      }
+    }
+
     var $vocabStats = typeof getSRSStats === 'function' ? getSRSStats() : {};
     var $masteredCount2 = $vocabStats.mature || 0;
     var $coverageQuran = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
@@ -485,7 +520,7 @@ function renderQuran() {
         '<button class="quran-encourage-dismiss" id="quran-encourage-dismiss-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px" aria-label="Dismiss">✕</button>' +
         '</div>';
     }
-    versesContainer.innerHTML = $encouragementCard +
+    versesContainer.innerHTML = $quranPreviewHtml + $encouragementCard +
       '<div class="quran-empty">' +
       '<div style="font-size: 42px; margin-bottom: 16px">📖</div>' +
       '<div style="font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px">Select a Surah</div>' +
@@ -514,6 +549,17 @@ function renderQuran() {
     };
   }
 
+  // Wire Guided Reading start button
+  var $guidedStartBtn = document.getElementById('quran-guided-start');
+  if ($guidedStartBtn && window.__phase2 && window.__phase2.getNextGuidedSurah) {
+    $guidedStartBtn.onclick = function() {
+      var $guidedS = window.__phase2.getNextGuidedSurah();
+      if ($guidedS && typeof openSurahForReading === 'function') {
+        openSurahForReading($guidedS.surahId);
+      }
+    };
+  }
+
   // Wire Back button and other Quran view events
   wireQuranEvents();
 }
@@ -521,6 +567,61 @@ function renderQuran() {
 // ── Back to Surah List ─────────────────────────────────────────
 
 function goBackToSurahList() {
+  // ── Check if we just completed a guided surah ──
+  // When the user navigates back from a surah, record its completion
+  // and show the inline post-surah summary card.
+  if (_quranSurahId && window.__phase2 && typeof window.__phase2.getSurahCompletionSummary === 'function') {
+    var $completionData = window.__phase2.getSurahCompletionSummary(_quranSurahId);
+    
+    // Record momentum for newly encountered words
+    if ($completionData && $completionData.newWords > 0 && window.__learningJourney && window.__learningJourney.recordMomentum) {
+      window.__learningJourney.recordMomentum('word_learned', $completionData.newWords);
+    }
+    
+    // Show post-surah completion card in the surah list area
+    if ($completionData && $completionData.isGuidedSurah) {
+      var $listEl = document.getElementById('quran-surah-list');
+      if ($listEl) {
+        var $compCard = document.createElement('div');
+        $compCard.id = 'quran-surah-complete';
+        $compCard.style.cssText = 'margin-bottom:14px;padding:14px 16px;background:var(--surface2);border:1px solid var(--gold-dim);border-radius:12px;font-size:12px;line-height:1.6';
+        var $nextHtml = '';
+        if ($completionData.nextSurah) {
+          $nextHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Next recommendation:</div>' +
+            '<button id="quran-next-guided" class="btn btn-sm" style="background:var(--gold);color:var(--bg);border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:11px">Continue to ' + $completionData.nextSurah.name + ' →</button>' +
+            '</div>';
+        }
+        $compCard.innerHTML = '<div style="display:flex;align-items:flex-start;gap:10px">' +
+          '<span style="font-size:24px">✨</span>' +
+          '<div style="flex:1">' +
+          '<div style="font-weight:600;color:var(--gold);margin-bottom:6px;font-size:14px">' + $completionData.surahName + ' Complete</div>' +
+          '<div style="color:var(--text-muted);font-size:11px">' +
+          'You understood approximately <strong style="color:var(--gold)">' + $completionData.comprehensionBefore + '%</strong> of this surah using your current vocabulary.' +
+          '</div>' +
+          '<div style="margin-top:6px;color:var(--text-muted);font-size:11px">' +
+          'You recognized <strong style="color:var(--gold)">' + $completionData.knownWords + '</strong> words · ' +
+          'Encountered <strong>' + $completionData.newWords + '</strong> new words' +
+          ($completionData.recurringRoots && $completionData.recurringRoots.length > 0
+            ? ' · ' + $completionData.recurringRoots.length + ' important roots' : '') +
+          '</div>' +
+          $nextHtml +
+          '</div></div>';
+        $listEl.insertBefore($compCard, $listEl.firstChild);
+        
+        // Wire next guided surah button
+        var $nextBtn = document.getElementById('quran-next-guided');
+        if ($nextBtn && $completionData.nextSurah) {
+          $nextBtn.onclick = function() {
+            if (typeof openSurahForReading === 'function') {
+              openSurahForReading($completionData.nextSurah.surahId);
+            }
+          };
+        }
+      }
+    }
+  }
+  
   _quranSurahId = null;
   var listEl = document.getElementById('quran-surah-list');
   var mainEl = document.getElementById('quran-main');
