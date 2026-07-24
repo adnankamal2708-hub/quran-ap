@@ -46,6 +46,23 @@ function renderLearnScreen() {
   // ── Build HTML ──
   var h = '';
 
+  // ═══ JOURNEY MESSAGE (Part 2) ═══
+  var $journeyMsg = '';
+  if ($foundationComplete) {
+    $journeyMsg = 'Foundation complete! Explore the Quran through surah study.';
+  } else if ($fCompleted >= 9) {
+    $journeyMsg = 'You are completing the foundation of Quran vocabulary.';
+  } else if ($fCompleted >= 7) {
+    $journeyMsg = 'Your vocabulary is becoming interconnected through roots.';
+  } else if ($fCompleted >= 4) {
+    $journeyMsg = 'You are beginning to recognize recurring Quranic patterns.';
+  } else if ($fCompleted >= 1) {
+    $journeyMsg = 'Every word you learn unlocks more of the Quran.';
+  } else {
+    $journeyMsg = 'Welcome! Your first lesson starts here.';
+  }
+  h += '<div class="ls-journey-msg" style="font-size:12px;color:var(--gold-dim);margin-bottom:10px;text-align:center;line-height:1.5">' + $journeyMsg + '</div>';
+
   // ═══ CONTINUE LEARNING (primary action — first visible) ═══
   if ($fTotal > 0) {
     var $continueLabel = $foundationComplete ? 'Surah Learning' : 'Foundation ' + ($fNextIdx + 1) + ' of ' + $fTotal;

@@ -705,6 +705,25 @@ body::before {
   color: var(--red) !important;
 }
 
+/* ── Root Reinforcement Badge ──────────────────────────────── */
+.root-reinforcement-badge {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--gold-dim);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+.root-reinforcement-word {
+  font-family: var(--arabic);
+  font-size: 12px;
+  color: var(--gold-light);
+  direction: rtl;
+}
+
 /* ── Quick Actions ─────────────────────────────────────────── */
 .quick-actions {
   display: flex;

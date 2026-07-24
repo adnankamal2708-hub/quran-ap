@@ -458,10 +458,25 @@ function renderQuran() {
     });
   }
 
-  // Pre-populate verses container
+  // Pre-populate verses container with vocabulary stats encouragement (Part 3)
   var versesContainer = document.getElementById('quran-verses');
   if (versesContainer && !_quranSurahId) {
-    versesContainer.innerHTML = '<div class="quran-empty">' +
+    var $vocabStats = typeof getSRSStats === 'function' ? getSRSStats() : {};
+    var $masteredCount2 = $vocabStats.mature || 0;
+    var $coverageQuran = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
+    var $compPctQuran = $coverageQuran ? $coverageQuran.estimatedComprehension : 0;
+    var $encouragementCard = '';
+    if ($masteredCount2 > 0) {
+      $encouragementCard = '<div class="quran-encourage-card" id="quran-encourage-card" style="margin-bottom:14px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--text-muted);line-height:1.5;display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:18px">📚</span>' +
+        '<span style="flex:1">You have mastered <strong style="color:var(--gold)">' + $masteredCount2 + ' words</strong> — look for highlighted vocabulary while reading.' +
+        ($compPctQuran > 0 ? ' Your estimated comprehension is <strong style="color:var(--gold)">' + $compPctQuran + '%</strong>.' : '') +
+        '</span>' +
+        '<button class="quran-encourage-dismiss" onclick="var p=this.parentNode;p.style.display=\'none\'" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px" aria-label="Dismiss">✕</button>' +
+        '</div>';
+    }
+    versesContainer.innerHTML = $encouragementCard +
+      '<div class="quran-empty">' +
       '<div style="font-size: 42px; margin-bottom: 16px">📖</div>' +
       '<div style="font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px">Select a Surah</div>' +
       '<div style="font-size: 12px; color: var(--text-muted); line-height: 1.6; max-width: 300px; margin: 0 auto">' +

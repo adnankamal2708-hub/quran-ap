@@ -228,12 +228,30 @@ function renderDashboard() {
   var $compDeltas = $compInsight || {};
   var $compMilestone = $compInsight ? ($compInsight.milestoneCurrent ? $compInsight.milestoneCurrent.label : '') : '';
 
-  // ═══ 1. GREETING ═══
+  // ═══ 1. GREETING — Contextual greeting based on learner stage (Part 1) ═══
+  var $greetingSub = '';
+  if ($noProgress) {
+    $greetingSub = 'Today we begin building your Quran vocabulary.';
+  } else if ($foundationComplete) {
+    $greetingSub = 'Time to strengthen your vocabulary through real Quran reading.';
+  } else if ($fTotal > 0 && $fPct >= 50) {
+    $greetingSub = 'You are halfway through the Foundation Course!';
+  } else if ($fTotal > 0 && $fPct >= 25) {
+    $greetingSub = 'You are building your Quran foundation.';
+  } else if ($fTotal > 0 && $fCompleted > 0) {
+    $greetingSub = 'Every word you learn unlocks more of the Quran.';
+  } else if ($streak > 0) {
+    $greetingSub = 'Keep your streak alive — every review strengthens your understanding.';
+  } else if ($comprehensionPct > 0) {
+    $greetingSub = 'You understand ' + $comprehensionPct + '% of Quranic vocabulary. Keep going!';
+  } else {
+    $greetingSub = 'Your journey to understand the Quran begins here.';
+  }
   $h += '<div class="db-greeting">';
   $h += '<div class="db-greeting-icon" aria-hidden="true">' + $icon('book', 28) + '</div>';
   $h += '<div>';
   $h += '<h2 class="db-greeting-title">Assalamu Alaikum</h2>';
-  $h += '<p class="db-greeting-sub">Your journey to understand the Quran</p>';
+  $h += '<p class="db-greeting-sub">' + $greetingSub + '</p>';
   $h += '</div></div>';
 
   // ═══ 2. QURAN COMPREHENSION HEADLINE ═══

@@ -149,6 +149,40 @@ async function renderProfileView() {
     avatarEl.textContent = initial;
   }
 
+  // Update learner stage description (Part 6)
+  var stageEl = document.getElementById('profile-learner-stage');
+  if (stageEl) {
+    var stageStats = typeof computeLearningSummary === 'function' ? computeLearningSummary() : {};
+    var stageFCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+    var stageFTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+    var stageComprehension = (typeof calculateCoverage === 'function' ? calculateCoverage() : {}).estimatedComprehension || 0;
+    
+    var stageLabel = 'Beginning your journey';
+    var stageIcon = '🌱';
+    if (stageFTotal > 0 && stageFCompleted >= stageFTotal) {
+      stageLabel = 'Independent Quran learner';
+      stageIcon = '📖';
+    } else if (stageFCompleted >= 5) {
+      stageLabel = 'Strengthening long-term memory';
+      stageIcon = '🧠';
+    } else if (stageFCompleted >= 2) {
+      stageLabel = 'Building your foundation';
+      stageIcon = '🏗️';
+    } else if (stageFCompleted >= 1) {
+      stageLabel = 'Beginning your journey';
+      stageIcon = '🌱';
+    }
+    // Override for high comprehension
+    if (stageComprehension >= 70) {
+      stageLabel = 'Advanced Quran reader';
+      stageIcon = '📚';
+    } else if (stageComprehension >= 40 && stageFCompleted < 2) {
+      stageLabel = 'Developing reader';
+      stageIcon = '📖';
+    }
+    stageEl.textContent = stageIcon + ' ' + stageLabel;
+  }
+
   // Load stats
   var stats = computeLearningSummary && typeof computeLearningSummary === 'function' ? computeLearningSummary() : {};
   // Stats elements — guard against missing DOM (moved to new Profile sections)

@@ -117,6 +117,14 @@ function rateSRS(rating) {
   if (!w) return;
   rateSRSWord(w.id, rating);
 
+  // Track review session recall for session summary (Priority 2)
+  if (reviewMode) {
+    if (typeof _reviewSessionRecalled !== 'undefined') {
+      if (rating >= 2) _reviewSessionRecalled++;
+      _reviewSessionTotal++;
+    }
+  }
+
   // Invalidate stats cache after rating
   if (window.__srs && window.__srs.invalidateStatsCache) {
     window.__srs.invalidateStatsCache();

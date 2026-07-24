@@ -6,6 +6,8 @@
 // ── Review Session State ───────────────────────────────────────
 
 var _reviewOriginalMastered = 0;
+var _reviewSessionRecalled = 0;
+var _reviewSessionTotal = 0;
 
 // ── Review Session Lifecycle ──────────────────────────────────
 
@@ -13,6 +15,8 @@ function startReview() {
   reviewQueue = getDueReviews();
   if (!reviewQueue.length) return;
   _reviewOriginalMastered = 0;
+  _reviewSessionRecalled = 0;
+  _reviewSessionTotal = 0;
   // Count how many are already mastered in the review queue
   var srsData = loadSRS();
   for (var ri = 0; ri < reviewQueue.length; ri++) {
@@ -69,7 +73,13 @@ function endReview() {
     timeSpentMinutes: timeSpentMinutes,
     nextRecommendation: getNextActionRecommendation(),
     milestoneToCelebrate: milestoneToCelebrate,
+    sessionRecalled: _reviewSessionRecalled || 0,
+    sessionTotal: _reviewSessionTotal || 0,
   };
+  
+  // Reset recall counters for next session
+  _reviewSessionRecalled = 0;
+  _reviewSessionTotal = 0;
 
   reviewMode = false;
   currentWord = 0;
@@ -232,6 +242,33 @@ function showSessionSummary(stats) {
   if ($nextRecEl) $nextRecEl.textContent = $nextRecommendation;
   var $timeSpentEl = document.getElementById('session-time-spent');
   if ($timeSpentEl) $timeSpentEl.textContent = $timeSpent > 0 ? $timeSpent + ' min' : '< 1 min';
+
+  // Populate adaptive session fields with recall data (Priority 2)
+  var $sessionRecalled = stats.sessionRecalled || 0;
+  var $sessionTotal = stats.sessionTotal || 0;
+  var $recallRate = $sessionTotal > 0 ? Math.round(($sessionRecalled / $sessionTotal) * 100) : 0;
+  var $forgottenCount = $sessionTotal - $sessionRecalled;
+  
+  var $accuracyEl = document.getElementById('session-accuracy');
+  if ($accuracyEl) {
+    $accuracyEl.textContent = $recallRate + '%';
+    $accuracyEl.style.color = $recallRate >= 80 ? 'var(--green)' : ($recallRate >= 60 ? 'var(--gold)' : 'var(--red)');
+  }
+  var $retentionEl = document.getElementById('session-retention');
+  if ($retentionEl) $retentionEl.textContent = $recallRate + '%';
+  var $needsImprovementEl = document.getElementById('session-needs-improvement');
+  if ($needsImprovementEl) {
+    $needsImprovementEl.textContent = $forgottenCount > 0 
+      ? $forgottenCount + ' word' + ($forgottenCount !== 1 ? 's' : '') 
+      : 'None — great session!';
+  }
+  var $bestCategoryEl = document.getElementById('session-best-category');
+  if ($bestCategoryEl) {
+    if ($recallRate >= 90) $bestCategoryEl.textContent = 'Excellent Recall';
+    else if ($recallRate >= 75) $bestCategoryEl.textContent = 'Good Retention';
+    else if ($recallRate >= 50) $bestCategoryEl.textContent = 'Building Strength';
+    else $bestCategoryEl.textContent = 'Needs Practice';
+  }
 
   var encouragement = document.getElementById('session-encouragement');
   var $msgs = [

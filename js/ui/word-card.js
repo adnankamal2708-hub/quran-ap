@@ -62,11 +62,17 @@ function renderWordCard(w, currentIndex, total, isReview) {
     nextBtn.textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Done \u2713' : 'Quiz \u270F\uFE0F';
   }
 
+  // Word learning context — show why the user is seeing this word (Part 4)
+  renderWordLearningContext(w);
+
   // SRS pill (uses canonical word ID)
   renderSRSStatusPill(w.id);
 
   // Root box
   renderRootBox(w);
+
+  // Root reinforcement badge — show when this word's root was previously learned (Priority 4)
+  renderRootReinforcementBadge(w);
 
   // Word network
   renderWordNetwork(w);
@@ -201,6 +207,47 @@ function renderSRSStatusPill(wordId) {
     pill.classList.add('sr-leech');
   } else {
     pill.classList.remove('sr-leech');
+  }
+}
+
+/**
+ * Render a subtle badge when a word's root was previously learned in an earlier lesson.
+ * Connects new vocabulary to existing root knowledge for Arabic pattern recognition.
+ */
+function renderRootReinforcementBadge(w) {
+  if (!w || !w.root || w.root === '\u2014') return;
+  
+  // Only show during normal word study (not review mode)
+  if (reviewMode) return;
+  
+  // Only show in foundation/lesson mode
+  var mode = typeof getOrganizationMode === 'function' ? getOrganizationMode() : '';
+  if (mode !== 'foundation') return;
+  
+  var badgeEl = document.getElementById('root-reinforcement-badge');
+  if (!badgeEl) return;
+  
+  // Check if any same-root words from previous lessons have been studied (SRS stage > 0)
+  var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
+  var sameRootPreviouslyLearned = false;
+  var previousWord = null;
+  
+  var allFWords = typeof getAllFoundationWords === 'function' ? getAllFoundationWords() : [];
+  for (var bi = 0; bi < allFWords.length; bi++) {
+    var fw = allFWords[bi];
+    if (fw.id === w.id) continue;
+    if (fw.root === w.root && srsData[fw.id] && srsData[fw.id].stage > 0) {
+      sameRootPreviouslyLearned = true;
+      previousWord = fw;
+      break;
+    }
+  }
+  
+  if (sameRootPreviouslyLearned && previousWord) {
+    badgeEl.innerHTML = '<span class="root-reinforcement-badge">\uD83D\uDCCE Previously learned root \u00B7 Same word family as: <span class="root-reinforcement-word">' + previousWord.arabic + '</span> (' + previousWord.english + ')</span>';
+    badgeEl.style.display = 'block';
+  } else {
+    badgeEl.style.display = 'none';
   }
 }
 

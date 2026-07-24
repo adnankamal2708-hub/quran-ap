@@ -504,6 +504,8 @@ getResults: function () { return _safeguardResults; },
           <div class="meaning" id="meaning">Allah — God</div>
           <div id="sr-pill" class="sr-pill sr-new" aria-live="polite"><span aria-hidden="true">🆕</span> New word</div>
           <div class="occurrence-tag" id="occurrences"><svg viewBox="0 0 24 24" width="10" height="10" stroke="var(--green)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Appears 2,699 times</div>
+          <div id="root-reinforcement-badge" style="display:none;margin-top:6px;text-align:center"></div>
+          <div id="word-learning-context" style="display:none;font-size:10px;color:var(--gold-dim);margin:6px 0 10px;text-align:center;line-height:1.5;padding:0 8px"></div>
         </article>
 
         <div class="nav-row" id="nav-row">
@@ -1173,8 +1175,7 @@ getResults: function () { return _safeguardResults; },
 
           <!-- ═══ TAB 1: ACCOUNT ═══ -->
           <div class="pf-tab-content active" data-pf-tab="account" role="tabpanel">
-            <div class="pf-card">
-              <div class="profile-header">
+            <div class="pf-card">                <div class="profile-header">
                 <div class="profile-avatar" id="profile-avatar">U</div>
                 <div class="profile-header-info">
                   <div class="profile-name" id="profile-name">User</div>
@@ -1182,6 +1183,7 @@ getResults: function () { return _safeguardResults; },
                     <span class="profile-email" id="profile-email"></span>
                     <span class="profile-verified-badge" id="profile-email-verified"></span>
                   </div>
+                  <div class="profile-learner-stage" id="profile-learner-stage" style="font-size:11px;color:var(--gold-dim);margin-top:4px">🌱 Beginning your journey</div>
                 </div>
               </div>
               <div id="profile-info">
