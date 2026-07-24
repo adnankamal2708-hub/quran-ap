@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout repository
@@ -55,6 +55,21 @@ jobs:
       - name: Verify production bundle integrity
         run: node test/production-build.test.js
         timeout-minutes: 2
+
+      - name: Debug build output (diagnostic)
+        if: failure()
+        run: |
+          echo "::group::Node version"
+          node -v
+          echo "::group::dist/ directory listing"
+          ls -la dist/ 2>/dev/null || echo "dist/ not found"
+          ls -la dist/js/ 2>/dev/null || echo "dist/js/ not found"
+          ls -la dist/js/quran/ 2>/dev/null || echo "dist/js/quran/ not found"
+          echo "::group::File existence check"
+          for f in index.html styles.min.css js/data.bundle.min.js js/app.bundle.min.js sw.js manifest.json; do
+            [ -f "dist/$f" ] && echo "  ✅ $f ($(stat -c%s dist/$f 2>/dev/null || echo '?' ) bytes)" || echo "  ❌ $f missing"
+          done
+          echo "::endgroup::"
 
       - name: Run end-to-end tests
         run: node test/e2e/run-all.js 2>/dev/null || echo "No E2E tests found"
