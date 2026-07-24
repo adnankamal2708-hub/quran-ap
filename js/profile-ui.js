@@ -1176,17 +1176,18 @@ function switchProfileTab(tabName) {
 
 // ── Wire profile tab clicks (event delegation on .pf-tab-bar parent) ──
 
-let _tabEventsWired = false;
+let _lastTabBar = null;
 
 function wireProfileTabEvents() {
-  // Guard: only attach once. Each renderFullProfile call re-invokes this
-  // function, but addEventListener would accumulate duplicates. The tab bar
-  // is static HTML that is never replaced, so a single delegation is sufficient.
-  if (_tabEventsWired) return;
-  _tabEventsWired = true;
-
   var bar = document.querySelector('.pf-tab-bar');
   if (!bar) return;
+  // If the same DOM element is already wired, skip to avoid duplicates.
+  // If renderFullProfile() replaces the entire profile HTML (innerHTML),
+  // the old .pf-tab-bar is destroyed and a new one is created. In that
+  // case, bar !== _lastTabBar, so we re-attach the delegation.
+  if (bar === _lastTabBar) return;
+  _lastTabBar = bar;
+
   // Use a single delegated listener instead of per-button onclick.
   // This is resilient against DOM re-renders, timing issues, and
   // accidental overwrites of onclick by other code paths.
@@ -1352,14 +1353,16 @@ async function renderFullProfile(preferredTab) {
     // Check current user status
     var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
 
-    if (user) {
-      // ── Wire subtab navigation immediately ──
-      // The .pf-tab-bar is static HTML, so the delegation listener
-      // can be attached before async Firebase operations complete.
-      // This ensures tabs are interactive even while profile content
-      // is still loading from the server.
-      wireProfileTabEvents();
+    // ── Wire subtab navigation immediately ──
+    // The .pf-tab-bar is static HTML, so the delegation listener
+    // can be attached before async Firebase operations complete.
+    // This ensures tabs are interactive even while profile content
+    // is still loading from the server.
+    // Always wire, regardless of auth state, because the tab bar
+    // exists in the HTML unconditionally.
+    wireProfileTabEvents();
 
+    if (user) {
       // ── Logged in: render full profile content ──
       await renderProfileView();
       renderProfileProgress();
