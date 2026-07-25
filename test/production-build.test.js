@@ -160,20 +160,22 @@ suite('Bundle Load Order Integrity', function() {
   var bundleCode = fs.readFileSync(appBundlePath, 'utf8');
 
   // Verify that __quranLoader (from quran-loader.js) is defined
-  // BEFORE keys that reference it (like openSurahForReading from quran.js).
-  // The bundle concatenates files in UI_FILES order, so quran-loader.js
-  // should appear before quran.js in the bundle text.
+  // BEFORE renderAyahs (from quran.js). We use renderAyahs rather than
+  // openSurahForReading because the latter is referenced (called) from
+  // dashboard.js and learn-screen.js which appear earlier in the bundle;
+  // indexOf('openSurahForReading') finds those references, not the definition.
+  // renderAyahs is only defined in quran.js, so it's a reliable sentinel.
   var loaderPos = bundleCode.indexOf('__quranLoader');
-  var quranUIPos = bundleCode.indexOf('openSurahForReading');
+  var quranUIPos = bundleCode.indexOf('renderAyahs');
 
-  test('__quranLoader appears before openSurahForReading in bundle', function() {
+  test('__quranLoader appears before renderAyahs in bundle', function() {
     assert.ok(loaderPos >= 0, '__quranLoader not found in bundle');
-    assert.ok(quranUIPos >= 0, 'openSurahForReading not found in bundle');
-    // __quranLoader must be defined before any function that uses it
+    assert.ok(quranUIPos >= 0, 'renderAyahs not found in bundle');
+    // __quranLoader must be defined before any quran.js function uses it
     // (quran-loader.js is bundled before quran.js)
     assert.ok(loaderPos < quranUIPos,
       'Load order violated: __quranLoader at position ' + loaderPos +
-      ' but openSurahForReading at ' + quranUIPos +
+      ' but renderAyahs at ' + quranUIPos +
       ' — quran-loader.js must be before quran.js in UI_FILES');
   });
 
