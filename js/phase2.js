@@ -198,6 +198,19 @@ function getSurahCompletionSummary(surahId) {
     window.__learningJourney.recordMomentum('ayah_read', surahWords.length);
   }
 
+  // Track milestone
+  if (window.__feedback && window.__feedback.trackEvent) {
+    window.__feedback.trackEvent('phase2_surah_completed', {
+      surahId: surahId,
+      surahName: surahInfo ? surahInfo.name : 'Surah ' + surahId,
+      knownWords: knownCount,
+      newWords: newCount,
+      totalWords: surahWords.length,
+      isGuided: (typeof getGuidedSurahInfo === 'function' ? getGuidedSurahInfo(surahId) !== null : false),
+      isGuidedComplete: (typeof isGuidedReadingComplete === 'function' ? isGuidedReadingComplete() : false)
+    });
+  }
+
   return {
     surahId: surahId,
     surahName: surahInfo ? surahInfo.name : 'Surah ' + surahId,

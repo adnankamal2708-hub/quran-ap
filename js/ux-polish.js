@@ -103,6 +103,15 @@ function completeOnboarding() {
     if (_selectedLevel) localStorage.setItem(_ONBOARDING_LEVEL_KEY, _selectedLevel);
     if (_selectedNotify !== null) localStorage.setItem(_ONBOARDING_NOTIFY_KEY, _selectedNotify ? 'true' : 'false');
   } catch (e) {}
+
+  // Track milestone
+  if (window.__feedback && window.__feedback.trackEvent) {
+    window.__feedback.trackEvent('onboarding_completed', {
+      goal: _selectedGoal || '10',
+      level: _selectedLevel || 'beginner',
+      notify: _selectedNotify !== false
+    });
+  }
 }
 
 /** Reset onboarding (for revisiting from Profile → Settings) */

@@ -225,6 +225,32 @@ The monolithic `data.js` (3,443 lines) and `ui.js` (3,401 lines) have been split
 - **PWA** — Service worker, offline caching, installable
 - **SM-2 Algorithm** — Spaced repetition for optimal retention
 
+## Firebase Security Rules
+
+Security rules for Firestore are in [`firestore.rules`](./firestore.rules).
+
+The `feedback` and `analytics_events` collections allow public writes with strict field validation:
+- Field whitelisting (`hasOnly`) prevents arbitrary field injection
+- Type and size checks prevent malformed documents
+- Document size cap (~10KB) prevents large-payload abuse
+- Public reads are denied — data is only accessible via Firebase Console
+
+### Deploying Rules
+
+```bash
+# Install Firebase CLI
+npm install -g firebase-tools
+
+# Login and init (one-time)
+firebase login
+firebase init firestore   # Select project: bayan-quran-vocabulary
+
+# Deploy rules
+firebase deploy --only firestore:rules
+```
+
+> **Note:** For production rate limiting, deploy a Cloud Function to act as an API gateway — Firestore Security Rules alone cannot rate-limit by IP.
+
 ## License
 
 MIT
