@@ -44,6 +44,9 @@ let _currentUser = null;
 /** @type {Function|null} Unsubscribe function for auth state listener */
 let _unsubscribeAuth = null;
 
+/** @type {boolean} Tracks previous auth state to detect session expiry */
+let _wasPreviouslySignedIn = false;
+
 // ── Initialization ────────────────────────────────────────────
 
 /**
@@ -73,9 +76,21 @@ function initAuth() {
           photoURL: user.photoURL || null,
           isAnonymous: user.isAnonymous || false,
         };
+        _wasPreviouslySignedIn = true;
         console.log('[startup] [auth] Auth session restored for:', _currentUser.email);
       } else {
+        // Detect session expiry: transition from signed-in → signed-out
+        if (_wasPreviouslySignedIn && _currentUser !== null) {
+          console.log('[startup] [auth] Session expired or user signed out externally');
+          // Show toast if UX module is available (loaded asynchronously)
+          try {
+            if (window.__ux && typeof window.__ux.showToast === 'function') {
+              window.__ux.showToast('Session expired. Please sign in again.', 'warning', 5000);
+            }
+          } catch (e) { /* toast is non-critical */ }
+        }
         _currentUser = null;
+        _wasPreviouslySignedIn = false;
         console.log('[startup] [auth] No user signed in');
       }
 
@@ -233,6 +248,9 @@ async function loginWithEmail(email, password, rememberMe) {
 async function logout() {
   const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
   if (!auth) return;
+  // Clear session-expiry tracking BEFORE signOut so the auth callback
+  // does not show the "Session expired" toast during intentional logout.
+  _wasPreviouslySignedIn = false;
   try {
     await signOut(auth);
     _currentUser = null;

@@ -372,6 +372,10 @@ async function build() {
       appBundle += content + '\n';
     }
   });
+  // Prepend production flag — explicitly set to false so all window.__DEV__ guards
+  // are correctly falsy in production. This prevents debug logging from being
+  // evaluated (even though terser's drop_console strips console.log calls).
+  appBundle = 'window.__DEV__=false;\n' + appBundle;
   writeFile('js/app.bundle.js', basicMinify(stripComments(appBundle)));
 
   // 3. Minify JS with terser

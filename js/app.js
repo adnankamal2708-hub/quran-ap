@@ -1316,6 +1316,42 @@ function registerServiceWorker() {
   }
 }
 
+// ── Data Schema Versioning ─────────────────────────────────────
+// Current data version. Increment when localStorage schema changes.
+// The migration function below provides a scaffold for future upgrades.
+var BAYAN_DATA_VERSION = 1;
+
+/**
+ * Check and migrate localStorage data schema version.
+ * This is a no-op for version 1. When future versions introduce
+ * schema changes, add migration logic here.
+ * Call once at startup inside init().
+ */
+function checkDataVersion() {
+  try {
+    var stored = localStorage.getItem('bayan_data_version');
+    if (stored === null) {
+      // First launch or data cleared — set current version
+      localStorage.setItem('bayan_data_version', String(BAYAN_DATA_VERSION));
+      return;
+    }
+    var storedVersion = parseInt(stored, 10);
+    if (storedVersion < BAYAN_DATA_VERSION) {
+      // Future: add migration steps here for each version increment.
+      // Example:
+      //   if (storedVersion < 2) { migrateV1toV2(); }
+      //   if (storedVersion < 3) { migrateV2toV3(); }
+      //
+      // After all migrations, update the stored version.
+      localStorage.setItem('bayan_data_version', String(BAYAN_DATA_VERSION));
+      console.log('[version] Migrated localStorage data from v' + storedVersion + ' to v' + BAYAN_DATA_VERSION);
+    }
+  } catch (e) {
+    // localStorage may be unavailable in some environments
+    console.warn('[version] Could not check data version:', e.message);
+  }
+}
+
 function init() {
   window.__DEV__ && console.log('[startup] [1] init() called');
 
@@ -1323,6 +1359,9 @@ function init() {
   // This ensures the fallback UI triggers even if init() crashes
   // before any render code runs (e.g., buildLessons crashes).
   startStartupWatchdog();
+
+  // ── Check localStorage data version ────────────────────────────
+  checkDataVersion();
 
   try {
     // 0. Capture splash start time for minimum display duration

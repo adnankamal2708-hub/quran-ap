@@ -173,8 +173,8 @@
         ' style="width:100%;min-height:100px;background:var(--bg);border:1px solid var(--border);' +
         'border-radius:var(--radius-sm);color:var(--text);font-size:13px;padding:10px;' +
         'font-family:var(--body);resize:vertical;outline:none;box-sizing:border-box"' +
-        ' aria-label="Your feedback"></textarea>' +
-      '<input id="fb-email" type="email" placeholder="Email (optional — if you want a reply)"' +
+        ' aria-label="Your feedback" name="feedback"></textarea>' +
+      '<input id="fb-email" name="email" type="email" placeholder="Email (optional — if you want a reply)"' +
         ' style="width:100%;background:var(--bg);border:1px solid var(--border);' +
         'border-radius:var(--radius-sm);color:var(--text);font-size:12px;padding:10px;' +
         'margin-top:8px;font-family:var(--body);outline:none;box-sizing:border-box"' +
