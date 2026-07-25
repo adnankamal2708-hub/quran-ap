@@ -384,15 +384,15 @@ async function build() {
   try {
     var terser = require('terser');
     var dataResult = await terser.minify(readFile('dist/js/data.bundle.js'), {
-      compress: { passes: 2, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
-      mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS'] },
+      compress: { passes: 3, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
+      mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS', 'QURAN_TEXT', 'CANONICAL_WORDS'] },
       output: { comments: false },
     });
     if (dataResult.code) writeFile('js/data.bundle.min.js', dataResult.code);
 
     var appResult = await terser.minify(readFile('dist/js/app.bundle.js'), {
-      compress: { passes: 2, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
-      mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS'] },
+      compress: { passes: 3, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
+      mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS', 'QURAN_TEXT', 'CANONICAL_WORDS'] },
       output: { comments: false },
     });
     if (appResult.code) writeFile('js/app.bundle.min.js', appResult.code);
@@ -648,11 +648,10 @@ async function build() {
     "'./manifest.json'",
     "'./favicon.ico'",
   ];
-  // Add Quran assets to precache if they exist
+  // Add Quran assets to precache if they exist (prefer per-surah index; fallback to monolithic)
   if (fs.existsSync(path.join(DIST, 'js/quran', 'surah-index.min.js'))) {
     precacheItems.push("'./js/quran/surah-index.min.js'");
-  }
-  if (fs.existsSync(path.join(DIST, 'js/quran.bundle.min.js'))) {
+  } else if (fs.existsSync(path.join(DIST, 'js/quran.bundle.min.js'))) {
     precacheItems.push("'./js/quran.bundle.min.js'");
   }
   sw = sw.replace(

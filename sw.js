@@ -31,7 +31,6 @@ const PRECACHE_URLS = [
   './manifest.json',
   './favicon.ico',
   './js/quran/surah-index.min.js',
-  './js/quran.bundle.min.js',
 ];
 
 // Install: pre-cache all static assets, then skip waiting to activate immediately
