@@ -36,6 +36,7 @@ var TESTS = [
   "profile-ui.test.js",
   "explorer.test.js",
   "auth-ui.test.js",
+  "recommendation-slot.test.js",
   "regression.test.js",
 ];
 var totalPassed = 0;

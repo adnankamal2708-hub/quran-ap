@@ -287,9 +287,7 @@ try {
 }
 
 // ── Test 6: getReadingSessionRecommendations() ─────────────────
-console.log('\n── Reading Mode Integration ──');
-
-// Mock reader with no reading activity
+console.log('\n── Reading Mode Integration ──');  // Mock reader with no reading activity (__quran not set — returns null)
 try {
   var readingRecs = getReadingSessionRecommendations();
   // Should return null since no reading activity is tracked
@@ -298,8 +296,8 @@ try {
   assert(false, 'getReadingSessionRecommendations does not throw: ' + e.message);
 }
 
-// With reading activity
-global.window.__reader = {
+// With reading activity — SLE checks window.__quran, not window.__reader
+global.window.__quran = {
   getLastReadPosition: function() {
     return {
       surahId: 1,

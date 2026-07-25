@@ -53,66 +53,30 @@
       },
     },
 
-    // 2. Continue Foundation lesson
+    // 2. Build foundation (new user — no learning evidence yet)
+    // Must be checked before weak-areas and continue-foundation so brand-new
+    // users receive the onboarding recommendation rather than a generic one.
+    {
+      priority: 150,
+      name: 'build-foundation',
+      test: function (s) { return s.noProgress; },
+      build: function (s) {
+        return {
+          icon: 'star',
+          title: 'Build your foundation',
+          message: 'Complete your first lesson to establish your learning baseline. Bayan will personalize future recommendations as you progress.',
+          action: 'Start lesson',
+          id: 'rec-foundation-start',
+          actionType: 'foundation',
+        };
+      },
+    },
+
+    // 3. Weak areas — only when sufficient learning evidence exists
+    // Checked before continue-foundation so experienced users with detected
+    // weaknesses see those instead of a generic "continue" message.
     {
       priority: 200,
-      name: 'continue-foundation',
-      test: function (s) { return s.fTotal > 0 && !s.foundationComplete; },
-      build: function (s) {
-        var nextNum = (s.nextIncompleteF || 0) + 1;
-        var lessonTitle = s.nextLessonTitle || '';
-        var title = lessonTitle
-          ? 'Foundation ' + nextNum + ': ' + lessonTitle
-          : 'Continue Foundation ' + nextNum;
-        return {
-          icon: 'layers',
-          title: title,
-          message: 'Lesson ' + nextNum + ' of ' + s.fTotal + ' — ' + (s.comprehensionGain ? '+' + s.comprehensionGain + '% comprehension gain' : 'building your Quran vocabulary'),
-          action: 'Resume',
-          id: 'rec-foundation',
-          actionType: 'foundation',
-        };
-      },
-    },
-
-    // 3. Guided Reading (Phase 2 Foundation Complete)
-    {
-      priority: 300,
-      name: 'guided-reading',
-      test: function (s) { return s.foundationComplete && s.p2Phase === 'guided-reading' && s.nextSurahPreview != null; },
-      build: function (s) {
-        var preview = s.nextSurahPreview;
-        return {
-          icon: 'book',
-          title: 'Read ' + (preview.surahName || 'Surah ' + preview.surahId),
-          message: (preview.estimatedComprehension || 0) + '% estimated comprehension · ' + (preview.knownWords || 0) + ' words you know',
-          action: 'Read',
-          id: 'rec-guided-reading',
-          actionType: 'reading',
-        };
-      },
-    },
-
-    // 4. Vocabulary expansion (Phase 2 — independent reading)
-    {
-      priority: 400,
-      name: 'vocabulary-expansion',
-      test: function (s) { return s.foundationComplete && s.p2Phase === 'phase2' && s.expansionWords && s.expansionWords.length > 0; },
-      build: function (s) {
-        return {
-          icon: 'layers',
-          title: 'Expand Your Vocabulary',
-          message: s.expansionWords.length + ' new high-frequency words available to learn',
-          action: 'Explore',
-          id: 'rec-expansion',
-          actionType: 'foundation',
-        };
-      },
-    },
-
-    // 5. Weak areas — only when sufficient learning evidence exists
-    {
-      priority: 500,
       name: 'weak-areas',
       test: function (s) {
         return s.weaknesses && s.weaknesses.length > 0
@@ -131,18 +95,60 @@
       },
     },
 
-    // 6. New user — Build your foundation (no learning evidence yet)
+    // 4. Continue Foundation lesson (user has started but hasn't completed)
+    // Requires !s.noProgress so brand-new users don't skip to this before
+    // seeing the onboarding recommendation.
     {
-      priority: 600,
-      name: 'build-foundation',
-      test: function (s) { return s.noProgress; },
+      priority: 250,
+      name: 'continue-foundation',
+      test: function (s) { return !s.noProgress && s.fTotal > 0 && !s.foundationComplete; },
+      build: function (s) {
+        var nextNum = (s.nextIncompleteF || 0) + 1;
+        var lessonTitle = s.nextLessonTitle || '';
+        var title = lessonTitle
+          ? 'Foundation ' + nextNum + ': ' + lessonTitle
+          : 'Continue Foundation ' + nextNum;
+        return {
+          icon: 'layers',
+          title: title,
+          message: 'Lesson ' + nextNum + ' of ' + s.fTotal + ' — ' + (s.comprehensionGain ? '+' + s.comprehensionGain + '% comprehension gain' : 'building your Quran vocabulary'),
+          action: 'Resume',
+          id: 'rec-foundation',
+          actionType: 'foundation',
+        };
+      },
+    },
+
+    // 5. Guided Reading (Phase 2 Foundation Complete)
+    {
+      priority: 300,
+      name: 'guided-reading',
+      test: function (s) { return s.foundationComplete && s.p2Phase === 'guided-reading' && s.nextSurahPreview != null; },
+      build: function (s) {
+        var preview = s.nextSurahPreview;
+        return {
+          icon: 'book',
+          title: 'Read ' + (preview.surahName || 'Surah ' + preview.surahId),
+          message: (preview.estimatedComprehension || 0) + '% estimated comprehension · ' + (preview.knownWords || 0) + ' words you know',
+          action: 'Read',
+          id: 'rec-guided-reading',
+          actionType: 'reading',
+        };
+      },
+    },
+
+    // 6. Vocabulary expansion (Phase 2 — independent reading)
+    {
+      priority: 400,
+      name: 'vocabulary-expansion',
+      test: function (s) { return s.foundationComplete && s.p2Phase === 'phase2' && s.expansionWords && s.expansionWords.length > 0; },
       build: function (s) {
         return {
-          icon: 'star',
-          title: 'Build your foundation',
-          message: 'Complete your first lesson to establish your learning baseline. Bayan will personalize future recommendations as you progress.',
-          action: 'Start lesson',
-          id: 'rec-foundation-start',
+          icon: 'layers',
+          title: 'Expand Your Vocabulary',
+          message: s.expansionWords.length + ' new high-frequency words available to learn',
+          action: 'Explore',
+          id: 'rec-expansion',
           actionType: 'foundation',
         };
       },

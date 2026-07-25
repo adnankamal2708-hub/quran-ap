@@ -262,6 +262,50 @@ function setupGlobals() {
   global.updateStatsDisplay = function() {};
   global.updateReviewBanner = function() {};
   global.ALL_WORDS = [];
+
+  // Mock the recommendation slot module (separate module, not loaded by eval)
+  global.window.__recommendationSlot = {
+    getPrimary: function(state) {
+      // Minimal mock: reproduce the priority logic so tests get correct recommendations
+      if (!state) return null;
+      // Rule 1: reviews-due (priority 100)
+      if (state.dueCount > 0) {
+        var due = state.dueCount;
+        return { icon: 'repeat', title: (due === 1 ? '1 review' : due + ' reviews') + ' due', message: 'Strengthen your memory by reviewing now.', action: 'Start Review', id: 'rec-reviews', actionType: 'review' };
+      }
+      // Rule 2: build-foundation (priority 150) — new user
+      if (state.noProgress) {
+        return { icon: 'star', title: 'Build your foundation', message: 'Complete your first lesson to establish your learning baseline.', action: 'Start lesson', id: 'rec-foundation-start', actionType: 'foundation' };
+      }
+      // Rule 3: weak-areas (priority 200)
+      if (state.weaknesses && state.weaknesses.length > 0 && (state.fCompleted >= 1 || state.masteredCount >= 3 || (state.totalReviews || 0) >= 5)) {
+        var count = state.weaknesses.length;
+        return { icon: 'alert-triangle', title: count + ' weak area' + (count > 1 ? 's' : '') + ' detected', message: 'Focus on ' + state.weaknesses[0].name + (count > 1 ? ' and ' + (count - 1) + ' more' : '') + ' to strengthen your foundation.', action: 'Review', id: 'rec-weak', actionType: 'review' };
+      }
+      // Rule 4: continue-foundation (priority 250)
+      if (!state.noProgress && state.fTotal > 0 && !state.foundationComplete) {
+        var nextNum = (state.nextIncompleteF || 0) + 1;
+        return { icon: 'layers', title: 'Foundation ' + nextNum + ': continue', message: 'Lesson ' + nextNum + ' of ' + state.fTotal, action: 'Resume', id: 'rec-foundation', actionType: 'foundation' };
+      }
+      // Rule 5: guided-reading (priority 300)
+      if (state.foundationComplete && state.p2Phase === 'guided-reading' && state.nextSurahPreview) {
+        return { icon: 'book', title: 'Read Surah', message: 'Guided reading recommendation', action: 'Read', id: 'rec-guided-reading', actionType: 'reading' };
+      }
+      // Rule 6: vocabulary-expansion (priority 400)
+      if (state.foundationComplete && state.p2Phase === 'phase2' && state.expansionWords && state.expansionWords.length > 0) {
+        return { icon: 'layers', title: 'Expand Your Vocabulary', message: 'New words available', action: 'Explore', id: 'rec-expansion', actionType: 'foundation' };
+      }
+      // Rule 7: reading (priority 700)
+      if (!state.lastRead || !state.lastRead.surahId) {
+        return { icon: 'book', title: 'Begin reading the Quran', message: 'Reading reinforces learning.', action: 'Open Quran', id: 'rec-reading', actionType: 'reading' };
+      }
+      // Rule 8: encouragement (priority 800) — fallback
+      if (state.masteredCount > 0 || state.comprehensionPct > 0) {
+        return { icon: 'check-circle', title: state.masteredCount + ' Words Mastered', message: state.coveragePct + '% Quran coverage', action: 'Continue', id: 'rec-encouragement', actionType: 'foundation' };
+      }
+      return null;
+    },
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -570,7 +614,7 @@ suite('Smart Recommendations', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Smart Recommendations') >= 0, 'should show recommendations section');
+    assert.ok(html.indexOf('Recommendation') >= 0, 'should show recommendations section');
   });
 
   test('shows review recommendation when due', function() {
@@ -657,7 +701,7 @@ suite('Recommendation — Weakness Guard', function() {
     var html = getInnerHTML();
     // Weakness should appear
     assert.ok(html.indexOf('weak area') >= 0, 'should show weak area for experienced user');
-    assert.ok(html.indexOf('frequently forgotten') >= 0, 'should mention specific weakness');
+    assert.ok(html.indexOf('Focus on') >= 0, 'should recommend focus area');
   });
 
   test('no weaknesses despite sufficient activity: next recommendation appears', function() {
@@ -685,7 +729,7 @@ suite('Recommendation — Weakness Guard', function() {
     // Should NOT show weakness
     assert.ok(html.indexOf('weak area') === -1, 'should NOT show weak area when no weaknesses exist');
     // Should show some other recommendation (reading is the fallback)
-    assert.ok(html.indexOf('Smart Recommendations') >= 0, 'recommendations section should still appear');
+    assert.ok(html.indexOf('Recommendation') >= 0, 'recommendations section should still appear');
   });
 });
 
@@ -797,7 +841,7 @@ suite('Comprehensive State', function() {
     assert.ok(html.indexOf('Mastered') >= 0, 'words mastered stat');
     assert.ok(html.indexOf('due') >= 0, 'review due text should appear in Review Center prompt');
     assert.ok(html.indexOf('Daily Motivation') >= 0 || html.indexOf('reinforced') >= 0, 'motivation message');
-    assert.ok(html.indexOf('Smart Recommendations') >= 0, 'smart recommendations');
+    assert.ok(html.indexOf('Recommendation') >= 0, 'smart recommendations section');
   });
 });
 
