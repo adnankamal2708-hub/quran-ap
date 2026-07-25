@@ -224,6 +224,18 @@ function renderQuizCompletion(score, total) {
       window.__learningJourney.recordMomentum('lesson_completed', 1);
     }
   }
+
+  // Track lesson completed for analytics
+  if (window.__feedback && typeof window.__feedback.trackEvent === 'function') {
+    var $event = 'lesson_completed';
+    var $mode = typeof getOrganizationMode === 'function' ? getOrganizationMode() : 'lesson';
+    if ($mode === 'foundation') {
+      var $fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
+      var $fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
+      $event = $fCompleted >= $fTotal ? 'foundation_completed' : 'lesson_completed';
+    }
+    window.__feedback.trackEvent($event, { mode: $mode, pct: pct });
+  }
   
   feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Done! ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
   feedback.style.color = '';

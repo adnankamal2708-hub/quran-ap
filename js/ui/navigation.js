@@ -187,6 +187,12 @@ function goToFoundationLesson(lessonIndex, wordIndex) {
   setCurrentFoundationLesson(lessonIndex);
   currentWord = (wordIndex !== undefined && wordIndex >= 0) ? wordIndex : 0;
   reviewMode = false;
+  
+  // Track lesson started for analytics
+  if (window.__feedback && typeof window.__feedback.trackEvent === 'function') {
+    window.__feedback.trackEvent('lesson_started', { mode: 'foundation', lessonIndex: lessonIndex });
+  }
+  
   switchView('learn');
   updateWordCard();
   updateLessonProgressDisplay();
@@ -229,6 +235,12 @@ function goToLesson(lessonIndex, wordIndex) {
   setCurrentLesson(lessonIndex);
   currentWord = (wordIndex !== undefined && wordIndex >= 0) ? wordIndex : 0;
   reviewMode = false;
+  
+  // Track lesson started for analytics
+  if (window.__feedback && typeof window.__feedback.trackEvent === 'function') {
+    window.__feedback.trackEvent('lesson_started', { mode: 'lesson', lessonIndex: lessonIndex });
+  }
+  
   switchView('learn');
   updateWordCard();
   updateLessonProgressDisplay();

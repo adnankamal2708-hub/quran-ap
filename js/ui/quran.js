@@ -101,11 +101,12 @@ function resumeReading() {
   var quranIdxInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
     ? window.__QURAN_INDEX_GET(pos.surahId) : null;
   if (!quranIdxInfo) return;
-  openSurahForReading(pos.surahId);
+  // Set scroll target BEFORE opening so openSurahForReading → renderAyahs
+  // picks it up and scrolls directly instead of doing double render + competing scroll
   if (pos.verseKey) {
     _quranScrollVerse = pos.verseKey;
-    renderAyahs();
   }
+  openSurahForReading(pos.surahId);
 }
 
 // ── Verse Data Builder (Quran-first, vocabulary overlay) ───────
@@ -315,6 +316,11 @@ function openSurahForReading(surahId) {
   // Save reading position
   _saveLastPosition(surahId, null);
 
+  // Track surah opened for analytics
+  if (window.__feedback && typeof window.__feedback.trackEvent === 'function') {
+    window.__feedback.trackEvent('surah_opened', { surahId: surahId });
+  }
+
   renderAyahs();
   
   // Record ayah_read momentum once per surah open (not on re-renders — Part 6)
@@ -326,7 +332,12 @@ function openSurahForReading(surahId) {
 
   var versesContainer = document.getElementById('quran-verses');
   if (versesContainer) {
-    versesContainer.scrollTop = 0;
+    // Only scroll to top when NOT restoring a saved position.
+    // When _quranScrollVerse is set (resumeReading), renderAyahs() already
+    // handles scrollIntoView — no need to scroll top first.
+    if (!_quranScrollVerse) {
+      versesContainer.scrollTop = 0;
+    }
     versesContainer.focus({ preventScroll: true });
   }
 }

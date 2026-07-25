@@ -873,7 +873,7 @@ function renderProfileAbout() {
   // URLs are split to avoid damage from build.js comment stripper which strips // as line comments
   var $ghUrl = 'https:' + '/' + '/github.com/adnankamal2708-hub/quran-ap';
   h += '<a class="pf-about-link pf-about-link-ext" href="' + $ghUrl + '" target="_blank" rel="noopener noreferrer">🌐 GitHub</a>';
-  h += '<a class="pf-about-link pf-about-link-ext" href="' + $ghUrl + '/issues" target="_blank" rel="noopener noreferrer">💬 Feedback</a>';
+  h += '<button class="pf-about-link" id="btn-send-feedback" type="button">💬 Send Feedback</button>';
   h += '<span class="pf-about-link pf-about-link-static">📜 Open Source (MIT)</span>';
   h += '<a class="pf-about-link pf-about-link-ext" href="#" id="profile-privacy-link">🔒 Privacy Policy</a>';
   h += '<a class="pf-about-link pf-about-link-ext" href="#" id="profile-terms-link">📜 Terms of Service</a>';
@@ -891,6 +891,14 @@ function renderProfileAbout() {
       if (window.__ux && typeof window.__ux.restartOnboarding === 'function') {
         window.__ux.restartOnboarding();
       }
+    };
+  }
+
+  // Wire the Send Feedback button
+  var fbBtn = document.getElementById('btn-send-feedback');
+  if (fbBtn && window.__feedback && typeof window.__feedback.showModal === 'function') {
+    fbBtn.onclick = function() {
+      window.__feedback.showModal();
     };
   }
 }

@@ -14,6 +14,11 @@ function openExplorer(w) {
   if (!w) return;
   _explorerWord = w;
   _explorerOccIdx = 0;
+
+  // Track word detail opened for analytics
+  if (window.__feedback && typeof window.__feedback.trackEvent === 'function') {
+    window.__feedback.trackEvent('word_detail_opened', { wordId: w.id });
+  }
   
   // Save current view for back navigation
   if (currentView !== 'explorer') {

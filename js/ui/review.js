@@ -80,6 +80,11 @@ function endReview() {
   // Record momentum for today's learning (Part 6)
   if (window.__learningJourney && window.__learningJourney.recordMomentum) {
     window.__learningJourney.recordMomentum('word_reviewed', reviewQueue.length);
+  }
+  
+  // Track review completed for analytics
+  if (window.__feedback && typeof window.__feedback.trackEvent === 'function') {
+    window.__feedback.trackEvent('review_completed', { wordsReviewed: reviewQueue.length, newMastered: newMastered });
     if (newMastered > 0) window.__learningJourney.recordMomentum('word_mastered', newMastered);
   }
   
