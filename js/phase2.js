@@ -351,7 +351,15 @@ function getPhase2DashboardAction() {
 // EXPORT
 // ═══════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════════
+// Phase 2 engine methods + bridge to phase2-surahs.js helpers.
+// Methods referenced from dashboard.js, learn-screen.js, and quran.js
+// MUST be exported here so `window.__phase2.getNextGuidedSurah()` works.
+
 window.__phase2 = {
+  // Phase 2 engine (defined in this file)
   isFoundationGraduate: isFoundationGraduate,
   getLearningPhase: getLearningPhase,
   getGraduationData: getGraduationData,
@@ -359,4 +367,13 @@ window.__phase2 = {
   getSurahCompletionSummary: getSurahCompletionSummary,
   getExpansionVocabulary: getExpansionVocabulary,
   getPhase2DashboardAction: getPhase2DashboardAction,
+
+  // Bridge to phase2-surahs.js global helpers
+  // (used by dashboard.js Guided Reading card, learn-screen.js, and quran.js)
+  getNextGuidedSurah: typeof getNextGuidedSurah === 'function' ? getNextGuidedSurah : null,
+  getGuidedSurahInfo: typeof getGuidedSurahInfo === 'function' ? getGuidedSurahInfo : null,
+  getGuidedReadingProgress: typeof getGuidedReadingProgress === 'function' ? getGuidedReadingProgress : null,
+  isGuidedSurahCompleted: typeof isGuidedSurahCompleted === 'function' ? isGuidedSurahCompleted : null,
+  completeGuidedSurah: typeof completeGuidedSurah === 'function' ? completeGuidedSurah : null,
+  isGuidedReadingComplete: typeof isGuidedReadingComplete === 'function' ? isGuidedReadingComplete : null,
 };

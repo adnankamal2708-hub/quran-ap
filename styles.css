@@ -956,6 +956,12 @@ body::before {
               opacity 0.25s ease;
   z-index: 0;
   will-change: transform;
+  box-shadow: 0 0 16px rgba(201,168,76,0.06);
+}
+
+.nav-tab.active .bn-indicator-active-glow {
+  /* Subtle gold glow on the active tab icon to complement the indicator */
+  filter: drop-shadow(0 0 6px rgba(201,168,76,0.3));
 }
 
 .nav-tab {
@@ -1216,8 +1222,9 @@ body::before {
 
 .wordlist-item:hover {
   border-color: var(--gold-dim);
-  background: rgba(201, 168, 76, 0.04);
-  transform: translateX(2px);
+  background: rgba(201, 168, 76, 0.05);
+  transform: translateX(3px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
 }
 
 .wordlist-item:focus-visible {
@@ -1386,6 +1393,26 @@ body::before {
   animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   will-change: opacity, transform;
 }
+/* ── Quran Verse Staggered Entrance ────────────────── */
+/* Each ayah fades in sequentially with incremental delay */
+.quran-ayah {
+  animation: quranVerseFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.quran-ayah:nth-child(1) { animation-delay: 0.02s; }
+.quran-ayah:nth-child(2) { animation-delay: 0.05s; }
+.quran-ayah:nth-child(3) { animation-delay: 0.08s; }
+.quran-ayah:nth-child(4) { animation-delay: 0.11s; }
+.quran-ayah:nth-child(5) { animation-delay: 0.14s; }
+.quran-ayah:nth-child(6) { animation-delay: 0.17s; }
+.quran-ayah:nth-child(7) { animation-delay: 0.20s; }
+.quran-ayah:nth-child(8) { animation-delay: 0.23s; }
+.quran-ayah:nth-child(9) { animation-delay: 0.26s; }
+.quran-ayah:nth-child(10) { animation-delay: 0.29s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .quran-ayah { animation: none !important; }
+}
+
 /* ── Enhanced Entrance Animations ────────────────────────── */
 @keyframes cardEntrance {
   from {
@@ -1744,8 +1771,8 @@ body::before {
 
 .stat-card:hover {
   border-color: rgba(201, 168, 76, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35), 0 0 12px rgba(201,168,76,0.04);
 }
 
 .stat-card:hover::before {
