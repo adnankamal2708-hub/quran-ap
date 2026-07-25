@@ -181,7 +181,8 @@ function renderQuizCompletion(score, total) {
     
     if ($fTotal > 0) {
       if ($fCompleted === 1) {
-        celebrationDetails = 'First lesson complete! You now understand some of the Quran\'s most frequent words.';
+        celebrationDetails = 'First lesson complete! You now understand some of the Quran\'s most frequent words. ' +
+          'Your first review will be ready soon. Returning when it\'s ready will strengthen today\'s learning.';
       } else if ($fPct >= 50) {
         celebrationDetails = 'Halfway through the Foundation Course! You have learned ' + $fCompleted + ' of ' + $fTotal + ' lessons.';
       } else if ($fCompleted >= $fTotal) {

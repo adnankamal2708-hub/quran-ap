@@ -94,6 +94,12 @@ function renderDashboard() {
   var $streakQuality = $adaptive ? $adaptive.streakQuality : null;
   var $goalProgress = $adaptive ? $adaptive.goalProgress : null;
 
+  // ── Learning journey state (for contextual messages) ──
+  var $journeyState = window.__learningJourney && window.__learningJourney.getCurrentState
+    ? window.__learningJourney.getCurrentState() : null;
+  var $momentum = $journeyState ? $journeyState.momentum : null;
+  var $hasMomentum = $momentum && ($momentum.lessonsCompleted > 0 || $momentum.wordsReviewed > 0 || $momentum.wordsLearned > 0);
+
   // ── Gather ALL data once ──
   var $srsObj = window.__srs;
   var $srsStats = ($srsObj && $srsObj.getStats) ? $srsObj.getStats() : (typeof getSRSStats === 'function' ? getSRSStats() : { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0, overdue: 0 });
@@ -229,8 +235,21 @@ function renderDashboard() {
   var $compMilestone = $compInsight ? ($compInsight.milestoneCurrent ? $compInsight.milestoneCurrent.label : '') : '';
 
   // ═══ 1. GREETING — Contextual greeting based on learner stage (Part 1) ═══
+  // ── Day-2+ return greeting: acknowledge previous session ──
+  var $returningGreeting = '';
+  if ($fCompleted > 0 && $reviewsToday === 0 && $dueCount === 0 && $masteredCount <= 10) {
+    // Returning user who has done lessons but hasn't started today's work yet
+    if ($fCompleted === 1) {
+      $returningGreeting = 'Welcome back! You completed Lesson 1. Your review schedule is building.';
+    } else if ($fCompleted > 1 && $fCompleted <= 3) {
+      $returningGreeting = 'Welcome back! You\'ve completed ' + $fCompleted + ' lessons. Keep the momentum going.';
+    }
+  }
+
   var $greetingSub = '';
-  if ($noProgress) {
+  if ($returningGreeting) {
+    $greetingSub = $returningGreeting;
+  } else if ($noProgress) {
     $greetingSub = 'Today we begin building your Quran vocabulary.';
   } else if ($foundationComplete) {
     $greetingSub = 'Time to strengthen your vocabulary through real Quran reading.';
@@ -301,6 +320,14 @@ function renderDashboard() {
   $h += '<div class="db-section-label db-section-label-compact"><span class="db-section-icon" aria-hidden="true">' + $icon('target', 14) + '</span> Today\'s Goal</div>';
   
   // Compute goal: daily review target (default 25) or from goal progress
+  // For brand-new users with no progress, show a simple "Complete Lesson 1" goal
+  if ($noProgress) {
+    $h += '<div class="db-goal-new-user">';
+    $h += '<div style="font-size:13px;color:var(--text);margin-bottom:4px">🎯 Complete your first Foundation lesson</div>';
+    $h += '<div style="font-size:11px;color:var(--text-muted)">Each lesson introduces 10 new Quranic words</div>';
+    $h += '</div>';
+    $h += '</div>';
+  } else {
   var $dailyGoalTarget = 25;
   var $dailyGoalProgress = $reviewsToday;
   if ($goalProgress && $goalProgress.targetMinutes) {
@@ -345,6 +372,7 @@ function renderDashboard() {
   }
   $h += '</div>';
   $h += '</div>';
+  } // end else (daily goal for non-new users)
 
   // ═══ 4. CONTINUE READING ═══
   $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> Continue Reading</div>';
@@ -708,6 +736,15 @@ function renderDashboard() {
     $motivationMsg = 'You reinforced <strong>' + $reviewsToday + '</strong> word' + ($reviewsToday !== 1 ? 's' : '') + ' today. Every review builds lasting retention!';
     $motivationIcon = '🔥';
   }
+  // Priority 1b: Momentum — today's activity from current session
+  else if ($hasMomentum && $reviewsToday === 0) {
+    var $momentumParts = [];
+    if ($momentum.lessonsCompleted > 0) $momentumParts.push($momentum.lessonsCompleted + ' lesson' + ($momentum.lessonsCompleted > 1 ? 's' : '') + ' completed');
+    if ($momentum.wordsLearned > 0) $momentumParts.push($momentum.wordsLearned + ' word' + ($momentum.wordsLearned > 1 ? 's' : '') + ' learned');
+    if ($momentum.ayahsRead > 0) $momentumParts.push($momentum.ayahsRead + ' ayahs read');
+    $motivationMsg = 'Today: <strong>' + $momentumParts.join(', ') + '</strong>. Great progress!';
+    $motivationIcon = '📊';
+  }
   // Priority 2: Comprehension growth (from analytics deltas)
   else if ($compDeltas && $compDeltas.weekChange && $compDeltas.weekChange > 0) {
     $motivationMsg = 'Your Quran comprehension increased by <strong>+' + $compDeltas.weekChange.toFixed(1) + '%</strong> this week. Consistent progress!';
@@ -715,15 +752,28 @@ function renderDashboard() {
   }
   // Priority 3: Streak encouragement
   else if ($streak > 0) {
-    $motivationMsg = 'You\'re on a <strong>' + $streak + '-day streak</strong>! ' + ($streak >= 7 ? 'Impressive consistency! 🔥' : 'Keep it going — ' + (7 - ($streak % 7)) + ' more days to your next milestone.') + '';
+    var $streakMsg = '';
+    if ($streak >= 7) {
+      $streakMsg = 'Impressive consistency! 🔥';
+    } else if ($streak <= 3) {
+      $streakMsg = 'You\'re building a habit! ' + ($streak === 1 ? 'Day 1 done — the most important step.' : $streak + ' days strong!') + '';
+    } else {
+      $streakMsg = 'Keep it going — ' + (7 - ($streak % 7)) + ' more days to your next milestone.';
+    }
+    $motivationMsg = 'You\'re on a <strong>' + $streak + '-day streak</strong>! ' + $streakMsg;
     $motivationIcon = '🔥';
   }
-  // Priority 4: Low reviews due — almost done
+  // Priority 5b: Reviews due with urgency (returning user with completed lessons)
+  else if ($dueCount > 0 && $fCompleted > 0 && $reviewsToday === 0) {
+    $motivationMsg = '<strong>' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + '</strong> due. Returning now protects yesterday\'s learning and strengthens retention.';
+    $motivationIcon = '🛡️';
+  }
+  // Priority 5c: Low reviews due — almost done (non-returning, just few left)
   else if ($dueCount > 0 && $dueCount <= 5) {
     $motivationMsg = 'Only <strong>' + $dueCount + '</strong> review' + ($dueCount !== 1 ? 's' : '') + ' remaining. Quick session to stay on top!';
     $motivationIcon = '🎯';
   }
-  // Priority 5: Reviews due, but more than 5
+  // Priority 5d: Reviews due, general case
   else if ($dueCount > 0) {
     $motivationMsg = '<strong>' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + '</strong> due for review. Each review strengthens your Quran comprehension.';
     $motivationIcon = '📚';
@@ -769,10 +819,12 @@ function renderDashboard() {
 
   // ═══ COMPACT HERO STATS BAR (always visible, after all sections) ═══
   $h += '<div class="db-hero-bar">';
+  var $streakDisplay = ($streak > 0 || !$noProgress) ? $streak : '—';
+  var $streakLabel = ($streak > 0 || !$noProgress) ? 'Streak' : 'Start Today';
   $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="streak" tabindex="0" role="button" aria-label="Streak: ' + $streak + ' days">';
   $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
-  $h += '<div class="db-hero-stat-value">' + $streak + '</div>';
-  $h += '<div class="db-hero-stat-label">Streak</div></div>';
+  $h += '<div class="db-hero-stat-value">' + $streakDisplay + '</div>';
+  $h += '<div class="db-hero-stat-label">' + $streakLabel + '</div></div>';
   $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="mastered" tabindex="0" role="button" aria-label="Words mastered: ' + $masteredCount + '">';
   $h += '<div class="db-hero-stat-value">' + $masteredCount + '</div>';
   $h += '<div class="db-hero-stat-label">Mastered</div></div>';
