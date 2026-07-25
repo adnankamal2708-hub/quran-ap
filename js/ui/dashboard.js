@@ -89,9 +89,7 @@ function renderDashboard() {
 
   // ── Adaptive engine data ──
   var $adaptive = window.__adaptive ? window.__adaptive.getDashboardData() : null;
-  var $smartRec = $adaptive ? $adaptive.recommendation : null;
   var $weaknesses = $adaptive ? $adaptive.weaknesses : [];
-  var $streakQuality = $adaptive ? $adaptive.streakQuality : null;
   var $goalProgress = $adaptive ? $adaptive.goalProgress : null;
 
   // ── Learning journey state (for contextual messages) ──
@@ -567,129 +565,45 @@ function renderDashboard() {
     $h += '</div>';
   }
 
-  // ═══ 6. SMART RECOMMENDATIONS ═══
-  // Collect up to 3 personalized recommendations from available data
-  var $recommendations = [];
-  
-  // 1. From adaptive engine's single recommendation
-  if ($smartRec && $smartRec.actionType) {
-    $recommendations.push({
-      icon: $smartRec.icon || 'lightbulb',
-      title: $smartRec.title || 'Recommendation',
-      message: $smartRec.message || '',
-      action: $smartRec.action || '→',
-      id: 'smart-rec-adaptive',
-      actionType: $smartRec.actionType,
-    });
-  }
-  
-  // 2. Reviews due recommendation
-  if ($dueCount > 0) {
-    $recommendations.push({
-      icon: 'repeat',
-      title: ($dueCount === 1 ? '1 review' : $dueCount + ' reviews') + ' due',
-      message: 'Strengthen your memory by reviewing ' + ($dueCount === 1 ? 'this word' : 'these ' + $dueCount + ' words') + ' now.',
-      action: 'Start Review',
-      id: 'smart-rec-review',
-      actionType: 'review',
-    });
-  }
-  
-  // 3. Weak vocabulary/roots recommendation (from adaptive engine)
-  // Only show weakness analysis when sufficient learning evidence exists.
-  // A brand-new user with no completed lessons, no mastered words, and no
-  // review history cannot have meaningful weakness data.
-  var $noLearningEvidence = $fCompleted === 0 && $masteredCount === 0 && ($srsStats.totalReviews || 0) === 0;
-  var $sufficientForWeakness = $fCompleted >= 1 || $masteredCount >= 3 || ($srsStats.totalReviews || 0) >= 5;
-  if ($weaknesses && $weaknesses.length > 0) {
-    if ($sufficientForWeakness) {
-      var $weakCount = $weaknesses.length;
-      $recommendations.push({
-        icon: 'alert-triangle',
-        title: $weakCount + ' weak area' + ($weakCount > 1 ? 's' : '') + ' detected',
-        message: 'Focus on ' + $weaknesses[0].name + ($weakCount > 1 ? ' and ' + ($weakCount - 1) + ' more' : '') + ' to strengthen your foundation.',
-        action: 'Review',
-        id: 'smart-rec-weak',
-        actionType: 'review',
-      });
-    } else if ($noLearningEvidence) {
-      // New user: show onboarding recommendation instead of misleading weakness analysis
-      $recommendations.push({
-        icon: 'star',
-        title: 'Build your foundation',
-        message: 'Complete your first lesson to establish your learning baseline. Bayan will personalize future recommendations as you progress.',
-        action: 'Start lesson',
-        id: 'smart-rec-foundation',
-        actionType: 'foundation',
-      });
-    }
-    // Stage 2 (early learner with some activity but below evidence threshold):
-    // weakness card is simply skipped. Other recommendations (reviews due,
-    // reading, continue learning) fill the available slots naturally.
-  }
-  
-  // 4. SLE recommendation (up to 1, highest priority)
-  if (window.__smartLearning && window.__smartLearning.getScoredRecommendations) {
-    var $sleRecs = window.__smartLearning.getScoredRecommendations();
-    if ($sleRecs.length > 0 && $sleRecs[0].score >= 20) {
-      var $topSle = $sleRecs[0];
-      // Only add if we don't have a similar recommendation
-      var $alreadyHasReview = false;
-      for (var $ri = 0; $ri < $recommendations.length; $ri++) {
-        if ($recommendations[$ri].actionType === 'review') $alreadyHasReview = true;
-      }
-      if (!$alreadyHasReview) {
-        $recommendations.push({
-          icon: $topSle.icon || 'lightbulb',
-          title: $topSle.title,
-          message: $topSle.message,
-          action: $topSle.action || '→',
-          id: 'sle-' + $topSle.id,
-          actionType: $topSle.actionType,
-        });
-      }
-    }
-  }
-  
-  // 5. Reading recommendation (if not read yet)
-  if (!$lastRead || !$lastRead.surahId) {
-    $recommendations.push({
-      icon: 'book',
-      title: 'Begin reading the Quran',
-      message: 'Reading the Quran alongside vocabulary study reinforces your learning in real context.',
-      action: 'Open Quran',
-      id: 'smart-rec-reading',
-      actionType: 'reading',
-    });
-  }
-  
-  // Take up to 3 recommendations, prioritizing unique action types
-  // Simple dedup: take first 3 unique action types
-  var $seenTypes = {};
-  var $finalRecs = [];
-  for (var $ri = 0; $ri < $recommendations.length && $finalRecs.length < 3; $ri++) {
-    var $recItem = $recommendations[$ri];
-    if (!$seenTypes[$recItem.actionType]) {
-      $seenTypes[$recItem.actionType] = true;
-      $finalRecs.push($recItem);
-    }
-  }
+  // ═══ 6. PRIMARY RECOMMENDATION (single slot) ═══
+  // Use the priority-based recommendation slot to get exactly one recommendation.
+  var $recSlot = window.__recommendationSlot ? window.__recommendationSlot.getPrimary({
+    // State needed by the slot rules
+    dueCount: $dueCount,
+    fTotal: $fTotal,
+    foundationComplete: $foundationComplete,
+    nextIncompleteF: $nextIncompleteF,
+    nextLessonTitle: $nextLessonTitle,
+    comprehensionGain: $compGain,
+    p2Phase: window.__phase2 && window.__phase2.getLearningPhase ? window.__phase2.getLearningPhase() : null,
+    nextSurahPreview: (window.__phase2 && window.__phase2.getNextGuidedSurah && window.__phase2.getSurahPreview)
+      ? (function() { var ns = window.__phase2.getNextGuidedSurah(); return ns ? window.__phase2.getSurahPreview(ns.surahId) : null; })()
+      : null,
+    expansionWords: (window.__phase2 && window.__phase2.getExpansionVocabulary) ? window.__phase2.getExpansionVocabulary(3) : [],
+    weaknesses: $weaknesses,
+    fCompleted: $fCompleted,
+    masteredCount: $masteredCount,
+    totalReviews: $srsStats.totalReviews || 0,
+    noProgress: $noProgress,
+    lastRead: $lastRead,
+    comprehensionPct: $comprehensionPct,
+    coveragePct: $coveragePct,
+    sleRec: (window.__smartLearning && window.__smartLearning.getScoredRecommendations)
+      ? (function() { var $sr = window.__smartLearning.getScoredRecommendations(); return $sr.length > 0 ? $sr[0] : null; })()
+      : null,
+  }) : null;
 
-  
-  if ($finalRecs.length > 0) {
-    $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('lightbulb', 14) + '</span> Smart Recommendations</div>';
-    for (var $fri = 0; $fri < $finalRecs.length; $fri++) {
-      var $fr = $finalRecs[$fri];
-      $h += '<div class="db-card db-card-smart-rec db-action-card" id="' + $fr.id + '" tabindex="0" role="button" aria-label="' + $fr.title + '">';
-      $h += '<div class="db-card-row">';
-      $h += '<div class="db-rec-icon">' + $icon($fr.icon, 18) + '</div>';
-      $h += '<div class="db-card-body">';
-      $h += '<div class="db-card-title db-card-title-sm">' + $fr.title + '</div>';
-      $h += '<div class="db-card-sub db-card-sub-sm">' + $fr.message + '</div>';
-      $h += '</div>';
-      $h += '<span class="db-arrow db-arrow-dim">→</span>';
-      $h += '</div></div>';
-    }
+    if ($recSlot) {
+    $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('lightbulb', 14) + '</span> Recommendation</div>';
+    $h += '<div class="db-card db-card-smart-rec db-action-card" id="' + $recSlot.id + '" tabindex="0" role="button" aria-label="' + $recSlot.title + '">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-rec-icon">' + $icon($recSlot.icon, 18) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title db-card-title-sm">' + $recSlot.title + '</div>';
+    $h += '<div class="db-card-sub db-card-sub-sm">' + $recSlot.message + '</div>';
+    $h += '</div>';
+    $h += '<span class="db-arrow db-arrow-dim">→</span>';
+    $h += '</div></div>';
   }
 
   // ═══ 7. PROGRESS OVERVIEW ═══
@@ -936,9 +850,10 @@ function renderDashboard() {
     }
   });
 
-  // ── Smart Recommendation Cards ──
-  // Helper to handle recommendation clicks based on actionType
-  function $handleRecClick(actionType) {
+  // ── Primary Recommendation Card Click ──
+  // Wire the single recommendation card using $recSlot (from recommendationSlot.getPrimary)
+  // The $recSlot object was computed during HTML rendering above.
+  function $handleRecSlotClick(actionType) {
     if (actionType === 'review' || actionType === 'review-difficult') {
       if (typeof startReview === 'function') startReview();
       else if (typeof switchView === 'function') switchView('learn');
@@ -957,27 +872,17 @@ function renderDashboard() {
     }
   }
 
-  // Find all smart recommendation cards and wire them
-  var $smartRecCards = $d.querySelectorAll('.db-card-smart-rec');
-  for (var $sri = 0; $sri < $smartRecCards.length; $sri++) {
-    (function($recEl) {
-      var $recId2 = $recEl.id;
-      $recEl.onclick = function() {
-        // Find matching recommendation from our list
-        var $matchedRec2 = null;
-        for (var $ri3 = 0; $ri3 < $finalRecs.length; $ri3++) {
-          if ($finalRecs[$ri3].id === $recId2) {
-            $matchedRec2 = $finalRecs[$ri3];
-            break;
-          }
-        }
-        if ($matchedRec2) $handleRecClick($matchedRec2.actionType);
-        else if (typeof switchView === 'function') switchView('learn');
+  // Wire the single recommendation card (if present)
+  var $recCard = document.getElementById($recSlot ? $recSlot.id : 'rec-none');
+  if ($recCard && $recSlot) {
+    (function($el, $rec) {
+      $el.onclick = function() {
+        $handleRecSlotClick($rec.actionType);
       };
-      $recEl.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $recEl.onclick(); }
+      $el.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $el.onclick(); }
       };
-    })($smartRecCards[$sri]);
+    })($recCard, $recSlot);
   }
 
   // ── Animation: animate comprehension ring on mount ──

@@ -140,6 +140,7 @@ const APP_FILES = [
   'js/learning-journey.js',
   'js/phase2-surahs.js',
   'js/phase2.js',
+  'js/recommendation-slot.js',
   'js/ui/navigation.js',
   'js/ui/review.js',
   'js/ui/review-center.js',
