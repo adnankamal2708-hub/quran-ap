@@ -1,8 +1,13 @@
+let _lastRenderedWordId = null;
+
 function renderWordCard(w, currentIndex, total, isReview) {
   if (!w) return;
   
   // Reset occurrence index on word change
-  _currentOccurrenceIdx = 0;
+  if (_lastRenderedWordId !== w.id) {
+    _currentOccurrenceIdx = 0;
+    _lastRenderedWordId = w.id;
+  }
 
   DOM.get('word-num').textContent = (isReview ? 'Review' : 'Word') + ' ' + (currentIndex + 1) + ' of ' + total;
   DOM.get('arabic-word').textContent = w.arabic;

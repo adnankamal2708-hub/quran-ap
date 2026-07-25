@@ -993,6 +993,87 @@ suite('Explorer Structured Components', function() {
 // SUMMARY
 
 // ═══════════════════════════════════════════════════════════════
+// OCCURRENCE COUNTER REGRESSION — counter updates on Next/Previous
+// ═══════════════════════════════════════════════════════════════
+
+suite('Occurrence Navigation Counter', function() {
+  test('word-card.js resets _currentOccurrenceIdx only on word change (not every render)', function() {
+    var wcCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'word-card.js'), 'utf8');
+    // The unconditional reset must NOT exist
+    var unconditionalReset = /_currentOccurrenceIdx\s*=\s*0[^;]*\n/g;
+    var matches = wcCode.match(unconditionalReset);
+    // Should find guard: if (_lastRenderedWordId !== w.id) { _currentOccurrenceIdx = 0; ... }
+    var hasConditionalReset = wcCode.indexOf('if (_lastRenderedWordId !== w.id)') >= 0 &&
+      wcCode.indexOf('_currentOccurrenceIdx = 0;') > wcCode.indexOf('if (_lastRenderedWordId');
+    assert.ok(hasConditionalReset,
+      'word-card.js must guard _currentOccurrenceIdx reset with _lastRenderedWordId check');
+    // The module-level let declaration must exist
+    assert.ok(wcCode.indexOf('let _lastRenderedWordId = null;') >= 0,
+      'word-card.js must have let _lastRenderedWordId = null; at module level');
+  });
+
+  test('occurrence counter always shows current/total format', function() {
+    var wcCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'word-card.js'), 'utf8');
+    // Verify occ-label format uses (_currentOccurrenceIdx + 1) + '/' + occCount
+    var counterPattern = /\(_currentOccurrenceIdx \+ 1\) \+ '\/' \+ occCount/g;
+    assert.ok(wcCode.match(counterPattern),
+      'word-card.js must format occ-label as (_currentOccurrenceIdx + 1) + \'/\' + occCount');
+    // Verify the occ-prev button uses _currentOccurrenceIdx === 0 for disabled state
+    assert.ok(wcCode.indexOf('occPrevBtn.disabled = _currentOccurrenceIdx === 0') >= 0,
+      'word-card.js must disable occ-prev when _currentOccurrenceIdx === 0');
+    // Verify the occ-next button uses _currentOccurrenceIdx >= occCount - 1 for disabled state
+    assert.ok(wcCode.indexOf('occNextBtn.disabled = _currentOccurrenceIdx >= occCount - 1') >= 0,
+      'word-card.js must disable occ-next when _currentOccurrenceIdx reaches last index');
+  });
+
+  test('nextOccurrence increments index and calls updateWordCard', function() {
+    var wcCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'word-card.js'), 'utf8');
+    var nextFn = wcCode.indexOf('function nextOccurrence()');
+    assert.ok(nextFn >= 0, 'word-card.js must export nextOccurrence function');
+    // After increment, updateWordCard must be called to re-render
+    var nextBlock = wcCode.substring(nextFn, nextFn + 400);
+    assert.ok(nextBlock.indexOf('_currentOccurrenceIdx++') >= 0,
+      'nextOccurrence must increment _currentOccurrenceIdx');
+    assert.ok(nextBlock.indexOf('updateWordCard()') >= 0,
+      'nextOccurrence must call updateWordCard() after increment');
+  });
+
+  test('prevOccurrence decrements index and calls updateWordCard', function() {
+    var wcCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'word-card.js'), 'utf8');
+    var prevFn = wcCode.indexOf('function prevOccurrence()');
+    assert.ok(prevFn >= 0, 'word-card.js must export prevOccurrence function');
+    var prevBlock = wcCode.substring(prevFn, prevFn + 400);
+    assert.ok(prevBlock.indexOf('_currentOccurrenceIdx--') >= 0,
+      'prevOccurrence must decrement _currentOccurrenceIdx');
+    assert.ok(prevBlock.indexOf('updateWordCard()') >= 0,
+      'prevOccurrence must call updateWordCard() after decrement');
+  });
+
+  test('nextOccurrence does not exceed array bounds', function() {
+    var wcCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'word-card.js'), 'utf8');
+    var nextFn = wcCode.indexOf('function nextOccurrence()');
+    var nextBlock = wcCode.substring(nextFn, nextFn + 400);
+    assert.ok(nextBlock.indexOf('_currentOccurrenceIdx < w.occurrences.length - 1') >= 0,
+      'nextOccurrence must guard against exceeding array bounds');
+  });
+
+  test('prevOccurrence does not go below zero', function() {
+    var wcCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'word-card.js'), 'utf8');
+    var prevFn = wcCode.indexOf('function prevOccurrence()');
+    var prevBlock = wcCode.substring(prevFn, prevFn + 400);
+    assert.ok(prevBlock.indexOf('_currentOccurrenceIdx > 0') >= 0,
+      'prevOccurrence must guard against going below zero');
+  });
+
+  test('surah-badge uses same _currentOccurrenceIdx for context label', function() {
+    var wcCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'word-card.js'), 'utf8');
+    // The surah badge label must use the same _currentOccurrenceIdx as the occ-label
+    assert.ok(wcCode.indexOf('occLabel = occCount > 1 ? \' (\' + (_currentOccurrenceIdx + 1) + \'/\' + occCount + \')\''),
+      'surah-badge occLabel must use same (_currentOccurrenceIdx + 1) formatting');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 
