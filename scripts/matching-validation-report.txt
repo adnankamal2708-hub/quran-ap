@@ -1,0 +1,267 @@
+
+  Corpus Matching Validation
+  ==========================
+
+  Quran: 114 surahs
+  Vocabulary: 939 entries
+  Quran tokens: 21250 unique raw, 14865 unique normalized, 12913 unique stripped
+
+══════════════════════════════════════════════════════════════════════
+  1. TOKENIZATION ANALYSIS — Attached Particles
+══════════════════════════════════════════════════════════════════════
+
+  Total Quran tokens:         77429
+  Tokens WITH particle prefix: 29491 (38%)
+  Tokens WITHOUT prefix:      47938 (62%)
+
+  Prefix breakdown:
+    و (waw-and):      [object Object] tokens (NaN%)
+    ف (fa-so):        [object Object] tokens (NaN%)
+    ب (ba-with):      [object Object] tokens (NaN%)
+    ل (lam-to/for):   [object Object] tokens (NaN%)
+    ك (kaf-as/like):  [object Object] tokens (NaN%)
+    س (sa-will):      [object Object] tokens (NaN%)
+
+  Tokens with ال (definite article): 10006 (13%)
+
+══════════════════════════════════════════════════════════════════════
+  2. NORMALIZATION COMPARISON — Top 30 Words
+══════════════════════════════════════════════════════════════════════
+
+  [1] لَا                occ= 6000  norm="لا                  "  stripped="ا                   "
+       Corpus: "وَلَا                    " → norm="ولا                 " [stripped] at 1:7
+       Corpus: "لَا                      " → norm="لا                  " [direct] at 2:2
+
+  [2] مَا                occ= 4580  norm="ما                  "  stripped="ما                  "
+       Corpus: "بِمَآ                   " → norm="بما                 " [stripped] at 2:4
+       Corpus: "وَمَا                    " → norm="وما                 " [stripped] at 2:8
+
+  [3] مِنْ               occ= 3220  norm="من                  "  stripped="من                  "
+       Corpus: "مِن                      " → norm="من                  " [direct] at 2:4
+       Corpus: "مِّن                     " → norm="من                  " [direct] at 2:5
+
+  [4] اللَّهُ            occ= 2699  norm="الله                "  stripped="له                  "
+       Corpus: "ٱللَّهِ                  " → norm="الله                " [direct] at 1:1
+       Corpus: "ٱللَّهُ                  " → norm="الله                " [direct] at 2:7
+
+  [5] فِي                occ= 2470  norm="في                  "  stripped="ي                   "
+       Corpus: "فِي                      " → norm="في                  " [direct] at 2:10
+       Corpus: "فِي                      " → norm="في                  " [direct] at 2:11
+
+  [6] فِي                occ= 2470  norm="في                  "  stripped="ي                   "
+       Corpus: "فِي                      " → norm="في                  " [direct] at 2:10
+       Corpus: "فِي                      " → norm="في                  " [direct] at 2:11
+
+  [7] عَلَى              occ= 1850  norm="علي                 "  stripped="علي                 "
+       Corpus: "عَلَى                    " → norm="علي                 " [direct] at 4:17
+       Corpus: "عَلَى                    " → norm="علي                 " [direct] at 4:25
+
+  [8] مَنْ               occ= 1800  norm="من                  "  stripped="من                  "
+       Corpus: "مِن                      " → norm="من                  " [direct] at 2:4
+       Corpus: "مِّن                     " → norm="من                  " [direct] at 2:5
+
+  [9] قَالَ              occ= 1720  norm="قال                 "  stripped="قال                 "
+       Corpus: "قَالَ                    " → norm="قال                 " [direct] at 2:30
+       Corpus: "قَالَ                    " → norm="قال                 " [direct] at 4:18
+
+  [10] كَانَ              occ= 1660  norm="كان                 "  stripped="ان                  "
+       Corpus: "إِنَّ                    " → norm="ان                  " [stripped] at 2:6
+       Corpus: "إِنَّ                    " → norm="ان                  " [stripped] at 2:20
+
+  [11] إِلَى              occ= 1600  norm="الي                 "  stripped="ي                   "
+       Corpus: "فِي                      " → norm="في                  " [stripped] at 2:10
+       Corpus: "فِي                      " → norm="في                  " [stripped] at 2:11
+
+  [12] إِنَّ              occ= 1593  norm="ان                  "  stripped="ان                  "
+       Corpus: "إِنَّ                    " → norm="ان                  " [direct] at 2:6
+       Corpus: "إِنَّ                    " → norm="ان                  " [direct] at 2:20
+
+  [13] هُوَ               occ= 1360  norm="هو                  "  stripped="هو                  "
+       Corpus: "هُوَ                     " → norm="هو                  " [direct] at 2:29
+       Corpus: "هُوَ                     " → norm="هو                  " [direct] at 3:2
+
+  [14] الَّذِينَ          occ= 1134  norm="الذين               "  stripped="ذين                 "
+       Corpus: "ٱلَّذِينَ                " → norm="الذين               " [direct] at 1:7
+       Corpus: "ٱلَّذِينَ                " → norm="الذين               " [direct] at 2:3
+
+  [15] الَّذِينَ          occ= 1134  norm="الذين               "  stripped="ذين                 "
+       Corpus: "ٱلَّذِينَ                " → norm="الذين               " [direct] at 1:7
+       Corpus: "ٱلَّذِينَ                " → norm="الذين               " [direct] at 2:3
+
+  [16] أَنْتُمْ           occ= 1100  norm="انتم                "  stripped="انتم                "
+       Corpus: "وَأَنتُمۡ                " → norm="وانتم               " [stripped] at 2:22
+       Corpus: "وَأَنتُمۡ                " → norm="وانتم               " [stripped] at 5:1
+
+  [17] لِلَّهِ            occ=  985  norm="لله                 "  stripped="ه                   "
+       Corpus: "لِلَّهِ                  " → norm="لله                 " [direct] at 1:2
+       Corpus: "بِهِۦ                    " → norm="به                  " [stripped] at 2:22
+
+  [18] رَبِّ              occ=  975  norm="رب                  "  stripped="رب                  "
+       Corpus: "رَبِّ                    " → norm="رب                  " [direct] at 1:2
+       Corpus: "رَبِّ                    " → norm="رب                  " [direct] at 5:25
+
+  [19] عَلِمَ             occ=  855  norm="علم                 "  stripped="علم                 "
+       Corpus: "ٱلۡعِلۡمِ                " → norm="العلم               " [stripped] at 3:7
+       Corpus: "ٱلۡعِلۡمِ                " → norm="العلم               " [stripped] at 3:18
+
+  [20] مِنْهَا            occ=  573  norm="منها                "  stripped="منها                "
+       Corpus: "مِنۡهَا                  " → norm="منها                " [direct] at 4:1
+       Corpus: "مِنۡهَا                  " → norm="منها                " [direct] at 5:22
+
+  [21] آمَنَ              occ=  537  norm="امن                 "  stripped="امن                 "
+       NO MATCH FOUND in first 5 surahs
+
+  [22] شَيْءٍ             occ=  520  norm="شيء                 "  stripped="شيء                 "
+       Corpus: "شَيۡءٖ                   " → norm="شيء                 " [direct] at 2:20
+       Corpus: "شَيۡءٍ                   " → norm="شيء                 " [direct] at 2:29
+
+  [23] رَسُول             occ=  513  norm="رسول                "  stripped="رسول                "
+       NO MATCH FOUND in first 5 surahs
+
+  [24] حَتَّىٰ            occ=  463  norm="حتيا                "  stripped="حتيا                "
+       Corpus: "حَتَّىٰٓ                 " → norm="حتيا                " [direct] at 4:6
+       Corpus: "حَتَّىٰ                  " → norm="حتيا                " [direct] at 4:15
+
+  [25] أَرْض              occ=  461  norm="ارض                 "  stripped="ارض                 "
+       Corpus: "ٱلۡأَرۡضِ                " → norm="الارض               " [stripped] at 2:11
+       Corpus: "ٱلۡأَرۡضَ                " → norm="الارض               " [stripped] at 2:22
+
+  [26] يَوْمَ             occ=  405  norm="يوم                 "  stripped="يوم                 "
+       Corpus: "يَوۡمِ                   " → norm="يوم                 " [direct] at 1:4
+       Corpus: "وَبِٱلۡيَوۡمِ            " → norm="وباليوم             " [stripped] at 2:8
+
+  [27] بِمَا              occ=  404  norm="بما                 "  stripped="ما                  "
+       Corpus: "بِمَآ                   " → norm="بما                 " [direct] at 2:4
+       Corpus: "وَمَا                    " → norm="وما                 " [stripped] at 2:8
+
+  [28] آيَة               occ=  382  norm="ايه                 "  stripped="ايه                 "
+       NO MATCH FOUND in first 5 surahs
+
+  [29] آيَةً              occ=  382  norm="ايه                 "  stripped="ايه                 "
+       NO MATCH FOUND in first 5 surahs
+
+  [30] آيَاتِ             occ=  382  norm="ايات                "  stripped="ايات                "
+       Corpus: "بِـَٔايَٰتِ              " → norm="بايات               " [stripped] at 3:4
+       Corpus: "بِـَٔايَٰتِ              " → norm="بايات               " [stripped] at 3:19
+
+══════════════════════════════════════════════════════════════════════
+  3. UNMATCHED ENTRIES — Categorization
+══════════════════════════════════════════════════════════════════════
+
+  Total unmatched: 274 entries
+
+  By category:
+    orthography-mismatch               89 (32%)
+    prefix-mismatch                    86 (31%)
+    multi-word-all-match               72 (26%)
+    definite-article-mismatch          21 (8%)
+    multi-word-partial                 6 (2%)
+
+  Samples from each category:
+    [orthography-mismatch] "الْقُرْآنِ                    " norm="القران                   " eng="The Quran"
+    [prefix-mismatch] "الْبَاسِطُ                    " norm="الباسط                   " eng="The Extender"
+    [definite-article-mismatch] "الْمُجِيبُ                    " norm="المجيب                   " eng="The Responder"
+    [multi-word-all-match] "مَالِكُ الْمُلْكِ             " norm="مالك الملك               " eng="The Owner of All Sovereig"
+           parts: مالك, الملك
+    [multi-word-partial] "تَوَاصَوْا بِالْحَقِّ         " norm="تواصوا بالحق             " eng="Enjoin the Truth"
+           parts: تواصوا, بالحق
+
+══════════════════════════════════════════════════════════════════════
+  4. CROSS-REFERENCE — Top 50 Words
+══════════════════════════════════════════════════════════════════════
+
+  #  Word         Old    Direct  Stripped  +Prefix  Total   %Old
+  ──────────────────────────────────────────────────────────────────────
+   1 لَا           6000    812      0     50    862  14%
+   2 مَا           4580   1010   1010   1312   2322  51%
+   3 مِنْ          3220   2763   2763    555   3318  103%
+   4 اللَّهُ       2699   2153    274      0   2153  80%
+   5 فِي           2470   1185      0     33   1218  49%
+   6 فِي           2470   1185      0     33   1218  49%
+   7 عَلَى         1850    258    258     40    298  16%
+   8 مَنْ          1800   2763   2763    555   3318  184%
+   9 قَالَ         1720    416    416    113    529  31%
+  10 كَانَ         1660    333   1603      0    333  20%
+  11 إِلَى         1600    165      0      0    165  10%
+  12 إِنَّ         1593   1603   1603    955   2558  161%
+  13 هُوَ          1360    265    265    221    486  36%
+  14 الَّذِينَ     1134    811      0      0    811  72%
+  15 الَّذِينَ     1134    811      0      0    811  72%
+  16 أَنْتُمْ      1100     76     76     47    123  11%
+  17 لِلَّهِ        985    116      0      0    116  12%
+  18 رَبِّ          975    128    128     21    149  15%
+  19 عَلِمَ         855     60     60     36     96  11%
+  20 مِنْهَا        573     85     85      9     94  16%
+  21 آمَنَ          537     12     12      6     18  3%
+  22 شَيْءٍ         520    190    190     11    201  39%
+  23 رَسُول         513     52     52     64    116  23%
+  24 حَتَّىٰ        463    142    142      0    142  31%
+  25 أَرْض          461      4      4    446    450  98%
+  26 يَوْمَ         405    217    217    132    349  86%
+  27 بِمَا          404    296   1010      0    296  73%
+  28 آيَة           382      2      2     33     35  9%
+  29 آيَةً          382      2      2     33     35  9%
+  30 آيَاتِ         382      0      0     96     96  25%
+  31 رَأَىٰ         369      2      2      0      2  1%
+  32 قُلْ           332    294    294     39    333  100%
+  33 الرَّسُولُ     331     45     52      0     45  14%
+  34 الْعَذَابُ     325     85    150      0     85  26%
+  35 يَهْدِينِ      316      2      2      3      5  2%
+  36 الْكِتَابِ     312    162     47      0    162  52%
+  37 سَمَاء         310      1     35    118    119  38%
+  38 نَفْسٍ         295     47     47     14     61  21%
+  39 الْحَقِّ       247    109     34      0    109  44%
+  40 النَّاسِ       241    182      0      0    182  76%
+  41 النَّاسِ       240    182      0      0    182  76%
+  42 يُرِيدُ        221     38     38      3     41  19%
+  43 رَبَّنَا       190    106    106      5    111  58%
+  44 الْمُحْسِنِينَ   189     30      1      0     30  16%
+  45 آمَنُوا        182      0      0      6      6  3%
+  46 خَيْر          176    116    116     23    139  79%
+  47 الْخَيْرِ      176      9    116      0      9  5%
+  48 سَبِيلِ        174     87      0     28    115  66%
+  49 عَلِيمٌ        157    106    106     33    139  89%
+  50 رَحْمَةً       157     35     35     38     73  46%
+
+  Summary:
+    Old total (stored):         49167
+    Direct matches (normalized): 19553 (40% of old)
+    Stripped matches:           14116
+    Additional prefix variants:  5111
+    Total with prefixes:        24664 (50% of old)
+
+    Words with direct match:    48/50
+    Words with stripped match:  38/50
+    Words improved by prefix:    33/50
+
+══════════════════════════════════════════════════════════════════════
+  5. COVERAGE WITH PREFIX-STRIPPED MATCHING
+══════════════════════════════════════════════════════════════════════
+
+  Total Quran tokens:                77429
+  Matched by vocabulary (prefix-aware): 29252 (37.78%)
+  Unmatched:                         48177 (62.22%)
+
+  For reference — the 10 most common simple forms in the Quran corpus:
+    1. "من                  " 2763 occurrences
+    2. "الله                " 2153 occurrences
+    3. "ان                  " 1603 occurrences
+    4. "في                  " 1185 occurrences
+    5. "ما                  " 1010 occurrences
+    6. "لا                  " 812 occurrences
+    7. "الذين               " 811 occurrences
+    8. "الا                 " 761 occurrences
+    9. "ولا                 " 657 occurrences
+    10. "وما                 " 644 occurrences
+
+  Most common prefix-stripped forms:
+    1. "له                  " 2546 occurrences
+    2. "ما                  " 1312 occurrences
+    3. "ذين                 " 1081 occurrences
+    4. "ان                  " 955 occurrences
+    5. "هم                  " 644 occurrences
+    6. "من                  " 555 occurrences
+    7. "ارض                 " 446 occurrences
+    8. "يا                  " 318 occurrences
+    9. "ذي                  " 308 occurrences
+    10. "قد                  " 283 occurrences

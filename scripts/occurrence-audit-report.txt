@@ -1,0 +1,160 @@
+
+══════════════════════════════════════════════════════════════════════
+  EXECUTIVE SUMMARY
+══════════════════════════════════════════════════════════════════════
+  Vocabulary entries audited (ALL_WORDS):  939
+  Canonical groups (normalized dedup):     850
+  Duplicate groups (same form, multiple):  74
+
+  ALL_WORDS old total occurrences:         65744
+  ALL_WORDS new total occurrences:         26021
+  Canonical old total occurrences:         65744
+  Canonical new total occurrences:         18882
+  Quran corpus total tokens:               77429
+  Quran total verses:                      6236
+
+  ALL_WORDS unchanged:                     107
+  ALL_WORDS changed:                       832
+    Increased:                             48
+    Decreased:                             784
+  ALL_WORDS unmatched (not in corpus):     274
+
+══════════════════════════════════════════════════════════════════════
+  COVERAGE & COMPREHENSION
+══════════════════════════════════════════════════════════════════════
+  Coverage (ALL_WORDS old):               84.91%
+  Coverage (ALL_WORDS new):               33.61%
+  Coverage (CANONICAL old):               84.91%
+  Coverage (CANONICAL new):               24.39%
+
+══════════════════════════════════════════════════════════════════════
+  FOUNDATION COURSE COVERAGE
+══════════════════════════════════════════════════════════════════════
+  Top 100 canonical words (old occ):       52170 occurrences = 67.38% coverage
+  Top 100 canonical words (new corpus):    17113 occurrences = 22.1% coverage
+  Change:                                   -45.28%
+
+══════════════════════════════════════════════════════════════════════
+  TOP 10 LARGEST CHANGES (Canonical Groups)
+══════════════════════════════════════════════════════════════════════
+  #  Word               Old → New      Diff     %Change
+   1 لَا               6000 →   812   -5188  -86.5%
+   2 فِي               4940 →  1185   -3755  -76%
+   3 مَا               4580 →  1010   -3570  -77.9%
+   4 مِنْ              5020 →  2763   -2257  -45%
+   5 عَلَى             1850 →   258   -1592  -86.1%
+   6 الَّذِينَ         2268 →   811   -1457  -64.2%
+   7 إِلَى             1600 →   165   -1435  -89.7%
+   8 كَانَ             1660 →   333   -1327  -79.9%
+   9 قَالَ             1720 →   416   -1304  -75.8%
+  10 هُوَ              1360 →   265   -1095  -80.5%
+
+══════════════════════════════════════════════════════════════════════
+  TOP 10 BIGGEST INCREASES
+══════════════════════════════════════════════════════════════════════
+  #  Word               Old → New     +Increase  %Change
+   1 الْآخِرُ             1 →    29  +   28  +2800%
+   2 بِالْحَقِّ          48 →    74  +   26  +54.2%
+   3 الْبَرُّ             1 →    19  +   18  +1800%
+   4 أَيْمَانِكُمْ       10 →    21  +   11  +110%
+   5 إِنَّ             1593 →  1603  +   10  +0.6%
+   6 الْحَيُّ             4 →    12  +    8  +200%
+   7 الْحَكَمُ            1 →     7  +    6  +600%
+   8 الْأَحْزَابِ         5 →    10  +    5  +100%
+   9 كَلَّا              33 →    38  +    5  +15.2%
+  10 تَنَزَّلُ            3 →     7  +    4  +133.3%
+
+══════════════════════════════════════════════════════════════════════
+  TOP 10 BIGGEST DECREASES
+══════════════════════════════════════════════════════════════════════
+  #  Word               Old → New     Decrease  %Change
+   1 لَا               6000 →   812   -5188  -86.5%
+   2 فِي               4940 →  1185   -3755  -76%
+   3 مَا               4580 →  1010   -3570  -77.9%
+   4 مِنْ              5020 →  2763   -2257  -45%
+   5 عَلَى             1850 →   258   -1592  -86.1%
+   6 الَّذِينَ         2268 →   811   -1457  -64.2%
+   7 إِلَى             1600 →   165   -1435  -89.7%
+   8 كَانَ             1660 →   333   -1327  -79.9%
+   9 قَالَ             1720 →   416   -1304  -75.8%
+  10 هُوَ              1360 →   265   -1095  -80.5%
+
+══════════════════════════════════════════════════════════════════════
+  WORDS WITH >20% CHANGE (Canonical — 463 entries)
+══════════════════════════════════════════════════════════════════════
+  #  Word               Old → New     %Change  English
+   1 الْآخِرُ            1 →    29  +  2800%  The Last
+   2 الْبَرُّ            1 →    19  +  1800%  The Source of Goodness
+   3 الْحَكَمُ           1 →     7  +   600%  The Judge
+   4 الْحَيُّ            4 →    12  +   200%  The Ever-Living
+   5 تَنَزَّلُ           3 →     7  + 133.3%  Descend
+   6 أَيْمَانِكُمْ      10 →    21  +   110%  Your Oaths
+   7 الْأَوَّلُ          1 →     2  +   100%  The First
+   8 مُؤْصَدَةٌ          1 →     2  +   100%  Closed Tightly
+   9 كُفُوًا             1 →     2  +   100%  Equal
+  10 الْعَنْكَبُوتِ      1 →     2  +   100%  The Spider
+  11 الْأَحْزَابِ        5 →    10  +   100%  The Confederates
+  12 الْمُنْتَهَىٰ       1 →     2  +   100%  The Utmost Boundary
+  13 رَابِعُهُمْ         1 →     2  +   100%  The Fourth of Them
+  14 عَبَسَ              1 →     2  +   100%  He Frowned
+  15 حِلٌّ               2 →     4  +   100%  Free/Lawful
+  16 سَمَاء            310 →     1   -99.7%  Heaven/Sky
+  17 آيَة              764 →     2   -99.7%  Sign/Verse
+  18 رَأَىٰ            369 →     2   -99.5%  He Saw
+  19 يَهْدِينِ         316 →     2   -99.4%  He Guides Me
+  20 قَلْبِي           120 →     1   -99.2%  My Heart
+
+══════════════════════════════════════════════════════════════════════
+  UNMATCHED ENTRIES (not found in Quran corpus — 274 entries)
+══════════════════════════════════════════════════════════════════════
+  These vocabulary entries could not be matched against any
+  normalized Quran token. They may be multi-word phrases,
+  non-Quranic vocabulary, or have different orthography.
+
+  الْقُرْآنِ                old=70  The Quran
+  صَلَاة                    old=99  Prayer
+  الْقَابِضُ                old=2  The Withholder
+  الْبَاسِطُ                old=2  The Extender
+  الْخَافِضُ                old=1  The Abaser
+  الرَّافِعُ                old=1  The Exalter
+  الْمُذِلُّ                old=1  The Humiliator
+  الْعَدْلُ                 old=2  The Just
+  الْحَفِيظُ                old=4  The Preserver
+  الْمُقِيتُ                old=1  The Sustainer
+  الْحَسِيبُ                old=3  The Reckoner
+  الْجَلِيلُ                old=1  The Majestic
+  الْمُجِيبُ                old=1  The Responder
+  الْوَاسِعُ                old=4  The All-Encompassing
+  الْبَاعِثُ                old=3  The Resurrector
+  الشَّهِيدُ                old=21  The Witness
+  الْمُحْصِي                old=2  The Counter
+  الْمُبْدِئُ               old=2  The Originator
+  الْمُعِيدُ                old=2  The Restorer
+  الْمُحْيِي                old=2  The Giver of Life
+  ... and 254 more
+
+══════════════════════════════════════════════════════════════════════
+  VALIDATION SAMPLE
+══════════════════════════════════════════════════════════════════════
+  Sampled: 78 canonical groups
+  Verified: 78/78 (100%)
+
+══════════════════════════════════════════════════════════════════════
+  DUPLICATE DETECTION
+══════════════════════════════════════════════════════════════════════
+  Canonical groups with multiple entries: 74
+  Top 10 most duplicated:
+  الرَّحْمَٰنِ         3 entries  old=171 corpus=45
+  الدِّينِ             3 entries  old=202 corpus=47
+  الصِّرَاطَ           3 entries  old=132 corpus=6
+  قَدِيرٌ              3 entries  old=130 corpus=37
+  رَحْمَة              3 entries  old=385 corpus=35
+  الْجَنَّةَ           3 entries  old=192 corpus=56
+  الْمَلِكُ            3 entries  old=124 corpus=28
+  السَّلَامُ           3 entries  old=90 corpus=5
+  الْحَقُّ             3 entries  old=356 corpus=109
+  وَيْلٌ               3 entries  old=47 corpus=14
+
+══════════════════════════════════════════════════════════════════════
+  AUDIT COMPLETE
+══════════════════════════════════════════════════════════════════════
