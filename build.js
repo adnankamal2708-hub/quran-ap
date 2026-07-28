@@ -124,6 +124,7 @@ const APP_FILES = [
   'js/services/sync-service.js',
   'js/services/user-service.js',
   'js/services/feedback.js',
+  'js/services/premium.js',
   'js/vocabulary.js',
   'js/srs.js',
 ].concat(UI_FILES).concat([

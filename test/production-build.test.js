@@ -334,11 +334,77 @@ suite('Service Worker Precache', function() {
   test('SW precaches styles.min.css', function() {
     assert.ok(sw.indexOf('styles.min.css') >= 0,
       'styles.min.css not in SW precache');
-  });
-
-  test('SW precaches index.html', function() {
+  });    test('SW precaches index.html', function() {
     assert.ok(sw.indexOf('index.html') >= 0,
       'index.html not in SW precache');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// VOCABULARY OCCURRENCE COUNT INTEGRITY
+// ═══════════════════════════════════════════════════════════════
+
+suite('Vocabulary Occurrence Count Integrity', function() {
+  var dataBundlePath = path.join(DIST, 'js/data.bundle.min.js');
+  if (!fs.existsSync(dataBundlePath)) {
+    console.log('  \u26A0 Data bundle not found — skipping');
+    return;
+  }
+  var bundleCode = fs.readFileSync(dataBundlePath, 'utf8');
+
+  // Verify that the new occurrence count fields are present
+  test('occExact field exists in vocabulary entries', function() {
+    assert.ok(bundleCode.indexOf('occExact:') >= 0,
+      'occExact: missing from data bundle — run scripts/update-vocabulary.js');
+  });
+
+  test('occEducational field exists in vocabulary entries', function() {
+    assert.ok(bundleCode.indexOf('occEducational:') >= 0,
+      'occEducational: missing from data bundle — run scripts/update-vocabulary.js');
+  });
+
+  // Verify sample words have realistic values
+  // IMPORTANT: Use the EXACT arabic text as stored in the vocabulary files
+  // (including tashkeel/diacritics). Minification preserves Unicode inside strings.
+  var sampleWords = [
+    { arabic: 'اللَّهُ', minOcc: 100, label: 'Allah' },
+    // Also check that occExact exists alongside occ
+    { field: 'occExact:', minCount: 1, label: 'occExact field' },
+  ];
+
+  sampleWords.forEach(function(sw) {
+    test(sw.label + ': field integrity check', function() {
+      if (sw.field) {
+        var fieldCount = (bundleCode.match(new RegExp(sw.field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+        assert.ok(fieldCount >= sw.minCount,
+          '"' + sw.field + '" found ' + fieldCount + ' times, expected >= ' + sw.minCount);
+        return;
+      }
+      // Search with exact diacritics-included arabic text
+      var idx = bundleCode.indexOf(sw.arabic);
+      assert.ok(idx >= 0, 'Word "' + sw.label + '" arabic text not found in data bundle');
+
+      // Find occ: N within 500 chars after the word
+      var context = bundleCode.substring(idx, idx + 500);
+      var occMatch = context.match(/occ:(\d+)/);
+      assert.ok(occMatch !== null, 'occ not found for "' + sw.label + '"');
+      var occVal = parseInt(occMatch[1], 10);
+      assert.ok(occVal >= sw.minOcc,
+        'occ for "' + sw.label + '" is ' + occVal + ' but expected >= ' + sw.minOcc);
+    });
+  });
+
+  // Verify no stale hardcoded "~84%" claims remain in code
+  // Note: This searches the app bundle for the exact pattern "~84" which
+  // was previously used in milestone messages. The number "84" alone
+  // (without tilde) is allowed as it may appear in unrelated contexts.
+  test('No hardcoded ~84 coverage claims in application code', function() {
+    var appBundlePath = path.join(DIST, 'js/app.bundle.min.js');
+    if (!fs.existsSync(appBundlePath)) return;
+    var appCode = fs.readFileSync(appBundlePath, 'utf8');
+    var badPattern = appCode.match(/~84[\s%]?/);
+    assert.ok(!badPattern,
+      'Stale ~84 reference found in production bundle. All coverage claims must be dynamic.');
   });
 });
 

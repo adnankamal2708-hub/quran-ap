@@ -81,7 +81,7 @@ A thorough end-to-end QA audit was conducted on the Bayan Quran Learning Applica
 | **Code Quality** | 8/10 | Modular file structure with clear separation (reader, dashboard, learn, quiz, srs, analytics). ES5-compatible (no arrow functions/const/let concerns for production). Data validation at startup. Cache invalidation patterns used. Some dead code remains (`renderStats()`). Global namespace pollution through `window.__` exports. |
 | **Maintainability** | 8/10 | Well-commented files with clear headers. AGENTS.md provides architectural guidance. Build process is simple (node build.js). Single source of truth for vocabulary data. Modular extraction of ui/ into focused modules. Legacy files (`data.js`, `ui.js`) clearly marked as no-longer-loaded. |
 | **Data Accuracy** | 9/10 | Startup data validation checks: duplicate IDs, missing fields, invalid surah references. Vocabulary deduplication into canonical entries. Educational consistency validation. SRS data migration from legacy formats. Cross-surah verse references are handled correctly. |
-| **Overall Experience** | 8.5/10 | A polished, feature-rich Quran vocabulary learning app. Strong educational value with the Foundation Course covering ~84% of Quranic word occurrences. Multi-path learning system (foundation, surah, root, difficulty, mixed review). Comprehensive analytics and progress tracking. PWA features enable offline use. |
+| **Overall Experience** | 8.5/10 | A polished, feature-rich Quran vocabulary learning app. Strong educational value with the Foundation Course (coverage dynamically calculated from vocabulary data). Multi-path learning system (foundation, surah, root, difficulty, mixed review). Comprehensive analytics and progress tracking. PWA features enable offline use. |
 
 ---
 

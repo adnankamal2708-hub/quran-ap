@@ -267,7 +267,8 @@ function renderDashboard() {
   $h += '<div class="db-greeting">';
   $h += '<div class="db-greeting-icon" aria-hidden="true">' + $icon('book', 28) + '</div>';
   $h += '<div>';
-  $h += '<h2 class="db-greeting-title">Assalamu Alaikum</h2>';
+  var $premiumBadge = (window.__premium && window.__premium.isPremium()) ? ' <span class="db-premium-badge">⭐ Premium</span>' : '';
+  $h += '<h2 class="db-greeting-title">Assalamu Alaikum' + $premiumBadge + '</h2>';
   $h += '<p class="db-greeting-sub">' + $greetingSub + '</p>';
   $h += '</div></div>';
 

@@ -34,6 +34,7 @@ var TESTS = [
   "foundation-course.test.js",
   "quran.test.js",
   "profile-ui.test.js",
+  "premium.test.js",
   "explorer.test.js",
   "auth-ui.test.js",
   "recommendation-slot.test.js",

@@ -428,7 +428,7 @@ function getScoredRecommendations() {
         ? 'Start Your Foundation Course'
         : 'Continue Foundation Lesson ' + (nextIdx + 1),
       message: ctx.totalStudied === 0
-        ? 'Begin your journey to understand the Quran. The Foundation Course teaches the 100 most frequent words — covering ~84% of all Quranic word occurrences in just 10 lessons.'
+        ? 'Begin your journey to understand the Quran. The Foundation Course teaches the 100 most frequent words. Each lesson builds your Quran vocabulary foundation.'
         : (fLesson
             ? 'Lesson ' + (nextIdx + 1) + ': ' + (fLesson.thematicTitle || '') +
               (fLesson.comprehensionGain > 0 ? ' — +' + fLesson.comprehensionGain + '% comprehension gain' : '')

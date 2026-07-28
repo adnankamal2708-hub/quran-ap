@@ -1,7 +1,7 @@
 // ── Foundation Course ────────────────────────────────────────────
 // The Foundation Course teaches the 100 most frequent Quranic words
 // organized into 10 progressive lessons (10 words each, every 5th is review).
-// Completing all 10 lessons covers ~84% of all Quranic word occurrences.
+// Coverage percentage is computed dynamically from vocabulary data.
 
 // Production flag - set to false to suppress debug logging
 /** Foundation Course mode constant */
@@ -111,7 +111,7 @@ function buildFoundationCourse() {
       'Vocabulary related to prophets, revelation, and the stories carrying the core message of the Quran.',
       'Words describing the Hereafter, judgment, and consequences of human actions — central Quranic themes.',
       'Nuanced vocabulary about knowledge, patience, and deeper spiritual concepts from the Quran.',
-      'Final review of all 100 foundation words. After this you recognize ~84% of all Quranic word occurrences.',
+      'Final review of all 100 foundation words.' + (cumulativeCoverageNum > 0 ? ' After this you recognize approximately ' + cumulativeCoverageNum.toFixed(1) + '% of all Quranic word occurrences.' : ''),
     ];
     
     FOUNDATION_LESSONS.push({
@@ -561,7 +561,7 @@ function calculateCoverage() {
   
   // Estimate reading comprehension: based on coverage with diminishing returns
   // At 0% coverage → 0% comprehension
-  // At ~84% coverage (100 foundation words) → ~60% comprehension
+  // At 100 foundation words → estimated comprehension based on actual coverage
   // The curve: comprehension ≈ 1.3 * coverage^0.7 (diminishing at high coverage)
   var estimatedComprehension = coveragePct > 0 
     ? Math.min(95, Math.round(1.3 * Math.pow(coveragePct, 0.7) * 10) / 10)
@@ -930,7 +930,7 @@ function _getRelativeDateKey(offsetDays) {
 var FOUNDATION_MILESTONE_MESSAGES = [
   { pct: 0, messages: [
     'Every great journey begins with a single word. You are taking the most effective path to understanding the Quran.',
-    'The 100 most frequent words make up ~84% of all word occurrences. Each lesson brings you closer to understanding Allah\'s words directly.',
+    'The 100 most frequent words are your gateway to understanding the Quran directly. Each lesson brings you closer to Allah\'s words.',
   ] },
   { pct: 10, messages: [
     'You now understand approximately {comprehension}% of all word occurrences. You can now recognize one out of every ten Quran words — this is real, measurable progress toward understanding the Book of Allah.',
@@ -954,7 +954,7 @@ var FOUNDATION_MILESTONE_MESSAGES = [
     'After this course, you will recognize approximately {comprehension}% of all word occurrences. You are almost ready to read the Quran with comprehension.',
   ] },
   { pct: 100, messages: [
-    'Foundation Course Complete! You now understand approximately {comprehension}% of all word occurrences — covering ~84% of the entire Quran. SubhanAllah, what a journey!',
+    'Foundation Course Complete! You now understand approximately {comprehension}% of all word occurrences — covering approximately {coverage}% of the entire Quran. SubhanAllah, what a journey!',
     'You mastered the 100 most frequent Quranic words — vocabulary used thousands of times throughout the Quran. These words appear in nearly every page of Allah\'s book.',
     'The Foundation Course has given you the essential vocabulary. Now explore surah by surah, and experience the Quran as it was revealed — to be understood.',
   ] },
@@ -1017,6 +1017,7 @@ function getFoundationMilestoneMessage() {
   msg = msg.replace('{comprehension}', String(comprehension));
   msg = msg.replace('{occurrences}', masteredOcc.toLocaleString());
   msg = msg.replace('{roots}', String(rootCount));
+  msg = msg.replace('{coverage}', String(getFoundationTotalCoveragePercent()));
   
   var icon = pct >= 100 ? '\uD83C\uDF89' : pct >= 50 ? '\u2B50' : pct >= 25 ? '\uD83D\uDCA1' : '\uD83C\uDF31';
   

@@ -4,7 +4,7 @@
 
 ## Features
 
-- **Foundation Course** — Master the 100 most frequent Quranic words across 10 progressive lessons (~84% of all Quranic word occurrences)
+- **Foundation Course** — Master the 100 most frequent Quranic words across 10 progressive lessons (coverage dynamically calculated from vocabulary data)
 - **Learn by Surah** — Study vocabulary in Quranic context, surah by surah
 - **Root Family Learning** — Explore Arabic morphology by studying words grouped by root letters
 - **Adaptive Spaced Repetition (SRS)** — SM-2 algorithm with automatic review scheduling

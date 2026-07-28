@@ -172,10 +172,18 @@ function deduplicateVocabulary() {
       }
     }
     
-    // Compute total occurrence count
+    // Compute total occurrence counts
     var totalOcc = 0;
-    group.forEach(function(gw) { totalOcc += (gw.occ || 0); });
+    var totalOccExact = 0;
+    var totalOccEducational = 0;
+    group.forEach(function(gw) { 
+      totalOcc += (gw.occ || 0); 
+      totalOccExact += (gw.occExact || 0);
+      totalOccEducational += (gw.occEducational || 0);
+    });
     totalOcc = Math.max(totalOcc, occurrences.length);
+    totalOccExact = Math.max(totalOccExact, occurrences.length);
+    totalOccEducational = Math.max(totalOccEducational, occurrences.length);
     
     // Compute best difficulty from group (most frequent = mode)
     var diffCounts = {};
@@ -237,6 +245,8 @@ function deduplicateVocabulary() {
       rootPattern: base.rootPattern,
       rootFamily: base.rootFamily,
       occ: totalOcc,
+      occExact: totalOccExact,
+      occEducational: totalOccEducational,
       frequency: bestFrequency,
       difficulty: bestDifficulty,
       tags: mergedTags,

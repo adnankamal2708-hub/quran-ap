@@ -149,6 +149,12 @@ async function renderProfileView() {
     avatarEl.textContent = initial;
   }
 
+  // Premium badge
+  var premiumBadgeEl = document.getElementById('profile-premium-badge');
+  if (premiumBadgeEl) {
+    premiumBadgeEl.style.display = (window.__premium && window.__premium.isPremium()) ? 'inline-block' : 'none';
+  }
+
   // Update learner stage description (Part 6)
   var stageEl = document.getElementById('profile-learner-stage');
   if (stageEl) {
