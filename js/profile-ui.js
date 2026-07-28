@@ -237,7 +237,21 @@ async function renderProfileView() {
   var syncStatus = getSyncStatus ? getSyncStatus() : {};
   var syncEl = document.getElementById('profile-sync-status');
   if (syncEl) {
-    if (syncStatus.syncing) {
+    // Check if user is free-tier (not premium, not grandfathered) with sync ready
+    var _isPremium = window.__premium && window.__premium.isPremium();
+    var _isGrandfathered = false;
+    try { _isGrandfathered = localStorage.getItem('quran_sync_grandfathered') === 'true'; } catch (e) {}
+    if (syncStatus.ready && !_isPremium && !_isGrandfathered) {
+      syncEl.innerHTML = '○ Cloud sync unavailable with free account — <a href="#" id="sync-upgrade-link" style="color:var(--gold);text-decoration:underline">Upgrade</a>';
+      syncEl.style.color = 'var(--text-muted)';
+      var upgradeLink = document.getElementById('sync-upgrade-link');
+      if (upgradeLink) {
+        upgradeLink.onclick = function (e) {
+          e.preventDefault();
+          if (window.__premium) window.__premium.requestUpgrade('cloud-sync');
+        };
+      }
+    } else if (syncStatus.syncing) {
       syncEl.textContent = 'Syncing...';
       syncEl.style.color = 'var(--gold)';
     } else if (syncStatus.pending) {

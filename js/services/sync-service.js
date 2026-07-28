@@ -35,6 +35,10 @@ let _syncTimer = null;
 /** Whether a sync is currently in progress */
 let _syncing = false;
 
+/** Cached grandfather status (null = not checked, true = grandfathered, false = not) */
+let _grandfathered = null;
+const GRANDFATHER_KEY = 'quran_sync_grandfathered';
+
 // ── Initialization ────────────────────────────────────────────
 
 /**
@@ -186,6 +190,10 @@ async function uploadToCloud(userId, retryCount) {
       learningData: data,
       updatedAt: _serverTimestamp(),
     }, { merge: true });
+
+    // Set grandfather flag on successful upload (ensures future syncs work)
+    _grandfathered = true;
+    try { localStorage.setItem(GRANDFATHER_KEY, 'true'); } catch (e) {}
 
     console.log('[sync] Data uploaded to cloud.');
     return true;
@@ -371,6 +379,33 @@ async function fullSync(userId) {
     return false;
   }
 
+  // Premium gate + grandfather clause: check cached flag first, then Firestore
+  var _premium = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
+  if (!_premium) {
+    // Check cached grandfather status
+    if (_grandfathered !== true) {
+      try { _grandfathered = localStorage.getItem(GRANDFATHER_KEY) === 'true'; } catch (e) {}
+    }
+    if (!_grandfathered) {
+      // Check Firestore for existing sync document (grandfather existing users)
+      try {
+        var _db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+        if (_db && userId) {
+          var _docRef = _doc(_db, FIRESTORE_LEARNING_COLLECTION, userId);
+          var _snap = await _getDoc(_docRef);
+          if (_snap.exists()) {
+            _grandfathered = true;
+            try { localStorage.setItem(GRANDFATHER_KEY, 'true'); } catch (e) {}
+          }
+        }
+      } catch (e) { /* grandfather check failed — gate applies */ }
+    }
+    if (!_grandfathered) {
+      console.log('[sync] Cloud sync is a premium feature. Skipping sync for free user.');
+      return false;
+    }
+  }
+
   _syncing = true;
 
   try {
@@ -407,6 +442,19 @@ async function fullSync(userId) {
  */
 function queueSync(userId) {
   if (!_syncReady || !userId) return;
+
+  // Premium gate + cached grandfather clause (no Firestore read — use cached or localStorage flag)
+  var _premium = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
+  if (!_premium) {
+    if (_grandfathered !== true) {
+      try {
+        if (localStorage.getItem(GRANDFATHER_KEY) === 'true') {
+          _grandfathered = true;
+        }
+      } catch (e) {}
+    }
+    if (!_grandfathered) return;
+  }
 
   if (_syncTimer) {
     clearTimeout(_syncTimer);

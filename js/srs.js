@@ -609,8 +609,26 @@ function getDueReviews() {
     return b.overdueMs - a.overdueMs;
   });
 
-  // Apply daily limit
-  var limit = Math.min(DAILY_REVIEW_LIMIT, due.length);
+  // Apply daily limit (premium users get unlimited)
+  var _isUnlimited = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_REVIEWS);
+  var limit = _isUnlimited ? due.length : Math.min(DAILY_REVIEW_LIMIT, due.length);
+
+  // Frequency-guarded toast for free users hitting the cap (at most once per calendar day)
+  if (!_isUnlimited && due.length > DAILY_REVIEW_LIMIT) {
+    try {
+      var _toastKey = 'quran_review_limit_toast_date';
+      var _today = new Date().toISOString().slice(0, 10);
+      var _lastToast = localStorage.getItem(_toastKey);
+      if (_lastToast !== _today) {
+        localStorage.setItem(_toastKey, _today);
+        if (typeof showToast === 'function') {
+          showToast('Daily review limit reached. Upgrade to Premium for unlimited reviews.', 'info', 4000);
+        }
+        if (window.__premium) window.__premium.requestUpgrade('unlimited-reviews');
+      }
+    } catch (e) { /* frequency guard — non-critical */ }
+  }
+
   return due.slice(0, limit).map(function (d) { return d.word; });
 }
 

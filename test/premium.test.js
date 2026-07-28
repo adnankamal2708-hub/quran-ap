@@ -207,6 +207,64 @@ suite('Premium Service', function () {
 
   });
 
+  // ═══════════════════════════════════════════════════════════════
+  // PREMIUM GATE TESTS
+  // ═══════════════════════════════════════════════════════════════
+
+  suite('Gate: unlimitedReviews', function () {
+
+    test('FEATURES.UNLIMITED_REVIEWS resolves to "unlimitedReviews"', function () {
+      assert.strictEqual(__premium.FEATURES.UNLIMITED_REVIEWS, 'unlimitedReviews');
+    });
+
+    test('hasFeature("unlimitedReviews") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('unlimitedReviews'), false);
+    });
+
+    test('requestUpgrade is callable from unlimitedReviews gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('unlimited-reviews');
+      });
+    });
+
+  });
+
+  suite('Gate: unlimitedBookmarks', function () {
+
+    test('FEATURES.UNLIMITED_BOOKMARKS resolves to "unlimitedBookmarks"', function () {
+      assert.strictEqual(__premium.FEATURES.UNLIMITED_BOOKMARKS, 'unlimitedBookmarks');
+    });
+
+    test('hasFeature("unlimitedBookmarks") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('unlimitedBookmarks'), false);
+    });
+
+    test('requestUpgrade is callable from unlimitedBookmarks gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('unlimited-bookmarks');
+      });
+    });
+
+  });
+
+  suite('Gate: cloudSync', function () {
+
+    test('FEATURES.CLOUD_SYNC resolves to "cloudSync"', function () {
+      assert.strictEqual(__premium.FEATURES.CLOUD_SYNC, 'cloudSync');
+    });
+
+    test('hasFeature("cloudSync") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('cloudSync'), false);
+    });
+
+    test('requestUpgrade is callable from cloudSync gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('cloud-sync');
+      });
+    });
+
+  });
+
 });
 
 // Print results summary for run-all.js parser

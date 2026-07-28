@@ -766,6 +766,18 @@ function toggleFavorite(wordId) {
   if (favs[wordId]) {
     delete favs[wordId];
   } else {
+    // Free bookmark cap: 20 words max (premium users get unlimited)
+    var _isUnlimited = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_BOOKMARKS);
+    if (!_isUnlimited) {
+      var currentCount = Object.keys(favs).length;
+      if (currentCount >= 20) {
+        if (typeof showToast === 'function') {
+          showToast("You've reached the free bookmark limit (20). Upgrade to Premium for unlimited bookmarks.", 'warning', 4000);
+        }
+        if (window.__premium) window.__premium.requestUpgrade('unlimited-bookmarks');
+        return false;
+      }
+    }
     favs[wordId] = true;
   }
   saveFavorites(favs);
