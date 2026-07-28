@@ -19,6 +19,15 @@
 // ═══════════════════════════════════════════════════════════════
 
 /**
+ * Premium gate helper: Phase 2 features are premium-only.
+ * Free Foundation graduates cannot access guided reading or vocabulary expansion.
+ */
+function _isPhase2Gated() {
+  if (!isFoundationGraduate()) return false;
+  return !window.__premium || !window.__premium.hasFeature(window.__premium.FEATURES.GUIDED_READING);
+}
+
+/**
  * Check if the user has graduated from the Foundation Course.
  */
 function isFoundationGraduate() {
@@ -48,11 +57,14 @@ function getGraduationData() {
   if (window.__srs && window.__srs.getStats) {
     masteredCount = window.__srs.getStats().mature || 0;
   }
+  var nextStep = _isPhase2Gated()
+    ? 'Unlock Guided Reading with Premium to continue your structured learning path.'
+    : 'Begin your Guided Reading journey through the most essential surahs.';
   return {
     title: 'Foundation Complete',
     icon: '🎉',
     message: 'You now know the 100 most frequent Quranic words — covering approximately ' + compPct + '% of all Quranic word occurrences.',
-    nextStep: 'Begin your Guided Reading journey through the most essential surahs.',
+    nextStep: nextStep,
     masteredWords: masteredCount,
     comprehension: compPct,
   };
@@ -73,7 +85,28 @@ function getGraduationData() {
  *   difficulty, estMinutes
  *   isGuidedSurah
  */
+/**
+ * Get a pre-reading preview for a surah.
+ * Returns a locked state for free Foundation graduates.
+ */
 function getSurahPreview(surahId) {
+  if (_isPhase2Gated()) {
+    return {
+      locked: true,
+      surahId: surahId,
+      surahName: '',
+      surahEnglish: '',
+      totalWords: 0,
+      knownWords: 0,
+      newWords: 0,
+      recurringRoots: [],
+      estimatedComprehension: 0,
+      difficulty: 0,
+      estMinutes: 0,
+      isGuidedSurah: false,
+      isCompleted: false,
+    };
+  }
   var surahInfo = typeof getSurahInfo === 'function' ? getSurahInfo(surahId) : null;
   var surahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
   var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
@@ -137,6 +170,9 @@ function getSurahPreview(surahId) {
  *            comprehensionAfter, gain, recurringRoots, nextSurah }
  */
 function getSurahCompletionSummary(surahId) {
+  if (_isPhase2Gated()) {
+    return null;
+  }
   // Record completion
   if (typeof completeGuidedSurah === 'function') {
     completeGuidedSurah(surahId);
@@ -243,6 +279,8 @@ function getSurahCompletionSummary(surahId) {
  * @returns {Array} Sorted array of word objects with relevance scores
  */
 function getExpansionVocabulary(limit) {
+  // Gate against VOCABULARY_EXPANSION (separate from guided reading)
+  if (isFoundationGraduate() && (!window.__premium || !window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION))) return [];
   limit = limit || 10;
   var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
   var allWords = typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : [];
@@ -321,6 +359,7 @@ function getExpansionVocabulary(limit) {
  */
 function getPhase2DashboardAction() {
   if (!isFoundationGraduate()) return null;
+  if (_isPhase2Gated()) return null;
 
   var phase = getLearningPhase();
 
@@ -381,12 +420,21 @@ window.__phase2 = {
   getExpansionVocabulary: getExpansionVocabulary,
   getPhase2DashboardAction: getPhase2DashboardAction,
 
-  // Bridge to phase2-surahs.js global helpers
+  // Bridge to phase2-surahs.js global helpers (premium-gated)
   // (used by dashboard.js Guided Reading card, learn-screen.js, and quran.js)
-  getNextGuidedSurah: typeof getNextGuidedSurah === 'function' ? getNextGuidedSurah : null,
+  getNextGuidedSurah: function () {
+    if (_isPhase2Gated()) return null;
+    return typeof getNextGuidedSurah === 'function' ? getNextGuidedSurah() : null;
+  },
   getGuidedSurahInfo: typeof getGuidedSurahInfo === 'function' ? getGuidedSurahInfo : null,
-  getGuidedReadingProgress: typeof getGuidedReadingProgress === 'function' ? getGuidedReadingProgress : null,
+  getGuidedReadingProgress: function () {
+    if (_isPhase2Gated()) return null;
+    return typeof getGuidedReadingProgress === 'function' ? getGuidedReadingProgress() : null;
+  },
   isGuidedSurahCompleted: typeof isGuidedSurahCompleted === 'function' ? isGuidedSurahCompleted : null,
   completeGuidedSurah: typeof completeGuidedSurah === 'function' ? completeGuidedSurah : null,
-  isGuidedReadingComplete: typeof isGuidedReadingComplete === 'function' ? isGuidedReadingComplete : null,
+  isGuidedReadingComplete: function () {
+    if (_isPhase2Gated()) return true; // Gated users are treated as "phase complete" to avoid hanging in this phase
+    return typeof isGuidedReadingComplete === 'function' ? isGuidedReadingComplete() : false;
+  },
 };

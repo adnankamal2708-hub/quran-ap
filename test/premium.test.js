@@ -265,6 +265,42 @@ suite('Premium Service', function () {
 
   });
 
+  suite('Gate: guidedReading', function () {
+
+    test('FEATURES.GUIDED_READING resolves to "guidedReading"', function () {
+      assert.strictEqual(__premium.FEATURES.GUIDED_READING, 'guidedReading');
+    });
+
+    test('hasFeature("guidedReading") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('guidedReading'), false);
+    });
+
+    test('requestUpgrade is callable from guidedReading gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('guided-reading');
+      });
+    });
+
+  });
+
+  suite('Gate: vocabularyExpansion', function () {
+
+    test('FEATURES.VOCABULARY_EXPANSION resolves to "vocabularyExpansion"', function () {
+      assert.strictEqual(__premium.FEATURES.VOCABULARY_EXPANSION, 'vocabularyExpansion');
+    });
+
+    test('hasFeature("vocabularyExpansion") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('vocabularyExpansion'), false);
+    });
+
+    test('requestUpgrade is callable from vocabularyExpansion gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('vocabulary-expansion');
+      });
+    });
+
+  });
+
 });
 
 // Print results summary for run-all.js parser

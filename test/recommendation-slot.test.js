@@ -22,6 +22,18 @@ var slotCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'recommendation-
 eval(slotCode);
 var slot = global.window.__recommendationSlot;
 
+// Mock premium service so guided-reading and vocabulary-expansion rules fire
+// (these rules now check window.__premium.hasFeature)
+global.window.__premium = {
+  isPremium: function() { return true; },
+  hasFeature: function(key) { return true; },
+  FEATURES: {
+    GUIDED_READING: 'guidedReading',
+    VOCABULARY_EXPANSION: 'vocabularyExpansion',
+  },
+  requestUpgrade: function() {},
+};
+
 // ═══════════════════════════════════════════════════════════════
 // TEST HELPERS
 // ═══════════════════════════════════════════════════════════════

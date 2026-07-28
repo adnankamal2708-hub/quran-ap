@@ -119,11 +119,14 @@
       },
     },
 
-    // 5. Guided Reading (Phase 2 Foundation Complete)
+    // 5. Guided Reading (Phase 2 Foundation Complete — premium only)
     {
       priority: 300,
       name: 'guided-reading',
-      test: function (s) { return s.foundationComplete && s.p2Phase === 'guided-reading' && s.nextSurahPreview != null; },
+      test: function (s) {
+        if (!window.__premium || !window.__premium.hasFeature(window.__premium.FEATURES.GUIDED_READING)) return false;
+        return s.foundationComplete && s.p2Phase === 'guided-reading' && s.nextSurahPreview != null;
+      },
       build: function (s) {
         var preview = s.nextSurahPreview;
         return {

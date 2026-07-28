@@ -119,6 +119,7 @@ function renderLearnScreen() {
   }
 
   // ═══ LEARNING PATHS (quick compact grid) ═══
+  var $hasVocabExpansion = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION);
   h += '<div class="ls-paths-grid">';
   var $surahTotal = typeof getSurahsWithVocabulary === 'function' ? getSurahsWithVocabulary().length : 0;
   var $surahProg = typeof getSurahLessonProgress === 'function' ? getSurahLessonProgress() : null;
@@ -128,8 +129,13 @@ function renderLearnScreen() {
   var $diffDone = typeof getCompletedDifficultyLevelCount === 'function' ? getCompletedDifficultyLevelCount() : 0;
 
   h += '<div class="ls-path-item" id="ls-path-foundation" tabindex="0" role="button" aria-label="Foundation course">' + _lsIcon('layers', 14) + ' <span>Foundation</span> <span class="ls-path-pct">' + $fPct + '%</span></div>';
-  h += '<div class="ls-path-item" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah">' + _lsIcon('book', 14) + ' <span>Surahs</span> <span class="ls-path-pct">' + ($surahTotal > 0 ? Math.round(($surahDone / $surahTotal) * 100) : 0) + '%</span></div>';
-  h += '<div class="ls-path-item" id="ls-path-roots" tabindex="0" role="button" aria-label="Learn by roots">' + _lsIcon('leaf', 14) + ' <span>Roots</span> <span class="ls-path-pct">' + ($rfTotal > 0 ? Math.round(($rfDone / $rfTotal) * 100) : 0) + '%</span></div>';
+  if ($hasVocabExpansion) {
+    h += '<div class="ls-path-item" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah">' + _lsIcon('book', 14) + ' <span>Surahs</span> <span class="ls-path-pct">' + ($surahTotal > 0 ? Math.round(($surahDone / $surahTotal) * 100) : 0) + '%</span></div>';
+    h += '<div class="ls-path-item" id="ls-path-roots" tabindex="0" role="button" aria-label="Learn by roots">' + _lsIcon('leaf', 14) + ' <span>Roots</span> <span class="ls-path-pct">' + ($rfTotal > 0 ? Math.round(($rfDone / $rfTotal) * 100) : 0) + '%</span></div>';
+  } else {
+    h += '<div class="ls-path-item ls-path-locked" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah — Premium feature">🔒 <span>Surahs</span> <span class="ls-path-pct" style="color:var(--gold)">Premium</span></div>';
+    h += '<div class="ls-path-item ls-path-locked" id="ls-path-roots" tabindex="0" role="button" aria-label="Learn by roots — Premium feature">🔒 <span>Roots</span> <span class="ls-path-pct" style="color:var(--gold)">Premium</span></div>';
+  }
   h += '<div class="ls-path-item" id="ls-path-difficulty" tabindex="0" role="button" aria-label="Learn by difficulty">' + _lsIcon('target', 14) + ' <span>Difficulty</span> <span class="ls-path-pct">' + Math.round(($diffDone / 5) * 100) + '%</span></div>';
   h += '<div class="ls-path-item" id="ls-path-quiz" tabindex="0" role="button" aria-label="Take a quiz">' + _lsIcon('bolt', 14) + ' <span>Quiz</span> <span class="ls-path-pct">⚡</span></div>';
   h += '</div>'
@@ -194,11 +200,21 @@ function wireLearnScreenEvents() {
     else if (typeof switchView === 'function') switchView('learn');
   });
   $lwire('ls-path-surah', function() {
-    if (typeof switchView === 'function') switchView('learn');
+    var $hasExp = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION);
+    if ($hasExp) {
+      if (typeof switchView === 'function') switchView('learn');
+    } else if (window.__premium) {
+      window.__premium.requestUpgrade('vocabulary-expansion');
+    }
   });
   $lwire('ls-path-roots', function() {
-    if (typeof goToRootFamily === 'function') goToRootFamily();
-    else if (typeof switchView === 'function') switchView('learn');
+    var $hasExp = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION);
+    if ($hasExp) {
+      if (typeof goToRootFamily === 'function') goToRootFamily();
+      else if (typeof switchView === 'function') switchView('learn');
+    } else if (window.__premium) {
+      window.__premium.requestUpgrade('vocabulary-expansion');
+    }
   });
   $lwire('ls-path-difficulty', function() {
     if (typeof goToDifficultyLevel === 'function') goToDifficultyLevel(typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1);

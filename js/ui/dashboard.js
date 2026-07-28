@@ -458,6 +458,19 @@ function renderDashboard() {
       try { localStorage.setItem($_gradKey, '1'); } catch (e) {}
     }
     
+    var $hasPhase2Access = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.GUIDED_READING);
+    if (!$hasPhase2Access) {
+      // Free Foundation graduate — show locked teaser card
+      $h += '<div class="db-card db-action-card" id="db-phase2-locked" tabindex="0" role="button" aria-label="Guided Reading — Premium feature">';
+      $h += '<div class="db-card-row">';
+      $h += '<div class="db-card-icon" style="opacity:0.5">🔒</div>';
+      $h += '<div class="db-card-body">';
+      $h += '<div class="db-card-title">Guided Reading</div>';
+      $h += '<div class="db-card-sub">Foundation complete! Unlock structured surah-by-surah reading with Premium.</div>';
+      $h += '</div>';
+      $h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'guided-reading\');event.stopPropagation()">⭐ Upgrade</button>';
+      $h += '</div></div>';
+    } else {
     var $p2Phase = window.__phase2.getLearningPhase();
     if ($p2Phase === 'guided-reading') {
       // Show Guided Reading card
@@ -500,6 +513,7 @@ function renderDashboard() {
       }
       $h += '</div>';
       $h += '</div></div></div>';
+    }
     }
   } else if ($dueCount > 0 && $reviewsToday === 0) {
     // No foundation or complete — show reviews as next step
@@ -838,6 +852,11 @@ function renderDashboard() {
   $wire('db-continue-learning-start', function() {
     if (typeof goToFoundationLesson === 'function') goToFoundationLesson(0);
     else if (typeof switchView === 'function') switchView('learn');
+  });
+
+  // Phase 2 locked (free Foundation graduate) — show upgrade dialog
+  $wire('db-phase2-locked', function() {
+    if (window.__premium) window.__premium.requestUpgrade('guided-reading');
   });
 
   // Guided Reading — open Quran with the next recommended surah
