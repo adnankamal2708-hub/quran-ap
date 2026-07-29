@@ -80,19 +80,39 @@ function wireAccountEvents() {
     };
   }
 
-  // Export data
+  // Export data (gated for free users)
   var exportBtn = document.getElementById('btn-export-data');
   if (exportBtn) {
+    var _hasDataExport = window.__premium && window.__premium.hasFeature && window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT);
+    if (!_hasDataExport) {
+      exportBtn.innerHTML = '🔒 📤 Export Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
+    }
     exportBtn.onclick = function () {
-      handleExportData();
+      if (_hasDataExport) {
+        handleExportData();
+      } else {
+        if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+          window.__premium.requestUpgrade('data-export');
+        }
+      }
     };
   }
 
-  // Import data
+  // Import data (gated for free users)
   var importBtn = document.getElementById('btn-import-data');
   if (importBtn) {
+    var _hasDataImport = window.__premium && window.__premium.hasFeature && window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT);
+    if (!_hasDataImport) {
+      importBtn.innerHTML = '🔒 📥 Import Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
+    }
     importBtn.onclick = function () {
-      handleImportData();
+      if (_hasDataImport) {
+        handleImportData();
+      } else {
+        if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+          window.__premium.requestUpgrade('data-export');
+        }
+      }
     };
   }
 
@@ -533,6 +553,13 @@ async function handleDeleteAccount() {
 // ── Export / Import Data ──────────────────────────────────────
 
 async function handleExportData() {
+  // Premium gate: free users should not reach this function
+  if (window.__premium && window.__premium.hasFeature && !window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT)) {
+    if (typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('data-export');
+    }
+    return;
+  }
   var user = getCurrentUser();
   var data;
 
@@ -555,6 +582,13 @@ async function handleExportData() {
 }
 
 function handleImportData() {
+  // Premium gate: free users should not reach this function
+  if (window.__premium && window.__premium.hasFeature && !window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT)) {
+    if (typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('data-export');
+    }
+    return;
+  }
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json';

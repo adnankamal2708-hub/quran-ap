@@ -646,6 +646,12 @@ function showAyah(w) {
  */
 function loadTafsir(w) {
   if (!w) return;
+  
+  // Premium gate: daily tafsir limit (5/day for free/guest users)
+  if (!_tafsirCheckDailyLimit()) {
+    return;
+  }
+  
   var occ = window.__currentOccurrence || null;
   document.getElementById('tafsir-box').classList.add('visible');
   document.getElementById('tafsir-text').innerHTML = '<span class="tafsir-loading">Loading Ibn Kathir commentary\u2026</span>';
@@ -661,6 +667,46 @@ function loadTafsir(w) {
     }
     document.getElementById('tafsir-text').textContent = tafsirText;
   }, 400);
+}
+
+/**
+ * Check daily tafsir limit for non-premium users.
+ * Returns true if the tafsir load should proceed, false if blocked.
+ */
+function _tafsirCheckDailyLimit() {
+  // Premium users are uncapped
+  if (window.__premium && window.__premium.hasFeature && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_TAFSIR)) {
+    return true;
+  }
+  try {
+    var usage = JSON.parse(localStorage.getItem('quran_tafsir_usage') || '{}');
+    var today = new Date().toISOString().slice(0, 10);
+    if (usage.date !== today) {
+      usage = { date: today, count: 0 };
+    }
+    if (usage.count >= 5) {
+      // Cap reached — disable button + show toast + upgrade prompt
+      var tafsirBtn = document.getElementById('tafsir-btn');
+      if (tafsirBtn) {
+        tafsirBtn.disabled = true;
+        tafsirBtn.title = 'Daily tafsir limit reached. Resets tomorrow.';
+        tafsirBtn.textContent = '⚠️ Daily limit reached';
+      }
+      var msg = 'Daily tafsir limit reached. Resets tomorrow, or upgrade for unlimited access.';
+      if (window.__ux && typeof window.__ux.showToast === 'function') {
+        window.__ux.showToast(msg, 'warning', 4000);
+      }
+      if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+        window.__premium.requestUpgrade('unlimited-tafsir');
+      }
+      return false;
+    }
+    usage.count++;
+    localStorage.setItem('quran_tafsir_usage', JSON.stringify(usage));
+  } catch (e) {
+    // localStorage unavailable — allow load
+  }
+  return true;
 }
 
 /**

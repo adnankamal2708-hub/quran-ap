@@ -541,6 +541,10 @@ function wireExplorerEvents(w) {
   var tafsirBtn = DOM.get('explorer-tafsir-btn');
   if (tafsirBtn) {
     tafsirBtn.onclick = function() {
+      // Premium gate: daily tafsir limit for non-premium users
+      if (!_explorerTafsirCheckDailyLimit()) {
+        return;
+      }
       var tafsirBox = DOM.get('explorer-tafsir-box');
       var tafsirText = DOM.get('explorer-tafsir-text');
       if (!tafsirBox || !tafsirText) return;
@@ -676,6 +680,44 @@ function wireExplorerEvents(w) {
       }
     };
   }
+}
+
+/**
+ * Check daily tafsir limit for non-premium users (explorer variant).
+ * Returns true if the tafsir load should proceed, false if blocked.
+ */
+function _explorerTafsirCheckDailyLimit() {
+  // Premium users are uncapped
+  if (window.__premium && window.__premium.hasFeature && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_TAFSIR)) {
+    return true;
+  }
+  try {
+    var usage = JSON.parse(localStorage.getItem('quran_tafsir_usage') || '{}');
+    var today = new Date().toISOString().slice(0, 10);
+    if (usage.date !== today) {
+      usage = { date: today, count: 0 };
+    }
+    if (usage.count >= 5) {
+      // Cap reached — disable button + show toast + upgrade prompt
+      var tafsirBtn = document.getElementById('explorer-tafsir-btn');
+      if (tafsirBtn) {
+        tafsirBtn.disabled = true;
+        tafsirBtn.title = 'Daily tafsir limit reached. Resets tomorrow.';
+        tafsirBtn.textContent = '⚠️ Daily limit reached';
+      }
+      var msg = 'Daily tafsir limit reached. Resets tomorrow, or upgrade for unlimited access.';
+      if (window.__ux && typeof window.__ux.showToast === 'function') {
+        window.__ux.showToast(msg, 'warning', 4000);
+      }
+      if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+        window.__premium.requestUpgrade('unlimited-tafsir');
+      }
+      return false;
+    }
+    usage.count++;
+    localStorage.setItem('quran_tafsir_usage', JSON.stringify(usage));
+  } catch (e) {}
+  return true;
 }
 
 /**

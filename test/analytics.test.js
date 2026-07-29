@@ -564,14 +564,35 @@ suite('Achievements', function() {
 // ── Comprehensive Insights ──
 
 suite('Comprehensive Insights', function() {
-  test('getComprehensiveInsights returns complete profile structure', function() {
+  test('getComprehensiveInsights includes all fields for premium users', function() {
     setupInsights();
+    // Mock premium status so the advancedInsights gate passes
+    var origPremium = global.window.__premium;
+    global.window.__premium = {
+      FEATURES: { ADVANCED_INSIGHTS: 'advanced-insights' },
+      hasFeature: function(key) { return key === 'advanced-insights'; },
+    };
     var insights = analytics.getComprehensiveInsights();
+    global.window.__premium = origPremium;
     assert.ok(insights.profile !== null);
-    assert.ok(insights.periods !== null);
+    assert.ok(insights.periods !== null, 'periods should be present for premium');
     assert.ok(insights.achievements !== null);
     assert.strictEqual(insights.profile.masteredWords, 10);
     assert.strictEqual(insights.profile.streak, 7);
+  });
+
+  test('getComprehensiveInsights omits trends/forecasts/periods for free users', function() {
+    setupInsights();
+    // Ensure no premium mock (default state)
+    var origPremium = global.window.__premium;
+    delete global.window.__premium;
+    var insights = analytics.getComprehensiveInsights();
+    global.window.__premium = origPremium;
+    assert.ok(insights.profile !== null, 'profile should still be present');
+    assert.strictEqual(insights.periods, null, 'periods should be null for free users');
+    assert.strictEqual(insights.trends, null, 'trends should be null for free users');
+    assert.strictEqual(insights.forecasts, null, 'forecasts should be null for free users');
+    assert.ok(insights.achievements !== null, 'achievements should always be present');
   });
 });
 

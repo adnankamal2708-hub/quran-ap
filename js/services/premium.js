@@ -38,6 +38,12 @@
 
     // Appearance
     premiumThemes: { key: 'premium-themes', label: 'Premium Themes', description: 'Exclusive colour themes and visual customisation' },
+
+    // Data Management
+    dataExport: { key: 'data-export', label: 'Data Export & Import', description: 'Back up and restore your full learning progress as a file' },
+
+    // API-Backed (has real per-request cost)
+    unlimitedTafsir: { key: 'unlimited-tafsir', label: 'Unlimited Tafsir', description: 'Unlimited access to Ibn Kathir commentary' },
   };
 
   // ── Private State ──────────────────────────────────────────
@@ -324,6 +330,8 @@
       OFFLINE_DOWNLOAD: 'offlineDownload',
       UNLIMITED_BOOKMARKS: 'unlimitedBookmarks',
       PREMIUM_THEMES: 'premiumThemes',
+      DATA_EXPORT: 'dataExport',
+      UNLIMITED_TAFSIR: 'unlimitedTafsir',
     },
   };
 

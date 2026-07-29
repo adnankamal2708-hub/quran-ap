@@ -100,6 +100,7 @@ suite('Premium Service', function () {
       assert.strictEqual(__premium.hasFeature('offlineDownload'), false);
       assert.strictEqual(__premium.hasFeature('unlimitedBookmarks'), false);
       assert.strictEqual(__premium.hasFeature('premiumThemes'), false);
+      assert.strictEqual(__premium.hasFeature('unlimitedTafsir'), false);
     });
 
     test('returns false for null/undefined/empty feature key', function () {
@@ -153,6 +154,7 @@ suite('Premium Service', function () {
       assert.ok(features.offlineDownload);
       assert.ok(features.unlimitedBookmarks);
       assert.ok(features.premiumThemes);
+      assert.ok(features.unlimitedTafsir);
     });
 
     test('each feature has key, label, and description', function () {
@@ -193,6 +195,7 @@ suite('Premium Service', function () {
       assert.strictEqual(__premium.FEATURES.OFFLINE_DOWNLOAD, 'offlineDownload');
       assert.strictEqual(__premium.FEATURES.UNLIMITED_BOOKMARKS, 'unlimitedBookmarks');
       assert.strictEqual(__premium.FEATURES.PREMIUM_THEMES, 'premiumThemes');
+      assert.strictEqual(__premium.FEATURES.UNLIMITED_TAFSIR, 'unlimitedTafsir');
     });
 
   });
@@ -297,6 +300,136 @@ suite('Premium Service', function () {
       assert.doesNotThrow(function () {
         __premium.requestUpgrade('vocabulary-expansion');
       });
+    });
+
+  });
+
+  suite('Gate: unlimitedTafsir', function () {
+
+    test('FEATURES.UNLIMITED_TAFSIR resolves to "unlimitedTafsir"', function () {
+      assert.strictEqual(__premium.FEATURES.UNLIMITED_TAFSIR, 'unlimitedTafsir');
+    });
+
+    test('hasFeature("unlimitedTafsir") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('unlimitedTafsir'), false);
+    });
+
+    test('requestUpgrade is callable from unlimitedTafsir gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('unlimited-tafsir');
+      });
+    });
+
+  });
+
+  suite('Gate: dataExport', function () {
+
+    test('FEATURES.DATA_EXPORT resolves to "dataExport"', function () {
+      assert.strictEqual(__premium.FEATURES.DATA_EXPORT, 'dataExport');
+    });
+
+    test('hasFeature("dataExport") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('dataExport'), false);
+    });
+
+    test('requestUpgrade is callable from dataExport gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('data-export');
+      });
+    });
+
+  });
+
+  suite('Tafsir Daily Limit (localStorage pattern)', function () {
+    // Setup localStorage mock for these tests
+    var _tafsirStorage = {};
+    var origLocalStorage = global.localStorage;
+
+    function setupTafsirTestEnv() {
+      _tafsirStorage = {};
+      global.localStorage = {
+        getItem: function(k) { return _tafsirStorage[k] !== undefined ? _tafsirStorage[k] : null; },
+        setItem: function(k, v) { _tafsirStorage[k] = String(v); },
+        removeItem: function(k) { delete _tafsirStorage[k]; },
+        clear: function() { _tafsirStorage = {}; },
+      };
+    }
+
+    function teardownTafsirTestEnv() {
+      global.localStorage = origLocalStorage;
+    }
+
+    // Replica of the daily-limit check pattern used in word-card.js and explorer.js
+    function simulateTafsirCheck(isPremium) {
+      if (isPremium) return { allowed: true };
+      try {
+        var usage = JSON.parse(global.localStorage.getItem('quran_tafsir_usage') || '{}');
+        var today = new Date().toISOString().slice(0, 10);
+        if (usage.date !== today) {
+          usage = { date: today, count: 0 };
+        }
+        if (usage.count >= 5) {
+          return { allowed: false, reason: 'cap_reached' };
+        }
+        usage.count++;
+        global.localStorage.setItem('quran_tafsir_usage', JSON.stringify(usage));
+        return { allowed: true, remaining: 5 - usage.count };
+      } catch (e) {
+        return { allowed: true };
+      }
+    }
+
+    test('free user is capped at 5 per calendar day', function () {
+      setupTafsirTestEnv();
+      var results = [];
+      for (var i = 0; i < 6; i++) {
+        results.push(simulateTafsirCheck(false).allowed);
+      }
+      // First 5 should be allowed, 6th should be blocked
+      assert.strictEqual(results[0], true, '1st tafsir load allowed');
+      assert.strictEqual(results[1], true, '2nd allowed');
+      assert.strictEqual(results[2], true, '3rd allowed');
+      assert.strictEqual(results[3], true, '4th allowed');
+      assert.strictEqual(results[4], true, '5th allowed');
+      assert.strictEqual(results[5], false, '6th blocked (cap reached)');
+      teardownTafsirTestEnv();
+    });
+
+    test('cap resets on a new calendar day', function () {
+      setupTafsirTestEnv();
+      // Simulate hitting the cap
+      for (var i = 0; i < 5; i++) simulateTafsirCheck(false);
+      assert.strictEqual(simulateTafsirCheck(false).allowed, false, 'blocked after 5');
+      // Simulate a new day by changing the stored date
+      var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      global.localStorage.setItem('quran_tafsir_usage', JSON.stringify({ date: yesterday, count: 5 }));
+      // Should be allowed again (new day resets)
+      assert.strictEqual(simulateTafsirCheck(false).allowed, true, 'allowed next day');
+      assert.strictEqual(simulateTafsirCheck(false).allowed, true, '2nd next day');
+      teardownTafsirTestEnv();
+    });
+
+    test('premium user is never capped', function () {
+      setupTafsirTestEnv();
+      var results = [];
+      for (var i = 0; i < 10; i++) {
+        results.push(simulateTafsirCheck(true).allowed);
+      }
+      results.forEach(function(r, idx) {
+        assert.strictEqual(r, true, 'premium load #' + (idx + 1) + ' allowed');
+      });
+      teardownTafsirTestEnv();
+    });
+
+    test('daily limit localStorage key is quran_tafsir_usage', function () {
+      setupTafsirTestEnv();
+      simulateTafsirCheck(false);
+      var stored = global.localStorage.getItem('quran_tafsir_usage');
+      assert.ok(stored !== null, 'localStorage key exists');
+      var parsed = JSON.parse(stored);
+      assert.ok(parsed.date, 'has date field');
+      assert.strictEqual(parsed.count, 1, 'count is 1 after first load');
+      teardownTafsirTestEnv();
     });
 
   });
