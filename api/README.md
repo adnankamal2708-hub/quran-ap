@@ -11,8 +11,8 @@ Set these in your Vercel project dashboard (**Settings → Environment Variables
 
 | Variable | Format | Example | Notes |
 |---|---|---|---|
-| `STRIPE_SECRET_KEY` | `sk_test_...` or `sk_live_...` | `sk_test_4eC39HqLyjWDarjtT1zdp7dc` | From [Stripe Dashboard → API keys](https://dashboard.stripe.com/apikeys) |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` | `whsec_abc123...` | From [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks) after registering your endpoint URL |
+| | `STRIPE_SECRET_KEY` | `sk_test_...` or `sk_live_...` | *(your key, starts with `sk_test_` or `sk_live_`)* | From [Stripe Dashboard → API keys](https://dashboard.stripe.com/apikeys) |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` | *(your key, starts with `whsec_`)* | From [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks) after registering your endpoint URL |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON string (one line) | `{"type":"service_account","project_id":"..."}` | From [Firebase Console → Project Settings → Service Accounts](https://console.firebase.google.com/) → "Generate new private key". Paste the **entire JSON as a single line** (you can use `jq -c . < service-account.json` to minify it). |
 | `APP_URL` | URL string | `https://bayan.app` | **Optional.** The app's root URL used for Stripe success/cancel redirects. Defaults to `https://bayan.app`. |
 
