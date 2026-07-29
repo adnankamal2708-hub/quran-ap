@@ -1316,6 +1316,39 @@ body::before {
 
 
 
+/* ── Beta Badge ───────────────────────────────────────────── */
+.beta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--gold-dim);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: help;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* ── Quran Reader: Uncovered Surah States ───────────────── */
+.quran-surah-uncovered {
+  opacity: 0.45;
+  cursor: default !important;
+  pointer-events: auto;
+}
+.quran-surah-uncovered:hover {
+  background: transparent !important;
+}
+.quran-surah-coming-soon {
+  display: block;
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-style: italic;
+}
+
 /* ── Offline Badge ─────────────────────────────────────────── */
 .offline-badge {
   font-size: 9px;

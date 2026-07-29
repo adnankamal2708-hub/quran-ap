@@ -10,6 +10,13 @@ window.__DEV__ && console.log('[startup] [0] app.js bundle executing — top-lev
 // Build lessons from ALL_WORDS (called once after data files populate)
 buildLessons();
 
+// Populate Beta badge with dynamically-derived coverage range
+// Must run after data is loaded; safe to call early since DOM is ready
+// (this script tag is at the end of <body>)
+if (typeof populateBetaBadge === 'function') {
+  populateBetaBadge();
+}
+
 
 // ── State ──────────────────────────────────────────────────────
 

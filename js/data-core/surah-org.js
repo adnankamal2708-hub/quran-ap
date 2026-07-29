@@ -74,4 +74,42 @@ function getSurahsWithVocabulary() {
   }
   return Object.keys(surahIds).map(Number).sort(function(a,b) { return a - b; });
 }
+
+/**
+ * Get the highest surah ID that currently has vocabulary data.
+ *
+ * THIS VALUE DRIVES EVERY BETA-SCOPE LABEL IN THE APP.
+ * It is derived directly from the vocabulary data at runtime and
+ * should NEVER be hardcoded anywhere. When more surah vocabulary
+ * is added to the project (new ALL_WORDS entries with surahIds),
+ * this function automatically returns a higher value and all
+ * UI labels update with zero code changes.
+ *
+ * @returns {number} The highest surah ID with vocabulary, or 0 if none.
+ */
+function getMaxCoveredSurah() {
+  var surahIds = getSurahsWithVocabulary();
+  return surahIds.length > 0 ? surahIds[surahIds.length - 1] : 0;
+}
+
+/**
+ * Populate the Beta badge in the top bar with the dynamically
+ * derived coverage range. Safe to call early (data must be loaded).
+ */
+function populateBetaBadge() {
+  var badge = document.getElementById('beta-badge');
+  if (!badge) return;
+  try {
+    var maxSurah = getMaxCoveredSurah();
+    if (maxSurah > 0) {
+      badge.textContent = 'Beta';
+      badge.title = 'Beta \u00B7 Surahs 1\u2013' + maxSurah + ' available now, more added regularly';
+      if (badge.style.display === 'none') {
+        badge.style.display = 'inline-flex';
+      }
+    }
+  } catch (e) {
+    // Silently fail — badge hidden by default is a safe fallback
+  }
+}
 

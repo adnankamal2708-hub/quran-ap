@@ -185,6 +185,11 @@ function renderSurahBrowser() {
   if (!container) return;
   _quranSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
 
+  // Derive max covered surah from vocabulary data — drives surah availability labels
+  var _maxCoveredSurah = typeof getMaxCoveredSurah === 'function' ? getMaxCoveredSurah() : 0;
+  // Before vocabulary data loads, treat all surahs as pending (dimmed, not covered)
+  var _dataReady = _maxCoveredSurah > 0;
+
   var surahIds = [];
   if (window.__QURAN_INDEX) {
     for (var qi = 0; qi < window.__QURAN_INDEX.length; qi++) {
@@ -223,12 +228,17 @@ function renderSurahBrowser() {
 
     var isActive = _quranSurahId === sid;
     var activeClass = isActive ? ' quran-surah-active' : '';
+    var isCovered = _dataReady && sid <= _maxCoveredSurah;
+    var coveredClass = isCovered ? '' : ' quran-surah-uncovered';
 
-    html += '<div class="quran-surah-item' + activeClass + '" data-surah-id="' + sid + '" tabindex="0" role="button">';
+    html += '<div class="quran-surah-item' + activeClass + coveredClass + '" data-surah-id="' + sid + '" tabindex="0" role="button">';
     html += '<span class="quran-surah-num">' + sid + '.</span>';
     html += '<span class="quran-surah-name">' + quranIdxInfo.name + '</span>';
     html += '<span class="quran-surah-english">' + quranIdxInfo.englishName + '</span>';
     html += '<span class="quran-surah-verses">' + quranIdxInfo.total_verses + ' verses</span>';
+    if (!isCovered) {
+      html += '<span class="quran-surah-coming-soon">Vocabulary coming soon</span>';
+    }
     html += '</div>';
   }
 
@@ -248,9 +258,22 @@ function renderSurahBrowser() {
   for (var ii = 0; ii < items.length; ii++) {
     (function(el) {
       var sid = parseInt(el.getAttribute('data-surah-id'), 10);
-      el.onclick = function() { openSurahForReading(sid); };
+      el.onclick = function() {
+        if (isCovered) {
+          openSurahForReading(sid);
+        } else {
+          showUncoveredSurahMessage(sid);
+        }
+      };
       el.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSurahForReading(sid); }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (isCovered) {
+            openSurahForReading(sid);
+          } else {
+            showUncoveredSurahMessage(sid);
+          }
+        }
       };
     })(items[ii]);
   }
@@ -260,6 +283,19 @@ function renderSurahBrowser() {
 
 function openSurahForReading(surahId) {
   if (!surahId) return;
+
+  // Guard: if vocabulary data covers fewer surahs than this one and
+  // the caller didn't explicitly request a read-without-vocabulary mode,
+  // route to showUncoveredSurahMessage instead.
+  // Callers that intentionally open uncovered surahs (e.g. "Read anyway"
+  // button) set _quranSurahId beforehand so this guard is bypassed.
+  if (_quranSurahId !== surahId) {
+    var _maxCov = typeof getMaxCoveredSurah === 'function' ? getMaxCoveredSurah() : 0;
+    if (_maxCov > 0 && surahId > _maxCov) {
+      showUncoveredSurahMessage(surahId);
+      return;
+    }
+  }
 
   _quranSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
   _quranSurahId = surahId;
@@ -573,6 +609,71 @@ function renderQuran() {
 
   // Wire Back button and other Quran view events
   wireQuranEvents();
+}
+
+// ── Show Message for Uncovered Surah ─────────────────────────
+
+/**
+ * Display a friendly info card when user taps an uncovered surah.
+ * The coverage range is derived from vocabulary data, not hardcoded.
+ */
+function showUncoveredSurahMessage(surahId) {
+  var versesContainer = document.getElementById('quran-verses');
+  if (!versesContainer) return;
+
+  var listEl = document.getElementById('quran-surah-list');
+  var mainEl = document.getElementById('quran-main');
+  if (listEl) listEl.style.display = 'none';
+  if (mainEl) mainEl.style.display = 'block';
+
+  var quranIndexInfo = (window.__QURAN_INDEX && window.__QURAN_INDEX_GET)
+    ? window.__QURAN_INDEX_GET(surahId) : null;
+  var surahName = quranIndexInfo ? quranIndexInfo.name : 'Surah ' + surahId;
+
+  var surahNameEl = document.getElementById('quran-surah-title');
+  if (surahNameEl) {
+    surahNameEl.textContent = surahName + ' \u2014 ' + (quranIndexInfo ? quranIndexInfo.englishName : '');
+  }
+
+  var maxSurah = typeof getMaxCoveredSurah === 'function' ? getMaxCoveredSurah() : 0;
+
+  if (maxSurah === 0) {
+    versesContainer.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;gap:12px">' +
+      '<div style="font-size:40px">\uD83D\uDCDA</div>' +
+      '<div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.4">Vocabulary data is loading</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;max-width:320px">' +
+      'The vocabulary database is still loading. Please try again in a moment.' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:center;margin-top:4px">' +
+      '<button class="btn btn-sm" id="uncovered-goback-btn" type="button">\u2190 Back to surah list</button>' +
+      '</div>' +
+      '</div>';
+    _quranSurahId = null;
+    var $backBtn = document.getElementById('uncovered-goback-btn');
+    if ($backBtn) $backBtn.onclick = goBackToSurahList;
+    return;
+  }
+
+  versesContainer.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;gap:12px">' +
+    '<div style="font-size:40px">\uD83D\uDCDA</div>' +
+    '<div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.4">Vocabulary for this surah isn\'t available yet</div>' +
+    '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;max-width:320px">' +
+    'Bayan is currently covering surahs 1\u2013' + maxSurah + ', with more added regularly. ' +
+    'You can still read the full Quran text \u2014 vocabulary highlighting and word details will be added as coverage expands.' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;justify-content:center;margin-top:10px">' +
+    '<button class="btn btn-sm" id="uncovered-goback-btn" type="button">\u2190 Back to surah list</button>' +
+    '<button class="btn btn-sm btn-outline" id="uncovered-read-btn" type="button">Read anyway (no vocabulary)</button>' +
+    '</div>' +
+    '</div>';
+
+  _quranSurahId = null;
+
+  // Wire buttons by ID (safer than inline onclick)
+  var $backBtn = document.getElementById('uncovered-goback-btn');
+  if ($backBtn) $backBtn.onclick = goBackToSurahList;
+  var $readBtn = document.getElementById('uncovered-read-btn');
+  if ($readBtn) $readBtn.onclick = function() { _quranSurahId = surahId; openSurahForReading(surahId); };
 }
 
 // ── Back to Surah List ─────────────────────────────────────────
