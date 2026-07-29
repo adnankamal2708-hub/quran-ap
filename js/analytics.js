@@ -1482,10 +1482,13 @@ function getPersonalizedGoals() {
  */
 function getComprehensiveInsights() {
   var profile = (typeof getLearnerProfile === 'function') ? getLearnerProfile() : null;
-  var trends = getProgressTrends('30days');
-  var forecasts = getForecasts();
-  var periods = getPeriodSummaries();
   var achievements = getAchievementStats();
+
+  // Premium gate: trends, forecasts, and period summaries are premium-only
+  var _hasAdvanced = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.ADVANCED_INSIGHTS);
+  var trends = _hasAdvanced ? getProgressTrends('30days') : null;
+  var forecasts = _hasAdvanced ? getForecasts() : null;
+  var periods = _hasAdvanced ? getPeriodSummaries() : null;
   
   return {
     profile: profile,

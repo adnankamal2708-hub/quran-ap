@@ -301,6 +301,24 @@ suite('Premium Service', function () {
 
   });
 
+  suite('Gate: advancedInsights', function () {
+
+    test('FEATURES.ADVANCED_INSIGHTS resolves to "advancedInsights"', function () {
+      assert.strictEqual(__premium.FEATURES.ADVANCED_INSIGHTS, 'advancedInsights');
+    });
+
+    test('hasFeature("advancedInsights") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('advancedInsights'), false);
+    });
+
+    test('requestUpgrade is callable from advancedInsights gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('advanced-insights');
+      });
+    });
+
+  });
+
 });
 
 // Print results summary for run-all.js parser

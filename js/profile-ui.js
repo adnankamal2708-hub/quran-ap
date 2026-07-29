@@ -760,8 +760,23 @@ function renderProfileInsights() {
     return;
   }
 
+  // Premium gate: check if advanced insights are available
+  var _hasAdvanced = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.ADVANCED_INSIGHTS);
+
   var profile = analytics.profile;
   var periods = analytics.periods;
+
+  // Locked panel for free users (replaces trends/forecasts/summaries sections)
+  if (!_hasAdvanced) {
+    h += '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center">';
+    h += '<div style="font-size:24px;margin-bottom:6px">📈</div>';
+    h += '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Advanced Insights</div>';
+    h += '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
+      'Track your progress trends, view weekly and monthly summaries, and get personalized learning forecasts with Premium.' +
+      '</div>';
+    h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'advanced-insights\')">⭐ Upgrade to Premium</button>';
+    h += '</div>';
+  }
 
   // Weekly Summary
   if (periods && periods.week) {
