@@ -497,6 +497,7 @@ function updateLessonProgressDisplay() {
     
     // Get surah comprehension data for the current surah
     var surahComp = typeof getSurahComprehension === 'function' ? getSurahComprehension(surahId) : null;
+    var surahCompPct = surahComp ? surahComp.estimatedComprehension : 0;
     var surahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
     
     // Calculate word type distribution for this surah
