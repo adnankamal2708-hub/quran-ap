@@ -145,8 +145,13 @@ function renderExplorer() {
   // Related surahs
   renderExplorerSurahLinks(w);
   
-  // ── Vocabulary Relationships ──
-  renderExplorerRelationships(w);
+  // ── Vocabulary Relationships (gated for free users) ──
+  var _hasExplorerRels = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS);
+  if (_hasExplorerRels) {
+    renderExplorerRelationships(w);
+  } else {
+    renderExplorerRelationshipsLocked();
+  }
   
   // ── Personal Learning Progress ──
   renderExplorerLearningProgress(w, srsStatus, srsEntry);
@@ -239,6 +244,55 @@ function renderExplorerSurahLinks(w) {
       };
     })(sid);
     container.appendChild(chip);
+  }
+}
+
+/**
+ * Render a locked relationship panel for free users in the explorer.
+ */
+function renderExplorerRelationshipsLocked() {
+  // Root family stays free — keep it visible
+  // Everything else gets replaced by the locked panel
+  var lockedContainer = document.getElementById('explorer-relationships-locked');
+  if (!lockedContainer) {
+    // Insert locked panel before the first gated relationship section
+    var firstGatedEl = document.getElementById('explorer-derived-forms-list');
+    var insertBeforeEl = firstGatedEl;
+    if (!firstGatedEl) {
+      // Fallback: insert after the entire explorer content
+      var explorerContent = document.querySelector('.explorer-content, #explorer-root-family-list');
+      insertBeforeEl = explorerContent ? explorerContent.nextSibling : null;
+    }
+    if (insertBeforeEl && insertBeforeEl.parentNode) {
+      lockedContainer = document.createElement('div');
+      lockedContainer.id = 'explorer-relationships-locked';
+      insertBeforeEl.parentNode.insertBefore(lockedContainer, insertBeforeEl);
+    }
+  }
+  if (!lockedContainer) return;
+  lockedContainer.style.display = 'block';
+  lockedContainer.innerHTML =
+    '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
+      '<div style="font-size:24px;margin-bottom:6px">🔗</div>' +
+      '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Word Relationships</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
+        'Explore how words connect — similar words, derived forms, semantic groups, ' +
+        'morphological relatives, and more with Premium.' +
+      '</div>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+    '</div>';
+  // Hide the other relationship sections
+  var _explorerRelSections = [
+    'explorer-derived-forms-list', 'explorer-morph-list',
+    'explorer-similar-list', 'explorer-confused-list',
+    'explorer-semantic-list', 'explorer-related-list', 'explorer-equiv-list',
+  ];
+  for (var _ersi = 0; _ersi < _explorerRelSections.length; _ersi++) {
+    var _erEl = document.getElementById(_explorerRelSections[_ersi]);
+    if (_erEl) {
+      var parent = _erEl.parentNode;
+      if (parent) parent.style.display = 'none';
+    }
   }
 }
 

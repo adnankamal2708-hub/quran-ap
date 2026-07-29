@@ -79,6 +79,9 @@ function renderWordCard(w, currentIndex, total, isReview) {
   // Root reinforcement badge — show when this word's root was previously learned (Priority 4)
   renderRootReinforcementBadge(w);
 
+  // Premium gate: word relationships (similar, derived forms, semantic groups, etc.)
+  var _hasWordRels = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS);
+  
   // Word network
   renderWordNetwork(w);
 
@@ -89,6 +92,28 @@ function renderWordCard(w, currentIndex, total, isReview) {
   renderConfusedWith(w);
   renderContextualEquivalents(w);
   renderMorphRelations(w);
+  
+  // For free users: hide all relationship sections and show one locked panel
+  if (!_hasWordRels) {
+    var _relSections = [
+      'word-network-section',
+      'similar-words-section',
+      'opposite-words-section',
+      'contrast-words-section',
+      'related-words-section',
+      'derived-forms-section',
+      'semantic-groups-section',
+      'confused-with-section',
+      'contextual-equiv-section',
+      'morph-relations-section',
+    ];
+    for (var _rsi = 0; _rsi < _relSections.length; _rsi++) {
+      var _relEl = document.getElementById(_relSections[_rsi]);
+      if (_relEl) _relEl.style.display = 'none';
+    }
+    // Render single locked panel
+    _renderRelationshipsLockedPanel();
+  }
 
   // Store occurrence data for showAyah/showWordContent
   window.__currentOccurrence = occ;
@@ -573,6 +598,34 @@ function createWordNetworkChip(wordObj, type) {
     }
   };
   return d;
+}
+
+/**
+ * Render a single locked panel for free users replacing 6 relationship sections.
+ */
+function _renderRelationshipsLockedPanel() {
+  var container = document.getElementById('word-relationships-locked');
+  if (!container) {
+    // Create the locked panel container after the root box
+    var rootBox = document.getElementById('root-box');
+    if (rootBox && rootBox.parentNode) {
+      container = document.createElement('div');
+      container.id = 'word-relationships-locked';
+      rootBox.parentNode.insertBefore(container, rootBox.nextSibling);
+    }
+  }
+  if (!container) return;
+  container.style.display = 'block';
+  container.innerHTML =
+    '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
+      '<div style="font-size:24px;margin-bottom:6px">🔗</div>' +
+      '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Word Relationships</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
+        'Explore how words connect — similar words, derived forms, semantic groups, ' +
+        'morphological relatives, and more with Premium.' +
+      '</div>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+    '</div>';
 }
 
 /**

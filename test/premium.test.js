@@ -340,6 +340,41 @@ suite('Premium Service', function () {
 
   });
 
+  suite('Gate: wordRelationships', function () {
+
+    test('FEATURES.WORD_RELATIONSHIPS resolves to "wordRelationships"', function () {
+      assert.strictEqual(__premium.FEATURES.WORD_RELATIONSHIPS, 'wordRelationships');
+    });
+
+    test('hasFeature("wordRelationships") returns false when not premium', function () {
+      assert.strictEqual(__premium.hasFeature('wordRelationships'), false);
+    });
+
+    test('requestUpgrade is callable from wordRelationships gate', function () {
+      assert.doesNotThrow(function () {
+        __premium.requestUpgrade('word-relationships');
+      });
+    });
+
+    test('FEATURES constant is not conflated with vocabularyExpansion', function () {
+      assert.notStrictEqual(__premium.FEATURES.WORD_RELATIONSHIPS, __premium.FEATURES.VOCABULARY_EXPANSION,
+        'WORD_RELATIONSHIPS and VOCABULARY_EXPANSION are distinct gates');
+    });
+
+  });
+
+  suite('Word Relationships — FEATURES Constant', function () {
+    test('WORD_RELATIONSHIPS is in FEATURES object', function () {
+      var keys = Object.keys(__premium.FEATURES);
+      assert.ok(keys.indexOf('WORD_RELATIONSHIPS') >= 0, 'WORD_RELATIONSHIPS is in FEATURES');
+    });
+
+    test('FEATURES constant count is 11', function () {
+      var keys = Object.keys(__premium.FEATURES);
+      assert.strictEqual(keys.length, 11, 'FEATURES has 11 entries');
+    });
+  });
+
   suite('Tafsir Daily Limit (localStorage pattern)', function () {
     // Setup localStorage mock for these tests
     var _tafsirStorage = {};

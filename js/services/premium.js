@@ -42,6 +42,9 @@
     // Data Management
     dataExport: { key: 'data-export', label: 'Data Export & Import', description: 'Back up and restore your full learning progress as a file' },
 
+    // Relationship & Insight
+    wordRelationships: { key: 'word-relationships', label: 'Word Relationships', description: 'Explore how words connect: similar, opposite, derived forms, and more' },
+
     // API-Backed (has real per-request cost)
     unlimitedTafsir: { key: 'unlimited-tafsir', label: 'Unlimited Tafsir', description: 'Unlimited access to Ibn Kathir commentary' },
   };
@@ -331,6 +334,7 @@
       UNLIMITED_BOOKMARKS: 'unlimitedBookmarks',
       PREMIUM_THEMES: 'premiumThemes',
       DATA_EXPORT: 'dataExport',
+      WORD_RELATIONSHIPS: 'wordRelationships',
       UNLIMITED_TAFSIR: 'unlimitedTafsir',
     },
   };

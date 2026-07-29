@@ -851,6 +851,12 @@ let _relCache = null;
 function buildRelationsCache() {
   if (_relCache) return;
   
+  // Premium gate: skip building relationship cache for free users
+  if (window.__premium && !window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS)) {
+    _relCache = { byId: {} };
+    return;
+  }
+  
   var cache = {
     byId: {},           // wordId → { derivedForms, semanticGroups, confusedWith, contextualEquivalents, morphRelations, relatedWords }
     byRoot: {},         // root → [word objects]
