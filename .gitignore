@@ -3,6 +3,9 @@
 # Run `npm run build` locally for development.
 dist/
 
+# node_modules/ – never commit dependencies to version control
+node_modules/
+
 # Windows reserved filenames (device names that can appear as artifacts)
 nul
 con
