@@ -141,7 +141,7 @@ async function handleSubscriptionDeleted(subscription) {
 }
 
 // ── Handler ─────────────────────────────────────────────────────
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
@@ -184,3 +184,8 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Vercel: disable auto-parsing so buffer(req) gets the raw body for Stripe signature verification
+handler.api = { bodyParser: false };
+
+module.exports = handler;
