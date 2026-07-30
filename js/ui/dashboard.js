@@ -200,26 +200,7 @@ function renderDashboard() {
   // ── Build HTML ──
   var $h = '';
 
-  // ═══ REVIEW CENTER PROMPT (top of dashboard) ═══
-  var $rcDue = $dueReviews.length;
-  $h += '<div class="db-card db-action-card db-card-highlight" id="db-review-center-prompt" tabindex="0" role="button" aria-label="Review Center: ' + $rcDue + ' reviews due">';
-  $h += '<div class="db-card-row">';
-  $h += '<div class="db-card-icon db-icon-gold-dim">📋</div>';
-  $h += '<div class="db-card-body">';
-  $h += '<div class="db-card-title">Review Center</div>';
-  $h += '<div class="db-card-sub">';
-  if ($rcDue > 0) {
-    var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));
-    $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' due';
-    if ($srsStats.overdue > 0) $h += ' · ' + $srsStats.overdue + ' overdue';
-    $h += ' · ~' + $rcEst + ' min';
-  } else {
-    $h += 'All caught up — track your revision progress';
-  }
-  $h += '</div>';
-  $h += '</div>';
-  $h += '<span class="db-arrow db-arrow-dim">→</span>';
-  $h += '</div></div>';
+
 
   // ── Reading position (used by multiple sections) ──
   var $lastRead = null;
@@ -548,6 +529,38 @@ function renderDashboard() {
     $h += '</div></div>';
   }
 
+  // ═══ TOGGLE: Show More Stats ═══
+  $h += '<div style="text-align:center;margin:6px 0 2px">';
+  $h += '<button class="db-show-more-btn" id="db-show-more-btn" type="button" aria-expanded="false">';
+  $h += '<span class="db-show-more-icon">&#9660;</span>';
+  $h += '<span class="db-show-more-text">Show more stats</span>';
+  $h += '</button>';
+  $h += '</div>';
+
+  // ═══ COLLAPSIBLE: Secondary content ═══
+  $h += '<div class="db-collapsible" id="db-collapsible" style="display:none">';
+
+  // ═══ REVIEW CENTER PROMPT ═══
+  var $rcDue = $dueReviews.length;
+  $h += '<div class="db-card db-action-card db-card-highlight" id="db-review-center-prompt" tabindex="0" role="button" aria-label="Review Center: ' + $rcDue + ' reviews due">';
+  $h += '<div class="db-card-row">';
+  $h += '<div class="db-card-icon db-icon-gold-dim">📋</div>';
+  $h += '<div class="db-card-body">';
+  $h += '<div class="db-card-title">Review Center</div>';
+  $h += '<div class="db-card-sub">';
+  if ($rcDue > 0) {
+    var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));
+    $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' due';
+    if ($srsStats.overdue > 0) $h += ' · ' + $srsStats.overdue + ' overdue';
+    $h += ' · ~' + $rcEst + ' min';
+  } else {
+    $h += 'All caught up — track your revision progress';
+  }
+  $h += '</div>';
+  $h += '</div>';
+  $h += '<span class="db-arrow db-arrow-dim">→</span>';
+  $h += '</div></div>';
+
   // ═══ SURAH PROGRESS — Lowest Comprehension Surahs ═══
   if ($allSurahComp.length > 0) {
     $h += '<div class="db-card db-surah-progress" id="db-surah-progress">';
@@ -765,6 +778,8 @@ function renderDashboard() {
   $h += '<div class="db-hero-stat-label">Reviews</div></div>';
   $h += '</div>';
 
+  $h += '</div>';  // close db-collapsible
+
   // ── Inject HTML ──
   $d.innerHTML = $h;
 
@@ -797,6 +812,20 @@ function renderDashboard() {
       };
     })($heroStats[$hsi]);
   }
+
+  // Show more stats toggle — expand/collapse secondary content
+  $wire('db-show-more-btn', function() {
+    var $collapsible = document.getElementById('db-collapsible');
+    var $btn = document.getElementById('db-show-more-btn');
+    if (!$collapsible || !$btn) return;
+    var $isOpen = $collapsible.style.display !== 'none';
+    $collapsible.style.display = $isOpen ? 'none' : 'block';
+    $btn.setAttribute('aria-expanded', String(!$isOpen));
+    var $icon = $btn.querySelector('.db-show-more-icon');
+    var $text = $btn.querySelector('.db-show-more-text');
+    if ($icon) $icon.innerHTML = $isOpen ? '&#9660;' : '&#9650;';
+    if ($text) $text.textContent = $isOpen ? 'Show more stats' : 'Show less';
+  });
 
   // Comprehension headline click → profile
   $wire('db-comp-headline', function() {
