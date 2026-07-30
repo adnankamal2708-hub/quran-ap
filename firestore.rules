@@ -167,24 +167,29 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
-    // ── Existing Collections (lock down) ─────────────────────
+    // ── Subscriptions Collection ────────────────────────────
     //
-    // The following collections are used by the app for user
-    // data. Only authenticated users can access their own data.
-    // These rules are preserved from the existing Firestore setup.
-    //
-    // Uncomment and adjust as needed for your existing data model.
-    //
-    // match /learning/{docId} {
-    //   allow read, write: if request.auth != null
-    //                     && request.auth.uid == docId;
-    // }
-    //
-    // match /profiles/{docId} {
-    //   allow read, write: if request.auth != null
-    //                     && request.auth.uid == docId;
-    // }
-    //
+    // Stores Stripe subscription documents written by the webhook
+    // (api/webhook.js uses Admin SDK — bypasses these rules).
+    // Authenticated users can read their own subscription doc
+    // so premium.js can check entitlement client-side.
+    match /subscriptions/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Webhook writes via Admin SDK (service account), not client.
+      allow create, update, delete: if false;
+    }
+
+    // ── Learning Data Collection ─────────────────────────────
+    match /learning/{docId} {
+      allow read, write: if request.auth != null
+                        && request.auth.uid == docId;
+    }
+
+    // ── User Profiles Collection ─────────────────────────────
+    match /profiles/{docId} {
+      allow read, write: if request.auth != null
+                        && request.auth.uid == docId;
+    }
 
     // ── Default Deny ─────────────────────────────────────────
     // Deny all other collections unless explicitly allowed above.
