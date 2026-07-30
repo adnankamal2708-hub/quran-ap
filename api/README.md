@@ -5,7 +5,7 @@ deployed as Vercel serverless functions.
 
 ---
 
-## Environment Variables
+## Environment Variables  Yes
 
 Set these in your Vercel project dashboard (**Settings → Environment Variables**).
 
