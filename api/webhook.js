@@ -77,6 +77,26 @@ async function lookupUidBySubscription(subscriptionId) {
   return sessions.data[0]?.metadata?.uid || null;
 }
 
+/**
+ * Safely extract current_period_end from a subscription object.
+ * Stripe API versions may put this at the top level or inside
+ * items.data[0].  Returns an ISO string, or null if unavailable.
+ * When null is returned, the caller should omit currentPeriodEnd
+ * from the Firestore write so { merge: true } leaves existing
+ * values untouched.
+ */
+function safeCurrentPeriodEnd(subscription) {
+  let ts = subscription.current_period_end;
+  if (typeof ts !== 'number' || !isFinite(ts)) {
+    ts = subscription.items?.data?.[0]?.current_period_end;
+  }
+  if (typeof ts !== 'number' || !isFinite(ts)) {
+    console.warn('[webhook] current_period_end missing or invalid — skipping field');
+    return null;
+  }
+  return new Date(ts * 1000).toISOString();
+}
+
 // ── Event Handlers ──────────────────────────────────────────────
 
 async function handleCheckoutCompleted(session) {
@@ -88,14 +108,16 @@ async function handleCheckoutCompleted(session) {
 
   const subscription = await stripe.subscriptions.retrieve(session.subscription);
   const plan = planFromSubscription(subscription);
-
-  await upsertSubscription(uid, {
+  const periodEnd = safeCurrentPeriodEnd(subscription);
+  const data = {
     status: subscription.status,
-    currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
     stripeCustomerId: session.customer,
     stripeSubscriptionId: session.subscription,
     plan,
-  });
+  };
+  if (periodEnd) data.currentPeriodEnd = periodEnd;
+
+  await upsertSubscription(uid, data);
 
   console.log(`[webhook] Subscription created for ${uid}: ${plan} (${subscription.status})`);
 }
@@ -110,12 +132,15 @@ async function handleSubscriptionUpdated(subscription) {
     return;
   }
 
-  await upsertSubscription(uid, {
+  const periodEnd = safeCurrentPeriodEnd(subscription);
+  const data = {
     status: subscription.status,
-    currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
     stripeSubscriptionId: subscription.id,
     plan: planFromSubscription(subscription),
-  });
+  };
+  if (periodEnd) data.currentPeriodEnd = periodEnd;
+
+  await upsertSubscription(uid, data);
 
   console.log(`[webhook] Subscription updated for ${uid}: ${subscription.status}`);
 }
@@ -130,12 +155,15 @@ async function handleSubscriptionDeleted(subscription) {
     return;
   }
 
-  await upsertSubscription(uid, {
+  const periodEnd = safeCurrentPeriodEnd(subscription);
+  const data = {
     status: 'canceled',
-    currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
     stripeSubscriptionId: subscription.id,
     plan: planFromSubscription(subscription),
-  });
+  };
+  if (periodEnd) data.currentPeriodEnd = periodEnd;
+
+  await upsertSubscription(uid, data);
 
   console.log(`[webhook] Subscription canceled for ${uid}`);
 }
