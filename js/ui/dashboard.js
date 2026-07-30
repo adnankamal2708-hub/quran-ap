@@ -538,7 +538,7 @@ function renderDashboard() {
   $h += '</div>';
 
   // ═══ COLLAPSIBLE: Secondary content ═══
-  $h += '<div class="db-collapsible" id="db-collapsible" style="display:none">';
+  $h += '<div class="db-collapsible" id="db-collapsible">';
 
   // ═══ REVIEW CENTER PROMPT ═══
   var $rcDue = $dueReviews.length;
@@ -818,8 +818,19 @@ function renderDashboard() {
     var $collapsible = document.getElementById('db-collapsible');
     var $btn = document.getElementById('db-show-more-btn');
     if (!$collapsible || !$btn) return;
-    var $isOpen = $collapsible.style.display !== 'none';
-    $collapsible.style.display = $isOpen ? 'none' : 'block';
+    var $isOpen = $collapsible.classList.contains('db-collapsible-open');
+    if ($isOpen) {
+      // Close: set max-height to current height, then trigger transition to 0
+      $collapsible.style.maxHeight = $collapsible.scrollHeight + 'px';
+      requestAnimationFrame(function() {
+        $collapsible.classList.remove('db-collapsible-open');
+        $collapsible.style.maxHeight = '0';
+      });
+    } else {
+      // Open: set max-height to measured content height for smooth slide
+      $collapsible.classList.add('db-collapsible-open');
+      $collapsible.style.maxHeight = $collapsible.scrollHeight + 'px';
+    }
     $btn.setAttribute('aria-expanded', String(!$isOpen));
     var $icon = $btn.querySelector('.db-show-more-icon');
     var $text = $btn.querySelector('.db-show-more-text');

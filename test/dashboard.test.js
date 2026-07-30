@@ -618,15 +618,15 @@ suite('Show More Stats Toggle', function() {
     assert.ok(html.indexOf('Show more stats') >= 0, 'should have toggle text');
   });
 
-  test('collapsible section is hidden by default', function() {
+  test('collapsible section is hidden by default (no open class)', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('db-collapsible') >= 0, 'should have collapsible wrapper');
-    assert.ok(html.indexOf('display:none') >= 0 || html.indexOf('display: none') >= 0,
-      'collapsible should be hidden by default');
+    assert.ok(html.indexOf('db-collapsible-open') === -1,
+      'collapsible should not have open class by default');
   });
 
   test('Review Center prompt is inside collapsible section', function() {
