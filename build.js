@@ -164,9 +164,12 @@ function writeFile(filePath, content) {
 }
 
 function stripComments(code) {
+  // Strip block comments and line comments safely.
+  // Uses a negative lookbehind to avoid matching // inside URLs (https://).
+  var lineCommentRe = new RegExp('(?<!:)//[^\n]*', 'g');
   return code
     .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/\/\/[^\n]*/g, '')
+    .replace(lineCommentRe, '')
     .replace(/\n{3,}/g, '\n\n');
 }
 
@@ -382,27 +385,57 @@ async function build() {
 
   // 3. Minify JS with terser
   console.log('  3. Minifying JavaScript...');
-  try {
-    var terser = require('terser');
-    var dataResult = await terser.minify(readFile('dist/js/data.bundle.js'), {
-      compress: { passes: 3, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
-      mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS', 'QURAN_TEXT', 'CANONICAL_WORDS'] },
-      output: { comments: false },
-    });
-    if (dataResult.code) writeFile('js/data.bundle.min.js', dataResult.code);
 
-    var appResult = await terser.minify(readFile('dist/js/app.bundle.js'), {
-      compress: { passes: 3, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
-      mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS', 'QURAN_TEXT', 'CANONICAL_WORDS'] },
-      output: { comments: false },
-    });
-    if (appResult.code) writeFile('js/app.bundle.min.js', appResult.code);
-    console.log('     JS minification complete');
-  } catch (e) {
-    console.warn('     Warning: terser minification failed, using unminified: ' + e.message);
+  var terser;
+  try { terser = require('terser'); } catch (e) {
+    console.warn('     Warning: terser not available (' + e.message + '), using unminified bundles');
     writeFile('js/data.bundle.min.js', readFile('dist/js/data.bundle.js'));
     writeFile('js/app.bundle.min.js', readFile('dist/js/app.bundle.js'));
+    return;
   }
+
+  var terserOptions = {
+    parse: { ecma: 2020 },
+    compress: { ecma: 2020, passes: 3, drop_console: true, booleans: true, comparisons: true, reduce_vars: false, side_effects: true },
+    mangle: { reserved: ['ALL_WORDS', 'SURAH_INFO', 'LESSONS', 'QURAN_TEXT', 'CANONICAL_WORDS'] },
+    format: { ecma: 2020, comments: false },
+  };
+
+  function hasSyntaxError(code) {
+    try {
+      new Function(code);
+      return false;
+    } catch (e) {
+      return e instanceof SyntaxError;
+    }
+  }
+
+  async function minifyBundle(description, inPath, outPath) {
+    try {
+      var source = readFile(inPath);
+      if (!source) throw new Error('Source is empty');
+
+      var result = await terser.minify(source, terserOptions);
+      if (!result || !result.code) throw new Error('Empty terser output');
+
+      // Write the minified output
+      writeFile(outPath, result.code);
+
+      // Validate: check for syntax errors only (not runtime errors)
+      if (hasSyntaxError(result.code)) {
+        console.warn('     ⚠ ' + description + ' minified output has syntax errors — falling back to unminified');
+        writeFile(outPath, source);
+        console.log('     ✓ ' + outPath + ' (unminified fallback)');
+      }
+    } catch (e) {
+      console.warn('     Warning: ' + description + ' minification failed, using unminified: ' + e.message);
+      writeFile(outPath, readFile(inPath));
+    }
+  }
+
+  await minifyBundle('data bundle', 'dist/js/data.bundle.js', 'js/data.bundle.min.js');
+  await minifyBundle('app bundle', 'dist/js/app.bundle.js', 'js/app.bundle.min.js');
+  console.log('     JS minification complete');
 
   // 4. Minify CSS
   console.log('  4. Minifying CSS...');
