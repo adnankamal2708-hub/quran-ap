@@ -1600,8 +1600,133 @@ function init() {
 
 
 
+// ═══════════════════════════════════════════════════════════════
+// STRIPE CHECKOUT REDIRECT HANDLING
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Handle ?checkout=success and ?checkout=cancel query params
+ * after returning from Stripe Checkout redirect.
+ */
+function handleCheckoutParams() {
+  var params = new URLSearchParams(window.location.search);
+  var checkoutStatus = params.get('checkout');
+  if (!checkoutStatus) return;
+
+  // Clean URL first so refresh doesn't re-trigger
+  var cleanUrl = window.location.pathname + window.location.hash;
+  history.replaceState(null, '', cleanUrl);
+
+  if (checkoutStatus === 'cancel') {
+    // Cancel: silently dismiss, no toast/message
+    return;
+  }
+
+  if (checkoutStatus === 'success') {
+    // Wait for app ux module to be ready, then show success
+    // Poll subscriptions/{uid} to confirm the webhook wrote the doc
+    var pollAttempts = 0;
+    var maxPollAttempts = 10; // ~10 seconds total
+
+    function showSuccess() {
+      if (window.__ux && typeof window.__ux.showToast === 'function') {
+        window.__ux.showToast('You\'re premium now! 🎉', 'success', 6000);
+      } else if (typeof showToast === 'function') {
+        showToast('You\'re premium now! 🎉', 'success', 6000);
+      }
+    }
+
+    function showCautiousSuccess() {
+      if (window.__ux && typeof window.__ux.showToast === 'function') {
+        window.__ux.showToast('Payment received — finishing setup, this may take a moment', 'success', 5000);
+      } else if (typeof showToast === 'function') {
+        showToast('Payment received — finishing setup, this may take a moment', 'success', 5000);
+      }
+    }
+
+    function pollSubscription() {
+      var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+      if (!user) {
+        user = window.__auth && typeof window.__auth.getCurrentUser === 'function' ? window.__auth.getCurrentUser() : null;
+      }
+
+      if (!user || !user.uid) {
+        // Wait and retry — auth may not be ready
+        if (pollAttempts < maxPollAttempts) {
+          pollAttempts++;
+          setTimeout(pollSubscription, 1000);
+        } else {
+          showCautiousSuccess();
+        }
+        return;
+      }
+
+      // Try reading the subscription doc directly
+      try {
+        var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+        if (db) {
+          var docRef = window.__firebaseCore.doc(db, 'subscriptions', user.uid);
+          window.__firebaseCore.getDoc(docRef).then(function (snap) {
+            if (snap.exists()) {
+              var data = snap.data();
+              if (data && data.status === 'active') {
+                // Confirmed active! Update premium state and show success.
+                if (window.__premium && typeof window.__premium.refresh === 'function') {
+                  window.__premium.refresh();
+                }
+                showSuccess();
+                return;
+              }
+            }
+            // Not yet confirmed, retry
+            if (pollAttempts < maxPollAttempts) {
+              pollAttempts++;
+              setTimeout(pollSubscription, 1000);
+            } else {
+              showCautiousSuccess();
+            }
+          }).catch(function () {
+            // Error reading, retry
+            if (pollAttempts < maxPollAttempts) {
+              pollAttempts++;
+              setTimeout(pollSubscription, 1000);
+            } else {
+              showCautiousSuccess();
+            }
+          });
+        } else {
+          // DB not ready, retry
+          if (pollAttempts < maxPollAttempts) {
+            pollAttempts++;
+            setTimeout(pollSubscription, 1000);
+          } else {
+            showCautiousSuccess();
+          }
+        }
+      } catch (e) {
+        // Error, retry
+        if (pollAttempts < maxPollAttempts) {
+          pollAttempts++;
+          setTimeout(pollSubscription, 1000);
+        } else {
+          showCautiousSuccess();
+        }
+      }
+    }
+
+    // Start polling after a short delay to let auth/Firestore initialize
+    setTimeout(pollSubscription, 1500);
+  }
+}
+
 // ── Bootstrap the Application ────────────────────────────────────
 // Init is called here at the end of the bundle, after all function
 // definitions have been parsed. Because app.bundle.min.js is loaded
 // with the 'defer' attribute, the DOM is fully available at this point.
 init();
+
+// Handle Stripe checkout redirect after init() completes
+// Use a small delay to let the splash screen start hiding first
+setTimeout(function() {
+  try { handleCheckoutParams(); } catch (e) { console.warn('[app] Checkout param handler error:', e.message || e); }
+}, 200);

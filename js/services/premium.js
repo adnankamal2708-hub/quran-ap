@@ -10,10 +10,14 @@
 //   • Feature gate system (hasFeature)
 //   • Upgrade hooks (requestUpgrade)
 //   • Subscription listener support (onChange)
-//   • Firebase-ready for future Stripe/RevenueCat integration
+//   • Reads subscriptions/{uid} from Firestore
 //
-// IMPORTANT: This is the infrastructure layer only.
-// No payment provider (Stripe, RevenueCat, etc.) is integrated yet.
+// isPremium() priority order:
+//   1. No document exists → false
+//   2. status !== 'active' → false
+//   3. status === 'active' AND currentPeriodEnd exists AND is in the past → false
+//   4. status === 'active' AND currentPeriodEnd is missing → true
+//   5. status === 'active' AND currentPeriodEnd exists AND is in the future → true
 // ═══════════════════════════════════════════════════════════════
 
 (function () {
@@ -54,7 +58,7 @@
   /** @type {boolean} Whether the current user has premium */
   var _isPremium = false;
 
-  /** @type {Object|null} Current subscription object (placeholder for future) */
+  /** @type {Object|null} Current subscription object (from Firestore) */
   var _subscription = null;
 
   /** @type {boolean} Whether the service has been initialised */
@@ -63,39 +67,147 @@
   /** @type {Array<Function>} Premium state change listeners */
   var _listeners = [];
 
+  /** @type {number|null} Pending fetch timer for debouncing */
+  var _fetchTimer = null;
+
+  /** @type {number|null} Current fetch promise to avoid concurrent calls */
+  var _fetchPromise = null;
+
+  /** @type {string} Firestore collection for subscription documents */
+  var SUBSCRIPTIONS_COLLECTION = 'subscriptions';
+
   // ── Initialization ─────────────────────────────────────────
 
   /**
-   * Initialise the premium service.
-   * Currently sets premium to false (placeholder for future Firestore lookup).
+   * Initialize the premium service.
+   * Sets up auth listener to read subscription from Firestore on login/logout.
    * Safe to call multiple times.
    */
   function _init() {
     if (_ready) return true;
 
-    // For now, premium is always false.
-    // Future: read from Firestore document or subscription token.
+    // Default: no premium
     _isPremium = false;
     _subscription = null;
     _ready = true;
 
-    // Listen for auth changes to reset premium state on login/logout
+    // Listen for auth changes to load or reset premium state
     if (typeof onAuthChange === 'function') {
       onAuthChange(function (user) {
-        if (!user) {
+        if (user) {
+          // User logged in — try to load subscription from Firestore
+          _loadSubscriptionFromFirestore(user.uid);
+        } else {
           // User logged out — reset premium
-          if (_isPremium) {
+          if (_isPremium || _subscription !== null) {
             _isPremium = false;
             _subscription = null;
             _notifyListeners();
           }
         }
-        // On login, we could re-check premium status from Firestore.
-        // Future: loadSubscriptionStatus(user.uid);
+      });
+    } else if (typeof window.__auth !== 'undefined' && window.__auth && typeof window.__auth.onAuthChange === 'function') {
+      window.__auth.onAuthChange(function (user) {
+        if (user) {
+          _loadSubscriptionFromFirestore(user.uid);
+        } else {
+          if (_isPremium || _subscription !== null) {
+            _isPremium = false;
+            _subscription = null;
+            _notifyListeners();
+          }
+        }
       });
     }
 
     return true;
+  }
+
+  // ── Firestore Subscription Reader ──────────────────────────
+
+  /**
+   * Read subscription document from Firestore for the given user.
+   * Updates _isPremium and _subscription based on the 5-rule priority order.
+   *
+   * @param {string} uid — Firebase Auth user ID
+   */
+  async function _loadSubscriptionFromFirestore(uid) {
+    if (!uid) return;
+
+    try {
+      var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+      if (!db) return;
+
+      var docRef = window.__firebaseCore.doc(db, SUBSCRIPTIONS_COLLECTION, uid);
+      var docSnap = await window.__firebaseCore.getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        // Rule 1: No document exists → false
+        _setPremiumState(false, null);
+        return;
+      }
+
+      var data = docSnap.data();
+
+      // Rule 2: status !== 'active' → false
+      if (!data || data.status !== 'active') {
+        _setPremiumState(false, data || null);
+        return;
+      }
+
+      // Rule 3: active AND currentPeriodEnd exists AND is in the past → false
+      if (data.currentPeriodEnd && data.currentPeriodEnd.toDate) {
+        var endDate = data.currentPeriodEnd.toDate();
+        if (endDate < new Date()) {
+          _setPremiumState(false, data);
+          return;
+        }
+      } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'object' && data.currentPeriodEnd.seconds) {
+        // Handle Firestore Timestamp as plain object (from SSR/deserialized)
+        var endMs = data.currentPeriodEnd.seconds * 1000;
+        if (endMs < Date.now()) {
+          _setPremiumState(false, data);
+          return;
+        }
+      } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'number') {
+        // Handle raw epoch ms
+        if (data.currentPeriodEnd < Date.now()) {
+          _setPremiumState(false, data);
+          return;
+        }
+      } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'string') {
+        // Handle ISO string
+        if (new Date(data.currentPeriodEnd) < new Date()) {
+          _setPremiumState(false, data);
+          return;
+        }
+      }
+
+      // Rule 4: active AND currentPeriodEnd is missing → true (do not fail closed)
+      // Rule 5: active AND currentPeriodEnd exists AND is in the future → true
+      // Both resolve to true at this point.
+      _setPremiumState(true, data);
+
+    } catch (e) {
+      // Error handling: any Firestore read error → false, log with console.warn
+      console.warn('[premium] Error reading subscription from Firestore:', e.message || e);
+      _setPremiumState(false, null);
+    }
+  }
+
+  /**
+   * Update internal premium state and notify listeners.
+   *
+   * @param {boolean} isPremium
+   * @param {Object|null} subscriptionData
+   */
+  function _setPremiumState(isPremium, subscriptionData) {
+    var changed = (_isPremium !== isPremium) || (_subscription !== subscriptionData);
+    _isPremium = isPremium;
+    _subscription = subscriptionData;
+    if (changed) {
+      _notifyListeners();
+    }
   }
 
   // ── Listener Management ────────────────────────────────────
@@ -116,6 +228,8 @@
 
   /**
    * Check whether the current user has an active premium subscription.
+   * Uses the 5-rule priority order against the Firestore subscriptions/{uid} doc.
+   *
    * @returns {boolean}
    */
   function isPremium() {
@@ -143,8 +257,6 @@
       return false;
     }
 
-    // For now, all premium features resolve to false.
-    // Future: check subscription plan against feature entitlement.
     return _isPremium;
   }
 
@@ -158,16 +270,27 @@
   }
 
   /**
-   * Refresh premium status from the source of truth.
-   * Currently a no-op. Future: re-read Firestore document or verify token.
+   * Refresh premium status from the source of truth (Firestore).
    * @returns {Promise<boolean>} Whether premium is active after refresh
    */
   async function refresh() {
     _init();
-    // Future: const status = await loadSubscriptionStatus(user.uid);
-    // _isPremium = status.active;
-    // _subscription = status;
-    // _notifyListeners();
+
+    try {
+      var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+      if (!user) {
+        user = window.__auth && typeof window.__auth.getCurrentUser === 'function' ? window.__auth.getCurrentUser() : null;
+      }
+      if (user) {
+        await _loadSubscriptionFromFirestore(user.uid);
+      } else {
+        _setPremiumState(false, null);
+      }
+    } catch (e) {
+      console.warn('[premium] refresh error:', e.message || e);
+      _setPremiumState(false, null);
+    }
+
     return _isPremium;
   }
 
@@ -195,15 +318,18 @@
   }
 
   /**
-   * Request an upgrade to premium.
-   * Currently opens a placeholder dialog explaining this is coming soon.
+   * Request an upgrade to premium via Stripe Checkout.
+   *
+   * Opens a Stripe Checkout session by POSTing to the backend endpoint.
    * Every upgrade button in the app should call this instead of navigating
    * directly. This ensures future payment providers can be plugged in
    * without changing UI code.
    *
-   * @param {string} reason — Why the upgrade is being requested (for analytics)
+   * @param {string} [reason] — Why the upgrade is being requested (for analytics)
+   * @param {Object} [options] - { plan: 'monthly'|'yearly' }
+   * @returns {Promise<void>}
    */
-  function requestUpgrade(reason) {
+  async function requestUpgrade(reason, options) {
     _init();
 
     if (_isPremium) {
@@ -211,13 +337,135 @@
       return;
     }
 
-    // Log the request for future analytics
+    // Log the request for analytics
     if (window.__DEV__) {
       console.log('[premium] Upgrade requested. Reason:', reason || 'unspecified');
     }
 
-    // Show placeholder upgrade dialog
-    _showUpgradePlaceholder(reason);
+    // Get the current user
+    var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+    if (!user) {
+      user = window.__auth && typeof window.__auth.getCurrentUser === 'function' ? window.__auth.getCurrentUser() : null;
+    }
+
+    if (!user) {
+      // No signed-in user — show sign-in prompt
+      _showSignInRequired();
+      return;
+    }
+
+    // Show loading state on the triggering button
+    var loadingEl = _showLoadingState(true);
+
+    try {
+      // Get Firebase ID token
+      var auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+      if (!auth || !auth.currentUser) {
+        throw new Error('Auth not available');
+      }
+      var token = await auth.currentUser.getIdToken();
+
+      // Determine plan: default to monthly unless caller explicitly requests yearly
+      var plan = (options && options.plan === 'yearly') ? 'yearly' : 'monthly';
+
+      // POST to the checkout endpoint
+      var response = await fetch('https://quran-ap-pzso.vercel.app/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ plan: plan }),
+      });
+
+      if (!response.ok) {
+        var errorText = '';
+        try {
+          var errorBody = await response.json();
+          errorText = errorBody.error || response.statusText;
+        } catch (_) {
+          errorText = response.statusText || 'HTTP ' + response.status;
+        }
+        throw new Error(errorText || 'Checkout request failed');
+      }
+
+      var data = await response.json();
+
+      if (!data || !data.url) {
+        throw new Error('No checkout URL in response');
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+
+    } catch (e) {
+      // Clear loading state
+      _showLoadingState(false);
+
+      // Show a clear, non-technical error message
+      console.warn('[premium] Checkout error:', e.message || e);
+
+      if (window.__ux && typeof window.__ux.showToast === 'function') {
+        window.__ux.showToast('Something went wrong starting checkout — please try again', 'error', 5000);
+      } else if (typeof showToast === 'function') {
+        showToast('Something went wrong starting checkout — please try again', 'warning', 5000);
+      } else {
+        // Fallback: show an alert
+        alert('Something went wrong starting checkout — please try again');
+      }
+    }
+  }
+
+  // ── Loading State Helper ───────────────────────────────────
+
+  /**
+   * Show or hide loading state on the button that triggered requestUpgrade.
+   * @param {boolean} isLoading
+   * @returns {Element|null} The element that was styled
+   */
+  function _showLoadingState(isLoading) {
+    // Try to find the most recently focused button or use a generic selector
+    var btn = document.activeElement;
+    if (!btn || btn.tagName !== 'BUTTON') {
+      // Fallback: look for common premium upgrade button selectors
+      btn = document.querySelector('[data-premium-btn], .premium-btn, .upgrade-btn, [data-action="upgrade"]');
+    }
+    if (btn) {
+      if (isLoading) {
+        btn.disabled = true;
+        btn._premiumOrigText = btn.textContent || btn.innerHTML;
+        btn.innerHTML = 'Please wait…';
+      } else {
+        btn.disabled = false;
+        if (btn._premiumOrigText) {
+          btn.innerHTML = btn._premiumOrigText;
+          delete btn._premiumOrigText;
+        }
+      }
+    }
+    return btn;
+  }
+
+  // ── Sign-In Prompt ─────────────────────────────────────────
+
+  /**
+   * Show a prompt telling the user they need to sign in first.
+   * Reuses the existing sign-in UI pattern from the app.
+   */
+  function _showSignInRequired() {
+    // Try to use the app's existing toast pattern
+    if (window.__ux && typeof window.__ux.showToast === 'function') {
+      window.__ux.showToast('Please sign in to upgrade to premium', 'info', 4000);
+    } else if (typeof showToast === 'function') {
+      showToast('Please sign in to upgrade to premium', 'info', 4000);
+    }
+
+    // Try to open the auth UI if it has a showLogin method
+    if (typeof showAuthModal === 'function') {
+      showAuthModal('login');
+    } else if (window.__auth && typeof window.__auth.showLogin === 'function') {
+      window.__auth.showLogin();
+    }
   }
 
   /**
@@ -231,84 +479,6 @@
       list[k] = PREMIUM_FEATURES[k];
     });
     return list;
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // UPGRADE PLACEHOLDER DIALOG
-  // ═══════════════════════════════════════════════════════════════
-
-  /**
-   * Show a placeholder upgrade dialog explaining the feature is coming soon.
-   * Replace this with real payment UI when Stripe/RevenueCat is integrated.
-   */
-  function _showUpgradePlaceholder(reason) {
-    // Avoid stacking multiple dialogs
-    var existing = document.getElementById('premium-upgrade-modal');
-    if (existing) return;
-
-    var modal = document.createElement('div');
-    modal.id = 'premium-upgrade-modal';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);animation:fadeIn 0.2s ease';
-
-    var reasonText = reason ? '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Requested: ' + _escapeHtml(reason) + '</div>' : '';
-
-    modal.innerHTML =
-      '<div style="background:var(--surface);border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:28px 24px;max-width:340px;width:90%;box-shadow:var(--shadow-elevated);text-align:center">' +
-        '<div style="font-size:32px;margin-bottom:12px">⭐</div>' +
-        '<div style="font-family:var(--serif);font-size:18px;color:var(--gold-light);margin-bottom:8px">Bayan Premium</div>' +
-        '<div style="font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:16px">' +
-          'Premium subscriptions are coming soon. You will be able to unlock advanced features, cloud sync, and more.' +
-        '</div>' +
-        reasonText +
-        '<div style="display:flex;gap:8px;justify-content:center">' +
-          '<button id="premium-upgrade-close" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-btn);padding:10px 24px;color:var(--text);font-size:13px;cursor:pointer;transition:all 0.2s">Got it</button>' +
-        '</div>' +
-      '</div>';
-
-    document.body.appendChild(modal);
-
-    // Close handler
-    var closeBtn = document.getElementById('premium-upgrade-close');
-    if (closeBtn) {
-      closeBtn.onclick = function () { _closeUpgradePlaceholder(); };
-    }
-
-    // Close on backdrop click
-    modal.onclick = function (e) {
-      if (e.target === modal) _closeUpgradePlaceholder();
-    };
-
-    // Close on Escape
-    var _onKeyDown = function (e) {
-      if (e.key === 'Escape') _closeUpgradePlaceholder();
-    };
-    document.addEventListener('keydown', _onKeyDown);
-
-    // Focus close button
-    if (closeBtn) setTimeout(function () { closeBtn.focus(); }, 100);
-  }
-
-  function _closeUpgradePlaceholder() {
-    var modal = document.getElementById('premium-upgrade-modal');
-    if (modal) {
-      modal.style.animation = 'fadeOut 0.15s ease';
-      setTimeout(function () {
-        if (modal.parentNode) modal.parentNode.removeChild(modal);
-      }, 150);
-    }
-  }
-
-  /**
-   * Minimal HTML escape for user-provided strings.
-   */
-  function _escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
   }
 
   // ═══════════════════════════════════════════════════════════════
