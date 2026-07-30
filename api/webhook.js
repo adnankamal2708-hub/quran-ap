@@ -186,6 +186,10 @@ const handler = async (req, res) => {
 };
 
 // Vercel: disable auto-parsing so buffer(req) gets the raw body for Stripe signature verification
-handler.api = { bodyParser: false };
+handler.config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 module.exports = handler;
