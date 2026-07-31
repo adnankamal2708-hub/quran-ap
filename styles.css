@@ -1314,6 +1314,14 @@ body::before {
   animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+/* Quran view: use flex so the height chain propagates to child elements */
+#view-quran.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 
 
 /* ── Beta Badge ───────────────────────────────────────────── */

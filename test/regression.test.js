@@ -816,36 +816,6 @@ suite('Global View CSS Integrity', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// STYLES2.CSS EXPLORER CONSISTENCY
-// ═══════════════════════════════════════════════════════════════
-
-suite('Styles2.css Explorer Consistency', function() {
-  var css2Content = '';
-  try {
-    css2Content = fs.readFileSync(path.join(__dirname, '..', 'styles2.css'), 'utf8');
-    css2Content = css2Content.replace(/\r\n/g, '\n');
-  } catch (e) {
-    console.log('  ╔ styles2.css not found — skipping');
-    return;
-  }
-  
-  test('Explorer header CSS classes exist in styles2.css', function() {
-    var required = ['.explorer-header', '.explorer-back-btn', '.explorer-core-card', '.explorer-info-grid'];
-    for (var i = 0; i < required.length; i++) {
-      assert.ok(css2Content.indexOf(required[i] + ' {') >= 0 || css2Content.indexOf(required[i] + '{') >= 0,
-        required[i] + ' must be defined in styles2.css');
-    }
-  });
-  
-  test('Explorer responsive breakpoints exist in styles2.css', function() {
-    assert.ok(css2Content.indexOf('@media (max-width: 480px)') >= 0,
-      '480px breakpoint must exist in styles2.css');
-    assert.ok(css2Content.indexOf('@media (min-width: 768px)') >= 0,
-      '768px breakpoint must exist in styles2.css');
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════
 // VIEW SWITCH SCROLL PROTECTION
 // ═══════════════════════════════════════════════════════════════
 

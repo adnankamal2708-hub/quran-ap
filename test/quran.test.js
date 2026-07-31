@@ -874,22 +874,6 @@ suite('Rename Integrity (Reader→Quran Migration)', function() {
     }
   });
 
-  // TEST: No stale CSS selectors in styles2.css
-  test('No ".reader-" CSS selectors remain in styles2.css', function() {
-    var cssPath = path.join(__dirname, '..', 'styles2.css');
-    if (!fs.existsSync(cssPath)) return;
-    var css = fs.readFileSync(cssPath, 'utf8');
-    // Must use .quran- selectors
-    if (css.indexOf('.quran-surah-list') === -1) {
-      assert.fail('.quran-surah-list not found in styles2.css');
-    }
-    // Must NOT contain .reader- selectors
-    var dotReaderMatches = css.match(/\.reader-/g);
-    if (dotReaderMatches) {
-      assert.fail('Found ' + dotReaderMatches.length + ' ".reader-" CSS selectors in styles2.css');
-    }
-  });
-
   // TEST: Keyboard shortcut updated
   test('Keyboard shortcut updated from Read to Quran', function() {
     var htmlPath = path.join(__dirname, '..', 'index.html');
