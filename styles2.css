@@ -7994,14 +7994,94 @@ body::before {
   color: var(--gold-light);
   font-weight: 600;
   line-height: 1.2;
-}
-.profile-pstat-label {
+}.profile-pstat-label {
   font-size: 8px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-top: 2px;
 }
+
+/* ── Profile Sub-section Metric Grids (Insights, Reading, SRS, Calendar) ── */
+.profile-insight-grid,
+.profile-reading-grid,
+.profile-srs-grid,
+.profile-calendar-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.profile-insight-grid > div,
+.profile-reading-grid > div,
+.profile-srs-grid > div,
+.profile-cal-stat {
+  text-align: center;
+  padding: 12px 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-insight-grid > div::before,
+.profile-reading-grid > div::before,
+.profile-srs-grid > div::before,
+.profile-cal-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.profile-insight-grid > div:hover,
+.profile-reading-grid > div:hover,
+.profile-srs-grid > div:hover,
+.profile-cal-stat:hover {
+  border-color: rgba(201, 168, 76, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.profile-insight-grid > div:hover::before,
+.profile-reading-grid > div:hover::before,
+.profile-srs-grid > div:hover::before,
+.profile-cal-stat:hover::before {
+  opacity: 1;
+}
+
+/* Number values in metric grid cells */
+.profile-insight-grid .profile-bar-value,
+.profile-reading-grid .profile-bar-value,
+.profile-srs-grid .profile-bar-value,
+.profile-cal-stat .profile-bar-value {
+  display: block;
+  font-size: 22px;
+  font-family: var(--serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Labels below numbers in metric grid cells */
+.profile-insight-grid .profile-pstat-label,
+.profile-reading-grid .profile-pstat-label,
+.profile-srs-grid .profile-pstat-label,
+.profile-cal-stat .profile-pstat-label {
+  display: block;
+  margin-top: 0;
+}
+
 .profile-subsection {
   background: var(--surface2);
   border: 1px solid var(--border);
