@@ -4748,6 +4748,8 @@ body::before {
 .milestone-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; }
 
 /* ── Plan Picker ──────────────────────────────────────────── */
+/* NOTE: canonical copy lives in styles.css (the only stylesheet loaded at
+   runtime). Keep the two copies in sync if you edit these rules. */
 .plan-picker-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.85);
   display: flex; align-items: center; justify-content: center;
@@ -8003,6 +8005,8 @@ body::before {
 }
 
 /* ── Profile Sub-section Metric Grids (Insights, Reading, SRS, Calendar) ── */
+/* NOTE: canonical copy lives in styles.css (the only stylesheet loaded at
+   runtime). Keep the two copies in sync if you edit these rules. */
 .profile-insight-grid,
 .profile-reading-grid,
 .profile-srs-grid,

@@ -5031,6 +5031,130 @@ body::before {
 .milestone-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; }
 .milestone-btn { min-width: 120px; }
 
+/* ── Plan Picker ──────────────────────────────────────────── */
+.plan-picker-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; padding: 16px;
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.plan-picker-overlay.plan-picker-visible {
+  opacity: 1;
+}
+.plan-picker-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-card); padding: 28px 20px 20px;
+  max-width: 460px; width: 100%; max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(16px);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.plan-picker-visible .plan-picker-card {
+  transform: translateY(0);
+}
+.plan-picker-header {
+  text-align: center; margin-bottom: 20px;
+}
+.plan-picker-icon {
+  font-size: 40px; margin-bottom: 8px; line-height: 1;
+}
+.plan-picker-title {
+  font-size: 20px; font-family: var(--serif); color: var(--gold-light);
+  font-weight: 600; margin-bottom: 6px;
+}
+.plan-picker-desc {
+  font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 0 4px;
+}
+.plan-picker-options {
+  display: flex; gap: 8px; margin-bottom: 16px;
+}
+.plan-card {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-section); padding: 14px 10px;
+  cursor: pointer; text-align: center; font-family: var(--body);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  -webkit-appearance: none; appearance: none;
+  min-width: 0;
+}
+.plan-card:hover {
+  border-color: var(--gold-dim); transform: translateY(-2px);
+  background: rgba(201,168,76,0.06);
+}
+.plan-card:focus-visible {
+  outline: 2px solid var(--gold-dim); outline-offset: 2px;
+}
+.plan-card:active {
+  transform: scale(0.97);
+}
+.plan-card-premium {
+  border-color: rgba(201,168,76,0.25);
+  background: linear-gradient(180deg, rgba(201,168,76,0.06), var(--surface2));
+}
+.plan-card-premium:hover {
+  border-color: var(--gold);
+  box-shadow: 0 4px 16px rgba(201,168,76,0.12);
+}
+.plan-card-badge {
+  font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em;
+  background: var(--gold); color: var(--bg);
+  border-radius: 10px; padding: 2px 10px; font-weight: 600;
+  margin-bottom: 4px;
+}
+.plan-card-badge-free {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.plan-card-name {
+  font-size: 14px; color: var(--text); font-weight: 500;
+}
+.plan-card-price {
+  font-size: 22px; font-family: var(--serif); color: var(--gold-light);
+  font-weight: 600; line-height: 1.2;
+}
+.plan-card-period {
+  font-size: 11px; color: var(--text-muted); font-weight: 400;
+}
+.plan-card-features {
+  list-style: none; padding: 0; margin: 6px 0 0;
+  font-size: 9px; color: var(--text-muted); line-height: 1.6;
+  text-align: left;
+}
+.plan-card-features li {
+  padding: 1px 0;
+}
+.plan-card-features li::before {
+  content: '✓ '; color: var(--green);
+}
+.plan-picker-footer {
+  text-align: center;
+}
+.plan-picker-skip {
+  background: none; border: none;
+  font-size: 12px; color: var(--text-muted); cursor: pointer;
+  font-family: var(--body); padding: 6px 12px;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 0.6;
+}
+.plan-picker-skip:hover {
+  color: var(--text); opacity: 1;
+}
+.plan-picker-skip:focus-visible {
+  outline: 2px solid var(--gold-dim); outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Narrow screens: keep the three plan cards usable at 320px */
+@media (max-width: 380px) {
+  .plan-picker-overlay { padding: 12px; }
+  .plan-picker-options { gap: 6px; }
+  .plan-card { padding: 12px 6px; }
+  .plan-card-features { font-size: 8px; }
+  .plan-card-price { font-size: 19px; }
+}
+
 .dashboard-hero {
   background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(74,158,107,0.06));
   border: 1px solid rgba(201,168,76,0.25);
@@ -7752,6 +7876,87 @@ body::before {
   letter-spacing: 0.06em;
   margin-top: 2px;
 }
+
+/* ── Profile Sub-section Metric Grids (Insights, Reading, SRS, Calendar) ── */
+.profile-insight-grid,
+.profile-reading-grid,
+.profile-srs-grid,
+.profile-calendar-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.profile-insight-grid > div,
+.profile-reading-grid > div,
+.profile-srs-grid > div,
+.profile-cal-stat {
+  text-align: center;
+  padding: 12px 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-insight-grid > div::before,
+.profile-reading-grid > div::before,
+.profile-srs-grid > div::before,
+.profile-cal-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.profile-insight-grid > div:hover,
+.profile-reading-grid > div:hover,
+.profile-srs-grid > div:hover,
+.profile-cal-stat:hover {
+  border-color: rgba(201, 168, 76, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.profile-insight-grid > div:hover::before,
+.profile-reading-grid > div:hover::before,
+.profile-srs-grid > div:hover::before,
+.profile-cal-stat:hover::before {
+  opacity: 1;
+}
+
+/* Number values in metric grid cells */
+.profile-insight-grid .profile-bar-value,
+.profile-reading-grid .profile-bar-value,
+.profile-srs-grid .profile-bar-value,
+.profile-cal-stat .profile-bar-value {
+  display: block;
+  font-size: 22px;
+  font-family: var(--serif);
+  color: var(--gold-light);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Labels below numbers in metric grid cells */
+.profile-insight-grid .profile-pstat-label,
+.profile-reading-grid .profile-pstat-label,
+.profile-srs-grid .profile-pstat-label,
+.profile-cal-stat .profile-pstat-label {
+  display: block;
+  margin-top: 0;
+}
+
 .profile-subsection {
   background: var(--surface2);
   border: 1px solid var(--border);
