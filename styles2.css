@@ -5505,6 +5505,7 @@ body::before {
 }
 
 /* ── Error State ── */
+/* NOTE: canonical copy of the .db-show-more-btn / .db-collapsible rules lives in styles.css (the only stylesheet loaded at runtime). Keep the two copies in sync if you edit these rules. */
 .db-show-more-btn {
   background: none;
   border: 1px solid var(--border);

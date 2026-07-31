@@ -774,6 +774,62 @@ suite('Show More Stats Toggle', function() {
     assert.ok(html.indexOf('Surah') >= 0, 'Surah section still rendered');
     assert.ok(html.indexOf('Motivation') >= 0 || html.indexOf('Streak') >= 0, 'Motivation still rendered');
   });
+
+  test('clicking the toggle expands then collapses the section', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+
+    var btn = document.getElementById('db-show-more-btn');
+    var collapsible = document.getElementById('db-collapsible');
+    assert.ok(btn !== null, 'toggle button should exist in DOM');
+    assert.ok(collapsible !== null, 'collapsible wrapper should exist in DOM');
+    assert.ok(!collapsible.classList.contains('db-collapsible-open'),
+      'collapsible starts collapsed');
+
+    // Stub rAF so the close transition runs synchronously
+    var _origRAF = global.requestAnimationFrame;
+    global.requestAnimationFrame = function(fn) { fn(); return 0; };
+    try {
+      btn.onclick();
+      assert.ok(collapsible.classList.contains('db-collapsible-open'),
+        'collapsible gains open class on first click');
+      assert.equal(btn.getAttribute('aria-expanded'), 'true',
+        'aria-expanded flips to true on expand');
+
+      btn.onclick();
+      assert.ok(!collapsible.classList.contains('db-collapsible-open'),
+        'collapsible loses open class on second click');
+      assert.equal(btn.getAttribute('aria-expanded'), 'false',
+        'aria-expanded flips back to false on collapse');
+    } finally {
+      global.requestAnimationFrame = _origRAF;
+    }
+  });
+
+  test('keyboard Enter on the toggle also expands the section', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+
+    var btn = document.getElementById('db-show-more-btn');
+    var collapsible = document.getElementById('db-collapsible');
+    assert.ok(btn !== null, 'toggle button should exist in DOM');
+
+    var _origRAF = global.requestAnimationFrame;
+    global.requestAnimationFrame = function(fn) { fn(); return 0; };
+    try {
+      btn.onkeydown({ key: 'Enter', preventDefault: function() {} });
+      assert.ok(collapsible.classList.contains('db-collapsible-open'),
+        'Enter key expands the collapsible');
+      assert.equal(btn.getAttribute('aria-expanded'), 'true',
+        'aria-expanded true after Enter');
+    } finally {
+      global.requestAnimationFrame = _origRAF;
+    }
+  });
 });
 
 suite('Smart Recommendations', function() {
