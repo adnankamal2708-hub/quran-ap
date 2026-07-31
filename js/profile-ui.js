@@ -987,29 +987,7 @@ function renderProfileAchievements() {
   var locked = achievements.filter(function(a) { return !a.earned; });
   var totalPct = stats ? stats.progressPercent : (achievements.length > 0 ? Math.round((earned.length / achievements.length) * 100) : 0);
 
-  // Session state for expand/collapse (default: collapsed)
-  var collapsibleState = window.__sessionAchievementsOpen;
-  var isOpen = collapsibleState === true;
-
-  // ── Collapsible Wrapper ──
   var h = '';
-  h += '<div class="profile-ach-collapsible' + (isOpen ? ' open' : '') + '" id="profile-ach-collapsible">';
-
-  // ── Collapsible Header ──
-  h += '<div class="profile-ach-collapsible-header" id="profile-ach-toggle" tabindex="0" role="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-label="Achievements ' + earned.length + ' of ' + achievements.length + ' unlocked">';
-  h += '<div class="profile-ach-collapsible-header-left">';
-  h += '<span class="profile-ach-collapsible-icon">🏆</span>';
-  h += '<span class="profile-ach-collapsible-title">Achievements</span>';
-  h += '<span class="profile-ach-collapsible-count">' + earned.length + ' of ' + achievements.length + ' unlocked</span>';
-  h += '</div>';
-  h += '<div class="profile-ach-collapsible-header-right">';
-  h += '<span class="profile-ach-collapsible-pct">' + totalPct + '%</span>';
-  h += '<span class="profile-ach-chevron' + (isOpen ? ' open' : '') + '">▶</span>';
-  h += '</div>';
-  h += '</div>';
-
-  // ── Collapsible Body ──
-  h += '<div class="profile-ach-collapsible-body">';
 
   if (achievements.length === 0) {
     h += '<div class="profile-ach-empty">' +
@@ -1147,44 +1125,7 @@ function renderProfileAchievements() {
     }
   }
 
-  // Close collapsible body and wrapper
-  h += '</div>'; // .profile-ach-collapsible-body
-  h += '</div>'; // .profile-ach-collapsible
-
   container.innerHTML = h;
-
-  // Wire toggle event
-  var toggle = document.getElementById('profile-ach-toggle');
-  if (toggle) {
-    toggle.onclick = function() {
-      toggleAchievements();
-    };
-    toggle.onkeydown = function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleAchievements();
-      }
-    };
-  }
-}
-
-function toggleAchievements() {
-  var wrapper = document.getElementById('profile-ach-collapsible');
-  var toggle = document.getElementById('profile-ach-toggle');
-  var chevron = toggle ? toggle.querySelector('.profile-ach-chevron') : null;
-  if (!wrapper) return;
-
-  var isOpen = wrapper.classList.contains('open');
-  if (isOpen) {
-    wrapper.classList.remove('open');
-    if (toggle) toggle.setAttribute('aria-expanded', 'false');
-    if (chevron) chevron.classList.remove('open');
-  } else {
-    wrapper.classList.add('open');
-    if (toggle) toggle.setAttribute('aria-expanded', 'true');
-    if (chevron) chevron.classList.add('open');
-  }
-  window.__sessionAchievementsOpen = !isOpen;
 }
 
 
