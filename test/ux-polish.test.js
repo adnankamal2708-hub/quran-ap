@@ -196,7 +196,15 @@ global.document = {
     return {
       style: {},
       classList: bodyClassList,
-      appendChild: function(el) { _bodyChildren.push(el); el.parentNode = this; },
+      children: [],
+      appendChild: function(el) { _bodyChildren.push(el); el.parentNode = this; this.children.push(el); },
+      removeChild: function(el) {
+        var idx = _bodyChildren.indexOf(el);
+        if (idx >= 0) { _bodyChildren.splice(idx, 1); }
+        var cidx = this.children.indexOf(el);
+        if (cidx >= 0) { this.children.splice(cidx, 1); }
+        el.parentNode = null;
+      },
     };
   })(),
   addEventListener: function(event, handler) {
@@ -383,6 +391,89 @@ suite('Onboarding Completion Tracking', function() {
   test('getOnboardingLevel returns null when not set', function() {
     clearStorage();
     assert.strictEqual(ux.getOnboardingLevel(), null);
+  });
+});
+
+suite('Plan Picker', function() {
+  test('hasSeenPlanPicker returns false when not set', function() {
+    clearStorage();
+    assert.strictEqual(ux.hasSeenPlanPicker(), false);
+  });
+
+  test('hasSeenPlanPicker returns false when localStorage throws', function() {
+    var orig = localStorage.getItem;
+    localStorage.getItem = function() { throw new Error('err'); };
+    assert.strictEqual(ux.hasSeenPlanPicker(), false);
+    localStorage.getItem = orig;
+  });
+
+  test('showPlanPicker creates overlay and appends to body', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    var o = document.getElementById('plan-picker-overlay');
+    assert.ok(o !== null, 'plan picker overlay exists');
+    assert.ok(_bodyChildren.indexOf(o) >= 0, 'appended to body');
+  });
+
+  test('showPlanPicker sets aria dialog attributes', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    var o = document.getElementById('plan-picker-overlay');
+    assert.strictEqual(o.getAttribute('role'), 'dialog');
+    assert.strictEqual(o.getAttribute('aria-modal'), 'true');
+    assert.ok(o.getAttribute('aria-label').indexOf('Choose') >= 0);
+  });
+
+  test('plan picker overlay has plan cards', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    // Check overlay HTML contains plan option buttons
+    var o = document.getElementById('plan-picker-overlay');
+    assert.ok(o.innerHTML.indexOf('plan-card') >= 0, 'should have plan cards');
+    assert.ok(o.innerHTML.indexOf('Free') >= 0, 'should have Free option');
+    assert.ok(o.innerHTML.indexOf('Monthly') >= 0, 'should have Monthly option');
+    assert.ok(o.innerHTML.indexOf('Yearly') >= 0, 'should have Yearly option');
+  });
+
+  test('plan picker has skip link', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    var o = document.getElementById('plan-picker-overlay');
+    assert.ok(o.innerHTML.indexOf('Skip') >= 0, 'should have skip link');
+  });
+
+  test('hidePlanPicker removes overlay from DOM', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    var overlay = document.getElementById('plan-picker-overlay');
+    assert.ok(overlay !== null, 'overlay created');
+    assert.ok(overlay.parentNode !== null, 'overlay has parent');
+    ux.hidePlanPicker();
+    // After hide, overlay should be removed (via timeout)
+    flushTimeouts();
+    assert.strictEqual(overlay.parentNode, null, 'overlay parent removed');
+  });
+
+  test('hidePlanPicker restores body scroll', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    assert.ok(document.body.classList.contains('body-overflow-locked'), 'body locked');
+    ux.hidePlanPicker();
+    flushTimeouts();
+    assert.strictEqual(document.body.classList.contains('body-overflow-locked'), false, 'body unlocked');
+  });
+
+  test('hidePlanPicker handles missing overlay', function() {
+    _resetDOM();
+    ux.hidePlanPicker();
+  });
+
+  test('plan picker overlay sets plan-picker-visible class', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    var o = document.getElementById('plan-picker-overlay');
+    assert.ok(o.className.indexOf('plan-picker-overlay') >= 0, 'has base class');
+    assert.ok(o.classList.contains('plan-picker-visible'), 'has visible class');
   });
 });
 
@@ -815,7 +906,8 @@ suite('Exported API surface', function() {
     'getProgressiveVisibility', 'applyProgressiveDisclosure',
     'unlockProgressiveFeature', 'showToast',
     'renderEmptyState', 'getContextualEmptyState', 'renderSkeleton',
-    'updateOfflineIndicator', 'showMilestoneCelebration'
+    'updateOfflineIndicator', 'showMilestoneCelebration',
+    'showPlanPicker', 'hidePlanPicker', 'hasSeenPlanPicker'
   ];
   expected.forEach(function(name) {
     test(name + ' is exported', function() {

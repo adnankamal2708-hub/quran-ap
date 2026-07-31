@@ -22,6 +22,7 @@ var _ONBOARDING_LEVEL_KEY = 'quran_onboarding_level';
 var _ONBOARDING_NOTIFY_KEY = 'quran_onboarding_notify';
 var _TOOLTIP_SEEN_KEY = 'quran_tooltip_seen_';
 var _PROGRESSIVE_KEY = 'quran_progressive_unlocked';
+var _PLAN_PICKER_SEEN_KEY = 'quran_plan_picker_seen';
 
 // ── Welcome Screens (6 premium slides) ────────────────────────
 var _welcomeSlides = [
@@ -394,6 +395,165 @@ function wireChoiceButtons() {
   }
 }
 
+/** Check if the plan picker screen has been shown */
+function hasSeenPlanPicker() {
+  try { return localStorage.getItem(_PLAN_PICKER_SEEN_KEY) === 'true'; }
+  catch (e) { return false; }
+}
+
+/** Mark the plan picker as seen (one-time) */
+function _markPlanPickerSeen() {
+  try { localStorage.setItem(_PLAN_PICKER_SEEN_KEY, 'true'); } catch (e) {}
+}
+
+/** Show the plan picker overlay (Free / Monthly / Yearly) */
+function showPlanPicker() {
+  var overlay = document.createElement('div');
+  overlay.id = 'plan-picker-overlay';
+  overlay.className = 'plan-picker-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'Choose your plan');
+
+  overlay.innerHTML =
+    '<div class="plan-picker-card">' +
+      '<div class="plan-picker-header">' +
+        '<div class="plan-picker-icon">📖</div>' +
+        '<h2 class="plan-picker-title">Choose Your Plan</h2>' +
+        '<p class="plan-picker-desc">Start free and upgrade anytime. All plans include the full Foundation Course.</p>' +
+      '</div>' +
+      '<div class="plan-picker-options">' +
+        // Free plan
+        '<button class="plan-card" id="plan-free" type="button" data-plan="free">' +
+          '<div class="plan-card-badge plan-card-badge-free">Free</div>' +
+          '<div class="plan-card-name">Free</div>' +
+          '<div class="plan-card-price">$0</div>' +
+          '<ul class="plan-card-features">' +
+            '<li>Full Foundation Course</li>' +
+            '<li>Basic reviews &amp; quizzes</li>' +
+            '<li>Standard vocabulary sets</li>' +
+          '</ul>' +
+        '</button>' +
+        // Monthly plan
+        '<button class="plan-card plan-card-premium" id="plan-monthly" type="button" data-plan="monthly">' +
+          '<div class="plan-card-badge">⭐ Premium</div>' +
+          '<div class="plan-card-name">Monthly</div>' +
+          '<div class="plan-card-price">$9.99<span class="plan-card-period">/mo</span></div>' +
+          '<ul class="plan-card-features">' +
+            '<li>Everything in Free</li>' +
+            '<li>Unlimited reviews &amp; tafsir</li>' +
+            '<li>Guided Reading &amp; insights</li>' +
+            '<li>Cloud sync &amp; data export</li>' +
+          '</ul>' +
+        '</button>' +
+        // Yearly plan
+        '<button class="plan-card plan-card-premium" id="plan-yearly" type="button" data-plan="yearly">' +
+          '<div class="plan-card-badge">⭐ Premium</div>' +
+          '<div class="plan-card-name">Yearly</div>' +
+          '<div class="plan-card-price">$79.99<span class="plan-card-period">/yr</span></div>' +
+          '<ul class="plan-card-features">' +
+            '<li>Everything in Monthly</li>' +
+            '<li>2 months free vs. monthly</li>' +
+            '<li>Priority support</li>' +
+          '</ul>' +
+        '</button>' +
+      '</div>' +
+      '<div class="plan-picker-footer">' +
+        '<button class="plan-picker-skip" id="plan-picker-skip" type="button">Skip — I\'ll decide later</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(overlay);
+  document.body.classList.add('body-overflow-locked');
+
+  // Wire plan card clicks
+  var planCards = overlay.querySelectorAll('.plan-card');
+  for (var pci = 0; pci < planCards.length; pci++) {
+    (function(card) {
+      card.onclick = function() {
+        var plan = card.getAttribute('data-plan');
+        _handlePlanChoice(plan);
+      };
+      card.onkeydown = function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      };
+    })(planCards[pci]);
+  }
+
+  // Wire skip link
+  var skipBtn = document.getElementById('plan-picker-skip');
+  if (skipBtn) {
+    skipBtn.onclick = function() {
+      _handlePlanChoice('skip');
+    };
+  }
+
+  // Focus the first card
+  if (planCards.length > 0) planCards[0].focus();
+
+  // Animate in
+  requestAnimationFrame(function() {
+    overlay.classList.add('plan-picker-visible');
+  });
+}
+
+/** Handle a plan choice from the plan picker */
+function _handlePlanChoice(choice) {
+  _markPlanPickerSeen();
+  hidePlanPicker();
+
+  if (choice === 'free' || choice === 'skip') {
+    // Free or skip — proceed directly to Dashboard/Learning
+    _proceedAfterPlanPicker();
+  } else if (choice === 'monthly' || choice === 'yearly') {
+    // Premium plan — call requestUpgrade which redirects to Stripe
+    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('plan-picker', { plan: choice });
+    } else {
+      _proceedAfterPlanPicker();
+    }
+  } else {
+    _proceedAfterPlanPicker();
+  }
+}
+
+/** Hide the plan picker overlay */
+function hidePlanPicker() {
+  var overlay = document.getElementById('plan-picker-overlay');
+  if (overlay) {
+    overlay.classList.remove('plan-picker-visible');
+    setTimeout(function() {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 300);
+  }
+  document.body.classList.remove('body-overflow-locked');
+}
+
+/** Navigate after plan picker decision (reuses navigateToFirstAction logic) */
+function _proceedAfterPlanPicker() {
+  setTimeout(function() {
+    if (typeof goToFoundationLesson === 'function') {
+      var firstLesson = 0;
+      if (typeof getNextIncompleteFoundationLesson === 'function') {
+        firstLesson = getNextIncompleteFoundationLesson();
+      }
+      goToFoundationLesson(firstLesson);
+    } else if (typeof switchView === 'function') {
+      switchView('dashboard');
+      setTimeout(function() {
+        if (typeof goToFoundationLesson === 'function') {
+          goToFoundationLesson(0);
+        } else {
+          switchView('learn');
+        }
+      }, 500);
+    }
+  }, 200);
+}
+
 /** Navigate to the Foundation Course after onboarding */
 function navigateToFirstAction() {
   // Apply onboarding preferences to the adaptive engine.
@@ -408,28 +568,15 @@ function navigateToFirstAction() {
     window.__srs.updateDailyReviewLimit(reviewLimit);
   }
 
-  // Navigate to Foundation Course (go directly, skip intermediate dashboard)
-  setTimeout(function() {
-    if (typeof goToFoundationLesson === 'function') {
-      var firstLesson = 0;
-      if (typeof getNextIncompleteFoundationLesson === 'function') {
-        firstLesson = getNextIncompleteFoundationLesson();
-      }
-      // Small delay to let hideOnboarding()/overlay cleanup finish
-      setTimeout(function() {
-        goToFoundationLesson(firstLesson);
-      }, 200);
-    } else if (typeof switchView === 'function') {
-      switchView('dashboard');
-      setTimeout(function() {
-        if (typeof goToFoundationLesson === 'function') {
-          goToFoundationLesson(0);
-        } else {
-          switchView('learn');
-        }
-      }, 500);
-    }
-  }, 200);
+  // Show plan picker once before navigating (skip if already seen or user is premium)
+  var isPremium = window.__premium && typeof window.__premium.isPremium === 'function' && window.__premium.isPremium();
+  if (!hasSeenPlanPicker() && !isPremium) {
+    showPlanPicker();
+    return;
+  }
+
+  // Plan picker already seen or user is premium — navigate directly
+  _proceedAfterPlanPicker();
 }
 
 // ── Wire Onboarding Events ───────────────────────────────────
@@ -1050,6 +1197,10 @@ window.__ux = {
   renderSkeleton: renderSkeleton,
   updateOfflineIndicator: updateOfflineIndicator,
   showMilestoneCelebration: showMilestoneCelebration,
+  // Plan picker
+  showPlanPicker: showPlanPicker,
+  hidePlanPicker: hidePlanPicker,
+  hasSeenPlanPicker: hasSeenPlanPicker,
 };
 
 // Direct global alias for convenience
