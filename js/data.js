@@ -189,9 +189,10 @@ function deduplicateVocabulary() {
       }
     }
     
-    // Compute total occurrence count
+    // Compute total occurrence count — take the MAX across merged members,
+    // not the sum (each member stores the same full-Quran count).
     var totalOcc = 0;
-    group.forEach(function(gw) { totalOcc += (gw.occ || 0); });
+    group.forEach(function(gw) { totalOcc = Math.max(totalOcc, (gw.occ || 0)); });
     totalOcc = Math.max(totalOcc, occurrences.length);
     
     // Compute best difficulty from group (most frequent = mode)

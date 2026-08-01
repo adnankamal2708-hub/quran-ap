@@ -111,7 +111,8 @@ function _wordUniquenessKey(w) {
  *   - The base fields (arabic, translit, english, meaning, root, etc.)
  *   - occurrences: Array of { surahId, verseKey, ayahA, ayahT, ayahR, tafsir }
  *   - surahIds: Array of surah numbers where this word appears
- *   - occ: Total Quranic occurrence count (sum of all occurrences)
+ *   - occ: Total Quranic occurrence count (max across merged members, each of which
+ *     stores the same full-Quran count)
  *   - id: Canonical ID in format "cw_N"
  *
  * Also builds OLD_ID_TO_CANONICAL mapping for SRS migration.
@@ -172,14 +173,17 @@ function deduplicateVocabulary() {
       }
     }
     
-    // Compute total occurrence counts
+    // Compute total occurrence counts — take the MAX across merged members,
+    // not the sum. Every merged member already stores the same full-Quran
+    // occurrence count for the same word (e.g. قُلْ 333/333, فِرْعَوْنَ 72/72/72),
+    // so summing double/triple-counted and inflated canonical totals by ~11-13%.
     var totalOcc = 0;
     var totalOccExact = 0;
     var totalOccEducational = 0;
     group.forEach(function(gw) { 
-      totalOcc += (gw.occ || 0); 
-      totalOccExact += (gw.occExact || 0);
-      totalOccEducational += (gw.occEducational || 0);
+      totalOcc = Math.max(totalOcc, (gw.occ || 0)); 
+      totalOccExact = Math.max(totalOccExact, (gw.occExact || 0));
+      totalOccEducational = Math.max(totalOccEducational, (gw.occEducational || 0));
     });
     totalOcc = Math.max(totalOcc, occurrences.length);
     totalOccExact = Math.max(totalOccExact, occurrences.length);
