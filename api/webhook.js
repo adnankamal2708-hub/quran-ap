@@ -36,6 +36,24 @@ const POLAR_API_URL = process.env.POLAR_API_URL || 'https://api.polar.sh';
 const POLAR_ACCESS_TOKEN = process.env.POLAR_ACCESS_TOKEN;
 const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 
+// ── Startup self-check ─────────────────────────────────────────
+// Surface a misconfigured webhook secret immediately instead of
+// silently failing every signature check (which would get the Polar
+// endpoint auto-disabled after 10 consecutive 403 deliveries).
+// Log-only — never blocks the module from loading.
+(function validateWebhookSecret() {
+  if (!webhookSecret) return;
+  const s = String(webhookSecret).replace(/^whsec_/, '');
+  const normalized = (x) => x.replace(/=+$/, '');
+  const reEncoded = Buffer.from(s, 'base64').toString('base64');
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(s) || normalized(reEncoded) !== normalized(s)) {
+    console.error(
+      '[webhook] ⚠ POLAR_WEBHOOK_SECRET does not look like valid base64 — signature verification will fail. ' +
+      'Re-copy the secret from the Polar dashboard with no extra spaces or characters.'
+    );
+  }
+})();
+
 // Map Polar product IDs back to friendly plan names.
 // ⚠ Must stay in sync with PRODUCT_IDS in create-checkout-session.js
 const PRODUCT_TO_PLAN = {
@@ -159,7 +177,12 @@ function safeCurrentPeriodEnd(subscription) {
 
 /** Map a Polar product ID to a friendly plan name (safe default: monthly). */
 function planFromProduct(productId) {
-  return PRODUCT_TO_PLAN[productId] || 'monthly';
+  const plan = PRODUCT_TO_PLAN[productId];
+  if (!plan) {
+    console.warn(`[webhook] Unknown Polar product ID "${productId}" — defaulting plan to 'monthly'`);
+    return 'monthly';
+  }
+  return plan;
 }
 
 /**
