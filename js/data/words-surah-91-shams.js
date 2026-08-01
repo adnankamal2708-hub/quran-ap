@@ -192,7 +192,7 @@ ALL_WORDS.push(
   },
   {
     arabic: 'فَأَلْهَمَهَا',
-    translit: 'Fa Alhamahā',
+    translit: 'Falhamahā',
     type: 'Verb (perfect, masculine singular)',
     typeCategory: 'verb',
     pattern: 'أَفْعَلَهَا',

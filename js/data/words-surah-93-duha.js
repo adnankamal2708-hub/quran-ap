@@ -130,7 +130,7 @@ ALL_WORDS.push(
   },
   {
     arabic: 'وَلَلْآخِرَةُ',
-    translit: 'Wa LalĀkhiratu',
+    translit: 'Walalākhiratu',
     type: 'Particle + Noun',
     typeCategory: 'noun',
     pattern: '—',

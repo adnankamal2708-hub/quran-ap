@@ -68,7 +68,7 @@ ALL_WORDS.push(
   },
   {
     arabic: 'فَأَعْطَىٰ',
-    translit: 'Fa Aʿṭā',
+    translit: 'Faʿṭā',
     type: 'Verb (perfect, masculine singular)',
     typeCategory: 'verb',
     pattern: 'أَفْعَلَىٰ',
