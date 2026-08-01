@@ -453,7 +453,7 @@ function showPlanPicker() {
           '<div class="plan-card-price">$19.99<span class="plan-card-period">/yr</span></div>' +
           '<ul class="plan-card-features">' +
             '<li>Everything in Monthly</li>' +
-            '<li>2 months free vs. monthly</li>' +
+            '<li>~5 months free vs. monthly</li>' +
             '<li>Priority support</li>' +
           '</ul>' +
         '</button>' +
