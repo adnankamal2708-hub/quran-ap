@@ -72,7 +72,7 @@ A thorough end-to-end QA audit was conducted on the Bayan Quran Learning Applica
 |-----------|:----:|---------------|
 | **UI/UX** | 8.5/10 | Clean, well-themed design with gold accents on dark background. Action cards are obvious. Empty states are handled. Minor: some section labels are redundant between dashboard and paths views. |
 | **Design** | 8.5/10 | Dark theme is cohesive. Typography hierarchy is good. Color coding for SRS mastery (gold/green/blue/red) is intuitive. The gold accent color is consistently applied. |
-| **Performance** | 8/10 | SRS stats caching (2s TTL) prevents recomputation on every card update. Review forecast is cached (only recomputes when SRS changes). Build output is 1.7MB JS (data-heavy from 78K vocabulary entries). Lazy loading of analytics data. DOM cache prevents repeated lookups. |
+| **Performance** | 8/10 | SRS stats caching (2s TTL) prevents recomputation on every card update. Review forecast is cached (only recomputes when SRS changes). Build output is 1.7MB JS (data-heavy; note the 78K figure below predates the current dataset — see §5b). Lazy loading of analytics data. DOM cache prevents repeated lookups. |
 | **Responsiveness** | 8/10 | Works at 360px+ widths. Bottom nav adapts. Content reflows. Mobile-first design with proper viewport meta. Sidebar reader layout works on larger screens. |
 | **Navigation** | 9/10 | 5-tab bottom navigation is clean. Keyboard shortcuts (D, L, W, R, P, ?). View transitions are animated. Learning paths provide clear navigation alternatives within the app. |
 | **Functionality** | 9/10 | Quiz engine works with educational distractors. SRS engine implements modified SM-2 with leech detection. Foundation Course with lesson progression and unlocking. Surah-based study mode. Reading mode with colored word tokens. Vocabulary explorer with 7 relationship types. |
@@ -103,6 +103,17 @@ A thorough end-to-end QA audit was conducted on the Bayan Quran Learning Applica
 
 ---
 
+## 5b. Vocabulary Data Note — Total Occurrence Count
+
+**Corrected total Quranic occurrence count: 30,848** (recorded Aug 1, 2026, after the dedup aggregation fix).
+
+- `getTotalQuranOccurrences()` now returns **30,848** (previously ~34,546 — an ~11% inflation).
+- **Cause of correction:** `deduplicateVocabulary()` summed `occ`/`occExact`/`occEducational` across merged duplicate word entries. Since every merged member already stores the same full-Quran count (e.g. قُلْ 333/333, فِرْعَوْنَ 72/72/72), summing double/triple-counted. The aggregation now takes the **max** across members (files: `js/data-core/vocab-data.js`, legacy fallback `js/data.js`).
+- **Impact:** Coverage percentages, foundation-course coverage, and milestone copy derived from the total now reflect the accurate figure automatically.
+- **Dataset size:** 944 raw vocabulary entries → 901 canonical entries after deduplication (unchanged by this fix).
+
+---
+
 ## 6. Prioritized Improvement Recommendations
 
 ### High Priority
@@ -116,7 +127,7 @@ A thorough end-to-end QA audit was conducted on the Bayan Quran Learning Applica
 
 5. **DOM cache auto-invalidation** — The `DOM.get()` cache should auto-invalidate when elements are removed from the DOM (via `MutationObserver`). Or switch to a no-cache approach since DOM lookups are fast for small element sets.
 6. **Centralized error reporting** — The app has scattered `console.warn` and `console.error` calls. A unified error reporting module would make debugging easier and enable consistent user-facing error messages.
-7. **SRS data export size** — With 78K+ vocabulary entries, the SRS localStorage data could exceed the 5-10MB limit. Implement data pruning for unreviewed words or compression.
+7. **SRS data export size** — With 78K+ vocabulary entries (pre-2026 figure; current dataset is 944 raw / 901 canonical — see §5b), the SRS localStorage data could exceed the 5-10MB limit. Implement data pruning for unreviewed words or compression.
 8. **Quiz session preservation** — If a user navigates away during a quiz, progress is lost. Consider saving quiz state to localStorage so it can be resumed.
 
 ### Low Priority
