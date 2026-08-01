@@ -2,13 +2,12 @@
   "name": "bayan-api",
   "version": "1.0.0",
   "private": true,
-  "description": "Bayan premium subscription API — Stripe Checkout + webhook handlers for Vercel",
+  "description": "Bayan premium subscription API — Polar Checkout + webhook handlers for Vercel",
   "scripts": {
     "start": "echo 'Deploy to Vercel — no local server needed.'"
   },
   "dependencies": {
     "firebase-admin": "^13.0.1",
-    "micro": "^10.0.1",
-    "stripe": "^17.0.0"
+    "micro": "^10.0.1"
   }
 }
