@@ -36,22 +36,6 @@ const POLAR_API_URL = process.env.POLAR_API_URL || 'https://api.polar.sh';
 const POLAR_ACCESS_TOKEN = process.env.POLAR_ACCESS_TOKEN;
 const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 
-// ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══════════
-// Log the SECRET PREFIX only — never the full value — so we can
-// confirm which secret the deployed function is actually reading
-// (the same `webhookSecret` binding verifySignature() uses), without
-// exposing the full secret.
-if (webhookSecret) {
-  // Log the first 8 chars of the base64 portion (after any whsec_ prefix) so
-  // the user can compare against the Polar dashboard secret. The raw whsec_
-  // prefix alone is identical for every Polar secret, so it can't distinguish
-  // old vs new — the base64 portion can. 8 chars = ~48 bits, not reconstructable.
-  const _s = String(webhookSecret);
-  console.log('[webhook-debug] env POLAR_WEBHOOK_SECRET prefix: ' + _s.replace(/^whsec_/, '').slice(0, 8) + '... | length: ' + _s.length + ' | rawFirst2: ' + _s.slice(0, 2));
-} else {
-  console.log('[webhook-debug] POLAR_WEBHOOK_SECRET is NOT SET');
-}
-// ══ END TEMP DEBUG ═════════════════════════════════════════════
 
 // ── Startup self-check ─────────────────────────────────────────
 // Surface a misconfigured webhook secret immediately instead of
@@ -109,9 +93,6 @@ function verifySignature(rawBody, headers) {
   const timestamp = headers['webhook-timestamp'];
   const signatureHeader = headers['webhook-signature'];
   if (!id || !timestamp || !signatureHeader) {
-    // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
-    console.log('[webhook-debug] verify fail: MISSING_HEADERS | id:' + (id ? 'yes' : 'NO') + ' | ts:' + (timestamp ? 'yes' : 'NO') + ' | sig:' + (signatureHeader ? 'yes' : 'NO'));
-    // ══ END TEMP DEBUG ══
     console.error('[webhook] Missing webhook signature headers');
     return false;
   }
@@ -119,17 +100,11 @@ function verifySignature(rawBody, headers) {
   // Replay protection: reject events outside a 5-minute tolerance
   const ts = parseInt(timestamp, 10);
   if (Number.isNaN(ts)) {
-    // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
-    console.log('[webhook-debug] verify fail: BAD_TIMESTAMP | raw:' + timestamp);
-    // ══ END TEMP DEBUG ══
     console.error('[webhook] Invalid webhook timestamp');
     return false;
   }
   const ageSeconds = Math.floor(Date.now() / 1000) - ts;
   if (Math.abs(ageSeconds) > 300) {
-    // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
-    console.log('[webhook-debug] verify fail: TIMESTAMP_OUT_OF_TOLERANCE | ts:' + ts + ' | ageSec:' + ageSeconds);
-    // ══ END TEMP DEBUG ══
     console.error('[webhook] Webhook timestamp out of tolerance');
     return false;
   }
@@ -140,10 +115,12 @@ function verifySignature(rawBody, headers) {
   // so the verifier is robust to the secret's exact display format while still
   // requiring possession of the real secret (every candidate derives from it).
   const message = `${id}.${timestamp}.${rawBody.toString('utf8')}`;
+  const rawSecret = String(webhookSecret);
+  const strippedSecret = rawSecret.replace(/^whsec_/, '');
   const candidates = [
-    Buffer.from(String(webhookSecret), 'utf8'),                                   // Polar SDK behavior (raw, prefix included)
-    Buffer.from(String(webhookSecret).replace(/^whsec_/, ''), 'utf8'),             // raw, prefix stripped
-    Buffer.from(String(webhookSecret).replace(/^whsec_/, ''), 'base64'),           // old base64-decode derivation (spec-convention)
+    Buffer.from(rawSecret, 'utf8'),                                   // Polar SDK behavior (raw, prefix included)
+    Buffer.from(strippedSecret, 'utf8'),                              // raw, prefix stripped
+    Buffer.from(strippedSecret, 'base64'),                            // old base64-decode derivation (spec-convention)
   ].filter((buf) => buf.length > 0);
 
   const expectedSigs = candidates.map((key) =>
@@ -162,10 +139,8 @@ function verifySignature(rawBody, headers) {
       }
     }
   }
-  // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
-  // HMAC did not match any token — this is the secret-mismatch path.
-  console.log('[webhook-debug] verify fail: HMAC_MISMATCH | id:' + id + ' | ts:' + ts + ' | tokens:' + tokens.length);
-  // ══ END TEMP DEBUG ══
+  // HMAC did not match any token/key derivation — most likely a secret mismatch.
+  console.error('[webhook] Signature verification failed (no matching key derivation)');
   return false;
 }
 
@@ -326,20 +301,6 @@ const handler = async (req, res) => {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
-
-  // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══════════
-  // Fires on EVERY incoming request, even ones that fail signature
-  // verification — proves whether Polar is delivering to this URL at
-  // all, and shows the current env secret prefix + which signature
-  // headers arrived.
-  console.log(
-    '[webhook-debug] POST received | secret prefix: ' +
-    String(webhookSecret || '').replace(/^whsec_/, '').slice(0, 8) + '... | ' +
-    'webhook-id:' + (req.headers['webhook-id'] ? 'yes' : 'NO') + ' | ' +
-    'webhook-timestamp:' + (req.headers['webhook-timestamp'] ? 'yes' : 'NO') + ' | ' +
-    'webhook-signature:' + (req.headers['webhook-signature'] ? 'yes' : 'NO')
-  );
-  // ══ END TEMP DEBUG ═════════════════════════════════════════════
 
   // 1. Verify Polar signature using the raw request body
   let event;
