@@ -88,8 +88,16 @@ const PRODUCT_TO_PLAN = {
  *   - webhook-signature is a SPACE-delimited list of "v1,<base64sig>" tokens
  *     (multiple tokens support zero-downtime secret rotation)
  *   - Signed message: `${id}.${timestamp}.${rawBody}`
- *   - HMAC-SHA256 keyed with the base64-DECODED secret (Polar's docs call
- *     this base64-secret convention out explicitly)
+ *   - HMAC-SHA256 keyed with the RAW secret string bytes.
+ *
+ * Key-derivation note (verified against @polar-sh/sdk@0.49.0 source):
+ * Polar's SDK computes `base64Secret = Buffer.from(secret, 'utf-8')
+ * .toString('base64')` and passes THAT to the standardwebhooks `Webhook`
+ * class, whose constructor base64-decodes it back. The encode→decode
+ * round-trip is the identity — so the effective HMAC key is the raw UTF-8
+ * bytes of the secret string exactly as configured on Polar (whsec_
+ * prefix included). The old base64-DECODE derivation was wrong and caused
+ * every Polar delivery to fail with HMAC_MISMATCH.
  */
 function verifySignature(rawBody, headers) {
   if (!webhookSecret) {
@@ -126,25 +134,32 @@ function verifySignature(rawBody, headers) {
     return false;
   }
 
-  // Standard Webhooks: the secret is base64-encoded (optionally whsec_-prefixed)
-  const encodedSecret = String(webhookSecret).replace(/^whsec_/, '');
-  let key = Buffer.from(encodedSecret, 'base64');
-  if (key.length === 0) key = Buffer.from(encodedSecret, 'utf8'); // defensive fallback
-
+  // Polar derives the HMAC key as the RAW UTF-8 bytes of the secret string
+  // exactly as configured (whsec_ prefix included) — see note above. We compute
+  // the expected signature for each candidate derivation and accept any match,
+  // so the verifier is robust to the secret's exact display format while still
+  // requiring possession of the real secret (every candidate derives from it).
   const message = `${id}.${timestamp}.${rawBody.toString('utf8')}`;
-  const expected = crypto
-    .createHmac('sha256', key)
-    .update(message)
-    .digest('base64');
+  const candidates = [
+    Buffer.from(String(webhookSecret), 'utf8'),                                   // Polar SDK behavior (raw, prefix included)
+    Buffer.from(String(webhookSecret).replace(/^whsec_/, ''), 'utf8'),             // raw, prefix stripped
+    Buffer.from(String(webhookSecret).replace(/^whsec_/, ''), 'base64'),           // old base64-decode derivation (spec-convention)
+  ].filter((buf) => buf.length > 0);
+
+  const expectedSigs = candidates.map((key) =>
+    crypto.createHmac('sha256', key).update(message).digest('base64')
+  );
 
   const tokens = String(signatureHeader).split(/\s+/).filter(Boolean);
   for (const token of tokens) {
     const [version, sig] = token.split(',');
     if (version !== 'v1' || !sig) continue;
     const sigBuf = Buffer.from(sig, 'base64');
-    const expectedBuf = Buffer.from(expected, 'base64');
-    if (sigBuf.length === expectedBuf.length && crypto.timingSafeEqual(sigBuf, expectedBuf)) {
-      return true;
+    for (const expected of expectedSigs) {
+      const expectedBuf = Buffer.from(expected, 'base64');
+      if (sigBuf.length === expectedBuf.length && crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+        return true;
+      }
     }
   }
   // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
