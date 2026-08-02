@@ -36,6 +36,18 @@ const POLAR_API_URL = process.env.POLAR_API_URL || 'https://api.polar.sh';
 const POLAR_ACCESS_TOKEN = process.env.POLAR_ACCESS_TOKEN;
 const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 
+// ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══════════
+// Log the SECRET PREFIX only — never the full value — so we can
+// confirm which secret the deployed function is actually reading
+// (the same `webhookSecret` binding verifySignature() uses), without
+// exposing the full secret.
+if (webhookSecret) {
+  console.log('[webhook-debug] env POLAR_WEBHOOK_SECRET prefix: ' + String(webhookSecret).slice(0, 6) + '...');
+} else {
+  console.log('[webhook-debug] POLAR_WEBHOOK_SECRET is NOT SET');
+}
+// ══ END TEMP DEBUG ═════════════════════════════════════════════
+
 // ── Startup self-check ─────────────────────────────────────────
 // Surface a misconfigured webhook secret immediately instead of
 // silently failing every signature check (which would get the Polar
@@ -281,6 +293,20 @@ const handler = async (req, res) => {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
+
+  // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══════════
+  // Fires on EVERY incoming request, even ones that fail signature
+  // verification — proves whether Polar is delivering to this URL at
+  // all, and shows the current env secret prefix + which signature
+  // headers arrived.
+  console.log(
+    '[webhook-debug] POST received | secret prefix: ' +
+    String(webhookSecret || '').slice(0, 6) + '... | ' +
+    'webhook-id:' + (req.headers['webhook-id'] ? 'yes' : 'NO') + ' | ' +
+    'webhook-timestamp:' + (req.headers['webhook-timestamp'] ? 'yes' : 'NO') + ' | ' +
+    'webhook-signature:' + (req.headers['webhook-signature'] ? 'yes' : 'NO')
+  );
+  // ══ END TEMP DEBUG ═════════════════════════════════════════════
 
   // 1. Verify Polar signature using the raw request body
   let event;
