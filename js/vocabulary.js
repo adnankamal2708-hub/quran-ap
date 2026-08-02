@@ -1345,3 +1345,15 @@ window.__vocabularyRelations = {
   invalidateCache: invalidateRelationsCache,
   getStats: getRelationshipStats,
 };
+
+// ── Premium Live-Update: Invalidate relationship cache on premium change ──
+// If a free user builds the relationship cache, it is stored as an empty
+// { byId: {} } map and would persist for the whole session even after an
+// upgrade. Invalidate the cache whenever premium status changes so the
+// next access rebuilds it with full relationship data. premium.js loads
+// earlier in the bundle, so window.__premium is available here.
+if (window.__premium && typeof window.__premium.onChange === 'function') {
+  window.__premium.onChange(function () {
+    invalidateRelationsCache();
+  });
+}

@@ -41,6 +41,7 @@ import {
   persistentMultipleTabManager,
   doc,
   getDoc,
+  onSnapshot,
   setDoc,
   deleteDoc,
   serverTimestamp,
@@ -172,6 +173,7 @@ window.__firebaseCore = {
   // Firestore functions
   doc: doc,
   getDoc: getDoc,
+  onSnapshot: onSnapshot,
   setDoc: setDoc,
   deleteDoc: deleteDoc,
   serverTimestamp: serverTimestamp,

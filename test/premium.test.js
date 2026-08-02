@@ -44,7 +44,27 @@ function _firestoreTimestamp(epochMs) {
 }
 
 // ── Mock helpers ─────────────────────────────────────────────
+// Live-listener mock: captures onSnapshot callbacks so tests can fire
+// Firestore doc changes (simulating a webhook write after a purchase)
+// while the app is "already loaded".
+var _mockSnapListeners = [];
+
+/**
+ * Fire a mock Firestore snapshot to every registered onSnapshot listener.
+ * Simulates a subscription doc change arriving live (e.g. webhook write).
+ */
+function _fireMockSnapshot(docData) {
+  var snap = {
+    exists: function () { return docData !== null && docData !== undefined; },
+    data: function () { return docData; },
+  };
+  _mockSnapListeners.slice().forEach(function (entry) {
+    try { entry.onNext(snap); } catch (e) { /* ignore */ }
+  });
+}
+
 function _mockFirebaseCore(docData) {
+  _mockSnapListeners = [];
   var mockFsDoc = {
     exists: function () { return docData !== null && docData !== undefined; },
     data: function () { return docData; },
@@ -53,6 +73,14 @@ function _mockFirebaseCore(docData) {
     getDb: function () { return { _mock: true }; },
     doc: function () { return { _mockRef: true }; },
     getDoc: function () { return Promise.resolve(mockFsDoc); },
+    onSnapshot: function (docRef, onNext, onError) {
+      var entry = { onNext: onNext, onError: onError };
+      _mockSnapListeners.push(entry);
+      return function () {
+        var idx = _mockSnapListeners.indexOf(entry);
+        if (idx >= 0) _mockSnapListeners.splice(idx, 1);
+      };
+    },
     getAuth: function () {
       return {
         currentUser: {
@@ -68,6 +96,7 @@ function _mockFirebaseCore(docData) {
 }
 
 function _clearMocks() {
+  _mockSnapListeners = [];
   delete global.window.__firebaseCore;
   delete global.window.__auth;
   delete global.window.__ux;
@@ -593,6 +622,69 @@ addAsyncTest('requestUpgrade: sign-in prompt when no user', async function () {
   resetPremium();
   // No __auth set up — should show sign-in prompt
   await __premium.requestUpgrade('test');
+  cleanupTest();
+});
+
+// ── Live onSnapshot Listener ───────────────────────────────
+addAsyncTest('Live listener: fires onChange and updates isPremium without reload', async function () {
+  setupFirestoreTest({ status: 'inactive' });
+  var notified = 0;
+  var unsub = __premium.onChange(function () { notified++; });
+  var result = await __premium.refresh();
+  assert.strictEqual(result, false);
+  assert.strictEqual(_mockSnapListeners.length, 1, 'one live listener attached');
+
+  // Simulate webhook writing an active subscription with a future period end
+  var before = notified;
+  var future = Date.now() + 30 * 86400000;
+  _fireMockSnapshot({ status: 'active', currentPeriodEnd: _firestoreTimestamp(future) });
+  assert.strictEqual(__premium.isPremium(), true, 'premium flips live without reload');
+  assert.ok(notified > before, 'onChange subscribers notified on live change');
+
+  // Simulate cancellation → premium drops live
+  var before2 = notified;
+  _fireMockSnapshot({ status: 'canceled' });
+  assert.strictEqual(__premium.isPremium(), false, 'premium drops live on cancel');
+  assert.ok(notified > before2, 'onChange notified again on cancel');
+
+  unsub();
+  cleanupTest();
+});
+
+addAsyncTest('Live listener: refresh replaces listener without stacking (no leak)', async function () {
+  setupFirestoreTest({ status: 'inactive' });
+  await __premium.refresh();
+  assert.strictEqual(_mockSnapListeners.length, 1, 'one listener after first refresh');
+  await __premium.refresh();
+  assert.strictEqual(_mockSnapListeners.length, 1, 'old listener unsubscribed — no stacking');
+
+  // The surviving listener still delivers live updates
+  _fireMockSnapshot({ status: 'active' });
+  assert.strictEqual(__premium.isPremium(), true);
+  cleanupTest();
+});
+
+addAsyncTest('Live listener: teardown on logout unsubscribes (no cross-user leak)', async function () {
+  resetPremium();
+  var authCb = null;
+  global.window.__auth = {
+    getCurrentUser: function () { return null; },
+    onAuthChange: function (cb) { authCb = cb; },
+  };
+  _mockFirebaseCore({ status: 'inactive' });
+  __premium.isPremium(); // triggers _init → registers auth listener
+  assert.ok(typeof authCb === 'function', 'auth change callback captured');
+
+  // Simulate login → live listener attached
+  authCb({ uid: 'test-user-123' });
+  await Promise.resolve();
+  assert.strictEqual(_mockSnapListeners.length, 1, 'listener attached after login');
+
+  // Simulate logout → listener unsubscribed, premium reset
+  authCb(null);
+  await Promise.resolve();
+  assert.strictEqual(_mockSnapListeners.length, 0, 'listener unsubscribed after logout');
+  assert.strictEqual(__premium.isPremium(), false);
   cleanupTest();
 });
 

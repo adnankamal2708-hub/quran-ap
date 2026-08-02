@@ -456,3 +456,57 @@ function setupOnlineSync() {
     }
   });
 }
+
+// ── Premium Live-Update Re-render ──────────────────────────────
+// When premium status changes (e.g. the webhook writes to Firestore after
+// a purchase, detected live by premium.js's onSnapshot listener), re-render
+// whatever view is currently active so gated UI elements refresh in place
+// without a full page reload or navigation.
+
+/** Re-render the currently active view using the same render functions switchView() uses. */
+function rerenderCurrentView() {
+  var viewName = currentView;
+  if (viewName === 'dashboard') {
+    if (typeof renderDashboard === 'function') renderDashboard();
+  }
+  if (viewName === 'learn') {
+    if (typeof window.__learnScreen !== 'undefined' && window.__learnScreen.render) {
+      window.__learnScreen.render();
+    }
+    if (typeof updateReviewBanner === 'function') updateReviewBanner();
+    if (typeof updateLessonProgressDisplay === 'function') updateLessonProgressDisplay();
+  }
+  if (viewName === 'quiz') {
+    if (typeof initQuiz === 'function') initQuiz();
+  }
+  if (viewName === 'list') {
+    if (typeof renderWordList === 'function') renderWordList();
+  }
+  if (viewName === 'profile') {
+    if (window.__profileUI && typeof window.__profileUI.renderFullProfile === 'function') {
+      window.__profileUI.renderFullProfile();
+    } else if (typeof renderProfileView === 'function') {
+      renderProfileView();
+    }
+  }
+  if (viewName === 'explorer') {
+    if (typeof renderExplorer === 'function') renderExplorer();
+  }
+  if (viewName === 'analytics') {
+    if (typeof renderAnalytics === 'function') renderAnalytics();
+  }
+  if (viewName === 'quran') {
+    if (typeof renderQuran === 'function') renderQuran();
+  }
+  if (viewName === 'review-center') {
+    if (typeof renderReviewCenter === 'function') renderReviewCenter();
+  }
+}
+
+// Register the single cross-module premium-change subscriber. premium.js
+// loads earlier in the bundle, so window.__premium is available here.
+if (window.__premium && typeof window.__premium.onChange === 'function') {
+  window.__premium.onChange(function () {
+    rerenderCurrentView();
+  });
+}

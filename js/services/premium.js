@@ -76,6 +76,20 @@
   /** @type {string} Firestore collection for subscription documents */
   var SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 
+  /** @type {Function|null} Unsubscribe function for the live subscription listener */
+  var _subUnsubscribe = null;
+
+  /**
+   * Tear down the live onSnapshot listener (called on logout/auth change)
+   * so no listener leaks across users.
+   */
+  function _unsubscribeSubscriptionListener() {
+    if (_subUnsubscribe) {
+      try { _subUnsubscribe(); } catch (e) { /* ignore teardown errors */ }
+      _subUnsubscribe = null;
+    }
+  }
+
   // ── Initialization ─────────────────────────────────────────
 
   /**
@@ -95,10 +109,11 @@
     if (typeof onAuthChange === 'function') {
       onAuthChange(function (user) {
         if (user) {
-          // User logged in — try to load subscription from Firestore
+          // User logged in — load subscription + establish live listener
           _loadSubscriptionFromFirestore(user.uid);
         } else {
-          // User logged out — reset premium
+          // User logged out — unsubscribe listener and reset premium
+          _unsubscribeSubscriptionListener();
           if (_isPremium || _subscription !== null) {
             _isPremium = false;
             _subscription = null;
@@ -111,6 +126,7 @@
         if (user) {
           _loadSubscriptionFromFirestore(user.uid);
         } else {
+          _unsubscribeSubscriptionListener();
           if (_isPremium || _subscription !== null) {
             _isPremium = false;
             _subscription = null;
@@ -126,67 +142,114 @@
   // ── Firestore Subscription Reader ──────────────────────────
 
   /**
+   * Apply the 5-rule priority order to a subscription document snapshot.
+   * Shared by the one-shot read (refresh) and the live onSnapshot listener.
+   *
+   * @param {Object} docSnap — Firestore DocumentSnapshot (exists()/data())
+   */
+  function _applySubscriptionDoc(docSnap) {
+    if (!docSnap || typeof docSnap.exists !== 'function') {
+      _setPremiumState(false, null);
+      return;
+    }
+
+    if (!docSnap.exists()) {
+      // Rule 1: No document exists → false
+      _setPremiumState(false, null);
+      return;
+    }
+
+    var data = docSnap.data();
+
+    // Rule 2: status !== 'active' → false
+    if (!data || data.status !== 'active') {
+      _setPremiumState(false, data || null);
+      return;
+    }
+
+    // Rule 3: active AND currentPeriodEnd exists AND is in the past → false
+    if (data.currentPeriodEnd && data.currentPeriodEnd.toDate) {
+      var endDate = data.currentPeriodEnd.toDate();
+      if (endDate < new Date()) {
+        _setPremiumState(false, data);
+        return;
+      }
+    } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'object' && data.currentPeriodEnd.seconds) {
+      // Handle Firestore Timestamp as plain object (from SSR/deserialized)
+      var endMs = data.currentPeriodEnd.seconds * 1000;
+      if (endMs < Date.now()) {
+        _setPremiumState(false, data);
+        return;
+      }
+    } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'number') {
+      // Handle raw epoch ms
+      if (data.currentPeriodEnd < Date.now()) {
+        _setPremiumState(false, data);
+        return;
+      }
+    } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'string') {
+      // Handle ISO string
+      if (new Date(data.currentPeriodEnd) < new Date()) {
+        _setPremiumState(false, data);
+        return;
+      }
+    }
+
+    // Rule 4: active AND currentPeriodEnd is missing → true (do not fail closed)
+    // Rule 5: active AND currentPeriodEnd exists AND is in the future → true
+    // Both resolve to true at this point.
+    _setPremiumState(true, data);
+  }
+
+  /**
    * Read subscription document from Firestore for the given user.
-   * Updates _isPremium and _subscription based on the 5-rule priority order.
+   * Establishes a live onSnapshot listener on subscriptions/{uid} and also
+   * performs an immediate one-shot read so state is correct right away.
+   *
+   * The onSnapshot listener updates _isPremium + notifies onChange listeners
+   * whenever the doc changes (e.g. webhook writes after purchase), so
+   * already-open tabs/views reflect premium status without a reload.
    *
    * @param {string} uid — Firebase Auth user ID
    */
   async function _loadSubscriptionFromFirestore(uid) {
     if (!uid) return;
 
+    // Tear down any prior listener first so it is always cleared even on an
+    // early return below (e.g. Firestore transiently unavailable). Prevents a
+    // stale listener for a previous user/session from lingering.
+    _unsubscribeSubscriptionListener();
+
     try {
       var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
       if (!db) return;
 
       var docRef = window.__firebaseCore.doc(db, SUBSCRIPTIONS_COLLECTION, uid);
+
+      // Live listener: swap in a fresh one each call (refresh/login), never
+      // stacking listeners.
+      if (typeof window.__firebaseCore.onSnapshot === 'function') {
+        try {
+          _subUnsubscribe = window.__firebaseCore.onSnapshot(
+            docRef,
+            function (snap) {
+              _applySubscriptionDoc(snap);
+            },
+            function (err) {
+              // Listener error (network/permissions): don't throw, don't crash.
+              // Log and fall back to the last known state rather than silently
+              // flipping the user out of premium.
+              console.warn('[premium] Subscription listener error:', err && err.message || err);
+            }
+          );
+        } catch (e) {
+          console.warn('[premium] Failed to attach subscription listener:', e && e.message || e);
+        }
+      }
+
+      // One-shot read (kept for refresh()/poll semantics — harmless redundancy)
       var docSnap = await window.__firebaseCore.getDoc(docRef);
-
-      if (!docSnap.exists()) {
-        // Rule 1: No document exists → false
-        _setPremiumState(false, null);
-        return;
-      }
-
-      var data = docSnap.data();
-
-      // Rule 2: status !== 'active' → false
-      if (!data || data.status !== 'active') {
-        _setPremiumState(false, data || null);
-        return;
-      }
-
-      // Rule 3: active AND currentPeriodEnd exists AND is in the past → false
-      if (data.currentPeriodEnd && data.currentPeriodEnd.toDate) {
-        var endDate = data.currentPeriodEnd.toDate();
-        if (endDate < new Date()) {
-          _setPremiumState(false, data);
-          return;
-        }
-      } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'object' && data.currentPeriodEnd.seconds) {
-        // Handle Firestore Timestamp as plain object (from SSR/deserialized)
-        var endMs = data.currentPeriodEnd.seconds * 1000;
-        if (endMs < Date.now()) {
-          _setPremiumState(false, data);
-          return;
-        }
-      } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'number') {
-        // Handle raw epoch ms
-        if (data.currentPeriodEnd < Date.now()) {
-          _setPremiumState(false, data);
-          return;
-        }
-      } else if (data.currentPeriodEnd && typeof data.currentPeriodEnd === 'string') {
-        // Handle ISO string
-        if (new Date(data.currentPeriodEnd) < new Date()) {
-          _setPremiumState(false, data);
-          return;
-        }
-      }
-
-      // Rule 4: active AND currentPeriodEnd is missing → true (do not fail closed)
-      // Rule 5: active AND currentPeriodEnd exists AND is in the future → true
-      // Both resolve to true at this point.
-      _setPremiumState(true, data);
+      _applySubscriptionDoc(docSnap);
 
     } catch (e) {
       // Error handling: any Firestore read error → false, log with console.warn
