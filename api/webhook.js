@@ -42,7 +42,12 @@ const webhookSecret = process.env.POLAR_WEBHOOK_SECRET;
 // (the same `webhookSecret` binding verifySignature() uses), without
 // exposing the full secret.
 if (webhookSecret) {
-  console.log('[webhook-debug] env POLAR_WEBHOOK_SECRET prefix: ' + String(webhookSecret).slice(0, 6) + '...');
+  // Log the first 8 chars of the base64 portion (after any whsec_ prefix) so
+  // the user can compare against the Polar dashboard secret. The raw whsec_
+  // prefix alone is identical for every Polar secret, so it can't distinguish
+  // old vs new — the base64 portion can. 8 chars = ~48 bits, not reconstructable.
+  const _s = String(webhookSecret);
+  console.log('[webhook-debug] env POLAR_WEBHOOK_SECRET prefix: ' + _s.replace(/^whsec_/, '').slice(0, 8) + '... | length: ' + _s.length + ' | rawFirst2: ' + _s.slice(0, 2));
 } else {
   console.log('[webhook-debug] POLAR_WEBHOOK_SECRET is NOT SET');
 }
@@ -301,7 +306,7 @@ const handler = async (req, res) => {
   // headers arrived.
   console.log(
     '[webhook-debug] POST received | secret prefix: ' +
-    String(webhookSecret || '').slice(0, 6) + '... | ' +
+    String(webhookSecret || '').replace(/^whsec_/, '').slice(0, 8) + '... | ' +
     'webhook-id:' + (req.headers['webhook-id'] ? 'yes' : 'NO') + ' | ' +
     'webhook-timestamp:' + (req.headers['webhook-timestamp'] ? 'yes' : 'NO') + ' | ' +
     'webhook-signature:' + (req.headers['webhook-signature'] ? 'yes' : 'NO')
