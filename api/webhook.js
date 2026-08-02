@@ -101,6 +101,9 @@ function verifySignature(rawBody, headers) {
   const timestamp = headers['webhook-timestamp'];
   const signatureHeader = headers['webhook-signature'];
   if (!id || !timestamp || !signatureHeader) {
+    // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
+    console.log('[webhook-debug] verify fail: MISSING_HEADERS | id:' + (id ? 'yes' : 'NO') + ' | ts:' + (timestamp ? 'yes' : 'NO') + ' | sig:' + (signatureHeader ? 'yes' : 'NO'));
+    // ══ END TEMP DEBUG ══
     console.error('[webhook] Missing webhook signature headers');
     return false;
   }
@@ -108,11 +111,17 @@ function verifySignature(rawBody, headers) {
   // Replay protection: reject events outside a 5-minute tolerance
   const ts = parseInt(timestamp, 10);
   if (Number.isNaN(ts)) {
+    // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
+    console.log('[webhook-debug] verify fail: BAD_TIMESTAMP | raw:' + timestamp);
+    // ══ END TEMP DEBUG ══
     console.error('[webhook] Invalid webhook timestamp');
     return false;
   }
   const ageSeconds = Math.floor(Date.now() / 1000) - ts;
   if (Math.abs(ageSeconds) > 300) {
+    // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
+    console.log('[webhook-debug] verify fail: TIMESTAMP_OUT_OF_TOLERANCE | ts:' + ts + ' | ageSec:' + ageSeconds);
+    // ══ END TEMP DEBUG ══
     console.error('[webhook] Webhook timestamp out of tolerance');
     return false;
   }
@@ -138,6 +147,10 @@ function verifySignature(rawBody, headers) {
       return true;
     }
   }
+  // ══ TEMP DEBUG (remove after diagnosing webhook 403s) ══
+  // HMAC did not match any token — this is the secret-mismatch path.
+  console.log('[webhook-debug] verify fail: HMAC_MISMATCH | id:' + id + ' | ts:' + ts + ' | tokens:' + tokens.length);
+  // ══ END TEMP DEBUG ══
   return false;
 }
 
