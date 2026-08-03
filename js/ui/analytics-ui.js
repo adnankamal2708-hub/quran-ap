@@ -103,9 +103,12 @@ function renderExplorerAllOccurrences(listEl, w) {
     return;
   }
 
-  // 2. Render every occurrence using the exact same markup as before.
+  // 2. Render occurrences — free users get a capped preview (5), premium sees all.
+  var _hasFullOccurrences = window.__premium && window.__premium.hasFeature &&
+    window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS);
+  var _cap = _hasFullOccurrences ? list.length : Math.min(list.length, 5);
   var html = '<div class="explorer-all-occ-inner">';
-  for (var oi = 0; oi < list.length; oi++) {
+  for (var oi = 0; oi < _cap; oi++) {
     var occ = list[oi];
     var surahName = '';
     if (occ.surahId && SURAH_INFO && SURAH_INFO[occ.surahId]) {
@@ -127,6 +130,14 @@ function renderExplorerAllOccurrences(listEl, w) {
       '<div class="explorer-occ-ayah" lang="ar" dir="rtl">' + ayahText + '</div>' +
       '<div class="explorer-occ-trans">' + trans + '</div>' +
     '</div>';
+  }
+  // Free-user upsell below the capped preview (compact line/card, themed).
+  if (!_hasFullOccurrences && list.length > 5) {
+    html +=
+      '<div class="explorer-all-occ-upsell" style="border-top:1px solid var(--gold-dim);margin-top:10px;padding-top:10px;text-align:center">' +
+        '<div style="font-family:var(--serif);font-size:13px;color:var(--gold-light);margin-bottom:6px">See all ' + list.length + ' occurrences — Premium</div>' +
+        '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+      '</div>';
   }
   html += '</div>';
   listEl.innerHTML = html;

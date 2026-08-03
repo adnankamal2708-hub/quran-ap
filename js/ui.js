@@ -162,6 +162,9 @@ function renderWordCard(w, currentIndex, total, isReview) {
   // Root box
   renderRootBox(w);
 
+  // Premium gate: word relationships (similar, derived forms, semantic groups, etc.)
+  var _hasWordRels = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS);
+
   // Word network
   renderWordNetwork(w);
 
@@ -172,6 +175,27 @@ function renderWordCard(w, currentIndex, total, isReview) {
   renderConfusedWith(w);
   renderContextualEquivalents(w);
   renderMorphRelations(w);
+
+  // For free users: hide all relationship sections and show one locked panel
+  if (!_hasWordRels) {
+    var _relSections = [
+      'word-network-section',
+      'similar-words-section',
+      'opposite-words-section',
+      'related-words-section',
+      'derived-forms-section',
+      'semantic-groups-section',
+      'confused-with-section',
+      'contextual-equiv-section',
+      'morph-relations-section',
+    ];
+    for (var _rsi = 0; _rsi < _relSections.length; _rsi++) {
+      var _relEl = document.getElementById(_relSections[_rsi]);
+      if (_relEl) _relEl.style.display = 'none';
+    }
+    // Render single locked panel
+    _renderRelationshipsLockedPanel();
+  }
 
   // Store occurrence data for showAyah/showWordContent
   window.__currentOccurrence = occ;
@@ -1368,8 +1392,13 @@ function renderExplorer() {
   // Related surahs
   renderExplorerSurahLinks(w);
   
-  // ── Vocabulary Relationships ──
-  renderExplorerRelationships(w);
+  // ── Vocabulary Relationships (gated for free users) ──
+  var _hasExplorerRels = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS);
+  if (_hasExplorerRels) {
+    renderExplorerRelationships(w);
+  } else {
+    renderExplorerRelationshipsLocked();
+  }
   
   // ── Personal Learning Progress ──
   renderExplorerLearningProgress(w, srsStatus, srsEntry);
@@ -1898,8 +1927,12 @@ function renderExplorerAllOccurrences(listEl, w) {
     return;
   }
   
+  // Free users get a capped preview (5); premium sees all.
+  var _hasFullOccurrences = window.__premium && window.__premium.hasFeature &&
+    window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS);
+  var _cap = _hasFullOccurrences ? w.occurrences.length : Math.min(w.occurrences.length, 5);
   var html = '<div class="explorer-all-occ-inner">';
-  for (var oi = 0; oi < w.occurrences.length; oi++) {
+  for (var oi = 0; oi < _cap; oi++) {
     var occ = w.occurrences[oi];
     var surahName = '';
     if (occ.surahId && SURAH_INFO && SURAH_INFO[occ.surahId]) {
@@ -1920,8 +1953,91 @@ function renderExplorerAllOccurrences(listEl, w) {
       '<div class="explorer-occ-trans">' + (occ.ayahT || '') + '</div>' +
     '</div>';
   }
+  // Free-user upsell below the capped preview (compact line/card, themed).
+  if (!_hasFullOccurrences && w.occurrences.length > 5) {
+    html +=
+      '<div class="explorer-all-occ-upsell" style="border-top:1px solid var(--gold-dim);margin-top:10px;padding-top:10px;text-align:center">' +
+        '<div style="font-family:var(--serif);font-size:13px;color:var(--gold-light);margin-bottom:6px">See all ' + w.occurrences.length + ' occurrences — Premium</div>' +
+        '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+      '</div>';
+  }
   html += '</div>';
   listEl.innerHTML = html;
+}
+
+/**
+ * Render a single locked panel for free users replacing 9 relationship sections (modal).
+ */
+function _renderRelationshipsLockedPanel() {
+  var container = document.getElementById('word-relationships-locked');
+  if (!container) {
+    // Create the locked panel container after the root box
+    var rootBox = document.getElementById('root-box');
+    if (rootBox && rootBox.parentNode) {
+      container = document.createElement('div');
+      container.id = 'word-relationships-locked';
+      rootBox.parentNode.insertBefore(container, rootBox.nextSibling);
+    }
+  }
+  if (!container) return;
+  container.style.display = 'block';
+  container.innerHTML =
+    '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
+      '<div style="font-size:24px;margin-bottom:6px">🔗</div>' +
+      '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Word Relationships</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
+        'Explore how words connect — similar words, derived forms, semantic groups, ' +
+        'morphological relatives, and more with Premium.' +
+      '</div>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+    '</div>';
+}
+
+/**
+ * Render a locked panel for free users in the explorer view.
+ */
+function renderExplorerRelationshipsLocked() {
+  var lockedContainer = document.getElementById('explorer-relationships-locked');
+  if (!lockedContainer) {
+    // Insert locked panel before the first gated relationship section
+    var firstGatedEl = document.getElementById('explorer-derived-forms-list');
+    var insertBeforeEl = firstGatedEl;
+    if (!firstGatedEl) {
+      // Fallback: insert after the entire explorer content
+      var explorerContent = document.querySelector('.explorer-content, #explorer-root-family-list');
+      insertBeforeEl = explorerContent ? explorerContent.nextSibling : null;
+    }
+    if (insertBeforeEl && insertBeforeEl.parentNode) {
+      lockedContainer = document.createElement('div');
+      lockedContainer.id = 'explorer-relationships-locked';
+      insertBeforeEl.parentNode.insertBefore(lockedContainer, insertBeforeEl);
+    }
+  }
+  if (!lockedContainer) return;
+  lockedContainer.style.display = 'block';
+  lockedContainer.innerHTML =
+    '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
+      '<div style="font-size:24px;margin-bottom:6px">🔗</div>' +
+      '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Word Relationships</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
+        'Explore how words connect — similar words, derived forms, semantic groups, ' +
+        'morphological relatives, and more with Premium.' +
+      '</div>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+    '</div>';
+  // Hide the other relationship sections
+  var _explorerRelSections = [
+    'explorer-derived-forms-list', 'explorer-morph-list',
+    'explorer-similar-list', 'explorer-confused-list',
+    'explorer-semantic-list', 'explorer-related-list', 'explorer-equiv-list',
+  ];
+  for (var _ersi = 0; _ersi < _explorerRelSections.length; _ersi++) {
+    var _erEl = document.getElementById(_explorerRelSections[_ersi]);
+    if (_erEl) {
+      var parent = _erEl.parentNode;
+      if (parent) parent.style.display = 'none';
+    }
+  }
 }
 
 // Export explorer for cross-module access
