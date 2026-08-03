@@ -355,6 +355,38 @@ async function build() {
   }
   console.log('     All ' + allInputFiles.length + ' input files present.');
 
+  // 0e. Regenerate the Quran occurrence index (js/data/occurrence-index.js)
+  //     so production builds always ship full per-verse occurrence data.
+  //     This file is DERIVED from the Quran corpus at build time (not
+  //     hand-maintained) and is picked up by DATA_FILES auto-discovery
+  //     below. Failing to regenerate here fails the build loudly.
+  console.log('  0e. Regenerating occurrence index...');
+  try {
+    var occIndexOut = cp.execSync('node scripts/build-occurrence-index.js', {
+      cwd: ROOT,
+      timeout: 120000,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    console.log(occIndexOut);
+    if (!fs.existsSync(path.join(ROOT, 'js', 'data', 'occurrence-index.js'))) {
+      throw new Error('occurrence-index.js was not generated');
+    }
+    // The generated file must ship in the data bundle. DATA_FILES is computed
+    // from the directory listing at module load, so on a fresh clone (file not
+    // present yet) discovery runs BEFORE step 0e generates it — explicitly
+    // ensure it is included even in that case.
+    if (DATA_FILES.indexOf('js/data/occurrence-index.js') < 0) {
+      DATA_FILES.push('js/data/occurrence-index.js');
+      console.log('     (occurrence-index.js added to data bundle explicitly)');
+    }
+    console.log('     Occurrence index regenerated.');
+  } catch (e) {
+    if (e.stdout) console.log(e.stdout.toString());
+    if (e.stderr) console.error(e.stderr.toString());
+    throw new Error('Occurrence index generation failed — fix scripts/build-occurrence-index.js and re-run.');
+  }
+
   // 1. Concat data files
   console.log('  1. Concatenating data files (' + DATA_FILES.length + ' files)...');
   var dataBundle = '';

@@ -36,6 +36,7 @@ var TESTS = [
   "profile-ui.test.js",
   "premium.test.js",
   "explorer.test.js",
+  "occurrence-index.test.js",
   "auth-ui.test.js",
   "recommendation-slot.test.js",
   "regression.test.js",
