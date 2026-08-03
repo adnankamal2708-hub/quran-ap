@@ -34,7 +34,6 @@
 //   tafsir         — Ibn Kathir tafsir excerpt
 //   similarWords   — Array of arabic texts of words with similar meaning
 //   oppositeWords  — Array of arabic texts of antonyms
-//   contrastWords  — Array of arabic texts of Quranic contrast pairs (e.g. جنة ↔ نار)
 //   relatedWords   — Array of arabic texts of conceptually related words
 //   derivedForms   — (Computed) Array of { arabic, english, pattern, formName } sharing same root
 //   semanticGroup  — (Computed) Array of { group, count, sampleWords } thematic groupings

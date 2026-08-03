@@ -99,7 +99,6 @@ function renderWordCard(w, currentIndex, total, isReview) {
       'word-network-section',
       'similar-words-section',
       'opposite-words-section',
-      'contrast-words-section',
       'related-words-section',
       'derived-forms-section',
       'semantic-groups-section',
@@ -360,21 +359,6 @@ function renderWordNetwork(w) {
     });
   } else {
     oppositeSection.style.display = 'none';
-  }
-  // Contrast words (Quranic thematic contrasts)
-  var contrastSection = document.getElementById('contrast-words-section');
-  var contrastList = document.getElementById('contrast-words-list');
-  if (contrastSection && contrastList) {
-    contrastList.innerHTML = '';
-    var contrastWords = findWordsByArabicList(w.contrastWords);
-    if (contrastWords.length > 0) {
-      contrastSection.style.display = 'block';
-      contrastWords.forEach(function (cw) {
-        contrastList.appendChild(createWordNetworkChip(cw, 'contrast'));
-      });
-    } else {
-      contrastSection.style.display = 'none';
-    }
   }
 }
 
