@@ -724,11 +724,20 @@ async function build() {
     /const PRECACHE_URLS = \[[\s\S]*?\];/,
     "const PRECACHE_URLS = [\n  " + precacheItems.join(",\n  ") + ",\n];"
   );
-  // Bump cache version so service worker detects changes and replaces old cache
-  sw = sw.replace(
-    /CACHE_NAME = 'quran-vocab-v\d+'/,
-    "CACHE_NAME = 'quran-vocab-v" + Date.now() + "'"
+  // Bump cache version so service worker detects changes and replaces old cache.
+  // Matches the real cache-name pattern in sw.js (e.g. 'bayan-v4') without
+  // hardcoding the name or current version, and increments the numeric suffix
+  // so consecutive builds keep bumping (bayan-v4 -> bayan-v5 -> bayan-v6).
+  var bumpedSw = sw.replace(
+    /(CACHE_NAME = '[a-z0-9-]+-v)(\d+)'/,
+    function (match, prefix, version) {
+      return prefix + (parseInt(version, 10) + 1) + "'";
+    }
   );
+  if (bumpedSw === sw) {
+    console.warn('     Warning: could not find a versioned CACHE_NAME (e.g. CACHE_NAME = \'bayan-vN\') in sw.js — cache version NOT bumped');
+  }
+  sw = bumpedSw;
   writeFile('sw.js', sw);
   writeFile('manifest.json', readFile('manifest.json'));
   writeFile('favicon.ico', readFile('favicon.ico') || '');
