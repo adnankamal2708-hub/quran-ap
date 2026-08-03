@@ -594,9 +594,9 @@ function wireExplorerEvents(w) {
   // Tafsir button — toggle show/hide
   var tafsirBtn = DOM.get('explorer-tafsir-btn');
   if (tafsirBtn) {
-    tafsirBtn.onclick = function() {
+    tafsirBtn.onclick = async function() {
       // Premium gate: daily tafsir limit for non-premium users
-      if (!_explorerTafsirCheckDailyLimit()) {
+      if (!(await _explorerTafsirCheckDailyLimit())) {
         return;
       }
       var tafsirBox = DOM.get('explorer-tafsir-box');
@@ -740,11 +740,43 @@ function wireExplorerEvents(w) {
  * Check daily tafsir limit for non-premium users (explorer variant).
  * Returns true if the tafsir load should proceed, false if blocked.
  */
-function _explorerTafsirCheckDailyLimit() {
+async function _explorerTafsirCheckDailyLimit() {
   // Premium users are uncapped
   if (window.__premium && window.__premium.hasFeature && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_TAFSIR)) {
     return true;
   }
+
+  // Firestore-backed counter (survives clearing browser storage / incognito).
+  // Awaits the authoritative Firestore count on a cold cache before deciding,
+  // so the cap is enforced immediately even in a private window / cleared storage.
+  var allowed = (window.__user && typeof window.__user.checkTafsirLimit === 'function')
+    ? await window.__user.checkTafsirLimit()
+    : _explorerTafsirLegacyLocalCheck();
+
+  if (!allowed) {
+    // Cap reached — disable button + show toast + upgrade prompt
+    var tafsirBtn = document.getElementById('explorer-tafsir-btn');
+    if (tafsirBtn) {
+      tafsirBtn.disabled = true;
+      tafsirBtn.title = 'Daily tafsir limit reached. Resets tomorrow.';
+      tafsirBtn.textContent = '⚠️ Daily limit reached';
+    }
+    var msg = 'Daily tafsir limit reached. Resets tomorrow, or upgrade for unlimited access.';
+    if (window.__ux && typeof window.__ux.showToast === 'function') {
+      window.__ux.showToast(msg, 'warning', 4000);
+    }
+    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('unlimited-tafsir');
+    }
+  }
+  return allowed;
+}
+
+/**
+ * Fallback localStorage-only check used when the shared user service isn't
+ * available yet (e.g. legacy UI path). Keeps the free cap functional either way.
+ */
+function _explorerTafsirLegacyLocalCheck() {
   try {
     var usage = JSON.parse(localStorage.getItem('quran_tafsir_usage') || '{}');
     var today = new Date().toISOString().slice(0, 10);
@@ -752,25 +784,11 @@ function _explorerTafsirCheckDailyLimit() {
       usage = { date: today, count: 0 };
     }
     if (usage.count >= 5) {
-      // Cap reached — disable button + show toast + upgrade prompt
-      var tafsirBtn = document.getElementById('explorer-tafsir-btn');
-      if (tafsirBtn) {
-        tafsirBtn.disabled = true;
-        tafsirBtn.title = 'Daily tafsir limit reached. Resets tomorrow.';
-        tafsirBtn.textContent = '⚠️ Daily limit reached';
-      }
-      var msg = 'Daily tafsir limit reached. Resets tomorrow, or upgrade for unlimited access.';
-      if (window.__ux && typeof window.__ux.showToast === 'function') {
-        window.__ux.showToast(msg, 'warning', 4000);
-      }
-      if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-        window.__premium.requestUpgrade('unlimited-tafsir');
-      }
       return false;
     }
     usage.count++;
     localStorage.setItem('quran_tafsir_usage', JSON.stringify(usage));
-  } catch (e) {}
+  } catch (e) { /* ignore */ }
   return true;
 }
 

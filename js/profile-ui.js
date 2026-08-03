@@ -565,6 +565,9 @@ async function handleExportData() {
 
   if (user) {
     data = await exportAccountData(user.uid);
+    // Defensive: exportAccountData returns null when the premium gate blocks
+    // (e.g. a direct console call), so don't stringify a null backup.
+    if (!data) return;
   } else {
     data = exportLocalData ? exportLocalData() : {};
   }

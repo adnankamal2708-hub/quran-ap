@@ -122,6 +122,17 @@ eval(explorerCode);
 // ═══════════════════════════════════════════════════════════════
 
 var passed = 0, failed = 0;
+var _asyncPending = 0;
+
+// Print the summary only once every (possibly async) test has settled.
+function _maybeFinish() {
+  if (_asyncPending > 0) return;
+  var total = passed + failed;
+  console.log('\n' + '='.repeat(50));
+  console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + total + ' total');
+  console.log('='.repeat(50));
+  process.exit(failed > 0 ? 1 : 0);
+}
 
 function t(name, fn) {
   try {
@@ -133,9 +144,25 @@ function t(name, fn) {
     _explorerReturnView = 'learn';
     global.localStorage.setItem('quran_favorites', '{}');
     global.localStorage.setItem('quran_notes', '{}');
-    fn();
-    passed++;
-    console.log('  ✅ ' + name);
+    var result = fn();
+    if (result && typeof result.then === 'function') {
+      _asyncPending++;
+      result.then(function () {
+        passed++;
+        console.log('  ✅ ' + name);
+        _asyncPending--;
+        _maybeFinish();
+      }, function (e) {
+        failed++;
+        console.log('  ❌ ' + name);
+        console.log('     ' + (e.message || e).split('\n')[0]);
+        _asyncPending--;
+        _maybeFinish();
+      });
+    } else {
+      passed++;
+      console.log('  ✅ ' + name);
+    }
   } catch (e) {
     failed++;
     console.log('  ❌ ' + name);
@@ -431,20 +458,11 @@ ts('Explorer — Occurrence Navigation', function() {
   });
 });
 
-ts('Explorer — Tafsir', function() {
-  t('tafsir button toggles visibility', function() {
-    createEl('explorer-tafsir-box');
-    createEl('explorer-tafsir-text');
-    createEl('explorer-tafsir-btn');
-    window.__explorerCurrentOcc = TEST_WORDS[0].occurrences[0];
-    wireExplorerEvents(TEST_WORDS[0]);
-    var btn = document.getElementById('explorer-tafsir-btn');
-    btn.click();
-    assert.strictEqual(document.getElementById('explorer-tafsir-box').style.display, 'block');
-    btn.click();
-    assert.strictEqual(document.getElementById('explorer-tafsir-box').style.display, 'none');
-  });
-});
+// NOTE: The tafsir daily-limit tests are async (they await the Firestore-backed
+// counter) and are therefore run in a dedicated block AFTER all synchronous
+// tests, because the sync t() harness resets the mock DOM before every test,
+// which would otherwise wipe the elements these async tests await on.
+// See the 'Explorer — Tafsir (async)' section at the bottom of this file.
 
 ts('Explorer — Learning Progress', function() {
   t('new word shows New status', function() {
@@ -498,12 +516,110 @@ ts('Explorer — Back Navigation', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// EXPLORER — TAFSIR (ASYNC)
+//
+// The tafsir button awaits the Firestore-backed daily-limit counter before
+// toggling, so these tests run as one sequential async block at the very end
+// (after every synchronous t() has settled). Each sub-test manages its own
+// mock DOM so later resets can't wipe elements mid-await.
+// ═══════════════════════════════════════════════════════════════
+
+ts('Explorer — Tafsir (async)', function() {
+  _asyncPending++;
+  (async function () {
+    // ── 1. Toggle via the shared async counter (premium-like: allowed) ──
+    try {
+      mock.resetDOM();
+      mock.clearStorage();
+      createEl('explorer-tafsir-box');
+      createEl('explorer-tafsir-text');
+      createEl('explorer-tafsir-btn');
+      window.__explorerCurrentOcc = TEST_WORDS[0].occurrences[0];
+      global.window.__user = {
+        checkTafsirLimit: function () { return Promise.resolve(true); },
+      };
+      wireExplorerEvents(TEST_WORDS[0]);
+      var btn = document.getElementById('explorer-tafsir-btn');
+      var box = document.getElementById('explorer-tafsir-box');
+      await btn.onclick();
+      assert.strictEqual(box.style.display, 'block');
+      await btn.onclick();
+      assert.strictEqual(box.style.display, 'none');
+      passed++;
+      console.log('  ✅ tafsir button toggles visibility (async daily-limit check)');
+    } catch (e) {
+      failed++;
+      console.log('  ❌ tafsir button toggles visibility (async daily-limit check)');
+      console.log('     ' + (e.message || e).split('\n')[0]);
+    }
+
+    // ── 2. Free user at the 5/day cap is blocked (shared counter) ──
+    try {
+      mock.resetDOM();
+      mock.clearStorage();
+      createEl('explorer-tafsir-box');
+      createEl('explorer-tafsir-text');
+      createEl('explorer-tafsir-btn');
+      window.__explorerCurrentOcc = TEST_WORDS[0].occurrences[0];
+      global.window.__user = {
+        checkTafsirLimit: function () { return Promise.resolve(false); },
+      };
+      wireExplorerEvents(TEST_WORDS[0]);
+      var btn2 = document.getElementById('explorer-tafsir-btn');
+      var box2 = document.getElementById('explorer-tafsir-box');
+      await btn2.onclick();
+      // The blocked handler returns before touching the box, so display stays
+      // unset — verify the box did NOT open (not 'block').
+      assert.notStrictEqual(box2.style.display, 'block');
+      assert.ok(btn2.disabled, 'tafsir button should be disabled at the cap');
+      passed++;
+      console.log('  ✅ free user at 5/day tafsir cap is blocked');
+    } catch (e) {
+      failed++;
+      console.log('  ❌ free user at 5/day tafsir cap is blocked');
+      console.log('     ' + (e.message || e).split('\n')[0]);
+    }
+
+    // ── 3. Legacy localStorage fallback still enforces the cap ──
+    try {
+      mock.resetDOM();
+      mock.clearStorage();
+      createEl('explorer-tafsir-box');
+      createEl('explorer-tafsir-text');
+      createEl('explorer-tafsir-btn');
+      window.__explorerCurrentOcc = TEST_WORDS[0].occurrences[0];
+      // No window.__user mock here — exercises the legacy localStorage path.
+      global.window.__user = null;
+      var today = new Date().toISOString().slice(0, 10);
+      global.localStorage.setItem('quran_tafsir_usage', JSON.stringify({ date: today, count: 5 }));
+      wireExplorerEvents(TEST_WORDS[0]);
+      var btn3 = document.getElementById('explorer-tafsir-btn');
+      var box3 = document.getElementById('explorer-tafsir-box');
+      await btn3.onclick();
+      // Blocked handler returns before touching the box — verify it did NOT open.
+      assert.notStrictEqual(box3.style.display, 'block');
+      assert.ok(btn3.disabled, 'tafsir button should be disabled at the cap');
+      passed++;
+      console.log('  ✅ legacy localStorage fallback still enforces the cap');
+    } catch (e) {
+      failed++;
+      console.log('  ❌ legacy localStorage fallback still enforces the cap');
+      console.log('     ' + (e.message || e).split('\n')[0]);
+    }
+  })().then(function () {
+    _asyncPending--;
+    _maybeFinish();
+  }, function (e) {
+    failed++;
+    console.log('  ❌ async tafsir suite crashed');
+    console.log('     ' + (e.message || e).split('\n')[0]);
+    _asyncPending--;
+    _maybeFinish();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 
-var total = passed + failed;
-console.log('\n' + '='.repeat(50));
-console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + total + ' total');
-console.log('='.repeat(50));
-
-process.exit(failed > 0 ? 1 : 0);
+_maybeFinish();

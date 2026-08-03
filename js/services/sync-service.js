@@ -165,6 +165,19 @@ function importLocalData(data) {
  */
 async function uploadToCloud(userId, retryCount) {
   if (retryCount == null) retryCount = 0;
+
+  // Premium gate enforced inside the function itself (not just at UI call
+  // sites) so a free user cannot self-grant sync by calling
+  // window.__sync.uploadToCloud() directly from the console. The legitimate
+  // grandfather clause (existing sync doc / localStorage flag) still applies.
+  if (!(await _isSyncAllowed(userId))) {
+    console.log('[sync] Cloud sync is a premium feature. Skipping upload for free user.');
+    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('cloud-sync');
+    }
+    return false;
+  }
+
   if (!_syncReady) {
     console.warn('[sync] Cannot upload — sync not initialized.');
     return false;
@@ -370,6 +383,42 @@ function mergeData(localData, cloudData) {
 }
 
 /**
+ * Premium gate + grandfather clause for cloud sync.
+ * Returns a Promise<boolean>: true if the user may sync (premium, or a
+ * legitimately grandfathered pre-existing user with a sync doc / flag).
+ * Shared by fullSync and uploadToCloud so the gate cannot be bypassed by
+ * calling window.__sync.uploadToCloud() directly.
+ */
+async function _isSyncAllowed(userId) {
+  // Premium users always have access
+  var _premium = window.__premium && typeof window.__premium.hasFeature === 'function' &&
+    window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
+  if (_premium) return true;
+
+  // Grandfather clause: cached flag first, then localStorage
+  if (_grandfathered !== true) {
+    try { _grandfathered = localStorage.getItem(GRANDFATHER_KEY) === 'true'; } catch (e) {}
+  }
+  if (_grandfathered) return true;
+
+  // Grandfather existing users who already have a sync document
+  try {
+    var _db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (_db && userId) {
+      var _docRef = _doc(_db, FIRESTORE_LEARNING_COLLECTION, userId);
+      var _snap = await _getDoc(_docRef);
+      if (_snap.exists()) {
+        _grandfathered = true;
+        try { localStorage.setItem(GRANDFATHER_KEY, 'true'); } catch (e) {}
+        return true;
+      }
+    }
+  } catch (e) { /* grandfather check failed — gate applies */ }
+
+  return false;
+}
+
+/**
  * Full sync operation: download cloud data, merge with local, save merged
  * result to both localStorage and Firestore.
  */
@@ -379,31 +428,10 @@ async function fullSync(userId) {
     return false;
   }
 
-  // Premium gate + grandfather clause: check cached flag first, then Firestore
-  var _premium = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
-  if (!_premium) {
-    // Check cached grandfather status
-    if (_grandfathered !== true) {
-      try { _grandfathered = localStorage.getItem(GRANDFATHER_KEY) === 'true'; } catch (e) {}
-    }
-    if (!_grandfathered) {
-      // Check Firestore for existing sync document (grandfather existing users)
-      try {
-        var _db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
-        if (_db && userId) {
-          var _docRef = _doc(_db, FIRESTORE_LEARNING_COLLECTION, userId);
-          var _snap = await _getDoc(_docRef);
-          if (_snap.exists()) {
-            _grandfathered = true;
-            try { localStorage.setItem(GRANDFATHER_KEY, 'true'); } catch (e) {}
-          }
-        }
-      } catch (e) { /* grandfather check failed — gate applies */ }
-    }
-    if (!_grandfathered) {
-      console.log('[sync] Cloud sync is a premium feature. Skipping sync for free user.');
-      return false;
-    }
+  // Premium gate + grandfather clause (shared check — same as uploadToCloud)
+  if (!(await _isSyncAllowed(userId))) {
+    console.log('[sync] Cloud sync is a premium feature. Skipping sync for free user.');
+    return false;
   }
 
   _syncing = true;
@@ -444,7 +472,8 @@ function queueSync(userId) {
   if (!_syncReady || !userId) return;
 
   // Premium gate + cached grandfather clause (no Firestore read — use cached or localStorage flag)
-  var _premium = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
+  var _premium = window.__premium && typeof window.__premium.hasFeature === 'function' &&
+    window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
   if (!_premium) {
     if (_grandfathered !== true) {
       try {

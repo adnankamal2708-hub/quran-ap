@@ -196,6 +196,17 @@ function computeLearningSummary() {
  * Export all user data (profile + learning data) as a downloadable JSON blob.
  */
 async function exportAccountData(userId) {
+  // Premium gate enforced inside the function itself (not just in the UI
+  // handler) so a free user cannot call window.__user.exportAccount()
+  // directly from the console to bypass the gate.
+  if (window.__premium && window.__premium.hasFeature &&
+      !window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT)) {
+    if (typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('data-export');
+    }
+    return null;
+  }
+
   var data = {
     exportedAt: new Date().toISOString(),
     version: 1,
@@ -229,6 +240,126 @@ async function exportAccountData(userId) {
   return data;
 }
 
+// ── Tafsir Daily Limit (Firestore-backed) ────────────────────
+// The free 5/day tafsir cap was previously tracked only in localStorage, so
+// clearing browser storage (or incognito) reset it instantly. This mirrors the
+// counter to the user's Firestore profile doc: the synchronous decision uses a
+// local mirror for speed, while async hydration/write-through keep the
+// authoritative count in Firestore so clearing browser storage no longer resets
+// the cap. (Partial mitigation — a full server-side counter is a possible
+// follow-up for stronger enforcement.)
+
+var _tafsirUsageCache = null;   // { date, count } — in-memory mirror
+var _tafsirUsageCacheUid = null; // uid the cache belongs to
+
+function _tafsirUsageToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function _tafsirUsageUid() {
+  try {
+    var u = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+    if (u && u.uid) return u.uid;
+  } catch (e) { /* ignore */ }
+  try {
+    var a = window.__auth && typeof window.__auth.getCurrentUser === 'function' ? window.__auth.getCurrentUser() : null;
+    if (a && a.uid) return a.uid;
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+function _tafsirUsageLocal() {
+  var today = _tafsirUsageToday();
+  try {
+    var raw = JSON.parse(localStorage.getItem('quran_tafsir_usage') || '{}');
+    if (raw && raw.date === today && typeof raw.count === 'number') return raw;
+  } catch (e) { /* ignore */ }
+  return { date: today, count: 0 };
+}
+
+function _tafsirUsagePersistLocal(usage) {
+  try { localStorage.setItem('quran_tafsir_usage', JSON.stringify(usage)); } catch (e) { /* ignore */ }
+}
+
+// Async: merge the Firestore count into the local mirror (higher count wins,
+// so clearing one store can't game the cap). Also warms the in-memory cache.
+async function _tafsirUsageHydrate() {
+  try {
+    var uid = _tafsirUsageUid();
+    if (!uid) return;
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (!db) return;
+    var snap = await _getDoc(_doc(db, FIRESTORE_PROFILE_COLLECTION, uid));
+    var cloud = (snap.exists() && snap.data() && snap.data().tafsirUsage) || null;
+    var local = _tafsirUsageLocal();
+    var today = _tafsirUsageToday();
+    if (cloud && cloud.date === today && typeof cloud.count === 'number' && cloud.count > local.count) {
+      _tafsirUsagePersistLocal(cloud);
+    }
+    _tafsirUsageCache = _tafsirUsageLocal();
+    _tafsirUsageCacheUid = uid;
+  } catch (e) { /* non-fatal */ }
+}
+
+// Async: write today's usage to the user's profile doc.
+async function _tafsirUsagePersistCloud(usage) {
+  try {
+    var uid = _tafsirUsageUid();
+    if (!uid) return;
+    var db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
+    if (!db) return;
+    await _setDoc(_doc(db, FIRESTORE_PROFILE_COLLECTION, uid), { tafsirUsage: usage }, { merge: true });
+  } catch (e) { /* non-fatal */ }
+}
+
+/**
+ * Check (and increment) the daily tafsir limit for free users.
+ * Returns a Promise<boolean>: true if the tafsir load may proceed;
+ * false if the 5/day cap is hit.
+ * On a cold cache (fresh session / private window / cleared storage) this
+ * AWAITS the authoritative Firestore count before deciding, so clearing
+ * browser storage can no longer reset the cap. Warm-cache calls resolve on
+ * the local mirror without a network read.
+ */
+async function checkTafsirLimit() {
+  if (window.__premium && window.__premium.hasFeature &&
+      window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_TAFSIR)) {
+    return true;
+  }
+  var uid = _tafsirUsageUid();
+  var today = _tafsirUsageToday();
+  if (!_tafsirUsageCache || _tafsirUsageCache.date !== today || _tafsirUsageCacheUid !== uid) {
+    // Cold cache: block the decision until the Firestore mirror is loaded so
+    // the cap is enforced immediately (no pre-hydration window to exploit).
+    await _tafsirUsageHydrate();
+    if (!_tafsirUsageCache || _tafsirUsageCache.date !== today || _tafsirUsageCacheUid !== uid) {
+      _tafsirUsageCache = _tafsirUsageLocal();
+      _tafsirUsageCacheUid = uid;
+    }
+  }
+  if (_tafsirUsageCache.count >= 5) {
+    return false;
+  }
+  _tafsirUsageCache.count++;
+  _tafsirUsagePersistLocal(_tafsirUsageCache);
+  _tafsirUsagePersistCloud(_tafsirUsageCache); // async write-through
+  return true;
+}
+
+/** Reset the in-memory tafsir cache (used on sign-out / tests). */
+function resetTafsirLimitCache() {
+  _tafsirUsageCache = null;
+  _tafsirUsageCacheUid = null;
+}
+
+// Keep the tafsir limit cache warm across sign-ins so a fresh session picks up
+// the Firestore count immediately (safe no-op when auth isn't loaded yet).
+if (typeof onAuthChange === 'function') {
+  try {
+    onAuthChange(function () { _tafsirUsageHydrate(); });
+  } catch (e) { /* ignore */ }
+}
+
 // ── Export ────────────────────────────────────────────────────
 
 window.__user = {
@@ -241,4 +372,6 @@ window.__user = {
   mergeSettings: mergeSettings,
   computeLearningSummary: computeLearningSummary,
   exportAccount: exportAccountData,
+  checkTafsirLimit: checkTafsirLimit,
+  resetTafsirLimitCache: resetTafsirLimitCache,
 };
