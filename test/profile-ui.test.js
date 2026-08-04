@@ -453,6 +453,82 @@ ts('Profile — Subsection Tab Interactivity (Regression)', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// DATA EXPORT / IMPORT — live premium gating (regression)
+// Premium state is read live at click time so premium users never see a
+// stale locked button (previous bug: captured hasFeature() once at init).
+// ═══════════════════════════════════════════════════════════════
+
+(function () {
+  var premiumReason = null;
+  var exportCalled = false;
+
+  function setupExportButtons() {
+    var exp = mock.makeEl('button');
+    exp.id = 'btn-export-data';
+    var imp = mock.makeEl('button');
+    imp.id = 'btn-import-data';
+    document.body.appendChild(exp);
+    document.body.appendChild(imp);
+    return { exp: exp, imp: imp };
+  }
+
+  function mockPremium(hasExport) {
+    premiumReason = null;
+    global.window.__premium = {
+      FEATURES: { DATA_EXPORT: 'dataExport' },
+      hasFeature: function () { return hasExport; },
+      requestUpgrade: function (reason) { premiumReason = reason; },
+    };
+  }
+
+  t('Export/Import locked for free users — routes to upgrade, not export', function () {
+    var btns = setupExportButtons();
+    mockPremium(false);
+    wireAccountEvents();
+    _refreshDataExportButtons();
+    assert.ok(btns.exp.innerHTML.indexOf('🔒') >= 0, 'export shows locked label');
+    assert.ok(btns.imp.innerHTML.indexOf('🔒') >= 0, 'import shows locked label');
+    btns.exp.click();
+    assert.strictEqual(premiumReason, 'data-export', 'free click routes to requestUpgrade');
+    assert.ok(!exportCalled, 'export flow NOT triggered for free user');
+  });
+
+  t('Export/Import read LIVE premium state — premium user exports successfully', function () {
+    var btns = setupExportButtons();
+    mockPremium(true);
+    wireAccountEvents();
+    _refreshDataExportButtons();
+    assert.ok(btns.exp.innerHTML.indexOf('🔒') < 0, 'export label unlocked');
+    assert.ok(btns.imp.innerHTML.indexOf('🔒') < 0, 'import label unlocked');
+    global.__mockUser = { uid: 'u-1', email: 'a@b.c', displayName: 'T' };
+    var origExport = global.exportAccountData;
+    global.exportAccountData = function () {
+      exportCalled = true;
+      // Never resolve — keeps handleExportData suspended so the mock-DOM
+      // download step never runs inside the test.
+      return new Promise(function () {});
+    };
+    btns.exp.click();
+    assert.ok(exportCalled, 'exportAccountData invoked for premium user');
+    global.exportAccountData = origExport;
+    global.__mockUser = null;
+  });
+
+  t('Refresh helper flips button labels when premium state changes live', function () {
+    var btns = setupExportButtons();
+    mockPremium(false);
+    _refreshDataExportButtons();
+    assert.ok(btns.exp.innerHTML.indexOf('🔒') >= 0, 'locked while free');
+    mockPremium(true);
+    _refreshDataExportButtons();
+    assert.ok(btns.exp.innerHTML.indexOf('🔒') < 0, 'unlocked after premium flips');
+    assert.ok(btns.imp.innerHTML.indexOf('🔒') < 0, 'import unlocked too');
+  });
+
+  global.window.__premium = undefined;
+})();
+
+// ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 

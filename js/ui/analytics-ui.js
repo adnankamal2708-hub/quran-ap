@@ -12,6 +12,21 @@
 var _occRenderingToken = 0;
 var _occRequestedSurahs = {};
 
+// ── Lazy loading + concurrency control for "Show all occurrences" ──
+// Verse text is fetched per surah (window.__quranLoader.loadSurah). We only
+// fetch surahs for items as they enter the viewport (with a pre-load buffer)
+// instead of loading every surah at once, and we cap how many loadSurah()
+// calls are in flight at any time so a fast scroll through a long list can't
+// flood the network. Fetched surahs stay cached (loader + _occRequestedSurahs)
+// so scrolling back up never re-fetches.
+var _occLoadQueue = [];       // surah ids waiting to be fetched (FIFO)
+var _occInFlight = 0;         // loadSurah() calls currently running
+var _occObserver = null;      // active IntersectionObserver (browser lazy path)
+var _occSession = null;       // { token, listEl, w, lazy, pendingCount } hydration target
+var OCC_MAX_CONCURRENT_LOADS = 3;   // max simultaneous loadSurah() calls
+var OCC_LAZY_PRELOAD_PX = 300;      // start loading this far before an item is visible
+var OCC_INITIAL_BATCH = 6;          // distinct surahs preloaded for the first screenful
+
 function _getIndexRefsForWord(w) {
   try {
     if (!w || !w.arabic) return null;
@@ -49,6 +64,140 @@ function _isSurahLoaded(sid) {
     if (loader && typeof loader.isSurahLoaded === 'function') return loader.isSurahLoaded(sid);
   } catch (e) { /* ignore */ }
   return !!(window.__QURAN_TEXT && window.__QURAN_TEXT[sid]);
+}
+
+/**
+ * Request a surah's text through the concurrency-capped queue. Dedupes by
+ * surah id; never drops a request (failures clear the flag for a later retry).
+ */
+function _occEnqueueSurah(sid) {
+  if (!sid || _occRequestedSurahs[sid] || _isSurahLoaded(sid)) return;
+  _occRequestedSurahs[sid] = true;
+  _occLoadQueue.push(sid);
+  _occPumpLoadQueue();
+}
+
+/**
+ * Process queued surah loads, keeping at most OCC_MAX_CONCURRENT_LOADS in
+ * flight. On success the current session hydrates (per-item in browsers, or
+ * one settle re-render in the no-observer fallback). On failure the surah is
+ * cleared so a later scroll can retry it.
+ */
+function _occPumpLoadQueue() {
+  while (_occInFlight < OCC_MAX_CONCURRENT_LOADS && _occLoadQueue.length > 0) {
+    (function (sid) {
+      var session = _occSession;
+      _occInFlight++;
+      var loader = window.__quranLoader;
+      var p = (loader && typeof loader.loadSurah === 'function')
+        ? loader.loadSurah(sid)
+        : Promise.resolve(false);
+      p.then(function () {
+        _occInFlight--;
+        if (session && session.token === _occRenderingToken) {
+          if (session.lazy) {
+            _occHydrateSurahItems(session, sid);
+          } else if (typeof session.pendingCount === 'number') {
+            session.pendingCount--;
+            if (session.pendingCount <= 0) {
+              // All queued loads settled — one final re-render hydrates the list.
+              renderExplorerAllOccurrences(session.listEl, session.w);
+            }
+          }
+        } else if (_occSession && _occSession.token === _occRenderingToken) {
+          // A newer render superseded the session that requested this load. The
+          // new session's items for this surah were never enqueued (requested-
+          // flag dedupe) and would otherwise stick on "Loading…" forever, so
+          // hydrate them here instead — per-item in the observer path, or a
+          // full re-render of the current list in the fallback path (which
+          // picks up every now-loaded surah at once).
+          if (_occSession.lazy) {
+            _occHydrateSurahItems(_occSession, sid);
+          } else if (_occSession.listEl) {
+            // Idempotent: each re-render picks up every now-loaded surah at
+            // once; still-pending ones stay as placeholders until their own
+            // loads complete and trigger the next re-render.
+            renderExplorerAllOccurrences(_occSession.listEl, _occSession.w);
+          }
+        }
+        _occPumpLoadQueue();
+      }, function () {
+        // Non-fatal: refs stay listed. Clear the flag so the item can retry
+        // its surah if the user scrolls to it again.
+        _occInFlight--;
+        delete _occRequestedSurahs[sid];
+        if (session && !session.lazy && typeof session.pendingCount === 'number') {
+          session.pendingCount--;
+          if (session.pendingCount <= 0 && session.token === _occRenderingToken) {
+            renderExplorerAllOccurrences(session.listEl, session.w);
+          }
+        }
+        _occPumpLoadQueue();
+      });
+    })(_occLoadQueue.shift());
+  }
+}
+
+/**
+ * Fill in verse text for every item of a surah in the current session, without
+ * re-rendering the list (preserves scroll position and already-loaded items).
+ */
+function _occHydrateSurahItems(session, sid) {
+  if (!session || !session.listEl || typeof session.listEl.querySelectorAll !== 'function') return;
+  var items = session.listEl.querySelectorAll('.explorer-occ-item');
+  var w = session.w;
+  for (var i = 0; i < items.length; i++) {
+    var el = items[i];
+    if (parseInt(el.getAttribute('data-surah'), 10) !== sid) continue;
+    if (el.getAttribute('data-loaded') === '1') continue;
+    var ref = el.getAttribute('data-ref');
+    var verse = ref ? _getVerseForRef(ref) : null;
+    if (!verse) continue;
+    var ayahEl = el.querySelector('.explorer-occ-ayah');
+    var transEl = el.querySelector('.explorer-occ-trans');
+    if (ayahEl) {
+      var txt = verse.text || '';
+      if (txt && w && w.arabic) {
+        txt = txt.replace(
+          new RegExp(w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+          '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
+        );
+      }
+      ayahEl.innerHTML = txt;
+    }
+    if (transEl) transEl.textContent = verse.translation || '';
+    el.setAttribute('data-loaded', '1');
+    el.setAttribute('data-pending', '0');
+  }
+}
+
+/**
+ * Attach an IntersectionObserver to the occurrence list so verse text only
+ * loads for items as they approach the viewport (pre-load buffer included).
+ * Returns the observer, or null when IntersectionObserver isn't available.
+ */
+function _occSetupLazyObserver(listEl, session) {
+  if (typeof IntersectionObserver !== 'function' ||
+      typeof listEl.querySelectorAll !== 'function') return null;
+  if (_occObserver) { _occObserver.disconnect(); _occObserver = null; }
+  var observer = new IntersectionObserver(function (entries) {
+    for (var e = 0; e < entries.length; e++) {
+      if (!entries[e].isIntersecting) continue;
+      var el = entries[e].target;
+      var sid = parseInt(el.getAttribute('data-surah'), 10);
+      if (sid) _occEnqueueSurah(sid);
+    }
+  }, { root: null, rootMargin: OCC_LAZY_PRELOAD_PX + 'px 0px', threshold: 0 });
+  var items = listEl.querySelectorAll('.explorer-occ-item');
+  var observed = 0;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getAttribute('data-pending') === '1') {
+      observer.observe(items[i]);
+      observed++;
+    }
+  }
+  _occObserver = observer;
+  return observed > 0 ? observer : null;
 }
 
 function renderExplorerAllOccurrences(listEl, w) {
@@ -123,12 +272,16 @@ function renderExplorerAllOccurrences(listEl, w) {
         '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
       );
     }
+    // Ref is rendered instantly; verse text hydrates lazily on scroll for
+    // pending (index-only) items. Pending placeholders use the themed muted
+    // italic style so they read as loading, not stuck content.
+    var pendingItem = !!(occ._indexPending || (!occ.ayahA && !occ.ayahT));
     var trans = occ.ayahT || '';
-    if (occ._indexPending && !trans) trans = 'Loading…';
-    html += '<div class="explorer-occ-item">' +
+    var surahAttr = occ.surahId || '';
+    html += '<div class="explorer-occ-item" data-surah="' + surahAttr + '" data-ref="' + (ref2 || '') + '" data-pending="' + (pendingItem ? '1' : '0') + '" data-loaded="0">' +
       '<div class="explorer-occ-ref">' + (surahName ? surahName + ' ' : '') + ref2 + '</div>' +
       '<div class="explorer-occ-ayah" lang="ar" dir="rtl">' + ayahText + '</div>' +
-      '<div class="explorer-occ-trans">' + trans + '</div>' +
+      '<div class="explorer-occ-trans">' + (pendingItem ? '<span style="color:var(--text-muted)">Loading…</span>' : trans) + '</div>' +
     '</div>';
   }
   // Free-user upsell below the capped preview (compact line/card, themed).
@@ -142,27 +295,41 @@ function renderExplorerAllOccurrences(listEl, w) {
   html += '</div>';
   listEl.innerHTML = html;
 
-  // 3. Lazily load any surahs needed for pending index refs, then
-  //    re-render once the data arrives (token guard prevents stale
-  //    re-renders if the user navigated to another word meanwhile).
-  var needLoad = [];
-  for (var s in pendingSurahs) {
-    if (!pendingSurahs.hasOwnProperty(s)) continue;
-    var sidNum = parseInt(s, 10);
-    if (!_occRequestedSurahs[s] && !_isSurahLoaded(sidNum)) {
-      _occRequestedSurahs[s] = true;
-      needLoad.push(sidNum);
+  // 3. Hydrate verse text lazily. In browsers, an IntersectionObserver only
+  //    requests surahs for items as they enter (or approach) the viewport, so
+  //    a word with hundreds of refs never fires a wall of requests at once.
+  //    A small initial batch preloads the first screenful so there is no
+  //    visible "Loading…" flash at the top. Without an observer (tests / very
+  //    old browsers) every pending surah is requested through the same capped
+  //    queue, with one settle re-render — identical to the previous eager
+  //    behavior but concurrency-limited.
+  var session = { token: token, listEl: listEl, w: w, lazy: false };
+  _occSession = session;
+  var observer = _occSetupLazyObserver(listEl, session);
+  session.lazy = !!observer;
+
+  if (observer) {
+    // Preload the first screenful of pending surahs through the capped queue.
+    var preloaded = {};
+    var items = listEl.querySelectorAll('.explorer-occ-item');
+    var batch = 0;
+    for (var pb = 0; pb < items.length && batch < OCC_INITIAL_BATCH; pb++) {
+      if (items[pb].getAttribute('data-pending') !== '1') continue;
+      var pSid = parseInt(items[pb].getAttribute('data-surah'), 10);
+      if (pSid && !preloaded[pSid]) { preloaded[pSid] = true; _occEnqueueSurah(pSid); batch++; }
     }
-  }
-  if (needLoad.length && window.__quranLoader && typeof window.__quranLoader.loadSurah === 'function') {
-    var promises = needLoad.map(function (sid) { return window.__quranLoader.loadSurah(sid); });
-    Promise.all(promises).then(function () {
-      if (token === _occRenderingToken) renderExplorerAllOccurrences(listEl, w);
-    }).catch(function () {
-      // Non-fatal: refs remain listed. Clear the cache so a later open
-      // can retry the failed surah load instead of staying stuck.
-      for (var rl = 0; rl < needLoad.length; rl++) delete _occRequestedSurahs[String(needLoad[rl])];
-    });
+  } else {
+    // No observer: request every pending surah now (capped at 3 in flight),
+    // and re-render once they have all settled.
+    session.pendingCount = 0;
+    for (var s in pendingSurahs) {
+      if (!pendingSurahs.hasOwnProperty(s)) continue;
+      var sidNum = parseInt(s, 10);
+      if (!_occRequestedSurahs[String(sidNum)] && !_isSurahLoaded(sidNum)) {
+        session.pendingCount++;
+        _occEnqueueSurah(sidNum);
+      }
+    }
   }
 }
 

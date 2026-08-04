@@ -524,6 +524,27 @@ ts('Explorer — Back Navigation', function() {
 // mock DOM so later resets can't wipe elements mid-await.
 // ═══════════════════════════════════════════════════════════════
 
+ts('Explorer — Relationships stale-locked cleanup (regression)', function () {
+  t('premium render hides stale locked panel and restores hidden sections', function () {
+    // Simulate a stale free-tier state directly: locked panel visible and the
+    // gated sections hidden. (The mock DOM has no insertBefore, so we build
+    // the state manually instead of calling renderExplorerRelationshipsLocked.)
+    var locked = createEl('explorer-relationships-locked');
+    locked.style.display = 'block';
+    document.body.appendChild(locked);
+    var derivedList = createEl('explorer-derived-forms-list');
+    var parent = mock.makeEl('section');
+    parent.appendChild(derivedList);
+    parent.style.display = 'none';
+    document.body.appendChild(parent);
+
+    // Premium render — must clear the stale locked panel + restore sections
+    renderExplorerRelationships(TEST_WORDS[0]);
+    assert.strictEqual(locked.style.display, 'none', 'locked panel cleared for premium');
+    assert.strictEqual(parent.style.display, '', 'gated section restored for premium');
+  });
+});
+
 ts('Explorer — Tafsir (async)', function() {
   _asyncPending++;
   (async function () {

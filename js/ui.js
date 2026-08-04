@@ -193,8 +193,25 @@ function renderWordCard(w, currentIndex, total, isReview) {
       var _relEl = document.getElementById(_relSections[_rsi]);
       if (_relEl) _relEl.style.display = 'none';
     }
-    // Render single locked panel
+    // Hide any premium empty state, then render the single locked panel
+    var _premEmpty = document.getElementById('word-relationships-empty');
+    if (_premEmpty) _premEmpty.style.display = 'none';
     _renderRelationshipsLockedPanel();
+  } else {
+    // Premium: clear any stale locked panel left from an earlier free-tier
+    // render. Without this, a premium user (or a user who upgraded live via
+    // the onSnapshot listener) would keep seeing a dead
+    // "Word Relationships — Upgrade to Premium" card whose button no-ops.
+    var _lockedPanel = document.getElementById('word-relationships-locked');
+    if (_lockedPanel) _lockedPanel.style.display = 'none';
+    // Word-specific empty state when this word has no relationship data at
+    // all — show a message instead of a broken-looking gap.
+    if (_wordHasAnyRelationshipData(w)) {
+      var _emptyState = document.getElementById('word-relationships-empty');
+      if (_emptyState) _emptyState.style.display = 'none';
+    } else {
+      _renderWordRelationshipsEmptyState();
+    }
   }
 
   // Store occurrence data for showAyah/showWordContent
@@ -1498,6 +1515,22 @@ function renderExplorerSurahLinks(w) {
  * Render all vocabulary relationship sections in the explorer.
  */
 function renderExplorerRelationships(w) {
+  // Clear stale locked state from an earlier free-tier render. Without this, a
+  // premium user who upgraded live would keep seeing the locked
+  // "Word Relationships — Upgrade to Premium" panel and dead upgrade button,
+  // with the relationship sections still display:none.
+  var _prevLocked = document.getElementById('explorer-relationships-locked');
+  if (_prevLocked) _prevLocked.style.display = 'none';
+  var _gatedLists = [
+    'explorer-derived-forms-list', 'explorer-morph-list',
+    'explorer-similar-list', 'explorer-confused-list',
+    'explorer-semantic-list', 'explorer-related-list', 'explorer-equiv-list',
+  ];
+  for (var _gi = 0; _gi < _gatedLists.length; _gi++) {
+    var _gEl = document.getElementById(_gatedLists[_gi]);
+    if (_gEl && _gEl.parentNode) _gEl.parentNode.style.display = '';
+  }
+
   // Root Family
   var rootFamList = DOM.get('explorer-root-family-list');
   if (rootFamList) {
@@ -1921,48 +1954,283 @@ function wireExplorerEvents(w) {
 /**
  * Render all occurrences in a collapsible list.
  */
+// ── Legacy duplicate of the analytics-ui.js "Show all occurrences" renderer ──
+// Kept in sync with js/ui/analytics-ui.js (same merged index + scroll-based
+// lazy loading + concurrency-capped surah queue). Only used when the modular
+// js/ui/ build is unavailable. Self-contained so it works without the other
+// ui modules.
+
+var _occRenderingToken = 0;
+var _occRequestedSurahs = {};
+var _occLoadQueue = [];
+var _occInFlight = 0;
+var _occObserver = null;
+var _occSession = null;
+var OCC_MAX_CONCURRENT_LOADS = 3;
+var OCC_LAZY_PRELOAD_PX = 300;
+var OCC_INITIAL_BATCH = 6;
+
+function _getIndexRefsForWord(w) {
+  try {
+    if (!w || !w.arabic) return null;
+    if (!window.OCCURRENCE_INDEX || typeof window.OCCURRENCE_INDEX_NORM !== 'function') return null;
+    var norm = window.OCCURRENCE_INDEX_NORM(w.arabic);
+    if (!norm) return null;
+    return window.OCCURRENCE_INDEX[norm] || null;
+  } catch (e) { return null; }
+}
+
+function _getVerseForRef(ref) {
+  try {
+    var parts = String(ref).split(':');
+    var sid = parseInt(parts[0], 10);
+    var vid = parseInt(parts[1], 10);
+    if (!sid || !vid) return null;
+    var loader = window.__quranLoader;
+    if (loader && typeof loader.getVerse === 'function') {
+      return loader.getVerse(sid, vid) || null;
+    }
+    if (window.__QURAN_TEXT && window.__QURAN_TEXT[sid] && window.__QURAN_TEXT[sid].verses) {
+      return window.__QURAN_TEXT[sid].verses[vid - 1] || null;
+    }
+    return null;
+  } catch (e) { return null; }
+}
+
+function _isSurahLoaded(sid) {
+  try {
+    var loader = window.__quranLoader;
+    if (loader && typeof loader.isSurahLoaded === 'function') return loader.isSurahLoaded(sid);
+  } catch (e) { /* ignore */ }
+  return !!(window.__QURAN_TEXT && window.__QURAN_TEXT[sid]);
+}
+
+function _occEnqueueSurah(sid) {
+  if (!sid || _occRequestedSurahs[sid] || _isSurahLoaded(sid)) return;
+  _occRequestedSurahs[sid] = true;
+  _occLoadQueue.push(sid);
+  _occPumpLoadQueue();
+}
+
+function _occPumpLoadQueue() {
+  while (_occInFlight < OCC_MAX_CONCURRENT_LOADS && _occLoadQueue.length > 0) {
+    (function (sid) {
+      var session = _occSession;
+      _occInFlight++;
+      var loader = window.__quranLoader;
+      var p = (loader && typeof loader.loadSurah === 'function')
+        ? loader.loadSurah(sid)
+        : Promise.resolve(false);
+      p.then(function () {
+        _occInFlight--;
+        if (session && session.token === _occRenderingToken) {
+          if (session.lazy) {
+            _occHydrateSurahItems(session, sid);
+          } else if (typeof session.pendingCount === 'number') {
+            session.pendingCount--;
+            if (session.pendingCount <= 0) {
+              renderExplorerAllOccurrences(session.listEl, session.w);
+            }
+          }
+        } else if (_occSession && _occSession.token === _occRenderingToken) {
+          // A newer render superseded the session that requested this load. The
+          // new session's items for this surah were never enqueued (requested-
+          // flag dedupe) and would otherwise stick on "Loading…" forever, so
+          // hydrate them here instead — per-item in the observer path, or a
+          // full re-render of the current list in the fallback path (which
+          // picks up every now-loaded surah at once).
+          if (_occSession.lazy) {
+            _occHydrateSurahItems(_occSession, sid);
+          } else if (_occSession.listEl) {
+            // Idempotent: each re-render picks up every now-loaded surah at
+            // once; still-pending ones stay as placeholders until their own
+            // loads complete and trigger the next re-render.
+            renderExplorerAllOccurrences(_occSession.listEl, _occSession.w);
+          }
+        }
+        _occPumpLoadQueue();
+      }, function () {
+        _occInFlight--;
+        delete _occRequestedSurahs[sid];
+        if (session && !session.lazy && typeof session.pendingCount === 'number') {
+          session.pendingCount--;
+          if (session.pendingCount <= 0 && session.token === _occRenderingToken) {
+            renderExplorerAllOccurrences(session.listEl, session.w);
+          }
+        }
+        _occPumpLoadQueue();
+      });
+    })(_occLoadQueue.shift());
+  }
+}
+
+function _occHydrateSurahItems(session, sid) {
+  if (!session || !session.listEl || typeof session.listEl.querySelectorAll !== 'function') return;
+  var items = session.listEl.querySelectorAll('.explorer-occ-item');
+  var w = session.w;
+  for (var i = 0; i < items.length; i++) {
+    var el = items[i];
+    if (parseInt(el.getAttribute('data-surah'), 10) !== sid) continue;
+    if (el.getAttribute('data-loaded') === '1') continue;
+    var ref = el.getAttribute('data-ref');
+    var verse = ref ? _getVerseForRef(ref) : null;
+    if (!verse) continue;
+    var ayahEl = el.querySelector('.explorer-occ-ayah');
+    var transEl = el.querySelector('.explorer-occ-trans');
+    if (ayahEl) {
+      var txt = verse.text || '';
+      if (txt && w && w.arabic) {
+        txt = txt.replace(
+          new RegExp(w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+          '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
+        );
+      }
+      ayahEl.innerHTML = txt;
+    }
+    if (transEl) transEl.textContent = verse.translation || '';
+    el.setAttribute('data-loaded', '1');
+    el.setAttribute('data-pending', '0');
+  }
+}
+
+function _occSetupLazyObserver(listEl) {
+  if (typeof IntersectionObserver !== 'function' ||
+      typeof listEl.querySelectorAll !== 'function') return null;
+  if (_occObserver) { _occObserver.disconnect(); _occObserver = null; }
+  var observer = new IntersectionObserver(function (entries) {
+    for (var e = 0; e < entries.length; e++) {
+      if (!entries[e].isIntersecting) continue;
+      var el = entries[e].target;
+      var sid = parseInt(el.getAttribute('data-surah'), 10);
+      if (sid) _occEnqueueSurah(sid);
+    }
+  }, { root: null, rootMargin: OCC_LAZY_PRELOAD_PX + 'px 0px', threshold: 0 });
+  var items = listEl.querySelectorAll('.explorer-occ-item');
+  var observed = 0;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getAttribute('data-pending') === '1') {
+      observer.observe(items[i]);
+      observed++;
+    }
+  }
+  _occObserver = observer;
+  return observed > 0 ? observer : null;
+}
+
 function renderExplorerAllOccurrences(listEl, w) {
-  if (!listEl || !w || !w.occurrences || w.occurrences.length === 0) {
-    listEl.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:12px">No occurrence data available.</div>';
+  if (!listEl || !w) {
+    if (listEl) listEl.innerHTML = '<div class="ai-empty">No occurrence data available.</div>';
     return;
   }
-  
-  // Free users get a capped preview (5); premium sees all.
+
+  var token = ++_occRenderingToken;
+
+  // 1. Merge rich occurrences (word.occurrences) with index refs, deduped.
+  var byRef = {};
+  var list = [];
+  function addOcc(o) {
+    var ref = o.verseKey || o.ayahR || '';
+    if (!ref) return;
+    if (byRef[ref]) return;
+    byRef[ref] = true;
+    list.push(o);
+  }
+  if (w.occurrences && w.occurrences.length) {
+    for (var i = 0; i < w.occurrences.length; i++) addOcc(w.occurrences[i]);
+  }
+
+  var indexRefs = _getIndexRefsForWord(w);
+  var pendingSurahs = {};
+  if (indexRefs && indexRefs.length) {
+    for (var r = 0; r < indexRefs.length; r++) {
+      var ref = indexRefs[r];
+      if (byRef[ref]) continue;
+      byRef[ref] = true;
+      var verse = _getVerseForRef(ref);
+      var parts = String(ref).split(':');
+      var sid = parseInt(parts[0], 10);
+      if (!verse && sid) pendingSurahs[sid] = true;
+      list.push({
+        surahId: sid,
+        verseKey: ref,
+        ayahR: ref,
+        ayahA: verse ? verse.text : '',
+        ayahT: verse ? verse.translation : '',
+        _indexPending: !verse,
+      });
+    }
+  }
+
+  if (list.length === 0) {
+    listEl.innerHTML = '<div class="ai-empty">No occurrence data available.</div>';
+    return;
+  }
+
+  // 2. Render — free users get a capped preview (5), premium sees all.
   var _hasFullOccurrences = window.__premium && window.__premium.hasFeature &&
     window.__premium.hasFeature(window.__premium.FEATURES.WORD_RELATIONSHIPS);
-  var _cap = _hasFullOccurrences ? w.occurrences.length : Math.min(w.occurrences.length, 5);
+  var _cap = _hasFullOccurrences ? list.length : Math.min(list.length, 5);
   var html = '<div class="explorer-all-occ-inner">';
   for (var oi = 0; oi < _cap; oi++) {
-    var occ = w.occurrences[oi];
+    var occ = list[oi];
     var surahName = '';
     if (occ.surahId && SURAH_INFO && SURAH_INFO[occ.surahId]) {
       surahName = SURAH_INFO[occ.surahId].name;
     }
-    var ref = occ.ayahR || occ.verseKey || '';
+    var ref2 = occ.ayahR || occ.verseKey || '';
     var ayahText = occ.ayahA || '';
-    // Highlight the word in the ayah text
     if (ayahText && w.arabic) {
       ayahText = ayahText.replace(
         new RegExp(w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
         '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
       );
     }
-    html += '<div class="explorer-occ-item">' +
-      '<div class="explorer-occ-ref">' + (surahName ? surahName + ' ' : '') + ref + '</div>' +
+    var pendingItem = !!(occ._indexPending || (!occ.ayahA && !occ.ayahT));
+    var trans = occ.ayahT || '';
+    var surahAttr = occ.surahId || '';
+    html += '<div class="explorer-occ-item" data-surah="' + surahAttr + '" data-ref="' + (ref2 || '') + '" data-pending="' + (pendingItem ? '1' : '0') + '" data-loaded="0">' +
+      '<div class="explorer-occ-ref">' + (surahName ? surahName + ' ' : '') + ref2 + '</div>' +
       '<div class="explorer-occ-ayah" lang="ar" dir="rtl">' + ayahText + '</div>' +
-      '<div class="explorer-occ-trans">' + (occ.ayahT || '') + '</div>' +
+      '<div class="explorer-occ-trans">' + (pendingItem ? '<span style="color:var(--text-muted)">Loading…</span>' : trans) + '</div>' +
     '</div>';
   }
-  // Free-user upsell below the capped preview (compact line/card, themed).
-  if (!_hasFullOccurrences && w.occurrences.length > 5) {
+  if (!_hasFullOccurrences && list.length > 5) {
     html +=
       '<div class="explorer-all-occ-upsell" style="border-top:1px solid var(--gold-dim);margin-top:10px;padding-top:10px;text-align:center">' +
-        '<div style="font-family:var(--serif);font-size:13px;color:var(--gold-light);margin-bottom:6px">See all ' + w.occurrences.length + ' occurrences — Premium</div>' +
+        '<div style="font-family:var(--serif);font-size:13px;color:var(--gold-light);margin-bottom:6px">See all ' + list.length + ' occurrences — Premium</div>' +
         '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
       '</div>';
   }
   html += '</div>';
   listEl.innerHTML = html;
+
+  // 3. Lazy hydration (IntersectionObserver) or settle re-render fallback,
+  //    both through the concurrency-capped queue.
+  var session = { token: token, listEl: listEl, w: w, lazy: false };
+  _occSession = session;
+  var observer = _occSetupLazyObserver(listEl);
+  session.lazy = !!observer;
+
+  if (observer) {
+    var preloaded = {};
+    var items = listEl.querySelectorAll('.explorer-occ-item');
+    var batch = 0;
+    for (var pb = 0; pb < items.length && batch < OCC_INITIAL_BATCH; pb++) {
+      if (items[pb].getAttribute('data-pending') !== '1') continue;
+      var pSid = parseInt(items[pb].getAttribute('data-surah'), 10);
+      if (pSid && !preloaded[pSid]) { preloaded[pSid] = true; _occEnqueueSurah(pSid); batch++; }
+    }
+  } else {
+    session.pendingCount = 0;
+    for (var s in pendingSurahs) {
+      if (!pendingSurahs.hasOwnProperty(s)) continue;
+      var sidNum = parseInt(s, 10);
+      if (!_occRequestedSurahs[String(sidNum)] && !_isSurahLoaded(sidNum)) {
+        session.pendingCount++;
+        _occEnqueueSurah(sidNum);
+      }
+    }
+  }
 }
 
 /**
@@ -1990,6 +2258,57 @@ function _renderRelationshipsLockedPanel() {
         'morphological relatives, and more with Premium.' +
       '</div>' +
       '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+    '</div>';
+}
+
+/**
+ * Whether a word has ANY relationship data (similar/opposite/related/derived/
+ * semantic/confused). Used to show an explicit empty state instead of a gap.
+ */
+function _wordHasAnyRelationshipData(w) {
+  if (!w) return false;
+  var count = 0;
+  try {
+    if (w.similarWords && w.similarWords.length) count++;
+    if (w.oppositeWords && w.oppositeWords.length) count++;
+    var _rw = typeof getRelatedWordObjects === 'function' ? getRelatedWordObjects(w) : [];
+    if (_rw && _rw.length) count++;
+    var _df = typeof getDerivedForms === 'function' ? getDerivedForms(w) : [];
+    if (_df && _df.length) count++;
+    var _sg = typeof getSemanticGroups === 'function' ? getSemanticGroups(w) : [];
+    if (_sg && _sg.length) count++;
+    var _cw = typeof getConfusedWith === 'function' ? getConfusedWith(w) : [];
+    if (_cw && _cw.length) count++;
+    var _mr = typeof getMorphologicalRelationships === 'function' ? getMorphologicalRelationships(w) : [];
+    if (_mr && _mr.length) count++;
+    var _ce = typeof getContextualEquivalents === 'function' ? getContextualEquivalents(w) : [];
+    if (_ce && _ce.length) count++;
+  } catch (e) { /* never break rendering on a data quirk */ }
+  return count > 0;
+}
+
+/**
+ * Render a word-specific empty state for premium words that genuinely have no
+ * relationship data (mirrors the existing "No derived forms" empty-state
+ * pattern used elsewhere in the app).
+ */
+function _renderWordRelationshipsEmptyState() {
+  var container = document.getElementById('word-relationships-empty');
+  if (!container) {
+    // Place it right after the root box, like the locked panel
+    var rootBox = document.getElementById('root-box');
+    if (rootBox && rootBox.parentNode) {
+      container = document.createElement('div');
+      container.id = 'word-relationships-empty';
+      rootBox.parentNode.insertBefore(container, rootBox.nextSibling);
+    }
+  }
+  if (!container) return;
+  container.style.display = 'block';
+  container.innerHTML =
+    '<div class="word-network-section" style="text-align:center;padding:14px 16px">' +
+      '<div class="word-network-title" style="color:var(--gold-dim);margin-bottom:4px">🔗 Word Relationships</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6">No word relationships found for this word.</div>' +
     '</div>';
 }
 

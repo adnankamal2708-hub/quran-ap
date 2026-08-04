@@ -18,6 +18,14 @@ function initProfileUI() {
   wireProfileEvents();
   wireSettingsEvents();
   wireAccountEvents();
+
+  // Live premium changes (purchase/renewal/revocation) refresh the
+  // export/import buttons in place so they never show stale locked state.
+  if (window.__premium && typeof window.__premium.onChange === 'function') {
+    window.__premium.onChange(function () {
+      _refreshDataExportButtons();
+    });
+  }
 }
 
 // ── Event Wiring ──────────────────────────────────────────────
@@ -80,20 +88,17 @@ function wireAccountEvents() {
     };
   }
 
-  // Export data (gated for free users)
+  // Export data (gated for free users). Premium state is read LIVE at click
+  // time — capturing hasFeature() once here caused a stale "locked" button for
+  // premium users (badge said Premium, but clicking Export did nothing because
+  // requestUpgrade() silently no-ops for premium users).
   var exportBtn = document.getElementById('btn-export-data');
   if (exportBtn) {
-    var _hasDataExport = window.__premium && window.__premium.hasFeature && window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT);
-    if (!_hasDataExport) {
-      exportBtn.innerHTML = '🔒 📤 Export Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
-    }
     exportBtn.onclick = function () {
-      if (_hasDataExport) {
+      if (_hasLiveDataExport()) {
         handleExportData();
       } else {
-        if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-          window.__premium.requestUpgrade('data-export');
-        }
+        _blockedDataExport('Export Learning Data');
       }
     };
   }
@@ -101,17 +106,11 @@ function wireAccountEvents() {
   // Import data (gated for free users)
   var importBtn = document.getElementById('btn-import-data');
   if (importBtn) {
-    var _hasDataImport = window.__premium && window.__premium.hasFeature && window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT);
-    if (!_hasDataImport) {
-      importBtn.innerHTML = '🔒 📥 Import Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
-    }
     importBtn.onclick = function () {
-      if (_hasDataImport) {
+      if (_hasLiveDataExport()) {
         handleImportData();
       } else {
-        if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-          window.__premium.requestUpgrade('data-export');
-        }
+        _blockedDataExport('Import Learning Data');
       }
     };
   }
@@ -285,6 +284,10 @@ async function renderProfileView() {
       syncEl.style.color = 'var(--text-muted)';
     }
   }
+
+  // Refresh export/import button labels from live premium state (this runs on
+  // every profile render and on live premium changes via onChange).
+  _refreshDataExportButtons();
 }
 
 // ── Edit Profile Toggle ───────────────────────────────────────
@@ -551,6 +554,36 @@ async function handleDeleteAccount() {
 }
 
 // ── Export / Import Data ──────────────────────────────────────
+
+// Read premium state LIVE on every call so the export/import buttons never go
+// stale after a purchase or a live premium change.
+function _hasLiveDataExport() {
+  return !!(window.__premium && window.__premium.hasFeature &&
+    window.__premium.hasFeature(window.__premium.FEATURES.DATA_EXPORT));
+}
+
+function _blockedDataExport(actionLabel) {
+  console.warn('[profile] ' + actionLabel + ' blocked — DATA_EXPORT requires Premium.');
+  if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+    window.__premium.requestUpgrade('data-export');
+  }
+}
+
+function _refreshDataExportButtons() {
+  var has = _hasLiveDataExport();
+  var exportBtn = document.getElementById('btn-export-data');
+  var importBtn = document.getElementById('btn-import-data');
+  if (exportBtn) {
+    exportBtn.innerHTML = has
+      ? '📤 Export Learning Data'
+      : '🔒 📤 Export Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
+  }
+  if (importBtn) {
+    importBtn.innerHTML = has
+      ? '📥 Import Learning Data'
+      : '🔒 📥 Import Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
+  }
+}
 
 async function handleExportData() {
   // Premium gate: free users should not reach this function

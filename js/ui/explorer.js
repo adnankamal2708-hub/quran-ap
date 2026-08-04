@@ -300,6 +300,22 @@ function renderExplorerRelationshipsLocked() {
  * Render all vocabulary relationship sections in the explorer.
  */
 function renderExplorerRelationships(w) {
+  // Clear stale locked state from an earlier free-tier render. Without this, a
+  // premium user who upgraded live would keep seeing the locked
+  // "Word Relationships — Upgrade to Premium" panel and dead upgrade button,
+  // with the relationship sections still display:none.
+  var _prevLocked = document.getElementById('explorer-relationships-locked');
+  if (_prevLocked) _prevLocked.style.display = 'none';
+  var _gatedLists = [
+    'explorer-derived-forms-list', 'explorer-morph-list',
+    'explorer-similar-list', 'explorer-confused-list',
+    'explorer-semantic-list', 'explorer-related-list', 'explorer-equiv-list',
+  ];
+  for (var _gi = 0; _gi < _gatedLists.length; _gi++) {
+    var _gEl = document.getElementById(_gatedLists[_gi]);
+    if (_gEl && _gEl.parentNode) _gEl.parentNode.style.display = '';
+  }
+
   // Root Family
   var rootFamList = DOM.get('explorer-root-family-list');
   if (rootFamList) {

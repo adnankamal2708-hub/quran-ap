@@ -219,41 +219,6 @@ ts('renderExplorerAllOccurrences — merged rendering', function () {
     assert.ok(listEl.innerHTML.indexOf('No occurrence data available') >= 0);
   });
 
-  tAsync('lazily loads unloaded surahs and re-renders on arrival', function () {
-    var loadedSurahs = {};
-    global.window.OCCURRENCE_INDEX = { 'الله': ['95:6', '96:1'] };
-    global.window.OCCURRENCE_INDEX_NORM = function (a) { return NORM(a); };
-    delete global.window.__QURAN_TEXT;
-    global.window.__quranLoader = {
-      isSurahLoaded: function (sid) { return !!loadedSurahs[sid]; },
-      getVerse: function (sid, vid) {
-        if (!loadedSurahs[sid]) return null;
-        return { text: 'آيَة ' + sid + ':' + vid, translation: 'verse ' + vid };
-      },
-      loadSurah: function (sid) {
-        loadedSurahs[sid] = true;
-        return Promise.resolve(true);
-      },
-    };
-    var listEl = mock.makeEl('div');
-    renderExplorerAllOccurrences(listEl, { arabic: 'اللَّهُ', occurrences: [] });
-    // Immediately: both refs present as pending items (Loading…)
-    assert.ok(listEl.innerHTML.indexOf('95:6') >= 0, 'ref 95:6 listed immediately');
-    assert.ok(listEl.innerHTML.indexOf('96:1') >= 0, 'ref 96:1 listed immediately');
-    assert.ok(loadedSurahs[95] === true && loadedSurahs[96] === true, 'both surahs requested');
-    // Wait a macrotask so Promise.all's re-render (a few microtask hops) has
-    // definitely run before asserting the hydrated output.
-    return new Promise(function (resolve, reject) {
-      setTimeout(function () {
-        try {
-          assert.ok(listEl.innerHTML.indexOf('آيَة 95:6') >= 0, 'surah 95 verse text hydrated');
-          assert.ok(listEl.innerHTML.indexOf('آيَة 96:1') >= 0, 'surah 96 verse text hydrated');
-          assert.ok(listEl.innerHTML.indexOf('Loading') < 0, 'loading placeholders gone');
-          resolve();
-        } catch (e) { reject(e); }
-      }, 20);
-    });
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -291,6 +256,90 @@ ts('Occurrence Index — corpus spot check', function () {
       checked++;
     }
     assert.ok(checked >= 20, 'checked ' + checked + ' sample refs');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// TESTS — LAZY LOADING & CONCURRENCY (Show all occurrences)
+// Refs must render instantly; verse text hydrates through a concurrency-
+// capped queue (max 3 loadSurah calls in flight), never dropping requests.
+// ═══════════════════════════════════════════════════════════════
+
+ts('Show all occurrences — lazy loading & concurrency (regression)', function () {
+  t('refs render instantly with themed placeholders while surahs still load', function () {
+    var loaded = {};
+    global.window.OCCURRENCE_INDEX = { 'كلمة': ['101:1', '102:2', '103:3'] };
+    global.window.OCCURRENCE_INDEX_NORM = function () { return 'كلمة'; };
+    delete global.window.__QURAN_TEXT;
+    delete global.window.IntersectionObserver;
+    global.window.__quranLoader = {
+      isSurahLoaded: function (sid) { return !!loaded[sid]; },
+      getVerse: function (sid, vid) { return loaded[sid] ? { text: 'آية ' + sid + ':' + vid, translation: 'v' + vid } : null; },
+      loadSurah: function (sid) { loaded[sid] = true; return Promise.resolve(true); },
+    };
+    var listEl = mock.makeEl('div');
+    renderExplorerAllOccurrences(listEl, { arabic: 'كلمة', occurrences: [] });
+    // Synchronously (before any microtask hydration): refs are all present,
+    // placeholders shown, and verse text has NOT been fetched/render-blocking.
+    assert.ok(listEl.innerHTML.indexOf('101:1') >= 0, 'ref 101:1 listed instantly');
+    assert.ok(listEl.innerHTML.indexOf('103:3') >= 0, 'ref 103:3 listed instantly');
+    assert.ok(listEl.innerHTML.indexOf('Loading') >= 0, 'pending placeholders shown while loading');
+    assert.ok(listEl.innerHTML.indexOf('آية') < 0, 'verse text not hydrated synchronously');
+  });
+
+  tAsync('caps concurrent loadSurah calls (max 3) and never drops queued surahs', function () {
+    var inFlight = 0, maxInFlight = 0, loaded = {};
+    // Surahs 95/96 were already requested by an earlier test (shared module
+    // state), so use a disjoint set to keep this test isolated.
+    global.window.OCCURRENCE_INDEX = { 'كلمة': ['90:1', '91:2', '92:3', '93:4', '94:5', '97:6', '98:7'] };
+    global.window.OCCURRENCE_INDEX_NORM = function () { return 'كلمة'; };
+    // Premium mock so the full list renders (free users are capped at 5).
+    global.window.__premium = {
+      isPremium: function () { return true; },
+      hasFeature: function () { return true; },
+      FEATURES: { WORD_RELATIONSHIPS: 'wordRelationships' },
+      requestUpgrade: function () {},
+    };
+    delete global.window.__QURAN_TEXT;
+    delete global.window.IntersectionObserver;
+    global.window.__quranLoader = {
+      isSurahLoaded: function (sid) { return !!loaded[sid]; },
+      getVerse: function (sid, vid) { return loaded[sid] ? { text: 'آية ' + sid + ':' + vid, translation: 'v' + vid } : null; },
+      loadSurah: function (sid) {
+        inFlight++;
+        if (inFlight > maxInFlight) maxInFlight = inFlight;
+        return new Promise(function (resolve) {
+          setTimeout(function () {
+            loaded[sid] = true;
+            inFlight--;
+            resolve(true);
+          }, 5);
+        });
+      },
+    };
+    var listEl = mock.makeEl('div');
+    renderExplorerAllOccurrences(listEl, { arabic: 'كلمة', occurrences: [] });
+    var itemCount = (listEl.innerHTML.match(/explorer-occ-item/g) || []).length;
+    assert.strictEqual(itemCount, 7, 'all 7 refs rendered instantly, got ' + itemCount);
+    // A second render (new word/list) supersedes the first session mid-load.
+    // The superseded list's pending surahs must still hydrate the CURRENT
+    // list when their loads complete — never stranded on "Loading…".
+    var listEl2 = mock.makeEl('div');
+    renderExplorerAllOccurrences(listEl2, { arabic: 'كلمة أخرى', occurrences: [] });
+    var itemCount2 = (listEl2.innerHTML.match(/explorer-occ-item/g) || []).length;
+    assert.strictEqual(itemCount2, 7, 'second render lists all 7 refs instantly, got ' + itemCount2);
+    return new Promise(function (resolve, reject) {
+      setTimeout(function () {
+        try {
+          assert.ok(loaded[90] && loaded[91] && loaded[92] && loaded[93] && loaded[94] && loaded[97] && loaded[98],
+            'all 7 queued surahs eventually loaded — none dropped');
+          assert.ok(maxInFlight <= 3, 'never more than 3 concurrent loadSurah calls (saw ' + maxInFlight + ')');
+          assert.ok(listEl2.innerHTML.indexOf('آية 98:7') >= 0, 'current session hydrated after supersede (was: stale-session load used to strand the new list)');
+          assert.ok(listEl2.innerHTML.indexOf('Loading') < 0, 'loading placeholders gone from current list after settle');
+          resolve();
+        } catch (e) { reject(e); }
+      }, 150);
+    });
   });
 });
 

@@ -110,8 +110,25 @@ function renderWordCard(w, currentIndex, total, isReview) {
       var _relEl = document.getElementById(_relSections[_rsi]);
       if (_relEl) _relEl.style.display = 'none';
     }
-    // Render single locked panel
+    // Hide any premium empty state, then render the single locked panel
+    var _premEmpty = document.getElementById('word-relationships-empty');
+    if (_premEmpty) _premEmpty.style.display = 'none';
     _renderRelationshipsLockedPanel();
+  } else {
+    // Premium: clear any stale locked panel left from an earlier free-tier
+    // render. Without this, a premium user (or a user who upgraded live via
+    // the onSnapshot listener) would keep seeing a dead
+    // "Word Relationships — Upgrade to Premium" card whose button no-ops.
+    var _lockedPanel = document.getElementById('word-relationships-locked');
+    if (_lockedPanel) _lockedPanel.style.display = 'none';
+    // Word-specific empty state when this word has no relationship data at
+    // all — show a message instead of a broken-looking gap.
+    if (_wordHasAnyRelationshipData(w)) {
+      var _emptyState = document.getElementById('word-relationships-empty');
+      if (_emptyState) _emptyState.style.display = 'none';
+    } else {
+      _renderWordRelationshipsEmptyState();
+    }
   }
 
   // Store occurrence data for showAyah/showWordContent
@@ -609,6 +626,57 @@ function _renderRelationshipsLockedPanel() {
         'morphological relatives, and more with Premium.' +
       '</div>' +
       '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+    '</div>';
+}
+
+/**
+ * Whether a word has ANY relationship data (similar/opposite/related/derived/
+ * semantic/confused). Used to show an explicit empty state instead of a gap.
+ */
+function _wordHasAnyRelationshipData(w) {
+  if (!w) return false;
+  var count = 0;
+  try {
+    if (w.similarWords && w.similarWords.length) count++;
+    if (w.oppositeWords && w.oppositeWords.length) count++;
+    var _rw = typeof getRelatedWordObjects === 'function' ? getRelatedWordObjects(w) : [];
+    if (_rw && _rw.length) count++;
+    var _df = typeof getDerivedForms === 'function' ? getDerivedForms(w) : [];
+    if (_df && _df.length) count++;
+    var _sg = typeof getSemanticGroups === 'function' ? getSemanticGroups(w) : [];
+    if (_sg && _sg.length) count++;
+    var _cw = typeof getConfusedWith === 'function' ? getConfusedWith(w) : [];
+    if (_cw && _cw.length) count++;
+    var _mr = typeof getMorphologicalRelationships === 'function' ? getMorphologicalRelationships(w) : [];
+    if (_mr && _mr.length) count++;
+    var _ce = typeof getContextualEquivalents === 'function' ? getContextualEquivalents(w) : [];
+    if (_ce && _ce.length) count++;
+  } catch (e) { /* never break rendering on a data quirk */ }
+  return count > 0;
+}
+
+/**
+ * Render a word-specific empty state for premium words that genuinely have no
+ * relationship data (mirrors the existing "No derived forms" empty-state
+ * pattern used elsewhere in the app).
+ */
+function _renderWordRelationshipsEmptyState() {
+  var container = document.getElementById('word-relationships-empty');
+  if (!container) {
+    // Place it right after the root box, like the locked panel
+    var rootBox = document.getElementById('root-box');
+    if (rootBox && rootBox.parentNode) {
+      container = document.createElement('div');
+      container.id = 'word-relationships-empty';
+      rootBox.parentNode.insertBefore(container, rootBox.nextSibling);
+    }
+  }
+  if (!container) return;
+  container.style.display = 'block';
+  container.innerHTML =
+    '<div class="word-network-section" style="text-align:center;padding:14px 16px">' +
+      '<div class="word-network-title" style="color:var(--gold-dim);margin-bottom:4px">🔗 Word Relationships</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6">No word relationships found for this word.</div>' +
     '</div>';
 }
 
