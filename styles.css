@@ -1672,7 +1672,7 @@ body::before {
 .search-input {
   width: 100%;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: var(--radius-input);
   padding: 12px 16px;
   color: var(--text);
@@ -1758,7 +1758,7 @@ body::before {
 .notes-input {
   width: 100%;
   background: var(--bg);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: var(--radius-sm);
   padding: 9px 11px;
   color: var(--text);
@@ -2204,7 +2204,7 @@ body::before {
 .auth-input {
   width: 100%;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: var(--radius-input);
   padding: 12px 16px;
   color: var(--text);
@@ -3324,7 +3324,7 @@ body::before {
 .filter-input {
   width: 100%;
   background: var(--surface2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   color: var(--text);
@@ -3693,7 +3693,7 @@ body::before {
 .explorer-notes-input {
   width: 100%;
   background: var(--bg);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   color: var(--text);
@@ -5482,19 +5482,19 @@ body::before {
 /* ── Dashboard icon containers ── */
 .db-icon-gold-dim {
   background: rgba(201,168,76,0.15);
-  width: 42px; height: 42px; border-radius: 12px;
+  width: 44px; height: 44px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; flex-shrink: 0;
 }
 .db-icon-gold-faint {
   background: rgba(201,168,76,0.12);
-  width: 42px; height: 42px; border-radius: 12px;
+  width: 44px; height: 44px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; flex-shrink: 0;
 }
 .db-icon-green-faint {
   background: rgba(74,158,107,0.1);
-  width: 42px; height: 42px; border-radius: 12px;
+  width: 44px; height: 44px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; flex-shrink: 0;
 }
@@ -5502,7 +5502,7 @@ body::before {
 /* Smart rec icon container */
 .db-rec-icon {
   background: rgba(201,168,76,0.1);
-  width: 36px; height: 36px; border-radius: 10px;
+  width: 44px; height: 44px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
@@ -7195,7 +7195,7 @@ body::before {
 .quran-juz-select {
   width: 100%;
   background: var(--surface2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: 6px;
   padding: 6px 8px;
   font-size: 11px;
@@ -7226,7 +7226,7 @@ body::before {
 .quran-search-input {
   width: 100%;
   background: var(--surface2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: 6px;
   padding: 6px 10px;
   font-size: 12px;
@@ -7509,7 +7509,7 @@ body::before {
 .quran-jump-input {
   width: 70px;
   background: var(--surface2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 11px;
@@ -7685,8 +7685,8 @@ body::before {
   transform: translateY(0) scale(0.995);
 }
 .ls-card-icon {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   background: rgba(201,168,76,0.1);
   display: flex;
@@ -10199,7 +10199,7 @@ padding: 6px 0;
 .filter-select {
   width: 100%;
   background: var(--surface2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   color: var(--text);
@@ -10222,7 +10222,7 @@ padding: 6px 0;
 .filter-input {
   width: 100%;
   background: var(--surface2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--gold-dim);
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   color: var(--text);
@@ -10526,8 +10526,8 @@ padding: 6px 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   background: var(--bg);
   border: 1px solid var(--border);
