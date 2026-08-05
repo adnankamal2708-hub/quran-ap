@@ -313,8 +313,11 @@ const handler = async (req, res) => {
     }
     event = JSON.parse(rawBody.toString('utf8'));
   } catch (err) {
+    // Log the detail server-side for debugging, but respond generically so
+    // internal error text (parse positions, body-size limits) never leaks
+    // to unauthenticated callers.
     console.error('[webhook] Webhook verify/parse error:', err.message || err);
-    res.status(400).send(`Webhook Error: ${err.message || err}`);
+    res.status(400).send('Invalid webhook payload');
     return;
   }    // 2. Process event
     // Note: webhook-id is validated (in the signature) but not used as an
@@ -348,8 +351,9 @@ const handler = async (req, res) => {
 
     res.status(200).json({ received: true });
   } catch (err) {
+    // Same pattern as above: full detail to server logs, generic to caller.
     console.error('[webhook] Handler error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal error' });
   }
 };
 
