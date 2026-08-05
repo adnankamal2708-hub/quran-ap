@@ -475,6 +475,11 @@ function rerenderCurrentView() {
     }
     if (typeof updateReviewBanner === 'function') updateReviewBanner();
     if (typeof updateLessonProgressDisplay === 'function') updateLessonProgressDisplay();
+    // Re-render the word card too — it holds the premium-gated relationship
+    // sections (and their locked/empty states). Without this, a live premium
+    // change leaves a stale "Word Relationships — Upgrade to Premium" locked
+    // panel on screen in the Learn tab until the user manually navigates.
+    if (typeof updateWordCard === 'function') updateWordCard();
   }
   if (viewName === 'quiz') {
     if (typeof initQuiz === 'function') initQuiz();

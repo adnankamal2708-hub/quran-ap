@@ -202,6 +202,20 @@ suite('switchView Dispatching', function() {
     assert.ok(_callLog.indexOf('updateLessonProgressDisplay') >= 0);
   });
 
+  test('rerenderCurrentView re-renders the word card on live changes', function() {
+    // Premium status changes call rerenderCurrentView() via premium.onChange.
+    // The Learn view must re-render the word card so premium-gated sections
+    // (Word Relationships etc.) refresh in place instead of leaving a stale
+    // locked panel on screen.
+    _callLog.length = 0;
+    switchView('learn');
+    _callLog.length = 0;
+    rerenderCurrentView();
+    assert.ok(_callLog.indexOf('updateReviewBanner') >= 0, 're-renders learn banner');
+    assert.ok(_callLog.indexOf('updateLessonProgressDisplay') >= 0, 're-renders progress');
+    assert.ok(_callLog.indexOf('updateWordCard') >= 0, 're-renders the word card');
+  });
+
   test('switchView calls validation hook if present', function() {
     var called = false;
     global.window.__validation = { onRouteChange: function() { called = true; } };

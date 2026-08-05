@@ -335,6 +335,56 @@ suite('Relationship Engine', function() {
     assert.ok(Array.isArray(forms));
   });
 
+  test('canonical word IDs resolve relationship data (cw_N keying fix)', function() {
+    // Render paths pass CANONICAL_WORDS entries whose ids are cw_N, while the
+    // relationship cache used to be keyed by raw w_N ids — making every
+    // canonical lookup return [] and 6 of 8 sections render empty. Simulate
+    // production: getCanonicalWords() returns canonical entries (cw_N ids) and
+    // raw w_N ids map to them.
+    var origGetCanonical = global.getCanonicalWords;
+    var origGetCanonicalIdForOldId = global.getCanonicalIdForOldId;
+    var cwMap = {};
+    var canonicalWords = TEST_WORDS.map(function(w, i) {
+      var cw = {};
+      for (var k in w) cw[k] = w[k];
+      cw.id = 'cw_' + (i + 1);
+      cwMap['w_' + (i + 1)] = 'cw_' + (i + 1);
+      return cw;
+    });
+    global.getCanonicalWords = function() { return canonicalWords; };
+    global.getCanonicalIdForOldId = function(id) { return cwMap[id] || null; };
+    invalidateRelationsCache();
+
+    // Canonical-id lookup (the real render path) must resolve data
+    var groups = getSemanticGroups(canonicalWords[1]); // rahma, id cw_2
+    assert.ok(groups.length > 0, 'canonical-id word resolves semantic groups');
+    // Raw w_N lookup must still resolve via the alias (backward compat)
+    var rawGroups = getSemanticGroups(TEST_WORDS[1]);
+    assert.ok(rawGroups.length > 0, 'raw-id word still resolves after re-keying');
+
+    global.getCanonicalWords = origGetCanonical;
+    global.getCanonicalIdForOldId = origGetCanonicalIdForOldId;
+    invalidateRelationsCache();
+  });
+
+  test('relatedWords diacritic variants resolve via normalized fallback', function() {
+    // A related word stored with a different case-ending (e.g. جَنَّةِ vs the
+    // dataset entry جَنَّة) should resolve after stripping diacritics.
+    var found = findWordByNormalizedArabic('كِتَابِ');
+    assert.ok(found, 'diacritic variant resolves to a word');
+    assert.strictEqual(found.arabic, 'كِتَاب', 'resolves to the dataset form');
+    // And the full compute path uses the fallback: give w_5 (a cache-keyed
+    // word) a case-ending variant as its related word, then resolve it.
+    var origRelated = TEST_WORDS[4].relatedWords;
+    TEST_WORDS[4].relatedWords = ['كِتَابِ'];
+    invalidateRelationsCache();
+    var related = getRelatedWordObjects(TEST_WORDS[4]);
+    assert.strictEqual(related.length, 1, 'compute path resolves the variant');
+    assert.strictEqual(related[0].arabic, 'كِتَاب', 'compute path maps to dataset form');
+    TEST_WORDS[4].relatedWords = origRelated;
+    invalidateRelationsCache();
+  });
+
   test('empty string to getDerivedForms returns empty array', function() {
     assert.deepStrictEqual(getDerivedForms(''), []);
     assert.deepStrictEqual(getDerivedForms(undefined), []);

@@ -12,10 +12,12 @@
 // Production flag - set to false to suppress debug logging
 var _wordIndex = null;
 var _arabicToIds = null;
+var _normalizedToIds = null;
 
 function buildWordIndex() {
   _wordIndex = {};
   _arabicToIds = {};
+  _normalizedToIds = {};
   for (var i = 0; i < ALL_WORDS.length; i++) {
     var w = ALL_WORDS[i];
     // Primary index by unique ID
@@ -23,7 +25,29 @@ function buildWordIndex() {
     // Secondary index: arabic text → array of IDs
     if (!_arabicToIds[w.arabic]) _arabicToIds[w.arabic] = [];
     _arabicToIds[w.arabic].push(w.id);
+    // Diacritic-insensitive index (strips tashkeel) for resolving related-word
+    // strings that are diacritic/case-ending variants of dataset words
+    var norm = normalizeArabic(w.arabic);
+    if (norm) {
+      if (!_normalizedToIds[norm]) _normalizedToIds[norm] = [];
+      _normalizedToIds[norm].push(w.id);
+    }
   }
+}
+
+/**
+ * Find a word by Arabic text after normalizing away diacritics.
+ * Used as a fallback when exact-match lookup fails (e.g. جَنَّةِ vs جَنَّة).
+ */
+function findWordByNormalizedArabic(arabic) {
+  if (!_normalizedToIds) buildWordIndex();
+  var norm = normalizeArabic(arabic);
+  if (!norm) return undefined;
+  var ids = _normalizedToIds[norm];
+  if (ids && ids.length > 0) {
+    return findWordById(ids[0]) || undefined;
+  }
+  return undefined;
 }
 
 /**
@@ -917,9 +941,17 @@ function buildRelationsCache() {
     }
   }
   
-  // Phase 2: For each word, compute all relationship types
-  for (var j = 0; j < ALL_WORDS.length; j++) {
-    var word = ALL_WORDS[j];
+  // Phase 2: For each word, compute all relationship types.
+  // Key the cache by canonical IDs (cw_N) because every render path
+  // (getLessonWords, getSurahWords, getFoundationLessonWords, searchWords)
+  // returns CANONICAL_WORDS. Previously this keyed by raw w_N ids, so every
+  // canonical lookup returned [] and 6 of 8 relationship sections rendered
+  // empty even though the computed data was rich. Raw w_N ids are aliased
+  // below for backward compatibility (string-input lookups, legacy callers).
+  var relWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  for (var j = 0; j < relWords.length; j++) {
+    var word = relWords[j];
     var rels = {
       derivedForms: computeDerivedForms(word, cache),
       semanticGroups: computeSemanticGroups(word, cache),
@@ -929,6 +961,18 @@ function buildRelationsCache() {
       relatedWords: computeRelatedWordObjects(word),
     };
     cache.byId[word.id] = rels;
+  }
+  
+  // Backward compat: alias each raw w_N id to its canonical word's rels so
+  // lookups by raw id (e.g. string-input paths that resolve via
+  // findWordByArabic) still work after the canonical re-keying.
+  if (relWords !== ALL_WORDS && typeof getCanonicalIdForOldId === 'function') {
+    for (var aliasIdx = 0; aliasIdx < ALL_WORDS.length; aliasIdx++) {
+      var cid = getCanonicalIdForOldId(ALL_WORDS[aliasIdx].id);
+      if (cid && cache.byId[cid] && !cache.byId[ALL_WORDS[aliasIdx].id]) {
+        cache.byId[ALL_WORDS[aliasIdx].id] = cache.byId[cid];
+      }
+    }
   }
   
   _relCache = cache;
@@ -1242,7 +1286,9 @@ function computeMorphologicalRelations(word, cache) {
 function computeRelatedWordObjects(word) {
   if (!word.relatedWords || !word.relatedWords.length) return [];
   return word.relatedWords.map(function(arabic) {
-    var found = findWordByArabic(arabic);
+    // Exact match first, then diacritic-insensitive fallback (e.g. a related
+    // word stored as جَنَّةِ resolves to the dataset entry جَنَّة)
+    var found = findWordByArabic(arabic) || findWordByNormalizedArabic(arabic);
     return found ? { arabic: found.arabic, english: found.english, wordId: found.id } : null;
   }).filter(Boolean);
 }
@@ -1321,15 +1367,21 @@ function getRelationshipStats() {
     wordsWithRelatedWords: 0,
   };
   
-  Object.keys(_relCache.byId).forEach(function(id) {
-    var rels = _relCache.byId[id];
+  // Count over the same canonical source used to build the cache (falling
+  // back to raw words) so raw-id aliases never double-count a word.
+  var relWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  stats.totalWords = relWords.length;
+  for (var si = 0; si < relWords.length; si++) {
+    var rels = _relCache.byId[relWords[si].id];
+    if (!rels) continue;
     if (rels.derivedForms.length > 0) stats.wordsWithDerivedForms++;
     if (rels.semanticGroups.length > 0) stats.wordsWithSemanticGroups++;
     if (rels.confusedWith.length > 0) stats.wordsWithConfusedWith++;
     if (rels.contextualEquivalents.length > 0) stats.wordsWithContextualEquivalents++;
     if (rels.morphRelations.length > 0) stats.wordsWithMorphRelations++;
     if (rels.relatedWords.length > 0) stats.wordsWithRelatedWords++;
-  });
+  }
   
   return stats;
 }
