@@ -492,7 +492,7 @@ suite('Welcome Slides Data', function() {
   });
 
   test('slides cover expected topics in order', function() {
-    assert.ok(_welcomeSlides[0].title.indexOf('Bayan') >= 0);
+    assert.ok(_welcomeSlides[0].title.indexOf('Understand') >= 0);
     assert.ok(_welcomeSlides[1].title.indexOf('Step by Step') >= 0);
     assert.ok(_welcomeSlides[2].title.indexOf('Comprehension') >= 0);
     assert.ok(_welcomeSlides[3].title.indexOf('Interactive') >= 0);

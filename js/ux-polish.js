@@ -28,7 +28,7 @@ var _PLAN_PICKER_SEEN_KEY = 'quran_plan_picker_seen';
 var _welcomeSlides = [
   {
     icon: '📖',
-    title: 'Welcome to Bayan',
+    title: 'Understand the Quran',
     desc: 'Your personal guide to understanding the Quran, one word at a time.<br><br>Bayan uses the science of spaced repetition to help you build lasting Quranic vocabulary — so you can read and understand the Quran in its original language.',
     highlight: 'app'
   },
@@ -209,7 +209,7 @@ function createOnboardingOverlay() {
       '<div class="onboarding-dots" id="onboarding-dots"></div>' +
       '<div class="onboarding-nav">' +
         '<button class="btn btn-sm btn-outline" id="onboarding-prev" type="button" aria-label="Previous">← Back</button>' +
-        '<button class="btn btn-sm" id="onboarding-next" type="button" aria-label="Next">Next →</button>' +
+        '<button class="btn btn-sm" id="onboarding-next" type="button" aria-label="Next">Start Lesson →</button>' +
       '</div>' +
     '</div>';
 
@@ -320,6 +320,12 @@ function renderOnboardingScreen(idx) {
     var dotActive = isWelcome ? idx : dotGroup - 1;
     var totalDots = _TOTAL_SCREENS;
     dotsEl.innerHTML = '';
+    // Progress indicator: a textual step counter beside the dots, so users
+    // know how much of the flow is left ("Step 2 of 9").
+    var stepLabel = document.createElement('span');
+    stepLabel.className = 'onboarding-step-label';
+    stepLabel.textContent = 'Step ' + (idx + 1) + ' of ' + _TOTAL_SCREENS;
+    dotsEl.appendChild(stepLabel);
     for (var di = 0; di < totalDots; di++) {
       var dot = document.createElement('span');
       dot.className = 'onboarding-dot' + (di === idx ? ' onboarding-dot-active' : '');
@@ -349,7 +355,7 @@ function renderOnboardingScreen(idx) {
       nextBtn.textContent = 'Personalize →';
       nextBtn.className = 'btn btn-sm';
     } else {
-      nextBtn.textContent = 'Next →';
+      nextBtn.textContent = 'Start Lesson →';
       nextBtn.className = 'btn btn-sm';
     }
   }
