@@ -51,6 +51,35 @@ function findWordByNormalizedArabic(arabic) {
 }
 
 /**
+ * Final fallback tier for related-word resolution: find a word after
+ * stripping a single LEADING definite article (ال).
+ *
+ * Runs only when exact-match and diacritic-normalized lookups both fail.
+ * - Strips ال ONLY from the front of the string, never mid-word.
+ * - Skips strings too short to plausibly contain ال + a root (avoids
+ *   over-matching on short strings like أَلَمْ / أَلَا that merely begin
+ *   with ا+ل as part of the word itself).
+ * - Resolves strictly against the existing diacritic-insensitive index, so
+ *   it can never invent an entry that doesn't exist in the dataset (e.g.
+ *   الْأَمْن stays unresolved because أَمْن has no standalone entry).
+ * - Deliberately does NOT fold hamza/maqsura variants (أ/إ/آ/ء→ا, ى→ي):
+ *   that tier was evaluated and rejected as a false-positive risk.
+ */
+function findWordByDefiniteArticleVariant(arabic) {
+  if (!_normalizedToIds) buildWordIndex();
+  var norm = normalizeArabic(arabic);
+  // Definite article (ا+ل) plus at least a 3-letter root: total >= 5 chars.
+  if (!norm || norm.length < 5 || norm.slice(0, 2) !== '\u0627\u0644') return undefined;
+  var stripped = norm.slice(2);
+  if (!stripped) return undefined;
+  var ids = _normalizedToIds[stripped];
+  if (ids && ids.length > 0) {
+    return findWordById(ids[0]) || undefined;
+  }
+  return undefined;
+}
+
+/**
  * Find a word object by its unique ID using cached index.
  * Returns the word object or undefined.
  */
@@ -1287,8 +1316,9 @@ function computeRelatedWordObjects(word) {
   if (!word.relatedWords || !word.relatedWords.length) return [];
   return word.relatedWords.map(function(arabic) {
     // Exact match first, then diacritic-insensitive fallback (e.g. a related
-    // word stored as جَنَّةِ resolves to the dataset entry جَنَّة)
-    var found = findWordByArabic(arabic) || findWordByNormalizedArabic(arabic);
+    // word stored as جَنَّةِ resolves to the dataset entry جَنَّة), then a
+    // leading-ال-strip tier (الرَّحْمَة → رَحْمَة) as a final fallback.
+    var found = findWordByArabic(arabic) || findWordByNormalizedArabic(arabic) || findWordByDefiniteArticleVariant(arabic);
     return found ? { arabic: found.arabic, english: found.english, wordId: found.id } : null;
   }).filter(Boolean);
 }

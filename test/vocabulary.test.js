@@ -385,6 +385,44 @@ suite('Relationship Engine', function() {
     invalidateRelationsCache();
   });
 
+  test('relatedWords leading-ال variants resolve via definite-article strip tier', function() {
+    // A related word stored with a definite article (e.g. الرَّحْمَة vs the
+    // dataset entry رَحْمَة) should resolve via the final ال-strip tier.
+    var found = findWordByDefiniteArticleVariant('الرَّحْمَة');
+    assert.ok(found, 'ال-strip resolves to a word');
+    assert.strictEqual(found.arabic, 'رَحْمَة', 'resolves to the dataset form');
+    // Full compute path: give w_5 a definite-article variant as its related word.
+    var origRelated = TEST_WORDS[4].relatedWords;
+    TEST_WORDS[4].relatedWords = ['الرَّحْمَة'];
+    invalidateRelationsCache();
+    var related = getRelatedWordObjects(TEST_WORDS[4]);
+    assert.strictEqual(related.length, 1, 'compute path resolves the ال-variant');
+    assert.strictEqual(related[0].arabic, 'رَحْمَة', 'compute path maps to dataset form');
+    TEST_WORDS[4].relatedWords = origRelated;
+    invalidateRelationsCache();
+  });
+
+  test('ال-strip tier is guarded: short strings and non-ال prefixes are untouched', function() {
+    // Too short to contain ال + a root → no attempt (avoids over-matching on
+    // strings that merely begin with ا+ل as part of the word itself).
+    assert.strictEqual(findWordByDefiniteArticleVariant('أَلَمْ'), undefined, 'short hamza-leading string not stripped');
+    // No ال prefix at all → untouched (would also be too short, but be explicit).
+    assert.strictEqual(findWordByDefiniteArticleVariant('إِلَى'), undefined, 'non-ال prefix not stripped');
+    assert.strictEqual(findWordByDefiniteArticleVariant('كِتَاب'), undefined, 'no ال prefix → no strip tier');
+    // Mid-word ال must never be stripped: a dataset word containing ال internally
+    // must still resolve only via the normal tiers, never via a mid-word cut.
+    assert.strictEqual(findWordByDefiniteArticleVariant('مَالِك'), undefined, 'mid-word ال not stripped');
+  });
+
+  test('genuinely-missing related words stay unresolved (no invented entries)', function() {
+    // الْأَمْن, إِيمَان, مُؤْمِن have no standalone dataset entries; the strip
+    // tier must not fabricate matches for them (أَمْن stripped from الْأَمْن
+    // is not in the index, and إِيمَان/مُؤْمِن have no ال to strip at all).
+    assert.strictEqual(findWordByDefiniteArticleVariant('الْأَمْن'), undefined, 'الأمن stays unresolved (no أمن entry)');
+    assert.strictEqual(findWordByNormalizedArabic('إِيمَان'), undefined, 'إيمان stays unresolved');
+    assert.strictEqual(findWordByNormalizedArabic('مُؤْمِن'), undefined, 'مؤمن stays unresolved');
+  });
+
   test('empty string to getDerivedForms returns empty array', function() {
     assert.deepStrictEqual(getDerivedForms(''), []);
     assert.deepStrictEqual(getDerivedForms(undefined), []);
