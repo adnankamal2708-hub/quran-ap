@@ -1269,11 +1269,11 @@ getResults: function () { return _safeguardResults; },
               <div class="session-stat-value" id="session-words-reviewed">0</div>
               <div class="session-stat-label">Words Reviewed</div>
             </div>
-            <div class="session-stat">
+            <div class="session-stat" id="session-card-mastered-new">
               <div class="session-stat-value" id="session-mastered-new">0</div>
               <div class="session-stat-label">Now Mastered</div>
             </div>
-            <div class="session-stat">
+            <div class="session-stat" id="session-card-comp-gain">
               <div class="session-stat-value" id="session-comp-gain">—</div>
               <div class="session-stat-label">Comprehension</div>
             </div>
@@ -1281,7 +1281,7 @@ getResults: function () { return _safeguardResults; },
               <div class="session-stat-value" id="session-roots-learned">0</div>
               <div class="session-stat-label">New Roots</div>
             </div>
-            <div class="session-stat">
+            <div class="session-stat" id="session-card-review-cards">
               <div class="session-stat-value" id="session-review-cards">0</div>
               <div class="session-stat-label">Review Cards</div>
             </div>
@@ -1296,28 +1296,24 @@ getResults: function () { return _safeguardResults; },
               <div class="session-stat-value" id="session-streak-earned" style="font-size:14px">0</div>
               <div class="session-stat-label">🔥 Streak Days</div>
             </div>
-            <!-- Adaptive session fields -->
-            <div class="session-stat">
+            <!-- Adaptive session fields (gated: only shown when 5+ words reviewed) -->
+            <div class="session-stat" id="session-card-accuracy">
               <div class="session-stat-value" id="session-accuracy">0%</div>
               <div class="session-stat-label">🎯 Accuracy</div>
             </div>
-            <div class="session-stat">
+            <div class="session-stat" id="session-card-retention">
               <div class="session-stat-value" id="session-retention">0%</div>
-              <div class="session-stat-label">🧠 Retention</div>
+              <div class="session-stat-label" title="% of previously learned words still remembered">🧠 Retention</div>
             </div>
-            <div class="session-stat">
-              <div class="session-stat-value" id="session-best-category">—</div>
-              <div class="session-stat-label">🏆 Best Category</div>
-            </div>
-            <div class="session-stat">
+            <div class="session-stat" id="session-card-needs-improvement">
               <div class="session-stat-value" id="session-needs-improvement">—</div>
               <div class="session-stat-label">📚 Needs Improvement</div>
             </div>
-            <div class="session-stat">
+            <div class="session-stat" id="session-card-coverage-gained">
               <div class="session-stat-value" id="session-coverage-gained">—</div>
               <div class="session-stat-label">📈 Coverage Gained</div>
             </div>
-            <div class="session-stat" style="grid-column:1/-1;border-bottom:none">
+            <div class="session-stat" id="session-card-rating" style="grid-column:1/-1;border-bottom:none">
               <div class="session-stat-value" id="session-rating-stars" style="font-size:18px;letter-spacing:2px"></div>
               <div class="session-stat-label" id="session-rating-label" style="font-size:10px"></div>
             </div>

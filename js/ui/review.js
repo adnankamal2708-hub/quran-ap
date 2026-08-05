@@ -229,6 +229,25 @@ function showSessionSummary(stats) {
   var $timeSpent = stats.timeSpentMinutes || 0;
   var $nextRecommendation = stats.nextRecommendation || 'Continue your learning journey';
 
+  // ── Fix 4: gate low-sample-size metrics behind a 5-word minimum ──
+  // Below 5 words reviewed, show only the always-meaningful cards
+  // (Words Reviewed, New Roots, Time Spent, Streak Days) + the Next banner.
+  var $showDetailedStats = $wordsReviewed >= 5;
+  var $gatedStatIds = [
+    'session-card-mastered-new',   // Now Mastered
+    'session-card-comp-gain',      // Comprehension
+    'session-card-review-cards',   // Review Cards
+    'session-card-accuracy',       // Accuracy
+    'session-card-retention',      // Retention
+    'session-card-needs-improvement', // Needs Improvement
+    'session-card-coverage-gained',   // Coverage Gained
+    'session-card-rating',         // Rating stars
+  ];
+  for (var $gsi = 0; $gsi < $gatedStatIds.length; $gsi++) {
+    var $gatedCard = document.getElementById($gatedStatIds[$gsi]);
+    if ($gatedCard) $gatedCard.style.display = $showDetailedStats ? '' : 'none';
+  }
+
   var $sharedStats = typeof getFoundationCourseStats === 'function' ? getFoundationCourseStats() : null;
   
   document.getElementById('session-words-reviewed').textContent = $wordsReviewed;
@@ -271,14 +290,7 @@ function showSessionSummary(stats) {
   if ($needsImprovementEl) {
     $needsImprovementEl.textContent = $forgottenCount > 0 
       ? $forgottenCount + ' word' + ($forgottenCount !== 1 ? 's' : '') 
-      : 'None — great session!';
-  }
-  var $bestCategoryEl = document.getElementById('session-best-category');
-  if ($bestCategoryEl) {
-    if ($recallRate >= 90) $bestCategoryEl.textContent = 'Excellent Recall';
-    else if ($recallRate >= 75) $bestCategoryEl.textContent = 'Good Retention';
-    else if ($recallRate >= 50) $bestCategoryEl.textContent = 'Building Strength';
-    else $bestCategoryEl.textContent = 'Needs Practice';
+      : 'None';
   }
 
   var encouragement = document.getElementById('session-encouragement');

@@ -116,10 +116,24 @@ function setupMockElements() {
   var statIds = [
     'session-words-reviewed', 'session-streak-earned', 'session-mastered-new',
     'session-comp-gain', 'session-roots-learned', 'session-review-cards',
-    'session-next-recommendation', 'session-time-spent', 'session-encouragement'
+    'session-next-recommendation', 'session-time-spent', 'session-encouragement',
+    'session-accuracy', 'session-retention', 'session-needs-improvement',
+    'session-coverage-gained', 'session-rating-stars', 'session-rating-label'
   ];
   statIds.forEach(function(id) {
     var el = makeEl('span');
+    el.id = id;
+    mockElements[id] = el;
+  });
+
+  // Session summary gated card wrappers (hidden below 5 words reviewed)
+  var cardIds = [
+    'session-card-mastered-new', 'session-card-comp-gain', 'session-card-review-cards',
+    'session-card-accuracy', 'session-card-retention', 'session-card-needs-improvement',
+    'session-card-coverage-gained', 'session-card-rating'
+  ];
+  cardIds.forEach(function(id) {
+    var el = makeEl('div');
     el.id = id;
     mockElements[id] = el;
   });
@@ -403,6 +417,105 @@ suite('Session Summary Modal', function() {
 
     closeSessionSummary();
     assert.strictEqual(modal.style.display, 'none');
+
+    global.document.getElementById = origGetElementById;
+  });
+
+  test('sub-5 session hides gated stat cards', function() {
+    var origGetElementById = global.document.getElementById;
+    global.document.getElementById = function(id) {
+      return mockElements[id] || null;
+    };
+
+    var stats = {
+      wordsReviewed: 1,
+      newMastered: 0,
+      newRootsLearned: 1,
+      comprehensionBefore: 40,
+      comprehensionAfter: 40,
+      reviewCardsCreated: 1,
+      streakDays: 1,
+      timeSpentMinutes: 1,
+      nextRecommendation: 'Keep going!',
+      sessionRecalled: 1,
+      sessionTotal: 1,
+    };
+    showSessionSummary(stats);
+
+    ['session-card-mastered-new', 'session-card-comp-gain', 'session-card-review-cards',
+     'session-card-accuracy', 'session-card-retention', 'session-card-needs-improvement',
+     'session-card-coverage-gained', 'session-card-rating'].forEach(function(id) {
+      assert.strictEqual(mockElements[id].style.display, 'none', id + ' should be hidden');
+    });
+
+    // Always-show cards stay visible (display not forced to 'none')
+    assert.notStrictEqual(mockElements['session-words-reviewed'].style.display, 'none');
+    assert.notStrictEqual(mockElements['session-roots-learned'].style.display, 'none');
+    assert.notStrictEqual(mockElements['session-time-spent'].style.display, 'none');
+    assert.notStrictEqual(mockElements['session-streak-earned'].style.display, 'none');
+
+    global.document.getElementById = origGetElementById;
+  });
+
+  test('5+ session shows gated stat cards', function() {
+    var origGetElementById = global.document.getElementById;
+    global.document.getElementById = function(id) {
+      return mockElements[id] || null;
+    };
+
+    var stats = {
+      wordsReviewed: 8,
+      newMastered: 2,
+      newRootsLearned: 3,
+      comprehensionBefore: 40,
+      comprehensionAfter: 45,
+      reviewCardsCreated: 8,
+      streakDays: 3,
+      timeSpentMinutes: 4,
+      nextRecommendation: 'Keep going!',
+      sessionRecalled: 6,
+      sessionTotal: 8,
+    };
+    showSessionSummary(stats);
+
+    ['session-card-mastered-new', 'session-card-comp-gain', 'session-card-review-cards',
+     'session-card-accuracy', 'session-card-retention', 'session-card-needs-improvement',
+     'session-card-coverage-gained', 'session-card-rating'].forEach(function(id) {
+      assert.strictEqual(mockElements[id].style.display, '', id + ' should be visible');
+    });
+
+    global.document.getElementById = origGetElementById;
+  });
+
+  test('needs-improvement shows None (not \'None — great session!\')', function() {
+    var origGetElementById = global.document.getElementById;
+    global.document.getElementById = function(id) {
+      return mockElements[id] || null;
+    };
+
+    var stats = {
+      wordsReviewed: 5,
+      sessionRecalled: 5,
+      sessionTotal: 5,
+    };
+    showSessionSummary(stats);
+    assert.strictEqual(mockElements['session-needs-improvement'].textContent, 'None');
+
+    global.document.getElementById = origGetElementById;
+  });
+
+  test('Best Category is fully removed (no rendering code remains)', function() {
+    var origGetElementById = global.document.getElementById;
+    global.document.getElementById = function(id) {
+      return mockElements[id] || null;
+    };
+
+    var stats = { wordsReviewed: 5, sessionRecalled: 5, sessionTotal: 5 };
+    showSessionSummary(stats);
+
+    // No session-best-category element is mocked, and the function must not
+    // reference it at all (would throw or silently no-op if removed).
+    assert.strictEqual(mockElements['session-best-category'], undefined);
 
     global.document.getElementById = origGetElementById;
   });
