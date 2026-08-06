@@ -17,6 +17,9 @@
   var COLLECTION_FEEDBACK = 'feedback';
   var COLLECTION_EVENTS = 'analytics_events';
 
+  // ── Support contact ─────────────────────────────────────────
+  var SUPPORT_EMAIL = 'probbplayer12@gmail.com';
+
   // ── State ───────────────────────────────────────────────────
   var _enabled = false;
   var _db = null;
@@ -167,7 +170,9 @@
         '<button id="fb-close" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1" aria-label="Close">✕</button>' +
       '</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">' +
-        'Help improve Bayan. Your feedback helps make the app better for everyone.' +
+        'Help improve Bayan. Your feedback helps make the app better for everyone. ' +
+        'For account or support issues, email ' +
+        '<a href="mailto:' + SUPPORT_EMAIL + '" style="color:var(--gold);text-decoration:underline;text-underline-offset:2px">' + SUPPORT_EMAIL + '</a>.' +
       '</div>' +
       '<textarea id="fb-text" placeholder="Describe your experience, suggestion, or issue…"' +
         ' style="width:100%;min-height:100px;background:var(--bg);border:1px solid var(--border);' +

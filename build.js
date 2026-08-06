@@ -706,6 +706,8 @@ async function build() {
   var precacheItems = [
     "'./'",
     "'./index.html'",
+    "'./privacy-policy.html'",
+    "'./terms-of-service.html'",
     "'./styles.min.css'",
     "'./js/data.bundle.min.js'",
     "'./js/app.bundle.min.js'",

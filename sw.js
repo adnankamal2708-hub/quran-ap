@@ -10,7 +10,7 @@
 //   • Offline reader support via aggressive vocabulary caching
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'bayan-v12';
+const CACHE_NAME = 'bayan-v14';
 // Note: build.js replaces CACHE_NAME with a timestamp-based version ('quran-vocab-v<timestamp>')
 // at build time. The service worker update cycle (install → wait → activate) then ensures
 // all clients get the fresh cache automatically on their next visit.
@@ -23,6 +23,8 @@ const DYNAMIC_CACHE = 'bayan-dynamic-v1';
 const PRECACHE_URLS = [
   './',
   './index.html',
+  './privacy-policy.html',
+  './terms-of-service.html',
   './styles.min.css',
   './js/data.bundle.min.js',
   './js/app.bundle.min.js',

@@ -980,8 +980,8 @@ function renderProfileAbout() {
   h += '<a class="pf-about-link pf-about-link-ext" href="' + $ghUrl + '" target="_blank" rel="noopener noreferrer">🌐 GitHub</a>';
   h += '<button class="pf-about-link" id="btn-send-feedback" type="button">💬 Send Feedback</button>';
   h += '<span class="pf-about-link pf-about-link-static">📜 Open Source (MIT)</span>';
-  h += '<a class="pf-about-link pf-about-link-ext" href="#" id="profile-privacy-link">🔒 Privacy Policy</a>';
-  h += '<a class="pf-about-link pf-about-link-ext" href="#" id="profile-terms-link">📜 Terms of Service</a>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="privacy-policy.html" target="_blank" rel="noopener noreferrer" id="profile-privacy-link">🔒 Privacy Policy</a>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="terms-of-service.html" target="_blank" rel="noopener noreferrer" id="profile-terms-link">📜 Terms of Service</a>';
   h += '</div>';
 
   h += '<div class="pf-about-footer">Made with ❤️ for the love of the Quran</div>';
