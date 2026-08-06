@@ -23,6 +23,7 @@ let _importPrompted = false;
 function initAuthUI() {
   wireAuthFormEvents();
   wireUserMenuEvents();
+  wireGuestNoticeEvents();
   checkActionCodeOnLoad();
 
   // Watch auth state to update UI
@@ -462,6 +463,48 @@ function checkActionCodeOnLoad() {
   return false;
 }
 
+// ── Guest Notice ─────────────────────────────────────────────
+
+/** localStorage key remembering that the user dismissed the guest notice */
+var GUEST_NOTICE_DISMISS_KEY = 'bayan_guest_notice_dismissed';
+
+function isGuestNoticeDismissed() {
+  try { return localStorage.getItem(GUEST_NOTICE_DISMISS_KEY) === 'true'; } catch (e) { return false; }
+}
+
+/** Wire dismiss + sign-up actions for the guest notice banner. */
+function wireGuestNoticeEvents() {
+  var closeBtn = document.getElementById('guest-notice-close');
+  if (closeBtn) {
+    closeBtn.onclick = function () {
+      var notice = document.getElementById('guest-notice');
+      if (notice) notice.hidden = true;
+      try { localStorage.setItem(GUEST_NOTICE_DISMISS_KEY, 'true'); } catch (e) { /* ignore */ }
+    };
+  }
+
+  var signupBtn = document.getElementById('guest-notice-signup');
+  if (signupBtn) {
+    signupBtn.onclick = function () {
+      if (typeof showAuthView === 'function') showAuthView('signup');
+      if (typeof switchView === 'function') switchView('auth');
+    };
+  }
+
+  // Sync with current auth state (covers startup before the first auth event fires)
+  updateGuestNotice(getCurrentUser ? getCurrentUser() : null);
+}
+
+/**
+ * Show the guest notice only for signed-out users who haven't dismissed it.
+ * Informational only — never blocks or interrupts usage.
+ */
+function updateGuestNotice(user) {
+  var notice = document.getElementById('guest-notice');
+  if (!notice) return;
+  notice.hidden = !!(user || isGuestNoticeDismissed());
+}
+
 // ── UI Update ─────────────────────────────────────────────────
 
 /**
@@ -471,6 +514,8 @@ function updateAuthUI(user) {
   var avatarDisplay = document.getElementById('user-avatar-display');
   var guestBadge = document.getElementById('guest-badge');
   var authViews = ['view-auth', 'view-profile', 'view-settings'];
+
+  updateGuestNotice(user);
 
   if (user) {
     // Update avatar display

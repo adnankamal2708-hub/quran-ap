@@ -451,6 +451,13 @@ getResults: function () { return _safeguardResults; },
       </div>
     </header>
 
+    <!-- GUEST NOTICE — informational & dismissible, shown only while signed out -->
+    <div class="guest-notice" id="guest-notice" role="status" hidden>
+      <svg class="guest-notice-icon" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="guest-notice-text">Your progress is saved on this device. <button type="button" class="guest-notice-action" id="guest-notice-signup">Sign up</button> to keep it on all your devices.</span>
+      <button type="button" class="guest-notice-close" id="guest-notice-close" aria-label="Dismiss notice">✕</button>
+    </div>
+
     <!-- CONTENT -->
     <main class="content" id="content" tabindex="-1">
 

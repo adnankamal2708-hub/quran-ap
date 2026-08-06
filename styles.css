@@ -1299,6 +1299,73 @@ body::before {
   font-weight: 400;
 }
 
+/* ── Guest Notice (informational, dismissible) ─────────────── */
+.guest-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 16px 0;
+  padding: 8px 10px 8px 12px;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.08), rgba(201, 168, 76, 0.03));
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--radius-section);
+  animation: fadeIn 0.3s ease forwards;
+}
+.guest-notice[hidden] {
+  display: none;
+}
+.guest-notice-icon {
+  color: var(--gold-dim);
+  flex-shrink: 0;
+  display: flex;
+}
+.guest-notice-text {
+  flex: 1;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.guest-notice-action {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--body);
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--gold);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.guest-notice-action:hover,
+.guest-notice-action:focus-visible {
+  color: var(--gold-light);
+}
+.guest-notice-close {
+  background: none;
+  border: none;
+  padding: 6px;
+  margin: -6px -2px -6px 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.guest-notice-close:hover,
+.guest-notice-close:focus-visible {
+  color: var(--text);
+  opacity: 1;
+}
+.guest-notice-close:focus-visible {
+  outline: 2px solid var(--gold-dim);
+  outline-offset: 1px;
+}
+
 /* ── View Toggle ───────────────────────────────────────────── */
 .mode-view {
   display: none;
@@ -1634,6 +1701,7 @@ body::before {
   .srs-label,
   .nav-row,
   .review-banner,
+  .guest-notice,
   .kbd-hint,
   .search-row,
   .filter-chips,
@@ -10755,7 +10823,7 @@ padding: 6px 0;
 
 /* ── Better touch targets for mobile ─────────────────────── */
 @media (pointer: coarse) {
-  .qa-btn, .chip, .nav-tab, .wordlist-item, .root-word, .word-network-chip {
+  .qa-btn, .chip, .nav-tab, .wordlist-item, .root-word, .word-network-chip, .guest-notice-close {
     min-height: 44px;
   }
   

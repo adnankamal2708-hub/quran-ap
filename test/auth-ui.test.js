@@ -413,6 +413,67 @@ ts('Auth — Escape HTML', function() {
   });
 });
 
+ts('Auth — Guest Notice', function() {
+  t('shows for signed-out users who have not dismissed', function() {
+    _storage = {};
+    global.__mockUser = null;
+    var el = createEl('guest-notice');
+    el.hidden = true;
+    updateGuestNotice(null);
+    assert.strictEqual(el.hidden, false);
+  });
+
+  t('hides for signed-in users', function() {
+    _storage = {};
+    var el = createEl('guest-notice');
+    el.hidden = false;
+    updateGuestNotice({ uid: 'u1', email: 'test@example.com', emailVerified: true });
+    assert.strictEqual(el.hidden, true);
+  });
+
+  t('respects prior dismissal', function() {
+    _storage = {};
+    localStorage.setItem('bayan_guest_notice_dismissed', 'true');
+    global.__mockUser = null;
+    var el = createEl('guest-notice');
+    el.hidden = true;
+    updateGuestNotice(null);
+    assert.strictEqual(el.hidden, true);
+  });
+
+  t('dismiss button hides banner and persists', function() {
+    _storage = {};
+    global.__mockUser = null;
+    var el = createEl('guest-notice');
+    el.hidden = false;
+    createEl('guest-notice-close');
+    wireGuestNoticeEvents();
+    document.getElementById('guest-notice-close').onclick();
+    assert.strictEqual(el.hidden, true);
+    assert.strictEqual(isGuestNoticeDismissed(), true);
+  });
+
+  t('sign up action opens auth view', function() {
+    _storage = {};
+    global.__mockUser = null;
+    createEl('guest-notice-signup');
+    wireGuestNoticeEvents();
+    document.getElementById('guest-notice-signup').onclick();
+    assert.strictEqual(global.__lastView, 'auth');
+  });
+
+  t('updateAuthUI hides notice for signed-in users', function() {
+    _storage = {};
+    global.currentView = 'dashboard';
+    var el = createEl('guest-notice');
+    el.hidden = false;
+    createEl('user-avatar-display');
+    createEl('guest-badge');
+    updateAuthUI({ uid: 'u1', email: 'test@example.com', displayName: 'Test', emailVerified: true });
+    assert.strictEqual(el.hidden, true);
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
