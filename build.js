@@ -699,6 +699,64 @@ async function build() {
     console.log('     ux-polish.js copied');
   }
 
+  // 6c. Copy standalone HTML pages + supporting assets into dist/
+  //     deploy.yml uploads ONLY dist/ to GitHub Pages, so any page the
+  //     app links to (legal pages, landing page) must be copied here or
+  //     it 404s in production. These pages are also SW-precached below,
+  //     so they MUST exist in dist/ or cache.addAll fails on install.
+  console.log('  6c. Copying standalone pages & assets...');
+  var standalonePages = [
+    'privacy-policy.html',
+    'terms-of-service.html',
+    'landing.html',
+  ];
+  standalonePages.forEach(function (page) {
+    var src = path.join(ROOT, page);
+    if (fs.existsSync(src)) {
+      var content = readFile(page);
+      writeFile(page, content);
+      console.log('     ' + page + ' copied');
+    } else {
+      console.log('     ' + page + ' (not present — skipped)');
+    }
+  });
+  // Files the standalone pages depend on that are NOT in the app bundle:
+  //   • styles.css — the legal pages link it directly (dist has styles.min.css only)
+  //   • js/services/auth-service.js — the landing page's auth gate loads it standalone
+  var standaloneDeps = ['styles.css', 'js/services/auth-service.js'];
+  standaloneDeps.forEach(function (rel) {
+    var src = path.join(ROOT, rel);
+    if (fs.existsSync(src)) {
+      var content = readFile(rel);
+      writeFile(rel, content);
+      console.log('     ' + rel + ' copied (standalone page dependency)');
+    } else {
+      console.log('     ' + rel + ' (not present — skipped)');
+    }
+  });
+  // Landing page assets: screenshots (assets/screenshots/) + auth gate script (js/landing/)
+  var assetDirs = ['assets', 'js/landing'];
+  assetDirs.forEach(function (dir) {
+    var srcDir = path.join(ROOT, dir);
+    if (!fs.existsSync(srcDir)) {
+      console.log('     ' + dir + '/ (not present — skipped)');
+      return;
+    }
+    (function copyDir(from, to) {
+      if (!fs.existsSync(to)) fs.mkdirSync(to, { recursive: true });
+      fs.readdirSync(from, { withFileTypes: true }).forEach(function (entry) {
+        var s = path.join(from, entry.name);
+        var d = path.join(to, entry.name);
+        if (entry.isDirectory()) {
+          copyDir(s, d);
+        } else if (entry.isFile()) {
+          fs.copyFileSync(s, d);
+        }
+      });
+    })(srcDir, path.join(DIST, dir));
+    console.log('     ' + dir + '/ copied');
+  });
+
   // 7. Copy SW and manifest
   console.log('  7. Copying service worker & assets...');
   var sw = readFile('sw.js');
@@ -708,10 +766,14 @@ async function build() {
     "'./index.html'",
     "'./privacy-policy.html'",
     "'./terms-of-service.html'",
+    "'./landing.html'",
+    "'./styles.css'",
     "'./styles.min.css'",
     "'./js/data.bundle.min.js'",
     "'./js/app.bundle.min.js'",
     "'./js/services/firebase-core.js'",
+    "'./js/services/auth-service.js'",
+    "'./js/landing/landing-auth-gate.js'",
     "'./js/ux-polish.js'",
     "'./manifest.json'",
     "'./favicon.ico'",

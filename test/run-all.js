@@ -38,6 +38,7 @@ var TESTS = [
   "explorer.test.js",
   "occurrence-index.test.js",
   "auth-ui.test.js",
+  "landing-gate.test.js",
   "recommendation-slot.test.js",
   "regression.test.js",
 ];
