@@ -390,6 +390,77 @@ ts('Profile — RenderProfileProgress', function() {
   });
 });
 
+ts('Profile — Progress: Lowest Comprehension gating', function() {
+  var _origComp = global.getAllSurahComprehension;
+  var _origInfo = global.getSurahInfo;
+
+  // Build surah comprehension data: first `studied` surahs have real
+  // (non-zero) progress, the rest are untouched at 0%.
+  function makeComp(studied, total) {
+    var out = [];
+    for (var i = 1; i <= total; i++) {
+      out.push({
+        surahId: i,
+        masteredWords: i <= studied ? 5 : 0,
+        estimatedComprehension: i <= studied ? Math.round((i / total) * 40) : 0,
+      });
+    }
+    return out;
+  }
+
+  t('hidden when fewer than 5 surahs have real progress', function() {
+    createEl('profile-progress');
+    global.getAllSurahComprehension = function() { return makeComp(3, 8); };
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('Lowest comprehension') < 0, 'list hidden below threshold');
+  });
+
+  t('shown once 5+ surahs have real progress', function() {
+    createEl('profile-progress');
+    global.getAllSurahComprehension = function() { return makeComp(6, 6); };
+    global.getSurahInfo = function(id) { return { name: 'Surah ' + id }; };
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('Lowest comprehension') >= 0, 'list visible at/above threshold');
+    assert.ok(html.indexOf('Surah 1') >= 0, 'lowest surah listed first');
+  });
+
+  t('untouched 0% surahs are excluded even above threshold', function() {
+    createEl('profile-progress');
+    global.getAllSurahComprehension = function() { return makeComp(5, 6); };
+    global.getSurahInfo = function(id) { return { name: 'Surah ' + id }; };
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('Lowest comprehension') >= 0, 'list visible (5 studied)');
+    assert.ok(html.indexOf('Surah 6') < 0, '0% surah excluded from list');
+  });
+
+  global.getAllSurahComprehension = _origComp;
+  global.getSurahInfo = _origInfo;
+});
+
+ts('Profile — Progress: visual elements', function() {
+  t('segmented stage bar or hint + legend render', function() {
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('profile-stage-bar') >= 0 || html.indexOf('profile-stage-hint') >= 0, 'stage bar or hint present');
+    assert.ok(html.indexOf('profile-stage-legend') >= 0, 'legend present');
+    assert.ok(html.indexOf('profile-stage-dot') >= 0, 'legend dots present');
+  });
+
+  t('gradient bar fills and forecast indicators render', function() {
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('profile-bar-fill profile-fill-gold') >= 0, 'foundation bar uses gold fill');
+    assert.ok(html.indexOf('profile-fill-blue') >= 0, 'surah bar uses blue fill');
+    assert.ok(html.indexOf('profile-fill-purple') >= 0, 'root bar uses purple fill');
+    assert.ok(html.indexOf('profile-forecast-dot') >= 0, 'forecast dots present');
+  });
+});
+
 ts('Profile — Subsection Tab Interactivity (Regression)', function() {
   function buildLayout() {
     var bar = mock.makeEl('div');

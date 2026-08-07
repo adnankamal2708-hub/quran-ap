@@ -674,6 +674,12 @@ function _pIcon(name, size) {
 // PROFILE — Progress Section (moved from Stats view)
 // ═══════════════════════════════════════════════════════════════
 
+/** Minimum surahs with real (non-zero) progress before the "Lowest
+ *  comprehension" ranking becomes meaningful. Below this the list is
+ *  dominated by near-identical early percentages (zero-noise for new
+ *  accounts), so it is hidden. */
+const LOWEST_COMP_HIDE_THRESHOLD = 5;
+
 function renderProfileProgress() {
   var container = document.getElementById('profile-progress');
   if (!container) return;
@@ -704,10 +710,10 @@ function renderProfileProgress() {
   if (fTotal > 0) {
     h += '<div class="profile-subsection">';
     h += '<div class="profile-subsection-title">📘 Foundation Course</div>';
-    h += '<div class="profile-bar-row"><span class="profile-bar-label">Progress</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + fPct + '%;background:var(--gold)"></div></div><span class="profile-bar-value">' + fCompleted + '/' + fTotal + '</span></div>';
+    h += '<div class="profile-bar-row"><span class="profile-bar-label">Progress</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-gold" style="width:' + fPct + '%"></div></div><span class="profile-bar-value">' + fCompleted + '/' + fTotal + '</span></div>';
     if (coverage) {
       var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
-      h += '<div class="profile-bar-row"><span class="profile-bar-label">Coverage</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%;background:var(--green)"></div></div><span class="profile-bar-value">' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%</span></div>';
+      h += '<div class="profile-bar-row"><span class="profile-bar-label">Coverage</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-green" style="width:' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%"></div></div><span class="profile-bar-value">' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%</span></div>';
     }
     h += '</div>';
   }
@@ -718,19 +724,28 @@ function renderProfileProgress() {
   var sCompleted = typeof getCompletedSurahCount === 'function' ? getCompletedSurahCount() : 0;
   h += '<div class="profile-subsection">';
   h += '<div class="profile-subsection-title">📖 Surah Learning</div>';
-  h += '<div class="profile-bar-row"><span class="profile-bar-label">Studied</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (surahIds.length > 0 ? Math.round((sCompleted / surahIds.length) * 100) : 0) + '%;background:var(--blue)"></div></div><span class="profile-bar-value">' + sCompleted + '/' + surahIds.length + '</span></div>';
+  h += '<div class="profile-bar-row"><span class="profile-bar-label">Studied</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-blue" style="width:' + (surahIds.length > 0 ? Math.round((sCompleted / surahIds.length) * 100) : 0) + '%"></div></div><span class="profile-bar-value">' + sCompleted + '/' + surahIds.length + '</span></div>';
 
-  // Show top 5 surahs by comprehension
-  if (surahComp.length > 0) {
-    surahComp.sort(function(a, b) { return a.estimatedComprehension - b.estimatedComprehension; });
+  // Lowest comprehension — only meaningful once several surahs have real
+  // (non-zero) progress. Below LOWEST_COMP_HIDE_THRESHOLD studied surahs the
+  // ranking is dominated by near-identical early percentages (zero-noise for
+  // new accounts), so the list is hidden. Untouched surahs (0%) are always
+  // excluded so the comparison reflects actual study.
+  var lowestList = [];
+  for (var li = 0; li < surahComp.length; li++) {
+    var lc = surahComp[li];
+    if (lc.estimatedComprehension > 0 || lc.masteredWords > 0) lowestList.push(lc);
+  }
+  if (lowestList.length >= LOWEST_COMP_HIDE_THRESHOLD) {
+    lowestList.sort(function(a, b) { return a.estimatedComprehension - b.estimatedComprehension; });
     h += '<div class="pui-text-sm pui-muted" style="margin:6px 0 4px">Lowest comprehension:</div>';
-    for (var si = 0; si < Math.min(3, surahComp.length); si++) {
-      var sc = surahComp[si];
+    for (var si = 0; si < Math.min(3, lowestList.length); si++) {
+      var sc = lowestList[si];
       var sName = typeof getSurahInfo === 'function' && getSurahInfo(sc.surahId) ? getSurahInfo(sc.surahId).name : 'Surah ' + sc.surahId;
-      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.max(1, sc.estimatedComprehension) + '%;background:' + (sc.estimatedComprehension >= 50 ? 'var(--gold)' : 'var(--red)') + '\"></div></div><span class="profile-bar-value" style="font-size:10px">' + sc.estimatedComprehension + '%</span></div>';
+      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + (sc.estimatedComprehension >= 50 ? 'profile-fill-gold' : 'profile-fill-red') + '" style="width:' + Math.max(1, sc.estimatedComprehension) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + sc.estimatedComprehension + '%</span></div>';
     }
-    if (surahComp.length > 3) {
-      h += '<div class="pui-value-sm pui-muted pui-center" style="margin-top:4px">+' + (surahComp.length - 3) + ' more surahs</div>';
+    if (lowestList.length > 3) {
+      h += '<div class="pui-value-sm pui-muted pui-center" style="margin-top:4px">+' + (lowestList.length - 3) + ' more surahs</div>';
     }
   }
   h += '</div>';
@@ -742,28 +757,40 @@ function renderProfileProgress() {
   h += '<div class="profile-subsection">';
   h += '<div class="profile-subsection-title">🌱 Root Families</div>';
   if (rootMastery) {
-    h += '<div class="profile-bar-row"><span class="profile-bar-label">Mastered</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (rootMastery.totalRoots > 0 ? Math.round((rootMastery.fullyMasteredRoots / rootMastery.totalRoots) * 100) : 0) + '%;background:var(--purple)"></div></div><span class="profile-bar-value">' + rootMastery.fullyMasteredRoots + '/' + rootMastery.totalRoots + '</span></div>';
+    h += '<div class="profile-bar-row"><span class="profile-bar-label">Mastered</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-purple" style="width:' + (rootMastery.totalRoots > 0 ? Math.round((rootMastery.fullyMasteredRoots / rootMastery.totalRoots) * 100) : 0) + '%"></div></div><span class="profile-bar-value">' + rootMastery.fullyMasteredRoots + '/' + rootMastery.totalRoots + '</span></div>';
   } else {
-    h += '<div class="profile-bar-row"><span class="profile-bar-label">Studied</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + (rfTotal > 0 ? Math.round((rfCompleted / rfTotal) * 100) : 0) + '%;background:var(--purple)"></div></div><span class="profile-bar-value">' + rfCompleted + '/' + rfTotal + '</span></div>';
+    h += '<div class="profile-bar-row"><span class="profile-bar-label">Studied</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-purple" style="width:' + (rfTotal > 0 ? Math.round((rfCompleted / rfTotal) * 100) : 0) + '%"></div></div><span class="profile-bar-value">' + rfCompleted + '/' + rfTotal + '</span></div>';
   }
   h += '</div>';
 
-  // Learning stages breakdown
+  // Learning stages breakdown — single segmented bar with color legend
   var stageItems = [
-    { key: 'newCount', label: '🆕 New', val: srsStats.newCount || 0 },
-    { key: 'learning', label: '🔍 Learning', val: srsStats.learning || 0 },
-    { key: 'young', label: '🌱 Young', val: srsStats.young || 0 },
-    { key: 'mature', label: '💡 Mature', val: srsStats.mature || 0 },
+    { label: '🆕 New', val: srsStats.newCount || 0, fillCls: 'profile-fill-blue', color: 'var(--blue)' },
+    { label: '🔍 Learning', val: srsStats.learning || 0, fillCls: 'profile-fill-purple', color: 'var(--purple)' },
+    { label: '🌱 Young', val: srsStats.young || 0, fillCls: 'profile-fill-gold', color: 'var(--gold-dim)' },
+    { label: '💡 Mature', val: srsStats.mature || 0, fillCls: 'profile-fill-green', color: 'var(--green)' },
   ];
   h += '<div class="profile-subsection">';
   h += '<div class="profile-subsection-title">📊 Learning Stages</div>';
-  var totalStaged = stageItems.reduce(function(s, it) { return s + it.val; }, 0) || 1;
-  for (var sti = 0; sti < stageItems.length; sti++) {
-    var st = stageItems[sti];
-    var stPct = Math.round((st.val / totalStaged) * 100);
-    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + st.label + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + stPct + '%;background:' + (sti === 0 ? 'var(--blue)' : sti === 1 ? 'var(--purple)' : sti === 2 ? 'var(--gold-dim)' : 'var(--green)') + '\"></div></div><span class="profile-bar-value" style="font-size:10px">' + st.val + '</span></div>';
+  var totalStaged = stageItems.reduce(function(s, it) { return s + it.val; }, 0);
+  if (totalStaged > 0) {
+    h += '<div class="profile-stage-bar">';
+    for (var sti = 0; sti < stageItems.length; sti++) {
+      var st = stageItems[sti];
+      var stPct = Math.round((st.val / totalStaged) * 100);
+      if (stPct <= 0) continue;
+      h += '<div class="profile-stage-seg ' + st.fillCls + '" style="width:' + stPct + '%" title="' + st.label + ': ' + st.val + '"></div>';
+    }
+    h += '</div>';
+  } else {
+    h += '<div class="profile-stage-hint">No words studied yet — your stage breakdown will appear here as you learn.</div>';
   }
-  h += '</div>';
+  h += '<div class="profile-stage-legend">';
+  for (var stl = 0; stl < stageItems.length; stl++) {
+    var sl = stageItems[stl];
+    h += '<div class="profile-stage-item"><span class="profile-stage-dot" style="background:' + sl.color + '"></span><span>' + sl.label + '</span><span class="profile-stage-count">' + sl.val + '</span></div>';
+  }
+  h += '</div></div>';
 
   // Reading Progress
   var readingSummary = null;
@@ -790,11 +817,13 @@ function renderProfileProgress() {
   h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '\">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
   h += '</div></div>';
 
-  // Review Forecast (compact)
+  // Review Forecast (compact) — color-dotted timeframes, same layout
   h += '<div class="profile-subsection">';
   h += '<div class="profile-subsection-title">📅 Review Forecast</div>';
   var intervals = [0, 3, 7, 14, 30];
   var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
+  var forecastColors = ['var(--gold)', 'var(--gold)', 'var(--green)', 'var(--blue)', 'var(--blue)'];
+  var forecastFills = ['profile-fill-gold', 'profile-fill-gold', 'profile-fill-green', 'profile-fill-blue', 'profile-fill-blue'];
   for (var ii = 0; ii < intervals.length; ii++) {
     var cutoff = now + intervals[ii] * 86400000;
     var cnt = 0;
@@ -804,7 +833,7 @@ function renderProfileProgress() {
         if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
       }
     }
-    h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, ALL_WORDS ? ALL_WORDS.length : 1)) * 100)) + '%;background:' + (ii < 2 ? 'var(--gold)' : ii < 3 ? 'var(--green)' : 'var(--blue)') + '\"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
+    h += '<div class="profile-bar-row"><span class="profile-forecast-dot" style="background:' + forecastColors[ii] + '"></span><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + forecastFills[ii] + '" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, ALL_WORDS ? ALL_WORDS.length : 1)) * 100)) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
   }
   h += '</div>';
 
