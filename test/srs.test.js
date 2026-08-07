@@ -37,8 +37,22 @@ global.Date.UTC = OriginalDate.UTC;
 global.Date.parse = OriginalDate.parse;
 // Mock global dependencies
 global.ALL_WORDS = [];
-// Identity: keep IDs as-is to avoid migration transformation during algorithm tests
-global.getCanonicalIdForOldId = function(id) { return id; };
+// Realistic stub mirroring production migration: canonical cw_* ids pass
+// through unchanged, known raw w_N ids map to their canonical twin (cw_N),
+// and anything unknown resolves to null (loadSRS() then keeps the original
+// key as a fallback, exactly like production). This is intentionally
+// NON-identity: the old identity stub masked the w_N → cw_N migration and
+// let raw-id SRS lookups pass unnoticed — which hid the getSRSStats bug.
+// NOTE: w_N → cw_N uses numeric identity as a simplified approximation —
+// production's OLD_ID_TO_CANONICAL maps by dedup order, so duplicates can
+// map w_5 → cw_3. The regression suite below uses an explicit cwMap for
+// precision where the exact mapping matters.
+global.getCanonicalIdForOldId = function(id) {
+  if (!id) return null;
+  if (id.indexOf('cw_') === 0) return id;
+  var m = /^w_(\d+)$/.exec(String(id));
+  return m ? 'cw_' + m[1] : null;
+};
 global.window = {};
 
 // ═══════════════════════════════════════════════════════════════
@@ -262,9 +276,13 @@ suite('Leech Detection', function() {
 
   test('three good ratings on leeched word clears leech', function() {
     clearStorage();
-    saveSRS({ w_recover: { stage: 2, interval: 5, totalReviews: 10, reps: 0, lapses: 5, easeFactor: 2.2, leechCount: 3, isLeech: true, dueDate: _mockNow, lastRating: 0, ratedAt: _mockNow } });
-    for (var i = 0; i < 3; i++) { rateSRSWord('w_recover', 2); }
-    assert.strictEqual(loadSRS()['w_recover'].isLeech, false);
+    // Use a canonical-style id: with the realistic (non-identity) migration
+    // stub, raw w_* ids that aren't w_<digits> resolve to null and their
+    // _leechRecovery progress is dropped on load — canonical cw_ ids pass
+    // through unchanged, matching production where reviews are cw_-keyed.
+    saveSRS({ cw_recover: { stage: 2, interval: 5, totalReviews: 10, reps: 0, lapses: 5, easeFactor: 2.2, leechCount: 3, isLeech: true, dueDate: _mockNow, lastRating: 0, ratedAt: _mockNow } });
+    for (var i = 0; i < 3; i++) { rateSRSWord('cw_recover', 2); }
+    assert.strictEqual(loadSRS()['cw_recover'].isLeech, false);
   });
 
   test('bad rating resets leech recovery progress', function() {
@@ -343,6 +361,83 @@ suite('SRS Statistics', function() {
     assert.ok(stats.total >= 1);
     assert.ok(typeof stats.avgRetention === 'number');
     assert.ok(typeof stats.avgEaseFactor === 'number');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SRS Stats Canonical-ID Regression
+//
+// Regression for the getSRSStats canonical-vs-raw ID bug: reviews are
+// stored under canonical cw_N ids (loadSRS() migrates legacy w_N/Arabic
+// keys), but getSRSStats used to iterate raw ALL_WORDS (w_N ids), so stored
+// data never matched and every word was reported as "new" (zeroed stats for
+// every user with review history). Mirrors the relationship-cache re-key
+// regression pattern in test/vocabulary.test.js.
+// ═══════════════════════════════════════════════════════════════
+
+suite('SRS Stats Canonical-ID Regression', function() {
+  test('getSRSStats counts reviews stored under legacy w_*/Arabic keys after migration', function() {
+    clearStorage();
+    invalidateSRSMemoryCache();
+
+    // Simulate production: ALL_WORDS holds raw w_N words while the canonical
+    // list uses cw_N ids, with a realistic w_N → cw_N mapping (same shape as
+    // the non-identity harness stub).
+    var rawWords = [
+      { id: 'w_0', arabic: '\u0643\u0650\u062a\u064e\u0627\u0628' },
+      { id: 'w_1', arabic: '\u0631\u064e\u062d\u0652\u0645\u064e\u0629' },
+      { id: 'w_2', arabic: '\u0639\u0650\u0644\u0652\u0645' },
+    ];
+    var cwMap = {};
+    var canonicalWords = rawWords.map(function(w, i) {
+      var cw = {};
+      for (var k in w) cw[k] = w[k];
+      cw.id = 'cw_' + i;
+      cwMap['w_' + i] = 'cw_' + i;
+      return cw;
+    });
+
+    var origAllWords = global.ALL_WORDS;
+    var origCanonWords = global.getCanonicalWords;
+    var origCanonId = global.getCanonicalIdForOldId;
+    global.ALL_WORDS = rawWords;
+    global.getCanonicalWords = function() { return canonicalWords; };
+    global.getCanonicalIdForOldId = function(id) { return cwMap[id] || null; };
+    invalidateSRSMemoryCache();
+
+    try {
+      // Real review history stored under LEGACY keys: one w_N key, one
+      // Arabic key, one already-canonical key. loadSRS() must migrate the
+      // first two before getSRSStats() reads them.
+      localStorage.setItem('quran_srs_data', JSON.stringify({
+        w_0: { stage: 3, dueDate: _mockNow + 86400000 * 30, interval: 30, totalReviews: 10, easeFactor: 2.5, leechCount: 0, isLeech: false, ratedAt: _mockNow },
+        '\u0631\u064e\u062d\u0652\u0645\u064e\u0629': { stage: 2, dueDate: _mockNow + 86400000 * 5, interval: 5, totalReviews: 4, easeFactor: 2.3, leechCount: 0, isLeech: false, ratedAt: _mockNow },
+        cw_2: { stage: 1, dueDate: _mockNow - 1000, interval: 1, totalReviews: 3, easeFactor: 2.0, leechCount: 0, isLeech: false, ratedAt: _mockNow },
+      }));
+
+      // Migration must re-key all three to canonical ids
+      var data = loadSRS();
+      assert.ok(data.cw_0 !== undefined, 'w_0 migrated to cw_0');
+      assert.ok(data.cw_1 !== undefined, 'Arabic key migrated to cw_1');
+      assert.ok(data.cw_2 !== undefined, 'canonical key preserved');
+      assert.ok(data.w_0 === undefined, 'raw w_0 no longer present after migration');
+
+      // The stats must reflect the real (canonical) data — NOT all-zero/new
+      var stats = getSRSStats();
+      assert.strictEqual(stats.total, 3, 'total counts canonical words');
+      assert.strictEqual(stats.newCount, 0, 'no word incorrectly reported as new');
+      assert.strictEqual(stats.mature, 1, 'mature counted (cw_0)');
+      assert.strictEqual(stats.young, 1, 'young counted (cw_1)');
+      assert.strictEqual(stats.learning, 1, 'learning counted (cw_2)');
+      assert.strictEqual(stats.totalReviews, 17, 'review counts accumulated');
+      assert.ok(stats.dueToday >= 1, 'overdue cw_2 counted as due today');
+    } finally {
+      global.ALL_WORDS = origAllWords;
+      global.getCanonicalWords = origCanonWords;
+      global.getCanonicalIdForOldId = origCanonId;
+      invalidateSRSMemoryCache();
+      clearStorage();
+    }
   });
 });
 

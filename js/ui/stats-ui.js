@@ -748,14 +748,18 @@ function renderReviewForecast(srsData, now) {
     { label: '14 days', days: 14 },
     { label: '30 days', days: 30 },
   ];
-  var totalWords = ALL_WORDS.length || 1;
+  // Iterate canonical words — srsData keys are canonical cw_N ids after
+  // loadSRS() migration, so raw w_N lookups never match (canonical-vs-raw ID bug).
+  var forecastWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  var totalWords = forecastWords.length || 1;
 
   for (var ii = 0; ii < intervals.length; ii++) {
     var interval = intervals[ii];
     var cutoff = now + interval.days * DAY_MS;
     var count = 0;
-    for (var wi = 0; wi < ALL_WORDS.length; wi++) {
-      var entry = srsData[ALL_WORDS[wi].id];
+    for (var wi = 0; wi < forecastWords.length; wi++) {
+      var entry = srsData[forecastWords[wi].id];
       if (entry && entry.dueDate <= cutoff) count++;
     }
     var pct = Math.round((count / totalWords) * 100);

@@ -87,7 +87,10 @@ function gatherReviewCenterData() {
   // ── Recently learned words (last 7 days) ──
   var $recentlyLearned = [];
   var $weekAgo = $now - 7 * $dayMs;
-  var $allWords = typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : [];
+  // Iterate canonical words — srsData keys are canonical cw_N ids after
+  // loadSRS() migration, so raw w_N lookups never match (canonical-vs-raw ID bug).
+  var $allWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
   for (var $wi = 0; $wi < $allWords.length; $wi++) {
     var $wEntry = $srsData[$allWords[$wi].id];
     if ($wEntry && $wEntry.ratedAt && $wEntry.ratedAt >= $weekAgo && $wEntry.stage === 1) {

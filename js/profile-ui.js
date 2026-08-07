@@ -824,16 +824,19 @@ function renderProfileProgress() {
   var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
   var forecastColors = ['var(--gold)', 'var(--gold)', 'var(--green)', 'var(--blue)', 'var(--blue)'];
   var forecastFills = ['profile-fill-gold', 'profile-fill-gold', 'profile-fill-green', 'profile-fill-blue', 'profile-fill-blue'];
+  // Iterate canonical words (SRS data is keyed by canonical cw_N ids after
+  // loadSRS() migration — raw w_N lookups never match, which zeroed the
+  // forecast). Same canonical-with-fallback pattern as getSRSStats.
+  var forecastWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
   for (var ii = 0; ii < intervals.length; ii++) {
     var cutoff = now + intervals[ii] * 86400000;
     var cnt = 0;
-    if (typeof ALL_WORDS !== 'undefined') {
-      for (var wi = 0; wi < ALL_WORDS.length; wi++) {
-        var entry = srsData[ALL_WORDS[wi].id];
-        if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
-      }
+    for (var wi = 0; wi < forecastWords.length; wi++) {
+      var entry = srsData[forecastWords[wi].id];
+      if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
     }
-    h += '<div class="profile-bar-row"><span class="profile-forecast-dot" style="background:' + forecastColors[ii] + '"></span><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + forecastFills[ii] + '" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, ALL_WORDS ? ALL_WORDS.length : 1)) * 100)) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
+    h += '<div class="profile-bar-row"><span class="profile-forecast-dot" style="background:' + forecastColors[ii] + '"></span><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + forecastFills[ii] + '" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, forecastWords.length)) * 100)) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
   }
   h += '</div>';
 

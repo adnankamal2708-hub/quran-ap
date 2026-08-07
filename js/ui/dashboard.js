@@ -24,7 +24,9 @@ var _forecastCacheKey = null;
 /** Build a cache key that changes when SRS stats or word set changes. */
 function _getForecastCacheKey() {
   var $st = typeof getSRSStats === 'function' ? getSRSStats() : {};
-  return ($st.total || 0) + '|' + ($st.dueToday || 0) + '|' + ($st.reviewsToday || 0) + '|' + (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS.length : 0);
+  // $st.total already reflects the canonical word count (getSRSStats iterates
+  // getCanonicalWords()), which is the same space _computeForecast() now uses.
+  return ($st.total || 0) + '|' + ($st.dueToday || 0) + '|' + ($st.reviewsToday || 0) + '|' + ($st.total || 0);
 }
 
 /** Compute the 4-interval forecast: count of words due within Today, 3d, 7d, 14d. */
@@ -38,7 +40,10 @@ function _computeForecast() {
     { label: '7 Days', days: 7, color: 'var(--green)' },
     { label: '14 Days', days: 14, color: 'var(--purple)' },
   ];
-  var $allWordsArr = typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : [];
+  // Iterate canonical words — srsData keys are canonical cw_N ids after
+  // loadSRS() migration, so raw w_N lookups never match (canonical-vs-raw ID bug).
+  var $allWordsArr = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
   var $result = [];
   for (var $ii = 0; $ii < $intervals.length; $ii++) {
     var $int = $intervals[$ii];

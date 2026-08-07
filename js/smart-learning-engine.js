@@ -294,17 +294,19 @@ function gatherLearningContext() {
   };
 
   // ── Count due, overdue, leeched, studied ──
-  if (typeof ALL_WORDS !== 'undefined') {
-    for (var i = 0; i < ALL_WORDS.length; i++) {
-      var entry = srsData[ALL_WORDS[i].id];
-      if (entry) {
-        ctx.totalStudied++;
-        if (entry.isLeech) ctx.leechCount++;
-        if (entry.dueDate) {
-          if (now >= entry.dueDate) {
-            ctx.dueCount++;
-            if (now - entry.dueDate > 3 * dayMs) ctx.overdueCount++;
-          }
+  // Iterate canonical words — srsData keys are canonical cw_N ids after
+  // loadSRS() migration, so raw w_N lookups never match (canonical-vs-raw ID bug).
+  var ctxWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+  for (var i = 0; i < ctxWords.length; i++) {
+    var entry = srsData[ctxWords[i].id];
+    if (entry) {
+      ctx.totalStudied++;
+      if (entry.isLeech) ctx.leechCount++;
+      if (entry.dueDate) {
+        if (now >= entry.dueDate) {
+          ctx.dueCount++;
+          if (now - entry.dueDate > 3 * dayMs) ctx.overdueCount++;
         }
       }
     }

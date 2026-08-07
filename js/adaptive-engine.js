@@ -225,18 +225,22 @@ function getSmartRecommendation() {
     for (var id2 in srsData) {
       var e2 = srsData[id2];
       if (!e2 || !e2.dueDate || now < e2.dueDate) continue;
-      // Find word object to get root/type
-      if (typeof ALL_WORDS !== 'undefined') {
-        for (var wi = 0; wi < ALL_WORDS.length; wi++) {
-          if (ALL_WORDS[wi].id === id2) {
-            if (ALL_WORDS[wi].root && ALL_WORDS[wi].root !== '\u2014') {
-              if (!dueRoots[ALL_WORDS[wi].root]) dueRoots[ALL_WORDS[wi].root] = 0;
-              dueRoots[ALL_WORDS[wi].root]++;
+      // Find word object to get root/type. srsData keys are canonical cw_N ids
+      // after loadSRS() migration, so match against canonical words (raw w_N
+      // ids never equal the stored key — this was the canonical-vs-raw ID bug).
+      var dueWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+        ? getCanonicalWords() : ALL_WORDS;
+      if (typeof dueWords !== 'undefined') {
+        for (var wi = 0; wi < dueWords.length; wi++) {
+          if (dueWords[wi].id === id2) {
+            if (dueWords[wi].root && dueWords[wi].root !== '\u2014') {
+              if (!dueRoots[dueWords[wi].root]) dueRoots[dueWords[wi].root] = 0;
+              dueRoots[dueWords[wi].root]++;
             }
-            var tc = ALL_WORDS[wi].typeCategory || 'other';
+            var tc = dueWords[wi].typeCategory || 'other';
             if (!dueTypes[tc]) dueTypes[tc] = 0;
             dueTypes[tc]++;
-            dueExample = ALL_WORDS[wi];
+            dueExample = dueWords[wi];
             break;
           }
         }

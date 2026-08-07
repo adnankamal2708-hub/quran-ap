@@ -682,7 +682,13 @@ function getSRSStats() {
   var efSum = 0;
   var efCount = 0;
 
-  ALL_WORDS.forEach(function (w) {
+  // Iterate canonical words (falling back to ALL_WORDS). SRS review data is
+  // stored under canonical cw_N ids after loadSRS() migration, so stats must
+  // be computed against the canonical key space — raw w_N ids never match
+  // the stored entries (this was the getSRSStats canonical-vs-raw ID bug).
+  var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  words.forEach(function (w) {
     stats.total++;
     var entry = data[w.id];
     if (!entry || entry.stage === 0) {
