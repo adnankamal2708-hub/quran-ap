@@ -38,7 +38,7 @@ const PRODUCT_IDS = {
 };
 
 // ── Handler ─────────────────────────────────────────────────────
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
   // CORS (the frontend will call this from a different domain)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -129,7 +129,21 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ url: data.url });
   } catch (err) {
+    // Log the full detail server-side; respond generically so internal
+    // error text (Firebase token errors, provider URLs, network details)
+    // never leaks to unauthenticated callers — same philosophy as webhook.js.
     console.error('[create-checkout-session] Error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Internal error' });
   }
 };
+
+// Vercel: cap the request body at 1kb — the only legitimate payload is
+// { plan: 'monthly'|'yearly' } (~20 bytes), so a larger body is never
+// valid input and only invites abuse. Keeps default JSON auto-parsing.
+handler.config = {
+  api: {
+    bodyParser: { sizeLimit: '1kb' },
+  },
+};
+
+module.exports = handler;
