@@ -35,10 +35,6 @@ let _syncTimer = null;
 /** Whether a sync is currently in progress */
 let _syncing = false;
 
-/** Cached grandfather status (null = not checked, true = grandfathered, false = not) */
-let _grandfathered = null;
-const GRANDFATHER_KEY = 'quran_sync_grandfathered';
-
 // ── Initialization ────────────────────────────────────────────
 
 /**
@@ -168,9 +164,8 @@ async function uploadToCloud(userId, retryCount) {
 
   // Premium gate enforced inside the function itself (not just at UI call
   // sites) so a free user cannot self-grant sync by calling
-  // window.__sync.uploadToCloud() directly from the console. The legitimate
-  // grandfather clause (existing sync doc / localStorage flag) still applies.
-  if (!(await _isSyncAllowed(userId))) {
+  // window.__sync.uploadToCloud() directly from the console.
+  if (!(await _isSyncAllowed())) {
     console.log('[sync] Cloud sync is a premium feature. Skipping upload for free user.');
     if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
       window.__premium.requestUpgrade('cloud-sync');
@@ -203,10 +198,6 @@ async function uploadToCloud(userId, retryCount) {
       learningData: data,
       updatedAt: _serverTimestamp(),
     }, { merge: true });
-
-    // Set grandfather flag on successful upload (ensures future syncs work)
-    _grandfathered = true;
-    try { localStorage.setItem(GRANDFATHER_KEY, 'true'); } catch (e) {}
 
     console.log('[sync] Data uploaded to cloud.');
     return true;
@@ -383,39 +374,17 @@ function mergeData(localData, cloudData) {
 }
 
 /**
- * Premium gate + grandfather clause for cloud sync.
- * Returns a Promise<boolean>: true if the user may sync (premium, or a
- * legitimately grandfathered pre-existing user with a sync doc / flag).
+ * Premium gate for cloud sync.
+ * Returns a Promise<boolean>: true only when the user has an active
+ * premium subscription (CLOUD_SYNC feature). A former free-sync backdoor
+ * was removed (it could be self-triggered by writing one's own
+ * learning/{uid} doc), so there is deliberately no alternate free path.
  * Shared by fullSync and uploadToCloud so the gate cannot be bypassed by
  * calling window.__sync.uploadToCloud() directly.
  */
-async function _isSyncAllowed(userId) {
-  // Premium users always have access
-  var _premium = window.__premium && typeof window.__premium.hasFeature === 'function' &&
-    window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
-  if (_premium) return true;
-
-  // Grandfather clause: cached flag first, then localStorage
-  if (_grandfathered !== true) {
-    try { _grandfathered = localStorage.getItem(GRANDFATHER_KEY) === 'true'; } catch (e) {}
-  }
-  if (_grandfathered) return true;
-
-  // Grandfather existing users who already have a sync document
-  try {
-    var _db = window.__firebaseCore ? window.__firebaseCore.getDb() : null;
-    if (_db && userId) {
-      var _docRef = _doc(_db, FIRESTORE_LEARNING_COLLECTION, userId);
-      var _snap = await _getDoc(_docRef);
-      if (_snap.exists()) {
-        _grandfathered = true;
-        try { localStorage.setItem(GRANDFATHER_KEY, 'true'); } catch (e) {}
-        return true;
-      }
-    }
-  } catch (e) { /* grandfather check failed — gate applies */ }
-
-  return false;
+async function _isSyncAllowed() {
+  return !!(window.__premium && typeof window.__premium.hasFeature === 'function' &&
+    window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC));
 }
 
 /**
@@ -428,8 +397,8 @@ async function fullSync(userId) {
     return false;
   }
 
-  // Premium gate + grandfather clause (shared check — same as uploadToCloud)
-  if (!(await _isSyncAllowed(userId))) {
+  // Premium gate (shared check — same as uploadToCloud)
+  if (!(await _isSyncAllowed())) {
     console.log('[sync] Cloud sync is a premium feature. Skipping sync for free user.');
     return false;
   }
@@ -471,19 +440,10 @@ async function fullSync(userId) {
 function queueSync(userId) {
   if (!_syncReady || !userId) return;
 
-  // Premium gate + cached grandfather clause (no Firestore read — use cached or localStorage flag)
+  // Premium gate (no alternate free path)
   var _premium = window.__premium && typeof window.__premium.hasFeature === 'function' &&
     window.__premium.hasFeature(window.__premium.FEATURES.CLOUD_SYNC);
-  if (!_premium) {
-    if (_grandfathered !== true) {
-      try {
-        if (localStorage.getItem(GRANDFATHER_KEY) === 'true') {
-          _grandfathered = true;
-        }
-      } catch (e) {}
-    }
-    if (!_grandfathered) return;
-  }
+  if (!_premium) return;
 
   if (_syncTimer) {
     clearTimeout(_syncTimer);
