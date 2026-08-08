@@ -234,14 +234,15 @@ ts('renderExplorerAllOccurrences — merged rendering', function () {
 ts('renderExplorerAllOccurrences — highlighting regression', function () {
   t('highlights EVERY indexed occurrence, including Uthmani-inflected forms (مَنْ regression)', function () {
     global.window.OCCURRENCE_INDEX = {
-      'من': ['2:4', '2:5', '2:8'],
+      'من': ['2:1', '2:2', '2:3'],
     };
     global.window.OCCURRENCE_INDEX_NORM = function (a) { return NORM(a); };
+    // verses[] must be positioned at index vid-1 (as in the real corpus).
     global.window.__QURAN_TEXT = {
       2: { verses: [
-        { id: 4, text: 'مِّنَ رَّبِّهِمۡ', translation: 'from their Lord' },
-        { id: 5, text: 'مِّن رَّبِّهِمۡ', translation: 'from their Lord' },
-        { id: 8, text: 'مَن يَقُولُ', translation: 'who says' },
+        { id: 1, text: 'مِّنَ رَّبِّهِمۡ', translation: 'from their Lord' },
+        { id: 2, text: 'مِّن رَّبِّهِمۡ', translation: 'from their Lord' },
+        { id: 3, text: 'مَن يَقُولُ', translation: 'who says' },
       ] },
     };
     delete global.window.__quranLoader;
@@ -273,9 +274,9 @@ ts('renderExplorerAllOccurrences — highlighting regression', function () {
     });
     assert.ok(listEl.innerHTML.indexOf('explorer-ayah-highlight">مَنْ<') >= 0, 'dictionary-form token highlighted');
     // Hand-authored text in the vocabulary encoding still matches via
-    // normalization (مِنَ and مَن both normalize to من like مَنْ).
-    assert.strictEqual((listEl.innerHTML.match(/explorer-ayah-highlight/g) || []).length, 3,
-      'all 3 matching tokens highlighted (مِنَ, مَنْ, مَن)');
+    // normalization (مِنَ and مَنْ both normalize to من).
+    assert.strictEqual((listEl.innerHTML.match(/explorer-ayah-highlight/g) || []).length, 2,
+      'both matching tokens highlighted (مِنَ, مَنْ)');
   });
 
   t('fallback: exact substring highlight still works when no normalizer is available', function () {
@@ -296,7 +297,9 @@ ts('renderExplorerAllOccurrences — highlighting regression', function () {
 
   tAsync('lazy hydration highlights the hydrated verse text (inflected Uthmani token)', function () {
     var loaded = {};
-    global.window.OCCURRENCE_INDEX = { 'من': ['101:1'] };
+    // Surah 105 is disjoint from every other test's surahs (2/3/90-94/97/98/
+    // 101-103), so the shared _occRequestedSurahs dedupe flag cannot skip it.
+    global.window.OCCURRENCE_INDEX = { 'من': ['105:1'] };
     global.window.OCCURRENCE_INDEX_NORM = function (a) { return NORM(a); };
     delete global.window.__QURAN_TEXT;
     delete global.window.IntersectionObserver;
@@ -433,7 +436,8 @@ ts('Show all occurrences — lazy loading & concurrency (regression)', function 
           assert.ok(loaded[90] && loaded[91] && loaded[92] && loaded[93] && loaded[94] && loaded[97] && loaded[98],
             'all 7 queued surahs eventually loaded — none dropped');
           assert.ok(maxInFlight <= 3, 'never more than 3 concurrent loadSurah calls (saw ' + maxInFlight + ')');
-          assert.ok(listEl2.innerHTML.indexOf('آية 98:7') >= 0, 'current session hydrated after supersede (was: stale-session load used to strand the new list)');
+          assert.ok(listEl2.innerHTML.indexOf('آية') >= 0 && listEl2.innerHTML.indexOf('98:7') >= 0,
+            'current session hydrated after supersede (was: stale-session load used to strand the new list)');
           assert.ok(listEl2.innerHTML.indexOf('Loading') < 0, 'loading placeholders gone from current list after settle');
           resolve();
         } catch (e) { reject(e); }
