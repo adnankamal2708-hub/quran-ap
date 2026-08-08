@@ -917,11 +917,122 @@ suite('Exported API surface', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// PLAN PICKER PREMIUM GATING — REGRESSION TESTS
+//
+// navigateToFirstAction() must resolve the LIVE premium state (refresh())
+// before deciding whether to show the upgrade picker. A premium user on a
+// fresh session used to see the picker because the cached isPremium() flag
+// was still false while the Firestore subscription doc was loading.
+// ═══════════════════════════════════════════════════════════════
+
+var _asyncTests = [];
+
+function addAsyncTest(name, fn) {
+  _asyncTests.push({ name: name, fn: fn });
+}
+
+async function runAllAsyncTests() {
+  for (var i = 0; i < _asyncTests.length; i++) {
+    var t = _asyncTests[i];
+    try {
+      await t.fn();
+      passed++;
+      console.log('  \u2705 ' + t.name);
+    } catch (e) {
+      failed++;
+      console.log('  \u274C ' + t.name + ': ' + (e.message || e).split('\n')[0]);
+    }
+  }
+}
+
+suite('Plan Picker Premium Gating', function() {
+  addAsyncTest('premium user (refresh=true) does NOT see the plan picker', async function() {
+    _resetDOM();
+    clearStorage();
+    global.window.__premium = {
+      refresh: async function () { return true; },
+      isPremium: function () { return true; },
+      requestUpgrade: function () {},
+      FEATURES: {},
+    };
+    await navigateToFirstAction();
+    var overlay = document.getElementById('plan-picker-overlay');
+    assert.strictEqual(overlay, null, 'no plan picker for premium user');
+    delete global.window.__premium;
+  });
+
+  addAsyncTest('premium user (refresh=true) with picker already seen still navigates cleanly', async function() {
+    _resetDOM();
+    clearStorage();
+    global.window.__premium = {
+      refresh: async function () { return true; },
+      isPremium: function () { return true; },
+      requestUpgrade: function () {},
+      FEATURES: {},
+    };
+    localStorage.setItem('quran_plan_picker_seen', 'true');
+    await navigateToFirstAction();
+    var overlay = document.getElementById('plan-picker-overlay');
+    assert.strictEqual(overlay, null, 'no plan picker when already seen');
+    delete global.window.__premium;
+  });
+
+  addAsyncTest('free user (refresh=false) still sees the plan picker', async function() {
+    _resetDOM();
+    clearStorage();
+    global.window.__premium = {
+      refresh: async function () { return false; },
+      isPremium: function () { return false; },
+      requestUpgrade: function () {},
+      FEATURES: {},
+    };
+    await navigateToFirstAction();
+    var overlay = document.getElementById('plan-picker-overlay');
+    assert.ok(overlay !== null, 'plan picker shown for free user');
+    delete global.window.__premium;
+  });
+
+  addAsyncTest('refresh failure falls back to cached premium state', async function() {
+    _resetDOM();
+    clearStorage();
+    global.window.__premium = {
+      refresh: async function () { throw new Error('offline'); },
+      isPremium: function () { return true; },
+      requestUpgrade: function () {},
+      FEATURES: {},
+    };
+    await navigateToFirstAction();
+    var overlay = document.getElementById('plan-picker-overlay');
+    assert.strictEqual(overlay, null, 'no plan picker when cached state says premium');
+    delete global.window.__premium;
+  });
+
+  addAsyncTest('refresh failure with non-premium cached state still shows picker', async function() {
+    _resetDOM();
+    clearStorage();
+    global.window.__premium = {
+      refresh: async function () { throw new Error('offline'); },
+      isPremium: function () { return false; },
+      requestUpgrade: function () {},
+      FEATURES: {},
+    };
+    await navigateToFirstAction();
+    var overlay = document.getElementById('plan-picker-overlay');
+    assert.ok(overlay !== null, 'plan picker shown when cached state says free');
+    delete global.window.__premium;
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 
-console.log('\n' + '='.repeat(50));
-console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
-console.log('='.repeat(50));
-
-process.exit(failed > 0 ? 1 : 0);
+runAllAsyncTests().then(function () {
+  console.log('\n' + '='.repeat(50));
+  console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
+  console.log('='.repeat(50));
+  process.exit(failed > 0 ? 1 : 0);
+}).catch(function (e) {
+  console.error('Fatal error:', e.message || e);
+  process.exit(1);
+});

@@ -222,6 +222,105 @@ ts('renderExplorerAllOccurrences — merged rendering', function () {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// TESTS — HIGHLIGHTING REGRESSION
+// The target word must be highlighted in EVERY verse it appears in — both
+// hand-authored word.occurrences entries and occurrence-index entries. The
+// corpus is Uthmani script, so the dictionary form (مَنْ) rarely appears
+// verbatim (the corpus renders it مِّن / مَّن / مَن); highlighting therefore
+// uses whole-token matching against the SAME normalization the index was
+// built with (OCCURRENCE_INDEX_NORM).
+// ═══════════════════════════════════════════════════════════════
+
+ts('renderExplorerAllOccurrences — highlighting regression', function () {
+  t('highlights EVERY indexed occurrence, including Uthmani-inflected forms (مَنْ regression)', function () {
+    global.window.OCCURRENCE_INDEX = {
+      'من': ['2:4', '2:5', '2:8'],
+    };
+    global.window.OCCURRENCE_INDEX_NORM = function (a) { return NORM(a); };
+    global.window.__QURAN_TEXT = {
+      2: { verses: [
+        { id: 4, text: 'مِّنَ رَّبِّهِمۡ', translation: 'from their Lord' },
+        { id: 5, text: 'مِّن رَّبِّهِمۡ', translation: 'from their Lord' },
+        { id: 8, text: 'مَن يَقُولُ', translation: 'who says' },
+      ] },
+    };
+    delete global.window.__quranLoader;
+    var listEl = mock.makeEl('div');
+    renderExplorerAllOccurrences(listEl, { arabic: 'مَنْ', translit: 'Man', occurrences: [] });
+    // The dictionary form never appears verbatim — yet every indexed
+    // occurrence must still highlight (this is the bug: exact-string
+    // matching highlighted 0 of these 3).
+    assert.ok(listEl.innerHTML.indexOf('مَنْ') < 0, 'fixture: dictionary form not present verbatim');
+    var highlights = (listEl.innerHTML.match(/explorer-ayah-highlight/g) || []).length;
+    assert.strictEqual(highlights, 3, 'all 3 indexed occurrences highlighted, got ' + highlights);
+    // Highlight spans wrap the ORIGINAL Uthmani token, never a substituted form.
+    assert.ok(listEl.innerHTML.indexOf('explorer-ayah-highlight">مِّنَ<') >= 0, 'مِّنَ highlighted');
+    assert.ok(listEl.innerHTML.indexOf('explorer-ayah-highlight">مِّن<') >= 0, 'مِّن highlighted');
+    assert.ok(listEl.innerHTML.indexOf('explorer-ayah-highlight">مَن<') >= 0, 'مَن highlighted');
+  });
+
+  t('highlights hand-authored word.occurrences entries (primary path, backward compat)', function () {
+    global.window.OCCURRENCE_INDEX = {};
+    global.window.OCCURRENCE_INDEX_NORM = function (a) { return NORM(a); };
+    delete global.window.__QURAN_TEXT;
+    delete global.window.__quranLoader;
+    var listEl = mock.makeEl('div');
+    renderExplorerAllOccurrences(listEl, {
+      arabic: 'مَنْ',
+      occurrences: [
+        { surahId: 2, verseKey: '2:8', ayahA: 'مِنَ النَّاسِ مَنْ يَقُولُ آمَنَّا', ayahT: 'Of the people are some who say: We believe', ayahR: '2:8' },
+      ],
+    });
+    assert.ok(listEl.innerHTML.indexOf('explorer-ayah-highlight">مَنْ<') >= 0, 'dictionary-form token highlighted');
+    // Hand-authored text in the vocabulary encoding still matches via
+    // normalization (مِنَ and مَن both normalize to من like مَنْ).
+    assert.strictEqual((listEl.innerHTML.match(/explorer-ayah-highlight/g) || []).length, 3,
+      'all 3 matching tokens highlighted (مِنَ, مَنْ, مَن)');
+  });
+
+  t('fallback: exact substring highlight still works when no normalizer is available', function () {
+    delete global.window.OCCURRENCE_INDEX;
+    delete global.window.OCCURRENCE_INDEX_NORM;
+    delete global.window.__QURAN_TEXT;
+    delete global.window.__quranLoader;
+    var listEl = mock.makeEl('div');
+    renderExplorerAllOccurrences(listEl, {
+      arabic: 'اللَّهُ',
+      occurrences: [
+        { surahId: 1, verseKey: '1:1', ayahA: 'اللَّهُ الصَّمَدُ', ayahT: 'Allah the Eternal, the Absolute', ayahR: '1:1' },
+      ],
+    });
+    assert.ok(listEl.innerHTML.indexOf('explorer-ayah-highlight">اللَّهُ<') >= 0,
+      'exact match highlighted with the original text');
+  });
+
+  tAsync('lazy hydration highlights the hydrated verse text (inflected Uthmani token)', function () {
+    var loaded = {};
+    global.window.OCCURRENCE_INDEX = { 'من': ['101:1'] };
+    global.window.OCCURRENCE_INDEX_NORM = function (a) { return NORM(a); };
+    delete global.window.__QURAN_TEXT;
+    delete global.window.IntersectionObserver;
+    global.window.__quranLoader = {
+      isSurahLoaded: function (sid) { return !!loaded[sid]; },
+      getVerse: function (sid, vid) { return loaded[sid] ? { text: 'مِّن رَّبِّهِمۡ', translation: 'from their Lord' } : null; },
+      loadSurah: function (sid) { loaded[sid] = true; return Promise.resolve(true); },
+    };
+    var listEl = mock.makeEl('div');
+    renderExplorerAllOccurrences(listEl, { arabic: 'مَنْ', occurrences: [] });
+    return new Promise(function (resolve, reject) {
+      setTimeout(function () {
+        try {
+          assert.ok(listEl.innerHTML.indexOf('Loading') < 0, 'placeholder replaced after hydration');
+          assert.ok(listEl.innerHTML.indexOf('explorer-ayah-highlight">مِّن<') >= 0,
+            'hydrated verse text highlights the inflected token');
+          resolve();
+        } catch (e) { reject(e); }
+      }, 50);
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // TESTS — CORPUS SPOT CHECK (random sample of refs exist)
 // ═══════════════════════════════════════════════════════════════
 

@@ -58,6 +58,50 @@ function _getVerseForRef(ref) {
   }
 }
 
+/**
+ * Highlight every occurrence of the target word inside a verse's Arabic text.
+ *
+ * Primary mode: whole-token matching using the SAME normalization the
+ * occurrence index was built with (window.OCCURRENCE_INDEX_NORM). The corpus
+ * is Uthmani script and the target's dictionary form rarely appears verbatim
+ * in it (e.g. مَنْ occurs in the corpus as مِّن / مَّن / مَن — all normalize
+ * to "من"), which is why exact-string matching left most indexed occurrences
+ * unhighlighted. Token-based matching mirrors exactly how the index decided
+ * the verse is an occurrence, so every listed verse highlights consistently.
+ *
+ * Falls back to the app's normalizeArabic(), then to exact substring
+ * matching (legacy behavior, preserving the matched text via $&), when the
+ * index normalization is unavailable.
+ */
+function _highlightOccurrenceText(ayahText, w) {
+  if (!ayahText || !w || !w.arabic) return ayahText;
+  var normFn = null;
+  if (typeof window.OCCURRENCE_INDEX_NORM === 'function') {
+    normFn = window.OCCURRENCE_INDEX_NORM;
+  } else if (typeof normalizeArabic === 'function') {
+    normFn = normalizeArabic;
+  }
+  if (normFn) {
+    var wordNorm = normFn(w.arabic);
+    if (wordNorm) {
+      var parts = String(ayahText).split(/(\s+)/);
+      var out = '';
+      for (var i = 0; i < parts.length; i++) {
+        var tok = parts[i];
+        if (tok && tok.trim() && normFn(tok) === wordNorm) {
+          out += '<span class="explorer-ayah-highlight">' + tok + '</span>';
+        } else {
+          out += tok;
+        }
+      }
+      return out;
+    }
+  }
+  // Last resort: exact substring match (legacy), preserving the matched text.
+  var esc = w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(ayahText).replace(new RegExp(esc, 'g'), '<span class="explorer-ayah-highlight">$&</span>');
+}
+
 function _isSurahLoaded(sid) {
   try {
     var loader = window.__quranLoader;
@@ -156,14 +200,7 @@ function _occHydrateSurahItems(session, sid) {
     var ayahEl = el.querySelector('.explorer-occ-ayah');
     var transEl = el.querySelector('.explorer-occ-trans');
     if (ayahEl) {
-      var txt = verse.text || '';
-      if (txt && w && w.arabic) {
-        txt = txt.replace(
-          new RegExp(w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-          '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
-        );
-      }
-      ayahEl.innerHTML = txt;
+      ayahEl.innerHTML = _highlightOccurrenceText(verse.text || '', w);
     }
     if (transEl) transEl.textContent = verse.translation || '';
     el.setAttribute('data-loaded', '1');
@@ -264,14 +301,9 @@ function renderExplorerAllOccurrences(listEl, w) {
       surahName = SURAH_INFO[occ.surahId].name;
     }
     var ref2 = occ.ayahR || occ.verseKey || '';
-    var ayahText = occ.ayahA || '';
-    // Highlight the word in the ayah text
-    if (ayahText && w.arabic) {
-      ayahText = ayahText.replace(
-        new RegExp(w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-        '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
-      );
-    }
+    // Highlight every occurrence of the target word in the ayah text
+    // (token-normalized matching — see _highlightOccurrenceText).
+    var ayahText = _highlightOccurrenceText(occ.ayahA || '', w);
     // Ref is rendered instantly; verse text hydrates lazily on scroll for
     // pending (index-only) items. Pending placeholders use the themed muted
     // italic style so they read as loading, not stuck content.

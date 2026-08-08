@@ -1997,6 +1997,43 @@ function _getVerseForRef(ref) {
   } catch (e) { return null; }
 }
 
+/**
+ * Highlight every occurrence of the target word inside a verse's Arabic text.
+ * See js/ui/analytics-ui.js for the full rationale: whole-token matching
+ * against the SAME normalization the occurrence index was built with
+ * (window.OCCURRENCE_INDEX_NORM), because the Uthmani corpus renders the
+ * word in inflected/diacritic forms that never match the dictionary form
+ * verbatim. Falls back to normalizeArabic(), then exact substring matching.
+ */
+function _highlightOccurrenceText(ayahText, w) {
+  if (!ayahText || !w || !w.arabic) return ayahText;
+  var normFn = null;
+  if (typeof window.OCCURRENCE_INDEX_NORM === 'function') {
+    normFn = window.OCCURRENCE_INDEX_NORM;
+  } else if (typeof normalizeArabic === 'function') {
+    normFn = normalizeArabic;
+  }
+  if (normFn) {
+    var wordNorm = normFn(w.arabic);
+    if (wordNorm) {
+      var parts = String(ayahText).split(/(\s+)/);
+      var out = '';
+      for (var i = 0; i < parts.length; i++) {
+        var tok = parts[i];
+        if (tok && tok.trim() && normFn(tok) === wordNorm) {
+          out += '<span class="explorer-ayah-highlight">' + tok + '</span>';
+        } else {
+          out += tok;
+        }
+      }
+      return out;
+    }
+  }
+  // Last resort: exact substring match (legacy), preserving the matched text.
+  var esc = w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(ayahText).replace(new RegExp(esc, 'g'), '<span class="explorer-ayah-highlight">$&</span>');
+}
+
 function _isSurahLoaded(sid) {
   try {
     var loader = window.__quranLoader;
@@ -2078,14 +2115,7 @@ function _occHydrateSurahItems(session, sid) {
     var ayahEl = el.querySelector('.explorer-occ-ayah');
     var transEl = el.querySelector('.explorer-occ-trans');
     if (ayahEl) {
-      var txt = verse.text || '';
-      if (txt && w && w.arabic) {
-        txt = txt.replace(
-          new RegExp(w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-          '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
-        );
-      }
-      ayahEl.innerHTML = txt;
+      ayahEl.innerHTML = _highlightOccurrenceText(verse.text || '', w);
     }
     if (transEl) transEl.textContent = verse.translation || '';
     el.setAttribute('data-loaded', '1');
@@ -2178,13 +2208,9 @@ function renderExplorerAllOccurrences(listEl, w) {
       surahName = SURAH_INFO[occ.surahId].name;
     }
     var ref2 = occ.ayahR || occ.verseKey || '';
-    var ayahText = occ.ayahA || '';
-    if (ayahText && w.arabic) {
-      ayahText = ayahText.replace(
-        new RegExp(w.arabic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-        '<span class="explorer-ayah-highlight">' + w.arabic + '</span>'
-      );
-    }
+    // Highlight every occurrence of the target word in the ayah text
+    // (token-normalized matching — see _highlightOccurrenceText).
+    var ayahText = _highlightOccurrenceText(occ.ayahA || '', w);
     var pendingItem = !!(occ._indexPending || (!occ.ayahA && !occ.ayahT));
     var trans = occ.ayahT || '';
     var surahAttr = occ.surahId || '';

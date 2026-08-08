@@ -1719,6 +1719,63 @@ function handleCheckoutParams() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// LANDING PAGE UPGRADE INTENT HANDLING
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Handle ?upgrade=monthly and ?upgrade=yearly — a paid-plan click from the
+ * landing page's pricing cards.
+ *
+ * The landing page buttons carry the chosen plan into the app as a query
+ * param (./?upgrade=monthly / ./?upgrade=yearly) because the landing page
+ * itself is only ever shown to signed-out visitors and does not load
+ * premium.js. Here we route that intent into the SAME verified Polar
+ * checkout flow used in-app (requestUpgrade → api/create-checkout-session
+ * → Polar hosted checkout).
+ *
+ *   • Signed in  → create the checkout session immediately.
+ *   • Signed out → show the app's auth view (sign up / sign in), then fire
+ *                  the checkout the moment a session is confirmed.
+ *
+ * requestUpgrade() no-ops for live premium users, so a premium account can
+ * never be double-charged by this path.
+ */
+function handleUpgradeParam() {
+  var params = new URLSearchParams(window.location.search);
+  var plan = params.get('upgrade');
+  if (plan !== 'monthly' && plan !== 'yearly') return;
+
+  // Clean URL first so a refresh doesn't re-trigger checkout
+  var cleanUrl = window.location.pathname + window.location.hash;
+  history.replaceState(null, '', cleanUrl);
+
+  var fired = false;
+  function fireUpgrade() {
+    if (fired) return;
+    fired = true;
+    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('landing', { plan: plan });
+    }
+  }
+
+  // Already signed in (session restored) → straight to Polar checkout
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (!user && window.__auth && typeof window.__auth.getCurrentUser === 'function') {
+    user = window.__auth.getCurrentUser();
+  }
+  if (user) { fireUpgrade(); return; }
+
+  // Signed out → prompt sign-up/sign-in first (reuse the app's auth flow)
+  if (typeof showAuthView === 'function') showAuthView('login');
+  if (typeof switchView === 'function') switchView('auth');
+
+  // Fire the checkout the moment a session is confirmed
+  if (typeof onAuthChange === 'function') {
+    onAuthChange(function (u) { if (u) fireUpgrade(); });
+  }
+}
+
 // ── Bootstrap the Application ────────────────────────────────────
 // Init is called here at the end of the bundle, after all function
 // definitions have been parsed. Because app.bundle.min.js is loaded
@@ -1729,4 +1786,5 @@ init();
 // Use a small delay to let the splash screen start hiding first
 setTimeout(function() {
   try { handleCheckoutParams(); } catch (e) { console.warn('[app] Checkout param handler error:', e.message || e); }
+  try { handleUpgradeParam(); } catch (e) { console.warn('[app] Upgrade param handler error:', e.message || e); }
 }, 200);

@@ -405,10 +405,11 @@
     .lp-pricing-head .lp-h2 { margin-bottom: 14px; }
     .lp-tiers {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: clamp(20px, 3vw, 32px);
-      max-width: 860px;
+      max-width: 1080px;
       margin: 0 auto;
+      align-items: stretch;
     }
     .lp-tier {
       background: var(--surface);
@@ -663,10 +664,10 @@
               <a class="lp-cta" href="./">Start free</a>
             </div>
             <div class="lp-tier lp-tier-premium">
-              <h3 class="lp-tier-name">Premium</h3>
+              <h3 class="lp-tier-name">Premium Monthly</h3>
               <p class="lp-tier-tagline">For serious, sustained study</p>
               <div class="lp-tier-price">$2.99<span> / month</span></div>
-              <p class="lp-tier-price-note">or $19.99 / year</p>
+              <p class="lp-tier-price-note">Billed monthly · cancel anytime</p>
               <ul>
                 <li>Unlimited reviews &amp; bookmarks</li>
                 <li>Full word relationships</li>
@@ -675,7 +676,19 @@
                 <li>Cloud sync across devices</li>
                 <li>Full occurrence history</li>
               </ul>
-              <a class="lp-cta" href="./">Go Premium</a>
+              <a class="lp-cta" href="./?upgrade=monthly">Go Premium</a>
+            </div>
+            <div class="lp-tier lp-tier-premium">
+              <h3 class="lp-tier-name">Premium Yearly</h3>
+              <p class="lp-tier-tagline">Best value for committed study</p>
+              <div class="lp-tier-price">$19.99<span> / year</span></div>
+              <p class="lp-tier-price-note">~5 months free vs. monthly</p>
+              <ul>
+                <li>Everything in Monthly</li>
+                <li>Full word relationships</li>
+                <li>Priority support</li>
+              </ul>
+              <a class="lp-cta" href="./?upgrade=yearly">Go Premium</a>
             </div>
           </div>
         </div>

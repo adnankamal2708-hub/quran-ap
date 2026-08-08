@@ -448,6 +448,7 @@ function showPlanPicker() {
           '<ul class="plan-card-features">' +
             '<li>Everything in Free</li>' +
             '<li>Unlimited reviews &amp; tafsir</li>' +
+            '<li>Full word relationships</li>' +
             '<li>Guided Reading &amp; insights</li>' +
             '<li>Cloud sync &amp; data export</li>' +
           '</ul>' +
@@ -459,6 +460,7 @@ function showPlanPicker() {
           '<div class="plan-card-price">$19.99<span class="plan-card-period">/yr</span></div>' +
           '<ul class="plan-card-features">' +
             '<li>Everything in Monthly</li>' +
+            '<li>Full word relationships</li>' +
             '<li>~5 months free vs. monthly</li>' +
             '<li>Priority support</li>' +
           '</ul>' +
@@ -561,7 +563,7 @@ function _proceedAfterPlanPicker() {
 }
 
 /** Navigate to the Foundation Course after onboarding */
-function navigateToFirstAction() {
+async function navigateToFirstAction() {
   // Apply onboarding preferences to the adaptive engine.
   // This is the single integration point — the bridge handles goal,
   // daily review limits, and session sizing based on onboarding selections.
@@ -574,8 +576,24 @@ function navigateToFirstAction() {
     window.__srs.updateDailyReviewLimit(reviewLimit);
   }
 
-  // Show plan picker once before navigating (skip if already seen or user is premium)
-  var isPremium = window.__premium && typeof window.__premium.isPremium === 'function' && window.__premium.isPremium();
+  // Show plan picker once before navigating (skip if already seen or user is premium).
+  // IMPORTANT: resolve the LIVE premium state from Firestore before deciding.
+  // isPremium() reads a cached flag that is loaded asynchronously after login —
+  // on a fresh session it can still be false for a genuinely premium user,
+  // which used to flash the upgrade picker at them. refresh() re-reads
+  // subscriptions/{uid} and returns the confirmed answer.
+  var isPremium = false;
+  if (window.__premium && typeof window.__premium.refresh === 'function') {
+    try { isPremium = await window.__premium.refresh(); }
+    catch (e) {
+      // Refresh failed (e.g. offline) — fall back to cached state rather
+      // than blocking navigation entirely.
+      isPremium = !!(window.__premium && typeof window.__premium.isPremium === 'function' && window.__premium.isPremium());
+    }
+  } else if (window.__premium && typeof window.__premium.isPremium === 'function') {
+    isPremium = window.__premium.isPremium();
+  }
+
   if (!hasSeenPlanPicker() && !isPremium) {
     showPlanPicker();
     return;
