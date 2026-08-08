@@ -725,20 +725,29 @@ function renderRootBox(w) {
  */
 function showAyah(w) {
   if (!w) return;
+  // R3: route the ayah text through the shared highlight helper so the
+  // target word is always gold-highlighted at runtime, regardless of whether
+  // the hand-authored data embeds <span class="ayah-highlight"> markup.
+  // Falls back to the raw text when the helper isn't loaded (test env).
+  var ayahArabicEl = document.getElementById('ayah-arabic');
+  var _applyHighlight = typeof _highlightOccurrenceText === 'function'
+    ? function(txt) { return _highlightOccurrenceText(txt || '', w); }
+    : function(txt) { return txt || ''; };
+
   // Use the current occurrence from the word card
   var occ = window.__currentOccurrence || null;
   if (occ && occ.ayahA) {
-    document.getElementById('ayah-arabic').innerHTML = occ.ayahA;
+    ayahArabicEl.innerHTML = _applyHighlight(occ.ayahA);
     document.getElementById('ayah-translation').innerHTML = occ.ayahT;
     document.getElementById('ayah-ref').textContent = occ.ayahR;
   } else if (w.occurrences && w.occurrences.length > 0) {
     var firstOcc = w.occurrences[0];
-    document.getElementById('ayah-arabic').innerHTML = firstOcc.ayahA;
+    ayahArabicEl.innerHTML = _applyHighlight(firstOcc.ayahA);
     document.getElementById('ayah-translation').innerHTML = firstOcc.ayahT;
     document.getElementById('ayah-ref').textContent = firstOcc.ayahR;
   } else if (w.ayahA) {
     // Fallback for backward compatibility
-    document.getElementById('ayah-arabic').innerHTML = w.ayahA;
+    ayahArabicEl.innerHTML = _applyHighlight(w.ayahA);
     document.getElementById('ayah-translation').innerHTML = w.ayahT;
     document.getElementById('ayah-ref').textContent = w.ayahR;
   }

@@ -182,7 +182,13 @@ function showExplorerOccurrence(idx) {
   _explorerOccIdx = idx;
   var occ = w.occurrences[idx];
   
-  DOM.get('explorer-ayah-arabic').innerHTML = occ.ayahA || '';
+  // R3: route through the shared highlight helper so the target word is
+  // always gold-highlighted (also for entries whose hand-authored ayahA
+  // lacks embedded <span class="ayah-highlight"> markup). Falls back to the
+  // raw text when the helper isn't loaded (test env).
+  DOM.get('explorer-ayah-arabic').innerHTML = (typeof _highlightOccurrenceText === 'function')
+    ? _highlightOccurrenceText(occ.ayahA || '', w)
+    : (occ.ayahA || '');
   DOM.get('explorer-ayah-translation').innerHTML = occ.ayahT || '';
   var ref = occ.ayahR || occ.verseKey || '';
   if (occ.surahId && SURAH_INFO && SURAH_INFO[occ.surahId]) {

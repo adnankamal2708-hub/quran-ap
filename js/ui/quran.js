@@ -21,7 +21,18 @@ const QURAN_LAST_KEY = 'quran_quran_last';
 
 function _normArabicForMatch(text) {
   if (!text) return '';
-  return text
+  // R1: reuse the CANONICAL normalization (the same OCCURRENCE_INDEX_NORM
+  // used by the occurrence index and Explorer occurrences highlighting)
+  // instead of maintaining a weaker parallel normalizer. Fallbacks keep the
+  // reader working in environments where only the legacy helpers exist.
+  if (typeof window.OCCURRENCE_INDEX_NORM === 'function') {
+    return window.OCCURRENCE_INDEX_NORM(text);
+  }
+  if (typeof normalizeArabic === 'function') {
+    return normalizeArabic(text);
+  }
+  // Last-resort fallback (mirrors the old reader normalizer).
+  return String(text)
     .replace(/[\u064B-\u0652\u0670\u06E1]/g, '')
     .replace(/[\u0671\u0672\u0673]/g, '\u0627')
     .trim();
@@ -430,12 +441,17 @@ function renderAyahs() {
         renderedWordIds[matchedWord.id] = true;
         var colorClass = _quranGetMasteryColor(matchedWord.id);
         var escapedArabic = matchedWord.arabic.replace(/"/g, '&quot;');
+        // R2 (text accuracy): always display the ORIGINAL corpus token — the
+        // exact Uthmani-script text as it appears in the real verse — never
+        // substitute the dictionary/canonical form. The dictionary form is
+        // used only for matching and for accessible labels (aria/title).
+        var escapedToken = token.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         html += '<span class="quran-word-token quran-token-' + colorClass + '" ' +
           'data-word-id="' + matchedWord.id + '" ' +
           'tabindex="0" role="button" ' +
           'aria-label="' + escapedArabic + ' — ' + (matchedWord.meaning || matchedWord.english || '') + '" ' +
           'title="' + escapedArabic + ' — ' + (matchedWord.english || '') + '">' +
-          matchedWord.arabic + '</span>';
+          escapedToken + '</span>';
       } else {
         html += '<span class="quran-plain-arabic">' +
           token.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';

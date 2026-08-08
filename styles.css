@@ -609,7 +609,8 @@ body::before {
   margin-bottom: 10px;
 }
 
-.ayah-highlight {
+.ayah-highlight,
+.explorer-ayah-highlight {
   color: var(--gold-light);
   background: rgba(201, 168, 76, 0.12);
   border-radius: 4px;
