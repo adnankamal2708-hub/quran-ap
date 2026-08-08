@@ -160,8 +160,9 @@ function renderDashboard() {
   }
   var $surahsTotalC = $allSurahComp.length;
 
-  // Milestone
-  var $ms = typeof getMilestoneStatus === 'function' ? getMilestoneStatus($comprehensionPct) : null;
+  // Milestone (coverage-based — milestones are calibrated to real token coverage,
+  // not the comprehension estimate)
+  var $ms = typeof getMilestoneStatus === 'function' ? getMilestoneStatus($coveragePct) : null;
   var $milestoneText = '';
   if ($ms && $ms.currentMilestone) {
     $milestoneText = $ms.currentMilestone.icon + ' ' + $ms.currentMilestone.label;

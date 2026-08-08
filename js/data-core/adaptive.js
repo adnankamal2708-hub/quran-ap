@@ -636,7 +636,7 @@ function getAdaptiveRecommendation() {
       type: 'new-learner',
       path: 'foundation',
       label: 'Foundation Course',
-      reason: 'Start your Quran vocabulary journey! The Foundation Course teaches the 100 most frequent words, covering ~84% of the Quran. ' +
+      reason: 'Start your Quran vocabulary journey! The Foundation Course teaches the 100 most frequent words, recognizing ~' + (typeof getFoundationTotalCoveragePercent === 'function' ? getFoundationTotalCoveragePercent() : 21) + '% of all Quran word tokens. ' +
         'Each lesson takes just a few minutes.',
       details: 'Continue with Foundation ' + (foundationNext + 1),
       action: 'startFoundation',
@@ -690,14 +690,17 @@ function getAdaptiveRecommendation() {
         }
       }
       var totalOcc = getTotalQuranOccurrences();
-      var coverageBoostPct = totalOcc > 0 ? (coverageGain / totalOcc * 100).toFixed(1) : 0;
+      var realBoostPct = typeof getRealWordsCoveragePercent === 'function' ? getRealWordsCoveragePercent(completionBoost) : null;
+      var coverageBoostPct = realBoostPct !== null && realBoostPct !== undefined
+        ? realBoostPct.toFixed(1)
+        : (totalOcc > 0 ? (coverageGain / totalOcc * 100).toFixed(1) : 0);
       
       return {
         type: 'foundation-progress',
         path: 'foundation',
         label: 'Continue Foundation Course',
-        reason: 'Foundation Course ' + progressPct + '% complete. Next lesson adds ~' + coverageBoostPct + '% Quran coverage. ' +
-          'Complete all ' + fTotal + ' lessons for ~84% coverage.',
+        reason: 'Foundation Course ' + progressPct + '% complete. Next lesson adds ~' + coverageBoostPct + '% Quran word-token coverage. ' +
+          'Complete all ' + fTotal + ' lessons for ~' + (typeof getFoundationTotalCoveragePercent === 'function' ? getFoundationTotalCoveragePercent() : 21) + '% coverage.',
         details: 'Foundation ' + (nextF + 1) + ' of ' + fTotal + ' · +' + coverageBoostPct + '% coverage',
         action: 'continueFoundation',
         lessonIndex: nextF,
@@ -816,7 +819,10 @@ function getLearningInsights() {
       gainOcc += fWords[fi].occ || 0;
     }
     var totalOcc = getTotalQuranOccurrences();
-    var gainPct = totalOcc > 0 ? (gainOcc / totalOcc * 100) : 0;
+    var realGainPct = typeof getRealWordsCoveragePercent === 'function' ? getRealWordsCoveragePercent(fWords) : null;
+    var gainPct = realGainPct !== null && realGainPct !== undefined
+      ? realGainPct
+      : (totalOcc > 0 ? (gainOcc / totalOcc * 100) : 0);
     estimatedNextCoverage = Math.min(100, currentCoverage + gainPct);
   }
   

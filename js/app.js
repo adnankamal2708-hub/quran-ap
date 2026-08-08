@@ -302,8 +302,14 @@ function updateLessonProgressDisplay() {
     if (foundationCoverageEl && fLesson) {
       var compMsg = fCtx.comprehensionGain ? ' · ' + fCtx.comprehensionGain : '';
       var contextMsg = fCtx.context ? '<div class="ai-cov-msg">' + fCtx.context + '</div>' : '';
+      // REAL token-level coverage strings (fall back to stored legacy strings if unavailable)
+      var covStrings = (typeof getFoundationLessonDisplayStrings === 'function')
+        ? getFoundationLessonDisplayStrings(activeLessonIndex)
+        : null;
+      var lessonCovStr = covStrings ? covStrings.lessonCoverage : fLesson.lessonCoverage;
+      var cumCovStr = covStrings ? covStrings.cumulativeCoverage : fLesson.cumulativeCoverage;
       foundationCoverageEl.innerHTML = '<div class="ai-cov-title">' + fCtx.title + compMsg + '</div>' +
-        '<div class="ai-cov-sub">' + fLesson.lessonCoverage + ' of Quranic vocabulary · Cumulative: ' + fLesson.cumulativeCoverage + '</div>' +
+        '<div class="ai-cov-sub">' + lessonCovStr + ' of Quranic vocabulary · Cumulative: ' + cumCovStr + '</div>' +
         contextMsg;
       foundationCoverageEl.style.display = 'block';
     }
@@ -628,9 +634,17 @@ function updateLessonProgressDisplay() {
     else if (lw.typeCategory === 'particle' || lw.typeCategory === 'pronoun') lessonParticles++;
   }
   
-  // Calculate occurrence coverage for this lesson
+  // Calculate occurrence coverage for this lesson (REAL token counts when available)
   var lessonTotalOcc = 0;
-  for (var loi = 0; loi < lessonWords.length; loi++) lessonTotalOcc += lessonWords[loi].occ || 0;
+  var lessonHasRealCounts = typeof getRealWordTokenCount === 'function';
+  for (var loi = 0; loi < lessonWords.length; loi++) {
+    if (lessonHasRealCounts) {
+      var realCount = getRealWordTokenCount(lessonWords[loi]);
+      lessonTotalOcc += (realCount !== null && realCount !== undefined) ? realCount : (lessonWords[loi].occ || 0);
+    } else {
+      lessonTotalOcc += lessonWords[loi].occ || 0;
+    }
+  }
   var grandTotalOcc = typeof getTotalQuranOccurrences === 'function' ? getTotalQuranOccurrences() : 0;
   var lessonCoveragePct = grandTotalOcc > 0 ? (lessonTotalOcc / grandTotalOcc * 100) : 0;
   

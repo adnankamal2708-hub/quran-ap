@@ -571,7 +571,7 @@ function renderStats() {
       } else {
         var covRow = document.createElement('div');
         covRow.className = 'stats-bar-row';
-        covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">Foundation Course Complete! ~' + (typeof getFoundationCoverage === 'function' ? getFoundationCoverage().foundationCoveragePercent : '84') + '% Quran coverage</span>';
+        covRow.innerHTML = '<span style="font-size:11px;color:var(--green);padding:4px 0">Foundation Course Complete! ~' + (typeof getFoundationCoverage === 'function' ? getFoundationCoverage().foundationCoveragePercent : '21') + '% Quran word-token coverage</span>';
         foundationStatsContainer.appendChild(covRow);
       }
     } else {

@@ -103,6 +103,7 @@ function loadVocabulary() {
  */
 function buildOccurrenceIndex(quranText, vocabNormalizedSet) {
   var index = {};   // normalized -> { refs: [], seen: {} }
+  var tokenCounts = {}; // normalized -> total TOKEN count in corpus (used for real coverage)
   var totalTokens = 0;
   var matchedTokens = 0;
   var totalRefs = 0;
@@ -126,6 +127,7 @@ function buildOccurrenceIndex(quranText, vocabNormalizedSet) {
         if (!vocabNormalizedSet[normalized]) continue;
 
         matchedTokens++;
+        tokenCounts[normalized] = (tokenCounts[normalized] || 0) + 1;
         if (!index[normalized]) {
           index[normalized] = { refs: [], seen: {} };
         }
@@ -140,7 +142,7 @@ function buildOccurrenceIndex(quranText, vocabNormalizedSet) {
     }
   }
 
-  return { index: index, totalTokens: totalTokens, matchedTokens: matchedTokens, totalRefs: totalRefs };
+  return { index: index, tokenCounts: tokenCounts, totalTokens: totalTokens, matchedTokens: matchedTokens, totalRefs: totalRefs };
 }
 
 // ── Validation ─────────────────────────────────────────────────
@@ -217,7 +219,7 @@ function countDistinctVerses(quranText, normalized) {
 
 // ── Output Generation ──────────────────────────────────────────
 
-function generateFile(index, totalRefs, keyCount) {
+function generateFile(index, totalRefs, keyCount, tokenCounts, totalTokens) {
   var keys = Object.keys(index).sort();
   var lines = [];
   lines.push('// ═══════════════════════════════════════════════════════════════');
@@ -239,6 +241,17 @@ function generateFile(index, totalRefs, keyCount) {
   // MUST be defined in the generated scope too, or lookups throw ReferenceError.
   lines.push('  var DIACRITICS_RANGE = /[\\u064B-\\u065F\\u0610-\\u061A\\u06D6-\\u06ED]/g;');
   lines.push('  T.OCCURRENCE_INDEX_NORM = ' + normalizeArabic.toString() + ';');
+  // Real token-level coverage data: total corpus tokens and per-key token counts
+  // (normalized forms matching vocabulary words). Used by calculateCoverage() &
+  // related functions instead of the inflated legacy w.occ formula.
+  lines.push('  T.OCCURRENCE_INDEX_TOTAL_TOKENS = ' + totalTokens + ';');
+  lines.push('  T.OCCURRENCE_INDEX_TOKEN_COUNTS = {');
+  var countKeys = Object.keys(tokenCounts).sort();
+  countKeys.forEach(function(k, idx) {
+    var comma = idx < countKeys.length - 1 ? ',' : '';
+    lines.push('    ' + JSON.stringify(k) + ': ' + tokenCounts[k] + comma);
+  });
+  lines.push('  };');
   lines.push('  T.OCCURRENCE_INDEX = {');
   keys.forEach(function(k, idx) {
     var comma = idx < keys.length - 1 ? ',' : '';
@@ -290,7 +303,7 @@ function main() {
   }
   console.log('  ✓ All verse refs exist, no duplicates, random-sample counts match.');
 
-  var output = generateFile(result.index, result.totalRefs, Object.keys(result.index).length);
+  var output = generateFile(result.index, result.totalRefs, Object.keys(result.index).length, result.tokenCounts, result.totalTokens);
   fs.writeFileSync(OUT_PATH, output, 'utf8');
   var kb = (Buffer.byteLength(output, 'utf8') / 1024).toFixed(1);
   console.log('');

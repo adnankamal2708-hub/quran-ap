@@ -183,12 +183,14 @@ suite('Data Integrity — Constants', function() {
     assert.strictEqual(FOUNDATION_WORDS_PER_LESSON, 10);
   });
 
-  test('COVERAGE_MILESTONES has 12 entries sorted ascending by pct', function() {
+  test('COVERAGE_MILESTONES has 4 entries sorted ascending by pct (real scale, max ~24%)', function() {
     assert.ok(Array.isArray(COVERAGE_MILESTONES));
-    assert.strictEqual(COVERAGE_MILESTONES.length, 12);
+    assert.strictEqual(COVERAGE_MILESTONES.length, 4);
     for (var mi = 1; mi < COVERAGE_MILESTONES.length; mi++) {
       assert.ok(COVERAGE_MILESTONES[mi].pct > COVERAGE_MILESTONES[mi-1].pct);
     }
+    // Real token coverage maxes out at ~24.4% — no legacy-scale tiers above it
+    assert.ok(COVERAGE_MILESTONES[COVERAGE_MILESTONES.length - 1].pct <= 25);
   });
 
   test('Each milestone has label, icon, and insight', function() {
@@ -203,9 +205,9 @@ suite('Data Integrity — Constants', function() {
     assert.strictEqual(FOUNDATION_MODE, 'foundation');
   });
 
-  test('First milestone is 5% and last is 100%', function() {
+  test('First milestone is 5% and last is 24% (real maximum)', function() {
     assert.strictEqual(COVERAGE_MILESTONES[0].pct, 5);
-    assert.strictEqual(COVERAGE_MILESTONES[11].pct, 100);
+    assert.strictEqual(COVERAGE_MILESTONES[COVERAGE_MILESTONES.length - 1].pct, 24);
   });
 });
 
@@ -772,17 +774,17 @@ suite('Milestones — getMilestoneStatus', function() {
   });
 
   test('Intermediate percentage rounds down to nearest milestone', function() {
-    var s = getMilestoneStatus(25);
-    assert.strictEqual(s.currentMilestone.pct, 20);
-    assert.strictEqual(s.currentMilestone.label, 'Growing Strong');
-    assert.strictEqual(s.nextMilestone.pct, 30);
+    var s = getMilestoneStatus(15);
+    assert.strictEqual(s.currentMilestone.pct, 10);
+    assert.strictEqual(s.currentMilestone.label, 'Building Blocks');
+    assert.strictEqual(s.nextMilestone.pct, 20);
   });
 
-  test('Boundary: exactly 50% maps to Major Milestone', function() {
-    var s = getMilestoneStatus(50);
-    assert.strictEqual(s.currentMilestone.pct, 50);
-    assert.strictEqual(s.currentMilestone.label, 'Major Milestone');
-    assert.strictEqual(s.nextMilestone.pct, 60);
+  test('Boundary: exactly 20% maps to Growing Strong', function() {
+    var s = getMilestoneStatus(20);
+    assert.strictEqual(s.currentMilestone.pct, 20);
+    assert.strictEqual(s.currentMilestone.label, 'Growing Strong');
+    assert.strictEqual(s.nextMilestone.pct, 24);
   });
 
   test('0% returns null current milestone, next is 5%', function() {
@@ -791,15 +793,15 @@ suite('Milestones — getMilestoneStatus', function() {
     assert.strictEqual(s.nextMilestone.pct, 5);
   });
 
-  test('100% returns final milestone with no next', function() {
+  test('Coverage above the real maximum returns final milestone with no next', function() {
     var s = getMilestoneStatus(100);
-    assert.strictEqual(s.currentMilestone.pct, 100);
-    assert.strictEqual(s.currentMilestone.label, 'Quran Complete');
+    assert.strictEqual(s.currentMilestone.pct, 24);
+    assert.strictEqual(s.currentMilestone.label, 'Complete Vocabulary');
     assert.strictEqual(s.nextMilestone, null);
   });
 
   test('wordsToNextMilestone is positive for incomplete progress', function() {
-    var s = getMilestoneStatus(25);
+    var s = getMilestoneStatus(15);
     assert.ok(s.wordsToNextMilestone > 0);
     assert.ok(s.lessonsToNextMilestone >= 0);
   });
