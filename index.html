@@ -8,7 +8,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Bayan" />
   <meta name="theme-color" content="#c9a84c" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📖%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/logo/favicon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/logo/favicon-32.png" />
+  <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon-180.png" />
   <link rel="manifest" href="manifest.json" />
   <meta name="description" content="Bayan — Understand the Quran, one word at a time. Learn Quranic Arabic vocabulary with spaced repetition, root analysis, and tafsir." />
   <title>Bayan — Understand the Quran, One Word at a Time</title>
@@ -398,7 +400,7 @@ getResults: function () { return _safeguardResults; },
   <!-- ── SPLASH SCREEN ── -->
   <div class="splash-screen" id="splash-screen" role="status" aria-label="Loading Bayan">
     <div class="splash-content">
-      <div class="splash-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="64" height="64" stroke="var(--gold-dim)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <div class="splash-icon" aria-hidden="true"><img class="splash-emblem" src="assets/logo/bayan-icon-emblem-square.png" alt="" width="64" height="64" /></div>
       <h1 class="splash-title">Bayan</h1>
       <p class="splash-tagline">Understand the Quran, one word at a time.</p>
       <div class="splash-loader" aria-hidden="true">
@@ -413,6 +415,7 @@ getResults: function () { return _safeguardResults; },
     <header class="top-bar" role="banner">
       <div class="top-primary-row">
         <div class="top-left-group">
+          <img class="app-brand-emblem" src="assets/logo/bayan-icon-emblem-square.png" alt="Bayan" width="22" height="22" />
           <div class="bismillah" aria-hidden="true">بِسْمِ اللَّهِ</div>
           <span class="beta-badge" id="beta-badge" style="display:none" title="">Beta</span>
           <span class="offline-badge" id="offline-badge" aria-live="polite">✓ Offline ready</span>

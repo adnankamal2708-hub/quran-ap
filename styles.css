@@ -198,6 +198,13 @@ body::before {
   letter-spacing: 0.02em;
 }
 
+.app-brand-emblem {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: block;
+}
+
 .top-meta-row {
   margin-bottom: 8px;
 }
@@ -1402,9 +1409,11 @@ body::before {
   text-decoration: none;
 }
 
-.legal-brand svg {
-  color: var(--gold-dim);
+.legal-brand img {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
+  display: block;
 }
 
 .legal-back {
@@ -4542,6 +4551,11 @@ body::before {
   margin-bottom: 20px;
   display: block;
   animation: splashPulse 2s ease-in-out infinite;
+}
+
+.splash-emblem {
+  display: block;
+  margin: 0 auto;
 }
 
 @keyframes splashPulse {

@@ -777,6 +777,13 @@ async function build() {
     "'./js/ux-polish.js'",
     "'./manifest.json'",
     "'./favicon.ico'",
+    "'./assets/logo/bayan-logo-transparent-full.png'",
+    "'./assets/logo/bayan-icon-emblem-square.png'",
+    "'./assets/logo/favicon-16.png'",
+    "'./assets/logo/favicon-32.png'",
+    "'./assets/logo/apple-touch-icon-180.png'",
+    "'./assets/logo/pwa-icon-192-solid.png'",
+    "'./assets/logo/pwa-icon-512-solid.png'",
   ];
   // Add Quran assets to precache if they exist (prefer per-surah index; fallback to monolithic)
   if (fs.existsSync(path.join(DIST, 'js/quran', 'surah-index.min.js'))) {
