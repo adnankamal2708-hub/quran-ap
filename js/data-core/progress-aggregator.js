@@ -47,7 +47,7 @@ function getLearningPathProgress() {
       id: 'foundation',
       label: 'Foundation Course',
       icon: '\u2B50',
-      description: 'Master the 100 most frequent Quranic words across 10 progressive lessons. Recognizes ~21% of all Quran word tokens.',
+      description: 'Master the 100 most frequent Quranic words across 10 progressive lessons. Recognizes ~29% of all Quran word tokens.',
       completed: fCompleted,
       total: fTotal,
       percent: fPct,
@@ -253,7 +253,7 @@ function getPathRecommendation() {
   return {
     pathId: 'foundation',
     label: 'Start Foundation Course',
-    reason: 'Begin your journey to understand the Quran. The Foundation Course teaches the 100 most frequent words — recognizing ~21% of all Quran word tokens in just 10 lessons.',
+    reason: 'Begin your journey to understand the Quran. The Foundation Course teaches the 100 most frequent words — recognizing ~29% of all Quran word tokens in just 10 lessons.',
     icon: '\u2B50',
     priority: 'high',
     action: 'start-foundation',

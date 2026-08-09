@@ -48,6 +48,7 @@ function normalizeArabic(text) {
     .replace(/[\uFD3E\uFD3F]/g, '')              // verse brackets
     .replace(/\u0671/g, '\u0627')                 // alif with wasla → bare alif
     .replace(/[\u0623\u0625\u0622]/g, '\u0627')   // hamza'd/madd alifs → bare alif
+    .replace(/\u0649\u0670/g, '\u064A')           // alif maqsurah + dagger alif → ya (عَلَىٰ → عَلَى)
     .replace(/\u0670/g, '\u0627')                 // dagger alif → alif
     .replace(/\u0629/g, '\u0647')                 // teh marbuta → heh
     .replace(/\u0649/g, '\u064A')                 // alif maqsurah → ya
@@ -57,6 +58,8 @@ function normalizeArabic(text) {
     .replace(/[\u06E5\u06E6]/g, function(m) {     // small waw/yeh → base
       return m === '\u06E5' ? '\u0648' : '\u064A';
     })
+    .replace(/\u0621\u0627/g, '\u0627')           // standalone hamza + alif → alif (ءَامَنُوا → آمَنُوا)
+    .replace(/\u0621/g, '\u0627')                 // remaining standalone hamza → alif
     .replace(/\s+/g, ' ')
     .trim();
 }

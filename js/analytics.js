@@ -266,7 +266,7 @@ function getForecasts() {
     daysToFoundationCompletion = Math.ceil(remaining / lessonsPerDay);
   }
   
-  // Estimate days to next coverage milestone (REAL token coverage tops out at ~24.4%)
+  // Estimate days to next coverage milestone (REAL token coverage tops out at ~33.7%)
   var daysToNextMilestone = 0;
   var nextMilestonePct = 0;
   var milestones = [

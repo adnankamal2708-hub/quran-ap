@@ -31,11 +31,14 @@ function normalizeArabic(text) {
     .replace(/[\uFD3E\uFD3F]/g, '')
     .replace(/\u0671/g, '\u0627')
     .replace(/[\u0623\u0625\u0622]/g, '\u0627')
+    .replace(/\u0649\u0670/g, '\u064A')
     .replace(/\u0670/g, '\u0627')
     .replace(/\u0629/g, '\u0647')
     .replace(/\u0649/g, '\u064A')
     .replace(/[\u0624\u0626]/g, function(m) { return m === '\u0624' ? '\u0648' : '\u064A'; })
     .replace(/[\u06E5\u06E6]/g, function(m) { return m === '\u06E5' ? '\u0648' : '\u064A'; })
+    .replace(/\u0621\u0627/g, '\u0627')
+    .replace(/\u0621/g, '\u0627')
     .replace(/\s+/g, ' ')
     .trim();
 }
