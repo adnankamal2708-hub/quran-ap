@@ -402,6 +402,39 @@ suite('Relationship Engine', function() {
     invalidateRelationsCache();
   });
 
+  test('findWordByCanonicalNorm resolves Uthmani/dictionary orthography pairs', function() {
+    // Canonical tier (OCCURRENCE_INDEX_NORM when loaded, weak norm fallback in
+    // the test env) must resolve a ref that differs from the dataset entry only
+    // by diacritics — the same class of match the occurrence index makes.
+    var found = findWordByCanonicalNorm('كِتَابِ');
+    assert.ok(found, 'canonical tier resolves the diacritic variant');
+    assert.strictEqual(found.arabic, 'كِتَاب');
+    assert.strictEqual(findWordByCanonicalNorm('لاوجود'), undefined, 'unknown stays unresolved');
+    assert.strictEqual(findWordByCanonicalNorm(''), undefined, 'empty string unresolved');
+  });
+
+  test('findWordByDefiniteArticleAdded resolves refs needing ال added', function() {
+    // Reverse direction of the strip tier: authored ref نَاس should resolve to
+    // a dataset entry ٱلنَّاس (definite form) that the strip tier can't reach.
+    var origArab = TEST_WORDS[1].arabic;
+    TEST_WORDS[1].arabic = 'ٱلنَّاس';
+    buildWordIndex(); // rebuild after mutating dataset
+    var found = findWordByDefiniteArticleAdded('نَاس');
+    assert.ok(found, 'reverse definite-article tier resolves the ref');
+    assert.strictEqual(found.arabic, 'ٱلنَّاس');
+    // Full compute path: related word نَاس resolves to the definite entry.
+    var origRelated = TEST_WORDS[4].relatedWords;
+    TEST_WORDS[4].relatedWords = ['نَاس'];
+    invalidateRelationsCache();
+    var related = getRelatedWordObjects(TEST_WORDS[4]);
+    assert.strictEqual(related.length, 1, 'compute path resolves the definite-article variant');
+    assert.strictEqual(related[0].arabic, 'ٱلنَّاس');
+    TEST_WORDS[4].relatedWords = origRelated;
+    TEST_WORDS[1].arabic = origArab;
+    buildWordIndex();
+    invalidateRelationsCache();
+  });
+
   test('ال-strip tier is guarded: short strings and non-ال prefixes are untouched', function() {
     // Too short to contain ال + a root → no attempt (avoids over-matching on
     // strings that merely begin with ا+ل as part of the word itself).

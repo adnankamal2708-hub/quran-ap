@@ -18,6 +18,7 @@ function buildWordIndex() {
   _wordIndex = {};
   _arabicToIds = {};
   _normalizedToIds = {};
+  _canonicalToIds = {};
   for (var i = 0; i < ALL_WORDS.length; i++) {
     var w = ALL_WORDS[i];
     // Primary index by unique ID
@@ -32,7 +33,31 @@ function buildWordIndex() {
       if (!_normalizedToIds[norm]) _normalizedToIds[norm] = [];
       _normalizedToIds[norm].push(w.id);
     }
+    // Canonical-normalization index (OCCURRENCE_INDEX_NORM when available —
+    // the same normalizer used by the occurrence index, Explorer occurrences
+    // highlighting, and the Quran reader). Resolves Uthmani-script dataset
+    // entries from dictionary-orthography refs (e.g. أَهْل → أَهۡلِ,
+    // جَزَاء → جَزَآءُ) that the weak tashkeel-strip misses.
+    var canon = _canonicalNorm(w.arabic);
+    if (canon) {
+      if (!_canonicalToIds[canon]) _canonicalToIds[canon] = [];
+      _canonicalToIds[canon].push(w.id);
+    }
   }
+}
+
+/**
+ * Canonical Arabic normalizer for relationship-reference resolution.
+ * Reuses OCCURRENCE_INDEX_NORM (the single canonical normalizer used by the
+ * occurrence index, Explorer occurrences highlighting, and the Quran reader)
+ * instead of maintaining a parallel almost-identical one; falls back to the
+ * legacy tashkeel-strip normalizer when the canonical one isn't loaded.
+ */
+function _canonicalNorm(text) {
+  if (typeof window.OCCURRENCE_INDEX_NORM === 'function') {
+    return window.OCCURRENCE_INDEX_NORM(text);
+  }
+  return normalizeArabic(text);
 }
 
 /**
@@ -44,6 +69,25 @@ function findWordByNormalizedArabic(arabic) {
   var norm = normalizeArabic(arabic);
   if (!norm) return undefined;
   var ids = _normalizedToIds[norm];
+  if (ids && ids.length > 0) {
+    return findWordById(ids[0]) || undefined;
+  }
+  return undefined;
+}
+
+/**
+ * Find a word by the canonical normalization (OCCURRENCE_INDEX_NORM), so that
+ * authored relationship references written in dictionary orthography resolve
+ * to their Uthmani-script dataset entries (e.g. أَهْل → أَهۡلِ,
+ * جَزَاء → جَزَآءُ, وَاحِد → وَٰحِدٖ). Runs after exact and weak-norm
+ * lookups fail; the canonical norm folds hamza/alif-maqsurah/dagger-alif
+ * variants exactly as the occurrence index does.
+ */
+function findWordByCanonicalNorm(arabic) {
+  if (!_canonicalToIds) buildWordIndex();
+  var canon = _canonicalNorm(arabic);
+  if (!canon) return undefined;
+  var ids = _canonicalToIds[canon];
   if (ids && ids.length > 0) {
     return findWordById(ids[0]) || undefined;
   }
@@ -75,6 +119,42 @@ function findWordByDefiniteArticleVariant(arabic) {
   var ids = _normalizedToIds[stripped];
   if (ids && ids.length > 0) {
     return findWordById(ids[0]) || undefined;
+  }
+  return undefined;
+}
+
+/**
+ * Find a word whose dataset entry carries a definite article when the ref
+ * itself doesn't (e.g. authored ref نَاس resolves to entry ٱلنَّاسِ, or
+ * مَوْت → الْمَوْتَ). Mirrors the strip-ال tier in reverse: adds ا+ل (or
+ * wasla-ٱ+ل) to the normalized ref and looks it up under BOTH the weak and
+ * canonical normalizations, since dataset entries may be in either
+ * orthography. Only runs after exact / weak-norm / canonical / strip-ال all
+ * fail, so it can never shadow an unambiguous existing entry.
+ */
+function findWordByDefiniteArticleAdded(arabic) {
+  if (!_normalizedToIds) buildWordIndex();
+  var norm = normalizeArabic(arabic);
+  if (!norm || norm.length < 3) return undefined;
+  var candidates = [];
+  // Weak-norm index lookups (dataset entry in dictionary-ish orthography)
+  if (_normalizedToIds) {
+    candidates.push(_normalizedToIds['\u0627\u0644' + norm]);
+    candidates.push(_normalizedToIds['\u0671\u0644' + norm]);
+  }
+  // Canonical-norm index lookups (dataset entry in Uthmani orthography)
+  if (_canonicalToIds) {
+    var canon = _canonicalNorm(arabic);
+    if (canon) {
+      candidates.push(_canonicalToIds['\u0627\u0644' + canon]);
+      candidates.push(_canonicalToIds['\u0671\u0644' + canon]);
+    }
+  }
+  for (var ci = 0; ci < candidates.length; ci++) {
+    var ids = candidates[ci];
+    if (ids && ids.length > 0) {
+      return findWordById(ids[0]) || undefined;
+    }
   }
   return undefined;
 }
@@ -122,9 +202,11 @@ function findWordsByArabicList(arabicList) {
   var result = [];
   if (!arabicList || !arabicList.length) return result;
   for (var i = 0; i < arabicList.length; i++) {
-    var words = findWordsByArabic(arabicList[i]);
+    var found = findWordByArabic(arabicList[i]) || findWordByNormalizedArabic(arabicList[i])
+      || findWordByCanonicalNorm(arabicList[i]) || findWordByDefiniteArticleVariant(arabicList[i])
+      || findWordByDefiniteArticleAdded(arabicList[i]);
     // Use the first match for display (similar/opposite word navigation)
-    if (words.length > 0) result.push(words[0]);
+    if (found) result.push(found);
   }
   return result;
 }
@@ -1315,11 +1397,23 @@ function computeMorphologicalRelations(word, cache) {
 function computeRelatedWordObjects(word) {
   if (!word.relatedWords || !word.relatedWords.length) return [];
   return word.relatedWords.map(function(arabic) {
-    // Exact match first, then diacritic-insensitive fallback (e.g. a related
-    // word stored as جَنَّةِ resolves to the dataset entry جَنَّة), then a
-    // leading-ال-strip tier (الرَّحْمَة → رَحْمَة) as a final fallback.
-    var found = findWordByArabic(arabic) || findWordByNormalizedArabic(arabic) || findWordByDefiniteArticleVariant(arabic);
-    return found ? { arabic: found.arabic, english: found.english, wordId: found.id } : null;
+    // Resolution chain, weakest to strongest orthography handling:
+    //  1. exact match
+    //  2. tashkeel-strip (جَنَّةِ → جَنَّة)
+    //  3. canonical norm, the same OCCURRENCE_INDEX_NORM used by the
+    //     occurrence index / reader (أَهْل → أَهۡلِ, جَزَاء → جَزَآءُ)
+    //  4. leading-ال-strip (الرَّحْمَة → رَحْمَة)
+    //  5. reverse definite article (نَاس → ٱلنَّاسِ)
+    var found = findWordByArabic(arabic) || findWordByNormalizedArabic(arabic)
+      || findWordByCanonicalNorm(arabic) || findWordByDefiniteArticleVariant(arabic)
+      || findWordByDefiniteArticleAdded(arabic);
+    if (!found) return null;
+    // Resolve to the canonical id (cw_N) when available: consumers key by
+    // canonical ids, and raw w_N ids on resolved objects were a latent
+    // canonical-id-mismatch trap (the bug class this app has hit repeatedly).
+    var cid = (typeof getCanonicalIdForOldId === 'function')
+      ? getCanonicalIdForOldId(found.id) : null;
+    return { arabic: found.arabic, english: found.english, wordId: cid || found.id };
   }).filter(Boolean);
 }
 
