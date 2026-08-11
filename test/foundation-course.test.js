@@ -183,14 +183,14 @@ suite('Data Integrity — Constants', function() {
     assert.strictEqual(FOUNDATION_WORDS_PER_LESSON, 10);
   });
 
-  test('COVERAGE_MILESTONES has 4 entries sorted ascending by pct (real scale, max ~24%)', function() {
+  test('COVERAGE_MILESTONES has 5 entries sorted ascending by pct (real scale, max ~40%)', function() {
     assert.ok(Array.isArray(COVERAGE_MILESTONES));
-    assert.strictEqual(COVERAGE_MILESTONES.length, 4);
+    assert.strictEqual(COVERAGE_MILESTONES.length, 5);
     for (var mi = 1; mi < COVERAGE_MILESTONES.length; mi++) {
       assert.ok(COVERAGE_MILESTONES[mi].pct > COVERAGE_MILESTONES[mi-1].pct);
     }
-    // Real token coverage maxes out at ~24.4% — no legacy-scale tiers above it
-    assert.ok(COVERAGE_MILESTONES[COVERAGE_MILESTONES.length - 1].pct <= 25);
+    // Real token coverage maxes out at ~43.1% — top tier at 40% stays reachable
+    assert.ok(COVERAGE_MILESTONES[COVERAGE_MILESTONES.length - 1].pct <= 41);
   });
 
   test('Each milestone has label, icon, and insight', function() {
@@ -205,9 +205,9 @@ suite('Data Integrity — Constants', function() {
     assert.strictEqual(FOUNDATION_MODE, 'foundation');
   });
 
-  test('First milestone is 5% and last is 24% (real maximum)', function() {
+  test('First milestone is 5% and last is 40% (real maximum)', function() {
     assert.strictEqual(COVERAGE_MILESTONES[0].pct, 5);
-    assert.strictEqual(COVERAGE_MILESTONES[COVERAGE_MILESTONES.length - 1].pct, 24);
+    assert.strictEqual(COVERAGE_MILESTONES[COVERAGE_MILESTONES.length - 1].pct, 40);
   });
 });
 
@@ -784,7 +784,7 @@ suite('Milestones — getMilestoneStatus', function() {
     var s = getMilestoneStatus(20);
     assert.strictEqual(s.currentMilestone.pct, 20);
     assert.strictEqual(s.currentMilestone.label, 'Growing Strong');
-    assert.strictEqual(s.nextMilestone.pct, 24);
+    assert.strictEqual(s.nextMilestone.pct, 30);
   });
 
   test('0% returns null current milestone, next is 5%', function() {
@@ -795,7 +795,7 @@ suite('Milestones — getMilestoneStatus', function() {
 
   test('Coverage above the real maximum returns final milestone with no next', function() {
     var s = getMilestoneStatus(100);
-    assert.strictEqual(s.currentMilestone.pct, 24);
+    assert.strictEqual(s.currentMilestone.pct, 40);
     assert.strictEqual(s.currentMilestone.label, 'Complete Vocabulary');
     assert.strictEqual(s.nextMilestone, null);
   });

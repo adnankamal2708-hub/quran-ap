@@ -1004,7 +1004,7 @@ function getRealWordsCoveragePercent(wordList) {
 }
 
 /**
- * Real coverage percentage of the full Foundation Course word set (~21%),
+ * Real coverage percentage of the full Foundation Course word set (~29.9%),
  * or null when the corpus data is unavailable.
  */
 function getRealFoundationCoveragePercent() {
@@ -1251,13 +1251,14 @@ function getAllSurahComprehension() {
  * Coverage Milestones with celebration data.
  */
 // Milestone tiers are calibrated to REAL token coverage, which maxes out at
-// ~24.4% (full 901-word set) / ~21.3% (Foundation Course). Tiers above that
+// ~43.1% (full 1207-word set) / ~29.9% (Foundation Course). Tiers above that
 // were legacy-scale (the old inflated w.occ basis) and could never be reached.
 const COVERAGE_MILESTONES = [
   { pct: 5, label: 'First Steps', icon: '🌱', insight: 'You can recognize 1 in 20 words! Every word builds your foundation.' },
   { pct: 10, label: 'Building Blocks', icon: '🧱', insight: '1 in 10 words familiar! You\'re starting to see patterns in the text.' },
   { pct: 20, label: 'Growing Strong', icon: '🌿', insight: '1 in 5 words known! Short verses become recognizable.' },
-  { pct: 24, label: 'Complete Vocabulary', icon: '🌟', insight: 'About 1 in 4 words — the full vocabulary set recognized!' },
+  { pct: 30, label: 'Solid Progress', icon: '🏗️', insight: 'Nearly 1 in 3 words known! Longer passages begin to feel structured.' },
+  { pct: 40, label: 'Complete Vocabulary', icon: '🌟', insight: '2 in 5 words — most of the core vocabulary set recognized!' },
 ];
 
 /**
@@ -1502,7 +1503,7 @@ function _getRelativeDateKey(offsetDays) {
 var FOUNDATION_MILESTONE_MESSAGES = [
   { pct: 0, messages: [
     'Every great journey begins with a single word. You are taking the most effective path to understanding the Quran.',
-    'The 100 Foundation Course words recognize ~21% of all Quran word tokens. Each lesson brings you closer.',
+    'The 100 Foundation Course words recognize ~29.9% of all Quran word tokens. Each lesson brings you closer.',
   ] },
   { pct: 10, messages: [
     'You now understand approximately {comprehension}% of all word occurrences. This is real, measurable progress.',
@@ -2506,7 +2507,7 @@ function getLearningPathProgress() {
       id: 'foundation',
       label: 'Foundation Course',
       icon: '\u2B50',
-      description: 'Master the 100 most frequent Quranic words across 10 progressive lessons. Recognizes ~21% of all Quran word tokens.',
+      description: 'Master the 100 most frequent Quranic words across 10 progressive lessons. Recognizes ~29.9% of all Quran word tokens.',
       completed: fCompleted,
       total: fTotal,
       percent: fPct,
@@ -2584,7 +2585,7 @@ function getPathRecommendation() {
     return {
       pathId: 'foundation',
       label: 'Foundation Course',
-      reason: 'Start with the most frequent Quranic words. You will recognize ~21% of all Quran word tokens in just 10 lessons!',
+      reason: 'Start with the most frequent Quranic words. You will recognize ~29.9% of all Quran word tokens in just 10 lessons!',
       icon: '\u2B50',
     };
   }

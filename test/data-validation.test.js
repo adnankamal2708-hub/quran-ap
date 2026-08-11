@@ -158,7 +158,7 @@ suite('Canonical Deduplication Functions', function() {
 suite('Foundation Course Constants', function() {
   test('COVERAGE_MILESTONES has correct milestones', function() {
     // Since COVERAGE_MILESTONES is const-declared, we test it indirectly.
-    // Tiers are calibrated to REAL token coverage (max ~24.4%), so 15 sits
+    // Tiers are calibrated to REAL token coverage (max ~43.1%), so 15 sits
     // between the 10% and 20% tiers.
     var milestone = getMilestoneStatus(15);
     assert.ok(milestone.currentMilestone !== null);
@@ -173,10 +173,10 @@ suite('Foundation Course Constants', function() {
   });
 
   test('getMilestoneStatus handles coverage above the real maximum', function() {
-    // Real token coverage maxes out at ~24.4%; anything above that is the
-    // top tier with no next milestone (previously asserted 100% as legacy scale).
+    // Real token coverage maxes out at ~43.1%; anything above that is the
+    // top tier with no next milestone (previously asserted 24 as legacy scale).
     var status = getMilestoneStatus(100);
-    assert.strictEqual(status.currentMilestone.pct, 24);
+    assert.strictEqual(status.currentMilestone.pct, 40);
     assert.strictEqual(status.nextMilestone, null);
   });
 

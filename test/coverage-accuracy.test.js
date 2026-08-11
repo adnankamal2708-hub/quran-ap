@@ -5,18 +5,19 @@
  * The app previously claimed the Foundation Course's 100 words cover
  * "~84% of the Quran" — computed from an inflated legacy formula
  * (sum of hand-authored w.occ estimates divided by another legacy
- * estimate). Real token-level coverage is now ~29% for those 100
- * words and ~34% for the full 930-word set.
+ * estimate). Real token-level coverage is now ~29.9% for those 100
+ * words and ~43.1% for the full 1207-word set.
  *
  * These tests lock in the real numbers (verified at fix time from a
  * token-level scan of the actual corpus via OCCURRENCE_INDEX_* data):
  *   - total corpus tokens: 77,429
- *   - full 930-word union coverage: 26,076 tokens = 33.7%
- *   - Foundation 100-word union coverage: 22,457 tokens = 29.0%
+ *   - full 1207-word union coverage: 33,406 tokens = 43.1%
+ *   - Foundation 100-word union coverage: 29.9%
  *
- * The 2026 high-frequency additions (+29 words) and the normalization
- * fix (dagger-alif and standalone-hamza variant forms now resolve to
- * existing entries) raised these figures from 24.42%/21.26%.
+ * The 2026 high-frequency additions (+29 words, then Batch 1 of the
+ * top-half standalone words, +186 words, then Batch 2, +91 words) and
+ * the normalization fix (dagger-alif and standalone-hamza variant forms
+ * now resolve to existing entries) raised these figures from 24.42%/21.26%.
  *
  * If the corpus or vocabulary changes, re-run
  * `node scripts/build-occurrence-index.js` and update these constants
@@ -91,13 +92,13 @@ suite('Real corpus stats', function() {
       'Total corpus tokens should be 77,429 (re-verify if the corpus changed), got ' + stats.totalTokens);
   });
 
-  test('Per-key token counts are present and sum to the union coverage (26,076)', function() {
+  test('Per-key token counts are present and sum to the union coverage (32,308)', function() {
     var stats = getRealCorpusStats();
     assert.ok(stats.counts, 'counts should be populated');
     var sum = 0;
     for (var k in stats.counts) sum += stats.counts[k];
-    assert.strictEqual(sum, 26076,
-      'Sum of per-key token counts should be 26,076 (union coverage), got ' + sum);
+    assert.strictEqual(sum, 33406,
+      'Sum of per-key token counts should be 33,396 (union coverage), got ' + sum);
   });
 
   test('getRealWordTokenCount returns real counts (> 0 for common words)', function() {
@@ -124,11 +125,11 @@ suite('Real coverage calculations', function() {
     assert.strictEqual(cov.totalOccurrences, 77429, 'totalOccurrences should be real corpus tokens');
   });
 
-  test('calculateCoverage reports ~33.7% (NOT 84%+) with every word mastered', function() {
+  test('calculateCoverage reports ~43.1% (NOT 84%+) with every word mastered', function() {
     masterAll();
     var cov = calculateCoverage();
-    assert.ok(Math.abs(cov.coveragePercent - 33.7) < 0.5,
-      'Full-set coverage should be ~33.7% (real token coverage), got ' + cov.coveragePercent);
+    assert.ok(Math.abs(cov.coveragePercent - 43.1) < 0.5,
+      'Full-set coverage should be ~43.1% (real token coverage), got ' + cov.coveragePercent);
     assert.strictEqual(cov.wordMasteryPercent, 100);
     assert.strictEqual(cov.masteredWords, CANON.length);
     assert.strictEqual(cov.totalOccurrences, 77429);
@@ -137,22 +138,22 @@ suite('Real coverage calculations', function() {
   test('Partial mastery produces intermediate real coverage', function() {
     masterFirstN(50);
     var cov = calculateCoverage();
-    assert.ok(cov.coveragePercent > 0 && cov.coveragePercent < 33.7,
-      'Partial coverage should be between 0 and 33.7, got ' + cov.coveragePercent);
+    assert.ok(cov.coveragePercent > 0 && cov.coveragePercent < 43.1,
+      'Partial coverage should be between 0 and 43.1, got ' + cov.coveragePercent);
   });
 
-  test('getFoundationTotalCoveragePercent reports ~29.0% (NOT 84+)', function() {
+  test('getFoundationTotalCoveragePercent reports ~29.9% (NOT 84+)', function() {
     var pct = getFoundationTotalCoveragePercent();
-    assert.ok(Math.abs(pct - 29.0) < 0.5,
-      'Foundation total coverage should be ~29.0% (real), got ' + pct);
+    assert.ok(Math.abs(pct - 29.9) < 0.5,
+      'Foundation total coverage should be ~29.9% (real), got ' + pct);
   });
 
-  test('getFoundationCoverage reports ~29.0% when all foundation words mastered', function() {
+  test('getFoundationCoverage reports ~29.9% when all foundation words mastered', function() {
     masterAll();
     var fc = getFoundationCoverage();
     assert.strictEqual(fc.totalFoundationWords, 100);
-    assert.ok(Math.abs(fc.foundationCoveragePercent - 29.0) < 0.5,
-      'Foundation coverage should be ~29.0% (real), got ' + fc.foundationCoveragePercent);
+    assert.ok(Math.abs(fc.foundationCoveragePercent - 29.9) < 0.5,
+      'Foundation coverage should be ~29.9% (real), got ' + fc.foundationCoveragePercent);
   });
 
   test('No impossible "next milestone" targets at full real coverage', function() {
@@ -161,7 +162,7 @@ suite('Real coverage calculations', function() {
     var ms = getMilestoneStatus(cov.coveragePercent);
     assert.strictEqual(ms.nextMilestone, null,
       'At full real coverage there should be no unreachable next milestone');
-    assert.ok(ms.currentMilestone && ms.currentMilestone.pct <= 25,
+    assert.ok(ms.currentMilestone && ms.currentMilestone.pct <= 41,
       'Current milestone should be within the real reachable range');
   });
 });
@@ -219,7 +220,7 @@ suite('Normalization fix & high-frequency additions', function() {
       if (!found) missing.push(ar);
     });
     assert.strictEqual(missing.length, 0, 'Missing new words: ' + missing.join(', '));
-    assert.strictEqual(CANON.length, 930, 'Canonical count should now be 930 (901 + 29), got ' + CANON.length);
+    assert.strictEqual(CANON.length, 1207, 'Canonical count should now be 1207 (901 + 29 + 186 batch-1 + 91 batch-2), got ' + CANON.length);
   });
 
   test('New words carry real token counts that match the index', function() {
@@ -238,11 +239,11 @@ suite('Normalization fix & high-frequency additions', function() {
 // ═══════════════════════════════════════════════════════════════
 
 suite('Lesson display strings & user-facing copy', function() {
-  test('Lesson display strings use real cumulative coverage (29.0% at lesson 10)', function() {
+  test('Lesson display strings use real cumulative coverage (29.9% at lesson 10)', function() {
     var ds = getFoundationLessonDisplayStrings(9);
     assert.ok(ds, 'display strings should exist for lesson 10');
-    assert.strictEqual(ds.cumulativeCoverage, '29.0%',
-      'Lesson 10 cumulative should be the real ~29.0%, got ' + ds.cumulativeCoverage);
+    assert.strictEqual(ds.cumulativeCoverage, '29.9%',
+      'Lesson 10 cumulative should be the real ~29.9%, got ' + ds.cumulativeCoverage);
   });
 
   test('Cumulative coverage grows across lessons (monotonic)', function() {
@@ -259,8 +260,8 @@ suite('Lesson display strings & user-facing copy', function() {
   test('Lesson 10 context resolves the real {coverage} number', function() {
     var ctx = getFoundationLessonContextMsg(9);
     assert.ok(ctx.context.indexOf('{coverage}') < 0, 'placeholder should be resolved');
-    assert.ok(ctx.context.indexOf('29%') >= 0,
-      'lesson 10 context should contain the real 29% figure, got: ' + ctx.context);
+    assert.ok(ctx.context.indexOf('29.9') >= 0,
+      'lesson 10 context should contain the real 29.9% figure, got: ' + ctx.context);
     assert.ok(ctx.context.indexOf('84') < 0, 'no legacy 84% claim in lesson context');
   });
 
