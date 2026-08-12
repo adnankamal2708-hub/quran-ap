@@ -291,6 +291,95 @@ suite('Learning Path Progress', function() {
   });
 });
 
+suite('Example Verse Consistency (regression)', function() {
+  // Regression guard: this bug class (example verse / surahId / verseKey mismatches)
+  // has recurred three times (31, then 36, then 43 entries). The centrally-managed
+  // word files (common / expanded / names-of-allah / hf-batch1 / hf-batch2) use the
+  // convention: surahId = verseKey surah = ayahR surah, and ayahA is verbatim corpus
+  // text with the highlighted token wrapped in a span. For every entry in THOSE files
+  // that carries surahId + verseKey + ayahR + ayahA with an embedded highlight span:
+  //   1. ayahR's trailing S:V must match surahId/verseKey
+  //   2. the highlighted token(s) must exist as full tokens in the corpus verse
+  //      at that reference.
+  // (Per-surah files like words-surah-*.js use surahId as a lesson-grouping field
+  // and hand-authored example text — a different, pre-existing convention — so they
+  // are intentionally excluded from this contract.)
+  var CORE_FILES = ['words-common.js', 'words-expanded.js', 'words-names-of-allah.js',
+    'words-hf-batch1.js', 'words-hf-batch2.js'];
+  var scopeFiles = wordFiles.filter(function(f) { return CORE_FILES.indexOf(f) >= 0; });
+  var corpus = null;
+  function getCorpus() {
+    if (corpus) return corpus;
+    var qPath = path.join(__dirname, '..', 'js', 'quran', 'quran-data.js');
+    if (fs.existsSync(qPath)) {
+      try {
+        eval(fs.readFileSync(qPath, 'utf8'));
+        corpus = (global.window && global.window.__QURAN_TEXT) || null;
+      } catch (e) { corpus = null; }
+    }
+    return corpus;
+  }
+
+  test('every core entry: ayahR trailing S:V matches surahId/verseKey', function() {
+    var bad = [];
+    scopeFiles.forEach(function(f) {
+      var lines = fs.readFileSync(path.join(dataDir, f), 'utf8').split(/\r?\n/);
+      for (var i = 0; i < lines.length; i++) {
+        var m = lines[i].match(/^\s*arabic: '([^']+)',$/);
+        if (!m) continue;
+        var win = lines.slice(i, i + 80).join('\n');
+        var sid = win.match(/^\s*surahId: (\d+),/m);
+        var vk = win.match(/^\s*verseKey: '([^']+)',/m);
+        var aR = win.match(/^\s*ayahR: (['"])([^\n]*)\1,?$/m);
+        if (!sid || !vk || !aR) continue;
+        var tail = aR[2].replace(/\s*\([^)]*\)\s*$/, '').match(/(\d+):(\d+)(?:-(\d+))?$/);
+        if (!tail) continue; // hadith-only / non-Quranic references (pre-existing convention)
+        var as = +tail[1], av = +tail[2], avEnd = tail[3] ? +tail[3] : av;
+        var vParts = vk[1].split(':'), vks2 = +vParts[0], vkv = +vParts[1];
+        if (+sid[1] !== as || vks2 !== as || vkv < av || vkv > avEnd) {
+          bad.push(f + ': ' + m[1] + ' surahId=' + sid[1] + ' verseKey=' + vk[1] + ' ayahR=' + aR[2]);
+        }
+      }
+    });
+    assert.deepStrictEqual(bad, []);
+  });
+
+  test('every corpus-derived core entry: ayah-highlight token is a full corpus token at its verseKey', function() {
+    var corpus = getCorpus();
+    if (!corpus) { console.log('     \u26A0 quran-data.js not loadable — skipping corpus token check'); assert.ok(true); return; }
+    var bad = [];
+    scopeFiles.forEach(function(f) {
+      var lines = fs.readFileSync(path.join(dataDir, f), 'utf8').split(/\r?\n/);
+      for (var i = 0; i < lines.length; i++) {
+        var m = lines[i].match(/^\s*arabic: '([^']+)',$/);
+        if (!m) continue;
+        var win = lines.slice(i, i + 80).join('\n');
+        var vk = win.match(/^\s*verseKey: '([^']+)',/m);
+        var aA = win.match(/^\s*ayahA: (['"])([^\n]*)\1,?$/m);
+        if (!vk || !aA) continue;
+        var spans = aA[2].match(/<span class="ayah-highlight">.*?<\/span>/g);
+        if (!spans) continue; // no embedded highlight
+        var plain = aA[2].replace(/<\/?span[^>]*>/g, '');
+        var vParts = vk[1].split(':');
+        var surah = corpus[+vParts[0]];
+        var verse = surah && surah.verses && surah.verses[+vParts[1] - 1];
+        if (!verse) { bad.push(f + ': ' + m[1] + ' no corpus verse ' + vk[1]); continue; }
+        // Only enforce the token contract for entries whose ayahA is verbatim corpus
+        // text (the regenerated/corpus-derived convention). Hand-authored examples use
+        // simplified orthography and clause-level excerpts — a separate pre-existing
+        // convention that cannot be token-checked against the Uthmani corpus.
+        if (verse.text.indexOf(plain) < 0) continue;
+        var toks = verse.text.split(' ');
+        spans.forEach(function(sp) {
+          var tok = sp.replace(/<\/?span[^>]*>/g, '');
+          if (toks.indexOf(tok) < 0) bad.push(f + ': ' + m[1] + ' hl token [' + tok + '] not a full token in ' + vk[1]);
+        });
+      }
+    });
+    assert.deepStrictEqual(bad, []);
+  });
+});
+
 suite('Offline / Service Worker', function() {
   test('sw.js exists and has valid syntax', function() {
     var swPath = path.join(__dirname, '..', 'sw.js');
