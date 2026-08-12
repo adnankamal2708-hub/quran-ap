@@ -484,6 +484,27 @@ suite('Edge Cases', function() {
     // Different call because of timing
     assert.ok(true);
   });
+
+  test('saveSRS invalidates the stats cache (stale Review Center stats guard)', function() {
+    // The mock clock is constant, so the 2s TTL never expires: the ONLY way
+    // getSRSStatsCached() can return fresh data after a write is if saveSRS()
+    // itself invalidates the cache. Before the fix, quiz/import/migration
+    // writers (which don't call invalidateStatsCache at their call sites)
+    // left consumers like the Review Center's showRetention / Retention stat
+    // reading stale totals from before the write.
+    clearStorage();
+    // _cachedStats is module-level and persists across tests — reset it so this
+    // test is independent of whatever previous tests left cached.
+    invalidateStatsCache();
+    global.ALL_WORDS = [{ id: 'cw_0', arabic: 'x' }];
+    var base = { stage: 1, interval: 1, easeFactor: 2.5, dueDate: Date.now() + 86400000, ratedAt: Date.now() - 86400000, lapses: 0, isLeech: false };
+    saveSRS({ cw_0: Object.assign({ totalReviews: 1 }, base) });
+    assert.strictEqual(getSRSStatsCached().totalReviews, 1, 'initial stats reflect 1 review');
+    saveSRS({ cw_0: Object.assign({ totalReviews: 7 }, base) });
+    assert.strictEqual(getSRSStatsCached().totalReviews, 7,
+      'saveSRS must invalidate the stats cache so the next read is fresh');
+    global.ALL_WORDS = [];
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════

@@ -305,6 +305,12 @@ function saveSRS(data) {
     _srsCache = null;
     if (typeof invalidateCoverageCache === "function") invalidateCoverageCache();
     if (typeof invalidateReviewForecast === "function") invalidateReviewForecast();
+    // Invalidate the aggregated SRS stats cache here, not only at the app.js
+    // rating call site. Any writer (quiz ratings, cloud imports, migrations,
+    // tests) must leave getSRSStatsCached() fresh — otherwise consumers like
+    // the Review Center's showRetention/totalReviews/Retention can render
+    // stale values from before the write.
+    if (typeof invalidateStatsCache === "function") invalidateStatsCache();
     localStorage.setItem(SRS_STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
     window.__DEV__ && console.warn('Could not save SRS data:', e.message);
