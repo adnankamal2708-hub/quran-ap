@@ -533,8 +533,9 @@ suite('renderReviewCenter — Stats Bar', function() {
     renderReviewCenter();
     assert.ok(grid._innerHTML.indexOf('rc-stats-bar') >= 0, 'should have stats bar');
     assert.ok(grid._innerHTML.indexOf('Mastered') >= 0, 'should show Mastered');
-    assert.ok(grid._innerHTML.indexOf('Retention') >= 0, 'should show Retention');
     assert.ok(grid._innerHTML.indexOf('Streak') >= 0, 'should show Streak');
+    // New user (0 lifetime reviews) must NOT see a misleading Retention stat
+    assert.ok(grid._innerHTML.indexOf('Retention') < 0, 'should hide Retention below 5 reviews');
   });
 
   test('stats bar reflects current data', function() {
@@ -550,6 +551,34 @@ suite('renderReviewCenter — Stats Bar', function() {
     assert.ok(grid._innerHTML.indexOf('42') >= 0, 'should show 42 mastered');
     assert.ok(grid._innerHTML.indexOf('82%') >= 0, 'should show 82% retention');
     assert.ok(grid._innerHTML.indexOf('7') >= 0, 'should show 7-day streak');
+  });
+
+  test('hides Retention stat below 5 lifetime reviews (no misleading 100%)', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    // 4 lifetime reviews with the srs.js no-data default of 100% retention
+    _mockSRSStats = { total: 4, mature: 0, dueToday: 0, totalReviews: 4, reviewsToday: 1, newCount: 3, learning: 1, young: 0, overdue: 0, avgRetention: 100 };
+
+    renderReviewCenter();
+    var html = grid._innerHTML;
+    assert.ok(html.indexOf('Retention') < 0, 'should hide Retention in stats bar below 5 reviews');
+    assert.ok(html.indexOf('100%') < 0, 'should not show the misleading 100% no-data default');
+  });
+
+  test('shows Retention stat at 5+ lifetime reviews in stats bar and Today Progress', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    _mockSRSStats = { total: 6, mature: 1, dueToday: 0, totalReviews: 6, reviewsToday: 2, newCount: 4, learning: 1, young: 1, overdue: 0, avgRetention: 88 };
+
+    renderReviewCenter();
+    var html = grid._innerHTML;
+    assert.ok(html.indexOf('88%') >= 0, 'should show real retention at 5+ reviews');
+    assert.ok(html.indexOf('Retention') >= 0, 'should show Retention label');
+    // Retention must appear in BOTH the stats bar and Today\'s Progress card
+    assert.ok(html.indexOf('rc-stat-value">88%</div><div class="rc-stat-label">Retention') >= 0, 'stats bar should show retention');
+    assert.ok(html.indexOf('rc-today-value">88%</div><div class="rc-today-label">Retention') >= 0, 'Today Progress should show retention');
   });
 });
 

@@ -24,6 +24,12 @@ var _rcTimer = null;
 var _rcDataCache = null;
 var _rcCacheKey = null;
 
+// Aggregate Retention is meaningless below 5 lifetime reviews (srs.js returns
+// a no-data default of 100% when there are no retention records — showing that
+// to a brand-new user would be misleading noise). Same 5-review minimum gate
+// used by the Session Complete screen and the Word Detail Learning Progress.
+var _RC_RETENTION_MIN_REVIEWS = 5;
+
 /**
  * Build a cache key for the review center data snapshot.
  * Changes when SRS stats or word set changes.
@@ -157,6 +163,12 @@ function gatherReviewCenterData() {
     reviewsToday: $srsStats.reviewsToday || 0,
     retention: $srsStats.avgRetention || 0,
     totalReviews: $srsStats.totalReviews || 0,
+    // Hide the aggregate Retention stat until there are enough reviews for it
+    // to be meaningful (mirrors the 5-review minimum gate used elsewhere).
+    // NOTE: lifetime Total Reviews stays visible even below 5 — a true "0"
+    // count is informative onboarding context, unlike the per-word review
+    // noise the 5-review gate was designed to hide.
+    showRetention: ($srsStats.totalReviews || 0) >= _RC_RETENTION_MIN_REVIEWS,
   };
 
   _rcDataCache = $data;
@@ -226,10 +238,12 @@ function renderReviewCenter() {
   $h += '<div class="rc-stat-label">Mastered</div>';
   $h += '</div>';
 
-  $h += '<div class="rc-stat">';
-  $h += '<div class="rc-stat-value">' + ($data.retention || 0) + '%</div>';
-  $h += '<div class="rc-stat-label">Retention</div>';
-  $h += '</div>';
+  if ($data.showRetention) {
+    $h += '<div class="rc-stat">';
+    $h += '<div class="rc-stat-value">' + ($data.retention || 0) + '%</div>';
+    $h += '<div class="rc-stat-label">Retention</div>';
+    $h += '</div>';
+  }
 
   $h += '<div class="rc-stat">';
   $h += '<div class="rc-stat-value">' + $data.streak + '</div>';
@@ -523,7 +537,9 @@ function renderReviewCenter() {
   $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.reviewsToday + '</div><div class="rc-today-label">Reviews Today</div></div>';
   $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.totalReviews + '</div><div class="rc-today-label">Total Reviews</div></div>';
   $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.masteredCount + '</div><div class="rc-today-label">Words Mastered</div></div>';
-  $h += '<div class="rc-today-item"><div class="rc-today-value">' + ($data.retention || 0) + '%</div><div class="rc-today-label">Retention</div></div>';
+  if ($data.showRetention) {
+    $h += '<div class="rc-today-item"><div class="rc-today-value">' + ($data.retention || 0) + '%</div><div class="rc-today-label">Retention</div></div>';
+  }
   $h += '</div>';
   $h += '</div>';
 

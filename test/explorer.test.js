@@ -33,7 +33,7 @@ global.localStorage = {
 var TEST_WORDS = [
   { id: 'cw_0', arabic: 'الله', translit: 'Allah', english: 'Allah', meaning: 'Allah — God',
     root: 'أ-ل-ه', rootMeaning: 'Deity', pattern: 'فَعْل', type: 'Proper Noun', typeCategory: 'noun',
-    difficulty: 1, occ: 2699, frequencyRank: 1, frequencyPercentile: 0.1, learningPriority: 1,
+    difficulty: 1, occ: 2699, frequencyRank: 1, frequencyPercentile: 99.9, learningPriority: 1,
     foundationLessonId: 0,
     rootFamily: [{ a: 'إله', e: 'God' }, { a: 'آلهة', e: 'gods' }],
     occurrences: [
@@ -51,7 +51,7 @@ var TEST_WORDS = [
   },
   { id: 'cw_1', arabic: 'رب', translit: 'Rabb', english: 'Lord', meaning: 'Lord — Sustainer',
     root: 'ر-ب-ب', rootMeaning: 'Lordship', pattern: 'فَعْل', type: 'Noun', typeCategory: 'noun',
-    difficulty: 1, occ: 980, frequencyRank: 2, frequencyPercentile: 0.3, learningPriority: 1,
+    difficulty: 1, occ: 980, frequencyRank: 2, frequencyPercentile: 99.7, learningPriority: 1,
     foundationLessonId: 0,
     rootFamily: [{ a: 'ربوبية', e: 'Lordship' }],
     occurrences: [],
@@ -109,6 +109,28 @@ global.goToSurah = function() {};
 global.window.__navigateToWord = function() {};
 global.window.__explorerCurrentOcc = null;
 global.window.__scrollOnExplorerRender = false;
+
+// Premium mock — mutable so tests can simulate a live upgrade (the same
+// state flip the onSnapshot listener performs in premium.js).
+var _mockPremiumActive = false;
+var _mockPremiumListeners = [];
+global.window.__premium = {
+  FEATURES: { WORD_RELATIONSHIPS: 'wordRelationships' },
+  hasFeature: function(k) { return _mockPremiumActive; },
+  isPremium: function() { return _mockPremiumActive; },
+  onChange: function(cb) {
+    _mockPremiumListeners.push(cb);
+    cb({ isPremium: _mockPremiumActive });
+    return function() {};
+  },
+  requestUpgrade: function() {},
+};
+function setMockPremium(active) {
+  _mockPremiumActive = active;
+  for (var i = 0; i < _mockPremiumListeners.length; i++) {
+    _mockPremiumListeners[i]({ isPremium: active });
+  }
+}
 global.isFoundationLessonCompleted = function() { return false; };
 global.currentView = 'learn';
 
@@ -140,6 +162,7 @@ function t(name, fn) {
     global.__lastView = null;
     global.__explorerCurrentOcc = null;
     _explorerWord = null;
+    _mockPremiumActive = false;
     _explorerReturnView = 'learn';
     global.localStorage.setItem('quran_favorites', '{}');
     global.localStorage.setItem('quran_notes', '{}');
@@ -275,6 +298,31 @@ ts('Explorer — Rendering', function() {
     createAllExplorerEls();
     renderExplorer();
     assert.strictEqual(document.getElementById('explorer-freq-rank').innerHTML.indexOf('—') >= 0, true);
+  });
+
+  t('renderExplorer hides percentile when it is exactly 0 (top 0% is a glitch)', function() {
+    // Only the single least-frequent word gets a raw percentile of 0 (rank =
+    // totalWords); "top 0%" reads like a broken value, so it must be hidden
+    // while rank and priority still render.
+    var w = { id: 'cw_z', arabic: 'z', frequencyRank: 1207, frequencyPercentile: 0, learningPriority: 5 };
+    _explorerWord = w;
+    createAllExplorerEls();
+    renderExplorer();
+    var html = document.getElementById('explorer-freq-rank').innerHTML;
+    assert.ok(html.indexOf('#1207') >= 0, 'rank must still show');
+    assert.ok(html.indexOf('top 0%') < 0, 'top 0% must NOT render');
+    assert.ok(html.indexOf('Supplementary') >= 0, 'priority label must still show');
+  });
+
+  t('renderExplorer shows percentile when above 0', function() {
+    var w = { id: 'cw_y', arabic: 'y', frequencyRank: 506, frequencyPercentile: 58.1, learningPriority: 3 };
+    _explorerWord = w;
+    createAllExplorerEls();
+    renderExplorer();
+    var html = document.getElementById('explorer-freq-rank').innerHTML;
+    assert.ok(html.indexOf('#506') >= 0, 'rank must show');
+    assert.ok(html.indexOf('top 58.1%') >= 0, 'percentile must show when > 0');
+    assert.ok(html.indexOf('Medium Priority') >= 0, 'priority label must show');
   });
 
   t('renderExplorer shows occurrence count', function() {
@@ -597,6 +645,128 @@ ts('Explorer — Relationships stale-locked cleanup (regression)', function () {
     renderExplorerRelationships(TEST_WORDS[0]);
     assert.strictEqual(locked.style.display, 'none', 'locked panel cleared for premium');
     assert.strictEqual(parent.style.display, '', 'gated section restored for premium');
+  });
+});
+
+ts('Explorer — Vocabulary Relationships premium gating', function () {
+  // Build the relationships card DOM (rel-content -> sections -> lists) the
+  // way index.html structures it, so the locked/premium renders can attach
+  // to real parent/child relationships instead of flat elements.
+  // NOTE: this helper re-creates ids that createAllExplorerEls() also creates
+  // as flat elements (explorer-derived-forms-list etc.). Setting el.id
+  // registers the element in the mock's _elementsById registry, so the nested
+  // versions created here intentionally OVERWRITE the flat ones — which is
+  // what makes the section-based display assertions work. Keep this helper
+  // called AFTER createAllExplorerEls() when combining them.
+  function createRelCard() {
+    var relContent = mock.makeEl('div');
+    relContent.id = 'explorer-rel-content';
+    document.body.appendChild(relContent);
+    var pairs = [
+      ['explorer-root-family-section', 'explorer-root-family-list'],
+      ['explorer-derived-forms-section', 'explorer-derived-forms-list'],
+      ['explorer-morph-section', 'explorer-morph-list'],
+      ['explorer-similar-section', 'explorer-similar-list'],
+      ['explorer-confused-section', 'explorer-confused-list'],
+      ['explorer-semantic-section', 'explorer-semantic-list'],
+      ['explorer-related-section', 'explorer-related-list'],
+      ['explorer-equiv-section', 'explorer-equiv-list'],
+    ];
+    for (var i = 0; i < pairs.length; i++) {
+      var section = mock.makeEl('section');
+      section.id = pairs[i][0];
+      var list = mock.makeEl('div');
+      list.id = pairs[i][1];
+      section.appendChild(list);
+      relContent.appendChild(section);
+    }
+    return relContent;
+  }
+
+  t('free user sees locked panel with upgrade messaging, root family stays populated', function () {
+    _explorerWord = TEST_WORDS[0];
+    createRelCard();
+    renderExplorerRelationshipsLocked();
+    var locked = document.getElementById('explorer-relationships-locked');
+    assert.ok(locked, 'locked panel must exist for free users');
+    assert.strictEqual(locked.style.display, 'block', 'locked panel must be visible');
+    assert.ok(locked.innerHTML.indexOf('Upgrade to Premium') >= 0, 'locked panel must offer upgrade');
+    assert.ok(locked.innerHTML.indexOf('word-relationships') >= 0, 'upgrade must request word-relationships feature');
+    // Gated sections hidden
+    assert.strictEqual(document.getElementById('explorer-derived-forms-section').style.display, 'none');
+    assert.strictEqual(document.getElementById('explorer-morph-section').style.display, 'none');
+    assert.strictEqual(document.getElementById('explorer-similar-section').style.display, 'none');
+    // Root family is free — section visible and populated with real data
+    assert.notStrictEqual(document.getElementById('explorer-root-family-section').style.display, 'none');
+    assert.ok(document.getElementById('explorer-root-family-list').children.length > 0,
+      'root family must still show real data for free users');
+  });
+
+  t('free user sees locked panel via full renderExplorer', function () {
+    _explorerWord = TEST_WORDS[0];
+    createAllExplorerEls();
+    createRelCard();
+    setMockPremium(false);
+    renderExplorer();
+    var locked = document.getElementById('explorer-relationships-locked');
+    assert.ok(locked, 'locked panel must exist via full render');
+    assert.strictEqual(locked.style.display, 'block', 'locked panel must be visible');
+  });
+
+  t('premium user sees real relationship data via full renderExplorer', function () {
+    _explorerWord = TEST_WORDS[0];
+    createAllExplorerEls();
+    createRelCard();
+    setMockPremium(true);
+    renderExplorer();
+    var locked = document.getElementById('explorer-relationships-locked');
+    if (locked) {
+      assert.strictEqual(locked.style.display, 'none', 'locked panel must be cleared for premium');
+    }
+    assert.notStrictEqual(document.getElementById('explorer-derived-forms-section').style.display, 'none',
+      'gated sections must be visible for premium');
+    assert.notStrictEqual(document.getElementById('explorer-root-family-section').style.display, 'none');
+  });
+
+  t('LIVE UPGRADE: locked panel unlocks to real data without reload', function () {
+    _explorerWord = TEST_WORDS[0];
+    createAllExplorerEls();
+    createRelCard();
+    setMockPremium(false);
+    renderExplorer();
+    var locked = document.getElementById('explorer-relationships-locked');
+    assert.strictEqual(locked.style.display, 'block', 'starts locked for free user');
+    assert.strictEqual(document.getElementById('explorer-derived-forms-section').style.display, 'none',
+      'gated sections start hidden');
+
+    // Simulate the onSnapshot listener firing after a purchase: premium state
+    // flips and the onChange subscribers (navigation.js rerenderCurrentView)
+    // re-run renderExplorer() in place — no reload, no navigation.
+    setMockPremium(true);
+    renderExplorer();
+
+    assert.strictEqual(locked.style.display, 'none', 'locked panel must disappear after live upgrade');
+    assert.notStrictEqual(document.getElementById('explorer-derived-forms-section').style.display, 'none',
+      'gated sections must unlock with real data');
+    assert.ok(document.getElementById('explorer-root-family-list').children.length > 0,
+      'root family data populated after unlock');
+  });
+
+  t('LIVE DOWNGRADE: premium user who loses access sees locked panel', function () {
+    _explorerWord = TEST_WORDS[0];
+    createAllExplorerEls();
+    createRelCard();
+    setMockPremium(true);
+    renderExplorer();
+    assert.notStrictEqual(document.getElementById('explorer-derived-forms-section').style.display, 'none',
+      'starts unlocked');
+
+    setMockPremium(false);
+    renderExplorer();
+    var locked = document.getElementById('explorer-relationships-locked');
+    assert.strictEqual(locked.style.display, 'block', 'locked panel returns after downgrade');
+    assert.strictEqual(document.getElementById('explorer-derived-forms-section').style.display, 'none',
+      'sections re-lock');
   });
 });
 

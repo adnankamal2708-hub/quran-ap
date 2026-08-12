@@ -216,6 +216,18 @@ suite('switchView Dispatching', function() {
     assert.ok(_callLog.indexOf('updateWordCard') >= 0, 're-renders the word card');
   });
 
+  test('rerenderCurrentView re-renders the explorer on live premium changes', function() {
+    // The explorer's Vocabulary Relationships section is premium-gated, so a
+    // live purchase (premium.onChange -> rerenderCurrentView) must re-run
+    // renderExplorer() in place — otherwise the locked panel would stay on
+    // screen until the user manually navigates away and back.
+    _callLog.length = 0;
+    switchView('explorer');
+    _callLog.length = 0;
+    rerenderCurrentView();
+    assert.ok(_callLog.indexOf('renderExplorer') >= 0, 're-renders the explorer relationships section');
+  });
+
   test('switchView calls validation hook if present', function() {
     var called = false;
     global.window.__validation = { onRouteChange: function() { called = true; } };

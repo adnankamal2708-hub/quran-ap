@@ -80,7 +80,9 @@ function renderExplorer() {
   var freqParts = [];
   if (w.frequencyRank) {
     freqParts.push('<span class="explorer-freq-pill">#' + w.frequencyRank + '</span>');
-    if (w.frequencyPercentile !== undefined) {
+    // Hide the percentile when it is exactly 0 — only the single least-frequent
+    // word gets a raw 0, and "top 0%" reads like a data glitch. Show it above 0.
+    if (w.frequencyPercentile !== undefined && w.frequencyPercentile > 0) {
       freqParts.push('<span class="explorer-freq-pct">top ' + w.frequencyPercentile + '%</span>');
     }
   }
@@ -238,24 +240,47 @@ function renderExplorerSurahLinks(w) {
 
 /**
  * Render a locked relationship panel for free users in the explorer.
+ *
+ * Root family is free content and stays visible with its data; every other
+ * relationship section is hidden and replaced by a single locked panel.
+ *
+ * The locked panel is placed as a SIBLING of the gated sections (a child of
+ * explorer-rel-content), never nested inside a section that gets hidden below.
+ * (The old code inserted it inside explorer-derived-forms-section and then
+ * hid that very section, which made the panel invisible for free users.)
  */
 function renderExplorerRelationshipsLocked() {
-  // Root family stays free — keep it visible
-  // Everything else gets replaced by the locked panel
+  // Root family is free — populate it so the section shows real data instead
+  // of an empty header (mirrors the premium path).
+  var rootFamList = DOM.get('explorer-root-family-list');
+  if (rootFamList) {
+    rootFamList.innerHTML = '';
+    if (_explorerWord && _explorerWord.rootFamily && _explorerWord.rootFamily.length > 0) {
+      for (var rfi = 0; rfi < _explorerWord.rootFamily.length; rfi++) {
+        var rf = _explorerWord.rootFamily[rfi];
+        rootFamList.appendChild(createExplorerChip(rf.a, rf.e, null, _explorerWord));
+      }
+    } else {
+      rootFamList.innerHTML = '<span class="explorer-empty">No root family data</span>';
+    }
+  }
+
+  // Locked panel — sibling of the gated sections inside explorer-rel-content.
   var lockedContainer = document.getElementById('explorer-relationships-locked');
   if (!lockedContainer) {
-    // Insert locked panel before the first gated relationship section
-    var firstGatedEl = document.getElementById('explorer-derived-forms-list');
-    var insertBeforeEl = firstGatedEl;
-    if (!firstGatedEl) {
-      // Fallback: insert after the entire explorer content
-      var explorerContent = document.querySelector('.explorer-content, #explorer-root-family-list');
-      insertBeforeEl = explorerContent ? explorerContent.nextSibling : null;
+    lockedContainer = document.createElement('div');
+    lockedContainer.id = 'explorer-relationships-locked';
+    var relContent = document.getElementById('explorer-rel-content');
+    var insertTarget = relContent;
+    if (!insertTarget) {
+      var rootFamSection = document.getElementById('explorer-root-family-section');
+      insertTarget = rootFamSection ? rootFamSection.parentNode : null;
     }
-    if (insertBeforeEl && insertBeforeEl.parentNode) {
-      lockedContainer = document.createElement('div');
-      lockedContainer.id = 'explorer-relationships-locked';
-      insertBeforeEl.parentNode.insertBefore(lockedContainer, insertBeforeEl);
+    if (insertTarget && typeof insertTarget.appendChild === 'function') {
+      insertTarget.appendChild(lockedContainer);
+    } else {
+      // No attachable container — bail rather than operate on a detached panel.
+      return;
     }
   }
   if (!lockedContainer) return;
@@ -270,18 +295,15 @@ function renderExplorerRelationshipsLocked() {
       '</div>' +
       '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
     '</div>';
-  // Hide the other relationship sections
+  // Hide the gated relationship sections (by section id — root family stays).
   var _explorerRelSections = [
-    'explorer-derived-forms-list', 'explorer-morph-list',
-    'explorer-similar-list', 'explorer-confused-list',
-    'explorer-semantic-list', 'explorer-related-list', 'explorer-equiv-list',
+    'explorer-derived-forms-section', 'explorer-morph-section',
+    'explorer-similar-section', 'explorer-confused-section',
+    'explorer-semantic-section', 'explorer-related-section', 'explorer-equiv-section',
   ];
   for (var _ersi = 0; _ersi < _explorerRelSections.length; _ersi++) {
-    var _erEl = document.getElementById(_explorerRelSections[_ersi]);
-    if (_erEl) {
-      var parent = _erEl.parentNode;
-      if (parent) parent.style.display = 'none';
-    }
+    var _erSection = document.getElementById(_explorerRelSections[_ersi]);
+    if (_erSection) _erSection.style.display = 'none';
   }
 }
 
