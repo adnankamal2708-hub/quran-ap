@@ -186,8 +186,8 @@ function createAllExplorerEls() {
   var ids = [
     'view-explorer', 'content',
     'explorer-arabic', 'explorer-translit', 'explorer-meaning-main', 'explorer-full-meaning',
-    'explorer-root', 'explorer-pattern', 'explorer-pos', 'explorer-difficulty',
-    'explorer-freq-rank', 'explorer-occ', 'explorer-foundation-lesson', 'explorer-priority',
+    'explorer-root', 'explorer-pos',
+    'explorer-freq-rank', 'explorer-occ', 'explorer-foundation-lesson',
     'explorer-first-occ', 'explorer-last-occ', 'explorer-surah-count', 'explorer-total-occ',
     'explorer-occ-nav', 'explorer-occ-prev', 'explorer-occ-label', 'explorer-occ-next',
     'explorer-ayah-arabic', 'explorer-ayah-translation', 'explorer-ayah-ref',
@@ -198,9 +198,9 @@ function createAllExplorerEls() {
     'explorer-related-list', 'explorer-equiv-list',
     'explorer-srs-stage', 'explorer-foundation-status', 'explorer-last-studied',
     'explorer-next-review', 'explorer-review-count', 'explorer-retention',
-    'explorer-btn-bookmark', 'explorer-btn-study', 'explorer-btn-review',
+    'explorer-btn-bookmark',
     'explorer-btn-open-flashcards', 'explorer-btn-practice-related',
-    'explorer-btn-view-occurrences', 'explorer-all-occ-list', 'explorer-all-occ-btn',
+    'explorer-all-occ-list', 'explorer-all-occ-btn',
     'explorer-notes-input',
     'explorer-back',
   ];
@@ -240,11 +240,13 @@ ts('Explorer — Rendering', function() {
     assert.strictEqual(document.getElementById('explorer-pos').textContent, 'Proper Noun');
   });
 
-  t('renderExplorer shows difficulty stars', function() {
+  t('renderExplorer does not render difficulty or morphology (removed from Core Information)', function() {
     _explorerWord = TEST_WORDS[0];
     createAllExplorerEls();
     renderExplorer();
-    assert.ok(document.getElementById('explorer-difficulty').innerHTML.indexOf('★') >= 0);
+    assert.strictEqual(document.getElementById('explorer-difficulty'), null);
+    assert.strictEqual(document.getElementById('explorer-pattern'), null);
+    assert.strictEqual(document.getElementById('explorer-priority'), null);
   });
 
   t('renderExplorer shows frequency rank', function() {
@@ -252,6 +254,26 @@ ts('Explorer — Rendering', function() {
     createAllExplorerEls();
     renderExplorer();
     assert.ok(document.getElementById('explorer-freq-rank').innerHTML.indexOf('#1') >= 0);
+  });
+
+  t('renderExplorer merges learning priority into the frequency rank card', function() {
+    _explorerWord = TEST_WORDS[0];
+    createAllExplorerEls();
+    renderExplorer();
+    var html = document.getElementById('explorer-freq-rank').innerHTML;
+    assert.ok(html.indexOf('explorer-priority-chip') >= 0, 'priority chip must render inside the freq-rank card');
+    assert.ok(html.indexOf(getLearningPriorityLabel(TEST_WORDS[0].learningPriority)) >= 0,
+      'priority label must appear in the merged card');
+  });
+
+  t('renderExplorer merged freq-rank card degrades to em dash when word has no data', function() {
+    // A bare word with neither frequencyRank nor learningPriority must not crash
+    // and must render the em-dash fallback.
+    var bareWord = { id: 'cw_x', arabic: 'x' };
+    _explorerWord = bareWord;
+    createAllExplorerEls();
+    renderExplorer();
+    assert.strictEqual(document.getElementById('explorer-freq-rank').innerHTML.indexOf('—') >= 0, true);
   });
 
   t('renderExplorer shows occurrence count', function() {

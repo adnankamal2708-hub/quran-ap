@@ -149,7 +149,7 @@ ALL_WORDS.push(
     tags: ['law', 'permissible', 'al-maidah'],
     lesson: 'al-maidah',
     surahId: 5,
-    verseKey: '5:1',
+    verseKey: '5:5',
     ayahA: 'أُحِلَّتْ لَكُمْ بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ — يَسْأَلُونَكَ مَاذَا أُحِلَّ لَهُمْ — وَطَعَامُ الَّذِينَ أُوتُوا الْكِتَابَ <span class=\"ayah-highlight\">حِلٌّ</span> لَكُمْ',
     ayahT: 'And the food of those who were given the Scripture is <strong>lawful</strong> for you.',
     ayahR: 'Al-Ma\'idah 5:5',

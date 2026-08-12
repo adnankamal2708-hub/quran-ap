@@ -181,7 +181,7 @@ ALL_WORDS.push(
     tags: ['quran', 'preservation', 'buruj'],
     lesson: 'buruj',
     surahId: 85,
-    verseKey: '85:21',
+    verseKey: '85:22',
     ayahA: 'بَلْ هُوَ قُرْآنٌ مَّجِيدٌ <span class=\"ayah-highlight\">فِي لَوْحٍ مَّحْفُوظٍ</span>',
     ayahT: 'Rather, it is a glorious Quran, <strong>in a Preserved Tablet</strong>.',
     ayahR: 'Al-Buruj 85:22',

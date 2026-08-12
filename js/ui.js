@@ -1354,28 +1354,21 @@ function renderExplorer() {
   DOM.get('explorer-meaning-main').textContent = w.meaning || w.english || '';
   DOM.get('explorer-full-meaning').textContent = w.meaning && w.meaning !== w.english ? w.meaning : '';
   DOM.get('explorer-root').textContent = w.root || '—';
-  DOM.get('explorer-pattern').textContent = w.pattern && w.pattern !== '—' ? w.pattern : '—';
   DOM.get('explorer-pos').textContent = w.type || w.typeCategory || '—';
   
-  // Difficulty
-  var diffEl = DOM.get('explorer-difficulty');
-  if (w.difficulty) {
-    var stars = '';
-    for (var di = 0; di < w.difficulty; di++) stars += '★';
-    for (var dje = w.difficulty; dje < 5; dje++) stars += '☆';
-    diffEl.textContent = w.difficulty + ' ' + stars;
-  } else {
-    diffEl.textContent = '—';
-  }
-  
-  // Frequency rank
+  // Frequency rank + learning priority — merged single card. Both are
+  // optional (rootless/rare words may lack one or both), so each is
+  // appended only when present and the card degrades to '—' when neither
+  // exists.
   var freqRankEl = DOM.get('explorer-freq-rank');
+  var freqParts = [];
   if (w.frequencyRank) {
-    var pct = w.frequencyPercentile !== undefined ? ' (top ' + w.frequencyPercentile + '%)' : '';
-    freqRankEl.textContent = '#' + w.frequencyRank + pct;
-  } else {
-    freqRankEl.textContent = '—';
+    freqParts.push('#' + w.frequencyRank + (w.frequencyPercentile !== undefined ? ' (top ' + w.frequencyPercentile + '%)' : ''));
   }
+  if (typeof getLearningPriorityLabel === 'function' && w.learningPriority) {
+    freqParts.push(getLearningPriorityLabel(w.learningPriority));
+  }
+  freqRankEl.textContent = freqParts.length > 0 ? freqParts.join(' · ') : '—';
   
   // Total occurrences
   DOM.get('explorer-occ').textContent = w.occ ? w.occ.toLocaleString() + ' times' : '—';
@@ -1386,14 +1379,6 @@ function renderExplorer() {
     fLessonEl.textContent = 'Foundation ' + (w.foundationLessonId + 1);
   } else {
     fLessonEl.textContent = 'Not in Foundation Course';
-  }
-  
-  // Learning priority
-  var priorityEl = DOM.get('explorer-priority');
-  if (typeof getLearningPriorityLabel === 'function' && w.learningPriority) {
-    priorityEl.textContent = w.learningPriority + ' — ' + getLearningPriorityLabel(w.learningPriority);
-  } else {
-    priorityEl.textContent = '—';
   }
   
   // ── Quran Context ──
@@ -1877,30 +1862,6 @@ function wireExplorerEvents(w) {
     };
   }
   
-  // Study this word button
-  var studyBtn = DOM.get('explorer-btn-study');
-  if (studyBtn) {
-    studyBtn.onclick = function() {
-      closeExplorer();
-      // Find word in lesson/surah and navigate
-      if (typeof window.__navigateToWord === 'function') {
-        window.__navigateToWord(w);
-      }
-    };
-  }
-  
-  // Rate word button
-  var rateBtn = DOM.get('explorer-btn-review');
-  if (rateBtn) {
-    rateBtn.onclick = function() {
-      closeExplorer();
-      // Navigate to learn view with this word for rating
-      if (typeof window.__navigateToWord === 'function') {
-        window.__navigateToWord(w);
-      }
-    };
-  }
-  
   // Practice related button
   var practiceBtn = DOM.get('explorer-btn-practice-related');
   if (practiceBtn) {
@@ -1920,22 +1881,6 @@ function wireExplorerEvents(w) {
       if (rels.length > 0) {
         var relTarget = typeof findWordByArabic === 'function' ? findWordByArabic(rels[0].arabic) : null;
         if (relTarget && typeof openExplorer === 'function') openExplorer(relTarget);
-      }
-    };
-  }
-  
-  // View all occurrences button
-  var viewOccBtn = DOM.get('explorer-btn-view-occurrences');
-  if (viewOccBtn) {
-    viewOccBtn.onclick = function() {
-      var listEl = DOM.get('explorer-all-occ-list');
-      if (listEl) {
-        if (listEl.style.display === 'block') {
-          listEl.style.display = 'none';
-        } else {
-          renderExplorerAllOccurrences(listEl, _explorerWord);
-          listEl.style.display = 'block';
-        }
       }
     };
   }

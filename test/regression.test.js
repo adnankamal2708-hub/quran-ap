@@ -903,14 +903,23 @@ suite('Profile Scroll Position (No Hidden Content)', function() {
 
 suite('Explorer Structured Components', function() {
   // Test: explorer.js uses innerHTML for structured components (not plain textContent)
-  test('renderExplorer uses innerHTML for difficulty stars', function() {
+  test('renderExplorer no longer renders difficulty stars or morphology (UI simplification)', function() {
     var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
-    assert.ok(explorerContent.indexOf('explorer-difficulty') >= 0,
-      'explorer-difficulty must be populated in renderExplorer');
-    assert.ok(explorerContent.indexOf('explorer-diff-stars') >= 0,
-      'renderExplorer must generate .explorer-diff-stars component');
-    assert.ok(explorerContent.indexOf('explorer-star') >= 0,
-      'renderExplorer must generate .explorer-star elements');
+    assert.ok(explorerContent.indexOf('explorer-diff-stars') < 0,
+      'difficulty stars component must be removed from renderExplorer');
+    assert.ok(explorerContent.indexOf('explorer-difficulty') < 0,
+      'explorer-difficulty must no longer be referenced in renderExplorer');
+    assert.ok(explorerContent.indexOf('explorer-pattern') < 0,
+      'explorer-pattern (morphology) must no longer be referenced in renderExplorer');
+  });
+
+  test('removed Learning Actions buttons are not referenced in explorer.js', function() {
+    var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
+    var removed = ['explorer-btn-study', 'explorer-btn-review', 'explorer-btn-view-occurrences'];
+    for (var i = 0; i < removed.length; i++) {
+      assert.ok(explorerContent.indexOf(removed[i]) < 0,
+        removed[i] + ' must no longer be referenced in explorer.js');
+    }
   });
   
   test('renderExplorer uses structured freq pill, badge, chip', function() {

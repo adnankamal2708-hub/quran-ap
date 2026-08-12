@@ -70,33 +70,26 @@ function renderExplorer() {
   DOM.get('explorer-meaning-main').textContent = w.meaning || w.english || '';
   DOM.get('explorer-full-meaning').textContent = w.meaning && w.meaning !== w.english ? w.meaning : '';
   DOM.get('explorer-root').textContent = w.root || '—';
-  DOM.get('explorer-pattern').textContent = w.pattern && w.pattern !== '—' ? w.pattern : '—';
   DOM.get('explorer-pos').textContent = w.type || w.typeCategory || '—';
   
-  // Difficulty — structured stars component
-  var diffEl = DOM.get('explorer-difficulty');
-  if (w.difficulty) {
-    var starsHtml = '<span class="explorer-diff-stars" aria-label="Difficulty level ' + w.difficulty + ' of 5">';
-    for (var di = 0; di < 5; di++) {
-      starsHtml += '<span class="explorer-star ' + (di < w.difficulty ? 'filled' : 'empty') + '" aria-hidden="true">' + (di < w.difficulty ? '★' : '☆') + '</span>';
-    }
-    starsHtml += '</span>';
-    diffEl.innerHTML = starsHtml;
-  } else {
-    diffEl.innerHTML = '<span class="explorer-empty">—</span>';
-  }
-  
-  // Frequency rank — structured pill
+  // Frequency rank + learning priority — merged single card. Both are
+  // optional (rootless/rare words may lack one or both), so each is
+  // appended only when present and the card degrades to '—' when neither
+  // exists.
   var freqRankEl = DOM.get('explorer-freq-rank');
+  var freqParts = [];
   if (w.frequencyRank) {
-    var freqHtml = '<span class="explorer-freq-pill">#' + w.frequencyRank + '</span>';
+    freqParts.push('<span class="explorer-freq-pill">#' + w.frequencyRank + '</span>');
     if (w.frequencyPercentile !== undefined) {
-      freqHtml += '<span class="explorer-freq-pct">top ' + w.frequencyPercentile + '%</span>';
+      freqParts.push('<span class="explorer-freq-pct">top ' + w.frequencyPercentile + '%</span>');
     }
-    freqRankEl.innerHTML = freqHtml;
-  } else {
-    freqRankEl.innerHTML = '<span class="explorer-empty">—</span>';
   }
+  if (typeof getLearningPriorityLabel === 'function' && w.learningPriority) {
+    var pLevel = w.learningPriority;
+    var pClass = 'priority-' + (pLevel <= 2 ? 'high' : pLevel <= 3 ? 'medium' : 'low');
+    freqParts.push('<span class="explorer-priority-chip ' + pClass + '">' + getLearningPriorityLabel(w.learningPriority) + '</span>');
+  }
+  freqRankEl.innerHTML = freqParts.length > 0 ? freqParts.join(' · ') : '<span class="explorer-empty">—</span>';
   
   // Total occurrences — structured counter
   var occEl = DOM.get('explorer-occ');
@@ -112,16 +105,6 @@ function renderExplorer() {
     fLessonEl.innerHTML = '<span class="explorer-foundation-badge">📘 Foundation ' + (w.foundationLessonId + 1) + '</span>';
   } else {
     fLessonEl.innerHTML = '<span class="explorer-foundation-badge not-in-course">Not in Foundation Course</span>';
-  }
-  
-  // Learning priority — structured chip
-  var priorityEl = DOM.get('explorer-priority');
-  if (typeof getLearningPriorityLabel === 'function' && w.learningPriority) {
-    var pLevel = w.learningPriority;
-    var pClass = 'priority-' + (pLevel <= 2 ? 'high' : pLevel <= 3 ? 'medium' : 'low');
-    priorityEl.innerHTML = '<span class="explorer-priority-chip ' + pClass + '">' + getLearningPriorityLabel(w.learningPriority) + '</span>';
-  } else {
-    priorityEl.innerHTML = '<span class="explorer-empty">—</span>';
   }
   
   // ── Quran Context ──
@@ -672,30 +655,6 @@ function wireExplorerEvents(w) {
     };
   }
   
-  // Study this word button
-  var studyBtn = DOM.get('explorer-btn-study');
-  if (studyBtn) {
-    studyBtn.onclick = function() {
-      closeExplorer();
-      // Find word in lesson/surah and navigate
-      if (typeof window.__navigateToWord === 'function') {
-        window.__navigateToWord(w);
-      }
-    };
-  }
-  
-  // Rate word button
-  var rateBtn = DOM.get('explorer-btn-review');
-  if (rateBtn) {
-    rateBtn.onclick = function() {
-      closeExplorer();
-      // Navigate to learn view with this word for rating
-      if (typeof window.__navigateToWord === 'function') {
-        window.__navigateToWord(w);
-      }
-    };
-  }
-  
   // Practice related button
   var practiceBtn = DOM.get('explorer-btn-practice-related');
   if (practiceBtn) {
@@ -715,22 +674,6 @@ function wireExplorerEvents(w) {
       if (rels.length > 0) {
         var relTarget = typeof findWordByArabic === 'function' ? findWordByArabic(rels[0].arabic) : null;
         if (relTarget && typeof openExplorer === 'function') openExplorer(relTarget);
-      }
-    };
-  }
-  
-  // View all occurrences button
-  var viewOccBtn = DOM.get('explorer-btn-view-occurrences');
-  if (viewOccBtn) {
-    viewOccBtn.onclick = function() {
-      var listEl = DOM.get('explorer-all-occ-list');
-      if (listEl) {
-        if (listEl.style.display === 'block') {
-          listEl.style.display = 'none';
-        } else {
-          renderExplorerAllOccurrences(listEl, _explorerWord);
-          listEl.style.display = 'block';
-        }
       }
     };
   }

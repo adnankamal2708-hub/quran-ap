@@ -380,6 +380,44 @@ suite('Example Verse Consistency (regression)', function() {
   });
 });
 
+suite('Per-surah entry reference consistency', function() {
+  // Per-surah files (words-surah-*.js) use surahId as a lesson-grouping field for
+  // getSurahWords, so the contract here is only that verseKey agrees with ayahR's
+  // trailing S:V — a user must never see conflicting references on a word card.
+  // Range refs (e.g. 'Ta-Ha 20:2-3') are consistent when verseKey falls inside the
+  // range. Escaped apostrophes in ayahR names (Ali \'Imran, Al-A\'raf) are tolerated
+  // by the greedy line capture.
+  var CORE_FILES = ['words-common.js', 'words-expanded.js', 'words-names-of-allah.js',
+    'words-hf-batch1.js', 'words-hf-batch2.js'];
+  var perSurahFiles = wordFiles.filter(function(f) {
+    return f.indexOf('words-') === 0 && CORE_FILES.indexOf(f) < 0;
+  });
+
+  test('every per-surah entry: ayahR trailing S:V matches verseKey', function() {
+    var bad = [];
+    perSurahFiles.forEach(function(f) {
+      var lines = fs.readFileSync(path.join(dataDir, f), 'utf8').split(/\r?\n/);
+      for (var i = 0; i < lines.length; i++) {
+        var m = lines[i].match(/^\s*arabic: '([^']+)',$/);
+        if (!m) continue;
+        var win = lines.slice(i, i + 80).join('\n');
+        var vk = win.match(/^\s*verseKey: '([^']+)',/m);
+        var aR = win.match(/^\s*ayahR: (['"])([^\n]*)\1,?$/m);
+        if (!vk || !aR) continue;
+        var tail = aR[2].replace(/\s*\([^)]*\)\s*$/, '').match(/(\d+):(\d+)(?:-(\d+))?$/);
+        if (!tail) continue; // hadith-only / non-Quranic references (pre-existing convention)
+        var as = +tail[1], av = +tail[2], avEnd = tail[3] ? +tail[3] : av;
+        var vParts = vk[1].split(':');
+        var vks2 = +vParts[0], vkv = +vParts[1];
+        if (vks2 !== as || vkv < av || vkv > avEnd) {
+          bad.push(f + ': ' + m[1] + ' verseKey=' + vk[1] + ' ayahR=' + aR[2]);
+        }
+      }
+    });
+    assert.deepStrictEqual(bad, []);
+  });
+});
+
 suite('Offline / Service Worker', function() {
   test('sw.js exists and has valid syntax', function() {
     var swPath = path.join(__dirname, '..', 'sw.js');

@@ -119,7 +119,7 @@ ALL_WORDS.push(
     tags: ['virtue', 'righteousness', 'hud'],
     lesson: 'hud',
     surahId: 11,
-    verseKey: '11:46',
+    verseKey: '11:117',
     ayahA: 'قَالَ يَا نُوحُ إِنَّهُ لَيْسَ مِنْ أَهْلِكَ إِنَّهُ عَمَلٌ غَيْرُ صَالِحٍ فَلَا تَسْأَلْنِ مَا لَيْسَ لَكَ بِهِ عِلْمٌ — وَمَا كَانَ رَبُّكَ لِيُهْلِكَ الْقُرَىٰ بِظُلْمٍ وَأَهْلُهَا <span class=\"ayah-highlight\">مُصْلِحُونَ</span>',
     ayahT: 'And your Lord would not destroy the cities wrongfully while their people were <strong>reformers</strong>.',
     ayahR: 'Hud 11:117',
