@@ -310,7 +310,16 @@ function openSurahForReading(surahId) {
 
   _quranSRSData = typeof loadSRS === 'function' ? loadSRS() : {};
   _quranSurahId = surahId;
-  _quranSurahWords = typeof getSurahWords === 'function' ? getSurahWords(surahId) : [];
+  // Match against the FULL canonical vocabulary, not just words hand-tagged to
+  // this surah. getSurahWords(surahId) only returns words whose surahIds
+  // include this surah, so high-frequency words that appear in the verse but
+  // were tagged under other surahs were never highlighted (measured: 3.0% vs
+  // 43.1% of corpus tokens across all 114 surahs). Every vocabulary word whose
+  // normalized form appears in the verse now highlights, consistent with the
+  // app's real token-level coverage.
+  _quranSurahWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords()
+    : (typeof getSurahWords === 'function' ? getSurahWords(surahId) : []);
 
   // Update surah title immediately
   var quranIndexInfo = _getSurahInfo(surahId);
