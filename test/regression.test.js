@@ -915,7 +915,7 @@ suite('Explorer Structured Components', function() {
 
   test('removed Learning Actions buttons are not referenced in explorer.js', function() {
     var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
-    var removed = ['explorer-btn-study', 'explorer-btn-review', 'explorer-btn-view-occurrences'];
+    var removed = ['explorer-btn-study', 'explorer-btn-review', 'explorer-btn-view-occurrences', 'explorer-btn-open-flashcards'];
     for (var i = 0; i < removed.length; i++) {
       assert.ok(explorerContent.indexOf(removed[i]) < 0,
         removed[i] + ' must no longer be referenced in explorer.js');

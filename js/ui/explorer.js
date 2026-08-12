@@ -527,35 +527,48 @@ function renderExplorerLearningProgress(w, srsStatus, srsEntry) {
     lastStudiedEl.innerHTML = '<span class="explorer-time-text ' + lastClass + '">' + lastText + '</span>';
   }
   
-  // Next review — structured text
+  // Next review — show only when a real review is scheduled. Words with no
+  // review history get the row hidden entirely instead of the old vague
+  // 'Review when ready' placeholder.
+  var nextReviewItem = DOM.get('explorer-next-review-item');
+  var hasScheduledReview = !!(srsEntry && srsEntry.dueDate);
+  if (nextReviewItem) nextReviewItem.style.display = hasScheduledReview ? '' : 'none';
   var nextReviewEl = DOM.get('explorer-next-review');
-  if (nextReviewEl) {
-    var nextText = 'Review when ready';
+  if (nextReviewEl && !hasScheduledReview) {
+    // Clear stale content from a previous word's render while hidden
+    nextReviewEl.innerHTML = '';
+  }
+  if (nextReviewEl && hasScheduledReview) {
+    var dueDate = new Date(srsEntry.dueDate);
+    var now = new Date();
+    var diffDays = Math.round((dueDate - now) / (24 * 60 * 60 * 1000));
+    var nextText;
     var nextClass = '';
-    if (srsEntry && srsEntry.dueDate) {
-      var dueDate = new Date(srsEntry.dueDate);
-      var now = new Date();
-      var diffDays = Math.round((dueDate - now) / (24 * 60 * 60 * 1000));
-      if (diffDays < 0) { nextText = 'Due now!'; nextClass = 'due-now'; }
-      else if (diffDays === 0) { nextText = 'Today'; nextClass = 'today'; }
-      else if (diffDays === 1) { nextText = 'Tomorrow'; }
-      else { nextText = 'In ' + diffDays + ' days'; }
-    }
+    if (diffDays < 0) { nextText = 'Due now!'; nextClass = 'due-now'; }
+    else if (diffDays === 0) { nextText = 'Today'; nextClass = 'today'; }
+    else if (diffDays === 1) { nextText = 'Tomorrow'; }
+    else { nextText = 'In ' + diffDays + ' days'; }
     nextReviewEl.innerHTML = '<span class="explorer-time-text ' + nextClass + '">' + nextText + '</span>';
   }
   
-  // Total reviews
+  // Total reviews + Retention — same 5-review minimum gating used on the
+  // Session Complete screen (js/ui/review.js): hide the rows below 5 reviews,
+  // show real numbers at 5+.
+  var totalReviews = srsEntry ? (srsEntry.totalReviews || 0) : 0;
+  var showDetailedStats = totalReviews >= 5;
+  var reviewCountItem = DOM.get('explorer-review-count-item');
+  if (reviewCountItem) reviewCountItem.style.display = showDetailedStats ? '' : 'none';
   var reviewCountEl = DOM.get('explorer-review-count');
   if (reviewCountEl) {
-    reviewCountEl.textContent = srsEntry ? (srsEntry.totalReviews || 0) : 0;
+    reviewCountEl.textContent = totalReviews;
   }
-  
-  // Retention
+  var retentionItem = DOM.get('explorer-retention-item');
+  if (retentionItem) retentionItem.style.display = showDetailedStats ? '' : 'none';
   var retentionEl = DOM.get('explorer-retention');
-  if (retentionEl && srsStatus) {
-    retentionEl.textContent = Math.round(srsStatus.retention * 100) + '%';
-  } else if (retentionEl) {
-    retentionEl.textContent = '—';
+  if (retentionEl) {
+    retentionEl.textContent = (showDetailedStats && srsStatus && typeof srsStatus.retention === 'number')
+      ? Math.round(srsStatus.retention * 100) + '%'
+      : '—';
   }
 }
 
@@ -674,18 +687,6 @@ function wireExplorerEvents(w) {
       if (rels.length > 0) {
         var relTarget = typeof findWordByArabic === 'function' ? findWordByArabic(rels[0].arabic) : null;
         if (relTarget && typeof openExplorer === 'function') openExplorer(relTarget);
-      }
-    };
-  }
-  
-  // Flashcard mode button
-  var flashBtn = DOM.get('explorer-btn-open-flashcards');
-  if (flashBtn) {
-    flashBtn.onclick = function() {
-      closeExplorer();
-      if (typeof toggleQuickMode === 'function') toggleQuickMode();
-      if (typeof window.__navigateToWord === 'function') {
-        window.__navigateToWord(w);
       }
     };
   }

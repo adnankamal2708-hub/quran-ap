@@ -109,7 +109,6 @@ global.goToSurah = function() {};
 global.window.__navigateToWord = function() {};
 global.window.__explorerCurrentOcc = null;
 global.window.__scrollOnExplorerRender = false;
-global.toggleQuickMode = function() {};
 global.isFoundationLessonCompleted = function() { return false; };
 global.currentView = 'learn';
 
@@ -197,9 +196,11 @@ function createAllExplorerEls() {
     'explorer-similar-list', 'explorer-confused-list', 'explorer-semantic-list',
     'explorer-related-list', 'explorer-equiv-list',
     'explorer-srs-stage', 'explorer-foundation-status', 'explorer-last-studied',
-    'explorer-next-review', 'explorer-review-count', 'explorer-retention',
+    'explorer-next-review-item', 'explorer-next-review',
+    'explorer-review-count-item', 'explorer-review-count',
+    'explorer-retention-item', 'explorer-retention',
     'explorer-btn-bookmark',
-    'explorer-btn-open-flashcards', 'explorer-btn-practice-related',
+    'explorer-btn-practice-related',
     'explorer-all-occ-list', 'explorer-all-occ-btn',
     'explorer-notes-input',
     'explorer-back',
@@ -487,30 +488,62 @@ ts('Explorer — Occurrence Navigation', function() {
 // See the 'Explorer — Tafsir (async)' section at the bottom of this file.
 
 ts('Explorer — Learning Progress', function() {
-  t('new word shows New status', function() {
+  function createProgressEls() {
     createEl('explorer-srs-stage');
     createEl('explorer-foundation-status');
     createEl('explorer-last-studied');
+    createEl('explorer-next-review-item');
     createEl('explorer-next-review');
+    createEl('explorer-review-count-item');
     createEl('explorer-review-count');
+    createEl('explorer-retention-item');
     createEl('explorer-retention');
+  }
+
+  t('new word shows New status', function() {
+    createProgressEls();
     renderExplorerLearningProgress(TEST_WORDS[0], { status: 'new', stage: 0, retention: 0, daysUntilDue: 0, isLeech: false }, null);
     var stageEl = document.getElementById('explorer-srs-stage');
     assert.ok(stageEl.innerHTML.indexOf('New') >= 0 || stageEl.innerHTML.indexOf('🆕') >= 0);
   });
 
-  t('unstudied word shows 0 reviews', function() {
-    createEl('explorer-srs-stage');
-    createEl('explorer-foundation-status');
-    createEl('explorer-last-studied');
-    createEl('explorer-next-review');
-    createEl('explorer-review-count');
-    createEl('explorer-retention');
+  t('unstudied word hides Next Review, Total Reviews, Retention rows', function() {
+    createProgressEls();
     var srsStatus = { status: 'new', stage: 0, retention: 0, daysUntilDue: 0, isLeech: false };
     renderExplorerLearningProgress(TEST_WORDS[0], srsStatus, srsStatus);
-    var el = document.getElementById('explorer-review-count');
-    // Mock stores raw value (number 0), convert to string for comparison
-    assert.ok(String(el.textContent) === '0' || el.textContent === 0, 'review count should be 0');
+    // Unstudied (0 reviews): all three gated rows hidden, no placeholder
+    assert.strictEqual(document.getElementById('explorer-next-review-item').style.display, 'none');
+    assert.strictEqual(document.getElementById('explorer-review-count-item').style.display, 'none');
+    assert.strictEqual(document.getElementById('explorer-retention-item').style.display, 'none');
+    // Mastery + Last Studied untouched — still rendered with real content
+    assert.ok(document.getElementById('explorer-srs-stage').innerHTML.indexOf('New') >= 0);
+    assert.ok(document.getElementById('explorer-last-studied').innerHTML.indexOf('Never studied') >= 0);
+    // Hidden Next Review wrapper holds no stale placeholder text
+    assert.strictEqual(document.getElementById('explorer-next-review').innerHTML, '');
+  });
+
+  t('word below 5 reviews hides Total Reviews and Retention', function() {
+    createProgressEls();
+    var srsStatus = { status: 'review', stage: 1, retention: 0.5, daysUntilDue: 1, isLeech: false };
+    var entry = { totalReviews: 3, dueDate: Date.now() + 86400000, ratedAt: Date.now() - 86400000 };
+    renderExplorerLearningProgress(TEST_WORDS[0], srsStatus, entry);
+    assert.strictEqual(document.getElementById('explorer-review-count-item').style.display, 'none');
+    assert.strictEqual(document.getElementById('explorer-retention-item').style.display, 'none');
+    // Next Review shows a real countdown even below 5 reviews
+    assert.notStrictEqual(document.getElementById('explorer-next-review-item').style.display, 'none');
+    assert.ok(document.getElementById('explorer-next-review').innerHTML.indexOf('Tomorrow') >= 0);
+  });
+
+  t('word at 5+ reviews shows real Total Reviews and Retention', function() {
+    createProgressEls();
+    var srsStatus = { status: 'mastered', stage: 3, retention: 0.82, daysUntilDue: 7, isLeech: false };
+    var entry = { totalReviews: 7, dueDate: Date.now() + 7 * 86400000, ratedAt: Date.now() - 86400000 };
+    renderExplorerLearningProgress(TEST_WORDS[0], srsStatus, entry);
+    assert.notStrictEqual(document.getElementById('explorer-review-count-item').style.display, 'none');
+    assert.notStrictEqual(document.getElementById('explorer-retention-item').style.display, 'none');
+    assert.ok(String(document.getElementById('explorer-review-count').textContent).indexOf('7') >= 0);
+    assert.ok(document.getElementById('explorer-retention').textContent.indexOf('82%') >= 0);
+    assert.ok(document.getElementById('explorer-next-review').innerHTML.indexOf('7 days') >= 0);
   });
 });
 
