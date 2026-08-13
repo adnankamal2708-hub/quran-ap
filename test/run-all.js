@@ -43,6 +43,8 @@ var TESTS = [
   "recommendation-slot.test.js",
   "regression.test.js",
   "corpus-characters.test.js",
+  "occurrence-uniqueness.test.js",
+  "word-card-occurrence.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;

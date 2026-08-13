@@ -80,6 +80,13 @@ jobs:
         run: node test/corpus-characters.test.js
         timeout-minutes: 2
 
+      - name: 🚨 Verify every word context is unique
+        # Fails the build if any word's occurrence list contains two contexts
+        # that display the same ayah (the "Next context shows the same
+        # context" bug — e.g. Fir'awn 26:11 had copy-pasted 20:24's text).
+        run: node test/occurrence-uniqueness.test.js
+        timeout-minutes: 2
+
       - name: ✅ Validate build output
         id: validate
         run: node validate.js 2>&1 | tee validation_output.log

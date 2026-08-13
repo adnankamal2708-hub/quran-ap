@@ -134,11 +134,21 @@ function renderWordCard(w, currentIndex, total, isReview) {
   // Store occurrence data for showAyah/showWordContent
   window.__currentOccurrence = occ;
 
-  // Hide ayah & tafsir on navigation
+  // Hide ayah & tafsir on navigation. Also clear the ayah display content so
+  // a hidden box can never linger with stale text from a previous occurrence
+  // (occurrence navigation re-populates it via showAyah() when it was open).
   var ayahBox = DOM.get('ayah-box');
   var tafsirBox = DOM.get('tafsir-box');
   var tafsirBtn = DOM.get('tafsir-btn');
-  if (ayahBox) ayahBox.classList.remove('visible');
+  if (ayahBox) {
+    ayahBox.classList.remove('visible');
+    var _ayahArabicEl = document.getElementById('ayah-arabic');
+    var _ayahTransEl = document.getElementById('ayah-translation');
+    var _ayahRefEl = document.getElementById('ayah-ref');
+    if (_ayahArabicEl) _ayahArabicEl.innerHTML = '';
+    if (_ayahTransEl) _ayahTransEl.innerHTML = '';
+    if (_ayahRefEl) _ayahRefEl.textContent = '';
+  }
   if (tafsirBox) tafsirBox.classList.remove('visible');
   if (tafsirBtn) tafsirBtn.style.display = 'block';
 
@@ -183,25 +193,40 @@ function renderWordCard(w, currentIndex, total, isReview) {
 
 /**
  * Navigate to the next occurrence of the current canonical word.
+ * If the ayah context panel is open, re-populate it with the new
+ * occurrence so "Next context" actually changes the displayed context
+ * (renderWordCard hides the panel on re-render).
  */
 function nextOccurrence() {
   var w = typeof getCurrentWord === 'function' ? getCurrentWord() : null;
   if (!w || !w.occurrences) return;
   if (_currentOccurrenceIdx < w.occurrences.length - 1) {
+    var ayahBox = DOM.get('ayah-box');
+    var wasAyahVisible = !!(ayahBox && ayahBox.classList.contains('visible'));
     _currentOccurrenceIdx++;
     updateWordCard();
+    if (wasAyahVisible && typeof showAyah === 'function') {
+      showAyah(w);
+    }
   }
 }
 
 /**
  * Navigate to the previous occurrence of the current canonical word.
+ * If the ayah context panel is open, re-populate it with the new
+ * occurrence so "Prev context" actually changes the displayed context.
  */
 function prevOccurrence() {
   var w = typeof getCurrentWord === 'function' ? getCurrentWord() : null;
   if (!w || !w.occurrences) return;
   if (_currentOccurrenceIdx > 0) {
+    var ayahBox = DOM.get('ayah-box');
+    var wasAyahVisible = !!(ayahBox && ayahBox.classList.contains('visible'));
     _currentOccurrenceIdx--;
     updateWordCard();
+    if (wasAyahVisible && typeof showAyah === 'function') {
+      showAyah(w);
+    }
   }
 }
 
