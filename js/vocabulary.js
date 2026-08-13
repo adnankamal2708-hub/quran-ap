@@ -1198,8 +1198,63 @@ function getDerivedFormName(pattern, typeCategory, type) {
   return 'Related Form';
 }
 
+// ── Non-thematic tag filtering ────────────────────────────────
+// Some tags describe the word's grammar, usage tier, or surah of origin
+// rather than its meaning (e.g. 'grammar', 'common-words', 'yunus').
+// Treating them as "semantic groups" produces noise: a 667-word "Nouns"
+// bucket, a "Common words" meta-group, or a "Yunus" group that only means
+// the word appears in Surah Yunus. These tags stay on the word (search,
+// canonicalization, filtering all still use them) but are excluded from
+// semantic grouping and contextual-equivalent linking.
+var MAX_SEMANTIC_GROUP_SIZE = 100; // defense-in-depth: a "semantic" group this large is not a meaningful theme
+
+var _nonThematicTagSet = null;
+
+function buildNonThematicTagSet() {
+  var set = {};
+  // Meta / grammar / editorial tags — swept from the dataset's actual tag
+  // vocabulary (particles, prepositions, pronouns, verbs, etc. describe the
+  // word itself, not a meaning-based theme).
+  ['grammar', 'common-words', 'verb', 'verbs', 'particle', 'particles',
+   'prepositions', 'pronouns', 'conjunctions', 'demonstrative', 'participle',
+   'adverb', 'adverbs', 'relative', 'quantifier', 'vocative', 'past-tense',
+   'conditional', 'future', 'position'].forEach(function (t) {
+    // Keys are stored in the same normalized form isNonThematicTag looks up
+    // (lowercase, hyphens as spaces) so multi-word tags match.
+    set[String(t).toLowerCase().replace(/-/g, ' ')] = true;
+  });
+
+  // Surah-name tags, derived programmatically from SURAH_INFO so the list
+  // can never drift out of sync with the surah metadata. Covers both the
+  // plain form ('yunus') and the 'surah-yunus' variant via the normalization
+  // in isNonThematicTag below.
+  if (typeof SURAH_INFO !== 'undefined' && SURAH_INFO) {
+    Object.keys(SURAH_INFO).forEach(function (id) {
+      var info = SURAH_INFO[id];
+      if (!info || !info.nameSimple) return;
+      var simple = String(info.nameSimple).toLowerCase().replace(/-/g, ' ').replace(/'/g, '');
+      set[simple] = true;
+      // Strip the definite article (Al-/An-/As-/At-/Adh-/Ar-/Ash-/Az-) so a
+      // bare surah tag like 'jinn' or 'rahman' still matches.
+      var bare = simple.replace(/^(?:al|an|as|at|adh|ar|ash|az) /, '');
+      if (bare !== simple) set[bare] = true;
+    });
+  }
+  _nonThematicTagSet = set;
+}
+
+function isNonThematicTag(tag) {
+  if (!tag) return true;
+  if (!_nonThematicTagSet) buildNonThematicTagSet();
+  var norm = String(tag).toLowerCase().replace(/-/g, ' ').replace(/^surah /, '');
+  return _nonThematicTagSet[norm] === true;
+}
+
 /**
  * Compute semantic groups: thematic clusters from tags and typeCategory.
+ * Non-thematic tags (surah names, grammar/meta labels) never surface as
+ * groups, groups are capped at MAX_SEMANTIC_GROUP_SIZE, and the typeCategory
+ * bucket is only a fallback for words with no genuine thematic group.
  */
 function computeSemanticGroups(word, cache) {
   var groups = [];
@@ -1208,9 +1263,13 @@ function computeSemanticGroups(word, cache) {
   if (word.tags && word.tags.length > 0) {
     for (var ti = 0; ti < Math.min(word.tags.length, 3); ti++) {
       var tag = word.tags[ti];
+      if (isNonThematicTag(tag)) continue;
       if (!seen[tag] && cache.byTag[tag]) {
         seen[tag] = true;
         var tagWords = cache.byTag[tag].filter(function(tw) { return tw.arabic !== word.arabic; });
+        // Size cap: a group this large is not a meaningful theme (guards
+        // against future meta tags slipping in without a denylist entry).
+        if (tagWords.length > MAX_SEMANTIC_GROUP_SIZE) continue;
         groups.push({
           group: tag.charAt(0).toUpperCase() + tag.slice(1).replace(/-/g, ' '),
           count: tagWords.length,
@@ -1220,7 +1279,11 @@ function computeSemanticGroups(word, cache) {
     }
   }
   
-  if (word.typeCategory && cache.byTypeCat[word.typeCategory]) {
+  // The POS bucket is a last-resort fallback: only shown when the word has no
+  // genuine thematic group (so real themes are never crowded out by a
+  // 667-word "Nouns" bucket). It is exempt from the size cap by design — its
+  // whole purpose is to show something rather than nothing.
+  if (groups.length === 0 && word.typeCategory && cache.byTypeCat[word.typeCategory]) {
     var sameType = cache.byTypeCat[word.typeCategory].filter(function(tw) { return tw.arabic !== word.arabic; });
     if (sameType.length > 0) {
       var typeLabels = { noun: 'Nouns', verb: 'Verbs', particle: 'Particles', adjective: 'Adjectives', pronoun: 'Pronouns', exclamation: 'Exclamations' };
@@ -1322,6 +1385,10 @@ function computeContextualEquivalents(word, cache) {
       var sharedTag = false;
       if (word.tags && eq.tags) {
         for (var tagi = 0; tagi < word.tags.length; tagi++) {
+          // Only genuine thematic tags may link equivalents — a shared
+          // surah-name or meta tag (both in 'hud', both 'common-words') says
+          // nothing about contextual meaning.
+          if (isNonThematicTag(word.tags[tagi])) continue;
           if (eq.tags.indexOf(word.tags[tagi]) >= 0) {
             sharedTag = true;
             break;

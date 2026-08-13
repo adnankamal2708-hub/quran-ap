@@ -65,6 +65,15 @@ global.getCanonicalIdForOldId = function(id) { return id; };
 global.getSurahEnglishName = function(id) { return 'Surah ' + id; };
 global.getSurahNameSimple = function(id) { return 'surah_' + id; };
 
+// Mock SURAH_INFO (used by the non-thematic tag denylist to derive
+// surah-name tags programmatically, e.g. 'hud' → Surah Hud).
+global.SURAH_INFO = {
+  10: { nameSimple: 'Yunus' },
+  11: { nameSimple: 'Hud' },
+  24: { nameSimple: 'An-Nur' },
+  55: { nameSimple: 'Ar-Rahman' },
+};
+
 // Mock FOUNDATION constants
 global.FOUNDATION_LESSONS = [];
 
@@ -309,6 +318,80 @@ suite('Relationship Engine', function() {
   test('getSemanticGroups returns tag-based groups', function() {
     var groups = getSemanticGroups(TEST_WORDS[1]); // rahma has 'divine-attributes' tag
     assert.ok(groups.length > 0);
+  });
+
+  test('semantic groups exclude surah-name tags', function() {
+    // A word whose only tags are surah names must NOT surface them as
+    // "semantic groups" — it falls back to the POS bucket instead.
+    var w = { id: 'w_s1', arabic: 'هُودٍ', translit: 'Hud', english: 'Hud', type: 'Proper Noun',
+      typeCategory: 'noun', root: '—', occ: 4, difficulty: 2, frequency: 'low', tags: ['hud'] };
+    global.ALL_WORDS.push(w);
+    invalidateRelationsCache();
+    var groups = getSemanticGroups(w);
+    var names = groups.map(function(g) { return g.group; });
+    assert.ok(names.indexOf('Hud') === -1, 'surah-name tag never becomes a group: ' + names);
+    assert.ok(names.indexOf('Nouns') >= 0, 'zero-thematic word falls back to POS bucket');
+    global.ALL_WORDS.pop();
+    invalidateRelationsCache();
+  });
+
+  test('semantic groups exclude meta/grammar tags', function() {
+    var w = { id: 'w_s2', arabic: 'شَيْءٍ', translit: 'shay', english: 'thing', type: 'Noun',
+      typeCategory: 'noun', root: 'شيأ', occ: 322, difficulty: 1, frequency: 'very-high', tags: ['grammar', 'common-words'] };
+    global.ALL_WORDS.push(w);
+    invalidateRelationsCache();
+    var groups = getSemanticGroups(w);
+    var names = groups.map(function(g) { return g.group; });
+    assert.ok(names.indexOf('Grammar') === -1 && names.indexOf('Common words') === -1,
+      'meta tags never become groups: ' + names);
+    assert.ok(names.indexOf('Nouns') >= 0, 'zero-thematic word falls back to POS bucket');
+    global.ALL_WORDS.pop();
+    invalidateRelationsCache();
+  });
+
+  test('POS bucket appears only as fallback when no thematic groups exist', function() {
+    // rahma has the thematic 'divine-attributes' tag — the POS bucket must NOT show.
+    var groups = getSemanticGroups(TEST_WORDS[1]);
+    var names = groups.map(function(g) { return g.group; });
+    assert.ok(names.indexOf('Nouns') === -1, 'POS bucket hidden when real themes exist: ' + names);
+    assert.ok(names.indexOf('Divine attributes') >= 0, 'thematic group present');
+  });
+
+  test('oversized groups are dropped by the size cap (defense-in-depth)', function() {
+    var origCap = MAX_SEMANTIC_GROUP_SIZE;
+    // With cap = 0 every tag group is too large, so the word must fall back to POS.
+    MAX_SEMANTIC_GROUP_SIZE = 0;
+    invalidateRelationsCache();
+    var groups = getSemanticGroups(TEST_WORDS[1]); // divine-attributes group capped away
+    var names = groups.map(function(g) { return g.group; });
+    assert.ok(names.indexOf('Divine attributes') === -1, 'capped group dropped: ' + names);
+    assert.ok(names.indexOf('Nouns') >= 0, 'POS fallback fills the gap');
+    MAX_SEMANTIC_GROUP_SIZE = origCap;
+    invalidateRelationsCache();
+    // Restored cap: thematic group returns, POS bucket disappears.
+    var restored = getSemanticGroups(TEST_WORDS[1]);
+    assert.ok(restored.some(function(g) { return g.group === 'Divine attributes'; }));
+  });
+
+  test('contextual equivalents ignore shared surah/meta tags', function() {
+    // Two words sharing ONLY the surah tag 'hud' must not become equivalents.
+    var w1 = { id: 'w_e1', arabic: 'آنَاءَ', translit: 'anaa', english: 'hours', type: 'Noun',
+      typeCategory: 'noun', root: 'ان', occ: 10, difficulty: 3, frequency: 'low', tags: ['hud'] };
+    var w2 = { id: 'w_e2', arabic: 'الْفُجَّارِ', translit: 'fujjar', english: 'the wicked', type: 'Noun',
+      typeCategory: 'noun', root: 'فجر', occ: 11, difficulty: 3, frequency: 'low', tags: ['hud'] };
+    global.ALL_WORDS.push(w1, w2);
+    invalidateRelationsCache();
+    var eq1 = getContextualEquivalents(w1).map(function(e) { return e.arabic; });
+    assert.ok(eq1.indexOf('الْفُجَّارِ') === -1, 'surah-tag-only link removed: ' + eq1);
+    // A shared THEMATIC tag still links (even alongside the surah tag).
+    w1.tags.push('evil');
+    w2.tags.push('evil');
+    invalidateRelationsCache();
+    var eq2 = getContextualEquivalents(w1).map(function(e) { return e.arabic; });
+    assert.ok(eq2.indexOf('الْفُجَّارِ') >= 0, 'thematic shared tag still links');
+    global.ALL_WORDS.pop();
+    global.ALL_WORDS.pop();
+    invalidateRelationsCache();
   });
 
   test('getRelatedWordObjects resolves related words', function() {

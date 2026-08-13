@@ -73,6 +73,13 @@ jobs:
         env:
           CI: true
 
+      - name: 🚨 Verify Quran corpus has no unrenderable characters
+        # Fails the build if U+FFFD replacement chars or other unrenderable
+        # code points (controls, private-use, presentation forms, …) appear
+        # in quran-data.js or the vocabulary data files.
+        run: node test/corpus-characters.test.js
+        timeout-minutes: 2
+
       - name: ✅ Validate build output
         id: validate
         run: node validate.js 2>&1 | tee validation_output.log
