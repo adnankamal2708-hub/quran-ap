@@ -92,7 +92,7 @@ ALL_WORDS.push(
     lesson: 'zumar',
     surahId: 42,
     verseKey: '42:43',
-    ayahA: 'وَلَمَن <span class="ayah-highlight">صَبَرَ</span> وَغَفَرَ ��ِنَّ ذَٰلِكَ لَمِنۡ عَزۡمِ ٱلۡأُمُورِ',
+    ayahA: 'وَلَمَن <span class="ayah-highlight">صَبَرَ</span> وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنۡ عَزۡمِ ٱلۡأُمُورِ',
     ayahT: 'And whoever is patient and forgives - indeed, that is of the matters [requiring] determination',
     ayahR: 'Ash-Shuraa 42:43',
     tafsir: 'Ibn Kathir says sabr is of three types: patience in obedience to Allah, patience in avoiding sin, and patience with divine decrees. The reward for sabr is limitless.',

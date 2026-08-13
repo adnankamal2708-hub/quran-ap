@@ -3601,7 +3601,7 @@ ALL_WORDS.push(
     lesson: 'grammar',
     surahId: 2,
     verseKey: '2:60',
-    ayahA: '۞وَإِذِ ٱسۡت��سۡقَىٰ مُوسَىٰ لِقَوۡمِهِۦ فَقُلۡنَا ٱضۡرِب بِّعَصَاكَ ٱلۡحَجَرَۖ فَٱنفَجَرَتۡ مِنۡهُ ٱثۡنَتَا عَشۡرَةَ <span class="ayah-highlight">عَيۡنٗاۖ</span> قَدۡ عَلِمَ كُلُّ أُنَاسٖ مَّشۡرَبَهُمۡۖ كُلُواْ وَٱشۡرَبُواْ مِن رِّزۡقِ ٱللَّهِ وَلَا تَعۡثَوۡاْ فِي ٱلۡأَرۡضِ مُفۡسِدِينَ',
+    ayahA: '۞وَإِذِ ٱسۡتَسۡقَىٰ مُوسَىٰ لِقَوۡمِهِۦ فَقُلۡنَا ٱضۡرِب بِّعَصَاكَ ٱلۡحَجَرَۖ فَٱنفَجَرَتۡ مِنۡهُ ٱثۡنَتَا عَشۡرَةَ <span class="ayah-highlight">عَيۡنٗاۖ</span> قَدۡ عَلِمَ كُلُّ أُنَاسٖ مَّشۡرَبَهُمۡۖ كُلُواْ وَٱشۡرَبُواْ مِن رِّزۡقِ ٱللَّهِ وَلَا تَعۡثَوۡاْ فِي ٱلۡأَرۡضِ مُفۡسِدِينَ',
     ayahT: 'And [recall] when Moses prayed for water for his people, so We said, "Strike with your staff the stone." And there gushed forth from it twelve springs, and every people knew its watering place. "Eat and drink from the provision of Allah, and do not commit abuse on the earth, spreading corruption',
     ayahR: 'The Cow 2:60',
     tafsir: 'عَيْن splits into the organ of sight and the gushing spring — "twelve springs gushed forth" — the miracle of water that served a whole people.',

@@ -4089,7 +4089,7 @@ ALL_WORDS.push(
     lesson: 'grammar',
     surahId: 10,
     verseKey: '10:29',
-    ayahA: 'فَكَفَىٰ بِٱللَّهِ <span class="ayah-highlight">شَهِيدَۢا</span> بَيۡنَنَا وَبَيۡنَكُمۡ إِن كُنّ��ا عَنۡ عِبَادَتِكُمۡ لَغَٰفِلِينَ',
+    ayahA: 'فَكَفَىٰ بِٱللَّهِ <span class="ayah-highlight">شَهِيدَۢا</span> بَيۡنَنَا وَبَيۡنَكُمۡ إِن كُنَّا عَنۡ عِبَادَتِكُمۡ لَغَٰفِلِينَ',
     ayahT: 'And sufficient is Allah as <strong>a</strong> witness between us and you that we were of your worship unaware',
     ayahR: 'Jonah 10:29',
     tafsir: 'الشَّهِيد is the witness of truth — "Allah is sufficient as witness" — and the martyr who testifies with his life.',
