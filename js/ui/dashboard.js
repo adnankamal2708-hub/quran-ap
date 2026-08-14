@@ -260,7 +260,10 @@ function renderDashboard() {
   $h += '</div></div>';
 
   // ═══ 2. QURAN COMPREHENSION HEADLINE ═══
-  $h += '<div class="db-card db-comp-headline" id="db-comp-headline" tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%">';
+  // Ring + milestone are only meaningful once real comprehension exists — a 0%
+  // ring is zero-noise for brand-new users, so render a simple welcome line instead.
+  $h += '<div class="db-card db-comp-headline" id="db-comp-headline"' + ($comprehensionPct > 0 ? ' tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%"' : '') + '>';
+  if ($comprehensionPct > 0) {
   $h += '<div class="db-comp-headline-ring-wrap">';
   $h += '<svg class="db-ring db-comp-headline-ring" viewBox="0 0 36 36" aria-hidden="true">';
   $h += '<defs><linearGradient id="compGrad" x1="0%" y1="0%" x2="100%" y2="100%">';
@@ -271,8 +274,13 @@ function renderDashboard() {
   $h += '<path class="db-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $compRing + ', 100" stroke="url(#compGrad)"/>';
   $h += '<text class="db-ring-text" x="18" y="20.5" font-weight="700" font-size="9">' + $comprehensionPct + '%</text>';
   $h += '</svg></div>';
+  }
   $h += '<div class="db-comp-headline-info">';
+  if ($comprehensionPct > 0) {
   $h += '<div class="db-comp-headline-value">' + $comprehensionPct + '% Quran Comprehension</div>';
+  } else {
+  $h += '<div class="db-comp-headline-value">Begin your journey to understand the Quran</div>';
+  }
   // Encouraging message based on progress level
   var $encouragementMsg = '';
   if ($comprehensionPct >= 80) {
@@ -289,15 +297,19 @@ function renderDashboard() {
     $encouragementMsg = 'Start learning Quranic vocabulary to unlock comprehension.';
   }
   $h += '<div class="db-comp-headline-msg">' + $encouragementMsg + '</div>';
-  if ($compMilestone) {
+  if ($compMilestone && $comprehensionPct > 0) {
     $h += '<div class="db-comp-headline-milestone">🎯 ' + $compMilestone + '</div>';
   }
   $h += '</div></div>';
-  // ── Comprehension Metrics Row ──
+  // ── Comprehension Metrics Row — at zero data only Total Words is real info ──
   $h += '<div class="db-comp-metrics">';
+  if ($coveragePct === 0 && $masteredCount === 0) {
+    $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $totalWords + '</div><div class="db-comp-metric-label">Total Words</div></div>';
+  } else {
   $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $coveragePct + '%</div><div class="db-comp-metric-label">Coverage</div></div>';
   $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $masteredCount + '</div><div class="db-comp-metric-label">Mastered</div></div>';
   $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $totalWords + '</div><div class="db-comp-metric-label">Total Words</div></div>';
+  }
   $h += '</div>';
   $h += '</div>';
 
@@ -547,7 +559,12 @@ function renderDashboard() {
   $h += '<div class="db-collapsible" id="db-collapsible">';
 
   // ═══ REVIEW CENTER PROMPT ═══
+  // Only meaningful once reviews exist — hidden for a brand-new user ("All caught
+  // up / 0 due" with nothing behind it). Same 5-lifetime-reviews minimum used by
+  // Session Complete / Word Detail / Review Center retention.
   var $rcDue = $dueReviews.length;
+  var $rcMinReviews = (typeof _RC_RETENTION_MIN_REVIEWS !== 'undefined') ? _RC_RETENTION_MIN_REVIEWS : 5;
+  if ($rcDue > 0 || ($srsStats.totalReviews || 0) >= $rcMinReviews) {
   $h += '<div class="db-card db-action-card db-card-highlight" id="db-review-center-prompt" tabindex="0" role="button" aria-label="Review Center: ' + $rcDue + ' reviews due">';
   $h += '<div class="db-card-row">';
   $h += '<div class="db-card-icon db-icon-gold-dim">📋</div>';
@@ -566,13 +583,22 @@ function renderDashboard() {
   $h += '</div>';
   $h += '<span class="db-arrow db-arrow-dim">→</span>';
   $h += '</div></div>';
+  } // end review center gate
 
   // ═══ SURAH PROGRESS — Lowest Comprehension Surahs ═══
-  if ($allSurahComp.length > 0) {
+  // Same gate as renderProfileProgress(): the ranking is zero-noise until several
+  // surahs have real (non-zero) progress (LOWEST_COMP_HIDE_THRESHOLD).
+  var $lowestCompHideThreshold = (typeof LOWEST_COMP_HIDE_THRESHOLD !== 'undefined') ? LOWEST_COMP_HIDE_THRESHOLD : 5;
+  var $compSurahs = [];
+  for (var $csi = 0; $csi < $allSurahComp.length; $csi++) {
+    var $cs = $allSurahComp[$csi];
+    if ($cs.estimatedComprehension > 0 || $cs.masteredWords > 0) $compSurahs.push($cs);
+  }
+  if ($compSurahs.length >= $lowestCompHideThreshold) {
     $h += '<div class="db-card db-surah-progress" id="db-surah-progress">';
     $h += '<div class="db-section-label db-section-label-spacious"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> Surah Comprehension</div>';
     // Sort by comprehension ascending and take bottom 5
-    var $sortedSurahs = $allSurahComp.slice().sort(function($a, $b) { return $a.estimatedComprehension - $b.estimatedComprehension; });
+    var $sortedSurahs = $compSurahs.slice().sort(function($a, $b) { return $a.estimatedComprehension - $b.estimatedComprehension; });
     var $bottomSurahs = $sortedSurahs.slice(0, Math.min(5, $sortedSurahs.length));
     for (var $sii = 0; $sii < $bottomSurahs.length; $sii++) {
       var $surah = $bottomSurahs[$sii];
@@ -601,7 +627,10 @@ function renderDashboard() {
 
   // ═══ 6. PRIMARY RECOMMENDATION (single slot) ═══
   // Use the priority-based recommendation slot to get exactly one recommendation.
-  var $recSlot = window.__recommendationSlot ? window.__recommendationSlot.getPrimary({
+  // Suppress the slot entirely for brand-new users ($noProgress): its
+  // build-foundation rule returns the same "start lesson 1" action as the
+  // Continue Learning card directly above — a duplicate CTA.
+  var $recSlot = (!$noProgress && window.__recommendationSlot) ? window.__recommendationSlot.getPrimary({
     // State needed by the slot rules
     dueCount: $dueCount,
     fTotal: $fTotal,
@@ -641,6 +670,10 @@ function renderDashboard() {
   }
 
   // ═══ 7. PROGRESS OVERVIEW ═══
+  // Hidden until real progress exists — same "hide meaningless 0/N rows" pattern
+  // applied on Profile (a wall of zero-stats is noise, not information).
+  var $hasAnyProgress = ($fCompleted || 0) + ($masteredCount || 0) + ($srsStats.totalReviews || 0) > 0;
+  if ($hasAnyProgress) {
   $h += '<div class="db-card db-progress-overview" id="db-progress-overview">';
   $h += '<div class="db-section-label db-section-label-spacious"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Overview</div>';
   // Foundation course
@@ -673,6 +706,7 @@ function renderDashboard() {
     $h += '</div>';
   }
   $h += '</div>';
+  } // end progress overview gate
 
   // ═══ 8. DAILY MOTIVATION ═══
   // Generate a dynamic, progress-based motivational message
@@ -743,6 +777,12 @@ function renderDashboard() {
   }
   // Priority 9: Foundation course milestone
   else if ($fTotal > 0) {
+    if ($noProgress) {
+      // Brand-new user — gentle welcome copy instead of a CTA that duplicates
+      // the action cards above (Continue Learning is the single primary CTA).
+      $motivationMsg = 'Your journey to understand the Quran begins here. Take it one word at a time. ✨';
+      $motivationIcon = '💫';
+    } else {
     var $foundationTotalCoverage = typeof getFoundationTotalCoveragePercent === 'function'
       ? getFoundationTotalCoveragePercent()
       : 0;
@@ -752,6 +792,7 @@ function renderDashboard() {
       $motivationMsg = 'Start the Foundation Course to master the 100 most frequent Quranic words and unlock most of the Quran!';
     }
     $motivationIcon = '🌱';
+    }
   }
   // Fallback: Generic encouragement
   else {
@@ -765,23 +806,30 @@ function renderDashboard() {
   $h += '<p class="db-motivation-text">' + $motivationMsg + '</p>';
   $h += '</div></div>';
 
-  // ═══ COMPACT HERO STATS BAR (always visible, after all sections) ═══
+  // ═══ COMPACT HERO STATS BAR (after all sections) ═══
+  // Brand-new users get a single "Start Today" stat — the all-zero 4-stat wall
+  // (0 Mastered · 0% · 0 Reviews) is meaningless noise until real progress exists.
   $h += '<div class="db-hero-bar">';
-  var $streakDisplay = ($streak > 0 || !$noProgress) ? $streak : '—';
-  var $streakLabel = ($streak > 0 || !$noProgress) ? 'Streak' : 'Start Today';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="streak" tabindex="0" role="button" aria-label="Streak: ' + $streak + ' days">';
-  $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
-  $h += '<div class="db-hero-stat-value">' + $streakDisplay + '</div>';
-  $h += '<div class="db-hero-stat-label">' + $streakLabel + '</div></div>';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="mastered" tabindex="0" role="button" aria-label="Words mastered: ' + $masteredCount + '">';
-  $h += '<div class="db-hero-stat-value">' + $masteredCount + '</div>';
-  $h += '<div class="db-hero-stat-label">Mastered</div></div>';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="comprehension" tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%">';
-  $h += '<div class="db-hero-stat-value">' + $comprehensionPct + '%</div>';
-  $h += '<div class="db-hero-stat-label">Comprehension</div></div>';
-  $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="review" tabindex="0" role="button" aria-label="Reviews today: ' + $reviewsToday + '">';
-  $h += '<div class="db-hero-stat-value">' + $reviewsToday + '</div>';
-  $h += '<div class="db-hero-stat-label">Reviews</div></div>';
+  if ($noProgress) {
+    $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="start-today" tabindex="0" role="button" aria-label="Start learning today">';
+    $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
+    $h += '<div class="db-hero-stat-value">Start Today</div>';
+    $h += '<div class="db-hero-stat-label">Begin your Quran journey</div></div>';
+  } else {
+    $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="streak" tabindex="0" role="button" aria-label="Streak: ' + $streak + ' days">';
+    $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
+    $h += '<div class="db-hero-stat-value">' + $streak + '</div>';
+    $h += '<div class="db-hero-stat-label">Streak</div></div>';
+    $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="mastered" tabindex="0" role="button" aria-label="Words mastered: ' + $masteredCount + '">';
+    $h += '<div class="db-hero-stat-value">' + $masteredCount + '</div>';
+    $h += '<div class="db-hero-stat-label">Mastered</div></div>';
+    $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="comprehension" tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%">';
+    $h += '<div class="db-hero-stat-value">' + $comprehensionPct + '%</div>';
+    $h += '<div class="db-hero-stat-label">Comprehension</div></div>';
+    $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="review" tabindex="0" role="button" aria-label="Reviews today: ' + $reviewsToday + '">';
+    $h += '<div class="db-hero-stat-value">' + $reviewsToday + '</div>';
+    $h += '<div class="db-hero-stat-label">Reviews</div></div>';
+  }
   $h += '</div>';
 
   $h += '</div>';  // close db-collapsible
@@ -809,7 +857,11 @@ function renderDashboard() {
     (function($el) {
       var $action = $el.getAttribute('data-db-action');
       $el.onclick = function() {
-        if ($action === 'streak' || $action === 'comprehension' || $action === 'mastered') switchView('profile');
+        if ($action === 'start-today') {
+          if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
+          else if (typeof switchView === 'function') switchView('learn');
+        }
+        else if ($action === 'streak' || $action === 'comprehension' || $action === 'mastered') switchView('profile');
         else if ($action === 'list') switchView('list');
         else if ($action === 'review') { if (typeof startReview === 'function') startReview(); else switchView('learn'); }
       };
@@ -844,10 +896,13 @@ function renderDashboard() {
     if ($text) $text.textContent = $isOpen ? 'Show more stats' : 'Show less';
   });
 
-  // Comprehension headline click → profile
-  $wire('db-comp-headline', function() {
-    if (typeof switchView === 'function') switchView('profile');
-  });
+  // Comprehension headline click → profile (ring variant only — the welcome
+  // variant is informational, not a navigation affordance)
+  if ($comprehensionPct > 0) {
+    $wire('db-comp-headline', function() {
+      if (typeof switchView === 'function') switchView('profile');
+    });
+  }
 
   // Surah rows click → navigate to that surah in learn mode
   var $surahRows = $d.querySelectorAll('.db-surah-row');

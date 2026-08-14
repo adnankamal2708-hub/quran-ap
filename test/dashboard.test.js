@@ -672,12 +672,16 @@ suite('Show More Stats Toggle', function() {
   test('Surah Progress is inside collapsible section', function() {
     resetState();
     setupGlobals();
-    // Surah progress only renders when getAllSurahComprehension returns data
+    // Surah progress only renders once >= LOWEST_COMP_HIDE_THRESHOLD (5) surahs
+    // have real (non-zero) progress — provide enough for the gate to pass.
     global.getAllSurahComprehension = function() {
       return [
         { surahId: 1, estimatedComprehension: 30 },
         { surahId: 2, estimatedComprehension: 50 },
         { surahId: 3, estimatedComprehension: 20 },
+        { surahId: 4, estimatedComprehension: 45 },
+        { surahId: 5, estimatedComprehension: 12 },
+        { surahId: 6, estimatedComprehension: 60 },
       ];
     };
     setupDashboardGrid();
@@ -883,7 +887,7 @@ suite('Recommendation — Weakness Guard', function() {
     };
   }
 
-  test('brand-new user: weakness does NOT appear, onboarding appears', function() {
+  test('brand-new user: weakness does NOT appear, recommendation slot is suppressed', function() {
     resetState();
     setupGlobals();
     setupWeaknessMock();
@@ -894,9 +898,10 @@ suite('Recommendation — Weakness Guard', function() {
     var html = getInnerHTML();
     // Weakness should NOT appear
     assert.ok(html.indexOf('weak area') === -1, 'should NOT show weak area for new user');
-    // Onboarding should appear
-    assert.ok(html.indexOf('Build your foundation') >= 0, 'should show onboarding recommendation');
-    assert.ok(html.indexOf('first lesson') >= 0, 'onboarding should mention first lesson');
+    // Recommendation slot is suppressed entirely for new users — its
+    // build-foundation CTA duplicated the Continue Learning card above it.
+    assert.ok(html.indexOf('Build your foundation') === -1, 'should NOT show onboarding recommendation (duplicate CTA)');
+    assert.ok(html.indexOf('Recommendation') === -1, 'recommendation section should NOT appear for new user');
   });
 
   test('early learner (below evidence threshold): weakness does NOT appear, progression does', function() {
@@ -955,6 +960,279 @@ suite('Recommendation — Weakness Guard', function() {
     assert.ok(html.indexOf('weak area') === -1, 'should NOT show weak area when no weaknesses exist');
     // Should show some other recommendation (reading is the fallback)
     assert.ok(html.indexOf('Recommendation') >= 0, 'recommendations section should still appear');
+  });
+});
+
+suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
+  // Genuinely fresh account: no foundation lessons, no SRS entries, no reviews.
+  function setupBrandNewUser() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 0;
+    _mockFoundationTotal = 10;
+    _mockSRSStats = { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0, overdue: 0 };
+    _mockDueReviews = [];
+    _mockStreakData = { streak: 0, lastDate: null };
+    _mockCoverage = null;
+  }
+
+  test('Fix 1: headline shows welcome line with NO ring at 0% comprehension', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-ring-fill') === -1, 'ring should be hidden at 0%');
+    assert.ok(html.indexOf('db-comp-headline-value') >= 0, 'headline value still present');
+    assert.ok(html.indexOf('Begin your journey to understand the Quran') >= 0, 'welcome line shown instead of ring');
+    assert.ok(html.indexOf('% Quran Comprehension') === -1, 'no "0% Quran Comprehension" value for new user');
+  });
+
+  test('Fix 1: ring renders when comprehensionPct > 0', function() {
+    resetState();
+    setupGlobals();
+    _mockCoverage = { coveragePercent: 42.5, estimatedComprehension: 65, masteredWords: 2, totalWords: 3, masteredOccurrences: 8, totalOccurrences: 18 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-ring-fill') >= 0, 'ring should render with real comprehension');
+    assert.ok(html.indexOf('65% Quran Comprehension') >= 0, 'value shows real percentage');
+  });
+
+  test('Fix 1: ring hidden for user with progress but 0% comprehension (welcome variant)', function() {
+    resetState();
+    setupGlobals();
+    // Default stats: mastered 10, but coverage null -> comprehension 0%
+    _mockCoverage = null;
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-ring-fill') === -1, 'ring should be hidden when comprehension is 0');
+    assert.ok(html.indexOf('Begin your journey to understand the Quran') >= 0, 'welcome variant shown');
+  });
+
+  test('Fix 2: metrics row shows only Total Words at zero data', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-comp-metric-label">Coverage') === -1, 'Coverage metric hidden');
+    assert.ok(html.indexOf('db-comp-metric-label">Mastered') === -1, 'Mastered metric hidden');
+    assert.ok(html.indexOf('db-comp-metric-label">Total Words') >= 0, 'Total Words metric shown');
+  });
+
+  test('Fix 2: full 3-cell metrics row once real data exists', function() {
+    setupBrandNewUser();
+    _mockSRSStats = { total: 100, mature: 5, dueToday: 2, totalReviews: 30, reviewsToday: 1, newCount: 10, learning: 8, young: 3, overdue: 0 };
+    _mockCoverage = { coveragePercent: 20, estimatedComprehension: 30, masteredWords: 5, totalWords: 100, masteredOccurrences: 300, totalOccurrences: 1800 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-comp-metric-label">Coverage') >= 0, 'Coverage metric shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Mastered') >= 0, 'Mastered metric shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Total Words') >= 0, 'Total Words metric shown');
+  });
+
+  test('Fix 3: Review Center prompt hidden for brand-new user', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-review-center-prompt') === -1, 'review center prompt should NOT render');
+  });
+
+  test('Fix 3: Review Center prompt shows when reviews due even with <5 lifetime', function() {
+    setupBrandNewUser();
+    _mockSRSStats = { total: 4, mature: 0, dueToday: 2, totalReviews: 3, reviewsToday: 0, newCount: 4, learning: 0, young: 0, overdue: 0 };
+    _mockDueReviews = ['w1', 'w2'];
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-review-center-prompt') >= 0, 'prompt shows when reviews are due');
+  });
+
+  test('Fix 4: Surah Comprehension card hidden while all surahs are 0%', function() {
+    setupBrandNewUser();
+    global.getAllSurahComprehension = function() {
+      var arr = [];
+      for (var i = 1; i <= 10; i++) arr.push({ surahId: i, estimatedComprehension: 0, masteredWords: 0 });
+      return arr;
+    };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-surah-progress') === -1, 'surah card hidden when no surah has real progress');
+  });
+
+  test('Fix 4: Surah Comprehension card hidden below LOWEST_COMP_HIDE_THRESHOLD', function() {
+    setupBrandNewUser();
+    // Only 3 surahs with real progress — below the established threshold of 5.
+    global.getAllSurahComprehension = function() {
+      return [
+        { surahId: 1, estimatedComprehension: 30, masteredWords: 2 },
+        { surahId: 2, estimatedComprehension: 50, masteredWords: 4 },
+        { surahId: 3, estimatedComprehension: 20, masteredWords: 1 },
+        { surahId: 4, estimatedComprehension: 0, masteredWords: 0 },
+        { surahId: 5, estimatedComprehension: 0, masteredWords: 0 },
+      ];
+    };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-surah-progress') === -1, 'surah card hidden below threshold');
+  });
+
+  test('Fix 5: recommendation slot suppressed (no duplicate start-lesson CTA)', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Recommendation') === -1, 'no recommendation section for new user');
+    assert.ok(html.indexOf('Build your foundation') === -1, 'no build-foundation card');
+    // Continue Learning is the single primary CTA for new users
+    assert.ok(html.indexOf('Continue Learning') >= 0, 'Continue Learning remains');
+    assert.ok(document.getElementById('db-continue-learning') !== null, 'Continue Learning card present');
+    assert.ok(document.getElementById('db-continue-learning-start') === null, 'no duplicate start card');
+  });
+
+  test('Fix 6: Progress Overview hidden until real progress exists', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    assert.ok(document.getElementById('db-progress-overview') === null, 'progress overview hidden for new user');
+  });
+
+  test('Fix 6: Progress Overview shows once any real progress exists', function() {
+    setupBrandNewUser();
+    _mockSRSStats = { total: 5, mature: 0, dueToday: 0, totalReviews: 6, reviewsToday: 0, newCount: 5, learning: 0, young: 0, overdue: 0 };
+    setupDashboardGrid();
+    renderDashboard();
+    assert.ok(document.getElementById('db-progress-overview') !== null, 'progress overview shown with reviews history');
+  });
+
+  test('Fix 7: motivation shows welcome copy, not the repeated Foundation CTA', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Your journey to understand the Quran begins here. Take it one word at a time') >= 0, 'welcome copy shown');
+    assert.ok(html.indexOf('Start the Foundation Course to master') === -1, 'no duplicated Foundation CTA in motivation');
+  });
+
+  test('Fix 7: motivation keeps real progress messages when they exist', function() {
+    setupBrandNewUser();
+    _mockSRSStats = { total: 10, mature: 2, dueToday: 0, totalReviews: 15, reviewsToday: 3, newCount: 8, learning: 0, young: 0, overdue: 0 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('reinforced') >= 0, 'reviews-today message preserved for new user with activity');
+  });
+
+  test('Fix 8: hero bar shows single Start Today stat, not the 4-stat zero wall', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    var statCount = html.split('db-hero-stat-click').length - 1;
+    assert.strictEqual(statCount, 1, 'exactly one hero stat for new user');
+    assert.ok(html.indexOf('Start Today') >= 0, 'Start Today stat shown');
+    assert.ok(html.indexOf('db-hero-stat-label">Comprehension') === -1, 'no Comprehension stat');
+    assert.ok(html.indexOf('db-hero-stat-label">Reviews') === -1, 'no Reviews stat');
+  });
+
+  test('Fix 8: Start Today stat wires to first foundation lesson', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    // Hero wiring uses querySelectorAll on the grid — in the mock this finds the
+    // element only if it has the class on the grid itself or a child with an id;
+    // fall back to verifying via the raw HTML contract used by the wiring loop.
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('data-db-action="start-today"') >= 0, 'start-today action wired');
+  });
+});
+
+suite('Dashboard Clutter — Returning User (real progress)', function() {
+  function setupReturningUser() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    _mockFoundationTotal = 10;
+    _mockSRSStats = { total: 100, mature: 25, dueToday: 3, totalReviews: 120, reviewsToday: 2, newCount: 30, learning: 20, young: 5, overdue: 1 };
+    _mockDueReviews = ['w1', 'w2'];
+    _mockStreakData = { streak: 4, lastDate: '2026-07-06' };
+    _mockCoverage = { coveragePercent: 35, estimatedComprehension: 55, masteredWords: 25, totalWords: 153, masteredOccurrences: 500, totalOccurrences: 1800 };
+    global.getAllSurahComprehension = function() {
+      return [
+        { surahId: 1, estimatedComprehension: 80, masteredWords: 20 },
+        { surahId: 2, estimatedComprehension: 40, masteredWords: 10 },
+        { surahId: 3, estimatedComprehension: 55, masteredWords: 14 },
+        { surahId: 4, estimatedComprehension: 25, masteredWords: 6 },
+        { surahId: 5, estimatedComprehension: 65, masteredWords: 17 },
+        { surahId: 6, estimatedComprehension: 30, masteredWords: 8 },
+        { surahId: 7, estimatedComprehension: 0, masteredWords: 0 },
+      ];
+    };
+  }
+
+  test('Fix 1: ring + milestone render with real comprehension', function() {
+    setupReturningUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-ring-fill') >= 0, 'ring renders');
+    assert.ok(html.indexOf('55% Quran Comprehension') >= 0, 'real percentage shown');
+  });
+
+  test('Fix 2: full metrics row renders', function() {
+    setupReturningUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('db-comp-metric-label">Coverage') >= 0, 'Coverage shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Mastered') >= 0, 'Mastered shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Total Words') >= 0, 'Total Words shown');
+  });
+
+  test('Fix 3: Review Center prompt renders (due + lifetime reviews)', function() {
+    setupReturningUser();
+    setupDashboardGrid();
+    renderDashboard();
+    assert.ok(document.getElementById('db-review-center-prompt') !== null, 'review center prompt shown');
+  });
+
+  test('Fix 4: Surah Comprehension card renders with real surah progress', function() {
+    setupReturningUser();
+    setupDashboardGrid();
+    renderDashboard();
+    assert.ok(document.getElementById('db-surah-progress') !== null, 'surah card shown');
+  });
+
+  test('Fix 5: recommendation slot renders for returning user', function() {
+    setupReturningUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Recommendation') >= 0, 'recommendation section shown');
+  });
+
+  test('Fix 6: Progress Overview renders', function() {
+    setupReturningUser();
+    setupDashboardGrid();
+    renderDashboard();
+    assert.ok(document.getElementById('db-progress-overview') !== null, 'progress overview shown');
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('4 / 10') >= 0, 'foundation progress shown');
+  });
+
+  test('Fix 8: full 4-stat hero bar renders', function() {
+    setupReturningUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    var statCount = html.split('db-hero-stat-click').length - 1;
+    assert.strictEqual(statCount, 4, 'four hero stats for returning user');
+    assert.ok(html.indexOf('db-hero-stat-label">Comprehension') >= 0, 'Comprehension stat shown');
+    assert.ok(html.indexOf('db-hero-stat-label">Reviews') >= 0, 'Reviews stat shown');
   });
 });
 
