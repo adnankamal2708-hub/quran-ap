@@ -361,6 +361,10 @@ function populateSurahSelector() {
     opt.textContent = sid + '. ' + info.name + ' — ' + info.english;
     select.appendChild(opt);
   }
+
+  // Rebuilding the options resets the selection to the first option, so restore
+  // it to match the current learning track (Foundation Course by default).
+  select.value = getOrganizationMode() === FOUNDATION_MODE ? 'foundation' : 'lesson';
 }
 
 // ── Window Bridge ──────────────────────────────────────────────

@@ -680,7 +680,8 @@ function loadTafsir(w) {
   var occ = window.__currentOccurrence || null;
   document.getElementById('tafsir-box').classList.add('visible');
   document.getElementById('tafsir-text').innerHTML = '<span class="tafsir-loading">Loading Ibn Kathir commentary\u2026</span>';
-  document.getElementById('tafsir-btn').style.display = 'none';
+  var _tafsirBtnEl = document.getElementById('tafsir-btn');
+  if (_tafsirBtnEl) _tafsirBtnEl.style.display = 'none';
   setTimeout(() => {
     var tafsirText = '';
     if (occ && occ.tafsir) {

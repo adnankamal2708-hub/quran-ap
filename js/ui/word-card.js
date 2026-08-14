@@ -711,6 +711,22 @@ function _renderWordRelationshipsEmptyState() {
  */
 function renderRootBox(w) {
   if (!w) return;
+  // Hide the root system entirely for rootless words (root is '—'): an empty
+  // box showing a bare dash is clutter, and its quick action would no-op.
+  var hasRoot = !!w.root && w.root !== '\u2014';
+  var rootBoxEl = document.getElementById('root-box');
+  if (rootBoxEl) {
+    // For rooted words, defer to progressive disclosure (root analysis is gated
+    // behind >= 3 completed foundation lessons); for rootless words always hide.
+    var showRoot = hasRoot;
+    if (showRoot && window.__ux && typeof window.__ux.getProgressiveVisibility === 'function') {
+      showRoot = !!window.__ux.getProgressiveVisibility().showRootAnalysis;
+    }
+    rootBoxEl.style.display = showRoot ? 'block' : 'none';
+  }
+  var rootBtnEl = document.getElementById('qa-root-family');
+  if (rootBtnEl) rootBtnEl.style.display = hasRoot ? '' : 'none';
+  if (!hasRoot) return;
   document.getElementById('root-arabic-big').textContent = w.root;
   document.getElementById('root-core-meaning').textContent = w.rootMeaning;
   document.getElementById('root-pattern').textContent = w.rootPattern;
@@ -794,7 +810,9 @@ async function loadTafsir(w) {
   var occ = window.__currentOccurrence || null;
   document.getElementById('tafsir-box').classList.add('visible');
   document.getElementById('tafsir-text').innerHTML = '<span class="tafsir-loading">Loading Ibn Kathir commentary\u2026</span>';
-  document.getElementById('tafsir-btn').style.display = 'none';
+  // tafsir-btn was removed as a duplicate action — guard in case of stale refs
+  var _tafsirBtnEl = document.getElementById('tafsir-btn');
+  if (_tafsirBtnEl) _tafsirBtnEl.style.display = 'none';
   setTimeout(() => {
     var tafsirText = '';
     if (occ && occ.tafsir) {

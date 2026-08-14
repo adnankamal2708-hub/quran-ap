@@ -673,7 +673,11 @@ function updateLessonProgressDisplay() {
 
   var lessonProgressText = DOM.get('lesson-progress-text');
   if (lessonProgressText) {
-    lessonProgressText.textContent = completed + ' of ' + total + ' lessons complete \u00B7 ~' + ($currentComp || 0).toFixed(1) + '% comprehension';
+    // Hide the comprehension suffix while it is still 0 — a "~0.0% comprehension"
+    // stat is zero-noise for users without real data.
+    var $progText = completed + ' of ' + total + ' lessons complete';
+    if (($currentComp || 0) > 0) $progText += ' \u00B7 ~' + $currentComp.toFixed(1) + '% comprehension';
+    lessonProgressText.textContent = $progText;
   }
 
   // Hide foundation-specific elements when in lesson mode
@@ -820,12 +824,6 @@ function wireEvents() {
     }
   });
   safeOnClick('qa-bookmark', toggleBookmark);
-
-  // Tafsir button
-  safeOnClick('tafsir-btn', function () {
-    var w = getCurrentWord();
-    if (w) loadTafsir(w);
-  });
 
   // Notes (auto-save on blur)
   var notesInput = document.getElementById('notes-input');
@@ -1408,14 +1406,30 @@ function init() {
     validateData();
 
     window.__DEV__ && console.log('[startup] [1c] Setting active lesson...');
-    // Set active lesson from saved progress (check foundation mode first)
-    activeLessonIndex = getCurrentLessonIndex();
-    if (activeLessonIndex >= getLessonCount()) activeLessonIndex = 0;
+    // Restore the user's actual learning track. The Foundation Course is the
+    // app's primary path, so new users and Foundation users boot into it — not
+    // the legacy sequential 16-lesson track, which mislabeled the persistent
+    // header as "Lesson N of 16" and showed the wrong lesson words on reload.
+    var _bootFoundProg = (typeof loadFoundationProgress === 'function') ? loadFoundationProgress() : null;
+    var _bootFoundDone = (_bootFoundProg && _bootFoundProg.completedLessons) ? _bootFoundProg.completedLessons.length : 0;
+    var _bootFoundCur = (typeof getCurrentFoundationLessonIndex === 'function') ? getCurrentFoundationLessonIndex() : 0;
+    var _bootLegacyDone = (typeof getCompletedLessonCount === 'function') ? getCompletedLessonCount() : 0;
+    if (_bootFoundDone > 0 || _bootFoundCur > 0 || _bootLegacyDone === 0) {
+      // Foundation user or brand-new user → Foundation Course
+      setOrganizationMode(FOUNDATION_MODE);
+      activeLessonIndex = _bootFoundCur;
+      if (activeLessonIndex >= getFoundationLessonCount()) activeLessonIndex = 0;
+    } else {
+      // Returning legacy sequential-track user → preserve their track
+      setOrganizationMode('lesson');
+      activeLessonIndex = getCurrentLessonIndex();
+      if (activeLessonIndex >= getLessonCount()) activeLessonIndex = 0;
+    }
     
-    // Set mode selector to match initial state
+    // Set mode selector to match the restored initial state
     var modeSelect = DOM.get('surah-select');
     if (modeSelect) {
-      modeSelect.value = 'lesson';
+      modeSelect.value = getOrganizationMode() === FOUNDATION_MODE ? 'foundation' : 'lesson';
     }
     
     // Set initial view to dashboard (switchView handles view activation, tab highlighting, and rendering)

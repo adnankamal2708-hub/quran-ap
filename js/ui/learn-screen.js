@@ -63,18 +63,11 @@ function renderLearnScreen() {
   }
   h += '<div class="ls-journey-msg" style="font-size:12px;color:var(--gold-dim);margin-bottom:10px;text-align:center;line-height:1.5">' + $journeyMsg + '</div>';
 
-  // ═══ CONTINUE LEARNING (primary action — first visible) ═══
-  if ($fTotal > 0 && !$foundationComplete) {
-    var $continueLabel = 'Foundation ' + ($fNextIdx + 1) + ' of ' + $fTotal;
-    h += '<div class="ls-action-card ls-card-learn" id="ls-continue-learning" tabindex="0" role="button" aria-label="Continue Foundation Course">';
-    h += '<div class="ls-card-icon">' + _lsIcon('layers', 18) + '</div>';
-    h += '<div class="ls-card-body">';
-    h += '<div class="ls-card-title">' + $continueLabel + '</div>';
-    h += '<div class="ls-card-sub">' + $fPct + '% complete</div>';
-    h += '</div>';
-    h += '<div class="ls-progress-ring"><svg viewBox="0 0 36 36" width="28" height="28"><path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path class="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $fPct + ', 100" stroke="var(--gold)"/></svg></div>';
-    h += '</div>';
-  } else if ($foundationComplete && window.__phase2 && window.__phase2.getLearningPhase) {
+  // ═══ PHASE 2 (Foundation complete — guided reading / independent reading) ═══
+  // The Continue action lives in the persistent lesson header (continue-learning-btn);
+  // it is intentionally NOT duplicated here (the old ls-continue-learning card
+  // was a redundant copy of the same "continue lesson" action).
+  if ($foundationComplete && window.__phase2 && window.__phase2.getLearningPhase) {
     // ── Foundation complete — show Phase 2 actions ──
     var $p2Phase = window.__phase2.getLearningPhase();
     if ($p2Phase === 'guided-reading') {
@@ -166,16 +159,6 @@ function wireLearnScreenEvents() {
   $lwire('ls-reviews-due', function() {
     if (typeof startReview === 'function') startReview();
     else if (typeof switchView === 'function') switchView('learn');
-  });
-
-  // Continue Learning
-  $lwire('ls-continue-learning', function() {
-    if ($fTotal > 0 && $fCompleted < $fTotal) {
-      if (typeof goToFoundationLesson === 'function') goToFoundationLesson($fNextIdx);
-      else if (typeof switchView === 'function') switchView('learn');
-    } else {
-      if (typeof switchView === 'function') switchView('learn');
-    }
   });
 
   // Guided Reading — open Quran with next recommended surah

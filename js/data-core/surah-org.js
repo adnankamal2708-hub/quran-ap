@@ -4,7 +4,10 @@
 // traditional sequential lessons.
 
 /** @type {'surah'|'lesson'|'foundation'} Current organization mode */
-let _orgMode = 'lesson';
+// The Foundation Course is the app's primary learning path, so it is the
+// default — NOT the legacy sequential 16-lesson track (whose "Lesson N of 16"
+// header mislabeled the actual course on every fresh load).
+let _orgMode = 'foundation';
 
 /**
  * Set the organization mode.

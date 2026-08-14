@@ -326,7 +326,9 @@ function getCanonicalIdForOldId(oldId) {
 // traditional sequential lessons.
 
 /** @type {'surah'|'lesson'|'foundation'} Current organization mode */
-let _orgMode = 'lesson';
+// The Foundation Course is the app's primary learning path, so it is the
+// default — NOT the legacy sequential 16-lesson track.
+let _orgMode = 'foundation';
 
 /**
  * Set the organization mode.
