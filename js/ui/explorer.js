@@ -42,6 +42,77 @@ function closeExplorer() {
   }
 }
 
+/** Explorer sections hidden entirely for premium-locked words */
+var _explorerVocabLockedSections = [
+  'explorer-quran-context', 'explorer-relationships', 'explorer-learning-progress',
+  'explorer-actions', 'explorer-notes',
+];
+
+/**
+ * Reset any leftover locked state (hidden sections + locked panel) so a full
+ * explorer render — e.g. after a live premium upgrade — shows everything again.
+ */
+function _resetExplorerLockedState() {
+  for (var _rli = 0; _rli < _explorerVocabLockedSections.length; _rli++) {
+    var _rlSec = document.getElementById(_explorerVocabLockedSections[_rli]);
+    if (_rlSec) _rlSec.style.display = '';
+  }
+  var _rlPanel = document.getElementById('explorer-vocab-locked');
+  if (_rlPanel) _rlPanel.style.display = 'none';
+}
+
+/**
+ * Render the locked detail view for a premium-tier word (free user).
+ * Shows the word's identity (it exists in the Quran) plus an upgrade CTA;
+ * hides all full-word-information sections (occurrences, relationships,
+ * learning progress, actions, notes) — reusing the established locked-panel
+ * pattern from the word-relationships gate.
+ */
+function renderExplorerLocked(w) {
+  // Word identity — mirrors the locked row in the Words tab.
+  DOM.get('explorer-arabic').textContent = w.arabic || '';
+  DOM.get('explorer-translit').textContent = w.translit || '';
+  DOM.get('explorer-meaning-main').textContent = w.meaning || w.english || '';
+  DOM.get('explorer-full-meaning').textContent = '';
+  DOM.get('explorer-root').textContent = w.root || '—';
+  DOM.get('explorer-pos').textContent = w.type || w.typeCategory || '—';
+  DOM.get('explorer-freq-rank').textContent = '—';
+  DOM.get('explorer-occ').textContent = '—';
+  DOM.get('explorer-foundation-lesson').textContent = '—';
+
+  // Hide every section beyond core info.
+  for (var _li = 0; _li < _explorerVocabLockedSections.length; _li++) {
+    var _lSec = document.getElementById(_explorerVocabLockedSections[_li]);
+    if (_lSec) _lSec.style.display = 'none';
+  }
+
+  // Locked panel — sibling of the core section.
+  var panel = document.getElementById('explorer-vocab-locked');
+  if (!panel) {
+    var viewEl = document.getElementById('view-explorer');
+    var coreSec = document.getElementById('explorer-core');
+    var attachTo = (coreSec && coreSec.parentNode) ? coreSec.parentNode : viewEl;
+    if (!attachTo || typeof attachTo.appendChild !== 'function') return;
+    panel = document.createElement('div');
+    panel.id = 'explorer-vocab-locked';
+    attachTo.appendChild(panel);
+  }
+  panel.style.display = 'block';
+  panel.innerHTML =
+    '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
+      '<div style="font-size:24px;margin-bottom:6px">🔒</div>' +
+      '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Vocabulary Expansion</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
+        'This word is part of the extended Quranic vocabulary. Upgrade to Premium to unlock its full word detail — meanings, occurrences, tafsir, relationships, and study tools.' +
+      '</div>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'vocabulary-expansion\')">⭐ Upgrade to Premium</button>' +
+    '</div>';
+
+  // Wire the back button so a locked view is never a dead end.
+  var backBtn = document.getElementById('explorer-back');
+  if (backBtn) backBtn.onclick = function() { closeExplorer(); };
+}
+
 /**
  * Render the full Vocabulary Explorer for the current explorer word.
  * This function is called by switchView('explorer') and populates all explorer sections.
@@ -54,7 +125,17 @@ function renderExplorer() {
     if (w) _explorerWord = w;
     else return;
   }
-  
+
+  // Free-tier vocabulary gate: premium-tier words open a locked detail view
+  // (identity + upgrade CTA only) instead of full word information.
+  if (typeof isFreeAccessible === 'function' && !isFreeAccessible(w)) {
+    renderExplorerLocked(w);
+    return;
+  }
+  // Clear any stale locked state from an earlier free-tier render (e.g. after
+  // a live upgrade) so the gated sections reappear.
+  _resetExplorerLockedState();
+
   // Ensure relationships cache is built
   if (typeof buildRelationsCache === 'function') buildRelationsCache();
   

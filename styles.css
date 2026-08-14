@@ -1283,6 +1283,29 @@ body::before {
   line-height: 1;
 }
 
+/* Free-tier locked words (vocabularyExpansion gate) — word stays visible
+   so free users can discover it, but the row signals premium-locked state. */
+.wordlist-item.locked-word {
+  border-color: rgba(201, 168, 76, 0.35);
+  background: rgba(201, 168, 76, 0.03);
+}
+
+.wordlist-item.locked-word .wordlist-arabic {
+  color: var(--gold-dim);
+}
+
+.wordlist-item.locked-word .locked-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: 50%;
+}
+
 /* ── Review Banner ─────────────────────────────────────────── */
 .review-banner {
   background: linear-gradient(135deg, rgba(201, 168, 76, 0.08), rgba(201, 168, 76, 0.03));

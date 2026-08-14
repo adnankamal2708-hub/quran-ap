@@ -260,20 +260,28 @@ function renderWordList() {
       badge = $badge('star');
     }
     var favStar = favs[w.id] ? $badge('star-fill') : '';
+    // Free-tier vocabulary gate: premium-tier words show a locked row (word
+    // still visible so free users can discover it) but open the locked
+    // explorer state instead of full detail on tap.
+    var isLocked = typeof isFreeAccessible === 'function' && !isFreeAccessible(w);
     var d = document.createElement('div');
-    d.className = 'wordlist-item' + (advFiltersActive ? ' has-quick-actions' : '') + ' stagger-item';
+    d.className = 'wordlist-item' + (advFiltersActive && !isLocked ? ' has-quick-actions' : '') +
+      ' stagger-item' + (isLocked ? ' locked-word' : '');
     d.style.animationDelay = Math.min(i * 30, 350) + 'ms';
     d.setAttribute('role', 'button');
     d.setAttribute('tabindex', '0');
     var shortMeaning = getShortMeaning(w.meaning);
-    d.setAttribute('aria-label', 'Study ' + w.arabic + ' - ' + shortMeaning);
+    d.setAttribute('aria-label', (isLocked ? 'Premium word (locked) — ' : 'Study ') + w.arabic + ' - ' + shortMeaning);
+    var lockBadge = isLocked
+      ? '<span class="locked-badge" title="Premium word — Vocabulary Expansion">\uD83D\uDD12</span>'
+      : favStar + badge;
     d.innerHTML =
       '<div class="wordlist-arabic">' + w.arabic + '</div>' +
       '<div class="wordlist-info">' +
         '<div class="wordlist-meaning">' + shortMeaning + '</div>' +
         '<div class="wordlist-sub">' + w.translit + ' \u00B7 ' + w.root + ' \u00B7 ' + w.type + '</div>' +
       '</div>' +
-      '<div class="wordlist-badge">' + favStar + badge + '</div>';
+      '<div class="wordlist-badge">' + lockBadge + '</div>';
     // Use closure-free inline handlers to avoid function creation per item
     d._word = w;
     d.onclick = function() { navigateToWord(this._word); };
@@ -285,8 +293,9 @@ function renderWordList() {
     };
     fragment.appendChild(d);
     
-    // Add quick action buttons for advanced search results
-    if (advFiltersActive) {
+    // Add quick action buttons for advanced search results (locked words
+    // only surface the locked detail — no bookmark/flash backdoors)
+    if (advFiltersActive && !isLocked) {
       var qaRow = document.createElement('div');
       qaRow.className = 'wordlist-quick-actions';
       

@@ -410,6 +410,16 @@ function rateSRSWord(wordId, rating) {
   var data = loadSRS();
   var entry = data[wordId];
 
+  // Free-tier vocabulary gate: premium-tier words cannot be ADDED to the
+  // review queue by free users (rating an already-existing entry — e.g.
+  // from before the gate — stays allowed so existing progress is reviewable).
+  if (!entry && typeof isFreeAccessible === 'function' && !isFreeAccessible(wordId)) {
+    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+      window.__premium.requestUpgrade('vocabulary-expansion');
+    }
+    return false;
+  }
+
   // Create entry if new
   if (!entry) {
     entry = {

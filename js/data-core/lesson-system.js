@@ -575,6 +575,13 @@ function getMixedReviewQueue(limit) {
     var w = allWords[i];
     var entry = srsData[w.id];
     if (!entry || entry.stage === 0) {
+      // Free-tier vocabulary gate: premium-tier words with NO existing SRS
+      // entry must never enter the mixed queue as new study items for free
+      // users (that would be a backdoor around the gate). Words the user
+      // already studied stay reviewable (gate new additions only).
+      if (!entry && typeof isFreeAccessible === 'function' && !isFreeAccessible(w)) {
+        continue;
+      }
       newWords.push(w);
     } else if (entry.dueDate && now >= entry.dueDate) {
       dueWords.push(w);

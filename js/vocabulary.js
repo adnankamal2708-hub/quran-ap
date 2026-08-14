@@ -214,6 +214,102 @@ function findWordsByArabicList(arabicList) {
 
 
 // ═══════════════════════════════════════════════════════════════
+// FREE-TIER VOCABULARY LIMIT — vocabularyExpansion gate
+//
+// Free users can access the top FREE_VOCABULARY_LIMIT canonical words by
+// real frequency rank (the same occ-based ranking Foundation Course uses);
+// every other word is premium-locked behind the vocabularyExpansion gate.
+//
+// isFreeAccessible() is derived from each canonical word's computed
+// frequencyRank (assigned by enrichCanonicalMetadata from real occ data),
+// NOT from a hardcoded list of word IDs — so the set stays correct
+// automatically if more vocabulary is added to the dataset later, exactly
+// like Foundation Course's dynamic top-100 selection.
+// ═══════════════════════════════════════════════════════════════
+
+/** How many top-frequency words are free for non-premium users (1-based rank) */
+var FREE_VOCABULARY_LIMIT = 300;
+
+/** Lazy fallback frequency-rank map (id → 1-based rank) for words missing frequencyRank */
+var _freqRankMap = null;
+
+function _buildFreqRankMap() {
+  if (_freqRankMap) return _freqRankMap;
+  _freqRankMap = {};
+  var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  // Same sort Foundation Course uses for its top-100 (occ descending,
+  // stable so equal-occ words keep dataset order).
+  var sorted = words.slice().sort(function (a, b) {
+    return (b.occ || 0) - (a.occ || 0);
+  });
+  for (var si = 0; si < sorted.length; si++) {
+    _freqRankMap[sorted[si].id] = si + 1;
+  }
+  return _freqRankMap;
+}
+
+/**
+ * Get the 1-based real-frequency rank of a word (matches Foundation ranking).
+ * Accepts a word object, a canonical ID (cw_N), or a legacy ID (w_N).
+ * Named getWordFrequencyRank to avoid clashing with the simpler
+ * getFrequencyRank() helper in data-core/foundation.js.
+ */
+function getWordFrequencyRank(word) {
+  if (typeof word === 'string') {
+    // Canonical IDs (cw_N) are NOT in the ALL_WORDS index — resolve them
+    // straight from the frequency-rank map (which is keyed by canonical id).
+    var idMap = _buildFreqRankMap();
+    var idRank = idMap[word];
+    if (typeof idRank === 'number') return idRank;
+    // Legacy w_N IDs: resolve through the word index, then the rank map.
+    var legacyWord = findWordById(word);
+    if (!legacyWord) return Infinity;
+    var legacyRank = idMap[legacyWord.id];
+    return typeof legacyRank === 'number' ? legacyRank : Infinity;
+  }
+  if (!word) return Infinity;
+  if (typeof word.frequencyRank === 'number') return word.frequencyRank;
+  var rank = _buildFreqRankMap()[word.id];
+  return typeof rank === 'number' ? rank : Infinity;
+}
+
+/**
+ * Whether the current user may access full detail for this word.
+ * Premium (vocabularyExpansion) unlocks the full vocabulary; otherwise
+ * only the top FREE_VOCABULARY_LIMIT words by frequency rank are free.
+ * Accepts a word object or a word ID string.
+ */
+function isFreeAccessible(word) {
+  if (window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION)) {
+    return true;
+  }
+  return getWordFrequencyRank(word) <= FREE_VOCABULARY_LIMIT;
+}
+
+/**
+ * Number of free-tier words currently in the dataset (for display).
+ */
+function getFreeVocabularyCount() {
+  var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+    ? getCanonicalWords() : ALL_WORDS;
+  var count = 0;
+  for (var fi = 0; fi < words.length; fi++) {
+    if (getWordFrequencyRank(words[fi]) <= FREE_VOCABULARY_LIMIT) count++;
+  }
+  return count;
+}
+
+// Export for cross-module access (also globally hoisted as top-level functions)
+window.__vocabAccess = {
+  getLimit: function () { return FREE_VOCABULARY_LIMIT; },
+  getFrequencyRank: getWordFrequencyRank,
+  isFreeAccessible: isFreeAccessible,
+  getFreeVocabularyCount: getFreeVocabularyCount,
+};
+
+
+// ═══════════════════════════════════════════════════════════════
 // ADVANCED SEARCH SYSTEM — Indexed, Multi-Dimensional Search
 //
 // Builds a pre-computed search index for O(1) field lookups.
@@ -862,7 +958,12 @@ function loadFavorites() {
 function _migrateLegacyKeys(data, keepValue) {
   if (!data || typeof data !== 'object') return {};
   var keys = Object.keys(data);
-  var needsMigration = keys.some(function(k) { return k && k.indexOf('w_') !== 0; });
+  // ID-format keys (legacy w_N or canonical cw_N) pass through untouched;
+  // anything else is a legacy arabic-text key that needs conversion to the
+  // first matching word ID. (Without the cw_ exemption, canonical bookmarks
+  // and notes were silently dropped on every load.)
+  function _isIdKey(k) { return k && (k.indexOf('w_') === 0 || k.indexOf('cw_') === 0); }
+  var needsMigration = keys.some(function(k) { return k && !_isIdKey(k); });
   if (!needsMigration) return data;
   
   var arabicToFirstId = {};
@@ -876,7 +977,7 @@ function _migrateLegacyKeys(data, keepValue) {
   var migrated = {};
   for (var k = 0; k < keys.length; k++) {
     var key = keys[k];
-    if (key.indexOf('w_') === 0) {
+    if (_isIdKey(key)) {
       migrated[key] = data[key];
     } else {
       var id = arabicToFirstId[key];
@@ -901,6 +1002,18 @@ function toggleFavorite(wordId) {
   if (favs[wordId]) {
     delete favs[wordId];
   } else {
+    // Free-tier vocabulary gate: premium-tier words cannot be newly
+    // bookmarked by free users (existing bookmarks from before the gate
+    // stay untouched and can still be removed).
+    if (typeof isFreeAccessible === 'function' && !isFreeAccessible(wordId)) {
+      if (typeof showToast === 'function') {
+        showToast('This word is part of Vocabulary Expansion. Upgrade to Premium to unlock it.', 'warning', 4000);
+      }
+      if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+        window.__premium.requestUpgrade('vocabulary-expansion');
+      }
+      return false;
+    }
     // Free bookmark cap: 20 words max (premium users get unlimited)
     var _isUnlimited = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_BOOKMARKS);
     if (!_isUnlimited) {
@@ -1206,7 +1319,7 @@ function getDerivedFormName(pattern, typeCategory, type) {
 // the word appears in Surah Yunus. These tags stay on the word (search,
 // canonicalization, filtering all still use them) but are excluded from
 // semantic grouping and contextual-equivalent linking.
-var MAX_SEMANTIC_GROUP_SIZE = 100; // defense-in-depth: a "semantic" group this large is not a meaningful theme
+var MAX_SEMANTIC_GROUP_SIZE = 130; // defense-in-depth: a "semantic" group this large is not a meaningful theme
 
 var _nonThematicTagSet = null;
 
