@@ -208,17 +208,8 @@ async function renderProfileView() {
     stageEl.textContent = stageIcon + ' ' + stageLabel;
   }
 
-  // Load stats
+  // Load stats (used by the sync-status gate below)
   var stats = computeLearningSummary && typeof computeLearningSummary === 'function' ? computeLearningSummary() : {};
-  // Stats elements — guard against missing DOM (moved to new Profile sections)
-  var $pMastered = document.getElementById('profile-stats-mastered');
-  if ($pMastered) $pMastered.textContent = stats.wordsMastered || 0;
-  var $pReviews = document.getElementById('profile-stats-reviews');
-  if ($pReviews) $pReviews.textContent = stats.totalReviews || 0;
-  var $pStreak = document.getElementById('profile-stats-streak');
-  if ($pStreak) $pStreak.textContent = (stats.streak || 0) + ' days';
-  var $pRetention = document.getElementById('profile-stats-retention');
-  if ($pRetention) $pRetention.textContent = (stats.averageRetention || 0) + '%';
 
   // Load profile from server for settings
   // Defensively handle Firebase failures so the entire profile doesn't break
@@ -252,13 +243,27 @@ async function renderProfileView() {
     }
   }
 
-  // Sync status
+  // Sync status — the free-tier Upgrade upsell only leads when there is real
+  // news: a pending/syncing state, or actual data worth syncing. A brand-new
+  // free user with zero data gets a muted "Cloud sync" line with no paywall
+  // link (don't lead a fresh profile with an upgrade pitch).
   var syncStatus = getSyncStatus ? getSyncStatus() : {};
   var syncEl = document.getElementById('profile-sync-status');
   if (syncEl) {
-    // Check if user is free-tier (not premium) with sync ready
     var _isPremium = window.__premium && window.__premium.isPremium();
-    if (syncStatus.ready && !_isPremium) {
+    // Data that would actually benefit from cloud sync (SRS, streak, lessons).
+    var $hasSyncData = (stats.totalReviews || 0) > 0 || (stats.wordsMastered || 0) > 0 || (stats.streak || 0) > 0 ||
+      (typeof getCompletedFoundationLessonCount === 'function' && getCompletedFoundationLessonCount() > 0);
+    if (syncStatus.syncing) {
+      syncEl.textContent = 'Syncing...';
+      syncEl.style.color = 'var(--gold)';
+    } else if (syncStatus.pending) {
+      syncEl.textContent = '⚠ Pending sync — changes not saved to cloud';
+      syncEl.style.color = 'var(--red)';
+    } else if (syncStatus.ready && _isPremium) {
+      syncEl.textContent = '✓ Cloud sync active';
+      syncEl.style.color = 'var(--green)';
+    } else if (syncStatus.ready && !_isPremium && $hasSyncData) {
       syncEl.innerHTML = '○ Cloud sync unavailable with free account — <a href="#" id="sync-upgrade-link" style="color:var(--gold);text-decoration:underline">Upgrade</a>';
       syncEl.style.color = 'var(--text-muted)';
       var upgradeLink = document.getElementById('sync-upgrade-link');
@@ -268,15 +273,10 @@ async function renderProfileView() {
           if (window.__premium) window.__premium.requestUpgrade('cloud-sync');
         };
       }
-    } else if (syncStatus.syncing) {
-      syncEl.textContent = 'Syncing...';
-      syncEl.style.color = 'var(--gold)';
-    } else if (syncStatus.pending) {
-      syncEl.textContent = '⚠ Pending sync — changes not saved to cloud';
-      syncEl.style.color = 'var(--red)';
-    } else if (syncStatus.ready) {
-      syncEl.textContent = '✓ Cloud sync active';
-      syncEl.style.color = 'var(--green)';
+    } else if (syncStatus.ready && !_isPremium) {
+      // Zero data: muted status, no Upgrade link.
+      syncEl.textContent = '○ Cloud sync';
+      syncEl.style.color = 'var(--text-muted)';
     } else {
       syncEl.textContent = '○ Cloud sync inactive (offline mode)';
       syncEl.style.color = 'var(--text-muted)';
@@ -696,12 +696,23 @@ function renderProfileProgress() {
 
   var h = '';
 
-  // Core progress metrics grid
+  // Core progress metrics grid — the single location for headline numbers
+  // (the legacy duplicate top stats row was removed). True "0" counts
+  // (Mastered / Reviews / Streak) stay visible — informative onboarding
+  // context, same as the Review Center's lifetime total. Percentage stats
+  // (Comprehension / Avg Retention) are gated behind the established 5-review
+  // minimum so a fresh account never sees a 0% wall.
+  var $rcMinReviews = (typeof _RC_RETENTION_MIN_REVIEWS !== 'undefined') ? _RC_RETENTION_MIN_REVIEWS : 5;
+  var $totalReviews = srsStats.totalReviews || 0;
+  var $streakDays = (typeof loadStreakData === 'function') ? (loadStreakData().streak || 0) : 0;
   h += '<div class="profile-progress-grid">';
   h += '<div class="profile-pstat"><div class="profile-pstat-value">' + (srsStats.mature || 0) + '</div><div class="profile-pstat-label">Words Mastered</div></div>';
-  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + compPct + '%</div><div class="profile-pstat-label">Quran Comprehension</div></div>';
-  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + (srsStats.totalReviews || 0).toLocaleString() + '</div><div class="profile-pstat-label">Total Reviews</div></div>';
-  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + (srsStats.avgRetention || 0) + '%</div><div class="profile-pstat-label">Avg Retention</div></div>';
+  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + $totalReviews.toLocaleString() + '</div><div class="profile-pstat-label">Total Reviews</div></div>';
+  if ($totalReviews >= $rcMinReviews) {
+    h += '<div class="profile-pstat"><div class="profile-pstat-value">' + compPct + '%</div><div class="profile-pstat-label">Quran Comprehension</div></div>';
+    h += '<div class="profile-pstat"><div class="profile-pstat-value">' + (srsStats.avgRetention || 0) + '%</div><div class="profile-pstat-label">Avg Retention</div></div>';
+  }
+  h += '<div class="profile-pstat"><div class="profile-pstat-value">' + $streakDays + '</div><div class="profile-pstat-label">Streak (days)</div></div>';
   h += '</div>';
 
   // Foundation Course
@@ -805,38 +816,45 @@ function renderProfileProgress() {
     h += '</div></div>';
   }
 
-  // SRS Health
-  h += '<div class="profile-subsection">';
-  h += '<div class="profile-subsection-title">❤️ SRS Health</div>';
-  h += '<div class="profile-srs-grid">';
-  h += '<div><span class="profile-bar-value ai-c-green">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
-  h += '<div><span class="profile-bar-value ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Avg Ease</span></div>';
-  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.overdue || 0) > 0 ? 'var(--red)' : 'var(--green)') + '\">' + (srsStats.overdue || 0) + '</span><span class="profile-pstat-label">Overdue</span></div>';
-  h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '\">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
-  h += '</div></div>';
-
-  // Review Forecast (compact) — color-dotted timeframes, same layout
-  h += '<div class="profile-subsection">';
-  h += '<div class="profile-subsection-title">📅 Review Forecast</div>';
-  var intervals = [0, 3, 7, 14, 30];
-  var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
-  var forecastColors = ['var(--gold)', 'var(--gold)', 'var(--green)', 'var(--blue)', 'var(--blue)'];
-  var forecastFills = ['profile-fill-gold', 'profile-fill-gold', 'profile-fill-green', 'profile-fill-blue', 'profile-fill-blue'];
-  // Iterate canonical words (SRS data is keyed by canonical cw_N ids after
-  // loadSRS() migration — raw w_N lookups never match, which zeroed the
-  // forecast). Same canonical-with-fallback pattern as getSRSStats.
-  var forecastWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
-    ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
-  for (var ii = 0; ii < intervals.length; ii++) {
-    var cutoff = now + intervals[ii] * 86400000;
-    var cnt = 0;
-    for (var wi = 0; wi < forecastWords.length; wi++) {
-      var entry = srsData[forecastWords[wi].id];
-      if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
-    }
-    h += '<div class="profile-bar-row"><span class="profile-forecast-dot" style="background:' + forecastColors[ii] + '"></span><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + forecastFills[ii] + '" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, forecastWords.length)) * 100)) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
+  // SRS Health — internal SRS stats (Avg Ease is a raw tuning parameter) only
+  // become meaningful once there's review history; gate behind the same
+  // 5-review minimum used for the Review Center's retention stat.
+  if ($totalReviews >= $rcMinReviews) {
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">❤️ SRS Health</div>';
+    h += '<div class="profile-srs-grid">';
+    h += '<div><span class="profile-bar-value ai-c-green">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
+    h += '<div><span class="profile-bar-value ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Avg Ease</span></div>';
+    h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.overdue || 0) > 0 ? 'var(--red)' : 'var(--green)') + '\">' + (srsStats.overdue || 0) + '</span><span class="profile-pstat-label">Overdue</span></div>';
+    h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '\">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
+    h += '</div></div>';
   }
-  h += '</div>';
+
+  // Review Forecast — a row of all-zero timeframes is zero-noise for a fresh
+  // account; gate behind the same 5-review minimum used elsewhere.
+  if ($totalReviews >= $rcMinReviews) {
+    h += '<div class="profile-subsection">';
+    h += '<div class="profile-subsection-title">📅 Review Forecast</div>';
+    var intervals = [0, 3, 7, 14, 30];
+    var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
+    var forecastColors = ['var(--gold)', 'var(--gold)', 'var(--green)', 'var(--blue)', 'var(--blue)'];
+    var forecastFills = ['profile-fill-gold', 'profile-fill-gold', 'profile-fill-green', 'profile-fill-blue', 'profile-fill-blue'];
+    // Iterate canonical words (SRS data is keyed by canonical cw_N ids after
+    // loadSRS() migration — raw w_N lookups never match, which zeroed the
+    // forecast). Same canonical-with-fallback pattern as getSRSStats.
+    var forecastWords = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
+      ? getCanonicalWords() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : []);
+    for (var ii = 0; ii < intervals.length; ii++) {
+      var cutoff = now + intervals[ii] * 86400000;
+      var cnt = 0;
+      for (var wi = 0; wi < forecastWords.length; wi++) {
+        var entry = srsData[forecastWords[wi].id];
+        if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
+      }
+      h += '<div class="profile-bar-row"><span class="profile-forecast-dot" style="background:' + forecastColors[ii] + '"></span><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + forecastFills[ii] + '" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, forecastWords.length)) * 100)) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
+    }
+    h += '</div>';
+  }
 
   container.innerHTML = h;
 }
@@ -866,7 +884,9 @@ function renderProfileInsights() {
   var profile = analytics.profile;
   var periods = analytics.periods;
 
-  // Locked panel for free users (replaces trends/forecasts/summaries sections)
+  // Locked panel for free users — Advanced Insights content (weekly/monthly
+  // summaries, root breakdowns, forecasts) is premium-only. Free users see
+  // ONLY the locked panel, never partial real data alongside a lock message.
   if (!_hasAdvanced) {
     h += '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center">';
     h += '<div style="font-size:24px;margin-bottom:6px">📈</div>';
@@ -876,6 +896,8 @@ function renderProfileInsights() {
       '</div>';
     h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'advanced-insights\')">⭐ Upgrade to Premium</button>';
     h += '</div>';
+    container.innerHTML = h;
+    return;
   }
 
   // Weekly Summary

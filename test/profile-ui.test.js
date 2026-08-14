@@ -175,10 +175,6 @@ ts('Profile — Logged-In Rendering', function() {
     createEl('profile-avatar');
     createEl('profile-email-verified');
     createEl('profile-sync-status');
-    createEl('profile-stats-mastered');
-    createEl('profile-stats-reviews');
-    createEl('profile-stats-streak');
-    createEl('profile-stats-retention');
     createEl('settings-daily-limit');
     createEl('settings-session-size');
     createEl('settings-auto-import');
@@ -196,10 +192,6 @@ ts('Profile — Logged-In Rendering', function() {
     createEl('profile-sync-status');
     createEl('profile-avatar');
     createEl('profile-join-date');
-    createEl('profile-stats-mastered');
-    createEl('profile-stats-reviews');
-    createEl('profile-stats-streak');
-    createEl('profile-stats-retention');
     createEl('settings-daily-limit');
     createEl('settings-session-size');
     createEl('settings-auto-import');
@@ -216,10 +208,6 @@ ts('Profile — Logged-In Rendering', function() {
     createEl('profile-email-verified');
     createEl('profile-sync-status');
     createEl('profile-join-date');
-    createEl('profile-stats-mastered');
-    createEl('profile-stats-reviews');
-    createEl('profile-stats-streak');
-    createEl('profile-stats-retention');
     createEl('settings-daily-limit');
     createEl('settings-session-size');
     createEl('settings-auto-import');
@@ -441,6 +429,14 @@ ts('Profile — Progress: Lowest Comprehension gating', function() {
 });
 
 ts('Profile — Progress: visual elements', function() {
+  var _origStats = global.getSRSStats;
+
+  function withReviews(n) {
+    global.getSRSStats = function() {
+      return { total: n, mature: 3, learning: 1, young: 1, newCount: 0, totalReviews: n, avgRetention: 42, avgEaseFactor: 2.5, overdue: 0, leechCount: 0, reviewsToday: 0 };
+    };
+  }
+
   t('segmented stage bar or hint + legend render', function() {
     createEl('profile-progress');
     renderProfileProgress();
@@ -450,7 +446,8 @@ ts('Profile — Progress: visual elements', function() {
     assert.ok(html.indexOf('profile-stage-dot') >= 0, 'legend dots present');
   });
 
-  t('gradient bar fills and forecast indicators render', function() {
+  t('gradient bar fills and forecast indicators render (with 5+ reviews)', function() {
+    withReviews(12);
     createEl('profile-progress');
     renderProfileProgress();
     var html = document.getElementById('profile-progress').innerHTML;
@@ -458,6 +455,200 @@ ts('Profile — Progress: visual elements', function() {
     assert.ok(html.indexOf('profile-fill-blue') >= 0, 'surah bar uses blue fill');
     assert.ok(html.indexOf('profile-fill-purple') >= 0, 'root bar uses purple fill');
     assert.ok(html.indexOf('profile-forecast-dot') >= 0, 'forecast dots present');
+    assert.ok(html.indexOf('SRS Health') >= 0, 'SRS Health shown with 5+ reviews');
+    global.getSRSStats = _origStats;
+  });
+});
+
+ts('Profile — Progress: zero-data gating (new user)', function() {
+  var _origStats = global.getSRSStats;
+  var _origCoverage = global.calculateCoverage;
+
+  // Force zero data explicitly
+  global.getSRSStats = function() { return { total: 0, mature: 0, learning: 0, young: 0, newCount: 0, totalReviews: 0, avgRetention: 0, avgEaseFactor: 2.5, overdue: 0, leechCount: 0, reviewsToday: 0 }; };
+  global.calculateCoverage = function() { return { coveragePercent: 0, estimatedComprehension: 0, masteredWords: 0, totalWords: 0, masteredOccurrences: 0, totalOccurrences: 0, wordMasteryPercent: 0 }; };
+
+  t('comprehension & avg retention cells hidden at zero reviews', function() {
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('Quran Comprehension') < 0, 'comprehension cell hidden at zero reviews');
+    assert.ok(html.indexOf('Avg Retention') < 0, 'avg retention cell hidden at zero reviews');
+    assert.ok(html.indexOf('Words Mastered') >= 0, 'mastered count stays (informative zero)');
+    assert.ok(html.indexOf('Total Reviews') >= 0, 'total reviews stays (informative zero)');
+    assert.ok(html.indexOf('Streak (days)') >= 0, 'streak stays (informative zero)');
+  });
+
+  t('SRS Health hidden at zero reviews', function() {
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('SRS Health') < 0, 'SRS Health hidden for new user');
+    assert.ok(html.indexOf('Avg Ease') < 0, 'raw Avg Ease parameter hidden for new user');
+  });
+
+  t('Review Forecast hidden at zero reviews', function() {
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('Review Forecast') < 0, 'forecast hidden for new user');
+    assert.ok(html.indexOf('profile-forecast-dot') < 0, 'no forecast dots for new user');
+  });
+
+  t('sections render with full data for returning user (5+ reviews)', function() {
+    global.getSRSStats = function() { return { total: 12, mature: 5, learning: 2, young: 2, newCount: 0, totalReviews: 12, avgRetention: 58, avgEaseFactor: 2.5, overdue: 1, leechCount: 0, reviewsToday: 3 }; };
+    global.calculateCoverage = function() { return { coveragePercent: 14, estimatedComprehension: 18, masteredWords: 5, totalWords: 1207, masteredOccurrences: 100, totalOccurrences: 1000, wordMasteryPercent: 10 }; };
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    assert.ok(html.indexOf('Quran Comprehension') >= 0, 'comprehension cell shown with 5+ reviews');
+    assert.ok(html.indexOf('Avg Retention') >= 0, 'avg retention cell shown with 5+ reviews');
+    assert.ok(html.indexOf('18%') >= 0, 'real comprehension value shown');
+    assert.ok(html.indexOf('SRS Health') >= 0, 'SRS Health shown with 5+ reviews');
+    assert.ok(html.indexOf('Review Forecast') >= 0, 'forecast shown with 5+ reviews');
+  });
+
+  global.getSRSStats = _origStats;
+  global.calculateCoverage = _origCoverage;
+});
+
+ts('Profile — Sync status de-emphasis (new user vs returning)', function() {
+  var _origSummary = global.computeLearningSummary;
+  var _origPremium = global.window.__premium;
+
+  function setupSyncEl() {
+    createEl('profile-sync-status');
+    createEl('profile-name');
+    createEl('profile-email');
+    createEl('profile-join-date');
+    createEl('profile-avatar');
+    createEl('profile-premium-badge');
+    createEl('profile-learner-stage');
+    createEl('profile-email-verified');
+    createEl('settings-daily-limit');
+    createEl('settings-session-size');
+    createEl('settings-auto-import');
+  }
+
+  t('zero-data free user sees muted Cloud sync line, no Upgrade link', async function() {
+    global.__mockUser = { uid: 'u1', email: 'a@b.c', displayName: 'T', emailVerified: true, createdAt: '2026-01-01' };
+    global.computeLearningSummary = function() { return { totalWords: 0, wordsMastered: 0, totalReviews: 0, streak: 0, averageRetention: 0 }; };
+    global.window.__premium = { isPremium: function() { return false; }, requestUpgrade: function() {} };
+    global.__mockSyncStatus = { ready: true, syncing: false, pending: false };
+    setupSyncEl();
+    await renderProfileView();
+    var el = document.getElementById('profile-sync-status');
+    assert.ok(el.textContent.indexOf('Upgrade') < 0, 'no Upgrade link at zero data');
+    assert.ok(el.textContent.indexOf('Cloud sync') >= 0, 'muted Cloud sync line present');
+    assert.ok(document.getElementById('sync-upgrade-link') === null, 'no upgrade anchor created');
+  });
+
+  t('free user WITH data sees the Upgrade messaging (real news)', async function() {
+    global.__mockUser = { uid: 'u1', email: 'a@b.c', displayName: 'T', emailVerified: true, createdAt: '2026-01-01' };
+    global.computeLearningSummary = function() { return { totalWords: 10, wordsMastered: 3, totalReviews: 25, streak: 2, averageRetention: 40 }; };
+    global.window.__premium = { isPremium: function() { return false; }, requestUpgrade: function() {} };
+    global.__mockSyncStatus = { ready: true, syncing: false, pending: false };
+    setupSyncEl();
+    await renderProfileView();
+    var el = document.getElementById('profile-sync-status');
+    assert.ok(el.textContent.indexOf('Upgrade') >= 0, 'Upgrade link shown when data exists');
+    assert.ok(document.getElementById('sync-upgrade-link') !== null, 'upgrade anchor present');
+  });
+
+  t('premium user sees Cloud sync active', async function() {
+    global.__mockUser = { uid: 'u1', email: 'a@b.c', displayName: 'T', emailVerified: true, createdAt: '2026-01-01' };
+    global.computeLearningSummary = function() { return { totalWords: 0, wordsMastered: 0, totalReviews: 0, streak: 0, averageRetention: 0 }; };
+    global.window.__premium = { isPremium: function() { return true; }, requestUpgrade: function() {} };
+    global.__mockSyncStatus = { ready: true, syncing: false, pending: false };
+    setupSyncEl();
+    await renderProfileView();
+    var el = document.getElementById('profile-sync-status');
+    assert.ok(el.textContent.indexOf('Cloud sync active') >= 0, 'premium sees active sync');
+  });
+
+  t('pending sync state still reports real news regardless of data', async function() {
+    global.__mockUser = { uid: 'u1', email: 'a@b.c', displayName: 'T', emailVerified: true, createdAt: '2026-01-01' };
+    global.computeLearningSummary = function() { return { totalWords: 0, wordsMastered: 0, totalReviews: 0, streak: 0, averageRetention: 0 }; };
+    global.window.__premium = { isPremium: function() { return false; }, requestUpgrade: function() {} };
+    global.__mockSyncStatus = { ready: true, syncing: false, pending: true };
+    setupSyncEl();
+    await renderProfileView();
+    var el = document.getElementById('profile-sync-status');
+    assert.ok(el.textContent.indexOf('Pending sync') >= 0, 'pending state shown');
+  });
+
+  global.computeLearningSummary = _origSummary;
+  global.window.__premium = _origPremium;
+});
+
+ts('Profile — Insights premium leak (free vs advanced)', function() {
+  var _origAnalytics = global.window.__analytics;
+  var _origPremium = global.window.__premium;
+
+  function insightsData() {
+    return {
+      profile: {
+        strongRoots: [{ root: 'ر-ب-ب', rootMeaning: 'Lord', masteryScore: 90 }],
+        weakRoots: [],
+      },
+      periods: {
+        week: { gainMastered: 1, totalReviews: 4, daysActive: 2, avgReviewsPerDay: 2 },
+        month: { gainMastered: 3, totalReviews: 12, daysActive: 5 },
+        consistency: 40,
+      },
+      forecasts: { predictedMastered: { '7': 5, '30': 10, '90': 20 } },
+    };
+  }
+
+  t('free user (no Advanced Insights) sees ONLY the locked panel', function() {
+    createEl('profile-insights');
+    global.window.__analytics = { getComprehensiveInsights: function() { return insightsData(); } };
+    global.window.__premium = {
+      FEATURES: { ADVANCED_INSIGHTS: 'advancedInsights' },
+      hasFeature: function() { return false; },
+    };
+    renderProfileInsights();
+    var html = document.getElementById('profile-insights').innerHTML;
+    assert.ok(html.indexOf('Advanced Insights') >= 0, 'locked panel shown');
+    assert.ok(html.indexOf('This Week') < 0, 'weekly summary NOT leaked');
+    assert.ok(html.indexOf('This Month') < 0, 'monthly summary NOT leaked');
+    assert.ok(html.indexOf('Strongest Roots') < 0, 'root breakdown NOT leaked');
+    assert.ok(html.indexOf('Forecasts') < 0, 'forecasts NOT leaked');
+    assert.ok(html.indexOf('Upgrade to Premium') >= 0, 'upgrade CTA present');
+  });
+
+  t('premium user with Advanced Insights sees full content', function() {
+    createEl('profile-insights');
+    global.window.__analytics = { getComprehensiveInsights: function() { return insightsData(); } };
+    global.window.__premium = {
+      FEATURES: { ADVANCED_INSIGHTS: 'advancedInsights' },
+      hasFeature: function() { return true; },
+    };
+    renderProfileInsights();
+    var html = document.getElementById('profile-insights').innerHTML;
+    assert.ok(html.indexOf('This Week') >= 0, 'weekly summary shown for premium');
+    assert.ok(html.indexOf('This Month') >= 0, 'monthly summary shown for premium');
+    assert.ok(html.indexOf('Strongest Roots') >= 0, 'root breakdown shown for premium');
+    assert.ok(html.indexOf('Upgrade to Premium') < 0, 'no locked panel for premium');
+  });
+
+  global.window.__analytics = _origAnalytics;
+  global.window.__premium = _origPremium;
+});
+
+ts('Profile — Progress tab duplicate stats row removed', function() {
+  t('top-level stats row element no longer present in index.html', function() {
+    var html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+    assert.ok(html.indexOf('profile-stats-row') < 0, 'top stats row removed from index.html');
+    assert.ok(html.indexOf('profile-stats-mastered') < 0, 'duplicate mastered stat removed');
+  });
+
+  t('renderProfileProgress renders the single metrics grid', function() {
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    var gridCount = (html.match(/profile-progress-grid/g) || []).length;
+    assert.strictEqual(gridCount, 1, 'exactly one metrics grid renders');
   });
 });
 

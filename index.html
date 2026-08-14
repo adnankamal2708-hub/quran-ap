@@ -1228,13 +1228,9 @@ getResults: function () { return _safeguardResults; },
           </div>
 
           <!-- ═══ TAB 2: PROGRESS & INSIGHTS ═══ -->
+          <!-- NOTE: the legacy top-level stats row (Mastered/Reviews/Streak/Retention) was removed —
+               the metrics grid inside renderProfileProgress() is the single location for these numbers. -->
           <div class="pf-tab-content" data-pf-tab="progress" role="tabpanel">
-            <div id="profile-stats-row" class="pf-card pf-stats-row">
-              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-mastered">0</span><span class="pf-stat-label">Mastered</span></div>
-              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-reviews">0</span><span class="pf-stat-label">Reviews</span></div>
-              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-streak">0</span><span class="pf-stat-label">Streak</span></div>
-              <div class="pf-stat"><span class="pf-stat-value" id="profile-stats-retention">0%</span><span class="pf-stat-label">Retention</span></div>
-            </div>
             <div id="profile-progress"><!-- renderProfileProgress() --></div>
             <div id="profile-insights"><!-- renderProfileInsights() --></div>
             <div id="profile-calendar"><!-- renderProfileCalendar() --></div>

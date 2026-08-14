@@ -208,6 +208,21 @@ function saveNote() {
 
 // ── Lesson Progress Display ────────────────────────────────────
 
+// Build the "Your Journey" metric cells for the Lesson Statistics collapsible,
+// hiding any cell that is meaningless at zero (0% comprehension / 0 words /
+// 0 surahs — the same zero-noise gating used on Dashboard and Profile).
+// Returns '' when no cell holds real data, so the grid wrapper (and its
+// 0%/0/0 wall) is omitted entirely for a brand-new user.
+function _buildJourneyGrid(cells) {
+  var html = '';
+  for (var ci = 0; ci < cells.length; ci++) {
+    if (cells[ci].show) {
+      html += '<div class="db-inline-center"><div class="ai-value-md ' + (cells[ci].cls || '') + '">' + cells[ci].value + '</div><div class="db-inline-text-xs">' + cells[ci].label + '</div></div>';
+    }
+  }
+  return html ? '<div class="ai-journey-grid">' + html + '</div>' : '';
+}
+
 function updateLessonProgressDisplay() {
   var lessonLabel = DOM.get('lesson-label');
   
@@ -289,11 +304,12 @@ function updateLessonProgressDisplay() {
         '<div class="db-progress-fill" style="height:6px;width:' + (fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0) + '%;background:var(--gold);border-radius:3px"></div></div>' +
         '<span class="db-progress-text">Foundation: ' + fCompleted + ' / ' + fTotal + ' lessons</span>' +
         '</div>' +
-        '<div class="ai-journey-grid">' +
-        '<div class="db-inline-center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div class="db-inline-text-xs">Comprehension</div></div>' +
-        '<div class="db-inline-center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div class="db-inline-text-xs">Words</div></div>' +
-        '<div class="db-inline-center"><div class="ai-value-md ai-c-blue">' + $surahsWith50Plus + '/' + $surahsTotal + '</div><div class="db-inline-text-xs">Surahs (50%+)</div></div>' +
-        '</div></div>';
+        _buildJourneyGrid([
+          { show: ($currentComp || 0) > 0, value: ($currentComp || 0).toFixed(1) + '%', label: 'Comprehension' },
+          { show: $masteredWords > 0, value: $masteredWords, label: 'Words', cls: 'ai-c-green' },
+          { show: $surahsWith50Plus > 0, value: $surahsWith50Plus + '/' + $surahsTotal, label: 'Surahs (50%+)', cls: 'ai-c-blue' },
+        ]) +
+        '</div>';
       journeyEl.style.display = 'block';
     }
 
@@ -589,11 +605,12 @@ function updateLessonProgressDisplay() {
         '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--blue);border-radius:3px"></div></div>' +
         '<span class="db-progress-text">Surahs: ' + completed + ' / ' + surahIds.length + '</span>' +
         '</div>' +
-        '<div class="ai-journey-grid">' +
-        '<div class="db-inline-center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div class="db-inline-text-xs">Comprehension</div></div>' +
-        '<div class="db-inline-center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div class="db-inline-text-xs">Words</div></div>' +
-        '<div class="db-inline-center"><div class="ai-value-md ai-c-blue">' + (surahCompPct || 0) + '%</div><div class="db-inline-text-xs">This Surah</div></div>' +
-        '</div></div>';
+        _buildJourneyGrid([
+          { show: ($currentComp || 0) > 0, value: ($currentComp || 0).toFixed(1) + '%', label: 'Comprehension' },
+          { show: $masteredWords > 0, value: $masteredWords, label: 'Words', cls: 'ai-c-green' },
+          { show: (surahCompPct || 0) > 0, value: (surahCompPct || 0) + '%', label: 'This Surah', cls: 'ai-c-blue' },
+        ]) +
+        '</div>';
       journeyEl.style.display = 'block';
     }
 
@@ -721,11 +738,12 @@ function updateLessonProgressDisplay() {
       '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--gold);border-radius:3px"></div></div>' +
       '<span class="db-progress-text">Lessons: ' + completed + ' / ' + total + '</span>' +
       '</div>' +
-      '<div class="ai-journey-grid">' +
-      '<div class="db-inline-center"><div class="ai-value-md">' + ($currentComp || 0).toFixed(1) + '%</div><div class="db-inline-text-xs">Comprehension</div></div>' +
-      '<div class="db-inline-center"><div class="ai-value-md ai-c-green">' + $masteredWords + '</div><div class="db-inline-text-xs">Words</div></div>' +
-      '<div class="db-inline-center"><div class="ai-value-md ai-c-blue">' + surahsWith50Plus + '/' + surahsTotal + '</div><div class="db-inline-text-xs">Surahs (50%+)</div></div>' +
-      '</div></div>';
+      _buildJourneyGrid([
+        { show: ($currentComp || 0) > 0, value: ($currentComp || 0).toFixed(1) + '%', label: 'Comprehension' },
+        { show: $masteredWords > 0, value: $masteredWords, label: 'Words', cls: 'ai-c-green' },
+        { show: surahsWith50Plus > 0, value: surahsWith50Plus + '/' + surahsTotal, label: 'Surahs (50%+)', cls: 'ai-c-blue' },
+      ]) +
+      '</div>';
     journeyEl.style.display = 'block';
   }
 
