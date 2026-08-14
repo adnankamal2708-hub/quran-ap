@@ -103,7 +103,7 @@ function renderExplorerLocked(w) {
       '<div style="font-size:24px;margin-bottom:6px">🔒</div>' +
       '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Vocabulary Expansion</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
-        'This word is part of the extended Quranic vocabulary. Upgrade to Premium to unlock its full word detail — meanings, occurrences, tafsir, relationships, and study tools.' +
+        'The Free plan includes the 300 most frequent Quranic words. This word is part of the extended vocabulary — upgrade to Premium to unlock its full word detail: meanings, occurrences, tafsir, relationships, and study tools.' +
       '</div>' +
       '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'vocabulary-expansion\')">⭐ Upgrade to Premium</button>' +
     '</div>';

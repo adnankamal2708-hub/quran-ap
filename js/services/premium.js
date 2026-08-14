@@ -32,7 +32,7 @@
     // Learning & Vocabulary
     unlimitedReviews: { key: 'unlimited-reviews', label: 'Unlimited Reviews', description: 'Unlimited daily reviews per session' },
     guidedReading: { key: 'guided-reading', label: 'Guided Reading', description: 'Structured surah-by-surah reading path with comprehension tracking' },
-    vocabularyExpansion: { key: 'vocabulary-expansion', label: 'Vocabulary Expansion', description: 'Expanded vocabulary sets beyond the Foundation Course' },
+    vocabularyExpansion: { key: 'vocabulary-expansion', label: 'Vocabulary Expansion', description: 'Unlock the full Quranic vocabulary — all 1,207 words (free includes the top 300)' },
     advancedInsights: { key: 'advanced-insights', label: 'Advanced Insights', description: 'Detailed analytics, trends, and learning predictions' },
 
     // Data & Sync

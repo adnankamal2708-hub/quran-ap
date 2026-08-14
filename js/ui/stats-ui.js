@@ -273,7 +273,7 @@ function renderWordList() {
     var shortMeaning = getShortMeaning(w.meaning);
     d.setAttribute('aria-label', (isLocked ? 'Premium word (locked) — ' : 'Study ') + w.arabic + ' - ' + shortMeaning);
     var lockBadge = isLocked
-      ? '<span class="locked-badge" title="Premium word — Vocabulary Expansion">\uD83D\uDD12</span>'
+      ? '<span class="locked-badge" title="Premium word — beyond the free 300">\uD83D\uDD12</span>'
       : favStar + badge;
     d.innerHTML =
       '<div class="wordlist-arabic">' + w.arabic + '</div>' +

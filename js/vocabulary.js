@@ -1007,7 +1007,7 @@ function toggleFavorite(wordId) {
     // stay untouched and can still be removed).
     if (typeof isFreeAccessible === 'function' && !isFreeAccessible(wordId)) {
       if (typeof showToast === 'function') {
-        showToast('This word is part of Vocabulary Expansion. Upgrade to Premium to unlock it.', 'warning', 4000);
+        showToast('This word is beyond the free 300 — upgrade to Premium to unlock the full vocabulary.', 'warning', 4000);
       }
       if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
         window.__premium.requestUpgrade('vocabulary-expansion');
