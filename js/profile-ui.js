@@ -816,15 +816,16 @@ function renderProfileProgress() {
     h += '</div></div>';
   }
 
-  // SRS Health — internal SRS stats (Avg Ease is a raw tuning parameter) only
-  // become meaningful once there's review history; gate behind the same
-  // 5-review minimum used for the Review Center's retention stat.
+  // SRS Health — internal SRS stats only become meaningful once there's
+  // review history; gate behind the same 5-review minimum used for the Review
+  // Center's retention stat. Ease is a raw tuning parameter, so it's shown
+  // under a user-facing label with a direction hint.
   if ($totalReviews >= $rcMinReviews) {
     h += '<div class="profile-subsection">';
     h += '<div class="profile-subsection-title">❤️ SRS Health</div>';
     h += '<div class="profile-srs-grid">';
     h += '<div><span class="profile-bar-value ai-c-green">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
-    h += '<div><span class="profile-bar-value ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Avg Ease</span></div>';
+    h += '<div><span class="profile-bar-value ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Review Ease</span><span class="profile-pstat-hint">higher = more stable</span></div>';
     h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.overdue || 0) > 0 ? 'var(--red)' : 'var(--green)') + '\">' + (srsStats.overdue || 0) + '</span><span class="profile-pstat-label">Overdue</span></div>';
     h += '<div><span class="profile-bar-value" style="color:' + ((srsStats.leechCount || 0) > 0 ? 'var(--red)' : 'var(--text)') + '\">' + (srsStats.leechCount || 0) + '</span><span class="profile-pstat-label">Leeches</span></div>';
     h += '</div></div>';

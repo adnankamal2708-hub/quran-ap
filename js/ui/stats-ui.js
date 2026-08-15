@@ -256,7 +256,9 @@ function renderWordList() {
       badge = $badge('leaf');
     } else if (entry && entry.stage >= 1 && Date.now() >= entry.dueDate) {
       badge = entry.isLeech ? $badge('alert-triangle') : $badge('repeat');
-    } else {
+    } else if (entry) {
+      // Studied but not yet due — neutral star. Words with no SRS entry at
+      // all get NO badge: a default star on every unstudied row is noise.
       badge = $badge('star');
     }
     var favStar = favs[w.id] ? $badge('star-fill') : '';

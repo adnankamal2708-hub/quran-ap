@@ -546,6 +546,8 @@ ts('Explorer — Learning Progress', function() {
     createEl('explorer-review-count');
     createEl('explorer-retention-item');
     createEl('explorer-retention');
+    createEl('explorer-progress-grid');
+    createEl('explorer-progress-empty');
   }
 
   t('new word shows New status', function() {
@@ -553,6 +555,14 @@ ts('Explorer — Learning Progress', function() {
     renderExplorerLearningProgress(TEST_WORDS[0], { status: 'new', stage: 0, retention: 0, daysUntilDue: 0, isLeech: false }, null);
     var stageEl = document.getElementById('explorer-srs-stage');
     assert.ok(stageEl.innerHTML.indexOf('New') >= 0 || stageEl.innerHTML.indexOf('🆕') >= 0);
+  });
+
+  t('unstudied word replaces placeholder grid with single line', function() {
+    createProgressEls();
+    renderExplorerLearningProgress(TEST_WORDS[0], { status: 'new', stage: 0, retention: 0, daysUntilDue: 0, isLeech: false }, null);
+    // No SRS entry → grid hidden, single "not studied yet" line shown
+    assert.strictEqual(document.getElementById('explorer-progress-grid').style.display, 'none');
+    assert.strictEqual(document.getElementById('explorer-progress-empty').style.display, 'block');
   });
 
   t('unstudied word hides Next Review, Total Reviews, Retention rows', function() {
@@ -592,6 +602,9 @@ ts('Explorer — Learning Progress', function() {
     assert.ok(String(document.getElementById('explorer-review-count').textContent).indexOf('7') >= 0);
     assert.ok(document.getElementById('explorer-retention').textContent.indexOf('82%') >= 0);
     assert.ok(document.getElementById('explorer-next-review').innerHTML.indexOf('7 days') >= 0);
+    // Studied word keeps the real grid — no empty-state line
+    assert.notStrictEqual(document.getElementById('explorer-progress-grid').style.display, 'none');
+    assert.strictEqual(document.getElementById('explorer-progress-empty').style.display, 'none');
   });
 });
 

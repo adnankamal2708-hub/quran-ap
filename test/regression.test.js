@@ -709,6 +709,14 @@ suite('Words Section — Scroll & CSS Integrity', function() {
       statsContent.indexOf("contentEl.scrollTop = 0") >= 0;
     assert.ok(hasScroll, 'renderWordList must contain content.scrollTop = 0');
   });
+
+  // Test 1b: no default badge on unstudied rows — the star fallback must be
+  // gated behind an actual SRS entry so zero-data rows show no badge at all.
+  test('unstudied words render no default badge', function() {
+    var statsContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'stats-ui.js'), 'utf8');
+    assert.ok(statsContent.indexOf('Words with no SRS entry at') >= 0,
+      'badge star fallback must be gated behind an SRS entry');
+  });
   
   // Test 2: Explorer CSS classes present in styles.css
   test('Explorer header CSS classes exist in styles.css', function() {

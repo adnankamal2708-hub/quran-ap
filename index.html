@@ -978,7 +978,7 @@ getResults: function () { return _safeguardResults; },
         <section class="explorer-section" id="explorer-learning-progress" aria-label="Learning progress">
           <div class="explorer-section-title">📊 My Learning Progress</div>
           <div class="explorer-progress-card">
-            <div class="explorer-progress-grid">
+            <div class="explorer-progress-grid" id="explorer-progress-grid">
               <div class="explorer-progress-item">
                 <span class="explorer-progress-value" id="explorer-srs-stage">🆕</span>
                 <span class="explorer-progress-label">Mastery Status</span>
@@ -1004,6 +1004,8 @@ getResults: function () { return _safeguardResults; },
                 <span class="explorer-progress-label">Retention</span>
               </div>
             </div>
+            <!-- Unstudied words replace the placeholder grid with this single line -->
+            <div class="explorer-progress-empty" id="explorer-progress-empty">Not studied yet — see it in a lesson to track progress here.</div>
           </div>
         </section>
 

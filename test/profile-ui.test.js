@@ -485,6 +485,7 @@ ts('Profile — Progress: zero-data gating (new user)', function() {
     var html = document.getElementById('profile-progress').innerHTML;
     assert.ok(html.indexOf('SRS Health') < 0, 'SRS Health hidden for new user');
     assert.ok(html.indexOf('Avg Ease') < 0, 'raw Avg Ease parameter hidden for new user');
+    assert.ok(html.indexOf('Review Ease') < 0, 'Review Ease hidden for new user');
   });
 
   t('Review Forecast hidden at zero reviews', function() {
@@ -505,6 +506,9 @@ ts('Profile — Progress: zero-data gating (new user)', function() {
     assert.ok(html.indexOf('Avg Retention') >= 0, 'avg retention cell shown with 5+ reviews');
     assert.ok(html.indexOf('18%') >= 0, 'real comprehension value shown');
     assert.ok(html.indexOf('SRS Health') >= 0, 'SRS Health shown with 5+ reviews');
+    assert.ok(html.indexOf('Review Ease') >= 0, 'Review Ease label shown with 5+ reviews');
+    assert.ok(html.indexOf('Avg Ease') < 0, 'raw Avg Ease label removed');
+    assert.ok(html.indexOf('higher = more stable') >= 0, 'ease direction hint shown');
     assert.ok(html.indexOf('Review Forecast') >= 0, 'forecast shown with 5+ reviews');
   });
 

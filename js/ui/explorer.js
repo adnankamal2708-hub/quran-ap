@@ -578,6 +578,17 @@ function createExplorerChip(arabic, english, subtitle, currentWord) {
  * Render personal learning progress in the explorer.
  */
 function renderExplorerLearningProgress(w, srsStatus, srsEntry) {
+  // Unstudied word (no SRS entry): the placeholder grid of dashes/zeros is
+  // zero-noise — replace it with a single "not studied yet" line. Words with
+  // an SRS entry keep the real grid (individual rows still gate below 5
+  // reviews as before).
+  var progressGrid = DOM.get('explorer-progress-grid');
+  var progressEmpty = DOM.get('explorer-progress-empty');
+  if (progressGrid && progressEmpty) {
+    progressGrid.style.display = srsEntry ? '' : 'none';
+    progressEmpty.style.display = srsEntry ? 'none' : 'block';
+  }
+  
   // Mastery Status / SRS Stage — structured badge
   var stageEl = DOM.get('explorer-srs-stage');
   if (stageEl) {

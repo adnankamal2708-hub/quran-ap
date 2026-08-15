@@ -3955,6 +3955,16 @@ body::before {
   display: block;
 }
 
+/* Empty state for unstudied words — replaces the placeholder grid */
+.explorer-progress-empty {
+  display: none;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: center;
+  padding: 12px 4px 4px;
+}
+
 /* ── Learning Actions ── */
 /* ── Explorer Notes ── */
 .explorer-notes-input {
@@ -8211,6 +8221,15 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-top: 2px;
+}
+
+.profile-pstat-hint {
+  display: block;
+  font-size: 8px;
+  color: var(--text-muted);
+  font-style: italic;
+  opacity: 0.75;
+  margin-top: 1px;
 }
 
 /* ── Profile Sub-section Metric Grids (Insights, Reading, SRS, Calendar) ── */
