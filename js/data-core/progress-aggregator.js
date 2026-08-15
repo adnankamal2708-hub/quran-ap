@@ -126,7 +126,6 @@ function getLearningPathProgress() {
 function getPathRecommendation() {
   var progress = getLearningPathProgress();
   var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
-  var hasAnyReviews = Object.keys(srsData).length > 0;
   var now = Date.now();
   
   // ── Priority 1: Due reviews ──
@@ -237,19 +236,7 @@ function getPathRecommendation() {
     };
   }
   
-  // ── Priority 6: Explore stats — review achievements ──
-  if (hasAnyReviews) {
-    return {
-      pathId: 'stats',
-      label: 'Review Your Progress',
-      reason: 'You have made great progress! Review your learning statistics, achievements, and see how far you have come in understanding the Quran.',
-      icon: '\uD83D\uDCCA',
-      priority: 'low',
-      action: 'view-stats',
-    };
-  }
-  
-  // ── New user: Foundation Course ──
+  // ── Returning user with no pressing next step: Foundation Course ──
   return {
     pathId: 'foundation',
     label: 'Start Foundation Course',

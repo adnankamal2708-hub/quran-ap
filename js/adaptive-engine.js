@@ -347,9 +347,9 @@ function getSmartRecommendation() {
     return {
       icon: '📊',
       title: 'You have mastered ' + masteredCount + ' words',
-      message: 'Explore your analytics to see your learning journey and plan your next steps.',
-      action: 'View analytics',
-      actionType: 'analytics',
+      message: 'See your learning journey and plan your next steps in your profile.',
+      action: 'View profile',
+      actionType: 'profile',
     };
   }
 

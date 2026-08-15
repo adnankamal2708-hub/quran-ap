@@ -530,7 +530,7 @@ async function handleDeleteAccount() {
   var confirm1 = confirm('Are you sure you want to delete your account? This cannot be undone.');
   if (!confirm1) return;
 
-  var confirm2 = confirm('Type "DELETE" to confirm permanent account deletion.');
+  var confirm2 = confirm('Final warning: this permanently deletes your account and all learning data. This cannot be undone.');
   if (!confirm2) return;
 
   try {

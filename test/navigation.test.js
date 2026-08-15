@@ -79,10 +79,8 @@ global.updateReviewBanner = function() { _callLog.push('updateReviewBanner'); };
 global.updateLessonProgressDisplay = function() { _callLog.push('updateLessonProgressDisplay'); };
 global.initQuiz = function() { _callLog.push('initQuiz'); };
 global.renderWordList = function() { _callLog.push('renderWordList'); };
-global.renderStats = function() { _callLog.push('renderStats'); };
 global.renderProfileView = function() { _callLog.push('renderProfileView'); };
 global.renderExplorer = function() { _callLog.push('renderExplorer'); };
-global.renderAnalytics = function() { _callLog.push('renderAnalytics'); };
 global.renderQuran = function() { _callLog.push('renderQuran'); };
 global.updateWordCard = function() { _callLog.push('updateWordCard'); };
 
@@ -184,11 +182,6 @@ suite('switchView Dispatching', function() {
   test('switchView calls renderExplorer for explorer', function() {
     switchView('explorer');
     assert.ok(_callLog.indexOf('renderExplorer') >= 0);
-  });
-
-  test('switchView calls renderAnalytics for analytics', function() {
-    switchView('analytics');
-    assert.ok(_callLog.indexOf('renderAnalytics') >= 0);
   });
 
   test('switchView calls renderQuran for quran', function() {

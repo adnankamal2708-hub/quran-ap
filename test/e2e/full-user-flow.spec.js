@@ -501,11 +501,11 @@ test.describe('Dashboard', () => {
   test('bottom navigation switches views', async ({ page }) => {
     // Click each nav tab and verify the view switches
     const tabs = [
-      { tab: '#tab-learn', view: '#view-learn' },
+      { tab: '#tab-paths', view: '#view-learn' },
       { tab: '#tab-quiz', view: '#view-quiz' },
       { tab: '#tab-list', view: '#view-list' },
-      { tab: '#tab-stats', view: '#view-stats' },
-      { tab: '#tab-analytics', view: '#view-analytics' },
+      { tab: '#tab-quran', view: '#view-quran' },
+      { tab: '#tab-profile', view: '#view-profile' },
     ];
 
     for (const { tab, view } of tabs) {
@@ -515,18 +515,14 @@ test.describe('Dashboard', () => {
     }
   });
 
-  test('stats view shows learning metrics', async ({ page }) => {
-    await page.locator('#tab-stats').click();
+  test('profile view shows learning progress', async ({ page }) => {
+    await page.locator('#tab-profile').click();
     await page.waitForTimeout(500);
 
-    await expect(page.locator('#view-stats')).toBeVisible();
+    await expect(page.locator('#view-profile')).toBeVisible();
 
-    // Stats grid should be visible
-    await expect(page.locator('#stat-total')).toBeVisible();
-    await expect(page.locator('#stat-mastered')).toBeVisible();
-    await expect(page.locator('#stat-new-count')).toBeVisible();
-    await expect(page.locator('#stat-learning-count')).toBeVisible();
-    await expect(page.locator('#streak-count')).toBeVisible();
+    // Progress section should be visible
+    await expect(page.locator('#profile-progress')).toBeVisible();
   });
 });
 
@@ -564,11 +560,11 @@ test.describe('Bottom Nav Indicator', () => {
     const indicator = page.locator('#bn-indicator');
     const tabs = [
       { id: '#tab-dashboard', name: 'dashboard', index: 0 },
-      { id: '#tab-learn', name: 'learn', index: 1 },
+      { id: '#tab-paths', name: 'learn', index: 1 },
       { id: '#tab-quiz', name: 'quiz', index: 2 },
       { id: '#tab-list', name: 'list', index: 3 },
-      { id: '#tab-stats', name: 'stats', index: 4 },
-      { id: '#tab-analytics', name: 'analytics', index: 5 },
+      { id: '#tab-quran', name: 'quran', index: 4 },
+      { id: '#tab-profile', name: 'profile', index: 5 },
     ];
 
     // Measure indicator width once (stable across all tabs since they're equal-width)
@@ -594,7 +590,7 @@ test.describe('Bottom Nav Indicator', () => {
   });
 
   test('only one tab is ever active at a time', async ({ page }) => {
-    const tabs = ['#tab-dashboard', '#tab-learn', '#tab-quiz', '#tab-list', '#tab-stats', '#tab-analytics'];
+    const tabs = ['#tab-dashboard', '#tab-paths', '#tab-quiz', '#tab-list', '#tab-quran', '#tab-profile'];
 
     for (const tabId of tabs) {
       await page.locator(tabId).click();
@@ -647,7 +643,7 @@ test.describe('Bottom Nav Indicator', () => {
 
     const expectedTx = Math.round(4 * indicatorWidth);
     expect(tx).toBe(expectedTx);
-    await expect(page.locator('#tab-stats')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#tab-quran')).toHaveAttribute('aria-current', 'page');
   });
 
   test('browser refresh restores indicator on dashboard tab', async ({ page }) => {
@@ -692,9 +688,9 @@ test.describe('Bottom Nav Indicator', () => {
 
     // Rapidly click multiple tabs without waiting for animation
     await page.locator('#tab-quiz').click();
-    await page.locator('#tab-stats').click();
+    await page.locator('#tab-quran').click();
     await page.locator('#tab-list').click();
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
 
     // Wait for final animation to settle
     await page.waitForTimeout(600);
@@ -724,7 +720,7 @@ test.describe('Bottom Nav Indicator', () => {
     const indicator = page.locator('#bn-indicator');
     const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
 
-    await page.locator('#tab-analytics').click();
+    await page.locator('#tab-profile').click();
     await page.waitForTimeout(100);
 
     const tx = await indicator.evaluate(el => {
@@ -733,10 +729,10 @@ test.describe('Bottom Nav Indicator', () => {
       return match ? Math.round(parseFloat(match[1])) : -1;
     });
 
-    // Should be on analytics tab (index 5) — immediately, no transition delay
+    // Should be on profile tab (index 5) — immediately, no transition delay
     const expectedTx = Math.round(5 * indicatorWidth);
     expect(tx).toBe(expectedTx);
-    await expect(page.locator('#tab-analytics')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#tab-profile')).toHaveAttribute('aria-current', 'page');
   });
 });
 
@@ -838,10 +834,10 @@ test.describe('Keyboard Shortcuts', () => {
     await expect(page.locator('#view-list')).toBeVisible();
   });
 
-  test('S key switches to stats', async ({ page }) => {
-    await page.keyboard.press('s');
+  test('P key switches to profile', async ({ page }) => {
+    await page.keyboard.press('p');
     await page.waitForTimeout(500);
-    await expect(page.locator('#view-stats')).toBeVisible();
+    await expect(page.locator('#view-profile')).toBeVisible();
   });
 });
 
@@ -1186,76 +1182,29 @@ test.describe('Analytics View', () => {
     } catch (e) {}
   });
 
-  test('analytics tab renders content', async ({ page }) => {
-    await page.locator('#tab-analytics').click();
+  test('profile view renders progress content', async ({ page }) => {
+    await page.locator('#tab-profile').click();
     await page.waitForTimeout(1000);
 
-    await expect(page.locator('#view-analytics')).toBeVisible();
+    await expect(page.locator('#view-profile')).toBeVisible();
 
-    // Analytics tabs should be present
-    const tabs = page.locator('.analytics-tab');
-    const tabCount = await tabs.count();
-    expect(tabCount).toBeGreaterThanOrEqual(3);
+    // Progress section should be present
+    await expect(page.locator('#profile-progress')).toBeVisible();
+  });
 
-    // Analytics content area should be present
-    const content = page.locator('#analytics-content');
+  test('profile progress sub-tab is clickable', async ({ page }) => {
+    await page.locator('#tab-profile').click();
+    await page.waitForTimeout(1000);
+
+    // Click the Progress sub-tab
+    const progressTab = page.locator('.pf-tab').filter({ hasText: /Progress/i });
+    await expect(progressTab).toBeVisible();
+    await progressTab.click();
+    await page.waitForTimeout(500);
+
+    // Progress content should be visible
+    const content = page.locator('#profile-progress');
     await expect(content).toBeVisible();
-  });
-
-  test('overview tab shows learning stats', async ({ page }) => {
-    await page.locator('#tab-analytics').click();
-    await page.waitForTimeout(1000);
-
-    // Overview tab should be active by default and show stat cards
-    const overviewTab = page.locator('.analytics-tab-active');
-    await expect(overviewTab).toBeVisible();
-    await expect(overviewTab).toContainText(/Overview/i);
-
-    // Content area should have analytics content
-    const content = page.locator('#analytics-content');
-    await expect(content).not.toBeEmpty();
-  });
-
-  test('trends tab is clickable', async ({ page }) => {
-    await page.locator('#tab-analytics').click();
-    await page.waitForTimeout(1000);
-
-    // Click the Trends tab
-    const trendsTab = page.locator('.analytics-tab').filter({ hasText: /Trends/i });
-    await expect(trendsTab).toBeVisible();
-    await trendsTab.click();
-    await page.waitForTimeout(500);
-
-    // Should have content
-    const content = page.locator('#analytics-content');
-    await expect(content).not.toBeEmpty();
-  });
-
-  test('insights tab is clickable', async ({ page }) => {
-    await page.locator('#tab-analytics').click();
-    await page.waitForTimeout(1000);
-
-    // Click the Insights tab
-    const insightsTab = page.locator('.analytics-tab').filter({ hasText: /Insights/i });
-    await expect(insightsTab).toBeVisible();
-    await insightsTab.click();
-    await page.waitForTimeout(500);
-
-    const content = page.locator('#analytics-content');
-    await expect(content).not.toBeEmpty();
-  });
-
-  test('achievements tab is clickable', async ({ page }) => {
-    await page.locator('#tab-analytics').click();
-    await page.waitForTimeout(1000);
-
-    const achievementsTab = page.locator('.analytics-tab').filter({ hasText: /Achievements/i });
-    await expect(achievementsTab).toBeVisible();
-    await achievementsTab.click();
-    await page.waitForTimeout(500);
-
-    const content = page.locator('#analytics-content');
-    await expect(content).not.toBeEmpty();
   });
 });
 
@@ -1317,11 +1266,11 @@ test.describe('Progress Persistence', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    // Navigate to stats to check SRS data persisted
-    await page.locator('#tab-stats').click();
+    // Navigate to profile to check SRS data persisted
+    await page.locator('#tab-profile').click();
     await page.waitForTimeout(500);
 
-    await expect(page.locator('#view-stats')).toBeVisible();
+    await expect(page.locator('#view-profile')).toBeVisible();
   });
 });
 

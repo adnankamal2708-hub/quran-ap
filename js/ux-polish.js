@@ -47,7 +47,7 @@ var _welcomeSlides = [
   {
     icon: '📖',
     title: 'Read with Interactive Words',
-    desc: 'Every vocabulary word in the Quran view is color-coded by your mastery level. Tap any word to see its meaning, root, and tafsir — turning reading into active learning.',
+    desc: 'Every vocabulary word in the Quran view is color-coded by your mastery level. Tap a studied word to see its meaning, root, and tafsir — turning reading into active learning.',
     highlight: 'quran'
   },
   {
@@ -209,7 +209,7 @@ function createOnboardingOverlay() {
       '<div class="onboarding-dots" id="onboarding-dots"></div>' +
       '<div class="onboarding-nav">' +
         '<button class="btn btn-sm btn-outline" id="onboarding-prev" type="button" aria-label="Previous">← Back</button>' +
-        '<button class="btn btn-sm" id="onboarding-next" type="button" aria-label="Next">Start Lesson →</button>' +
+        '<button class="btn btn-sm" id="onboarding-next" type="button" aria-label="Next">Next →</button>' +
       '</div>' +
     '</div>';
 
@@ -355,7 +355,7 @@ function renderOnboardingScreen(idx) {
       nextBtn.textContent = 'Personalize →';
       nextBtn.className = 'btn btn-sm';
     } else {
-      nextBtn.textContent = 'Start Lesson →';
+      nextBtn.textContent = 'Next →';
       nextBtn.className = 'btn btn-sm';
     }
   }
@@ -437,7 +437,7 @@ function showPlanPicker() {
           '<ul class="plan-card-features">' +
             '<li>Full Foundation Course</li>' +
             '<li>Basic reviews &amp; quizzes</li>' +
-            '<li>Standard vocabulary sets</li>' +
+            '<li>Top 300 Quranic words</li>' +
           '</ul>' +
         '</button>' +
         // Monthly plan
@@ -447,6 +447,7 @@ function showPlanPicker() {
           '<div class="plan-card-price">$2.99<span class="plan-card-period">/mo</span></div>' +
           '<ul class="plan-card-features">' +
             '<li>Everything in Free</li>' +
+            '<li>All 1,207 Quranic words</li>' +
             '<li>Unlimited reviews &amp; tafsir</li>' +
             '<li>Full word relationships</li>' +
             '<li>Guided Reading &amp; insights</li>' +
@@ -903,8 +904,6 @@ function getProgressiveVisibility() {
     showExplorer: unlocked.explorer || totalReviews >= 10,
     // Show SRS health stats after 20+ reviews
     showSRSHealth: unlocked.srsHealth || totalReviews >= 20,
-    // Show analytics after 30+ reviews
-    showAnalytics: unlocked.analytics || totalReviews >= 30,
     // Show quran after completing 1 lesson
     showQuran: unlocked.quran || completedLessons >= 1 || totalReviews > 0,
     // Show advanced filters after 50+ reviews
@@ -942,12 +941,6 @@ function applyProgressiveDisclosure() {
   var tabExplorer = document.getElementById('tab-explorer');
   if (tabExplorer) {
     tabExplorer.style.display = vis.showExplorer ? '' : 'none';
-  }
-
-  // Analytics tab
-  var tabAnalytics = document.getElementById('tab-analytics');
-  if (tabAnalytics) {
-    tabAnalytics.style.display = vis.showAnalytics ? '' : 'none';
   }
 
   // SRS rating buttons visibility (show after first word card)

@@ -688,10 +688,11 @@ suite('renderReviewCenter — Reviews Due Section', function() {
 });
 
 suite('renderReviewCenter — Sections', function() {
-  test('shows Today Progress section', function() {
+  test('shows Today Progress section when reviews exist', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
+    _mockSRSStats = { total: 100, mature: 5, dueToday: 1, totalReviews: 200, reviewsToday: 3, newCount: 30, learning: 10, young: 5, overdue: 0, avgRetention: 85 };
 
     renderReviewCenter();
     var html = grid._innerHTML;
@@ -699,6 +700,17 @@ suite('renderReviewCenter — Sections', function() {
     assert.ok(html.indexOf('Reviews Today') >= 0, 'should have reviews today stat');
     assert.ok(html.indexOf('Total Reviews') >= 0, 'should have total reviews stat');
     assert.ok(html.indexOf('Words Mastered') >= 0, 'should have words mastered stat');
+  });
+
+  test('hides Today Progress section at zero data', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+
+    renderReviewCenter();
+    var html = grid._innerHTML;
+    assert.ok(html.indexOf("Today's Progress") < 0, 'should not show today progress with no reviews');
+    assert.ok(html.indexOf('Reviews Today') < 0, 'should not show reviews today stat');
   });
 
   test('shows Smart Prioritization section', function() {
@@ -823,7 +835,21 @@ suite('renderReviewCenter — Difficult Words Section', function() {
 });
 
 suite('Event Wiring — Mode Cards', function() {
-  test('#rc-mode-srs click calls startReview', function() {
+  test('#rc-mode-srs click calls startReview when reviews due', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    var srsBtn = makeEl('div');
+    srsBtn.id = 'rc-mode-srs';
+    _elementsById['rc-mode-srs'] = srsBtn;
+    _mockDueReviews = [{ id: 'w1' }];
+
+    renderReviewCenter();
+    srsBtn.click();
+    assert.ok(_callLog.indexOf('startReview') >= 0, 'startReview should be called');
+  });
+
+  test('#rc-mode-srs click at zero data gives feedback instead of silent no-op', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -833,10 +859,26 @@ suite('Event Wiring — Mode Cards', function() {
 
     renderReviewCenter();
     srsBtn.click();
+    assert.ok(_callLog.indexOf('startReview') < 0, 'startReview should NOT be called at zero data');
+    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
+  });
+
+  test('#rc-mode-quick click calls toggleQuickMode and startReview when reviews due', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    var quickBtn = makeEl('div');
+    quickBtn.id = 'rc-mode-quick';
+    _elementsById['rc-mode-quick'] = quickBtn;
+    _mockDueReviews = [{ id: 'w1' }];
+
+    renderReviewCenter();
+    quickBtn.click();
+    assert.ok(_callLog.indexOf('toggleQuickMode') >= 0, 'toggleQuickMode should be called');
     assert.ok(_callLog.indexOf('startReview') >= 0, 'startReview should be called');
   });
 
-  test('#rc-mode-quick click calls toggleQuickMode and startReview', function() {
+  test('#rc-mode-quick click at zero data gives feedback instead of silent no-op', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -846,8 +888,9 @@ suite('Event Wiring — Mode Cards', function() {
 
     renderReviewCenter();
     quickBtn.click();
-    assert.ok(_callLog.indexOf('toggleQuickMode') >= 0, 'toggleQuickMode should be called');
-    assert.ok(_callLog.indexOf('startReview') >= 0, 'startReview should be called');
+    assert.ok(_callLog.indexOf('toggleQuickMode') < 0, 'toggleQuickMode should NOT be called at zero data');
+    assert.ok(_callLog.indexOf('startReview') < 0, 'startReview should NOT be called at zero data');
+    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
   });
 
   test('#rc-mode-root click calls goToRootFamily', function() {
@@ -876,7 +919,21 @@ suite('Event Wiring — Mode Cards', function() {
     assert.ok(_callLog.indexOf('switchView:quran') >= 0, 'should switch to quran');
   });
 
-  test('#rc-mode-mixed click calls startMixedReview', function() {
+  test('#rc-mode-mixed click calls startMixedReview when reviews due', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    var mixedBtn = makeEl('div');
+    mixedBtn.id = 'rc-mode-mixed';
+    _elementsById['rc-mode-mixed'] = mixedBtn;
+    _mockDueReviews = [{ id: 'w1' }];
+
+    renderReviewCenter();
+    mixedBtn.click();
+    assert.ok(_callLog.indexOf('startMixedReview') >= 0, 'startMixedReview should be called');
+  });
+
+  test('#rc-mode-mixed click at zero data gives feedback instead of silent no-op', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -886,10 +943,25 @@ suite('Event Wiring — Mode Cards', function() {
 
     renderReviewCenter();
     mixedBtn.click();
-    assert.ok(_callLog.indexOf('startMixedReview') >= 0, 'startMixedReview should be called');
+    assert.ok(_callLog.indexOf('startMixedReview') < 0, 'startMixedReview should NOT be called at zero data');
+    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
   });
 
-  test('#rc-mode-weakest click calls startReview', function() {
+  test('#rc-mode-weakest click calls startReview when reviews due', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    var weakestBtn = makeEl('div');
+    weakestBtn.id = 'rc-mode-weakest';
+    _elementsById['rc-mode-weakest'] = weakestBtn;
+    _mockDueReviews = [{ id: 'w1' }];
+
+    renderReviewCenter();
+    weakestBtn.click();
+    assert.ok(_callLog.indexOf('startReview') >= 0, 'startReview should be called');
+  });
+
+  test('#rc-mode-weakest click at zero data gives feedback instead of silent no-op', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -899,7 +971,8 @@ suite('Event Wiring — Mode Cards', function() {
 
     renderReviewCenter();
     weakestBtn.click();
-    assert.ok(_callLog.indexOf('startReview') >= 0, 'startReview should be called');
+    assert.ok(_callLog.indexOf('startReview') < 0, 'startReview should NOT be called at zero data');
+    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
   });
 });
 

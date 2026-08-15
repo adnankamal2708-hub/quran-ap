@@ -16,8 +16,8 @@ window.__validation = (function() {
 
   /** Valid view names that switchView can navigate to */
   var VALID_ROUTES = [
-    'dashboard', 'learn', 'quiz', 'list', 'stats',
-    'analytics', 'explorer', 'auth', 'profile', 'settings',
+    'dashboard', 'learn', 'quiz', 'list',
+    'explorer', 'auth', 'profile', 'settings',
   ];
 
   /** Map of route → required DOM element ID */
@@ -26,8 +26,6 @@ window.__validation = (function() {
     learn: 'view-learn',
     quiz: 'view-quiz',
     list: 'view-list',
-    stats: 'view-stats',
-    analytics: 'view-analytics',
     explorer: 'view-explorer',
     auth: 'view-auth',
     profile: 'view-profile',
@@ -39,8 +37,6 @@ window.__validation = (function() {
     learn: 'updateWordCard',
     quiz: 'initQuiz',
     list: 'renderWordList',
-    stats: 'renderStats',
-    analytics: 'renderAnalytics',
     explorer: 'renderExplorer',
     profile: 'renderProfileView',
   };
@@ -48,7 +44,7 @@ window.__validation = (function() {
   /** Bottom nav tab IDs */
   var NAV_IDS = [
     'tab-dashboard', 'tab-learn', 'tab-quiz',
-    'tab-list', 'tab-stats', 'tab-analytics',
+    'tab-list',
   ];
 
   /** Map of element IDs expected to have onclick handlers */
@@ -58,8 +54,6 @@ window.__validation = (function() {
     'tab-learn': { purpose: 'Navigate to learn view' },
     'tab-quiz': { purpose: 'Navigate to quiz' },
     'tab-list': { purpose: 'Navigate to word list' },
-    'tab-stats': { purpose: 'Navigate to stats' },
-    'tab-analytics': { purpose: 'Navigate to analytics' },
     // Card interactions (set dynamically)
   };
 

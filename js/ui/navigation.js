@@ -98,10 +98,6 @@ function switchView(viewName) {
     if (typeof renderExplorer === 'function') renderExplorer();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderExplorer() not found');
   }
-  if (viewName === 'analytics') {
-    if (typeof renderAnalytics === 'function') renderAnalytics();
-    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderAnalytics() not found');
-  }
   if (viewName === 'quran') {
     if (typeof renderQuran === 'function') renderQuran();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderQuran() not found');
@@ -500,9 +496,6 @@ function rerenderCurrentView() {
   }
   if (viewName === 'explorer') {
     if (typeof renderExplorer === 'function') renderExplorer();
-  }
-  if (viewName === 'analytics') {
-    if (typeof renderAnalytics === 'function') renderAnalytics();
   }
   if (viewName === 'quran') {
     if (typeof renderQuran === 'function') renderQuran();

@@ -988,6 +988,8 @@ function renderDashboard() {
     } else if (actionType === 'root-family') {
       if (typeof goToRootFamily === 'function') goToRootFamily();
       else if (typeof switchView === 'function') switchView('learn');
+    } else if (actionType === 'profile') {
+      if (typeof switchView === 'function') switchView('profile');
     } else {
       if (typeof switchView === 'function') switchView('learn');
     }

@@ -301,7 +301,7 @@ window.__diag = (function() {
     });
 
     // Check navigation
-    var navIds = ['tab-dashboard', 'tab-learn', 'tab-quiz', 'tab-list', 'tab-stats', 'tab-analytics'];
+    var navIds = ['tab-dashboard', 'tab-learn', 'tab-quiz', 'tab-list'];
     var navOk = 0;
     navIds.forEach(function(id) {
       if (document.getElementById(id)) navOk++;
@@ -313,7 +313,7 @@ window.__diag = (function() {
     });
 
     // Check view containers
-    var viewIds = ['view-dashboard', 'view-learn', 'view-quiz', 'view-list', 'view-stats', 'view-analytics'];
+    var viewIds = ['view-dashboard', 'view-learn', 'view-quiz', 'view-list'];
     var viewOk = 0;
     viewIds.forEach(function(id) {
       if (document.getElementById(id)) viewOk++;

@@ -531,17 +531,23 @@ function renderReviewCenter() {
   $h += '</div></div>';
 
   // ═══ SECTION 10: SESSION HISTORY (quick summary) ═══
-  $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">📊</span> Today\'s Progress</div>';
-  $h += '<div class="rc-card">';
-  $h += '<div class="rc-today-grid">';
-  $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.reviewsToday + '</div><div class="rc-today-label">Reviews Today</div></div>';
-  $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.totalReviews + '</div><div class="rc-today-label">Total Reviews</div></div>';
-  $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.masteredCount + '</div><div class="rc-today-label">Words Mastered</div></div>';
-  if ($data.showRetention) {
-    $h += '<div class="rc-today-item"><div class="rc-today-value">' + ($data.retention || 0) + '%</div><div class="rc-today-label">Retention</div></div>';
+  // Gated behind real review activity — at zero data, "Reviews Today 0 / Total 0 /
+  // Mastered 0" is meaningless zero-noise (same pattern as the Dashboard/Profile
+  // zero-data gates). totalReviews covers reviewsToday and mastered, so it is the
+  // single sufficient condition.
+  if ($data.totalReviews > 0) {
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">📊</span> Today\'s Progress</div>';
+    $h += '<div class="rc-card">';
+    $h += '<div class="rc-today-grid">';
+    $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.reviewsToday + '</div><div class="rc-today-label">Reviews Today</div></div>';
+    $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.totalReviews + '</div><div class="rc-today-label">Total Reviews</div></div>';
+    $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.masteredCount + '</div><div class="rc-today-label">Words Mastered</div></div>';
+    if ($data.showRetention) {
+      $h += '<div class="rc-today-item"><div class="rc-today-value">' + ($data.retention || 0) + '%</div><div class="rc-today-label">Retention</div></div>';
+    }
+    $h += '</div>';
+    $h += '</div>';
   }
-  $h += '</div>';
-  $h += '</div>';
 
   // Forecast (review workload for next 1w-2w)
   if ($data.forecast && $data.forecast.length > 0) {
@@ -594,12 +600,30 @@ function wireReviewCenterEvents($data) {
   });
 
   // ── Review Mode cards ──
+  // Silent-no-op guard: startReview()/startMixedReview() return early on an empty
+  // queue, so at zero data the mode cards used to do nothing on click — a genuine
+  // "looks broken" bug. Now they give feedback and land somewhere useful instead.
+  function $withReviews(action) {
+    if ($data.dueCount > 0 && typeof action === 'function') { action(); return; }
+    var $newUser = $data.masteredCount === 0 && $data.totalReviews === 0;
+    var $msg = $newUser
+      ? 'Complete your first lesson to unlock reviews'
+      : 'No reviews due right now — your queue is clear';
+    if (window.__ux && typeof window.__ux.showToast === 'function') {
+      window.__ux.showToast($msg, 'info');
+    }
+    if (typeof switchView === 'function') switchView('learn');
+  }
   $wire('rc-mode-srs', function() {
-    if (typeof startReview === 'function') startReview();
+    $withReviews(function() {
+      if (typeof startReview === 'function') startReview();
+    });
   });
   $wire('rc-mode-quick', function() {
-    if (typeof toggleQuickMode === 'function') toggleQuickMode();
-    if (typeof startReview === 'function') startReview();
+    $withReviews(function() {
+      if (typeof toggleQuickMode === 'function') toggleQuickMode();
+      if (typeof startReview === 'function') startReview();
+    });
   });
   $wire('rc-mode-root', function() {
     if (typeof goToRootFamily === 'function') goToRootFamily();
@@ -609,11 +633,15 @@ function wireReviewCenterEvents($data) {
     if (typeof switchView === 'function') switchView('quran');
   });
   $wire('rc-mode-mixed', function() {
-    if (typeof startMixedReview === 'function') startMixedReview();
+    $withReviews(function() {
+      if (typeof startMixedReview === 'function') startMixedReview();
+    });
   });
   $wire('rc-mode-weakest', function() {
     // Start review with leeched/difficult words only
-    if (typeof startReview === 'function') startReview();
+    $withReviews(function() {
+      if (typeof startReview === 'function') startReview();
+    });
     // Note: startReview already prioritizes leeched words first
   });
 
