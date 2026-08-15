@@ -962,7 +962,7 @@ function renderAnalyticsInsightsPage(analytics) {
       html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:16px;font-weight:700;color:var(--green)">' + matureWords + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Mature</div><div style="font-size:9px;color:var(--green);margin-top:2px">' + maturePct + '%</div></div>';
       html += '</div>';
       html += '<div style="display:flex;gap:8px">';
-      html += '<div class="ai-metric-sm" style="flex:1"><div class="ai-value-xs ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</div><span class="ai-label-xs">Avg ease factor</span></div>';
+      html += '<div class="ai-metric-sm" style="flex:1"><div class="ai-value-xs ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</div><span class="ai-label-xs">Review Ease</span></div>';
       html += '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:600;color:' + (srsStats.leechCount > 0 ? 'var(--red)' : 'var(--text)') + '">' + (srsStats.leechCount || 0) + '</div><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Leeched words</div></div>';
       html += '</div>';
     } else {
