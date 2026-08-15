@@ -21,6 +21,15 @@ async function setup(page) {
     await page.locator('#onboarding-skip').click();
     await page.waitForTimeout(500);
   } catch (_) {}
+  // Dismiss the auto-shown plan picker for free users
+  try {
+    await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 2000 });
+    const skipBtn = page.locator('#plan-picker-skip');
+    if (await skipBtn.isVisible()) await skipBtn.click();
+    await page.waitForTimeout(300);
+  } catch (_) {}
+  // App lands on the Foundation lesson for new users — land on dashboard
+  await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
   await page.waitForSelector('#view-dashboard', { timeout: 5000 });
 }
 
@@ -84,8 +93,8 @@ const VIEWS = [
   },
   {
     id: 'view-learn',
-    tab: '#tab-learn',
-    selectors: ['#word-card', '#arabic-word', '#meaning', '#lesson-label'],
+    tab: '#tab-paths',
+    selectors: ['#word-card', '#arabic-word', '#meaning', '#lesson-progress-text'],
     label: 'Learn',
   },
   {
@@ -95,15 +104,15 @@ const VIEWS = [
     label: 'Words',
   },
   {
-    id: 'view-reader',
-    tab: '#tab-reader',
+    id: 'view-quran',
+    tab: '#tab-quran',
     selectors: ['.quran-surah-list', '.quran-surah-item'],
     label: 'Quran',
   },
   {
     id: 'view-profile',
     tab: '#tab-profile',
-    selectors: ['.profile-container', '.profile-avatar', '.profile-tabs'],
+    selectors: ['.profile-container', '.profile-avatar', '.pf-tab-bar'],
     label: 'Profile',
   },
 ];

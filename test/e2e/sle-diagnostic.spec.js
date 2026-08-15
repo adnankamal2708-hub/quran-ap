@@ -15,8 +15,10 @@ test.describe('Smart Learning Engine E2E', () => {
       }
     });
 
-    // Navigate to app
+    // Navigate to app (fresh state)
     await page.goto('/');
+    await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+    await page.reload();
 
     // Wait for splash screen to disappear (max 10s)
     // The splash has class 'splash-screen' and gets 'splash-hidden' class
@@ -29,6 +31,21 @@ test.describe('Smart Learning Engine E2E', () => {
     // Wait a bit more for the app to fully initialize
     await page.waitForTimeout(3000);
 
+    // Dismiss onboarding + auto-shown plan picker, land on dashboard
+    try {
+      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      await page.locator('#onboarding-skip').click();
+      await page.waitForTimeout(500);
+    } catch (e) {}
+    try {
+      await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 2000 });
+      const skipBtn = page.locator('#plan-picker-skip');
+      if (await skipBtn.isVisible()) await skipBtn.click();
+      await page.waitForTimeout(300);
+    } catch (e) {}
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
+    await page.waitForSelector('#view-dashboard', { timeout: 5000 });
+
     // Check for JS errors
     console.log('Console errors:', consoleErrors.length > 0 ? consoleErrors : 'none');
 
@@ -38,9 +55,10 @@ test.describe('Smart Learning Engine E2E', () => {
     });
     console.log('window.__smartLearning exists:', sleExists);
 
+    // 2. Get recommendations (declared outside the if so the assertion below can use it)
+    let recs = null;
     if (sleExists) {
-      // 2. Get recommendations
-      const recs = await page.evaluate(() => {
+      recs = await page.evaluate(() => {
         try {
           return window.__smartLearning.getScoredRecommendations();
         } catch (e) {
@@ -97,7 +115,7 @@ test.describe('Smart Learning Engine E2E', () => {
     console.log('Bundle initialization:', JSON.stringify(bundleInitCheck));
 
     // 6. Navigate to Learn view and check learn screen header
-    await page.click('#tab-learn');
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('learn'); });
     await page.waitForTimeout(2000);
 
     const learnContent = await page.evaluate(() => {

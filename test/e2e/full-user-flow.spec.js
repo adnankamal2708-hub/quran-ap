@@ -37,6 +37,31 @@ async function waitAndSee(page, selector, timeout = 5000) {
   await page.waitForSelector(selector, { state: 'visible', timeout });
 }
 
+// ── Helper: Dismiss the auto-shown plan picker overlay ─────────
+// The app auto-shows the plan picker for free users right after onboarding.
+// Tests that interact with the app UI afterwards must dismiss it first,
+// otherwise the overlay intercepts clicks (pre-existing suite issue).
+async function dismissPlanPicker(page) {
+  try {
+    await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 1500 });
+    const skipBtn = page.locator('#plan-picker-skip');
+    if (await skipBtn.isVisible()) {
+      await skipBtn.click();
+      await page.waitForTimeout(300);
+    }
+  } catch (e) { /* overlay not shown — fine */ }
+}
+
+// ── Helper: Skip onboarding + dismiss plan picker ──────────────
+async function skipOnboarding(page) {
+  try {
+    await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+    await page.locator('#onboarding-skip').click();
+    await page.waitForTimeout(500);
+  } catch (e) {}
+  await dismissPlanPicker(page);
+}
+
 // ── Onboarding Tour ────────────────────────────────────────────
 
 test.describe('Onboarding Tour', () => {
@@ -102,13 +127,14 @@ test.describe('Onboarding Tour', () => {
     await nextBtn.click();
     await page.waitForTimeout(300);
 
-    // Last slide should show the final slide content (e.g., Sync & Offline Mode)
-    // and the Next button should have transitioned to "Get Started" / "Start"
+    // The 6th welcome slide is "Your Journey Begins" — the last intro slide
+    // before personalization — and the Next button transitions to
+    // "Personalize →" (no longer "Start Lesson" / a removed Sync slide).
     const nextBtnText = await nextBtn.textContent();
     const slideText = await slide.textContent();
-    const isLastSlide = nextBtnText.match(/Get Started|Start|Done|Finish/i) !== null ||
-                        slideText.match(/Sync|Offline|Complete/i) !== null;
-    expect(isLastSlide).toBeTruthy();
+    const isLastWelcomeSlide = nextBtnText.match(/Personalize/i) !== null ||
+                               slideText.match(/Your Journey Begins/i) !== null;
+    expect(isLastWelcomeSlide).toBeTruthy();
   });
 
   test('skip button dismisses the tour', async ({ page }) => {
@@ -125,14 +151,15 @@ test.describe('Onboarding Tour', () => {
   });
 
   test('revisit onboarding from settings', async ({ page }) => {
-    // Dismiss first onboarding
+    // Dismiss first onboarding + plan picker
     await waitAndSee(page, '#onboarding-overlay');
     await page.locator('#onboarding-skip').click();
     await page.waitForTimeout(500);
+    await dismissPlanPicker(page);
 
     // Go to profile/settings
-    await page.locator('#user-btn').click();
-    await page.waitForTimeout(500);
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('profile'); });
+    await page.waitForTimeout(800);
 
     // Look for revisit onboarding button
     const revisitBtn = page.locator('#btn-revisit-onboarding');
@@ -156,14 +183,11 @@ test.describe('Onboarding Tour', () => {
 test.describe('Foundation Lesson Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Skip onboarding
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {
-      // Onboarding may not appear if already completed
-    }
+    // Skip onboarding + plan picker
+    await skipOnboarding(page);
+    // App lands on the Foundation lesson (learn view) for new users; these
+    // tests exercise the dashboard, so land on it.
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
   });
 
@@ -178,7 +202,7 @@ test.describe('Foundation Lesson Flow', () => {
 
   test('foundation lesson navigation', async ({ page }) => {
     // Navigate to learn view
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await expect(page.locator('#view-learn')).toBeVisible();
 
@@ -196,23 +220,25 @@ test.describe('Foundation Lesson Flow', () => {
   });
 
   test('word card displays correctly', async ({ page }) => {
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
-    // Verify word card elements
+    // Verify word card elements. Note: #root-box (root analysis) is gated
+    // behind progressive disclosure for new users (>=3 completed Foundation
+    // lessons), so it is hidden at this point — that's intentional.
     await expect(page.locator('#arabic-word')).toBeVisible();
     await expect(page.locator('#transliteration')).toBeVisible();
     await expect(page.locator('#word-type')).toBeVisible();
     await expect(page.locator('#meaning')).toBeVisible();
     await expect(page.locator('#occurrences')).toBeVisible();
     await expect(page.locator('#sr-pill')).toBeVisible();
-    await expect(page.locator('#root-box')).toBeVisible();
+    await expect(page.locator('#qa-root-family')).toBeVisible();
   });
 
   test('navigate between words with prev/next', async ({ page }) => {
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
@@ -237,12 +263,8 @@ test.describe('Foundation Lesson Flow', () => {
 test.describe('SRS Rating', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
-    await page.locator('#tab-learn').click();
+    await skipOnboarding(page);
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
@@ -286,22 +308,18 @@ test.describe('SRS Rating', () => {
 test.describe('Quiz Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    await skipOnboarding(page);
   });
 
   test('quiz view shows questions after navigating from lesson', async ({ page }) => {
     // Start with foundation lesson, then go to quiz
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
-    // Navigate to quiz
-    await page.locator('#tab-quiz').click();
+    // Navigate to quiz (reached via switchView — no nav tab for quiz)
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('quiz'); });
     await page.waitForTimeout(500);
 
     await expect(page.locator('#view-quiz')).toBeVisible();
@@ -316,12 +334,12 @@ test.describe('Quiz Flow', () => {
   });
 
   test('answering quiz moves to next question', async ({ page }) => {
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
-    await page.locator('#tab-quiz').click();
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('quiz'); });
     await page.waitForTimeout(500);
 
     // Answer first question
@@ -342,12 +360,12 @@ test.describe('Quiz Flow', () => {
   });
 
   test('quiz completes with score display', async ({ page }) => {
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
-    await page.locator('#tab-quiz').click();
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('quiz'); });
     await page.waitForTimeout(500);
 
     // Answer all quiz questions (foundation lesson 1 has 10 words)
@@ -399,7 +417,7 @@ test.describe('Review Banner & SRS Review', () => {
       localStorage.clear();
       const dueDate = Date.now() - 86400000; // 1 day overdue
       const srsData = {
-        'cw_0': {
+        'w_0': {
           dueDate: dueDate,
           interval: 1,
           lastRating: 2,
@@ -422,7 +440,7 @@ test.describe('Review Banner & SRS Review', () => {
     await page.waitForTimeout(1500);
 
     // Navigate to learn view
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
 
     // Review banner should be visible
@@ -438,7 +456,7 @@ test.describe('Review Banner & SRS Review', () => {
       localStorage.clear();
       const dueDate = Date.now() - 86400000;
       const srsData = {
-        'cw_0': {
+        'w_0': {
           dueDate: dueDate,
           interval: 1,
           lastRating: 2,
@@ -460,7 +478,7 @@ test.describe('Review Banner & SRS Review', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
 
     // Click review button
@@ -478,11 +496,10 @@ test.describe('Review Banner & SRS Review', () => {
 test.describe('Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    await skipOnboarding(page);
+    // After onboarding + plan picker the app lands on the Foundation lesson
+    // (learn view). These tests exercise the dashboard, so land on it.
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
   });
 
@@ -502,7 +519,6 @@ test.describe('Dashboard', () => {
     // Click each nav tab and verify the view switches
     const tabs = [
       { tab: '#tab-paths', view: '#view-learn' },
-      { tab: '#tab-quiz', view: '#view-quiz' },
       { tab: '#tab-list', view: '#view-list' },
       { tab: '#tab-quran', view: '#view-quran' },
       { tab: '#tab-profile', view: '#view-profile' },
@@ -517,12 +533,17 @@ test.describe('Dashboard', () => {
 
   test('profile view shows learning progress', async ({ page }) => {
     await page.locator('#tab-profile').click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(800);
 
     await expect(page.locator('#view-profile')).toBeVisible();
 
+    // Profile defaults to the Account sub-tab — open Progress & Insights
+    await page.locator('.pf-tab[data-pf-tab="progress"]').click();
+    await page.waitForTimeout(500);
+
     // Progress section should be visible
     await expect(page.locator('#profile-progress')).toBeVisible();
+    await expect(page.locator('#profile-progress').locator('.profile-pstat').first()).toBeVisible();
   });
 });
 
@@ -531,11 +552,10 @@ test.describe('Dashboard', () => {
 test.describe('Bottom Nav Indicator', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    await skipOnboarding(page);
+    // After onboarding + plan picker the app lands on the Foundation lesson
+    // (learn view). These tests exercise the bottom nav, so land on dashboard.
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
   });
 
@@ -543,14 +563,25 @@ test.describe('Bottom Nav Indicator', () => {
     const indicator = page.locator('#bn-indicator');
     await expect(indicator).toBeVisible();
 
+    // Wait for the indicator transition to fully settle on dashboard (index 0).
+    // The indicator animates (350ms spring) from the post-onboarding Learn
+    // position to Dashboard, so wait until it has effectively stopped (tx≈0).
+    await page.waitForFunction(() => {
+      const el = document.getElementById('bn-indicator');
+      if (!el) return false;
+      const m = window.getComputedStyle(el).transform;
+      const match = m && m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match && Math.abs(parseFloat(match[1])) < 0.5;
+    }, { timeout: 5000 });
+
     const tx = await indicator.evaluate(el => {
       const m = window.getComputedStyle(el).transform;
       const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1])) : -1;
+      return match ? Math.round(parseFloat(match[1]) || 0) : -1;
     });
 
     // Dashboard is first tab (index 0) → translateX = 0
-    expect(tx).toBe(0);
+    expect(Math.abs(tx)).toBe(0);
 
     // Dashboard tab should have aria-current="page"
     await expect(page.locator('#tab-dashboard')).toHaveAttribute('aria-current', 'page');
@@ -561,10 +592,9 @@ test.describe('Bottom Nav Indicator', () => {
     const tabs = [
       { id: '#tab-dashboard', name: 'dashboard', index: 0 },
       { id: '#tab-paths', name: 'learn', index: 1 },
-      { id: '#tab-quiz', name: 'quiz', index: 2 },
-      { id: '#tab-list', name: 'list', index: 3 },
-      { id: '#tab-quran', name: 'quran', index: 4 },
-      { id: '#tab-profile', name: 'profile', index: 5 },
+      { id: '#tab-list', name: 'list', index: 2 },
+      { id: '#tab-quran', name: 'quran', index: 3 },
+      { id: '#tab-profile', name: 'profile', index: 4 },
     ];
 
     // Measure indicator width once (stable across all tabs since they're equal-width)
@@ -590,7 +620,7 @@ test.describe('Bottom Nav Indicator', () => {
   });
 
   test('only one tab is ever active at a time', async ({ page }) => {
-    const tabs = ['#tab-dashboard', '#tab-paths', '#tab-quiz', '#tab-list', '#tab-quran', '#tab-profile'];
+    const tabs = ['#tab-dashboard', '#tab-paths', '#tab-list', '#tab-quran', '#tab-profile'];
 
     for (const tabId of tabs) {
       await page.locator(tabId).click();
@@ -612,8 +642,27 @@ test.describe('Bottom Nav Indicator', () => {
     const indicator = page.locator('#bn-indicator');
     const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
 
-    // Press W for word list (tab index 3)
+    // Press W for word list (tab index 2)
     await page.keyboard.press('w');
+    await page.waitForTimeout(500);
+
+    const tx = await indicator.evaluate(el => {
+      const m = window.getComputedStyle(el).transform;
+      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
+      return match ? Math.round(parseFloat(match[1])) : -1;
+    });
+
+    const expectedTx = Math.round(2 * indicatorWidth);
+    expect(tx).toBe(expectedTx);
+    await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('keyboard shortcut R moves indicator to quran tab', async ({ page }) => {
+    const indicator = page.locator('#bn-indicator');
+    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
+
+    // Press R for quran (tab index 3)
+    await page.keyboard.press('r');
     await page.waitForTimeout(500);
 
     const tx = await indicator.evaluate(el => {
@@ -624,31 +673,12 @@ test.describe('Bottom Nav Indicator', () => {
 
     const expectedTx = Math.round(3 * indicatorWidth);
     expect(tx).toBe(expectedTx);
-    await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
-  });
-
-  test('keyboard shortcut S moves indicator to stats tab', async ({ page }) => {
-    const indicator = page.locator('#bn-indicator');
-    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
-
-    // Press S for stats (tab index 4)
-    await page.keyboard.press('s');
-    await page.waitForTimeout(500);
-
-    const tx = await indicator.evaluate(el => {
-      const m = window.getComputedStyle(el).transform;
-      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1])) : -1;
-    });
-
-    const expectedTx = Math.round(4 * indicatorWidth);
-    expect(tx).toBe(expectedTx);
     await expect(page.locator('#tab-quran')).toHaveAttribute('aria-current', 'page');
   });
 
   test('browser refresh restores indicator on dashboard tab', async ({ page }) => {
-    // Navigate to quiz first
-    await page.locator('#tab-quiz').click();
+    // Navigate to profile first
+    await page.locator('#tab-profile').click();
     await page.waitForTimeout(500);
 
     // Refresh page
@@ -656,13 +686,11 @@ test.describe('Bottom Nav Indicator', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    // Dismiss onboarding if it appears
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    // Dismiss onboarding + plan picker if they appear
+    await skipOnboarding(page);
 
+    // Fresh load lands on dashboard (Foundation lesson requires completion)
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
 
     const indicator = page.locator('#bn-indicator');
@@ -687,7 +715,6 @@ test.describe('Bottom Nav Indicator', () => {
     const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
 
     // Rapidly click multiple tabs without waiting for animation
-    await page.locator('#tab-quiz').click();
     await page.locator('#tab-quran').click();
     await page.locator('#tab-list').click();
     await page.locator('#tab-paths').click();
@@ -704,7 +731,7 @@ test.describe('Bottom Nav Indicator', () => {
     // Should be on learn tab (index 1)
     const expectedTx = Math.round(1 * indicatorWidth);
     expect(tx).toBe(expectedTx);
-    await expect(page.locator('#tab-learn')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#tab-paths')).toHaveAttribute('aria-current', 'page');
 
     // Only one active tab
     const activeCount = await page.evaluate(() => {
@@ -729,8 +756,8 @@ test.describe('Bottom Nav Indicator', () => {
       return match ? Math.round(parseFloat(match[1])) : -1;
     });
 
-    // Should be on profile tab (index 5) — immediately, no transition delay
-    const expectedTx = Math.round(5 * indicatorWidth);
+    // Should be on profile tab (index 4) — immediately, no transition delay
+    const expectedTx = Math.round(4 * indicatorWidth);
     expect(tx).toBe(expectedTx);
     await expect(page.locator('#tab-profile')).toHaveAttribute('aria-current', 'page');
   });
@@ -758,11 +785,7 @@ test.describe('Offline Indicator', () => {
 test.describe('Word List & Search', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    await skipOnboarding(page);
   });
 
   test('word list view shows vocabulary', async ({ page }) => {
@@ -814,11 +837,7 @@ test.describe('Word List & Search', () => {
 test.describe('Keyboard Shortcuts', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    await skipOnboarding(page);
   });
 
   test('? key shows keyboard hints', async ({ page }) => {
@@ -846,12 +865,8 @@ test.describe('Keyboard Shortcuts', () => {
 test.describe('SRS Rating - Edge Cases', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
-    await page.locator('#tab-learn').click();
+    await skipOnboarding(page);
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
@@ -930,16 +945,12 @@ test.describe('SRS Rating - Edge Cases', () => {
 test.describe('Quiz Completion - Edge Cases', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
-    await page.locator('#tab-learn').click();
+    await skipOnboarding(page);
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
-    await page.locator('#tab-quiz').click();
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('quiz'); });
     await page.waitForTimeout(500);
   });
 
@@ -1059,11 +1070,7 @@ test.describe('Vocabulary Explorer', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    await skipOnboarding(page);
   });
 
   test('opens explorer view from word list click', async ({ page }) => {
@@ -1113,24 +1120,38 @@ test.describe('Vocabulary Explorer', () => {
   test('explorer shows derived forms and morphological relatives', async ({ page }) => {
     await navigateToWordAndOpenExplorer(page);
 
-    // Derived forms section
-    const derivedList = page.locator('#explorer-derived-forms-list');
-    await expect(derivedList).toBeVisible();
-
-    // Morphological relatives
-    const morphList = page.locator('#explorer-morph-list');
-    await expect(morphList).toBeVisible();
+    // Derived forms + morphological relatives are premium-gated content.
+    // For a free user (no premium, no SRS entry) the explorer shows the
+    // relationships locked panel instead of the raw lists.
+    await expect(page.locator('#view-explorer')).toBeVisible();
+    const locked = page.locator('#explorer-relationships-locked');
+    if (await locked.count() > 0 && await locked.isVisible()) {
+      // Free user: locked panel visible, gated lists hidden
+      await expect(page.locator('#explorer-derived-forms-list')).toBeHidden();
+      await expect(page.locator('#explorer-morph-list')).toBeHidden();
+    } else {
+      // Premium/accessible: lists render
+      await expect(page.locator('#explorer-derived-forms-list')).toBeVisible();
+      await expect(page.locator('#explorer-morph-list')).toBeVisible();
+    }
   });
 
   test('explorer shows SRS learning progress', async ({ page }) => {
     await navigateToWordAndOpenExplorer(page);
 
-    // Learning progress section
-    await expect(page.locator('#explorer-srs-stage')).toBeVisible();
-    await expect(page.locator('#explorer-last-studied')).toBeVisible();
-    await expect(page.locator('#explorer-next-review')).toBeVisible();
-    await expect(page.locator('#explorer-review-count')).toBeVisible();
-    await expect(page.locator('#explorer-foundation-status')).toBeVisible();
+    // For an unstudied word the explorer shows the one-line "not studied yet"
+    // message instead of a placeholder grid (established zero-data pattern).
+    await expect(page.locator('#view-explorer')).toBeVisible();
+    const emptyMsg = page.locator('#explorer-progress-empty');
+    const grid = page.locator('#explorer-progress-grid');
+    if (await emptyMsg.isVisible()) {
+      await expect(emptyMsg).not.toBeEmpty();
+      await expect(grid).toBeHidden();
+    } else {
+      await expect(grid).toBeVisible();
+      await expect(page.locator('#explorer-srs-stage')).toBeVisible();
+      await expect(page.locator('#explorer-review-count')).toBeVisible();
+    }
   });
 
   test('explorer back button returns to previous view', async ({ page }) => {
@@ -1152,21 +1173,29 @@ test.describe('Vocabulary Explorer', () => {
     expect(isLearnVisible || isListVisible).toBeTruthy();
   });
 
-  test('explorer has action buttons (bookmark, study, review)', async ({ page }) => {
+  test('explorer has action buttons (bookmark)', async ({ page }) => {
     await navigateToWordAndOpenExplorer(page);
 
+    // Bookmark action is always available; study/review actions are
+    // contextual (only rendered when an SRS entry exists).
     await expect(page.locator('#explorer-btn-bookmark')).toBeVisible();
-    await expect(page.locator('#explorer-btn-study')).toBeVisible();
-    await expect(page.locator('#explorer-btn-review')).toBeVisible();
   });
 
   test('explorer word relationships section has semantic groups', async ({ page }) => {
     await navigateToWordAndOpenExplorer(page);
 
-    // Various relationship lists should exist
-    await expect(page.locator('#explorer-semantic-list')).toBeVisible();
-    await expect(page.locator('#explorer-similar-list')).toBeVisible();
-    await expect(page.locator('#explorer-related-list')).toBeVisible();
+    // Relationships are premium-gated: free users see the locked panel,
+    // premium users see the semantic/similar/related lists.
+    await expect(page.locator('#view-explorer')).toBeVisible();
+    const locked = page.locator('#explorer-relationships-locked');
+    if (await locked.count() > 0 && await locked.isVisible()) {
+      await expect(locked).toContainText(/Premium|Upgrade/i);
+      await expect(page.locator('#explorer-semantic-list')).toBeHidden();
+    } else {
+      await expect(page.locator('#explorer-semantic-list')).toBeVisible();
+      await expect(page.locator('#explorer-similar-list')).toBeVisible();
+      await expect(page.locator('#explorer-related-list')).toBeVisible();
+    }
   });
 });
 
@@ -1175,11 +1204,7 @@ test.describe('Vocabulary Explorer', () => {
 test.describe('Analytics View', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
+    await skipOnboarding(page);
   });
 
   test('profile view renders progress content', async ({ page }) => {
@@ -1187,6 +1212,10 @@ test.describe('Analytics View', () => {
     await page.waitForTimeout(1000);
 
     await expect(page.locator('#view-profile')).toBeVisible();
+
+    // Profile defaults to the Account sub-tab — open Progress & Insights
+    await page.locator('.pf-tab[data-pf-tab="progress"]').click();
+    await page.waitForTimeout(500);
 
     // Progress section should be present
     await expect(page.locator('#profile-progress')).toBeVisible();
@@ -1229,7 +1258,7 @@ test.describe('Progress Persistence', () => {
     await page.reload();
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
-    await page.locator('#tab-learn').click();
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
 
     const lessonLabel = page.locator('#lesson-label');
@@ -1279,12 +1308,8 @@ test.describe('Progress Persistence', () => {
 test.describe('Quick Flashcard Mode', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
-    } catch (e) {}
-    await page.locator('#tab-learn').click();
+    await skipOnboarding(page);
+    await page.locator('#tab-paths').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
