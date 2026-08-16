@@ -10,7 +10,7 @@
 //   • Offline reader support via aggressive vocabulary caching
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'bayan-v64';
+const CACHE_NAME = 'bayan-v66';
 // Note: build.js replaces CACHE_NAME with a timestamp-based version ('quran-vocab-v<timestamp>')
 // at build time. The service worker update cycle (install → wait → activate) then ensures
 // all clients get the fresh cache automatically on their next visit.
@@ -77,20 +77,34 @@ self.addEventListener('activate', function (event) {
   );
 });
 
-// Helper: stale-while-revalidate strategy
-function staleWhileRevalidate(request, cacheName) {
-  cacheName = cacheName || DYNAMIC_CACHE;
-  return caches.open(cacheName).then(function (cache) {
+// Helper: stale-while-revalidate strategy (dynamic cache first, precache
+// second, network last). The precache (CACHE_NAME) holds the install-time
+// bundles (app/data/firebase-core), so a freshly installed app that goes
+// offline immediately can still load them — checking only the dynamic cache
+// used to fail every JS request with ERR_FAILED.
+function staleWhileRevalidate(request) {
+  return caches.open(DYNAMIC_CACHE).then(function (cache) {
     return cache.match(request).then(function (cachedResponse) {
-      var fetchPromise = fetch(request).then(function (networkResponse) {
-        if (networkResponse && networkResponse.status === 200) {
-          cache.put(request, networkResponse.clone());
-        }
-        return networkResponse;
-      }).catch(function () {
+      if (cachedResponse) {
+        // Revalidate in the background
+        fetch(request).then(function (networkResponse) {
+          if (networkResponse && networkResponse.status === 200) {
+            cache.put(request, networkResponse.clone());
+          }
+        }).catch(function () {});
         return cachedResponse;
+      }
+      return caches.open(CACHE_NAME).then(function (preCache) {
+        return preCache.match(request).then(function (precachedResponse) {
+          if (precachedResponse) return precachedResponse;
+          return fetch(request).then(function (networkResponse) {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
       });
-      return cachedResponse || fetchPromise;
     });
   });
 }
@@ -151,9 +165,10 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // JS/JSON data files: stale-while-revalidate for fresh data with offline fallback
+  // JS/JSON data files: stale-while-revalidate for fresh data with offline
+  // fallback (dynamic cache -> precache -> network, see helper above)
   if (url.pathname.match(/\.(js|json)$/) && !url.pathname.match(/\/sw\.js$/)) {
-    event.respondWith(staleWhileRevalidate(event.request, DYNAMIC_CACHE));
+    event.respondWith(staleWhileRevalidate(event.request));
     return;
   }
 
