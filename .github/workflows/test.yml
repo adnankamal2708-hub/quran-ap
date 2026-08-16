@@ -71,10 +71,23 @@ jobs:
           done
           echo "::endgroup::"
 
+      - name: Install Chromium for end-to-end tests
+        if: matrix.node-version == '20.x'
+        run: npx playwright install --with-deps chromium
+        timeout-minutes: 10
+
       - name: Run end-to-end tests
-        run: node test/e2e/run-all.js 2>/dev/null || echo "No E2E tests found"
-        continue-on-error: true
-        timeout-minutes: 5
+        if: matrix.node-version == '20.x'
+        run: npx playwright test
+        timeout-minutes: 30
+
+      - name: Upload end-to-end test artifacts
+        if: failure() && matrix.node-version == '20.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: test-results/
+          if-no-files-found: ignore
 
       - name: Check for lint warnings
         run: |

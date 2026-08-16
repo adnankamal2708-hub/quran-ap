@@ -16,11 +16,17 @@ module.exports = defineConfig({
   fullyParallel: false,
   retries: 1,
   workers: 1,
-  outputDir: '../test-results',
+  outputDir: 'test-results',
   reporter: [
     ['list'],
-    ['json', { outputFile: '../test-results/e2e-results.json' }],
+    ['json', { outputFile: 'test-results/e2e-results.json' }],
   ],
+  webServer: {
+    command: 'node serve-e2e.js',
+    url: 'http://127.0.0.1:8080',
+    reuseExistingServer: !process.env.CI,
+    timeout: 30000,
+  },
   use: {
     baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',

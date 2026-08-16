@@ -1,7 +1,8 @@
 # ═══════════════════════════════════════════════════════════════
 # deploy.yml — Automated Build, Validate & Deploy Pipeline
 #
-# Triggered by: git push origin main
+# Triggered by: successful completion of the "Bayan CI" workflow on main
+#               (or manual workflow_dispatch from the Actions tab)
 # Workflow:
 #   1. Checkout repository
 #   2. Setup Node.js 20 with npm cache
@@ -27,9 +28,12 @@
 name: Build, Validate & Deploy
 
 on:
-  push:
-    branches: [main]
-  # Allow manual trigger from the Actions tab
+  # Deploy only after the CI pipeline ("Bayan CI") completes successfully
+  # on main — unit + E2E tests are a hard gate before anything ships to Pages.
+  workflow_run:
+    workflows: ['Bayan CI']
+    types: [completed]
+  # Allow manual trigger from the Actions tab (skips the CI gate)
   workflow_dispatch:
 
 # Restrict permissions: build job only needs read access
@@ -47,6 +51,10 @@ jobs:
   # ── BUILD + VALIDATE JOB ─────────────────────────────────
   build:
     name: Build & Validate
+    # Deploy only when the CI workflow finished successfully on main,
+    # or when triggered manually. For workflow_run events the conclusion
+    # and branch are part of the event payload — no API call needed.
+    if: (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -55,6 +63,9 @@ jobs:
 
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Deploy exactly the commit that CI validated; manual runs use the branch ref
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: 🔧 Setup Node.js 20
         uses: actions/setup-node@v4
