@@ -10,7 +10,7 @@
 //   • Offline reader support via aggressive vocabulary caching
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'bayan-v62';
+const CACHE_NAME = 'bayan-v64';
 // Note: build.js replaces CACHE_NAME with a timestamp-based version ('quran-vocab-v<timestamp>')
 // at build time. The service worker update cycle (install → wait → activate) then ensures
 // all clients get the fresh cache automatically on their next visit.
@@ -33,7 +33,6 @@ const PRECACHE_URLS = [
   './js/services/firebase-core.js',
   './js/services/auth-service.js',
   './js/landing/landing-auth-gate.js',
-  './js/ux-polish.js',
   './manifest.json',
   './favicon.ico',
   './assets/logo/bayan-logo-transparent-full.png',

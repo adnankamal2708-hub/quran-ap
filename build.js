@@ -136,6 +136,11 @@ const APP_FILES = [
   'js/analytics.js',
   'js/adaptive-engine.js',
   'js/smart-learning-engine.js',
+  // NOTE: ux-polish.js MUST stay in the bundle, positioned before app.js:
+  // app.js calls init() at top-level and requires window.__ux to already be
+  // defined. It must NOT also be loaded as a separate <script> tag — that
+  // used to execute it twice (and the standalone copy was the only one
+  // missing when the bundle ran).
   'js/ux-polish.js',
   'js/learner-profile-bridge.js',
   'js/learning-journey.js',
@@ -692,12 +697,9 @@ async function build() {
     console.log('     firebase-core.js copied as standalone module');
   }
 
-  // 6b. Copy ux-polish.js (loaded separately from bundles for timing independence)
-  var uxPolish = readFile('js/ux-polish.js');
-  if (uxPolish) {
-    writeFile('js/ux-polish.js', uxPolish);
-    console.log('     ux-polish.js copied');
-  }
+  // 6b. (removed) ux-polish.js is bundled in app.bundle.min.js only — it was
+  //     previously also copied here and loaded via a separate <script> tag,
+  //     which executed the file twice.
 
   // 6c. Copy standalone HTML pages + supporting assets into dist/
   //     deploy.yml uploads ONLY dist/ to GitHub Pages, so any page the
@@ -774,7 +776,6 @@ async function build() {
     "'./js/services/firebase-core.js'",
     "'./js/services/auth-service.js'",
     "'./js/landing/landing-auth-gate.js'",
-    "'./js/ux-polish.js'",
     "'./manifest.json'",
     "'./favicon.ico'",
     "'./assets/logo/bayan-logo-transparent-full.png'",
