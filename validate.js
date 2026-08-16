@@ -59,8 +59,10 @@ if (fs.existsSync(htmlPath)) {
 var dbPath = path.join(DIST, 'js/data.bundle.min.js');
 if (fs.existsSync(dbPath)) {
   var dbSize = fs.statSync(dbPath).size;
-  check('Data bundle size', dbSize >= 102400 && dbSize <= 1572864,
-    (dbSize / 1024).toFixed(1) + ' KB (limit: 100 KB – 1.5 MB)');
+  // The Quran corpus currently produces a ~1.8 MiB minified bundle. Keep a
+  // ceiling that detects accidental duplication without rejecting the full corpus.
+  check('Data bundle size', dbSize >= 102400 && dbSize <= 2097152,
+    (dbSize / 1024).toFixed(1) + ' KB (limit: 100 KB – 2 MB)');
 }
 
 var abPath = path.join(DIST, 'js/app.bundle.min.js');
