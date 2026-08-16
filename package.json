@@ -10,6 +10,7 @@
     "test": "node test/run-all.js",
     "test:e2e": "node build.js && node test/run-all.js && npx playwright test",
     "test:unit": "node test/run-all.js",
+    "test:api": "node test/api-checkout.test.js && node test/api-webhook.test.js",
     "serve": "npx http-server dist/ -p 8080 -c-1 --silent",
     "e2e": "npx playwright test"
   },

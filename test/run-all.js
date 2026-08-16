@@ -36,6 +36,8 @@ var TESTS = [
   "quran.test.js",
   "profile-ui.test.js",
   "premium.test.js",
+  "api-checkout.test.js",
+  "api-webhook.test.js",
   "explorer.test.js",
   "occurrence-index.test.js",
   "auth-ui.test.js",
