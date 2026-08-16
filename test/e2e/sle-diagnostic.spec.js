@@ -33,15 +33,20 @@ test.describe('Smart Learning Engine E2E', () => {
 
     // Dismiss onboarding + auto-shown plan picker, land on dashboard
     try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+      // The app shows the onboarding overlay ~3s after page load (after the
+      // splash), so wait generously and confirm it is actually hidden before
+      // proceeding — a lost race leaves the overlay intercepting every click.
+      await page.waitForSelector('#onboarding-overlay', { timeout: 10000, state: 'visible' });
       await page.locator('#onboarding-skip').click();
-      await page.waitForTimeout(500);
+      await page.waitForSelector('#onboarding-overlay', { state: 'hidden', timeout: 3000 });
     } catch (e) {}
     try {
-      await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 2000 });
+      await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 5000 });
       const skipBtn = page.locator('#plan-picker-skip');
-      if (await skipBtn.isVisible()) await skipBtn.click();
-      await page.waitForTimeout(300);
+      if (await skipBtn.isVisible()) {
+        await skipBtn.click();
+        await page.waitForSelector('#plan-picker-overlay', { state: 'hidden', timeout: 3000 });
+      }
     } catch (e) {}
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });

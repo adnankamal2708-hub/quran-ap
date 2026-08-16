@@ -15,18 +15,22 @@ const { test, expect } = require('@playwright/test');
 
 async function setup(page) {
   await page.goto('/');
-  // Wait for app to initialize
+  // Wait for app to initialize — the app shows the onboarding overlay ~3s
+  // after page load (after the splash), so wait generously and confirm it is
+  // actually hidden before proceeding (a lost race leaves it intercepting clicks).
   try {
-    await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+    await page.waitForSelector('#onboarding-overlay', { timeout: 10000, state: 'visible' });
     await page.locator('#onboarding-skip').click();
-    await page.waitForTimeout(500);
+    await page.waitForSelector('#onboarding-overlay', { state: 'hidden', timeout: 3000 });
   } catch (_) {}
   // Dismiss the auto-shown plan picker for free users
   try {
-    await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 2000 });
+    await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 5000 });
     const skipBtn = page.locator('#plan-picker-skip');
-    if (await skipBtn.isVisible()) await skipBtn.click();
-    await page.waitForTimeout(300);
+    if (await skipBtn.isVisible()) {
+      await skipBtn.click();
+      await page.waitForSelector('#plan-picker-overlay', { state: 'hidden', timeout: 3000 });
+    }
   } catch (_) {}
   // App lands on the Foundation lesson for new users — land on dashboard
   await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
@@ -148,8 +152,9 @@ VIEWPORTS.forEach(vp => {
         const viewEl = page.locator(`#${view.id}`);
         await expect(viewEl).toBeVisible({ timeout: 3000 });
 
-        // 2. Take screenshot
-        const screenshotPath = `../test-results/screenshots/${vp.name}-${view.label.toLowerCase().replace(/\s+/g, '-')}.png`;
+        // 2. Take screenshot — saved inside the gitignored test-results/ dir
+        //    (outputDir is 'test-results', which Playwright creates at run start)
+        const screenshotPath = `test-results/screenshots/${vp.name}-${view.label.toLowerCase().replace(/\s+/g, '-')}.png`;
         await page.screenshot({ path: screenshotPath, fullPage: false });
         console.log(`  Screenshot saved: ${screenshotPath}`);
 

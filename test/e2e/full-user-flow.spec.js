@@ -43,11 +43,12 @@ async function waitAndSee(page, selector, timeout = 5000) {
 // otherwise the overlay intercepts clicks (pre-existing suite issue).
 async function dismissPlanPicker(page) {
   try {
-    await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 1500 });
+    await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 5000 });
     const skipBtn = page.locator('#plan-picker-skip');
     if (await skipBtn.isVisible()) {
       await skipBtn.click();
-      await page.waitForTimeout(300);
+      // Confirm the picker is actually gone before returning.
+      await page.waitForSelector('#plan-picker-overlay', { state: 'hidden', timeout: 3000 });
     }
   } catch (e) { /* overlay not shown — fine */ }
 }
@@ -55,9 +56,13 @@ async function dismissPlanPicker(page) {
 // ── Helper: Skip onboarding + dismiss plan picker ──────────────
 async function skipOnboarding(page) {
   try {
-    await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
+    // The app shows the onboarding overlay ~3s after page load (after the
+    // splash screen). Wait generously for it instead of racing the app's own
+    // 3s timer — a lost race leaves the overlay up to intercept every click.
+    await page.waitForSelector('#onboarding-overlay', { timeout: 10000, state: 'visible' });
     await page.locator('#onboarding-skip').click();
-    await page.waitForTimeout(500);
+    // Confirm the overlay is actually hidden before returning.
+    await page.waitForSelector('#onboarding-overlay', { state: 'hidden', timeout: 3000 });
   } catch (e) {}
   await dismissPlanPicker(page);
 }
