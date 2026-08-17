@@ -1623,13 +1623,6 @@ body::before {
   font-style: italic;
 }
 
-/* ── Offline Badge ─────────────────────────────────────────── */
-.offline-badge {
-  font-size: 9px;
-  color: var(--green);
-  opacity: 0.85;
-}
-
 /* ── Animations ────────────────────────────────────────────── */
 @keyframes quranVerseFadeIn {
   from {
@@ -5610,11 +5603,6 @@ body::before {
   filter: grayscale(0);
 }
 
-.offline-badge-warning {
-  color: var(--gold) !important;
-  opacity: 1 !important;
-  animation: pulse 2s ease infinite;
-}
 
 @media (max-width: 380px) {
   .dashboard-hero-stats { grid-template-columns: repeat(2, 1fr); }
@@ -7174,10 +7162,6 @@ body::before {
   }
   
   /* Disable pulse effects */
-  .offline-badge-warning {
-    animation: none !important;
-  }
-  
   .milestone-icon {
     animation: none !important;
   }

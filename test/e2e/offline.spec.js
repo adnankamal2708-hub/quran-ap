@@ -98,6 +98,5 @@ test.describe('Offline Use — PWA', () => {
     await page.reload({ waitUntil: 'load', timeout: 30000 });
     await page.waitForSelector('.top-bar', { timeout: 15000 });
     expect(await page.evaluate(() => navigator.onLine)).toBe(true);
-    await expect(page.locator('#offline-badge')).toContainText('Offline ready');
   });
 });

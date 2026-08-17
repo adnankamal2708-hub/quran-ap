@@ -770,21 +770,6 @@ test.describe('Bottom Nav Indicator', () => {
 
 // ── Offline Indicator ──────────────────────────────────────────
 
-test.describe('Offline Indicator', () => {
-  test('shows online status by default', async ({ page }) => {
-    await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 3000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-    } catch (e) {}
-
-    const badge = page.locator('#offline-badge');
-    await expect(badge).toBeVisible();
-    const text = await badge.textContent();
-    expect(text).toContain('Offline');
-  });
-});
-
 // ── Search & Word List ─────────────────────────────────────────
 
 test.describe('Word List & Search', () => {

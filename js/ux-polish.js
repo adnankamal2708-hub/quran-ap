@@ -1131,23 +1131,6 @@ function renderSkeleton(lines, type) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// OFFLINE STATUS
-// ═══════════════════════════════════════════════════════════════
-
-function updateOfflineIndicator() {
-  var badge = document.getElementById('offline-badge');
-  if (!badge) return;
-
-  if (navigator.onLine) {
-    badge.textContent = '✓ Offline ready';
-    badge.className = 'offline-badge';
-  } else {
-    badge.textContent = '⚠️ Offline mode';
-    badge.className = 'offline-badge offline-badge-warning';
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
 // MILESTONE CELEBRATION
 // ═══════════════════════════════════════════════════════════════
 
@@ -1212,7 +1195,6 @@ window.__ux = {
   renderEmptyState: renderEmptyState,
   getContextualEmptyState: getContextualEmptyState,
   renderSkeleton: renderSkeleton,
-  updateOfflineIndicator: updateOfflineIndicator,
   showMilestoneCelebration: showMilestoneCelebration,
   // Plan picker
   showPlanPicker: showPlanPicker,

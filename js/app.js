@@ -1338,19 +1338,7 @@ function cancelStartupWatchdog() {
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-      .register('sw.js')
-      .then(function () {
-        var badge = document.getElementById('offline-badge');
-        if (badge) badge.textContent = '\u2713 Offline ready';
-      })
-      .catch(function () {
-        var badge = document.getElementById('offline-badge');
-        if (badge) badge.style.display = 'none';
-      });
-  } else {
-    var badge = document.getElementById('offline-badge');
-    if (badge) badge.style.display = 'none';
+    navigator.serviceWorker.register('sw.js').catch(function () {});
   }
 }
 
@@ -1577,11 +1565,7 @@ function init() {
           // Show onboarding after splash screen is fully removed (~1500ms min + 800ms hide + 800ms remove + buffer)
           setTimeout(function() { window.__DEV__ && console.log('[startup] [13b] Showing onboarding overlay'); window.__ux.showOnboarding(); }, 3000);
         }
-        window.__ux.updateOfflineIndicator();
-        window.__DEV__ && console.log('[startup] [13c] Offline indicator updated');
       } catch (e) { console.warn('[app] UX init failed:', e.message); }
-      window.addEventListener('online', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
-      window.addEventListener('offline', function() { if (window.__ux) window.__ux.updateOfflineIndicator(); });
     } else {
       window.__DEV__ && console.log('[startup] [13x] window.__ux is NOT available — UX polish module not loaded');
     }

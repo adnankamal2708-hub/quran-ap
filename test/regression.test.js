@@ -495,14 +495,8 @@ suite('Responsive & Accessibility', function() {
               'Mobile media query should exist');
     assert.ok(cssContains('@media (min-width: 481px)'),
               'Tablet/desktop media query should exist');
-  });
-
-  test('skip-link exists for accessibility', function() {
+  });  test('skip-link exists for accessibility', function() {
     assert.ok(cssContains('.skip-link'), 'Skip-link class should exist');
-  });
-
-  test('offline badge class exists', function() {
-    assert.ok(cssContains('.offline-badge'), 'offline-badge should exist');
   });
 });
 

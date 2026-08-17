@@ -824,41 +824,6 @@ suite('showMilestoneCelebration', function() {
   });
 });
 
-suite('updateOfflineIndicator', function() {
-  function makeBadge() {
-    var badge = document.createElement('div');
-    badge.id = 'offline-badge';
-    document.body.appendChild(badge);
-    return badge;
-  }
-
-  test('shows online status when navigator.onLine is true', function() {
-    _resetDOM();
-    global.navigator.onLine = true;
-    makeBadge();
-    ux.updateOfflineIndicator();
-    var badge = document.getElementById('offline-badge');
-    assert.ok(badge.textContent.indexOf('Offline ready') >= 0);
-    assert.ok(badge.className.indexOf('offline-badge-warning') < 0);
-  });
-
-  test('shows offline status when navigator.onLine is false', function() {
-    _resetDOM();
-    global.navigator.onLine = false;
-    makeBadge();
-    ux.updateOfflineIndicator();
-    var badge = document.getElementById('offline-badge');
-    assert.ok(badge.textContent.indexOf('Offline mode') >= 0);
-    assert.ok(badge.className.indexOf('offline-badge-warning') >= 0);
-    global.navigator.onLine = true;
-  });
-
-  test('does nothing when badge element missing', function() {
-    _resetDOM();
-    ux.updateOfflineIndicator();
-  });
-});
-
 suite('showOnboarding / hideOnboarding', function() {
   test('showOnboarding creates overlay when not in DOM', function() {
     _resetDOM();
@@ -906,7 +871,7 @@ suite('Exported API surface', function() {
     'getProgressiveVisibility', 'applyProgressiveDisclosure',
     'unlockProgressiveFeature', 'showToast',
     'renderEmptyState', 'getContextualEmptyState', 'renderSkeleton',
-    'updateOfflineIndicator', 'showMilestoneCelebration',
+    'showMilestoneCelebration',
     'showPlanPicker', 'hidePlanPicker', 'hasSeenPlanPicker'
   ];
   expected.forEach(function(name) {
