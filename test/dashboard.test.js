@@ -607,69 +607,58 @@ suite('Daily Motivation Section', function() {
   });
 });
 
-suite('Show More Stats Toggle', function() {
-  test('toggle button exists in rendered output', function() {
+suite('Secondary Sections Render Inline (no toggle)', function() {
+  // The "Show more stats" toggle + collapsible wrapper were removed — secondary
+  // dashboard sections (Review Center, Surah Comprehension, Recommendation,
+  // Progress Overview, Daily Motivation, Hero Stats Bar) render inline, each
+  // gated on real data. The manual toggle promised stats that don't exist for
+  // brand-new users and reset on every dashboard re-render.
+
+  test('no show-more toggle or collapsible wrapper is rendered', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('db-show-more-btn') >= 0, 'should have toggle button');
-    assert.ok(html.indexOf('Show more stats') >= 0, 'should have toggle text');
+    assert.ok(html.indexOf('db-show-more-btn') === -1, 'toggle button removed');
+    assert.ok(html.indexOf('Show more stats') === -1, 'toggle text removed');
+    assert.ok(html.indexOf('db-collapsible') === -1, 'collapsible wrapper removed');
   });
 
-  test('collapsible section is hidden by default (no open class)', function() {
+  test('Review Center prompt renders inline after greeting', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('db-collapsible') >= 0, 'should have collapsible wrapper');
-    assert.ok(html.indexOf('db-collapsible-open') === -1,
-      'collapsible should not have open class by default');
-  });
-
-  test('Review Center prompt is inside collapsible section', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    // db-collapsible should appear before db-review-center-prompt in the DOM order
-    var collapsibleIdx = html.indexOf('db-collapsible');
     var reviewCenterIdx = html.indexOf('db-review-center-prompt');
-    assert.ok(collapsibleIdx >= 0, 'collapsible wrapper should exist');
     assert.ok(reviewCenterIdx >= 0, 'review center prompt should exist');
-    assert.ok(collapsibleIdx < reviewCenterIdx, 'review center should be inside collapsible (after wrapper open)');
+    assert.ok(html.indexOf('db-greeting') < reviewCenterIdx, 'review center appears after greeting');
   });
 
-  test('Progress Overview is inside collapsible section', function() {
+  test('Progress Overview renders inline after greeting', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
     var progressIdx = html.indexOf('db-progress-overview');
-    assert.ok(collapsibleIdx >= 0, 'collapsible wrapper should exist');
     assert.ok(progressIdx >= 0, 'progress overview should exist');
-    assert.ok(collapsibleIdx < progressIdx, 'progress overview should be inside collapsible');
+    assert.ok(html.indexOf('db-greeting') < progressIdx, 'progress overview appears after greeting');
   });
 
-  test('Daily Motivation is inside collapsible section', function() {
+  test('Daily Motivation renders inline after greeting', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
     var motivationIdx = html.indexOf('db-motivation-card');
-    assert.ok(collapsibleIdx >= 0, 'collapsible wrapper should exist');
     assert.ok(motivationIdx >= 0, 'motivation card should exist');
-    assert.ok(collapsibleIdx < motivationIdx, 'motivation card should be inside collapsible');
+    assert.ok(html.indexOf('db-greeting') < motivationIdx, 'motivation appears after greeting');
   });
 
-  test('Surah Progress is inside collapsible section', function() {
+  test('Surah Progress renders inline when its gate passes', function() {
     resetState();
     setupGlobals();
     // Surah progress only renders once >= LOWEST_COMP_HIDE_THRESHOLD (5) surahs
@@ -687,152 +676,61 @@ suite('Show More Stats Toggle', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
-    var surahIdx = html.indexOf('db-surah-progress');
-    assert.ok(collapsibleIdx >= 0, 'collapsible wrapper should exist');
-    assert.ok(surahIdx >= 0, 'surah progress should exist');
-    assert.ok(collapsibleIdx < surahIdx, 'surah progress should be inside collapsible');
+    assert.ok(html.indexOf('db-surah-progress') >= 0, 'surah progress should exist');
+    assert.ok(html.indexOf('db-surah-progress') > html.indexOf('db-greeting'),
+      'surah progress appears after greeting');
   });
 
-  test('Recommendation section is inside collapsible', function() {
+  test('Recommendation section renders inline after greeting', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
     var recIdx = html.indexOf('Recommendation');
-    assert.ok(collapsibleIdx >= 0, 'collapsible wrapper should exist');
     assert.ok(recIdx >= 0, 'recommendation section should exist');
-    assert.ok(collapsibleIdx < recIdx, 'recommendation should be inside collapsible');
+    assert.ok(recIdx > html.indexOf('db-greeting'), 'recommendation appears after greeting');
   });
 
-  test('Hero Stats Bar is inside collapsible section', function() {
+  test('Hero Stats Bar renders inline for users with progress', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
     var heroIdx = html.indexOf('db-hero-bar');
-    assert.ok(collapsibleIdx >= 0, 'collapsible wrapper should exist');
-    assert.ok(heroIdx >= 0, 'hero bar should exist');
-    assert.ok(collapsibleIdx < heroIdx, 'hero bar should be inside collapsible');
+    assert.ok(heroIdx >= 0, 'hero bar should exist for users with progress');
+    assert.ok(heroIdx > html.indexOf('db-greeting'), 'hero bar appears after greeting');
+    var statCount = html.split('db-hero-stat-click').length - 1;
+    assert.strictEqual(statCount, 4, 'four hero stats for users with progress');
   });
 
-  test('Greeting is always visible (before collapsible)', function() {
+  test('secondary sections appear in document order', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
-    var greetingIdx = html.indexOf('db-greeting');
-    assert.ok(collapsibleIdx >= 0, 'collapsible wrapper should exist');
-    assert.ok(greetingIdx >= 0, 'greeting should exist');
-    assert.ok(greetingIdx < collapsibleIdx, 'greeting should be before collapsible');
+    var order = ['db-greeting', 'db-review-center-prompt', 'db-progress-overview',
+      'db-motivation-card', 'db-hero-bar'];
+    var lastIdx = -1;
+    for (var i = 0; i < order.length; i++) {
+      var idx = html.indexOf(order[i]);
+      assert.ok(idx >= 0, order[i] + ' should exist');
+      assert.ok(idx > lastIdx, order[i] + ' should come after previous section');
+      lastIdx = idx;
+    }
   });
 
-  test('Comprehension headline is always visible (before collapsible)', function() {
+  test('all secondary content still renders without the toggle', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
-    var compIdx = html.indexOf('db-comp-headline');
-    assert.ok(compIdx >= 0, 'comprehension headline should exist');
-    assert.ok(compIdx < collapsibleIdx, 'comprehension should be before collapsible');
-  });
-
-  test('Continue Learning is always visible (before collapsible)', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    var collapsibleIdx = html.indexOf('db-collapsible');
-    var learningIdx = html.indexOf('db-continue-learning');
-    assert.ok(learningIdx >= 0, 'continue learning should exist');
-    assert.ok(learningIdx < collapsibleIdx, 'continue learning should be before collapsible');
-  });
-
-  test('toggle button has aria-expanded attribute', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('aria-expanded="false"') >= 0, 'toggle should start collapsed');
-  });
-
-  test('all collapsed sections still render their content', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-    var html = getInnerHTML();
-    // All content is still rendered in the DOM, just hidden
     assert.ok(html.indexOf('Review Center') >= 0, 'Review Center still rendered');
     assert.ok(html.indexOf('Progress Overview') >= 0, 'Progress Overview still rendered');
-    assert.ok(html.indexOf('Surah') >= 0, 'Surah section still rendered');
-    assert.ok(html.indexOf('Motivation') >= 0 || html.indexOf('Streak') >= 0, 'Motivation still rendered');
-  });
-
-  test('clicking the toggle expands then collapses the section', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-
-    var btn = document.getElementById('db-show-more-btn');
-    var collapsible = document.getElementById('db-collapsible');
-    assert.ok(btn !== null, 'toggle button should exist in DOM');
-    assert.ok(collapsible !== null, 'collapsible wrapper should exist in DOM');
-    assert.ok(!collapsible.classList.contains('db-collapsible-open'),
-      'collapsible starts collapsed');
-
-    // Stub rAF so the close transition runs synchronously
-    var _origRAF = global.requestAnimationFrame;
-    global.requestAnimationFrame = function(fn) { fn(); return 0; };
-    try {
-      btn.onclick();
-      assert.ok(collapsible.classList.contains('db-collapsible-open'),
-        'collapsible gains open class on first click');
-      assert.equal(btn.getAttribute('aria-expanded'), 'true',
-        'aria-expanded flips to true on expand');
-
-      btn.onclick();
-      assert.ok(!collapsible.classList.contains('db-collapsible-open'),
-        'collapsible loses open class on second click');
-      assert.equal(btn.getAttribute('aria-expanded'), 'false',
-        'aria-expanded flips back to false on collapse');
-    } finally {
-      global.requestAnimationFrame = _origRAF;
-    }
-  });
-
-  test('keyboard Enter on the toggle also expands the section', function() {
-    resetState();
-    setupGlobals();
-    setupDashboardGrid();
-    renderDashboard();
-
-    var btn = document.getElementById('db-show-more-btn');
-    var collapsible = document.getElementById('db-collapsible');
-    assert.ok(btn !== null, 'toggle button should exist in DOM');
-
-    var _origRAF = global.requestAnimationFrame;
-    global.requestAnimationFrame = function(fn) { fn(); return 0; };
-    try {
-      btn.onkeydown({ key: 'Enter', preventDefault: function() {} });
-      assert.ok(collapsible.classList.contains('db-collapsible-open'),
-        'Enter key expands the collapsible');
-      assert.equal(btn.getAttribute('aria-expanded'), 'true',
-        'aria-expanded true after Enter');
-    } finally {
-      global.requestAnimationFrame = _origRAF;
-    }
+    assert.ok(html.indexOf('Streak') >= 0, 'Streak stat still rendered');
   });
 });
 
@@ -1127,27 +1025,15 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     assert.ok(html.indexOf('reinforced') >= 0, 'reviews-today message preserved for new user with activity');
   });
 
-  test('Fix 8: hero bar shows single Start Today stat, not the 4-stat zero wall', function() {
+  test('Fix 8: hero stats bar hidden entirely for brand-new user (no zero wall, no duplicate CTA)', function() {
     setupBrandNewUser();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
     var statCount = html.split('db-hero-stat-click').length - 1;
-    assert.strictEqual(statCount, 1, 'exactly one hero stat for new user');
-    assert.ok(html.indexOf('Start Today') >= 0, 'Start Today stat shown');
-    assert.ok(html.indexOf('db-hero-stat-label">Comprehension') === -1, 'no Comprehension stat');
-    assert.ok(html.indexOf('db-hero-stat-label">Reviews') === -1, 'no Reviews stat');
-  });
-
-  test('Fix 8: Start Today stat wires to first foundation lesson', function() {
-    setupBrandNewUser();
-    setupDashboardGrid();
-    renderDashboard();
-    // Hero wiring uses querySelectorAll on the grid — in the mock this finds the
-    // element only if it has the class on the grid itself or a child with an id;
-    // fall back to verifying via the raw HTML contract used by the wiring loop.
-    var html = getInnerHTML();
-    assert.ok(html.indexOf('data-db-action="start-today"') >= 0, 'start-today action wired');
+    assert.strictEqual(statCount, 0, 'no hero stats for brand-new user');
+    assert.ok(html.indexOf('db-hero-bar') === -1, 'hero bar hidden for new user');
+    assert.ok(html.indexOf('Start Today') === -1, 'no Start Today stand-in card (duplicate CTA removed)');
   });
 });
 

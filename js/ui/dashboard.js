@@ -547,16 +547,11 @@ function renderDashboard() {
     $h += '</div></div>';
   }
 
-  // ═══ TOGGLE: Show More Stats ═══
-  $h += '<div style="text-align:center;margin:6px 0 2px">';
-  $h += '<button class="db-show-more-btn" id="db-show-more-btn" type="button" aria-expanded="false">';
-  $h += '<span class="db-show-more-icon">&#9660;</span>';
-  $h += '<span class="db-show-more-text">Show more stats</span>';
-  $h += '</button>';
-  $h += '</div>';
-
-  // ═══ COLLAPSIBLE: Secondary content ═══
-  $h += '<div class="db-collapsible" id="db-collapsible">';
+  // Secondary sections (Review Center, Surah Comprehension, Recommendation,
+  // Progress Overview, Daily Motivation, Hero Stats Bar) render inline below in
+  // document order. Each is individually gated on real data — no manual
+  // show/hide toggle (the removed "Show more stats" button promised stats that
+  // don't exist for brand-new users and reset on every dashboard re-render).
 
   // ═══ REVIEW CENTER PROMPT ═══
   // Only meaningful once reviews exist — hidden for a brand-new user ("All caught
@@ -807,15 +802,11 @@ function renderDashboard() {
   $h += '</div></div>';
 
   // ═══ COMPACT HERO STATS BAR (after all sections) ═══
-  // Brand-new users get a single "Start Today" stat — the all-zero 4-stat wall
-  // (0 Mastered · 0% · 0 Reviews) is meaningless noise until real progress exists.
+  // Hidden until real progress exists — the all-zero 4-stat wall (0 Mastered ·
+  // 0% · 0 Reviews) is meaningless noise, and the previous single "Start Today"
+  // stand-in card merely duplicated the Continue Learning CTA above it.
+  if ($hasAnyProgress) {
   $h += '<div class="db-hero-bar">';
-  if ($noProgress) {
-    $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="start-today" tabindex="0" role="button" aria-label="Start learning today">';
-    $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
-    $h += '<div class="db-hero-stat-value">Start Today</div>';
-    $h += '<div class="db-hero-stat-label">Begin your Quran journey</div></div>';
-  } else {
     $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="streak" tabindex="0" role="button" aria-label="Streak: ' + $streak + ' days">';
     $h += '<div class="db-hero-stat-icon" aria-hidden="true">' + $icon('fire', 18) + '</div>';
     $h += '<div class="db-hero-stat-value">' + $streak + '</div>';
@@ -829,10 +820,8 @@ function renderDashboard() {
     $h += '<div class="db-hero-stat db-hero-stat-click" data-db-action="review" tabindex="0" role="button" aria-label="Reviews today: ' + $reviewsToday + '">';
     $h += '<div class="db-hero-stat-value">' + $reviewsToday + '</div>';
     $h += '<div class="db-hero-stat-label">Reviews</div></div>';
-  }
   $h += '</div>';
-
-  $h += '</div>';  // close db-collapsible
+  }
 
   // ── Inject HTML ──
   $d.innerHTML = $h;
@@ -857,11 +846,7 @@ function renderDashboard() {
     (function($el) {
       var $action = $el.getAttribute('data-db-action');
       $el.onclick = function() {
-        if ($action === 'start-today') {
-          if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
-          else if (typeof switchView === 'function') switchView('learn');
-        }
-        else if ($action === 'streak' || $action === 'comprehension' || $action === 'mastered') switchView('profile');
+        if ($action === 'streak' || $action === 'comprehension' || $action === 'mastered') switchView('profile');
         else if ($action === 'list') switchView('list');
         else if ($action === 'review') { if (typeof startReview === 'function') startReview(); else switchView('learn'); }
       };
@@ -870,31 +855,6 @@ function renderDashboard() {
       };
     })($heroStats[$hsi]);
   }
-
-  // Show more stats toggle — expand/collapse secondary content
-  $wire('db-show-more-btn', function() {
-    var $collapsible = document.getElementById('db-collapsible');
-    var $btn = document.getElementById('db-show-more-btn');
-    if (!$collapsible || !$btn) return;
-    var $isOpen = $collapsible.classList.contains('db-collapsible-open');
-    if ($isOpen) {
-      // Close: set max-height to current height, then trigger transition to 0
-      $collapsible.style.maxHeight = $collapsible.scrollHeight + 'px';
-      requestAnimationFrame(function() {
-        $collapsible.classList.remove('db-collapsible-open');
-        $collapsible.style.maxHeight = '0';
-      });
-    } else {
-      // Open: set max-height to measured content height for smooth slide
-      $collapsible.classList.add('db-collapsible-open');
-      $collapsible.style.maxHeight = $collapsible.scrollHeight + 'px';
-    }
-    $btn.setAttribute('aria-expanded', String(!$isOpen));
-    var $icon = $btn.querySelector('.db-show-more-icon');
-    var $text = $btn.querySelector('.db-show-more-text');
-    if ($icon) $icon.innerHTML = $isOpen ? '&#9660;' : '&#9650;';
-    if ($text) $text.textContent = $isOpen ? 'Show more stats' : 'Show less';
-  });
 
   // Comprehension headline click → profile (ring variant only — the welcome
   // variant is informational, not a navigation affordance)
