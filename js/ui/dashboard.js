@@ -301,16 +301,13 @@ function renderDashboard() {
     $h += '<div class="db-comp-headline-milestone">🎯 ' + $compMilestone + '</div>';
   }
   $h += '</div></div>';
-  // ── Comprehension Metrics Row — at zero data only Total Words is real info ──
-  $h += '<div class="db-comp-metrics">';
-  if ($coveragePct === 0 && $masteredCount === 0) {
-    $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $totalWords + '</div><div class="db-comp-metric-label">Total Words</div></div>';
-  } else {
-  $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $coveragePct + '%</div><div class="db-comp-metric-label">Coverage</div></div>';
-  $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $masteredCount + '</div><div class="db-comp-metric-label">Mastered</div></div>';
-  $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $totalWords + '</div><div class="db-comp-metric-label">Total Words</div></div>';
+  // ── Comprehension Metrics Row (Coverage + Mastered) ──
+  if ($coveragePct > 0 || $masteredCount > 0) {
+    $h += '<div class="db-comp-metrics">';
+    $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $coveragePct + '%</div><div class="db-comp-metric-label">Coverage</div></div>';
+    $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $masteredCount + '</div><div class="db-comp-metric-label">Mastered</div></div>';
+    $h += '</div>';
   }
-  $h += '</div>';
   $h += '</div>';
 
   // ═══ 3. TODAY'S GOAL ═══

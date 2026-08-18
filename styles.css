@@ -5933,7 +5933,7 @@ body::before {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 18px;
-  margin-bottom: 14px;
+  margin-bottom: var(--spacing-lg);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
@@ -6214,7 +6214,7 @@ body::before {
 /* ── Comprehension Metrics Row ── */
 .db-comp-metrics {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
   margin-top: 12px;
   padding-top: 10px;
@@ -7027,7 +7027,7 @@ body::before {
   }
   .db-card {
     padding: 14px;
-    margin-bottom: 12px;
+    margin-bottom: var(--spacing-md);
   }
   .db-card-title {
     font-size: 14px;
@@ -8461,7 +8461,7 @@ body::before {
 @media (max-width: 380px) {
   .db-comp-headline-ring-wrap { width: 52px; height: 52px; }
   .db-comp-headline-value { font-size: 15px; }
-  .db-comp-metrics { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .db-comp-metrics { grid-template-columns: repeat(2, 1fr); gap: 4px; }
   .db-comp-metric-value { font-size: 12px; }
   .db-pv-quick { grid-template-columns: repeat(2, 1fr); }
   .db-surah-row-bar-wrap { width: 40px; }

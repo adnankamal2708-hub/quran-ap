@@ -908,17 +908,15 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     assert.ok(html.indexOf('Begin your journey to understand the Quran') >= 0, 'welcome variant shown');
   });
 
-  test('Fix 2: metrics row shows only Total Words at zero data', function() {
+  test('Fix 2: metrics row hidden at zero data', function() {
     setupBrandNewUser();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('db-comp-metric-label">Coverage') === -1, 'Coverage metric hidden');
-    assert.ok(html.indexOf('db-comp-metric-label">Mastered') === -1, 'Mastered metric hidden');
-    assert.ok(html.indexOf('db-comp-metric-label">Total Words') >= 0, 'Total Words metric shown');
+    assert.ok(html.indexOf('db-comp-metrics') === -1, 'metrics row not rendered for zero-progress user');
   });
 
-  test('Fix 2: full 3-cell metrics row once real data exists', function() {
+  test('Fix 2: 2-cell metrics row once real data exists', function() {
     setupBrandNewUser();
     _mockSRSStats = { total: 100, mature: 5, dueToday: 2, totalReviews: 30, reviewsToday: 1, newCount: 10, learning: 8, young: 3, overdue: 0 };
     _mockCoverage = { coveragePercent: 20, estimatedComprehension: 30, masteredWords: 5, totalWords: 100, masteredOccurrences: 300, totalOccurrences: 1800 };
@@ -927,7 +925,7 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('db-comp-metric-label">Coverage') >= 0, 'Coverage metric shown');
     assert.ok(html.indexOf('db-comp-metric-label">Mastered') >= 0, 'Mastered metric shown');
-    assert.ok(html.indexOf('db-comp-metric-label">Total Words') >= 0, 'Total Words metric shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Total Words') === -1, 'Total Words metric removed');
   });
 
   test('Fix 3: Review Center prompt hidden for brand-new user', function() {
@@ -1069,14 +1067,14 @@ suite('Dashboard Clutter — Returning User (real progress)', function() {
     assert.ok(html.indexOf('55% Quran Comprehension') >= 0, 'real percentage shown');
   });
 
-  test('Fix 2: full metrics row renders', function() {
+  test('Fix 2: metrics row renders Coverage + Mastered', function() {
     setupReturningUser();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('db-comp-metric-label">Coverage') >= 0, 'Coverage shown');
     assert.ok(html.indexOf('db-comp-metric-label">Mastered') >= 0, 'Mastered shown');
-    assert.ok(html.indexOf('db-comp-metric-label">Total Words') >= 0, 'Total Words shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Total Words') === -1, 'Total Words removed');
   });
 
   test('Fix 3: Review Center prompt renders (due + lifetime reviews)', function() {
