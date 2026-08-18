@@ -96,50 +96,42 @@ test.describe('Onboarding Tour', () => {
     expect(isPrevHidden || isPrevDisabled).toBeTruthy();
   });
 
-  test('navigation through all 6 slides', async ({ page }) => {
+  test('navigation through all 3 steps', async ({ page }) => {
     await waitAndSee(page, '#onboarding-overlay');
 
     const nextBtn = page.locator('#onboarding-next');
     const prevBtn = page.locator('#onboarding-prev');
     const slide = page.locator('#onboarding-slide');
 
-    // Slide 1 → 2
+    // Step 1: consolidated intro — headline + bullets, "Personalize →" CTA
+    await expect(slide).toContainText('Understand the Quran, One Word at a Time');
+    const nextBtnText = await nextBtn.textContent();
+    expect(nextBtnText).toMatch(/Personalize/i);
+
+    // Step 1 → 2 (daily goal): must pick a choice before advancing
     await nextBtn.click();
     await page.waitForTimeout(300);
-    await expect(slide).not.toBeEmpty();
-
-    // Slide 2 → 3
-    await nextBtn.click();
+    await expect(slide).toContainText('Set Your Daily Goal');
+    await slide.locator('.onboarding-choice').first().click();
     await page.waitForTimeout(300);
 
-    // Back to slide 2
+    // Step 2 → 3 (experience level)
+    await nextBtn.click();
+    await page.waitForTimeout(300);
+    await expect(slide).toContainText('Your Experience Level');
+
+    // Back to step 2 still works
     await prevBtn.click();
     await page.waitForTimeout(300);
+    await expect(slide).toContainText('Set Your Daily Goal');
 
-    // Forward to slide 3
+    // Forward to step 3 again, pick a level, verify Start Learning CTA
     await nextBtn.click();
     await page.waitForTimeout(300);
-
-    // Forward to slide 4
-    await nextBtn.click();
+    await expect(slide).toContainText('Your Experience Level');
+    await slide.locator('.onboarding-choice').first().click();
     await page.waitForTimeout(300);
-
-    // Forward to slide 5
-    await nextBtn.click();
-    await page.waitForTimeout(300);
-
-    // Forward to slide 6 (last slide)
-    await nextBtn.click();
-    await page.waitForTimeout(300);
-
-    // The 6th welcome slide is "Your Journey Begins" — the last intro slide
-    // before personalization — and the Next button transitions to
-    // "Personalize →" (no longer "Start Lesson" / a removed Sync slide).
-    const nextBtnText = await nextBtn.textContent();
-    const slideText = await slide.textContent();
-    const isLastWelcomeSlide = nextBtnText.match(/Personalize/i) !== null ||
-                               slideText.match(/Your Journey Begins/i) !== null;
-    expect(isLastWelcomeSlide).toBeTruthy();
+    await expect(nextBtn).toContainText('Start Learning');
   });
 
   test('skip button dismisses the tour', async ({ page }) => {

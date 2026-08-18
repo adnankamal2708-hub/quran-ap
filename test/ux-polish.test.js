@@ -2,7 +2,7 @@
 /**
  * ux-polish.test.js — Unit tests for the UX Polish Module
  *
- * Tests: onboarding completion tracking, premium slides, goal/level/notify
+ * Tests: onboarding completion tracking, premium slides, goal/level
  * screens, toast creation/dismissal, milestone celebrations, empty states,
  * skeleton loaders, tooltips, progressive disclosure, and helper functions.
  *
@@ -478,26 +478,26 @@ suite('Plan Picker', function() {
 });
 
 suite('Welcome Slides Data', function() {
-  test('_welcomeSlides has 6 slides', function() {
-    assert.strictEqual(_welcomeSlides.length, 6);
+  test('_welcomeSlides has 1 consolidated slide', function() {
+    assert.strictEqual(_welcomeSlides.length, 1);
   });
 
-  test('each slide has icon, title, and desc', function() {
-    for (var i = 0; i < _welcomeSlides.length; i++) {
-      var s = _welcomeSlides[i];
-      assert.ok(typeof s.icon === 'string' && s.icon.length > 0, 'Slide ' + i + ' icon');
-      assert.ok(typeof s.title === 'string' && s.title.length > 0, 'Slide ' + i + ' title');
-      assert.ok(typeof s.desc === 'string' && s.desc.length > 0, 'Slide ' + i + ' desc');
+  test('slide has title and 4 condensed bullets', function() {
+    var s = _welcomeSlides[0];
+    assert.ok(typeof s.title === 'string' && s.title.length > 0, 'Slide title');
+    assert.ok(Array.isArray(s.bullets), 'has bullets array');
+    assert.strictEqual(s.bullets.length, 4, 'has 4 bullets');
+    for (var i = 0; i < s.bullets.length; i++) {
+      assert.ok(typeof s.bullets[i] === 'string' && s.bullets[i].length > 0, 'Bullet ' + i);
     }
   });
 
-  test('slides cover expected topics in order', function() {
-    assert.ok(_welcomeSlides[0].title.indexOf('Understand') >= 0);
-    assert.ok(_welcomeSlides[1].title.indexOf('Step by Step') >= 0);
-    assert.ok(_welcomeSlides[2].title.indexOf('Comprehension') >= 0);
-    assert.ok(_welcomeSlides[3].title.indexOf('Interactive') >= 0);
-    assert.ok(_welcomeSlides[4].title.indexOf('Smart') >= 0);
-    assert.ok(_welcomeSlides[5].title.indexOf('Journey') >= 0);
+  test('bullets cover the four key benefits', function() {
+    var text = _welcomeSlides[0].bullets.join(' ');
+    assert.ok(/frequent/i.test(text), 'frequency-based learning order');
+    assert.ok(/comprehension/i.test(text), 'comprehension tracking');
+    assert.ok(/word/i.test(text) && /tafsir|meaning|root/i.test(text), 'interactive word tapping');
+    assert.ok(/spaced repetition/i.test(text), 'smart reviews / spaced repetition');
   });
 });
 
@@ -505,8 +505,8 @@ suite('Onboarding Screen Navigation', function() {
   test('renderOnboardingScreen sets index and renders content', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(2);
-    assert.strictEqual(_onboardingIdx, 2);
+    renderOnboardingScreen(1);
+    assert.strictEqual(_onboardingIdx, 1);
     assert.ok(document.getElementById('onboarding-slide').innerHTML.length > 0);
   });
 
@@ -522,14 +522,14 @@ suite('Onboarding Screen Navigation', function() {
   test('next button shows Start Learning on last screen', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(8); // last screen (notify)
+    renderOnboardingScreen(2); // last screen (level)
     assert.strictEqual(document.getElementById('onboarding-next').textContent, '\u2713 Start Learning');
   });
 
-  test('next button shows Personalize after last welcome screen', function() {
+  test('next button shows Personalize on the consolidated intro screen', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(5); // last welcome screen
+    renderOnboardingScreen(0); // the single welcome screen
     assert.strictEqual(document.getElementById('onboarding-next').textContent, 'Personalize \u2192');
   });
 
@@ -537,8 +537,8 @@ suite('Onboarding Screen Navigation', function() {
     _resetDOM();
     clearStorage();
     setupOnboardingDOM();
-    renderOnboardingScreen(3);
-    assert.strictEqual(localStorage.getItem('quran_onboarding_step'), '3');
+    renderOnboardingScreen(1);
+    assert.strictEqual(localStorage.getItem('quran_onboarding_step'), '1');
   });
 
   test('renderOnboardingScreen handles missing slide element', function() {
@@ -551,7 +551,7 @@ suite('Onboarding Goal Selection Screen', function() {
   test('goal screen renders 4 choices', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(6); // goal screen
+    renderOnboardingScreen(1); // goal screen
     var slide = document.getElementById('onboarding-slide');
     assert.ok(slide.innerHTML.indexOf('4)') >= 0 || slide.innerHTML.match(/onboarding-choice/g).length >= 4);
   });
@@ -559,7 +559,7 @@ suite('Onboarding Goal Selection Screen', function() {
   test('goal screen shows Set Your Daily Goal title', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(6);
+    renderOnboardingScreen(1);
     var slide = document.getElementById('onboarding-slide');
     assert.ok(slide.innerHTML.indexOf('Daily Goal') >= 0);
   });
@@ -569,7 +569,7 @@ suite('Onboarding Level Selection Screen', function() {
   test('level screen renders 4 choices', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(7); // level screen
+    renderOnboardingScreen(2); // level screen
     var slide = document.getElementById('onboarding-slide');
     assert.ok(slide.innerHTML.indexOf('onboarding-choice') >= 0);
   });
@@ -577,27 +577,9 @@ suite('Onboarding Level Selection Screen', function() {
   test('level screen shows Experience Level title', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(7);
+    renderOnboardingScreen(2);
     var slide = document.getElementById('onboarding-slide');
     assert.ok(slide.innerHTML.indexOf('Experience') >= 0);
-  });
-});
-
-suite('Onboarding Notifications Screen', function() {
-  test('notify screen renders 2 choices', function() {
-    _resetDOM();
-    setupOnboardingDOM();
-    renderOnboardingScreen(8); // notify screen
-    var slide = document.getElementById('onboarding-slide');
-    assert.ok(slide.innerHTML.indexOf('Reminders') >= 0);
-  });
-
-  test('notify screen shows Daily Reminders title', function() {
-    _resetDOM();
-    setupOnboardingDOM();
-    renderOnboardingScreen(8);
-    var slide = document.getElementById('onboarding-slide');
-    assert.ok(slide.innerHTML.indexOf('Reminders') >= 0);
   });
 });
 
@@ -866,7 +848,7 @@ suite('Exported API surface', function() {
   var expected = [
     'showOnboarding', 'hideOnboarding', 'hasCompletedOnboarding',
     'hasInterruptedOnboarding', 'completeOnboarding', 'resetOnboarding',
-    'getOnboardingGoal', 'getOnboardingLevel', 'getOnboardingNotify',
+    'getOnboardingGoal', 'getOnboardingLevel',
     'showTooltip', 'showContextualTooltips', 'resetTooltips',
     'getProgressiveVisibility', 'applyProgressiveDisclosure',
     'unlockProgressiveFeature', 'showToast',

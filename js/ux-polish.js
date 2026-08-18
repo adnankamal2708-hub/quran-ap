@@ -2,16 +2,14 @@
 // ux-polish.js — Premium Onboarding, Tooltips, Empty States, UX
 //
 // Features:
-//   • Premium 9-screen onboarding flow (welcome + goal + level + notifications)
+//   • Premium 3-screen onboarding flow (intro + goal + level)
 //   • Learning goal selection (5/10/15/20+ min/day)
 //   • Experience level selection (Beginner/Some/Intermediate/Advanced)
-//   • Notification preference (skippable)
 //   • Contextual tooltips for first-time users
 //   • Progressive disclosure for advanced features
 //   • Enhanced empty states across all views
 //   • Toast notification system
 //   • Milestone celebrations
-//   • Offline indicator
 // ═══════════════════════════════════════════════════════════════
 
 // ── Storage Keys ──────────────────────────────────────────────
@@ -19,64 +17,37 @@ var _ONBOARDING_DONE_KEY = 'quran_onboarding_done';
 var _ONBOARDING_STEP_KEY = 'quran_onboarding_step';
 var _ONBOARDING_GOAL_KEY = 'quran_onboarding_goal';
 var _ONBOARDING_LEVEL_KEY = 'quran_onboarding_level';
-var _ONBOARDING_NOTIFY_KEY = 'quran_onboarding_notify';
 var _TOOLTIP_SEEN_KEY = 'quran_tooltip_seen_';
 var _PROGRESSIVE_KEY = 'quran_progressive_unlocked';
 var _PLAN_PICKER_SEEN_KEY = 'quran_plan_picker_seen';
 
-// ── Welcome Screens (6 premium slides) ────────────────────────
+// ── Welcome Screens (1 consolidated slide) ────────────────────
+// The five former intro slides (app, foundation, comprehension, quran,
+// srs) were condensed into a single value-prop screen with four short
+// bullets — one per key benefit. The old "Your Journey Begins" transition
+// slide was deleted; its "Personalize →" CTA now lives on this screen.
 var _welcomeSlides = [
   {
-    icon: '📖',
-    title: 'Understand the Quran',
-    desc: 'Your personal guide to understanding the Quran, one word at a time.<br><br>Bayan uses the science of spaced repetition to help you build lasting Quranic vocabulary — so you can read and understand the Quran in its original language.',
-    highlight: 'app'
-  },
-  {
-    icon: '📚',
-    title: 'Learn Step by Step',
-    desc: 'The Foundation Course teaches you the most frequent Quranic words first — giving you the highest comprehension gains in the shortest time.<br><br>Each lesson introduces new words, shows them in real Quranic verses, and tests your understanding.',
-    highlight: 'foundation'
-  },
-  {
-    icon: '📊',
-    title: 'Track Your Comprehension',
-    desc: 'See exactly how much of the Quran\'s vocabulary you understand. Your comprehension percentage grows as you master more words — showing your real progress toward understanding the Quran.',
-    highlight: 'comprehension'
-  },
-  {
-    icon: '📖',
-    title: 'Read with Interactive Words',
-    desc: 'Every vocabulary word in the Quran view is color-coded by your mastery level. Tap a studied word to see its meaning, root, and tafsir — turning reading into active learning.',
-    highlight: 'quran'
-  },
-  {
-    icon: '🔄',
-    title: 'Smart Reviews',
-    desc: 'Our Spaced Repetition System schedules reviews at the optimal time — words you find difficult appear more often, while words you know well show up less. This maximizes retention while minimizing study time.',
-    highlight: 'srs'
-  },
-  {
-    icon: '✨',
-    title: 'Your Journey Begins',
-    desc: 'You\'re just a few steps away from starting your Quran comprehension journey. Let\'s personalize your experience to make learning fit your life.',
-    highlight: 'ready'
+    title: 'Understand the Quran, One Word at a Time',
+    bullets: [
+      '📚 Learn the most frequent Quranic words first — the fastest path to comprehension',
+      '📊 Track your comprehension grow as you master each word',
+      '📖 Tap any word while reading for meaning, root, and tafsir',
+      '🔄 Smart reviews use spaced repetition to make words stick'
+    ]
   }
 ];
 
 // ── Onboarding Screen IDs ────────────────────────────────────
-var _SCREEN_WELCOME = 0;     // First of 6 welcome screens
-var _SCREEN_WELCOME_END = 5; // Last welcome screen
-var _SCREEN_GOAL = 6;        // Learning goal selection
-var _SCREEN_LEVEL = 7;       // Experience level
-var _SCREEN_NOTIFY = 8;      // Notifications
-var _TOTAL_SCREENS = 9;
+var _SCREEN_WELCOME_END = 0; // Consolidated intro slide (only welcome screen)
+var _SCREEN_GOAL = 1;        // Learning goal selection
+var _SCREEN_LEVEL = 2;       // Experience level
+var _TOTAL_SCREENS = 3;
 
 // ── Onboarding State ─────────────────────────────────────────
 var _onboardingIdx = 0;
 var _selectedGoal = null;     // '5', '10', '15', '20'
 var _selectedLevel = null;    // 'beginner', 'some', 'intermediate', 'advanced'
-var _selectedNotify = null;   // true, false
 
 // ── Progress persistence ─────────────────────────────────────
 
@@ -102,15 +73,13 @@ function completeOnboarding() {
     // Save preferences
     if (_selectedGoal) localStorage.setItem(_ONBOARDING_GOAL_KEY, _selectedGoal);
     if (_selectedLevel) localStorage.setItem(_ONBOARDING_LEVEL_KEY, _selectedLevel);
-    if (_selectedNotify !== null) localStorage.setItem(_ONBOARDING_NOTIFY_KEY, _selectedNotify ? 'true' : 'false');
   } catch (e) {}
 
   // Track milestone
   if (window.__feedback && window.__feedback.trackEvent) {
     window.__feedback.trackEvent('onboarding_completed', {
       goal: _selectedGoal || '10',
-      level: _selectedLevel || 'beginner',
-      notify: _selectedNotify !== false
+      level: _selectedLevel || 'beginner'
     });
   }
 }
@@ -122,7 +91,6 @@ function resetOnboarding() {
     localStorage.removeItem(_ONBOARDING_STEP_KEY);
     localStorage.removeItem(_ONBOARDING_GOAL_KEY);
     localStorage.removeItem(_ONBOARDING_LEVEL_KEY);
-    localStorage.removeItem(_ONBOARDING_NOTIFY_KEY);
   } catch (e) {}
 }
 
@@ -140,17 +108,12 @@ function getOnboardingLevel() {
   try { return localStorage.getItem(_ONBOARDING_LEVEL_KEY); } catch (e) { return null; }
 }
 
-function getOnboardingNotify() {
-  try { return localStorage.getItem(_ONBOARDING_NOTIFY_KEY) === 'true'; } catch (e) { return false; }
-}
-
 // ── Show Onboarding ──────────────────────────────────────────
 
 function showOnboarding() {
   _onboardingIdx = 0;
   _selectedGoal = null;
   _selectedLevel = null;
-  _selectedNotify = null;
 
   // Check if there's an interrupted step to resume
   if (hasInterruptedOnboarding()) {
@@ -236,13 +199,16 @@ function renderOnboardingScreen(idx) {
   var isWelcome = (idx <= _SCREEN_WELCOME_END);
 
   if (isWelcome) {
-    // ── Welcome / intro screen ──
+    // ── Welcome / intro screen (consolidated) ──
     var slide = _welcomeSlides[idx];
     if (!slide) return;
 
-    html += '<div class="onboarding-icon">' + slide.icon + '</div>';
     html += '<h2 class="onboarding-title">' + slide.title + '</h2>';
-    html += '<p class="onboarding-desc">' + slide.desc + '</p>';
+    html += '<ul class="onboarding-bullets">';
+    for (var bi = 0; bi < slide.bullets.length; bi++) {
+      html += '<li>' + slide.bullets[bi] + '</li>';
+    }
+    html += '</ul>';
 
   } else if (idx === _SCREEN_GOAL) {
     // ── Learning Goal Selection ──
@@ -289,55 +255,24 @@ function renderOnboardingScreen(idx) {
       html += '</button>';
     }
     html += '</div>';
-
-  } else if (idx === _SCREEN_NOTIFY) {
-    // ── Notifications Preference ──
-    html += '<div class="onboarding-icon">🔔</div>';
-    html += '<h2 class="onboarding-title">Daily Reminders</h2>';
-    html += '<p class="onboarding-desc">Would you like daily reminders to keep your learning streak alive? You can change this anytime in Settings.</p>';
-    html += '<div class="onboarding-choices" role="radiogroup" aria-label="Notification preference">';
-
-    var notifyYes = (_selectedNotify !== false); // Default to yes
-    html += '<button class="onboarding-choice' + (notifyYes ? ' onboarding-choice-selected' : '') + '" data-value="true" type="button" role="radio" aria-checked="' + (notifyYes ? 'true' : 'false') + '">';
-    html += '<span class="onboarding-choice-value">🔔 Yes, remind me daily</span>';
-    html += '<span class="onboarding-choice-desc">Stay consistent with gentle reminders</span>';
-    html += '</button>';
-
-    html += '<button class="onboarding-choice' + (!notifyYes ? ' onboarding-choice-selected' : '') + '" data-value="false" type="button" role="radio" aria-checked="' + (!notifyYes ? 'true' : 'false') + '">';
-    html += '<span class="onboarding-choice-value">🔕 No, thanks</span>';
-    html += '<span class="onboarding-choice-desc">I\'ll visit when I\'m ready</span>';
-    html += '</button>';
-
-    html += '</div>';
   }
 
   slideEl.innerHTML = html;
 
   // ── Update dots ──
   if (dotsEl) {
-    var dotCount = isWelcome ? _welcomeSlides.length : (_TOTAL_SCREENS - _SCREEN_WELCOME_END - 1);
-    var dotGroup = isWelcome ? 0 : (idx - _SCREEN_GOAL + 1);
-    var dotActive = isWelcome ? idx : dotGroup - 1;
-    var totalDots = _TOTAL_SCREENS;
     dotsEl.innerHTML = '';
     // Progress indicator: a textual step counter beside the dots, so users
-    // know how much of the flow is left ("Step 2 of 9").
+    // know how much of the flow is left ("Step 1 of 3").
     var stepLabel = document.createElement('span');
     stepLabel.className = 'onboarding-step-label';
     stepLabel.textContent = 'Step ' + (idx + 1) + ' of ' + _TOTAL_SCREENS;
     dotsEl.appendChild(stepLabel);
-    for (var di = 0; di < totalDots; di++) {
+    var dotTypeClasses = ['onboarding-dot-welcome', 'onboarding-dot-goal', 'onboarding-dot-level'];
+    for (var di = 0; di < _TOTAL_SCREENS; di++) {
       var dot = document.createElement('span');
       dot.className = 'onboarding-dot' + (di === idx ? ' onboarding-dot-active' : '');
-      if (di < _SCREEN_WELCOME_END) {
-        dot.classList.add('onboarding-dot-welcome');
-      } else if (di === _SCREEN_GOAL) {
-        dot.classList.add('onboarding-dot-goal');
-      } else if (di === _SCREEN_LEVEL) {
-        dot.classList.add('onboarding-dot-level');
-      } else if (di === _SCREEN_NOTIFY) {
-        dot.classList.add('onboarding-dot-notify');
-      }
+      if (dotTypeClasses[di]) dot.classList.add(dotTypeClasses[di]);
       dotsEl.appendChild(dot);
     }
   }
@@ -387,8 +322,6 @@ function wireChoiceButtons() {
           _selectedGoal = value;
         } else if (_onboardingIdx === _SCREEN_LEVEL) {
           _selectedLevel = value;
-        } else if (_onboardingIdx === _SCREEN_NOTIFY) {
-          _selectedNotify = (value === 'true');
         }
       };
       btn.onkeydown = function(e) {
@@ -612,7 +545,6 @@ function wireOnboardingEvents() {
     skipBtn.onclick = function() {
       _selectedGoal = _selectedGoal || '10'; // Default to 10 min
       _selectedLevel = _selectedLevel || 'beginner';
-      if (_selectedNotify === null) _selectedNotify = true;
       completeOnboarding();
       hideOnboarding();
       navigateToFirstAction();
@@ -640,9 +572,6 @@ function wireOnboardingEvents() {
         showToast('Please select your experience level.', 'info', 2000);
         return;
       }
-      if (_onboardingIdx === _SCREEN_NOTIFY && _selectedNotify === null) {
-        _selectedNotify = true; // Default to yes
-      }
 
       if (_onboardingIdx < _TOTAL_SCREENS - 1) {
         renderOnboardingScreen(_onboardingIdx + 1);
@@ -650,7 +579,6 @@ function wireOnboardingEvents() {
         // Last screen — complete and start
         if (!_selectedGoal) _selectedGoal = '10';
         if (!_selectedLevel) _selectedLevel = 'beginner';
-        if (_selectedNotify === null) _selectedNotify = true;
         completeOnboarding();
         hideOnboarding();
         navigateToFirstAction();
@@ -677,7 +605,6 @@ var _onboardingKeyHandler = function(e) {
     e.preventDefault();
     if (!_selectedGoal) _selectedGoal = '10';
     if (!_selectedLevel) _selectedLevel = 'beginner';
-    if (_selectedNotify === null) _selectedNotify = true;
     completeOnboarding();
     hideOnboarding();
     navigateToFirstAction();
@@ -1184,7 +1111,6 @@ window.__ux = {
   resetOnboarding: resetOnboarding,
   getOnboardingGoal: getOnboardingGoal,
   getOnboardingLevel: getOnboardingLevel,
-  getOnboardingNotify: getOnboardingNotify,
   showTooltip: showTooltip,
   showContextualTooltips: showContextualTooltips,
   resetTooltips: resetTooltips,

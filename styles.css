@@ -8477,6 +8477,25 @@ body::before {
 .onboarding-premium .onboarding-slide {
   min-height: 280px;
 }
+
+/* Consolidated intro slide — value-prop bullets (no big icon) */
+.onboarding-bullets {
+  list-style: none;
+  margin: 8px 0 4px;
+  padding: 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.onboarding-bullets li {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.55;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
 .onboarding-dot {
   display: inline-block;
   width: 8px;
