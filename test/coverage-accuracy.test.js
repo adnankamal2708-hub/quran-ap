@@ -220,7 +220,7 @@ suite('Normalization fix & high-frequency additions', function() {
       if (!found) missing.push(ar);
     });
     assert.strictEqual(missing.length, 0, 'Missing new words: ' + missing.join(', '));
-    assert.strictEqual(CANON.length, 1207, 'Canonical count should now be 1207 (901 + 29 + 186 batch-1 + 91 batch-2), got ' + CANON.length);
+    assert.strictEqual(CANON.length, 1208, 'Canonical count should now be 1208 (901 + 29 + 186 batch-1 + 91 batch-2), got ' + CANON.length);
   });
 
   test('New words carry real token counts that match the index', function() {

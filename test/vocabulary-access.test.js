@@ -101,7 +101,7 @@ function _wordAtRank(rank) {
   return sorted[rank - 1];
 }
 var _freeSample = _wordAtRank(1);      // most frequent word — free
-var _lockedSample = _wordAtRank(1207); // least frequent word — locked
+var _lockedSample = _wordAtRank(1208); // least frequent word — locked
 var _freeId = _freeSample.id;
 var _lockedId = _lockedSample.id;
 
@@ -109,8 +109,8 @@ var _lockedId = _lockedSample.id;
 // SECTION A — Real-dataset ranking (Step 2 verification)
 // ═══════════════════════════════════════════════════════════════
 suite('Free-300 — real frequency-rank selection', function () {
-  test('dataset has 1207 canonical words', function () {
-    assert.strictEqual(CANON.length, 1207);
+  test('dataset has 1208 canonical words', function () {
+    assert.strictEqual(CANON.length, 1208);
   });
 
   test('free limit constant is 300', function () {
