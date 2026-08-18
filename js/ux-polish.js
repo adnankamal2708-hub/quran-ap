@@ -380,7 +380,7 @@ function showPlanPicker() {
           '<div class="plan-card-price">$2.99<span class="plan-card-period">/mo</span></div>' +
           '<ul class="plan-card-features">' +
             '<li>Everything in Free</li>' +
-            '<li>All 1,207 Quranic words</li>' +
+            '<li>All 1,208 Quranic words</li>' +
             '<li>Unlimited reviews &amp; tafsir</li>' +
             '<li>Full word relationships</li>' +
             '<li>Guided Reading &amp; insights</li>' +
