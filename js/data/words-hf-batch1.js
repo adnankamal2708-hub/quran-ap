@@ -81,7 +81,7 @@ ALL_WORDS.push(
       { a: 'لَمْ', e: 'not (past negative)' },
       { a: 'أَلَمْ تَرَ', e: 'have you not seen?' }
     ],
-    occ: 77, occExact: 77, occEducational: 77,
+    occ: 78, occExact: 78, occEducational: 78,
     frequency: 'high',
     difficulty: 2,
     tags: ["grammar", "interrogative", "common-words"],
