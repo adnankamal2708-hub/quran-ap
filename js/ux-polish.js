@@ -30,10 +30,10 @@ var _welcomeSlides = [
   {
     title: 'Understand the Quran, One Word at a Time',
     bullets: [
-      '📚 Learn the most frequent Quranic words first — the fastest path to comprehension',
-      '📊 Track your comprehension grow as you master each word',
-      '📖 Tap any word while reading for meaning, root, and tafsir',
-      '🔄 Smart reviews use spaced repetition to make words stick'
+      'Learn the most frequent Quranic words first — the fastest path to comprehension',
+      'Track your comprehension grow as you master each word',
+      'Tap any word while reading for meaning, root, and tafsir',
+      'Smart reviews use spaced repetition to make words stick'
     ]
   }
 ];
