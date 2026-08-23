@@ -474,6 +474,37 @@ ts('Auth — Guest Notice', function() {
   });
 });
 
+ts('Auth — Header Sign-In Link', function() {
+  t('shows for guest users (alongside guest badge)', function() {
+    _storage = {};
+    global.__mockUser = null;
+    createEl('user-avatar-display');
+    createEl('guest-badge');
+    createEl('header-signin-link');
+    updateAuthUI(null);
+    assert.strictEqual(document.getElementById('header-signin-link').style.display, 'inline');
+  });
+
+  t('hidden for signed-in users', function() {
+    _storage = {};
+    global.__mockUser = { uid: 'u1', email: 'a@b.com', displayName: 'A', emailVerified: true };
+    createEl('user-avatar-display');
+    createEl('guest-badge');
+    createEl('header-signin-link');
+    updateAuthUI(global.__mockUser);
+    assert.strictEqual(document.getElementById('header-signin-link').style.display, 'none');
+  });
+
+  t('click opens login view and navigates to auth', function() {
+    _storage = {};
+    global.__mockUser = null;
+    createEl('header-signin-link');
+    wireGuestNoticeEvents();
+    document.getElementById('header-signin-link').onclick({ preventDefault: function() {} });
+    assert.strictEqual(global.__lastView, 'auth');
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════

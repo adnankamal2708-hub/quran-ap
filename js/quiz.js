@@ -285,6 +285,11 @@ function nextQuiz() {
           if (surahImprovements && surahImprovements.length > 0 && typeof showSurahConnectionToast === 'function') {
             showSurahConnectionToast(surahImprovements);
           }
+
+          // Post-lesson sign-in prompt for guest users (first lesson only, non-blocking)
+          if (typeof window.__ux !== 'undefined' && typeof window.__ux.showPostLessonSignInPrompt === 'function') {
+            window.__ux.showPostLessonSignInPrompt();
+          }
         }
       } else if (mode === 'surah') {
         // Mark this surah as completed
@@ -307,6 +312,11 @@ function nextQuiz() {
           if (surahImprovements && surahImprovements.length > 0 && typeof showSurahConnectionToast === 'function') {
             showSurahConnectionToast(surahImprovements);
           }
+        }
+
+        // Post-lesson sign-in prompt for guest users (first lesson only, non-blocking)
+        if (hadLesson && typeof window.__ux !== 'undefined' && typeof window.__ux.showPostLessonSignInPrompt === 'function') {
+          window.__ux.showPostLessonSignInPrompt();
         }
       }
       

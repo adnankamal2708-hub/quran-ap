@@ -127,4 +127,23 @@ test.describe('Authentication Flow', () => {
     await expect(page.locator('#auth-forgot-success')).toBeVisible({ timeout: 15000 });
     await expect(page.locator('#auth-forgot-success')).toContainText(/reset|sent/i);
   });
+
+  test('header "Sign in" link opens login view', async ({ page }) => {
+    // The header sign-in link should be visible for guests
+    const signinLink = page.locator('#header-signin-link');
+    await expect(signinLink).toBeVisible();
+    await signinLink.click();
+
+    // Should open the auth view with login form visible
+    await expect(page.locator('#auth-login')).toBeVisible();
+    await expect(page.locator('#auth-title')).toHaveText('Welcome Back');
+  });
+
+  test('header "Sign in" link is hidden for signed-in users', async ({ page }) => {
+    // For a guest, the link should be visible
+    const signinLink = page.locator('#header-signin-link');
+    await expect(signinLink).toBeVisible();
+    // Verify guest badge is also visible
+    await expect(page.locator('#guest-badge')).toBeVisible();
+  });
 });

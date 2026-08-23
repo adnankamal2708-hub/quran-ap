@@ -2431,6 +2431,19 @@ body::before {
   opacity: 0.6;
 }
 
+.header-signin-link {
+  font-size: 9px;
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.header-signin-link:hover {
+  opacity: 1;
+}
+
 /* ── Auth Views ─────────────────────────────────────────────── */
 .auth-container {
   max-width: 380px;
@@ -5662,6 +5675,58 @@ body::before {
   animation: fadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+
+/* ── Post-Lesson Sign-In Prompt ───────────────────────── */
+.signin-prompt {
+  position: fixed;
+  bottom: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 360px;
+  width: calc(100% - 32px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-section);
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10000;
+  opacity: 0;
+  animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.signin-prompt-text {
+  flex: 1;
+  line-height: 1.4;
+}
+.signin-prompt-action {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.signin-prompt-action:hover {
+  opacity: 0.85;
+}
+.signin-prompt-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.signin-prompt.hiding {
+  animation: fadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 
 /* ── Inline Style Replacement Utilities ────────────────── */
 /* These classes replace the most common inline style="..." patterns in JS-rendered HTML

@@ -1030,6 +1030,73 @@ function dismissToast(toast) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// POST-LESSON SIGN-IN PROMPT
+// ═══════════════════════════════════════════════════════════════
+
+/** localStorage key — set when the prompt has been shown (suppresses repeat) */
+var _SIGNIN_PROMPT_KEY = 'bayan_signin_prompt_shown';
+
+/**
+ * Show a non-blocking, one-shot sign-in prompt after a guest completes
+ * their first lesson. Auto-dismisses after 8 s. Dismissible by tapping ✕.
+ * Suppressed when: user is signed in, or prompt was already shown.
+ */
+function showPostLessonSignInPrompt() {
+  // Guard: only for guests
+  var user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+  if (user) return;
+
+  // Guard: already shown this session (or ever)
+  try {
+    if (localStorage.getItem(_SIGNIN_PROMPT_KEY) === '1') return;
+  } catch (e) { return; }
+
+  // Mark as shown immediately (prevents repeat even if dismissed/ignored)
+  try { localStorage.setItem(_SIGNIN_PROMPT_KEY, '1'); } catch (e) { /* ignore */ }
+
+  // Remove any existing prompt first
+  var existing = document.querySelector('.signin-prompt');
+  if (existing) existing.remove();
+
+  var el = document.createElement('div');
+  el.className = 'signin-prompt';
+  el.setAttribute('role', 'status');
+  el.innerHTML =
+    '<span class="signin-prompt-text">Nice work — <a href="#" class="signin-prompt-action" id="signin-prompt-link">sign in</a> to save this progress.</span>' +
+    '<button type="button" class="signin-prompt-dismiss" id="signin-prompt-dismiss" aria-label="Dismiss">\u2715</button>';
+
+  document.body.appendChild(el);
+
+  // Sign-in link — opens the existing auth flow
+  var link = document.getElementById('signin-prompt-link');
+  if (link) {
+    link.onclick = function (e) {
+      e.preventDefault();
+      el.remove();
+      if (typeof showAuthView === 'function') showAuthView('login');
+      if (typeof switchView === 'function') switchView('auth');
+    };
+  }
+
+  // Dismiss button
+  var dismissBtn = document.getElementById('signin-prompt-dismiss');
+  if (dismissBtn) {
+    dismissBtn.onclick = function () {
+      el.classList.add('hiding');
+      setTimeout(function () { el.remove(); }, 220);
+    };
+  }
+
+  // Auto-dismiss after 8 seconds
+  setTimeout(function () {
+    if (el.parentNode) {
+      el.classList.add('hiding');
+      setTimeout(function () { el.remove(); }, 220);
+    }
+  }, 8000);
+}
+
+// ═══════════════════════════════════════════════════════════════
 // SKELETON LOADER
 // ═══════════════════════════════════════════════════════════════
 
@@ -1118,6 +1185,7 @@ window.__ux = {
   applyProgressiveDisclosure: applyProgressiveDisclosure,
   unlockProgressiveFeature: unlockProgressiveFeature,
   showToast: showToast,
+  showPostLessonSignInPrompt: showPostLessonSignInPrompt,
   renderEmptyState: renderEmptyState,
   getContextualEmptyState: getContextualEmptyState,
   renderSkeleton: renderSkeleton,

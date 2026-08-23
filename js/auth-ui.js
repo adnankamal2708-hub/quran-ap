@@ -491,6 +491,16 @@ function wireGuestNoticeEvents() {
     };
   }
 
+  // Header sign-in link — opens login for guest users
+  var headerSignin = document.getElementById('header-signin-link');
+  if (headerSignin) {
+    headerSignin.onclick = function (e) {
+      e.preventDefault();
+      if (typeof showAuthView === 'function') showAuthView('login');
+      if (typeof switchView === 'function') switchView('auth');
+    };
+  }
+
   // Sync with current auth state (covers startup before the first auth event fires)
   updateGuestNotice(getCurrentUser ? getCurrentUser() : null);
 }
@@ -513,6 +523,7 @@ function updateGuestNotice(user) {
 function updateAuthUI(user) {
   var avatarDisplay = document.getElementById('user-avatar-display');
   var guestBadge = document.getElementById('guest-badge');
+  var headerSignin = document.getElementById('header-signin-link');
   var authViews = ['view-auth', 'view-profile', 'view-settings'];
 
   updateGuestNotice(user);
@@ -525,6 +536,7 @@ function updateAuthUI(user) {
       avatarDisplay.title = user.displayName || user.email || 'Account';
     }
     if (guestBadge) guestBadge.style.display = 'none';
+    if (headerSignin) headerSignin.style.display = 'none';
 
     // Update profile view if it's visible, but ONLY if a full profile
     // render (renderFullProfile) is NOT already in progress. This prevents
@@ -540,6 +552,7 @@ function updateAuthUI(user) {
       avatarDisplay.title = 'Sign in';
     }
     if (guestBadge) guestBadge.style.display = 'inline';
+    if (headerSignin) headerSignin.style.display = 'inline';
   }
 }
 

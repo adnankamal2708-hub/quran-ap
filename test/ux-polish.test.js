@@ -47,12 +47,17 @@ function _resetDOM() {
 
 function _parseInnerHTML(el, html) {
   if (!html) { return; }
-  var re = /id="([^"]+)"/g;
-  var match;
-  while ((match = re.exec(html)) !== null) {
-    var childId = match[1];
-    var child = _makeMockElement('div');
-    child.id = childId;
+  var tagRe = /<([a-z][a-z0-9]*)\b[^>]*>/gi;
+  var tagMatch;
+  while ((tagMatch = tagRe.exec(html)) !== null) {
+    var fullTag = tagMatch[0];
+    var tag = tagMatch[1];
+    if (fullTag.charAt(1) === '/') continue;
+    var idMatch = /id="([^"]*)"/.exec(fullTag);
+    var classMatch = /class="([^"]*)"/.exec(fullTag);
+    var child = _makeMockElement(tag);
+    if (idMatch && idMatch[1]) child.id = idMatch[1];
+    if (classMatch && classMatch[1]) child.className = classMatch[1];
     el.appendChild(child);
   }
 }
@@ -87,10 +92,18 @@ function _makeMockElement(tagName) {
       if (idx >= 0) { this.children.splice(idx, 1); child.parentNode = null; }
     },
 
+    remove: function() {
+      if (this.parentNode && typeof this.parentNode.removeChild === 'function') {
+        this.parentNode.removeChild(this);
+      }
+    },
+
     focus: function() {},
 
-    click: function() {
-      if (typeof this._onclick === 'function') { this._onclick(); }
+    click: function(ev) {
+      if (typeof this._onclick === 'function') {
+        this._onclick(ev || { preventDefault: function() {} });
+      }
     },
 
     querySelectorAll: function(sel) {
@@ -106,8 +119,14 @@ function _makeMockElement(tagName) {
 
     querySelector: function(sel) {
       for (var qi = 0; qi < this.children.length; qi++) {
-        if (this.children[qi].getAttribute('data-value') || this.children[qi].id) {
-          return this.children[qi];
+        var child = this.children[qi];
+        if (sel.charAt(0) === '.') {
+          var cls = sel.substring(1);
+          if (child._className && child._className.split(' ').indexOf(cls) >= 0) return child;
+        } else if (sel.charAt(0) === '#') {
+          if (child._idVal === sel.substring(1)) return child;
+        } else {
+          if (child._tagName === sel) return child;
         }
       }
       return null;
@@ -219,31 +238,29 @@ global.document = {
   activeElement: null,
   querySelectorAll: function(sel) {
     var results = [];
-    // Search all created elements by class/id/tag
-    for (var tag in _createdElements) {
-      var arr = _createdElements[tag];
-      for (var i = 0; i < arr.length; i++) {
-        var el = arr[i];
-        // Match by class selector like '.onboarding-choice'
-        if (sel.indexOf('.') === 0) {
-          var cls = sel.substring(1);
-          if (el._className && el._className.split(' ').indexOf(cls) >= 0) {
-            results.push(el);
-          }
-        }
-        // Also search children
-        for (var ci = 0; ci < (el.children || []).length; ci++) {
-          var child = el.children[ci];
-          if (sel.indexOf('.') === 0) {
-            var cls2 = sel.substring(1);
-            if (child._className && child._className.split(' ').indexOf(cls2) >= 0) {
-              results.push(child);
-            }
-          }
-        }
+    function matchEl(el) {
+      if (sel.indexOf('.') === 0) {
+        var cls = sel.substring(1);
+        if (el._className && el._className.split(' ').indexOf(cls) >= 0) { results.push(el); }
+      } else if (sel.indexOf('#') === 0) {
+        var id = sel.substring(1);
+        if (el._idVal === id) { results.push(el); }
+      }
+    }
+    // Search only body children (elements currently in the DOM tree)
+    // Skip _createdElements — they may include detached elements
+    for (var bi = 0; bi < _bodyChildren.length; bi++) {
+      matchEl(_bodyChildren[bi]);
+      var ch = _bodyChildren[bi].children || [];
+      for (var ci = 0; ci < ch.length; ci++) {
+        matchEl(ch[ci]);
       }
     }
     return results;
+  },
+  querySelector: function(sel) {
+    var results = this.querySelectorAll(sel);
+    return results.length > 0 ? results[0] : null;
   },
 };
 
@@ -967,6 +984,95 @@ suite('Plan Picker Premium Gating', function() {
     var overlay = document.getElementById('plan-picker-overlay');
     assert.ok(overlay !== null, 'plan picker shown when cached state says free');
     delete global.window.__premium;
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// POST-LESSON SIGN-IN PROMPT
+// ═══════════════════════════════════════════════════════════════
+
+suite('Post-Lesson Sign-In Prompt', function () {
+  test('showPostLessonSignInPrompt is exported on window.__ux', function () {
+    assert.strictEqual(typeof ux.showPostLessonSignInPrompt, 'function');
+  });
+
+  test('does NOT show prompt for signed-in users', function () {
+    localStorage.removeItem('bayan_signin_prompt_shown');
+    global.getCurrentUser = function () { return { uid: 'u1' }; };
+    ux.showPostLessonSignInPrompt();
+    assert.strictEqual(document.querySelector('.signin-prompt'), null, 'no prompt for signed-in user');
+  });
+
+  test('shows prompt for guest users', function () {
+    var oldP = document.querySelector('.signin-prompt');
+    if (oldP) oldP.remove();
+    localStorage.removeItem('bayan_signin_prompt_shown');
+    global.getCurrentUser = function () { return null; };
+    ux.showPostLessonSignInPrompt();
+    var el = document.querySelector('.signin-prompt');
+    assert.ok(el !== null, 'prompt element created');
+    assert.ok(el.querySelector('.signin-prompt-action'), 'has sign-in link');
+    assert.ok(el.querySelector('.signin-prompt-dismiss'), 'has dismiss button');
+    // textContent is a flat string in mock; verify via child element
+    var actionLink = el.querySelector('.signin-prompt-action');
+    assert.ok(actionLink !== null, 'has sign-in link child');
+    // Clean up
+    if (el) el.remove();
+  });
+
+  test('sets localStorage flag immediately (suppresses repeat)', function () {
+    localStorage.removeItem('bayan_signin_prompt_shown');
+    global.getCurrentUser = function () { return null; };
+    ux.showPostLessonSignInPrompt();
+    assert.strictEqual(localStorage.getItem('bayan_signin_prompt_shown'), '1', 'flag set on show');
+    // Second call should not create a new prompt
+    var before = document.querySelectorAll('.signin-prompt').length;
+    ux.showPostLessonSignInPrompt();
+    assert.strictEqual(document.querySelectorAll('.signin-prompt').length, before, 'no duplicate prompt');
+    // Clean up
+    var el = document.querySelector('.signin-prompt');
+    if (el) el.remove();
+  });
+
+  test('does NOT show prompt if flag already set (prior session)', function () {
+    // Clean up any lingering prompt elements from prior tests
+    var old = document.querySelector('.signin-prompt');
+    if (old) old.remove();
+    localStorage.setItem('bayan_signin_prompt_shown', '1');
+    global.getCurrentUser = function () { return null; };
+    ux.showPostLessonSignInPrompt();
+    assert.strictEqual(document.querySelector('.signin-prompt'), null, 'suppressed by prior flag');
+  });
+
+  test('dismiss button removes the prompt element (animation + flush)', function () {
+    // Clean up any lingering prompt elements from prior tests
+    var old = document.querySelector('.signin-prompt');
+    if (old) old.remove();
+    localStorage.removeItem('bayan_signin_prompt_shown');
+    global.getCurrentUser = function () { return null; };
+    ux.showPostLessonSignInPrompt();
+    var el = document.querySelector('.signin-prompt');
+    assert.ok(el !== null, 'prompt exists before dismiss');
+    var dismissBtn = el.querySelector('.signin-prompt-dismiss');
+    dismissBtn.click();
+    assert.ok(el.classList.contains('hiding'), 'hiding class added on dismiss');
+    // Flush the 220ms setTimeout that removes the element
+    flushTimeouts();
+    assert.strictEqual(document.querySelector('.signin-prompt'), null, 'prompt removed after animation flush');
+  });
+
+  test('sign-in link opens auth view', function () {
+    localStorage.removeItem('bayan_signin_prompt_shown');
+    global.getCurrentUser = function () { return null; };
+    global.switchView = function (v) { global.__lastView = v; };
+    ux.showPostLessonSignInPrompt();
+    var link = document.querySelector('.signin-prompt-action');
+    assert.ok(link !== null, 'sign-in link exists');
+    link.onclick({ preventDefault: function () {} });
+    assert.strictEqual(global.__lastView, 'auth', 'navigated to auth');
+    // Clean up
+    var el = document.querySelector('.signin-prompt');
+    if (el) el.remove();
   });
 });
 
