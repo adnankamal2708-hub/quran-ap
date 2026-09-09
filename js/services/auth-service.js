@@ -26,6 +26,8 @@ var {
   deleteUser,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  GoogleAuthProvider,
+  signInWithPopup,
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
@@ -237,6 +239,77 @@ async function loginWithEmail(email, password, rememberMe) {
     return { user: result.user };
   } catch (e) {
     throw _translateFirebaseError(e);
+  }
+}
+
+// ── Google Sign-In ────────────────────────────────────────────
+
+/**
+ * Sign in with a Google account via the OAuth popup flow.
+ *
+ * Popup (not redirect) is used deliberately: on non-Firebase hosting
+ * (GitHub Pages) signInWithRedirect depends on a cross-origin iframe
+ * that modern browsers block via third-party storage partitioning
+ * (Chrome 115+, Safari 16.1+, Firefox 109+). Popup is the documented
+ * alternative and also behaves better on iOS home-screen PWAs.
+ *
+ * The resolved Firebase user is identical in shape to an email/password
+ * user — same uid/email/displayName — so all downstream per-user logic
+ * (profile docs, premium gating via subscriptions/{uid}, sync) works
+ * unchanged.
+ */
+async function signInWithGoogle() {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+
+  if (!auth) {
+    throw new Error('Authentication service is not available.');
+  }
+
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    return { user: result.user };
+  } catch (e) {
+    throw _translateGoogleError(e);
+  }
+}
+
+/**
+ * Translate Google sign-in errors into user-friendly messages.
+ * Cancelled popups are marked `silent` so the UI can ignore them
+ * entirely — a user closing the popup is not a failure.
+ */
+function _translateGoogleError(error) {
+  var code = error.code || error.message || 'unknown';
+
+  // User closed the popup without completing sign-in — not a failure.
+  if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+    var cancelled = new Error('Sign-in cancelled.');
+    cancelled.silent = true;
+    return cancelled;
+  }
+
+  switch (code) {
+    case 'auth/account-exists-with-different-credential':
+      // Same email already exists under a different provider (e.g. the user
+      // originally signed up with email/password). Tell them to use that method.
+      return new Error('An account already exists with this email. Please sign in with your email and password instead.');
+    case 'auth/email-already-in-use':
+      return new Error('An account already exists with this email. Please sign in with your email and password instead.');
+    case 'auth/credential-already-in-use':
+      return new Error('This Google account is already linked to another sign-in. Please use your original sign-in method instead.');
+    case 'auth/popup-blocked':
+      return new Error('Google sign-in popup was blocked by your browser. Please allow popups for this site and try again.');
+    case 'auth/unauthorized-domain':
+      return new Error('Google sign-in is not available on this domain yet. Please contact support.');
+    case 'auth/operation-not-allowed':
+      return new Error('Google sign-in is not enabled yet. Please contact support.');
+    case 'auth/network-request-failed':
+      return new Error('Network error. Check your connection and try again.');
+    case 'auth/user-disabled':
+      return new Error('This account has been disabled.');
+    default:
+      return _translateFirebaseError(error);
   }
 }
 
@@ -498,6 +571,7 @@ window.fetchCurrentUser = fetchCurrentUser;
 window.onAuthChange = onAuthChange;
 window.signUpWithEmail = signUpWithEmail;
 window.loginWithEmail = loginWithEmail;
+window.signInWithGoogle = signInWithGoogle;
 window.logout = logout;
 window.sendPasswordResetEmail = sendPasswordResetEmail;
 window.confirmPasswordReset = confirmPasswordReset;
@@ -518,6 +592,7 @@ window.__auth = {
   onAuthChange: onAuthChange,
   signUp: signUpWithEmail,
   login: loginWithEmail,
+  signInWithGoogle: signInWithGoogle,
   logout: logout,
   sendPasswordReset: sendPasswordResetEmail,
   confirmPasswordReset: confirmPasswordReset,

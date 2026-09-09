@@ -52,7 +52,12 @@ global.logout = function() { return Promise.resolve(); };
 global.getCurrentUser = function() { return global.__mockUser || null; };
 global.onAuthChange = function(fn) { fn(global.__mockUser); };
 global.switchView = function(v) { global.__lastView = v; };
-global.saveProfile = function() { return Promise.resolve(true); };
+global.signInWithGoogle = function() {
+  if (global.__googleFail) return Promise.reject(global.__googleFail);
+  return Promise.resolve({ user: { uid: 'u_google', email: 'g@example.com', displayName: 'G User', emailVerified: true, photoURL: 'http://example.com/p.png' } });
+};
+global.loadProfile = function() { return Promise.resolve(global.__mockProfile); };
+global.saveProfile = function() { global.__saveProfileCalled = true; return Promise.resolve(true); };
 global.getDefaultSettings = function() { return { dailyReviewLimit: 25, sessionSize: 20, autoImportOnLogin: true }; };
 global.exportLocalData = function() { return {}; };
 global.importLocalData = function() {};
@@ -85,6 +90,9 @@ function t(name, fn) {
     global.__emailVerified = true;
     global.__mockUser = null;
     global.__lastView = null;
+    global.__googleFail = null;
+    global.__mockProfile = null;
+    global.__saveProfileCalled = false;
     global.AUTO_IMPORT_ON_LOGIN = false;
     fn();
     passed++;
@@ -471,6 +479,114 @@ ts('Auth — Guest Notice', function() {
     createEl('guest-badge');
     updateAuthUI({ uid: 'u1', email: 'test@example.com', displayName: 'Test', emailVerified: true });
     assert.strictEqual(el.hidden, true);
+  });
+});
+
+ts('Auth — Sign In with Google', function() {
+  function prepGoogleLogin() {
+    createEl('auth-login');
+    createEl('auth-signup');
+    createEl('auth-forgot');
+    createEl('auth-reset');
+    createEl('auth-verify');
+    createEl('auth-title');
+    showAuthView('login');
+    createEl('auth-google-login-btn');
+    createEl('auth-login-error');
+  }
+
+  t('google option hidden by default (header/prompt entry points)', function() {
+    createEl('auth-login');
+    createEl('auth-signup');
+    createEl('auth-forgot');
+    createEl('auth-reset');
+    createEl('auth-verify');
+    createEl('auth-title');
+    createEl('auth-google-login');
+    createEl('auth-google-signup');
+    showAuthView('login');
+    assert.strictEqual(document.getElementById('auth-google-login').style.display, 'none');
+  });
+
+  t('google option visible via Profile-tab entry ({google:true})', function() {
+    createEl('auth-login');
+    createEl('auth-signup');
+    createEl('auth-forgot');
+    createEl('auth-reset');
+    createEl('auth-verify');
+    createEl('auth-title');
+    createEl('auth-google-login');
+    createEl('auth-google-signup');
+    showAuthView('login', { google: true });
+    assert.strictEqual(document.getElementById('auth-google-login').style.display, 'block');
+  });
+
+  t('google option visible on signup view when enabled', function() {
+    createEl('auth-login');
+    createEl('auth-signup');
+    createEl('auth-forgot');
+    createEl('auth-reset');
+    createEl('auth-verify');
+    createEl('auth-title');
+    createEl('auth-google-login');
+    createEl('auth-google-signup');
+    showAuthView('signup', { google: true });
+    assert.strictEqual(document.getElementById('auth-google-signup').style.display, 'block');
+    assert.strictEqual(document.getElementById('auth-google-login').style.display, 'none');
+  });
+
+  t('success creates a profile doc when none exists, then navigates to learn', async function() {
+    prepGoogleLogin();
+    global.__mockProfile = null;
+    await handleGoogleSignIn();
+    assert.strictEqual(global.__lastView, 'learn');
+    assert.strictEqual(global.__saveProfileCalled, true);
+  });
+
+  t('success does not overwrite an existing profile doc', async function() {
+    prepGoogleLogin();
+    global.__mockProfile = { displayName: 'Existing', settings: { dailyReviewLimit: 5 } };
+    await handleGoogleSignIn();
+    assert.strictEqual(global.__lastView, 'learn');
+    assert.strictEqual(global.__saveProfileCalled, false);
+  });
+
+  t('user closing the popup is silent (no error, no navigation)', async function() {
+    prepGoogleLogin();
+    global.__googleFail = { silent: true, message: 'Sign-in cancelled.' };
+    await handleGoogleSignIn();
+    assert.strictEqual(global.__lastView, null);
+    assert.strictEqual(document.getElementById('auth-login-error').style.display, 'none');
+  });
+
+  t('account-exists-with-different-credential shows a clear message', async function() {
+    prepGoogleLogin();
+    global.__googleFail = new Error('An account already exists with this email. Please sign in with your email and password instead.');
+    await handleGoogleSignIn();
+    assert.strictEqual(document.getElementById('auth-login-error').style.display, 'block');
+    assert.ok(document.getElementById('auth-login-error').textContent.indexOf('email and password') >= 0);
+  });
+
+  t('popup-blocked shows a helpful message', async function() {
+    prepGoogleLogin();
+    global.__googleFail = new Error('Google sign-in popup was blocked by your browser. Please allow popups for this site and try again.');
+    await handleGoogleSignIn();
+    assert.strictEqual(document.getElementById('auth-login-error').style.display, 'block');
+    assert.ok(document.getElementById('auth-login-error').textContent.indexOf('popup') >= 0);
+  });
+
+  t('button is disabled while sign-in is in flight', async function() {
+    prepGoogleLogin();
+    var resolveFn;
+    global.signInWithGoogle = function() {
+      return new Promise(function(resolve) { resolveFn = resolve; });
+    };
+    var btn = document.getElementById('auth-google-login-btn');
+    var p = handleGoogleSignIn();
+    assert.ok(btn.disabled);
+    resolveFn({ user: { uid: 'u_google', email: 'g@example.com', displayName: 'G', emailVerified: true } });
+    await p;
+    assert.strictEqual(global.__lastView, 'learn');
   });
 });
 

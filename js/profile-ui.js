@@ -145,7 +145,9 @@ function wireAccountEvents() {
 async function renderProfileView() {
   var user = getCurrentUser();
   if (!user) {
-    showAuthView('login');
+    // { google: true } — Profile-tab entry point exposes "Sign in with Google"
+    // (Stage A gate; header/prompt entry points keep it hidden until Stage B).
+    showAuthView('login', { google: true });
     switchView('auth');
     return;
   }
@@ -543,8 +545,8 @@ async function handleDeleteAccount() {
     // Clear local data
     localStorage.clear();
 
-    // Navigate to auth view
-    showAuthView('login');
+    // Navigate to auth view (Profile-tab entry point — exposes Google sign-in)
+    showAuthView('login', { google: true });
     switchView('auth');
   } catch (e) {
     alert('Failed to delete account: ' + e.message);
@@ -1521,12 +1523,21 @@ async function renderFullProfile(preferredTab) {
       // ── Not logged in: show auth view
       // Show auth form while still in profile view context
       if (typeof showAuthView === 'function') {
-        showAuthView('login');
+        // Profile-tab entry point — exposes Google sign-in (Stage A gate).
+        showAuthView('login', { google: true });
       }
 
       // Switch to auth view — this ensures the login form is visible
       // and the profile skeleton is hidden naturally by the view switch.
       // We call switchView AFTER showAuthView so the auth forms are ready.
+      //
+      // Defer to the next microtask: when auth is already ready this branch
+      // runs synchronously INSIDE the outer switchView('profile') call while
+      // its re-entrant guard (_switchingView) is still held, which would make
+      // this nested switchView('auth') a silent no-op and leave guests stuck
+      // on the static profile view. The deferral guarantees the guard has
+      // been released before switching.
+      await Promise.resolve();
       if (typeof switchView === 'function') {
         switchView('auth');
       }

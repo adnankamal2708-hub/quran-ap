@@ -139,6 +139,22 @@ test.describe('Authentication Flow', () => {
     await expect(page.locator('#auth-title')).toHaveText('Welcome Back');
   });
 
+  test('Google sign-in option stays hidden via the header sign-in link (Stage A gate)', async ({ page }) => {
+    // Header entry point opens the shared login view WITHOUT the Google flag —
+    // the button must stay hidden during the Stage A rollout.
+    await page.locator('#header-signin-link').click();
+    await expect(page.locator('#auth-login')).toBeVisible();
+    await expect(page.locator('#auth-google-login')).not.toBeVisible();
+  });
+
+  test('Google sign-in option is visible when auth opens from the Profile tab (Stage A)', async ({ page }) => {
+    // Profile-tab entry point passes { google: true } — the only place the
+    // Google option is exposed in Stage A.
+    await page.locator('#tab-profile').click();
+    await expect(page.locator('#auth-login')).toBeVisible();
+    await expect(page.locator('#auth-google-login')).toBeVisible();
+  });
+
   test('header "Sign in" link is hidden for signed-in users', async ({ page }) => {
     // For a guest, the link should be visible
     const signinLink = page.locator('#header-signin-link');

@@ -2558,6 +2558,57 @@ body::before {
   padding: 14px;
 }
 
+/* ── Sign in with Google (staged rollout — visible via Profile tab only in Stage A) ── */
+.auth-google-section {
+  margin-top: 2px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 2px;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-google-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.auth-google-btn:hover {
+  background: var(--surface2);
+  border-color: var(--gold-dim);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.auth-google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .auth-footer {
   text-align: center;
   margin-top: 20px;

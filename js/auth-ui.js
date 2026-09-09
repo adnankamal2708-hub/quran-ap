@@ -36,9 +36,16 @@ function initAuthUI() {
 
 /**
  * Show a specific auth sub-view (login, signup, forgot, reset).
+ *
+ * @param {string} viewName — one of 'login' | 'signup' | 'forgot' | 'reset' | 'verify'
+ * @param {Object} [opts] — { google: boolean } enables the Google sign-in
+ *   option for this view. Used for the staged rollout: only the Profile-tab
+ *   entry point passes { google: true } in Stage A; other entry points
+ *   (header sign-in link, post-lesson prompt) keep it hidden until Stage B.
  */
-function showAuthView(viewName) {
+function showAuthView(viewName, opts) {
   _currentAuthView = viewName;
+  var enableGoogle = !!(opts && opts.google);
   var views = ['auth-login', 'auth-signup', 'auth-forgot', 'auth-reset', 'auth-verify'];
   views.forEach(function (id) {
     var el = document.getElementById(id);
@@ -55,6 +62,23 @@ function showAuthView(viewName) {
     'verify': 'Verify Email',
   };
   if (titleEl) titleEl.textContent = titles[viewName] || 'Account';
+
+  _applyGoogleVisibility(viewName, enableGoogle);
+}
+
+/**
+ * Toggle the "Sign in with Google" sections based on the active view and
+ * whether the entry point enabled Google sign-in (Stage A gate).
+ */
+function _applyGoogleVisibility(viewName, enableGoogle) {
+  var loginSection = document.getElementById('auth-google-login');
+  var signupSection = document.getElementById('auth-google-signup');
+  if (loginSection) {
+    loginSection.style.display = (viewName === 'login' && enableGoogle) ? 'block' : 'none';
+  }
+  if (signupSection) {
+    signupSection.style.display = (viewName === 'signup' && enableGoogle) ? 'block' : 'none';
+  }
 }
 
 // ── Event Wiring ──────────────────────────────────────────────
@@ -103,6 +127,16 @@ function wireAuthFormEvents() {
       e.preventDefault();
       showAuthView('login');
     };
+  }
+
+  // ── Sign In with Google ──
+  var googleLoginBtn = document.getElementById('auth-google-login-btn');
+  if (googleLoginBtn) {
+    googleLoginBtn.onclick = handleGoogleSignIn;
+  }
+  var googleSignupBtn = document.getElementById('auth-google-signup-btn');
+  if (googleSignupBtn) {
+    googleSignupBtn.onclick = handleGoogleSignIn;
   }
 
   // ── Forgot Password ──
@@ -203,6 +237,53 @@ async function handleLogin() {
   } catch (e) {
     showAuthError(errorEl, e.message);
     setButtonLoading(submitBtn, false);
+  }
+}
+
+async function handleGoogleSignIn() {
+  // Show errors in whichever auth view is active (login or signup).
+  var isSignup = (_currentAuthView === 'signup');
+  var errorEl = document.getElementById(isSignup ? 'auth-signup-error' : 'auth-login-error');
+  var btn = document.getElementById(isSignup ? 'auth-google-signup-btn' : 'auth-google-login-btn');
+
+  hideAuthError(errorEl);
+  setButtonLoading(btn, true);
+
+  try {
+    var result = await signInWithGoogle();
+    var user = result.user;
+
+    // Google-verified emails skip the email-verification step.
+    // Ensure the Firestore profile doc exists (same shape as email/password
+    // signup: profiles/{uid} with displayName/email/settings). Create only if
+    // missing so returning users' saved settings are never overwritten.
+    try {
+      var existingProfile = (typeof loadProfile === 'function') ? await loadProfile(user.uid) : null;
+      if (!existingProfile && typeof saveProfile === 'function') {
+        var profileData = {
+          displayName: user.displayName || (user.email || 'User'),
+          email: user.email,
+          settings: getDefaultSettings(),
+        };
+        if (user.photoURL) profileData.avatarUrl = user.photoURL;
+        await saveProfile(user.uid, profileData);
+      }
+    } catch (e) {
+      // Profile creation is non-fatal — auth/premium/sync key off the UID,
+      // so a profile write failure must never block sign-in.
+      console.warn('[auth] Could not ensure profile doc for Google user:', e && e.message || e);
+    }
+
+    // Prompt to import local data (same post-login flow as email/password)
+    await promptImportLocalData();
+
+    setButtonLoading(btn, false);
+    switchView('learn');
+  } catch (e) {
+    setButtonLoading(btn, false);
+    // User closing the popup is not a failure — stay silent.
+    if (e && e.silent) return;
+    showAuthError(errorEl, (e && e.message) || 'Something went wrong. Please try again.');
   }
 }
 
