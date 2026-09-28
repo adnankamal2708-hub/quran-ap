@@ -689,6 +689,79 @@ addAsyncTest('Live listener: teardown on logout unsubscribes (no cross-user leak
 });
 
 // ═══════════════════════════════════════════════════════════
+// Provider Equivalence — the core of the Google sign-in concern:
+// premium resolution must be IDENTICAL regardless of which auth
+// provider the user signed in with. premium.js only ever reads
+// subscriptions/{uid} keyed by auth UID — provider metadata plays
+// no role — and this test pins that down for the record.
+// ═══════════════════════════════════════════════════════════
+
+// The premium module runs in its own vm realm, so its async Firestore
+// continuation needs a full event-loop flush (not just one microtask) to
+// settle after an authCb() login event.
+function _flushAuth() {
+  return new Promise(function (r) { setTimeout(r, 0); });
+}
+
+addAsyncTest('Premium resolution is provider-agnostic: same uid + same subscriptions doc → identical for email/password vs Google users', async function () {
+  resetPremium();
+  var authCb = null;
+  global.window.__auth = {
+    getCurrentUser: function () { return null; },
+    onAuthChange: function (cb) { authCb = cb; },
+  };
+  // Same subscriptions/{uid} doc (active, future period end) for every sign-in below.
+  _mockFirebaseCore({ status: 'active', currentPeriodEnd: _firestoreTimestamp(Date.now() + 30 * 86400000) });
+  __premium.isPremium(); // triggers _init → registers auth listener
+
+  // 1. Email/password-shaped user
+  authCb({ uid: 'shared-uid', email: 'a@example.com', displayName: 'A', providerData: [{ providerId: 'password' }] });
+  await _flushAuth();
+  assert.strictEqual(__premium.isPremium(), true, 'email/password user with active doc → premium');
+  assert.strictEqual(_mockSnapListeners.length, 1, 'live listener attached for email/password user');
+
+  // Logout → premium resets, listener torn down
+  authCb(null);
+  await _flushAuth();
+  assert.strictEqual(__premium.isPremium(), false, 'premium reset on logout');
+  assert.strictEqual(_mockSnapListeners.length, 0, 'listener torn down on logout');
+
+  // 2. Google-shaped user (same uid, provider metadata differs)
+  authCb({ uid: 'shared-uid', email: 'a@example.com', displayName: 'A', photoURL: 'http://x/a.png', providerData: [{ providerId: 'google.com' }] });
+  await _flushAuth();
+  assert.strictEqual(__premium.isPremium(), true, 'Google user with same uid + same doc → identical premium');
+  assert.strictEqual(_mockSnapListeners.length, 1, 'live listener attached for Google user');
+
+  // 3. Minimal uid-only user — premium ignores every field except uid
+  authCb(null);
+  await _flushAuth();
+  authCb({ uid: 'shared-uid' });
+  await _flushAuth();
+  assert.strictEqual(__premium.isPremium(), true, 'uid-only user resolves identically — provider metadata plays no role');
+
+  cleanupTest();
+});
+
+// Also pin the mirror case: same provider metadata, DIFFERENT uid + no doc → false
+addAsyncTest('Different uid with no subscription doc → not premium, regardless of provider', async function () {
+  resetPremium();
+  var authCb = null;
+  global.window.__auth = {
+    getCurrentUser: function () { return null; },
+    onAuthChange: function (cb) { authCb = cb; },
+  };
+  _mockFirebaseCore(null); // no subscription doc
+  __premium.isPremium();
+
+  authCb({ uid: 'google-uid-2', email: 'b@gmail.com', providerData: [{ providerId: 'google.com' }] });
+  await _flushAuth();
+  assert.strictEqual(__premium.isPremium(), false, 'Google user without a subscriptions doc → not premium');
+  assert.strictEqual(_mockSnapListeners.length, 1, 'live listener still attached (reads the doc)');
+
+  cleanupTest();
+});
+
+// ═══════════════════════════════════════════════════════════
 // RUN ALL TESTS
 // ═══════════════════════════════════════════════════════════
 
