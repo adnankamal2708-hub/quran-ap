@@ -409,7 +409,7 @@ getResults: function () { return _safeguardResults; },
     </div>
   </div>
 
-  <div class="app" role="application" aria-label="Bayan — Quran Learning App">
+  <div class="app">
 
     <!-- TOP BAR -->
     <header class="top-bar" role="banner">
@@ -421,7 +421,7 @@ getResults: function () { return _safeguardResults; },
         </div>
         <div class="top-right-group">
           <span class="guest-badge" id="guest-badge" style="display:none"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Guest</span><a id="header-signin-link" class="header-signin-link" href="#" style="display:none">Sign in</a>
-          <div class="user-avatar-small" id="user-avatar-display" aria-label="Profile" style="cursor:pointer" onclick="switchView('profile')">U</div>
+          <button class="user-avatar-small" id="user-avatar-display" type="button" aria-label="Profile" onclick="switchView('profile')">U</button>
         </div>
       </div>
 
@@ -607,6 +607,8 @@ getResults: function () { return _safeguardResults; },
 
         <!-- ═══ COLLAPSIBLE INFO SECTIONS (below vocabulary, learning-focused) ═══ -->
         <div id="ls-info-sections">
+
+          <button class="btn btn-outline" type="button" onclick="switchView('quiz')">Take a quiz</button>
 
           <!-- Section 1: Learning Paths (Continue card, Reviews due, Paths grid) -->
           <div class="ls-collapsible">
@@ -1366,14 +1368,10 @@ getResults: function () { return _safeguardResults; },
       </div>
 
       <!-- Keyboard Hints -->
-      <div class="kbd-hint" id="kbd-hints" role="tooltip" aria-label="Keyboard shortcuts">
-        <span class="kbd-group"><kbd>←</kbd><kbd>→</kbd> Navigate</span>
-        <span class="kbd-group"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> Rate</span>
-        <span class="kbd-group"><kbd>Q</kbd> Quick</span>
-        <span class="kbd-group"><kbd>L</kbd> Paths</span>
-        <span class="kbd-group"><kbd>W</kbd> Words</span>
-        <span class="kbd-group"><kbd>Q</kbd> Quran</span>
-        <span class="kbd-group"><kbd>P</kbd> Profile</span>
+      <div class="kbd-hint" id="kbd-hints" aria-label="Keyboard shortcuts" aria-hidden="true">
+        <span class="kbd-group">Learn: <kbd>←</kbd><kbd>→</kbd> Navigate · <kbd>1</kbd>–<kbd>4</kbd> Rate · <kbd>Q</kbd> Quick</span>
+        <span class="kbd-group">Quiz: <kbd>1</kbd>–<kbd>4</kbd> Answer · <kbd>→</kbd> Next</span>
+        <span class="kbd-group"><kbd>D</kbd> Dashboard · <kbd>L</kbd> Learn · <kbd>W</kbd> Words · <kbd>R</kbd> Quran · <kbd>P</kbd> Profile</span>
         <span class="kbd-group"><kbd>?</kbd> Hints</span>
       </div>
     </main>

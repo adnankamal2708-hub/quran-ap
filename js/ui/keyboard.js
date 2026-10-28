@@ -13,12 +13,14 @@ function showKeyboardHints() {
   var hint = document.getElementById('kbd-hints');
   if (!hint) return;
   hint.classList.add('visible');
+  hint.setAttribute('aria-hidden', 'false');
   // Announce to screen readers
   hint.setAttribute('role', 'status');
   hint.setAttribute('aria-live', 'polite');
   if (_kbdHintsTimer) clearTimeout(_kbdHintsTimer);
   _kbdHintsTimer = setTimeout(function () {
     hint.classList.remove('visible');
+    hint.setAttribute('aria-hidden', 'true');
     hint.removeAttribute('role');
     hint.removeAttribute('aria-live');
   }, 4000);
@@ -117,6 +119,7 @@ function setupKeyboardShortcuts() {
       if (hint) {
         clearTimeout(_kbdHintsTimer);
         hint.classList.remove('visible');
+        hint.setAttribute('aria-hidden', 'true');
       }
     }
   });

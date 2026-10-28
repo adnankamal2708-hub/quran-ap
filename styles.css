@@ -2416,13 +2416,22 @@ body::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  border: 0;
   width: 26px;
   height: 26px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--gold-dim), var(--gold));
   color: var(--bg);
+  font: inherit;
   font-weight: 600;
   font-size: 12px;
+  cursor: pointer;
+}
+
+.user-avatar-small:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .guest-badge {
