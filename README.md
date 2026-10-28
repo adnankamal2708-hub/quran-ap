@@ -44,7 +44,7 @@
 
 ## Getting Started
 
-1. **Development**: Open `index.html` in a browser (no build step required)
+1. **Development**: Run `npm run build` first — `index.html` loads `js/data.bundle.min.js` / `js/app.bundle.min.js`, which the build generates (they are not committed). Then open `index.html`, or run `node serve-e2e.js` and visit http://localhost:8080
 2. **Production Build**: `node build.js` — bundles app JS, minifies (Terser), generates service worker
 3. **Run Unit Tests**: `node test/run-all.js` — runs all test suites
 

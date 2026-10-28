@@ -743,15 +743,16 @@ async function build() {
     process.exit(1);
   }
 
-  // 8. Copy build artifacts to root directory so source index.html and sw.js work
-  //    (source index.html references js/data.bundle.min.js + js/app.bundle.min.js)
-  //    (root sw.js precaches styles.min.css + service worker must match dist version)
+  // 8. Copy build outputs to the repo root so the source index.html works
+  //    locally (it loads js/data.bundle.min.js + js/app.bundle.min.js) and
+  //    serve-e2e.js can serve them. These copies are gitignored — only dist/
+  //    is deployed. sw.js is NOT copied back: the root sw.js is the source
+  //    template whose CACHE_NAME build.js fills in for dist/.
   console.log('  8. Syncing build artifacts to root directory...');
   var artifactsToSync = [
     'js/data.bundle.min.js',
     'js/app.bundle.min.js',
     'styles.min.css',
-    'sw.js',
   ];
   if (fs.existsSync(path.join(DIST, 'js/quran.bundle.min.js'))) {
     artifactsToSync.push('js/quran.bundle.min.js');
