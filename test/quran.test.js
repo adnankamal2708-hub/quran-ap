@@ -842,16 +842,15 @@ suite('Rename Integrity (Reader→Quran Migration)', function() {
     }
   });
 
-  // TEST: Keyboard shortcut updated
-  test('Keyboard shortcut updated from Read to Quran', function() {
+  // TEST: Keyboard shortcut hints match the registered shortcuts
+  test('Keyboard shortcut hints match keyboard handlers', function() {
     var htmlPath = path.join(__dirname, '..', 'index.html');
     if (!fs.existsSync(htmlPath)) return;
     var html = fs.readFileSync(htmlPath, 'utf8');
-    // Must show Q Quran (not R Read)
-    var hasNewShortcut = html.indexOf('<kbd>Q</kbd> Quran') >= 0;
-    var hasOldShortcut = html.indexOf('<kbd>R</kbd> Read') >= 0;
-    assert.ok(hasNewShortcut, 'New shortcut "Q Quran" not found in index.html');
-    assert.ok(!hasOldShortcut, 'Old shortcut "R Read" still present in index.html');
+    assert.ok(html.indexOf('<kbd>R</kbd> Quran') >= 0, 'Quran shortcut "R" not found in index.html');
+    assert.ok(html.indexOf('<kbd>Q</kbd> Quick') >= 0, 'Quick mode shortcut "Q" not found in index.html');
+    assert.ok(html.indexOf('<kbd>Q</kbd> Quran') === -1, 'Conflicting shortcut "Q Quran" still present in index.html');
+    assert.ok(html.indexOf('<kbd>R</kbd> Read') === -1, 'Stale shortcut "R Read" still present in index.html');
   });
 
   // TEST: window.__quran export exists in quran.js
