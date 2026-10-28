@@ -1228,6 +1228,15 @@ body::before {
   contain: layout style;
 }
 
+.wordlist-load-more {
+  display: block;
+  margin: 12px auto 20px;
+}
+
+.wordlist-load-more[hidden] {
+  display: none;
+}
+
 .wordlist-item:hover {
   border-color: var(--gold-dim);
   background: rgba(201, 168, 76, 0.05);

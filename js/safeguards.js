@@ -62,6 +62,7 @@
     // List & review
     { id: 'search-input',      name: 'Search input' },
     { id: 'wordlist-container',name: 'Word list container' },
+    { id: 'wordlist-load-more',name: 'Load more words button' },
     { id: 'review-banner',     name: 'Review banner' },
     { id: 'session-summary-modal', name: 'Session summary modal' },
   ];

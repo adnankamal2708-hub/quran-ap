@@ -163,85 +163,93 @@ function updateFilterActiveBadge() {
  * Render the word list with filtering and search applied.
  * Uses advanced search when the advanced filter panel is visible or has active filters.
  */
-function renderWordList() {
-  // Always scroll to top when rendering the word list
+var _wordListRenderState = null;
+var _WORD_LIST_BATCH_SIZE = 100;
+
+function renderWordList(loadMore) {
   var contentEl = DOM.get('content');
-  if (contentEl) contentEl.scrollTop = 0;
-  
-  var searchInput = DOM.get('search-input');
-  var searchQuery = searchInput ? searchInput.value : '';
-  var activeType = document.querySelector('#filter-type-chips .chip-active');
-  var activeStatus = document.querySelector('#filter-status-chips .chip-active');
-  var typeFilter = activeType ? activeType.getAttribute('data-value') : 'all';
-  var statusFilter = activeStatus ? activeStatus.getAttribute('data-value') : 'all';
-  
-  // Populate filter dropdowns on first render
-  populateFilterDropdowns();
-  
-  // Check if advanced filters are active
-  var advancedFilterPanel = DOM.get('advanced-filter-panel');
-  var advFiltersVisible = advancedFilterPanel && advancedFilterPanel.style.display === 'block';
-  var advFiltersActive = hasAdvancedFilters();
-  
-  var words;
-  if (advFiltersActive) {
-    // Use advanced search with collected filter state
-    var filterState = collectAdvancedFilters();
-    // Build advanced search index if needed
-    if (typeof buildAdvancedSearchIndex === 'function') buildAdvancedSearchIndex();
-    
-    // Apply advanced search
-    words = typeof advancedSearch === 'function' 
-      ? advancedSearch(searchQuery, filterState)
-      : searchWords(searchQuery);
-    
-    // Apply basic type/status filters on top
-    words = filterByCategory(words, typeFilter);
-    if (statusFilter === 'favorites') {
-      words = filterByFavorites(words);
-    } else if (statusFilter !== 'all') {
-      words = filterByStatus(words, statusFilter);
-    }
-  } else {
-    // Use simple filtering (existing behavior)
-    words = searchWords(searchQuery);
-    words = filterByCategory(words, typeFilter);
-    if (statusFilter === 'favorites') {
-      words = filterByFavorites(words);
-    } else {
-      words = filterByStatus(words, statusFilter);
-    }
-  }
+  if (!loadMore && contentEl) contentEl.scrollTop = 0;
 
-  // Update count
-  var countEl = DOM.get('list-count');
-  if (countEl) countEl.textContent = words.length + ' word' + (words.length !== 1 ? 's' : '');
-  
-  // Update filter result count badge
-  var resultCountEl = DOM.get('filter-result-count');
-  if (resultCountEl && advFiltersActive) {
-    resultCountEl.textContent = words.length + ' results';
-  } else if (resultCountEl) {
-    resultCountEl.textContent = '';
-  }
-  
-  // Update filter active badge on toggle
-  updateFilterActiveBadge();
-
-  // Use DocumentFragment for batch insertion to reduce reflows
   var container = DOM.get('wordlist-container');
-  container.innerHTML = '';
+  if (!container) return;
+  var state = loadMore ? _wordListRenderState : null;
+  var words;
+  var advFiltersActive;
 
-  if (words.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:30px 0;color:var(--text-muted);font-size:13px">No words match your search or filters.</div>';
-    return;
+  if (state) {
+    words = state.words;
+    advFiltersActive = state.advFiltersActive;
+  } else {
+    var searchInput = DOM.get('search-input');
+    var searchQuery = searchInput ? searchInput.value : '';
+    var activeType = document.querySelector('#filter-type-chips .chip-active');
+    var activeStatus = document.querySelector('#filter-status-chips .chip-active');
+    var typeFilter = activeType ? activeType.getAttribute('data-value') : 'all';
+    var statusFilter = activeStatus ? activeStatus.getAttribute('data-value') : 'all';
+
+    populateFilterDropdowns();
+    advFiltersActive = hasAdvancedFilters();
+
+    if (advFiltersActive) {
+      var filterState = collectAdvancedFilters();
+      if (typeof buildAdvancedSearchIndex === 'function') buildAdvancedSearchIndex();
+      words = typeof advancedSearch === 'function'
+        ? advancedSearch(searchQuery, filterState)
+        : searchWords(searchQuery);
+      words = filterByCategory(words, typeFilter);
+      if (statusFilter === 'favorites') {
+        words = filterByFavorites(words);
+      } else if (statusFilter !== 'all') {
+        words = filterByStatus(words, statusFilter);
+      }
+    } else {
+      words = searchWords(searchQuery);
+      words = filterByCategory(words, typeFilter);
+      if (statusFilter === 'favorites') {
+        words = filterByFavorites(words);
+      } else {
+        words = filterByStatus(words, statusFilter);
+      }
+    }
+
+    var countEl = DOM.get('list-count');
+    if (countEl) countEl.textContent = words.length + ' word' + (words.length !== 1 ? 's' : '');
+
+    var resultCountEl = DOM.get('filter-result-count');
+    if (resultCountEl && advFiltersActive) {
+      resultCountEl.textContent = words.length + ' results';
+    } else if (resultCountEl) {
+      resultCountEl.textContent = '';
+    }
+
+    updateFilterActiveBadge();
+    container.innerHTML = '';
+
+    var loadMoreButton = DOM.get('wordlist-load-more');
+    if (words.length === 0) {
+      _wordListRenderState = null;
+      container.innerHTML = '<div style="text-align:center;padding:30px 0;color:var(--text-muted);font-size:13px">No words match your search or filters.</div>';
+      if (loadMoreButton) loadMoreButton.hidden = true;
+      return;
+    }
+
+    state = _wordListRenderState = {
+      words: words,
+      advFiltersActive: advFiltersActive,
+      nextIndex: 0,
+      srsData: loadSRS(),
+      favorites: loadFavorites()
+    };
   }
 
+  // Batch rows so the first paint does not create the entire vocabulary list.
   var fragment = document.createDocumentFragment();
-  var srsData = loadSRS();
-  var favs = loadFavorites();
+  var srsData = state.srsData;
+  var favs = state.favorites;
+  var startIndex = state.nextIndex;
+  var endIndex = Math.min(startIndex + _WORD_LIST_BATCH_SIZE, words.length);
 
-  for (var i = 0; i < words.length; i++) {
+  for (var i = startIndex; i < endIndex; i++) {
     var w = words[i];
     var entry = srsData[w.id];
     // Determine badge icon using SVG system
@@ -350,6 +358,18 @@ function renderWordList() {
   }
 
   container.appendChild(fragment);
+  state.nextIndex = endIndex;
+
+  var moreButton = DOM.get('wordlist-load-more');
+  if (moreButton) {
+    var remaining = words.length - endIndex;
+    moreButton.hidden = remaining <= 0;
+    if (remaining > 0) {
+      var nextBatchSize = Math.min(_WORD_LIST_BATCH_SIZE, remaining);
+      moreButton.textContent = 'Load ' + nextBatchSize + ' more words (' + remaining + ' remaining)';
+      moreButton.onclick = function() { renderWordList(true); };
+    }
+  }
 }
 
 function invalidateStatsCaches() {

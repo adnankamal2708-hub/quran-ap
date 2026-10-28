@@ -414,13 +414,14 @@ suite('Words tab — locked rows + live unlock', function () {
   global.toggleQuickMode = function () {};
 
   function createListEls() {
-    ['content', 'search-input', 'wordlist-container', 'list-count',
+    ['content', 'search-input', 'wordlist-container', 'wordlist-load-more', 'list-count',
      'advanced-filter-panel', 'filter-result-count'].forEach(function (id) {
       var el = mock.makeEl('div');
       el.id = id;
       if (id === 'search-input') el.value = '';
       if (id === 'advanced-filter-panel') el.style.display = 'none';
       if (id === 'wordlist-container') el.children = [];
+      if (id === 'wordlist-load-more') el.hidden = true;
     });
   }
 
@@ -433,24 +434,30 @@ suite('Words tab — locked rows + live unlock', function () {
 
   function listRows() {
     var container = document.getElementById('wordlist-container');
-    // renderWordList appends one DocumentFragment per render; the mock's
-    // innerHTML setter does not clear children, so only the LAST fragment's
-    // rows reflect the most recent render (live-unlock re-renders stack).
     var rows = [];
     var kids = container.children || [];
-    var last = kids.length > 0 ? kids[kids.length - 1] : null;
-    if (last) {
-      (last.children || []).forEach(function (row) { rows.push(row); });
-      if (rows.length === 0) rows.push(last);
-    }
+    kids.forEach(function (fragment) {
+      (fragment.children || []).forEach(function (row) { rows.push(row); });
+    });
     return rows;
+  }
+
+  function loadAllRows() {
+    var button = document.getElementById('wordlist-load-more');
+    while (button && !button.hidden) button.click();
   }
 
   test('free words render normally; premium words show a locked row', function () {
     resetList();
     renderWordList();
     var rows = listRows();
-    assert.ok(rows.length >= 300, 'expected at least 300 rows, got ' + rows.length);
+    assert.strictEqual(rows.length, 100, 'initial render is limited to one batch');
+    assert.ok(!document.getElementById('wordlist-load-more').hidden, 'more rows are available on request');
+    document.getElementById('wordlist-load-more').click();
+    assert.strictEqual(listRows().length, 200, 'one click appends only the next batch');
+    loadAllRows();
+    rows = listRows();
+    assert.ok(rows.length >= 300, 'expected all rows to load, got ' + rows.length);
 
     var freeRow = null, lockedRow = null;
     rows.forEach(function (row) {
@@ -483,13 +490,16 @@ suite('Words tab — locked rows + live unlock', function () {
   test('LIVE UNLOCK: premium upgrade mid-session re-renders the list unlocked', function () {
     resetList();
     renderWordList();
+    loadAllRows();
     var lockedBefore = listRows().filter(function (r) { return r._word && r._word.id === _lockedId; })[0];
     assert.ok(lockedBefore.className.indexOf('locked-word') >= 0);
 
     setMockPremium(true);
     renderWordList(); // what rerenderCurrentView() calls for the list view
+    loadAllRows();
 
-    var lockedAfter = listRows().filter(function (r) { return r._word && r._word.id === _lockedId; })[0];
+    var lockedAfterRows = listRows().filter(function (r) { return r._word && r._word.id === _lockedId; });
+    var lockedAfter = lockedAfterRows[lockedAfterRows.length - 1];
     assert.ok(lockedAfter.className.indexOf('locked-word') < 0, 'row unlocked after live upgrade');
     setMockPremium(false);
   });
