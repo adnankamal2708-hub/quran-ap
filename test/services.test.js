@@ -622,6 +622,107 @@ suite('Sync — no progress loss across devices', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// Sync — deletions (per-item change times) and streak
+// ═══════════════════════════════════════════════════════════════
+
+suite('Sync — deletions and streak', function() {
+  var NOW = Date.now(); // mocked: 2026-07-07T12:00:00Z
+  var DAY = 24 * 60 * 60 * 1000;
+  function ch(on, ageDays) { return { on: on, at: NOW - ageDays * DAY }; }
+
+  test('a removal beats an older add on the other device', function() {
+    var local = { favorites: {}, syncMeta: { favorites: { cw_1: ch(false, 1) } } };
+    var cloud = { favorites: { cw_1: true }, syncMeta: { favorites: { cw_1: ch(true, 3) } } };
+    assert.deepStrictEqual(mergeData(local, cloud).favorites, {});
+  });
+
+  test('an add beats an older removal on the other device', function() {
+    var local = { favorites: {}, syncMeta: { favorites: { cw_1: ch(false, 3) } } };
+    var cloud = { favorites: { cw_1: true }, syncMeta: { favorites: { cw_1: ch(true, 1) } } };
+    assert.deepStrictEqual(mergeData(local, cloud).favorites, { cw_1: true });
+  });
+
+  test('a removal wins over a copy from an older app version (no timestamp)', function() {
+    var local = { favorites: {}, syncMeta: { favorites: { cw_1: ch(false, 1) } } };
+    var cloud = { favorites: { cw_1: true, cw_2: true } }; // old client: no syncMeta
+    var merged = mergeData(local, cloud);
+    assert.deepStrictEqual(merged.favorites, { cw_2: true }, 'cw_1 stays removed; untracked cw_2 kept');
+  });
+
+  test('untracked favorites still merge as a union', function() {
+    var merged = mergeData({ favorites: { cw_1: true }, syncMeta: {} }, { favorites: { cw_2: true } });
+    assert.deepStrictEqual(merged.favorites, { cw_1: true, cw_2: true });
+  });
+
+  test('a newer note edit wins regardless of which device made it', function() {
+    var local = { notes: { cw_1: 'old local' }, syncMeta: { notes: { cw_1: ch(true, 3) } } };
+    var cloud = { notes: { cw_1: 'newer cloud' }, syncMeta: { notes: { cw_1: ch(true, 1) } } };
+    assert.strictEqual(mergeData(local, cloud).notes.cw_1, 'newer cloud');
+  });
+
+  test('a deleted note stays deleted', function() {
+    var local = { notes: {}, syncMeta: { notes: { cw_1: ch(false, 1) } } };
+    var cloud = { notes: { cw_1: 'stale text' }, syncMeta: { notes: { cw_1: ch(true, 2) } } };
+    assert.strictEqual(mergeData(local, cloud).notes.cw_1, undefined);
+  });
+
+  test('untracked notes keep the legacy rule (local wins)', function() {
+    var merged = mergeData({ notes: { cw_1: 'mine' }, syncMeta: {} }, { notes: { cw_1: 'theirs', cw_2: 'only cloud' } });
+    assert.deepStrictEqual(merged.notes, { cw_1: 'mine', cw_2: 'only cloud' });
+  });
+
+  test('merged change log keeps the newest record per word', function() {
+    var merged = mergeData(
+      { syncMeta: { favorites: { cw_1: ch(true, 5) } } },
+      { syncMeta: { favorites: { cw_1: ch(false, 2) } } });
+    assert.strictEqual(merged.syncMeta.favorites.cw_1.on, false);
+  });
+
+  test('old removal records are kept, so stale cloud copies never resurrect', function() {
+    // Uploads merge maps, so the cloud can keep cw_1 in favorites forever;
+    // only the removal record keeps it removed — even years later.
+    var local = { favorites: {}, syncMeta: { favorites: { cw_1: ch(false, 900) } } };
+    var cloud = { favorites: { cw_1: true } };
+    var merged = mergeData(local, cloud);
+    assert.deepStrictEqual(merged.favorites, {});
+    assert.strictEqual(merged.syncMeta.favorites.cw_1.on, false);
+  });
+
+  test('markSyncChange records { on, at } per word', function() {
+    clearStorage();
+    markSyncChange('favorites', 'cw_9', false);
+    markSyncChange('notes', 'cw_9', true);
+    markSyncChange('bogus', 'cw_9', true);
+    var meta = JSON.parse(localStorage.getItem('quran_sync_meta'));
+    assert.deepStrictEqual(meta.favorites.cw_9, { on: false, at: NOW });
+    assert.deepStrictEqual(meta.notes.cw_9, { on: true, at: NOW });
+    assert.strictEqual(meta.bogus, undefined);
+    assert.ok(exportLocalData().syncMeta, 'change log is exported for sync');
+  });
+
+  test("streak dates compare as dates: '2026-10-28' is after '2026-10-9'", function() {
+    var merged = mergeData(
+      { streak: { streak: 9, lastDate: '2026-10-9' } },
+      { streak: { streak: 2, lastDate: '2026-10-28' } });
+    assert.deepStrictEqual(merged.streak, { streak: 2, lastDate: '2026-10-28' });
+  });
+
+  test('streak comes whole from the most recent device (no inflation)', function() {
+    var merged = mergeData(
+      { streak: { streak: 10, lastDate: '2026-10-20' } },
+      { streak: { streak: 2, lastDate: '2026-10-28' } });
+    assert.strictEqual(merged.streak.streak, 2, 'stale 10-day streak must not carry over');
+  });
+
+  test('same last day on both devices keeps the higher streak', function() {
+    var merged = mergeData(
+      { streak: { streak: 4, lastDate: '2026-10-28' } },
+      { streak: { streak: 6, lastDate: '2026-10-28' } });
+    assert.deepStrictEqual(merged.streak, { streak: 6, lastDate: '2026-10-28' });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // User Service — mergeSettings
 // ═══════════════════════════════════════════════════════════════
 

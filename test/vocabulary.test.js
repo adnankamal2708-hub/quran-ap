@@ -240,11 +240,62 @@ suite('Notes', function() {
     assert.strictEqual(getNote('w_1'), 'Updated note');
   });
 
+  test('clearing a note deletes it from storage', function() {
+    clearStorage();
+    setNote('w_1', 'Temporary');
+    setNote('w_1', '');
+    assert.strictEqual(getNote('w_1'), '');
+    assert.strictEqual(loadNotes().w_1, undefined);
+  });
+
   test('loadNotes handles corrupted data', function() {
     clearStorage();
     localStorage.setItem('quran_notes', '{{{');
     assert.deepStrictEqual(loadNotes(), {});
   });
+});
+
+suite('Sync change tracking', function() {
+  // markSyncChange lives in sync-service.js; record calls through a stub
+  var calls;
+  function stub() {
+    calls = [];
+    global.markSyncChange = function(kind, id, on) { calls.push([kind, id, on]); };
+  }
+
+  test('toggleFavorite records add and removal', function() {
+    clearStorage();
+    stub();
+    toggleFavorite('w_1');
+    toggleFavorite('w_1');
+    assert.deepStrictEqual(calls, [['favorites', 'w_1', true], ['favorites', 'w_1', false]]);
+  });
+
+  test('setNote records edits and deletion', function() {
+    clearStorage();
+    stub();
+    setNote('w_1', 'Hello');
+    setNote('w_1', '');
+    assert.deepStrictEqual(calls, [['notes', 'w_1', true], ['notes', 'w_1', false]]);
+  });
+
+  test('a blocked favorite (free limit) records nothing', function() {
+    clearStorage();
+    stub();
+    var favs = {};
+    for (var i = 0; i < 20; i++) favs['w_' + (100 + i)] = true;
+    saveFavorites(favs);
+    var prevPremium = global.window.__premium;
+    global.window.__premium = { hasFeature: function() { return false; }, FEATURES: {}, requestUpgrade: function() {} };
+    try {
+      assert.strictEqual(toggleFavorite('w_1'), false);
+      assert.deepStrictEqual(calls, []);
+    } finally {
+      global.window.__premium = prevPremium;
+    }
+  });
+
+  delete global.markSyncChange;
 });
 
 suite('Distractors', function() {

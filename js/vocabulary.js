@@ -1029,6 +1029,8 @@ function toggleFavorite(wordId) {
     favs[wordId] = true;
   }
   saveFavorites(favs);
+  // Timestamp the change so a removal syncs instead of being undone
+  if (typeof markSyncChange === 'function') markSyncChange('favorites', wordId, !!favs[wordId]);
   return !!favs[wordId];
 }
 
@@ -1078,8 +1080,14 @@ function getNote(wordId) {
 
 function setNote(wordId, text) {
   var notes = loadNotes();
-  notes[wordId] = text;
+  // An emptied note is a deletion (getNote already returns '' for missing)
+  if (text) {
+    notes[wordId] = text;
+  } else {
+    delete notes[wordId];
+  }
   saveNotes(notes);
+  if (typeof markSyncChange === 'function') markSyncChange('notes', wordId, !!text);
 }
 
 // ═══════════════════════════════════════════════════════════════

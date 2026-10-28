@@ -103,7 +103,46 @@ var SYNC_KEY_MAP = {
   analyticsHistory: 'quran_analytics_history',
   analyticsAchievements: 'quran_analytics_achievements',
   analyticsSessions: 'quran_analytics_sessions',
+  syncMeta: 'quran_sync_meta',
 };
+
+// ── Per-item change times (favorites / notes) ─────────────────
+//
+// quran_favorites and quran_notes keep their original shape; this sidecar
+// records when each word's favorite/note last changed and whether it is
+// now present ({ on, at }), so a removal on one device can beat an older
+// copy on another. Items with no entry (saved before this existed, or by
+// an older app version) merge exactly as they always did.
+
+// Removal records are never pruned: uploads use setDoc merge, which never
+// deletes a key from the cloud's favorites/notes maps, so the record is
+// what keeps a removed item removed. Records are keyed by word, so the log
+// is bounded by vocabulary size (~2 entries per word at most).
+const SYNC_META_KEY = 'quran_sync_meta';
+
+function _loadSyncMeta() {
+  try {
+    var meta = JSON.parse(localStorage.getItem(SYNC_META_KEY) || '{}');
+    return { favorites: meta.favorites || {}, notes: meta.notes || {} };
+  } catch (e) {
+    return { favorites: {}, notes: {} };
+  }
+}
+
+/**
+ * Record that a favorite or note changed. Called by toggleFavorite/setNote.
+ * @param {'favorites'|'notes'} kind
+ * @param {string} wordId
+ * @param {boolean} on — whether the item exists after the change
+ */
+function markSyncChange(kind, wordId, on) {
+  if (kind !== 'favorites' && kind !== 'notes') return;
+  var meta = _loadSyncMeta();
+  meta[kind][wordId] = { on: !!on, at: Date.now() };
+  try {
+    localStorage.setItem(SYNC_META_KEY, JSON.stringify(meta));
+  } catch (e) { /* quota — sync falls back to legacy merge for this item */ }
+}
 
 /**
  * Export all app data from localStorage as a single portable object.
@@ -350,6 +389,75 @@ function _mergeKeyedArray(local, cloud, field, pick) {
   });
 }
 
+/** The newer of two { on, at } change records (local on ties). */
+function _newerChange(local, cloud) {
+  if (!local) return cloud ? { change: cloud, side: 'cloud' } : null;
+  if (!cloud) return { change: local, side: 'local' };
+  return (local.at || 0) >= (cloud.at || 0)
+    ? { change: local, side: 'local' }
+    : { change: cloud, side: 'cloud' };
+}
+
+/** Merge two change logs, keeping the newest record per word. */
+function _mergeChangeLog(local, cloud) {
+  local = local || {};
+  cloud = cloud || {};
+  var out = {};
+  _unionArray(Object.keys(local), Object.keys(cloud)).forEach(function (id) {
+    out[id] = _newerChange(local[id], cloud[id]).change;
+  });
+  return out;
+}
+
+/**
+ * Merge a { wordId: value } map using change logs.
+ * For a word with a change record on either side, the newest record decides:
+ * removed → absent; present → the value from the side that made the change
+ * (falling back to the other side's value), or trackedValue() when given.
+ * Untracked words use legacyPick(localValue, cloudValue); undefined means
+ * absent.
+ */
+function _mergeTracked(localMap, cloudMap, localLog, cloudLog, legacyPick, trackedValue) {
+  localMap = localMap || {};
+  cloudMap = cloudMap || {};
+  localLog = localLog || {};
+  cloudLog = cloudLog || {};
+  var ids = _unionArray(
+    _unionArray(Object.keys(localMap), Object.keys(cloudMap)),
+    _unionArray(Object.keys(localLog), Object.keys(cloudLog)));
+  var out = {};
+  ids.forEach(function (id) {
+    var newer = _newerChange(localLog[id], cloudLog[id]);
+    var value;
+    if (newer) {
+      if (!newer.change.on) return;
+      if (trackedValue) {
+        value = trackedValue();
+      } else {
+        value = newer.side === 'local'
+          ? (localMap[id] || cloudMap[id])
+          : (cloudMap[id] || localMap[id]);
+      }
+    } else {
+      value = legacyPick(localMap[id], cloudMap[id]);
+    }
+    if (value !== undefined && value !== '') out[id] = value;
+  });
+  return out;
+}
+
+/**
+ * Comparable number for a streak date key. Keys are 'YYYY-M-D' without
+ * zero padding (getDateKey), so they must not be compared as strings:
+ * '2026-10-9' sorts after '2026-10-28' lexically. Invalid/missing → 0.
+ */
+function _streakDayValue(key) {
+  if (!key) return 0;
+  var parts = String(key).split('-').map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return 0;
+  return parts[0] * 10000 + parts[1] * 100 + parts[2];
+}
+
 /** Achievements ({ id: { date, ... } }): union by id, keeping the earliest earned date. */
 function _mergeAchievements(local, cloud) {
   var out = Object.assign({}, cloud || {});
@@ -404,37 +512,49 @@ function mergeData(localData, cloudData) {
     });
   }
 
-  // Merge favorites: union (keep if favorited in either)
-  if (localData.favorites || cloudData.favorites) {
-    merged.favorites = {};
-    var localFav = localData.favorites || {};
-    var cloudFav = cloudData.favorites || {};
-    Object.keys(localFav).forEach(function (k) { merged.favorites[k] = true; });
-    Object.keys(cloudFav).forEach(function (k) { merged.favorites[k] = true; });
+  // Favorites and notes: per word, the newest timestamped change wins
+  // (add, edit or removal). Words with no timestamp on either side were
+  // saved before change tracking — they keep the legacy rules (favorites:
+  // union; notes: local wins).
+  var localMeta = localData.syncMeta || {};
+  var cloudMeta = cloudData.syncMeta || {};
+  var hasMeta = !!(localData.syncMeta || cloudData.syncMeta);
+  if (hasMeta) {
+    merged.syncMeta = {
+      favorites: _mergeChangeLog(localMeta.favorites, cloudMeta.favorites),
+      notes: _mergeChangeLog(localMeta.notes, cloudMeta.notes),
+    };
   }
 
-  // Merge notes: local preferred (most recent edits)
-  if (localData.notes || cloudData.notes) {
-    merged.notes = {};
-    var localNotes = localData.notes || {};
-    var cloudNotes = cloudData.notes || {};
-    // Start with cloud, overlay local (local wins)
-    Object.keys(cloudNotes).forEach(function (k) { merged.notes[k] = cloudNotes[k]; });
-    Object.keys(localNotes).forEach(function (k) { merged.notes[k] = localNotes[k]; });
+  if (localData.favorites || cloudData.favorites || hasMeta) {
+    merged.favorites = _mergeTracked(
+      localData.favorites, cloudData.favorites, localMeta.favorites, cloudMeta.favorites,
+      function (l, c) { return (l || c) ? true : undefined; },
+      function () { return true; });
   }
 
-  // Streak: keep the highest streak count, and the most recent lastDate independently.
-  // Picking the whole object by streak count alone could pair a high streak with a stale
-  // lastDate from another device, which would break the next-day continuation check.
+  if (localData.notes || cloudData.notes || hasMeta) {
+    merged.notes = _mergeTracked(
+      localData.notes, cloudData.notes, localMeta.notes, cloudMeta.notes,
+      function (l, c) { return l || c || undefined; });
+  }
+
+  // Streak: take the device that studied most recently, whole. Mixing the
+  // highest count from one device with the latest date from another could
+  // overstate the streak. Same day on both → the higher count.
   if (localData.streak || cloudData.streak) {
     var localStreak = localData.streak || { streak: 0, lastDate: null };
     var cloudStreak = cloudData.streak || { streak: 0, lastDate: null };
-    merged.streak = {
-      streak: Math.max(localStreak.streak || 0, cloudStreak.streak || 0),
-      lastDate: (localStreak.lastDate || '') > (cloudStreak.lastDate || '')
-        ? localStreak.lastDate
-        : cloudStreak.lastDate,
-    };
+    var localDay = _streakDayValue(localStreak.lastDate);
+    var cloudDay = _streakDayValue(cloudStreak.lastDate);
+    if (localDay !== cloudDay) {
+      merged.streak = Object.assign({}, localDay > cloudDay ? localStreak : cloudStreak);
+    } else {
+      merged.streak = {
+        streak: Math.max(localStreak.streak || 0, cloudStreak.streak || 0),
+        lastDate: localStreak.lastDate || cloudStreak.lastDate || null,
+      };
+    }
   }
 
   // Settings: local preferred (most recent)
