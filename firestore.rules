@@ -10,7 +10,7 @@
 //     Purpose: Stores user-submitted feedback (Profile → About → Send Feedback)
 //     Type:    Public write, deny read
 //     Fields:
-//       text        (string, required, max 10,000 chars)
+//       text        (string, required, max 10,000 chars; combined string payload capped at 2,400 chars)
 //       email       (string, nullable, max 320 chars)
 //       timestamp   (number)
 //       appVersion  (string, max 20 chars)
@@ -64,7 +64,7 @@ service cloud.firestore {
     // Deny read, update, and delete to the public.
     match /feedback/{docId} {
 
-      // Validate ALL writes (create + update)
+      // Validate the public create payload.
       function isValidFeedback() {
         let data = request.resource.data;
 
@@ -98,6 +98,15 @@ service cloud.firestore {
         let validTs      = data.ts is timestamp
                         || data.ts == null;
 
+        // Resource objects do not expose size(). Bound total text length
+        // conservatively; Unicode characters use at most four UTF-8 bytes.
+        let boundedText = data.text.size()
+                        + (data.email is string ? data.email.size() : 0)
+                        + data.appVersion.size()
+                        + data.platform.size()
+                        + data.screenSize.size()
+                        + data.userAgent.size() <= 2400;
+
         return allowed
             && validText
             && validEmail
@@ -107,7 +116,7 @@ service cloud.firestore {
             && validScreenSize
             && validUserAgent
             && validTs
-            && request.resource.size() < 10000;
+            && boundedText;
       }
 
       // Only allow create with validation
@@ -123,6 +132,51 @@ service cloud.firestore {
     // events. Field whitelisting prevents arbitrary data injection.
     match /analytics_events/{docId} {
 
+      function validOptionalString(payload, key, maxLength) {
+        return !(key in payload)
+            || (payload[key] is string && payload[key].size() <= maxLength);
+      }
+
+      function validOptionalNumber(payload, key) {
+        return !(key in payload) || payload[key] is number;
+      }
+
+      function validOptionalBool(payload, key) {
+        return !(key in payload) || payload[key] is bool;
+      }
+
+      function isValidEventData(data) {
+        return !('data' in data)
+            || (data.data is map
+            && data.data.size() <= 8
+            && data.data.keys().hasOnly([
+              'mode', 'wordId', 'surahName', 'goal', 'level',
+              'component', 'fn', 'message', 'severity',
+              'lessonIndex', 'pct', 'surahId', 'knownWords', 'newWords',
+              'totalWords', 'wordsReviewed', 'newMastered',
+              'isGuided', 'isGuidedComplete'
+            ])
+            && validOptionalString(data.data, 'mode', 20)
+            && validOptionalString(data.data, 'wordId', 100)
+            && validOptionalString(data.data, 'surahName', 100)
+            && validOptionalString(data.data, 'goal', 20)
+            && validOptionalString(data.data, 'level', 20)
+            && validOptionalString(data.data, 'component', 100)
+            && validOptionalString(data.data, 'fn', 100)
+            && validOptionalString(data.data, 'message', 200)
+            && validOptionalString(data.data, 'severity', 20)
+            && validOptionalNumber(data.data, 'lessonIndex')
+            && validOptionalNumber(data.data, 'pct')
+            && validOptionalNumber(data.data, 'surahId')
+            && validOptionalNumber(data.data, 'knownWords')
+            && validOptionalNumber(data.data, 'newWords')
+            && validOptionalNumber(data.data, 'totalWords')
+            && validOptionalNumber(data.data, 'wordsReviewed')
+            && validOptionalNumber(data.data, 'newMastered')
+            && validOptionalBool(data.data, 'isGuided')
+            && validOptionalBool(data.data, 'isGuidedComplete'));
+      }
+
       function isValidEvent() {
         let data = request.resource.data;
 
@@ -135,9 +189,7 @@ service cloud.firestore {
                             && data.event.size() > 0
                             && data.event.size() <= 100;
 
-        let validData        = !('data' in data)
-                            || (data.data is map
-                            && data.data.keys().size() <= 8);
+        let validData        = isValidEventData(data);
 
         let validTimestamp   = data.timestamp is timestamp
                             || data.timestamp is number;
@@ -158,7 +210,12 @@ service cloud.firestore {
             && validAppVersion
             && validPlatform
             && validScreenSize
-            && request.resource.size() < 10000;
+            // The event data allowlist and per-value caps keep this payload
+            // well below Firestore's document-size limit.
+            && data.event.size()
+              + data.appVersion.size()
+              + data.platform.size()
+              + data.screenSize.size() <= 2400;
       }
 
       allow create: if isValidEvent();
@@ -169,7 +226,7 @@ service cloud.firestore {
 
     // ── Subscriptions Collection ────────────────────────────
     //
-    // Stores Stripe subscription documents written by the webhook
+    // Stores Polar subscription documents written by the webhook
     // (api/webhook.js uses Admin SDK — bypasses these rules).
     // Authenticated users can read their own subscription doc
     // so premium.js can check entitlement client-side.

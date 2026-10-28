@@ -19,6 +19,15 @@ function switchView(viewName, options) {
   // Re-entrant guard: prevent race conditions from rapid tab clicks
   if (_switchingView) return;
   _switchingView = true;
+  try {
+    _switchViewCore(viewName, options);
+  } finally {
+    // A renderer or route callback can throw; never let that freeze navigation.
+    _switchingView = false;
+  }
+}
+
+function _switchViewCore(viewName, options) {
   // Validate route in development mode
   if (window.__validation) {
     window.__validation.onRouteChange(viewName);
@@ -116,9 +125,6 @@ function switchView(viewName, options) {
       }, 600);
     }
   }
-  
-  // Release the re-entrant guard
-  _switchingView = false;
   
   if (document.activeElement) document.activeElement.blur();
 }

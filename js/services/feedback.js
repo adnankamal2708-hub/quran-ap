@@ -58,11 +58,22 @@
    * @returns {Promise<{ok: boolean, stored?: string, error?: string}>}
    */
   async function sendFeedback(text, email) {
-    if (!text || !text.trim()) return { ok: false, error: 'No feedback text' };
+    if (typeof text !== 'string' || !text.trim()) {
+      return { ok: false, error: 'No feedback text' };
+    }
+
+    var normalizedText = text.trim();
+    var normalizedEmail = typeof email === 'string' ? email.trim() : '';
+    if (normalizedText.length > 1700) {
+      return { ok: false, error: 'Feedback must be 1,700 characters or fewer.' };
+    }
+    if (normalizedEmail.length > 320) {
+      return { ok: false, error: 'Email must be 320 characters or fewer.' };
+    }
 
     var payload = {
-      text: text.trim(),
-      email: email || null,
+      text: normalizedText,
+      email: normalizedEmail || null,
       timestamp: Date.now(),
       appVersion: '2.0',
       platform: typeof navigator !== 'undefined' ? navigator.platform || 'unknown' : 'unknown',
@@ -174,12 +185,12 @@
         'For account or support issues, email ' +
         '<a href="mailto:' + SUPPORT_EMAIL + '" style="color:var(--gold);text-decoration:underline;text-underline-offset:2px">' + SUPPORT_EMAIL + '</a>.' +
       '</div>' +
-      '<textarea id="fb-text" placeholder="Describe your experience, suggestion, or issue…"' +
+      '<textarea id="fb-text" maxlength="1700" placeholder="Describe your experience, suggestion, or issue…"' +
         ' style="width:100%;min-height:100px;background:var(--bg);border:1px solid var(--border);' +
         'border-radius:var(--radius-sm);color:var(--text);font-size:13px;padding:10px;' +
         'font-family:var(--body);resize:vertical;outline:none;box-sizing:border-box"' +
         ' aria-label="Your feedback" name="feedback"></textarea>' +
-      '<input id="fb-email" name="email" type="email" placeholder="Email (optional — if you want a reply)"' +
+      '<input id="fb-email" name="email" type="email" maxlength="320" placeholder="Email (optional — if you want a reply)"' +
         ' style="width:100%;background:var(--bg);border:1px solid var(--border);' +
         'border-radius:var(--radius-sm);color:var(--text);font-size:12px;padding:10px;' +
         'margin-top:8px;font-family:var(--body);outline:none;box-sizing:border-box"' +
@@ -228,16 +239,20 @@
 
     if (statusEl) {
       if (result && result.ok) {
-        statusEl.textContent = '✓ Thank you! Your feedback was received.';
-        statusEl.style.color = 'var(--green)';
+        statusEl.textContent = result.stored === 'local'
+          ? 'Saved on this device. It has not been sent yet.'
+          : '✓ Thank you! Your feedback was received.';
+        statusEl.style.color = result.stored === 'local' ? 'var(--gold-dim)' : 'var(--green)';
         textEl.value = '';
         if (emailEl) emailEl.value = '';
-        setTimeout(function () {
-          var m = document.getElementById('fb-modal');
-          if (m) m.style.display = 'none';
-        }, 2000);
+        if (result.stored !== 'local') {
+          setTimeout(function () {
+            var m = document.getElementById('fb-modal');
+            if (m) m.style.display = 'none';
+          }, 2000);
+        }
       } else {
-        statusEl.textContent = '⚠ Could not send feedback. Saved locally.';
+        statusEl.textContent = '⚠ ' + (result && result.error || 'Could not save feedback.');
         statusEl.style.color = 'var(--gold-dim)';
       }
     }

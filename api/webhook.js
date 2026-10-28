@@ -240,17 +240,21 @@ function buildSubscriptionData(subscription) {
  */
 async function upsertSubscription(uid, data) {
   if (!uid) return;
-  await db.collection('subscriptions').doc(uid).set(
-    {
-      status: data.status,
-      currentPeriodEnd: data.currentPeriodEnd,
-      polarCustomerId: data.polarCustomerId || null,
-      polarSubscriptionId: data.polarSubscriptionId || null,
-      plan: data.plan,
-      updatedAt: new Date().toISOString(),
-    },
-    { merge: true }
-  );
+  const subscriptionData = {
+    status: data.status,
+    polarCustomerId: data.polarCustomerId || null,
+    polarSubscriptionId: data.polarSubscriptionId || null,
+    plan: data.plan,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Firestore rejects undefined values unless ignoreUndefinedProperties is
+  // enabled. Preserve the existing expiry when Polar omits an invalid period.
+  if (data.currentPeriodEnd !== undefined) {
+    subscriptionData.currentPeriodEnd = data.currentPeriodEnd;
+  }
+
+  await db.collection('subscriptions').doc(uid).set(subscriptionData, { merge: true });
 }
 
 // ── Event Handlers ──────────────────────────────────────────────
