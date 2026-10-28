@@ -17,19 +17,9 @@
  * ID fields — so premium.js's isPremium() needs no changes at all.
  */
 
-const admin = require('firebase-admin');
 const crypto = require('crypto');
 const { buffer } = require('micro');
-
-// ── Firebase Admin (singleton) ──────────────────────────────────
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-const db = admin.firestore();
+const { admin, isAdminReady } = require('./_lib/firebase-admin');
 
 // ── Polar ───────────────────────────────────────────────────────
 const POLAR_API_URL = process.env.POLAR_API_URL || 'https://api.polar.sh';
@@ -226,10 +216,48 @@ function buildSubscriptionData(subscription) {
     polarCustomerId: subscription.customer_id || null,
     polarSubscriptionId: subscription.id || null,
     plan: planFromProduct(subscription.product_id),
+    modifiedAt: safeModifiedAt(subscription),
   };
   const periodEnd = safeCurrentPeriodEnd(subscription);
   if (periodEnd) data.currentPeriodEnd = periodEnd;
   return data;
+}
+
+/**
+ * When Polar last changed this subscription (modified_at, else
+ * created_at for one never modified), as an ISO string — or null.
+ * Used to drop webhook deliveries that arrive out of order.
+ */
+function safeModifiedAt(subscription) {
+  const value = subscription && (subscription.modified_at || subscription.created_at);
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+/**
+ * Whether an incoming event must not overwrite the stored doc:
+ *   - it is older than the state already stored for the same
+ *     subscription (Polar retries/reorders deliveries), or
+ *   - it would end the user's entitlement but concerns a different
+ *     subscription than the active one stored (e.g. the old plan's
+ *     revoke arriving after the user switched to a new subscription).
+ * Returns a reason string, or null when the write should proceed.
+ */
+function staleEventReason(stored, incoming) {
+  if (!stored) return null;
+  const sameSubscription = !stored.polarSubscriptionId ||
+    stored.polarSubscriptionId === incoming.polarSubscriptionId;
+  if (!sameSubscription) {
+    if (stored.status === 'active' && incoming.status !== 'active') {
+      return `${incoming.status} event for ${incoming.polarSubscriptionId} while ${stored.polarSubscriptionId} is active`;
+    }
+    return null;
+  }
+  if (incoming.modifiedAt && stored.polarModifiedAt && incoming.modifiedAt < stored.polarModifiedAt) {
+    return `event from ${incoming.modifiedAt} is older than stored ${stored.polarModifiedAt}`;
+  }
+  return null;
 }
 
 /**
@@ -274,8 +302,23 @@ async function upsertSubscription(uid, data) {
   if (data.currentPeriodEnd !== undefined) {
     subscriptionData.currentPeriodEnd = data.currentPeriodEnd;
   }
+  if (data.modifiedAt) {
+    subscriptionData.polarModifiedAt = data.modifiedAt;
+  }
 
-  await db.collection('subscriptions').doc(uid).set(subscriptionData, { merge: true });
+  // Read-compare-write in a transaction so two concurrent deliveries
+  // cannot both pass the staleness check.
+  const db = admin.firestore();
+  const ref = db.collection('subscriptions').doc(uid);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const reason = staleEventReason(snap.exists ? snap.data() : null, data);
+    if (reason) {
+      console.warn(`[webhook] Ignoring stale event for ${uid}: ${reason}`);
+      return;
+    }
+    tx.set(ref, subscriptionData, { merge: true });
+  });
 }
 
 // ── Event Handlers ──────────────────────────────────────────────
@@ -324,6 +367,12 @@ async function handleOrderCreated(order) {
 const handler = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  // 500 (not 2xx) so Polar keeps retrying until the config is fixed
+  if (!isAdminReady()) {
+    res.status(500).json({ error: 'Server configuration error' });
     return;
   }
 

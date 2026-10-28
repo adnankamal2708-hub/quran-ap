@@ -131,6 +131,21 @@ function run() {
       assert.strictEqual(polarCalls.length, 0);
     });
 
+    await runTest('missing service account returns 500 instead of crashing', async function () {
+      var apps = stubs.admin.apps;
+      stubs.admin.apps = [];
+      try {
+        setup({ FIREBASE_SERVICE_ACCOUNT: undefined });
+        mockPolar();
+        var res = await call('valid-token');
+        assert.strictEqual(res.statusCode, 500);
+        assert.strictEqual(res.body.error, 'Server configuration error');
+        assert.strictEqual(stubs.deletedAuthUsers.length, 0);
+      } finally {
+        stubs.admin.apps = apps;
+      }
+    });
+
     await runTest('missing POLAR_ACCESS_TOKEN returns 500 and deletes nothing', async function () {
       setup({ POLAR_ACCESS_TOKEN: undefined });
       mockPolar();

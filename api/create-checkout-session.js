@@ -13,15 +13,12 @@
  * so js/services/premium.js needs no changes).
  */
 
-const admin = require('firebase-admin');
+const { admin, isAdminReady } = require('./_lib/firebase-admin');
 
-// ── Firebase Admin (singleton) ──────────────────────────────────
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
+// Where Polar sends the user after checkout when APP_URL is not set: the
+// live GitHub Pages deployment. (The old fallback, bayan.app, is not a
+// domain this app is served from.)
+const DEFAULT_APP_URL = 'https://adnankamal2708-hub.github.io/quran-ap';
 
 // ── Polar ───────────────────────────────────────────────────────
 // Sandbox vs production is a config change, not a code change:
@@ -51,6 +48,11 @@ const handler = async (req, res) => {
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  if (!isAdminReady()) {
+    res.status(500).json({ error: 'Server configuration error' });
     return;
   }
 
@@ -93,7 +95,8 @@ const handler = async (req, res) => {
     // Metadata set here is copied by Polar to the resulting order AND
     // subscription; external_customer_id lets the webhook map the
     // purchase back to the Firebase uid without trusting client input.
-    const appUrl = process.env.APP_URL || 'https://bayan.app';
+    // Trailing slash stripped so `${appUrl}/?...` never becomes `//?...`
+    const appUrl = (process.env.APP_URL || DEFAULT_APP_URL).replace(/\/+$/, '');
 
     const checkoutBody = {
       products: [PRODUCT_IDS[plan]],

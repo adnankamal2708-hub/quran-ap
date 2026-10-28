@@ -43,6 +43,8 @@ function installModuleStubs() {
       _id: id,
       set: function (data, opts) {
         firestoreWrites.push({ name: name, id: id, data: data, opts: opts });
+        var key = name + '/' + id;
+        firestoreDocs[key] = Object.assign({}, (opts && opts.merge && firestoreDocs[key]) || {}, data);
         return Promise.resolve();
       },
       get: function () {
@@ -55,6 +57,14 @@ function installModuleStubs() {
   var mockDb = {
     collection: function (name) {
       return { doc: function (id) { return docRef(name, id); } };
+    },
+    // Sequential stand-in for a Firestore transaction: reads see stored
+    // docs, writes go through the same set() log.
+    runTransaction: function (fn) {
+      return fn({
+        get: function (ref) { return ref.get(); },
+        set: function (ref, data, opts) { ref.set(data, opts); },
+      });
     },
     batch: function () {
       var pending = [];
@@ -157,6 +167,11 @@ function installModuleStubs() {
 function loadHandler(apiFile, env) {
   var apiPath = path.join(__dirname, '..', 'api', apiFile);
   delete require.cache[require.resolve(apiPath)];
+  // Shared modules (api/_lib) also read env at load — reload them too
+  var libDir = path.join(__dirname, '..', 'api', '_lib') + path.sep;
+  Object.keys(require.cache).forEach(function (k) {
+    if (k.indexOf(libDir) === 0) delete require.cache[k];
+  });
 
   Object.keys(env).forEach(function (key) {
     if (env[key] === undefined) {

@@ -22,7 +22,7 @@ Set these in your Vercel project dashboard (**Settings → Environment Variables
 | `POLAR_PRODUCT_ID_YEARLY` | UUID | `00000000-0000-4000-8000-000000000000` | Product ID of the yearly subscription plan (from the Polar dashboard). |
 | `POLAR_API_URL` | URL | `https://sandbox-api.polar.sh` | **Optional.** Base URL for the Polar REST API. Unset → production `https://api.polar.sh`. Set to `https://sandbox-api.polar.sh` to point the whole backend at the sandbox (config change, not a code change). |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON string (one line) | `{"type":"service_account","project_id":"..."}` | From [Firebase Console → Project Settings → Service Accounts](https://console.firebase.google.com/) → "Generate new private key". Paste the **entire JSON as a single line** (you can use `jq -c . < service-account.json` to minify it). |
-| `APP_URL` | URL string | `https://bayan.app` | **Optional.** The app's root URL used for Polar success/cancel redirects. Defaults to `https://bayan.app`. |
+| `APP_URL` | URL string | `https://adnankamal2708-hub.github.io/quran-ap` | **Optional.** The app's root URL used for Polar success/cancel redirects. Defaults to the GitHub Pages deployment above; set it if the app moves to a custom domain. |
 
 No Stripe variables are used anymore. The Stripe SDK dependency has been removed.
 
@@ -105,9 +105,11 @@ run test purchases without real payments. Switching between them is a
      "polarCustomerId": "00000000-0000-4000-8000-000000000000",
      "polarSubscriptionId": "00000000-0000-4000-8000-000000000000",
      "plan": "monthly",
+     "polarModifiedAt": "2026-08-01T00:00:00.000Z",
      "updatedAt": "2026-08-01T00:00:00.000Z"
    }
    ```
+   `polarModifiedAt` is Polar's `modified_at` for the stored subscription; the webhook uses it to ignore deliveries that arrive out of order.
    Note: a `subscription.updated`/`subscription.revoked` with status `past_due` or `canceled` will overwrite `status`, which immediately drops `isPremium()` to `false` — matching the existing 5-rule logic.
 
 ### Testing Webhooks Locally
@@ -161,6 +163,16 @@ verification failure.
 
 Events for a Firebase user that no longer exists (e.g. the revoke that
 follows account deletion) are acknowledged but not written.
+
+Stale events are acknowledged but not written (checked in a transaction):
+- an event older than the stored `polarModifiedAt` for the same subscription;
+- an event that would end entitlement but concerns a *different*
+  subscription than the active one stored (e.g. the old plan's revoke after
+  the user switched plans).
+
+All endpoints return `500 { "error": "Server configuration error" }` when
+`FIREBASE_SERVICE_ACCOUNT` is missing or invalid (shared setup in
+`api/_lib/firebase-admin.js`) — for the webhook this makes Polar retry.
 
 ### `POST /api/delete-account`
 

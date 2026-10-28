@@ -19,15 +19,7 @@
  * Returns: { deleted: true }
  */
 
-const admin = require('firebase-admin');
-
-// ── Firebase Admin (singleton) ──────────────────────────────────
-if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
+const { admin, isAdminReady } = require('./_lib/firebase-admin');
 
 // ── Polar ───────────────────────────────────────────────────────
 const POLAR_API_URL = process.env.POLAR_API_URL || 'https://api.polar.sh';
@@ -109,6 +101,11 @@ const handler = async (req, res) => {
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  if (!isAdminReady()) {
+    res.status(500).json({ error: 'Server configuration error' });
     return;
   }
 

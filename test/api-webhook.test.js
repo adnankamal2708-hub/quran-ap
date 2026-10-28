@@ -38,6 +38,7 @@ var webhookHandler = null;
 function setupWebhook(envOverrides) {
   webhookHandler = loadHandler('webhook.js', Object.assign({}, BASE_ENV, envOverrides || {}));
   stubs.firestoreWrites.length = 0; // fresh write log per test
+  Object.keys(stubs.firestoreDocs).forEach(function (k) { delete stubs.firestoreDocs[k]; });
 }
 
 /**
@@ -232,6 +233,71 @@ function run() {
         assert.strictEqual(stubs.firestoreWrites.length, 0);
       } finally {
         delete stubs.missingAuthUsers['user-123'];
+      }
+    });
+
+    // ── Out-of-order delivery ────────────────────────────
+    await runTest('records polarModifiedAt from the subscription', async function () {
+      setupWebhook();
+      await deliver({ type: 'subscription.updated', data: activeSubscription({ modified_at: '2026-08-01T10:00:00Z' }) });
+      assert.strictEqual(stubs.firestoreWrites[0].data.polarModifiedAt, '2026-08-01T10:00:00.000Z');
+    });
+
+    await runTest('an older event for the same subscription is ignored', async function () {
+      setupWebhook();
+      await deliver({ type: 'subscription.revoked', data: activeSubscription({ status: 'canceled', modified_at: '2026-08-02T10:00:00Z' }) });
+      var res = await deliver({ type: 'subscription.updated', data: activeSubscription({ status: 'active', modified_at: '2026-08-01T10:00:00Z' }) });
+      assert.strictEqual(res.statusCode, 200, 'still acknowledged so Polar stops retrying');
+      assert.strictEqual(stubs.firestoreWrites.length, 1, 'stale active event not written');
+      assert.strictEqual(stubs.firestoreDocs['subscriptions/user-123'].status, 'canceled');
+    });
+
+    await runTest('a newer event for the same subscription is applied', async function () {
+      setupWebhook();
+      await deliver({ type: 'subscription.updated', data: activeSubscription({ modified_at: '2026-08-01T10:00:00Z' }) });
+      await deliver({ type: 'subscription.revoked', data: activeSubscription({ status: 'canceled', modified_at: '2026-08-02T10:00:00Z' }) });
+      assert.strictEqual(stubs.firestoreDocs['subscriptions/user-123'].status, 'canceled');
+    });
+
+    await runTest('a redelivery with the same timestamp is written (idempotent)', async function () {
+      setupWebhook();
+      var event = { type: 'subscription.updated', data: activeSubscription({ modified_at: '2026-08-01T10:00:00Z' }) };
+      await deliver(event);
+      await deliver(event);
+      assert.strictEqual(stubs.firestoreWrites.length, 2);
+    });
+
+    await runTest("an old plan's revoke does not end a different active subscription", async function () {
+      // User switched plans: new subscription sub-2 is active, then the
+      // old sub-1's final revoke arrives (with a later timestamp).
+      setupWebhook();
+      await deliver({ type: 'subscription.updated', data: activeSubscription({ id: 'sub-2', product_id: 'prod-yearly', modified_at: '2026-08-05T10:00:00Z' }) });
+      await deliver({ type: 'subscription.revoked', data: activeSubscription({ id: 'sub-1', status: 'canceled', modified_at: '2026-09-01T10:00:00Z' }) });
+      var doc = stubs.firestoreDocs['subscriptions/user-123'];
+      assert.strictEqual(doc.status, 'active');
+      assert.strictEqual(doc.polarSubscriptionId, 'sub-2');
+    });
+
+    await runTest('a new active subscription replaces a canceled one', async function () {
+      setupWebhook();
+      await deliver({ type: 'subscription.revoked', data: activeSubscription({ id: 'sub-1', status: 'canceled', modified_at: '2026-09-01T10:00:00Z' }) });
+      await deliver({ type: 'subscription.updated', data: activeSubscription({ id: 'sub-2', modified_at: '2026-08-05T10:00:00Z' }) });
+      var doc = stubs.firestoreDocs['subscriptions/user-123'];
+      assert.strictEqual(doc.status, 'active');
+      assert.strictEqual(doc.polarSubscriptionId, 'sub-2');
+    });
+
+    await runTest('missing service account returns 500 so Polar retries', async function () {
+      var apps = stubs.admin.apps;
+      stubs.admin.apps = [];
+      try {
+        setupWebhook({ FIREBASE_SERVICE_ACCOUNT: undefined });
+        var res = await deliver({ type: 'subscription.updated', data: activeSubscription() });
+        assert.strictEqual(res.statusCode, 500);
+        assert.strictEqual(res.body.error, 'Server configuration error');
+        assert.strictEqual(stubs.firestoreWrites.length, 0);
+      } finally {
+        stubs.admin.apps = apps;
       }
     });
 

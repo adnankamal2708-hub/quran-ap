@@ -201,6 +201,41 @@ function run() {
       assert.strictEqual(JSON.stringify(res.body).indexOf('invalid signature'), -1);
     });
 
+    // ── Return URL + configuration ───────────────────────
+    await runTest('APP_URL unset → returns to the live GitHub Pages app', async function () {
+      setupCheckout({ APP_URL: undefined });
+      mockPolarFetch(polarOkResponse());
+      var res = makeRes();
+      await checkoutHandler(authReq('valid-token'), res);
+      assert.strictEqual(res.statusCode, 200);
+      var body = JSON.parse(capturedPolar.opts.body);
+      assert.strictEqual(body.success_url, 'https://adnankamal2708-hub.github.io/quran-ap/?checkout=success');
+      assert.strictEqual(body.return_url, 'https://adnankamal2708-hub.github.io/quran-ap/?checkout=cancel');
+    });
+
+    await runTest('APP_URL with a trailing slash does not double the slash', async function () {
+      setupCheckout({ APP_URL: 'https://example.com/app/' });
+      mockPolarFetch(polarOkResponse());
+      var res = makeRes();
+      await checkoutHandler(authReq('valid-token'), res);
+      var body = JSON.parse(capturedPolar.opts.body);
+      assert.strictEqual(body.success_url, 'https://example.com/app/?checkout=success');
+    });
+
+    await runTest('missing service account returns 500 instead of crashing', async function () {
+      var apps = stubs.admin.apps;
+      stubs.admin.apps = [];
+      try {
+        setupCheckout({ FIREBASE_SERVICE_ACCOUNT: undefined });
+        var res = makeRes();
+        await checkoutHandler(authReq('valid-token'), res);
+        assert.strictEqual(res.statusCode, 500);
+        assert.strictEqual(res.body.error, 'Server configuration error');
+      } finally {
+        stubs.admin.apps = apps;
+      }
+    });
+
     stubs.restore();
     printSummary();
   })();
