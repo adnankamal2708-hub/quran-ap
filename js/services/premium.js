@@ -479,6 +479,57 @@
     }
   }
 
+  // ── Subscription Management ────────────────────────────────
+
+  /**
+   * Whether the signed-in user has a Polar customer record (current or
+   * past subscriber) and can open the customer portal.
+   */
+  function canManageSubscription() {
+    _init();
+    return !!(_subscription && _subscription.polarCustomerId);
+  }
+
+  /**
+   * Open Polar's customer portal (cancel, payment method, invoices).
+   * POSTs to the backend, which creates a portal session for the verified
+   * user, then redirects the browser to it.
+   * @returns {Promise<void>}
+   */
+  async function manageSubscription() {
+    _init();
+    var auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+    if (!auth || !auth.currentUser) {
+      _showSignInRequired();
+      return;
+    }
+
+    _showLoadingState(true);
+    try {
+      var token = await auth.currentUser.getIdToken();
+      var response = await fetch(API_BASE_URL + '/api/customer-portal', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      var data = await response.json().catch(function () { return {}; });
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || 'Portal request failed');
+      }
+      window.location.href = data.url;
+    } catch (e) {
+      _showLoadingState(false);
+      console.warn('[premium] Customer portal error:', e.message || e);
+      var message = e.message === 'No subscription found for this account.'
+        ? e.message
+        : 'Could not open subscription settings — please try again';
+      if (window.__ux && typeof window.__ux.showToast === 'function') {
+        window.__ux.showToast(message, 'error', 5000);
+      } else {
+        alert(message);
+      }
+    }
+  }
+
   // ── Loading State Helper ───────────────────────────────────
 
   /**
@@ -555,6 +606,8 @@
     refresh: refresh,
     onChange: onChange,
     requestUpgrade: requestUpgrade,
+    canManageSubscription: canManageSubscription,
+    manageSubscription: manageSubscription,
     getFeatureList: getFeatureList,
     // Expose feature keys so other modules can reference them without magic strings
     FEATURES: {

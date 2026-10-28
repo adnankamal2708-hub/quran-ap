@@ -70,7 +70,9 @@ run test purchases without real payments. Switching between them is a
    https://your-project.vercel.app/api/create-checkout-session
    https://your-project.vercel.app/api/webhook
    https://your-project.vercel.app/api/delete-account
+   https://your-project.vercel.app/api/customer-portal
    ```
+   (`api/_lib/` holds shared modules; Vercel does not expose underscore-prefixed paths as endpoints.)
 
 5. **Register the webhook endpoint in Polar**
    - Go to [Polar Dashboard → Settings → Webhooks](https://polar.sh) → **Add Endpoint**.
@@ -199,6 +201,27 @@ Steps, in order (each idempotent, so a failed request can be retried):
 > **Polar token scopes:** `POLAR_ACCESS_TOKEN` must include
 > `subscriptions:read` and `subscriptions:write`, or account deletion
 > fails safely at step 1.
+
+### `POST /api/customer-portal`
+
+Opens Polar's customer portal (cancel, payment method, invoices) for the
+caller. Used by Profile → Manage Subscription, which is shown when
+`subscriptions/{uid}` has a `polarCustomerId`.
+
+**Headers:** `Authorization: Bearer <Firebase ID token>`
+
+The Polar customer is looked up by `external_customer_id` = the verified
+uid (set at checkout); nothing from the request body is used. The portal
+returns the user to `APP_URL`.
+
+**Response:** `200 { "url": "https://..." }` — redirect the browser there.
+
+**Errors:**
+- `401` — Missing/invalid token
+- `404` — No Polar customer for this account
+- `502` — Polar error · `500` — Server configuration error
+
+> **Polar token scope:** requires `customer_sessions:write`.
 
 ---
 

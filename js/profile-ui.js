@@ -24,6 +24,7 @@ function initProfileUI() {
   if (window.__premium && typeof window.__premium.onChange === 'function') {
     window.__premium.onChange(function () {
       _refreshDataExportButtons();
+      _refreshManageSubscriptionButton();
     });
   }
 }
@@ -111,6 +112,15 @@ function wireAccountEvents() {
         handleImportData();
       } else {
         _blockedDataExport('Import Learning Data');
+      }
+    };
+  }
+
+  var manageBtn = document.getElementById('btn-manage-subscription');
+  if (manageBtn) {
+    manageBtn.onclick = function () {
+      if (window.__premium && typeof window.__premium.manageSubscription === 'function') {
+        window.__premium.manageSubscription();
       }
     };
   }
@@ -303,6 +313,16 @@ async function renderProfileView() {
   // Refresh export/import button labels from live premium state (this runs on
   // every profile render and on live premium changes via onChange).
   _refreshDataExportButtons();
+  _refreshManageSubscriptionButton();
+}
+
+/** Show "Manage Subscription" only for current or past Polar subscribers. */
+function _refreshManageSubscriptionButton() {
+  var btn = document.getElementById('btn-manage-subscription');
+  if (!btn) return;
+  var canManage = !!(window.__premium && typeof window.__premium.canManageSubscription === 'function' &&
+    window.__premium.canManageSubscription());
+  btn.style.display = canManage ? '' : 'none';
 }
 
 // ── Edit Profile Toggle ───────────────────────────────────────

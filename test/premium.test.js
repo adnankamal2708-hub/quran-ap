@@ -767,6 +767,66 @@ addAsyncTest('Different uid with no subscription doc → not premium, regardless
 // RUN ALL TESTS
 // ═══════════════════════════════════════════════════════════
 
+// ── Subscription management (customer portal) ─────────────
+addAsyncTest('canManageSubscription: true for a Polar customer (even lapsed)', async function () {
+  setupFirestoreTest({ status: 'canceled', polarCustomerId: 'cust-1' });
+  await __premium.refresh();
+  assert.strictEqual(__premium.canManageSubscription(), true);
+  cleanupTest();
+});
+
+addAsyncTest('canManageSubscription: false without a Polar customer', async function () {
+  setupFirestoreTest({ status: 'active', stripeCustomerId: 'cus_legacy' });
+  await __premium.refresh();
+  assert.strictEqual(__premium.canManageSubscription(), false);
+  setupFirestoreTest(null);
+  await __premium.refresh();
+  assert.strictEqual(__premium.canManageSubscription(), false);
+  cleanupTest();
+});
+
+addAsyncTest('manageSubscription: posts the ID token and redirects to the portal', async function () {
+  setupFirestoreTest({ status: 'active', polarCustomerId: 'cust-1' });
+  var captured = null;
+  var redirectUrl = '';
+  global.fetch = function (url, opts) {
+    captured = { url: url, opts: opts };
+    return Promise.resolve({ ok: true, json: function () { return Promise.resolve({ url: 'https://polar.sh/portal/abc' }); } });
+  };
+  global.window.location = { set href(u) { redirectUrl = u; }, get href() { return redirectUrl; } };
+  await __premium.manageSubscription();
+  assert.strictEqual(captured.url, 'https://quran-ap-pzso.vercel.app/api/customer-portal');
+  assert.strictEqual(captured.opts.method, 'POST');
+  assert.strictEqual(captured.opts.headers.Authorization, 'Bearer mock-id-token-abc123');
+  assert.strictEqual(redirectUrl, 'https://polar.sh/portal/abc');
+  cleanupTest();
+});
+
+addAsyncTest('manageSubscription: no Polar customer shows that message, no redirect', async function () {
+  setupFirestoreTest({ status: 'active', polarCustomerId: 'cust-1' });
+  var toast = null;
+  var redirectUrl = '';
+  global.window.__ux = { showToast: function (msg) { toast = msg; } };
+  global.window.location = { set href(u) { redirectUrl = u; }, get href() { return redirectUrl; } };
+  global.fetch = function () {
+    return Promise.resolve({ ok: false, status: 404, json: function () { return Promise.resolve({ error: 'No subscription found for this account.' }); } });
+  };
+  await __premium.manageSubscription();
+  assert.strictEqual(toast, 'No subscription found for this account.');
+  assert.strictEqual(redirectUrl, '');
+  cleanupTest();
+});
+
+addAsyncTest('manageSubscription: other failures show a generic message', async function () {
+  setupFirestoreTest({ status: 'active', polarCustomerId: 'cust-1' });
+  var toast = null;
+  global.window.__ux = { showToast: function (msg) { toast = msg; } };
+  global.fetch = function () { return Promise.reject(new TypeError('Failed to fetch')); };
+  await __premium.manageSubscription();
+  assert.strictEqual(toast, 'Could not open subscription settings — please try again');
+  cleanupTest();
+});
+
 async function runAllAsyncTests() {
   for (var i = 0; i < _asyncQueue.length; i++) {
     var t = _asyncQueue[i];

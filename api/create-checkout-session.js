@@ -14,11 +14,7 @@
  */
 
 const { admin, isAdminReady } = require('./_lib/firebase-admin');
-
-// Where Polar sends the user after checkout when APP_URL is not set: the
-// live GitHub Pages deployment. (The old fallback, bayan.app, is not a
-// domain this app is served from.)
-const DEFAULT_APP_URL = 'https://adnankamal2708-hub.github.io/quran-ap';
+const { getAppUrl } = require('./_lib/app-url');
 
 // ── Polar ───────────────────────────────────────────────────────
 // Sandbox vs production is a config change, not a code change:
@@ -95,8 +91,7 @@ const handler = async (req, res) => {
     // Metadata set here is copied by Polar to the resulting order AND
     // subscription; external_customer_id lets the webhook map the
     // purchase back to the Firebase uid without trusting client input.
-    // Trailing slash stripped so `${appUrl}/?...` never becomes `//?...`
-    const appUrl = (process.env.APP_URL || DEFAULT_APP_URL).replace(/\/+$/, '');
+    const appUrl = getAppUrl();
 
     const checkoutBody = {
       products: [PRODUCT_IDS[plan]],

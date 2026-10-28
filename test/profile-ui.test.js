@@ -358,6 +358,44 @@ ts('Profile — Event Wiring', function() {
   });
 });
 
+ts('Profile — Manage Subscription', function() {
+  function mockPortal(canManage) {
+    var calls = { manage: 0 };
+    global.window.__premium = {
+      FEATURES: { DATA_EXPORT: 'dataExport' },
+      hasFeature: function () { return false; },
+      canManageSubscription: function () { return canManage; },
+      manageSubscription: function () { calls.manage++; },
+    };
+    return calls;
+  }
+
+  t('button is shown for current or past Polar subscribers', function() {
+    var btn = createEl('btn-manage-subscription');
+    mockPortal(true);
+    _refreshManageSubscriptionButton();
+    assert.strictEqual(btn.style.display, '');
+  });
+
+  t('button is hidden for users without a Polar customer', function() {
+    var btn = createEl('btn-manage-subscription');
+    btn.style.display = '';
+    mockPortal(false);
+    _refreshManageSubscriptionButton();
+    assert.strictEqual(btn.style.display, 'none');
+  });
+
+  t('clicking the button opens the customer portal', function() {
+    var btn = createEl('btn-manage-subscription');
+    var calls = mockPortal(true);
+    wireAccountEvents();
+    btn.onclick();
+    assert.strictEqual(calls.manage, 1);
+  });
+
+  global.window.__premium = undefined;
+});
+
 // ── Delete Account ──
 // The flow is async (re-auth → server delete), so these tests are queued
 // with ta() and awaited before the summary prints.

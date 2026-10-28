@@ -13,7 +13,7 @@
 // build.js sets CACHE_NAME to a hash of every file in dist/, so any change
 // to the app produces a new service worker and a fresh cache. The page
 // (registerServiceWorker in js/app.js) then offers a reload.
-const CACHE_NAME = 'bayan-5a27c4e0c23b';
+const CACHE_NAME = 'bayan-b58beb620858';
 const FONTS_CACHE = 'bayan-fonts-v1';
 // Release-scoped so lazily cached app files (e.g. the Quran bundle) are
 // dropped with the release that produced them.

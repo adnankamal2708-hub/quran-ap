@@ -39,6 +39,7 @@ var TESTS = [
   "api-checkout.test.js",
   "api-webhook.test.js",
   "api-delete-account.test.js",
+  "api-customer-portal.test.js",
   "service-worker.test.js",
   "explorer.test.js",
   "occurrence-index.test.js",
