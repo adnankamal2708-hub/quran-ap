@@ -31,6 +31,7 @@ var TESTS = [
   "achievements-ui.test.js",
   "quran-data.test.js",
   "quran-pipeline.test.js",
+  "quran-loader.test.js",
   "services.test.js",
   "foundation-course.test.js",
   "quran.test.js",

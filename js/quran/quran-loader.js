@@ -133,13 +133,30 @@ function loadQuranSurah(surahId) {
       if (!ok) return false;
       return loadSingleSurah(surahId);
     });
-    _surahLoads[surahId] = promise;
-    return promise;
+    return trackSurahLoad(surahId, promise);
   }
 
   var p = loadSingleSurah(surahId);
-  _surahLoads[surahId] = p;
-  return p;
+  return trackSurahLoad(surahId, p);
+}
+
+/**
+ * Keep concurrent requests shared, but discard the in-flight promise once it
+ * settles. A failed request can then be retried when the reader is reopened.
+ * @param {number} surahId
+ * @param {Promise<boolean>} promise
+ * @returns {Promise<boolean>}
+ */
+function trackSurahLoad(surahId, promise) {
+  var trackedPromise = promise.then(function (loaded) {
+    if (_surahLoads[surahId] === trackedPromise) delete _surahLoads[surahId];
+    return loaded;
+  }, function (error) {
+    if (_surahLoads[surahId] === trackedPromise) delete _surahLoads[surahId];
+    throw error;
+  });
+  _surahLoads[surahId] = trackedPromise;
+  return trackedPromise;
 }
 
 /**
