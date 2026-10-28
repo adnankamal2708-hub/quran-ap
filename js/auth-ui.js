@@ -480,10 +480,11 @@ async function promptImportLocalData() {
   var hasData = localData.srsData && Object.keys(localData.srsData).length > 0;
 
   if (!hasData) {
-    // Just do a cloud download in case there's data on the server
+    // Pull any cloud data, merging rather than overwriting: local may still
+    // hold non-SRS progress (lessons, goal, analytics) the cloud doesn't have.
     var cloudData = await downloadFromCloud(user.uid);
     if (cloudData) {
-      importLocalData(cloudData);
+      importLocalData(mergeData(localData, cloudData));
     }
     _importPrompted = true;
     return;

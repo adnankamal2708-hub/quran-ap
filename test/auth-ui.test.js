@@ -62,6 +62,7 @@ global.getDefaultSettings = function() { return { dailyReviewLimit: 25, sessionS
 global.exportLocalData = function() { return {}; };
 global.importLocalData = function() {};
 global.downloadFromCloud = function() { return Promise.resolve(null); };
+global.mergeData = function(local, cloud) { return cloud || local || {}; };
 global.fullSync = function() { return Promise.resolve(true); };
 global.hasPendingSync = function() { return false; };
 global.uploadToCloud = function() { return Promise.resolve(true); };

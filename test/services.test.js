@@ -105,163 +105,18 @@ function checkActionCode() {
 }
 
 // ── From sync-service.js ──
+//
+// Loaded from the real source (not copied) so these tests can never drift
+// from production. sync-service.js has no ES imports — Firebase is reached
+// through window.__firebaseCore at call time — so it runs as a plain script.
 
-function exportLocalData() {
-  var data = {};
-
-  function tryParse(key, lsKey) {
-    try {
-      var raw = localStorage.getItem(lsKey || key);
-      if (raw) data[key] = JSON.parse(raw);
-    } catch (e) { /* skip */ }
-  }
-
-  tryParse('srsData', 'quran_srs_data');
-  tryParse('favorites', 'quran_favorites');
-  tryParse('notes', 'quran_notes');
-  tryParse('streak', 'quran_streak');
-  tryParse('quiz', 'quran_quiz');
-  tryParse('settings', 'quran_settings');
-  tryParse('lessonProgress', 'quran_lesson_progress');
-  tryParse('surahProgress', 'quran_surah_progress');
-  tryParse('foundationProgress', 'quran_foundation_progress');
-  tryParse('analyticsHistory', 'quran_analytics_history');
-  tryParse('analyticsAchievements', 'quran_analytics_achievements');
-  tryParse('analyticsSessions', 'quran_analytics_sessions');
-
-  data._exportedAt = new Date().toISOString();
-  return data;
-}
-
-function importLocalData(data) {
-  var imported = [];
-  var skipped = [];
-
-  if (!data || typeof data !== 'object') {
-    return { imported: [], skipped: [], error: 'Invalid data format.' };
-  }
-
-  function trySet(key, lsKey, value) {
-    try {
-      localStorage.setItem(lsKey || key, JSON.stringify(value));
-      imported.push(key);
-    } catch (e) {
-      skipped.push(key);
-    }
-  }
-
-  var mappings = {
-    srsData: 'quran_srs_data',
-    favorites: 'quran_favorites',
-    notes: 'quran_notes',
-    streak: 'quran_streak',
-    quiz: 'quran_quiz',
-    settings: 'quran_settings',
-    lessonProgress: 'quran_lesson_progress',
-    surahProgress: 'quran_surah_progress',
-    foundationProgress: 'quran_foundation_progress',
-    analyticsHistory: 'quran_analytics_history',
-    analyticsAchievements: 'quran_analytics_achievements',
-    analyticsSessions: 'quran_analytics_sessions',
-  };
-
-  Object.keys(mappings).forEach(function (key) {
-    if (data[key] !== undefined) {
-      trySet(key, mappings[key], data[key]);
-    }
-  });
-
-  return { imported: imported, skipped: skipped };
-}
-
-function mergeData(localData, cloudData) {
-  if (!cloudData) return localData || {};
-  if (!localData) return cloudData || {};
-
-  var merged = {};
-
-  // Merge SRS data: keep the entry with more total reviews (active data wins)
-  if (localData.srsData || cloudData.srsData) {
-    var localSRS = localData.srsData || {};
-    var cloudSRS = cloudData.srsData || {};
-    merged.srsData = {};
-
-    var allKeys = [];
-    Object.keys(localSRS).forEach(function (k) { if (allKeys.indexOf(k) < 0) allKeys.push(k); });
-    Object.keys(cloudSRS).forEach(function (k) { if (allKeys.indexOf(k) < 0) allKeys.push(k); });
-
-    allKeys.forEach(function (key) {
-      var local = localSRS[key];
-      var cloud = cloudSRS[key];
-
-      if (!local) {
-        merged.srsData[key] = cloud;
-      } else if (!cloud) {
-        merged.srsData[key] = local;
-      } else {
-        var localReviews = local.totalReviews || 0;
-        var cloudReviews = cloud.totalReviews || 0;
-        merged.srsData[key] = localReviews >= cloudReviews ? local : cloud;
-      }
-    });
-  }
-
-  // Merge favorites: union (keep if favorited in either)
-  if (localData.favorites || cloudData.favorites) {
-    merged.favorites = {};
-    var localFav = localData.favorites || {};
-    var cloudFav = cloudData.favorites || {};
-    Object.keys(localFav).forEach(function (k) { merged.favorites[k] = true; });
-    Object.keys(cloudFav).forEach(function (k) { merged.favorites[k] = true; });
-  }
-
-  // Merge notes: local preferred (most recent edits)
-  if (localData.notes || cloudData.notes) {
-    merged.notes = {};
-    var localNotes = localData.notes || {};
-    var cloudNotes = cloudData.notes || {};
-    Object.keys(cloudNotes).forEach(function (k) { merged.notes[k] = cloudNotes[k]; });
-    Object.keys(localNotes).forEach(function (k) { merged.notes[k] = localNotes[k]; });
-  }
-
-  // Streak: keep the higher streak value
-  if (localData.streak || cloudData.streak) {
-    var localStreak = localData.streak || { streak: 0, lastDate: null };
-    var cloudStreak = cloudData.streak || { streak: 0, lastDate: null };
-    merged.streak = (localStreak.streak >= cloudStreak.streak) ? localStreak : cloudStreak;
-  }
-
-  // Settings: local preferred (most recent)
-  merged.settings = localData.settings || cloudData.settings || null;
-
-  // Quiz history: take max
-  if (localData.quiz || cloudData.quiz) {
-    var localQuiz = localData.quiz || { correct: 0, total: 0 };
-    var cloudQuiz = cloudData.quiz || { correct: 0, total: 0 };
-    merged.quiz = {
-      correct: Math.max(localQuiz.correct || 0, cloudQuiz.correct || 0),
-      total: Math.max(localQuiz.total || 0, cloudQuiz.total || 0),
-    };
-  }
-
-  // Surah progress: take the one with more completed surahs
-  if (localData.surahProgress || cloudData.surahProgress) {
-    var localSP = localData.surahProgress || { completedSurahs: [], quizPassed: {} };
-    var cloudSP = cloudData.surahProgress || { completedSurahs: [], quizPassed: {} };
-    merged.surahProgress = (localSP.completedSurahs || []).length >= (cloudSP.completedSurahs || []).length
-      ? localSP : cloudSP;
-  }
-
-  // Foundation progress: take the one with more completed lessons
-  if (localData.foundationProgress || cloudData.foundationProgress) {
-    var localFP = localData.foundationProgress || { completedLessons: [] };
-    var cloudFP = cloudData.foundationProgress || { completedLessons: [] };
-    merged.foundationProgress = (localFP.completedLessons || []).length >= (cloudFP.completedLessons || []).length
-      ? localFP : cloudFP;
-  }
-
-  return merged;
-}
+var vm = require('vm');
+var path = require('path');
+var fs = require('fs');
+['js/services/config.js', 'js/services/sync-service.js'].forEach(function(f) {
+  var full = path.join(__dirname, '..', f);
+  vm.runInThisContext(fs.readFileSync(full, 'utf8'), { filename: full });
+});
 
 // ── From user-service.js ──
 
@@ -649,6 +504,120 @@ suite('Sync — mergeData', function() {
     var cloud = { srsData: {}, foundationProgress: { completedLessons: ['l1'] } };
     var merged = mergeData(local, cloud);
     assert.strictEqual(merged.foundationProgress.completedLessons.length, 3);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// Sync — no progress loss across devices
+// ═══════════════════════════════════════════════════════════════
+
+suite('Sync — no progress loss across devices', function() {
+  test('every synced key survives mergeData when only the cloud has it', function() {
+    // Guards against adding a key to SYNC_KEY_MAP without merging it,
+    // which silently drops the cloud copy during fullSync.
+    var cloud = {};
+    Object.keys(SYNC_KEY_MAP).forEach(function(k) { cloud[k] = k === 'analyticsHistory' || k === 'analyticsSessions' ? [] : {}; });
+    var merged = mergeData({ srsData: {} }, cloud);
+    Object.keys(SYNC_KEY_MAP).forEach(function(k) {
+      assert.ok(merged[k] !== undefined && merged[k] !== null, k + ' should be kept');
+    });
+  });
+
+  test('previously unsynced progress keys are exported and imported', function() {
+    clearStorage();
+    localStorage.setItem('quran_root_family_progress', JSON.stringify({ currentRoot: 'k-t-b', completedRoots: ['a-l-h'] }));
+    localStorage.setItem('quran_difficulty_progress', JSON.stringify({ currentDifficulty: 2, completedLevels: [1] }));
+    localStorage.setItem('quran_quiz_history', JSON.stringify({ correct: 1, total: 2, byWordId: {} }));
+    localStorage.setItem('quran_learning_goal', JSON.stringify({ id: 'daily', setAt: 5 }));
+    var data = exportLocalData();
+    clearStorage();
+    importLocalData(data);
+    assert.deepStrictEqual(JSON.parse(localStorage.getItem('quran_root_family_progress')).completedRoots, ['a-l-h']);
+    assert.strictEqual(JSON.parse(localStorage.getItem('quran_difficulty_progress')).currentDifficulty, 2);
+    assert.strictEqual(JSON.parse(localStorage.getItem('quran_quiz_history')).total, 2);
+    assert.strictEqual(JSON.parse(localStorage.getItem('quran_learning_goal')).id, 'daily');
+  });
+
+  test('lessonProgress from the cloud reaches a new device', function() {
+    var merged = mergeData({ srsData: {} }, {
+      lessonProgress: { currentLesson: 3, completedLessons: [0, 1, 2], quizPassed: { 0: true, 1: true, 2: true } },
+    });
+    assert.deepStrictEqual(merged.lessonProgress.completedLessons, [0, 1, 2]);
+    assert.strictEqual(merged.lessonProgress.currentLesson, 3);
+  });
+
+  test('foundation progress unions completions done on different devices', function() {
+    var local = { foundationProgress: { currentLesson: 2, completedLessons: [0, 1], quizPassed: { 0: true, 1: true } } };
+    var cloud = { foundationProgress: { currentLesson: 1, completedLessons: [0, 4], quizPassed: { 0: true, 4: true } } };
+    var fp = mergeData(local, cloud).foundationProgress;
+    assert.deepStrictEqual(fp.completedLessons.slice().sort(), [0, 1, 4]);
+    assert.deepStrictEqual(fp.quizPassed, { 0: true, 1: true, 4: true });
+    assert.strictEqual(fp.currentLesson, 2);
+  });
+
+  test('surah progress keeps quiz passes from both sides', function() {
+    var local = { surahProgress: { completedSurahs: [112, 113], quizPassed: { 112: true, 113: true } } };
+    var cloud = { surahProgress: { completedSurahs: [114], quizPassed: { 114: true, 113: false } } };
+    var sp = mergeData(local, cloud).surahProgress;
+    assert.deepStrictEqual(sp.completedSurahs.slice().sort(), [112, 113, 114]);
+    assert.deepStrictEqual(sp.quizPassed, { 112: true, 113: true, 114: true });
+  });
+
+  test('root family and difficulty progress union completions', function() {
+    var merged = mergeData(
+      { rootFamilyProgress: { currentRoot: 'r1', completedRoots: ['r0'] }, difficultyProgress: { currentDifficulty: 2, completedLevels: [1] } },
+      { rootFamilyProgress: { currentRoot: 'r2', completedRoots: ['r0', 'r5'] }, difficultyProgress: { currentDifficulty: 3, completedLevels: [1, 2] } });
+    assert.deepStrictEqual(merged.rootFamilyProgress.completedRoots.slice().sort(), ['r0', 'r5']);
+    assert.strictEqual(merged.rootFamilyProgress.currentRoot, 'r2', 'current root follows the more advanced side');
+    assert.deepStrictEqual(merged.difficultyProgress.completedLevels.slice().sort(), [1, 2]);
+    assert.strictEqual(merged.difficultyProgress.currentDifficulty, 3);
+  });
+
+  test('quiz history keeps the per-word record with more attempts', function() {
+    var merged = mergeData(
+      { quizHistory: { correct: 5, total: 8, byWordId: { w1: { correct: 3, total: 4 }, w2: { correct: 1, total: 1 } } } },
+      { quizHistory: { correct: 7, total: 10, byWordId: { w1: { correct: 1, total: 2 }, w3: { correct: 2, total: 2 } } } });
+    assert.strictEqual(merged.quizHistory.byWordId.w1.total, 4);
+    assert.ok(merged.quizHistory.byWordId.w2 && merged.quizHistory.byWordId.w3);
+    assert.strictEqual(merged.quizHistory.total, 10);
+    assert.strictEqual(merged.quizHistory.correct, 7);
+  });
+
+  test('learning goal: most recently set wins', function() {
+    var merged = mergeData({ learningGoal: { id: 'old', setAt: 100 } }, { learningGoal: { id: 'new', setAt: 200 } });
+    assert.strictEqual(merged.learningGoal.id, 'new');
+    merged = mergeData({ learningGoal: { id: 'mine', setAt: 300 } }, { learningGoal: { id: 'new', setAt: 200 } });
+    assert.strictEqual(merged.learningGoal.id, 'mine');
+  });
+
+  test('analytics history merges by date, sorted, busier day wins', function() {
+    var merged = mergeData(
+      { analyticsHistory: [{ date: '2026-07-03', reviewsDone: 5 }, { date: '2026-07-01', reviewsDone: 2 }] },
+      { analyticsHistory: [{ date: '2026-07-02', reviewsDone: 4 }, { date: '2026-07-03', reviewsDone: 9 }] });
+    assert.deepStrictEqual(merged.analyticsHistory.map(function(e) { return e.date; }), ['2026-07-01', '2026-07-02', '2026-07-03']);
+    assert.strictEqual(merged.analyticsHistory[2].reviewsDone, 9);
+  });
+
+  test('study sessions merge by start time without duplicates', function() {
+    var merged = mergeData(
+      { analyticsSessions: [{ startTime: 1000, duration: 5 }, { startTime: 3000, duration: 2 }] },
+      { analyticsSessions: [{ startTime: 1000, duration: 8 }, { startTime: 2000, duration: 1 }] });
+    assert.deepStrictEqual(merged.analyticsSessions.map(function(s) { return s.startTime; }), [1000, 2000, 3000]);
+    assert.strictEqual(merged.analyticsSessions[0].duration, 8);
+  });
+
+  test('achievements union by id and keep the earliest earned date', function() {
+    var merged = mergeData(
+      { analyticsAchievements: { a1: { date: '2026-07-05' }, a2: { date: '2026-07-01' } } },
+      { analyticsAchievements: { a1: { date: '2026-07-02' }, a3: { date: '2026-07-04' } } });
+    assert.deepStrictEqual(Object.keys(merged.analyticsAchievements).sort(), ['a1', 'a2', 'a3']);
+    assert.strictEqual(merged.analyticsAchievements.a1.date, '2026-07-02');
+  });
+
+  test('malformed legacy progress (missing arrays) does not throw', function() {
+    var merged = mergeData({ foundationProgress: {}, surahProgress: { quizPassed: null } }, { foundationProgress: { completedLessons: [0] } });
+    assert.deepStrictEqual(merged.foundationProgress.completedLessons, [0]);
+    assert.deepStrictEqual(merged.surahProgress.completedSurahs, []);
   });
 });
 

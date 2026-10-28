@@ -82,30 +82,41 @@ function isSyncReady() {
 // ── Data Export (localStorage → object) ───────────────────────
 
 /**
+ * Synced data keys → localStorage keys. Single source of truth for export
+ * and import, so a key can never be uploaded but not restored. Every key
+ * here must also be handled in mergeData(), or fullSync drops the cloud copy.
+ */
+var SYNC_KEY_MAP = {
+  srsData: 'quran_srs_data',
+  favorites: 'quran_favorites',
+  notes: 'quran_notes',
+  streak: 'quran_streak',
+  quiz: 'quran_quiz',
+  settings: 'quran_settings',
+  lessonProgress: 'quran_lesson_progress',
+  surahProgress: 'quran_surah_progress',
+  foundationProgress: 'quran_foundation_progress',
+  rootFamilyProgress: 'quran_root_family_progress',
+  difficultyProgress: 'quran_difficulty_progress',
+  quizHistory: 'quran_quiz_history',
+  learningGoal: 'quran_learning_goal',
+  analyticsHistory: 'quran_analytics_history',
+  analyticsAchievements: 'quran_analytics_achievements',
+  analyticsSessions: 'quran_analytics_sessions',
+};
+
+/**
  * Export all app data from localStorage as a single portable object.
  */
 function exportLocalData() {
   var data = {};
 
-  function tryParse(key, lsKey) {
+  Object.keys(SYNC_KEY_MAP).forEach(function (key) {
     try {
-      var raw = localStorage.getItem(lsKey || key);
+      var raw = localStorage.getItem(SYNC_KEY_MAP[key]);
       if (raw) data[key] = JSON.parse(raw);
     } catch (e) { /* skip */ }
-  }
-
-  tryParse('srsData', 'quran_srs_data');
-  tryParse('favorites', 'quran_favorites');
-  tryParse('notes', 'quran_notes');
-  tryParse('streak', 'quran_streak');
-  tryParse('quiz', 'quran_quiz');
-  tryParse('settings', 'quran_settings');
-  tryParse('lessonProgress', 'quran_lesson_progress');
-  tryParse('surahProgress', 'quran_surah_progress');
-  tryParse('foundationProgress', 'quran_foundation_progress');
-  tryParse('analyticsHistory', 'quran_analytics_history');
-  tryParse('analyticsAchievements', 'quran_analytics_achievements');
-  tryParse('analyticsSessions', 'quran_analytics_sessions');
+  });
 
   data._exportedAt = new Date().toISOString();
   return data;
@@ -122,33 +133,13 @@ function importLocalData(data) {
     return { imported: [], skipped: [], error: 'Invalid data format.' };
   }
 
-  function trySet(key, lsKey, value) {
+  Object.keys(SYNC_KEY_MAP).forEach(function (key) {
+    if (data[key] === undefined) return;
     try {
-      localStorage.setItem(lsKey || key, JSON.stringify(value));
+      localStorage.setItem(SYNC_KEY_MAP[key], JSON.stringify(data[key]));
       imported.push(key);
     } catch (e) {
       skipped.push(key);
-    }
-  }
-
-  var mappings = {
-    srsData: 'quran_srs_data',
-    favorites: 'quran_favorites',
-    notes: 'quran_notes',
-    streak: 'quran_streak',
-    quiz: 'quran_quiz',
-    settings: 'quran_settings',
-    lessonProgress: 'quran_lesson_progress',
-    surahProgress: 'quran_surah_progress',
-    foundationProgress: 'quran_foundation_progress',
-    analyticsHistory: 'quran_analytics_history',
-    analyticsAchievements: 'quran_analytics_achievements',
-    analyticsSessions: 'quran_analytics_sessions',
-  };
-
-  Object.keys(mappings).forEach(function (key) {
-    if (data[key] !== undefined) {
-      trySet(key, mappings[key], data[key]);
     }
   });
 
@@ -277,10 +268,103 @@ async function downloadFromCloud(userId, retryCount) {
 
 // ── Merge Strategy ────────────────────────────────────────────
 
+/** Union of two arrays, preserving order (a first) without duplicates. */
+function _unionArray(a, b) {
+  var out = [];
+  [].concat(Array.isArray(a) ? a : [], Array.isArray(b) ? b : []).forEach(function (v) {
+    if (out.indexOf(v) < 0) out.push(v);
+  });
+  return out;
+}
+
+/** OR-merge of { key: bool } maps — a pass on either device counts. */
+function _mergePassed(a, b) {
+  var out = {};
+  [a || {}, b || {}].forEach(function (src) {
+    Object.keys(src).forEach(function (k) { out[k] = !!(out[k] || src[k]); });
+  });
+  return out;
+}
+
 /**
- * Merge local and cloud data, preferring the most recently used data per key.
- * Strategy: For each data category, compare timestamps or keep the one with
- * more reviews if timestamps aren't available.
+ * Merge two progress objects whose `listKey` array holds completed items.
+ * Other fields come from the side with more completions (local on ties);
+ * the completed list is the union of both, so no completion is ever lost.
+ */
+function _mergeCompletion(local, cloud, listKey) {
+  local = local || {};
+  cloud = cloud || {};
+  var localCount = Array.isArray(local[listKey]) ? local[listKey].length : 0;
+  var cloudCount = Array.isArray(cloud[listKey]) ? cloud[listKey].length : 0;
+  var out = Object.assign({}, localCount >= cloudCount ? local : cloud);
+  out[listKey] = _unionArray(local[listKey], cloud[listKey]);
+  return out;
+}
+
+/** Lesson/foundation progress: union completions, OR quiz passes, furthest current lesson. */
+function _mergeLessonProgress(local, cloud) {
+  var out = _mergeCompletion(local, cloud, 'completedLessons');
+  out.quizPassed = _mergePassed((local || {}).quizPassed, (cloud || {}).quizPassed);
+  out.currentLesson = Math.max((local || {}).currentLesson || 0, (cloud || {}).currentLesson || 0);
+  return out;
+}
+
+/**
+ * Quiz history: per word, the record with more attempts wins. Totals take
+ * the max rather than the sum — after a sync both devices share the same
+ * base counts, so summing would double-count.
+ */
+function _mergeQuizHistory(local, cloud) {
+  local = local || {};
+  cloud = cloud || {};
+  var byWordId = Object.assign({}, cloud.byWordId || {});
+  var localByWord = local.byWordId || {};
+  Object.keys(localByWord).forEach(function (id) {
+    var c = byWordId[id];
+    if (!c || (localByWord[id].total || 0) >= (c.total || 0)) byWordId[id] = localByWord[id];
+  });
+  return {
+    correct: Math.max(local.correct || 0, cloud.correct || 0),
+    total: Math.max(local.total || 0, cloud.total || 0),
+    byWordId: byWordId,
+  };
+}
+
+/**
+ * Merge two arrays of records keyed by `field`. When both sides hold a
+ * record with the same key, `pick(local, cloud)` chooses one. The result
+ * is sorted ascending by key (date / start time) like the app stores it.
+ */
+function _mergeKeyedArray(local, cloud, field, pick) {
+  var byKey = {};
+  (Array.isArray(cloud) ? cloud : []).forEach(function (r) {
+    if (r && r[field] != null) byKey[r[field]] = r;
+  });
+  (Array.isArray(local) ? local : []).forEach(function (r) {
+    if (!r || r[field] == null) return;
+    var other = byKey[r[field]];
+    byKey[r[field]] = other ? pick(r, other) : r;
+  });
+  return Object.keys(byKey).map(function (k) { return byKey[k]; }).sort(function (a, b) {
+    return a[field] < b[field] ? -1 : a[field] > b[field] ? 1 : 0;
+  });
+}
+
+/** Achievements ({ id: { date, ... } }): union by id, keeping the earliest earned date. */
+function _mergeAchievements(local, cloud) {
+  var out = Object.assign({}, cloud || {});
+  Object.keys(local || {}).forEach(function (id) {
+    var l = local[id];
+    var c = out[id];
+    if (!c || (l && l.date && (!c.date || l.date < c.date))) out[id] = l;
+  });
+  return out;
+}
+
+/**
+ * Merge local and cloud data key by key. Progress is merged so that work
+ * done on either device is never lost (unions for completions, the more
+ * studied record for per-word data).
  *
  * @param {Object} localData - Data from localStorage
  * @param {Object} cloudData - Data from Firestore
@@ -356,7 +440,7 @@ function mergeData(localData, cloudData) {
   // Settings: local preferred (most recent)
   merged.settings = localData.settings || cloudData.settings || null;
 
-  // Quiz history: sum
+  // Quiz totals: max, not sum (see _mergeQuizHistory)
   if (localData.quiz || cloudData.quiz) {
     var localQuiz = localData.quiz || { correct: 0, total: 0 };
     var cloudQuiz = cloudData.quiz || { correct: 0, total: 0 };
@@ -366,18 +450,62 @@ function mergeData(localData, cloudData) {
     };
   }
 
-  // Surah progress: take the one with more completed surahs
+  // Lesson-style progress: union of completions on both devices
+  if (localData.lessonProgress || cloudData.lessonProgress) {
+    merged.lessonProgress = _mergeLessonProgress(localData.lessonProgress, cloudData.lessonProgress);
+  }
+  if (localData.foundationProgress || cloudData.foundationProgress) {
+    merged.foundationProgress = _mergeLessonProgress(localData.foundationProgress, cloudData.foundationProgress);
+  }
   if (localData.surahProgress || cloudData.surahProgress) {
-    var localSP = localData.surahProgress || { completedSurahs: [], quizPassed: {} };
-    var cloudSP = cloudData.surahProgress || { completedSurahs: [], quizPassed: {} };
-    merged.surahProgress = (localSP.completedSurahs.length >= cloudSP.completedSurahs.length) ? localSP : cloudSP;
+    merged.surahProgress = _mergeCompletion(localData.surahProgress, cloudData.surahProgress, 'completedSurahs');
+    merged.surahProgress.quizPassed = _mergePassed(
+      (localData.surahProgress || {}).quizPassed, (cloudData.surahProgress || {}).quizPassed);
+  }
+  if (localData.rootFamilyProgress || cloudData.rootFamilyProgress) {
+    merged.rootFamilyProgress = _mergeCompletion(
+      localData.rootFamilyProgress, cloudData.rootFamilyProgress, 'completedRoots');
+  }
+  if (localData.difficultyProgress || cloudData.difficultyProgress) {
+    merged.difficultyProgress = _mergeCompletion(
+      localData.difficultyProgress, cloudData.difficultyProgress, 'completedLevels');
+    merged.difficultyProgress.currentDifficulty = Math.max(
+      (localData.difficultyProgress || {}).currentDifficulty || 1,
+      (cloudData.difficultyProgress || {}).currentDifficulty || 1);
   }
 
-  // Foundation progress: take the one with more completed lessons
-  if (localData.foundationProgress || cloudData.foundationProgress) {
-    var localFP = localData.foundationProgress || { completedLessons: [], quizPassed: {}, currentLesson: 0 };
-    var cloudFP = cloudData.foundationProgress || { completedLessons: [], quizPassed: {}, currentLesson: 0 };
-    merged.foundationProgress = (localFP.completedLessons.length >= cloudFP.completedLessons.length) ? localFP : cloudFP;
+  if (localData.quizHistory || cloudData.quizHistory) {
+    merged.quizHistory = _mergeQuizHistory(localData.quizHistory, cloudData.quizHistory);
+  }
+
+  // Learning goal: the most recently set goal wins (saveUserGoal stamps setAt)
+  if (localData.learningGoal || cloudData.learningGoal) {
+    var localGoal = localData.learningGoal;
+    var cloudGoal = cloudData.learningGoal;
+    merged.learningGoal = (!cloudGoal || (localGoal && (localGoal.setAt || 0) >= (cloudGoal.setAt || 0)))
+      ? localGoal : cloudGoal;
+  }
+
+  // Analytics: daily snapshots keyed by date (the busier day wins),
+  // sessions keyed by start time (the longer one wins), achievements by id.
+  if (localData.analyticsHistory || cloudData.analyticsHistory) {
+    merged.analyticsHistory = _mergeKeyedArray(
+      localData.analyticsHistory, cloudData.analyticsHistory, 'date',
+      function (l, c) {
+        if ((l.reviewsDone || 0) !== (c.reviewsDone || 0)) {
+          return (l.reviewsDone || 0) > (c.reviewsDone || 0) ? l : c;
+        }
+        return (l.masteredCount || 0) >= (c.masteredCount || 0) ? l : c;
+      });
+  }
+  if (localData.analyticsSessions || cloudData.analyticsSessions) {
+    merged.analyticsSessions = _mergeKeyedArray(
+      localData.analyticsSessions, cloudData.analyticsSessions, 'startTime',
+      function (l, c) { return (l.duration || 0) >= (c.duration || 0) ? l : c; });
+  }
+  if (localData.analyticsAchievements || cloudData.analyticsAchievements) {
+    merged.analyticsAchievements = _mergeAchievements(
+      localData.analyticsAchievements, cloudData.analyticsAchievements);
   }
 
   return merged;
