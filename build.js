@@ -15,6 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
+const crypto = require('crypto');
 
 const ROOT = __dirname;
 const DIST = path.join(ROOT, 'dist');
@@ -184,6 +185,27 @@ function basicMinify(code) {
     .replace(/^[ \t]+/gm, '')
     .replace(/\s+$/gm, '')
     .trim();
+}
+
+/**
+ * Short content hash of every file in dist/ (except sw.js) plus the given
+ * service-worker source with its CACHE_NAME blanked out. Paths are sorted
+ * so the result is deterministic for identical output.
+ */
+function hashDistContent(swSource) {
+  var hash = crypto.createHash('sha256');
+  hash.update(swSource.replace(/CACHE_NAME = '[^']*'/, "CACHE_NAME = ''"));
+  (function walk(dir) {
+    fs.readdirSync(dir).sort().forEach(function (name) {
+      var full = path.join(dir, name);
+      var rel = path.relative(DIST, full).split(path.sep).join('/');
+      if (fs.statSync(full).isDirectory()) return walk(full);
+      if (rel === 'sw.js') return;
+      hash.update(rel + '\0');
+      hash.update(fs.readFileSync(full));
+    });
+  })(DIST);
+  return hash.digest('hex').slice(0, 12);
 }
 
 function minifyHTML(html) {
@@ -796,23 +818,22 @@ async function build() {
     /const PRECACHE_URLS = \[[\s\S]*?\];/,
     "const PRECACHE_URLS = [\n  " + precacheItems.join(",\n  ") + ",\n];"
   );
-  // Bump cache version so service worker detects changes and replaces old cache.
-  // Matches the real cache-name pattern in sw.js (e.g. 'bayan-v4') without
-  // hardcoding the name or current version, and increments the numeric suffix
-  // so consecutive builds keep bumping (bayan-v4 -> bayan-v5 -> bayan-v6).
-  var bumpedSw = sw.replace(
-    /(CACHE_NAME = '[a-z0-9-]+-v)(\d+)'/,
-    function (match, prefix, version) {
-      return prefix + (parseInt(version, 10) + 1) + "'";
-    }
-  );
-  if (bumpedSw === sw) {
-    console.warn('     Warning: could not find a versioned CACHE_NAME (e.g. CACHE_NAME = \'bayan-vN\') in sw.js — cache version NOT bumped');
-  }
-  sw = bumpedSw;
-  writeFile('sw.js', sw);
   writeFile('manifest.json', readFile('manifest.json'));
   writeFile('favicon.ico', readFile('favicon.ico') || '');
+
+  // Name the cache after the content of everything shipped (all of dist/
+  // except sw.js itself, plus the SW logic). Any change to the app changes
+  // the name, so browsers install a new service worker and drop old caches;
+  // an unchanged build keeps the same name. (The old approach bumped a
+  // committed counter, so a commit built only in CI could ship new code
+  // under the previous cache name and users kept the stale version.)
+  if (!/CACHE_NAME = '[^']*'/.test(sw)) {
+    console.error('     ✗ Could not find CACHE_NAME in sw.js — cannot version the service worker cache');
+    process.exit(1);
+  }
+  var releaseHash = hashDistContent(sw);
+  console.log('     Cache version: bayan-' + releaseHash);
+  writeFile('sw.js', sw.replace(/CACHE_NAME = '[^']*'/, "CACHE_NAME = 'bayan-" + releaseHash + "'"));
 
   // 7b. Verify critical production assets were written
   //     This ensures step 7 completed correctly and catches issues

@@ -77,7 +77,8 @@ var swPath = path.join(DIST, 'sw.js');
 if (fs.existsSync(swPath)) {
   var sw = fs.readFileSync(swPath, 'utf8');
   check('SW has production precache URLs', sw.indexOf('PRECACHE_URLS') >= 0, '');
-  check('SW has versioned cache name', sw.indexOf('quran-vocab-v') >= 0, '');
+  // build.js sets CACHE_NAME to a hash of dist/ (hashDistContent)
+  check('SW has content-hash cache name', /CACHE_NAME = 'bayan-[0-9a-f]{12}'/.test(sw), '');
 }
 
 console.log('\n  ' + (exitCode === 0 ? '✓ All checks passed.' : '✗ Some checks failed.'));

@@ -66,6 +66,13 @@ suite('Production Bundle Existence', function() {
     }
     assert.ok(ok, 'Missing production asset: sw.js (required for offline/PWA support)');
   });
+
+  // build.js names the cache after a hash of dist/ so every content change
+  // ships a new service worker (see hashDistContent in build.js).
+  test('sw.js CACHE_NAME is the content-hash release version', function() {
+    var sw = fs.readFileSync(path.join(DIST, 'sw.js'), 'utf8');
+    assert.ok(/CACHE_NAME = 'bayan-[0-9a-f]{12}'/.test(sw), 'CACHE_NAME should be bayan-<12 hex chars>');
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════

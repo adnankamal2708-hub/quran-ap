@@ -4,18 +4,22 @@
 //   • Cache-first for static assets (instant load)
 //   • Stale-while-revalidate for dynamic content
 //   • Font caching with dedicated cache
-//   • Network-first for Firebase CDN (with cache fallback)
-//   • Automatic cleanup of stale caches
-//   • Periodic cache refresh for versioned assets
+//   • Cache-first for the Firebase SDK (versioned URLs) so sign-in and
+//     sync code load offline
+//   • Automatic cleanup of stale caches on every release
 //   • Offline reader support via aggressive vocabulary caching
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'bayan-v90';
-// Note: build.js replaces CACHE_NAME with a timestamp-based version ('quran-vocab-v<timestamp>')
-// at build time. The service worker update cycle (install → wait → activate) then ensures
-// all clients get the fresh cache automatically on their next visit.
+// build.js sets CACHE_NAME to a hash of every file in dist/, so any change
+// to the app produces a new service worker and a fresh cache. The page
+// (registerServiceWorker in js/app.js) then offers a reload.
+const CACHE_NAME = 'bayan-5a27c4e0c23b';
 const FONTS_CACHE = 'bayan-fonts-v1';
-const DYNAMIC_CACHE = 'bayan-dynamic-v1';
+// Release-scoped so lazily cached app files (e.g. the Quran bundle) are
+// dropped with the release that produced them.
+const DYNAMIC_CACHE = CACHE_NAME + '-dynamic';
+// Firebase SDK URLs embed the SDK version, so entries never go stale.
+const FIREBASE_CACHE = 'bayan-firebase-v1';
 
 // Production assets only — individual dev files are NOT cached.
 // The build script (build.js) generates these bundles from all source files,
@@ -58,7 +62,7 @@ self.addEventListener('install', function (event) {
 
 // Activate: clean up old caches and take control of all open clients immediately
 self.addEventListener('activate', function (event) {
-  var cacheWhitelist = [CACHE_NAME, FONTS_CACHE, DYNAMIC_CACHE];
+  var cacheWhitelist = [CACHE_NAME, FONTS_CACHE, DYNAMIC_CACHE, FIREBASE_CACHE];
   event.waitUntil(
     caches.keys().then(function (cacheNames) {
       return Promise.all(
@@ -115,16 +119,33 @@ self.addEventListener('fetch', function (event) {
 
   var url = new URL(event.request.url);
 
-  // Firebase CDN scripts: network-first with cache fallback (for module scripts)
+  // Firebase SDK modules: cache-first. The URLs are version-pinned
+  // (firebasejs/<version>/...), so a cached copy is always the right one.
+  // Previously these were never cached, so an offline cold start could not
+  // load auth/Firestore at all.
+  if (url.hostname === 'www.gstatic.com' && url.pathname.indexOf('/firebasejs/') === 0) {
+    event.respondWith(
+      caches.open(FIREBASE_CACHE).then(function (cache) {
+        return cache.match(event.request).then(function (cachedResponse) {
+          if (cachedResponse) return cachedResponse;
+          return fetch(event.request).then(function (networkResponse) {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // Any other gstatic resource: network-first with cache fallback
   if (url.hostname === 'www.gstatic.com') {
     event.respondWith(
-      fetch(event.request)
-        .then(function (response) {
-          return response;
-        })
-        .catch(function () {
-          return caches.match(event.request);
-        })
+      fetch(event.request).catch(function () {
+        return caches.match(event.request);
+      })
     );
     return;
   }
@@ -146,6 +167,14 @@ self.addEventListener('fetch', function (event) {
     );
     return;
   }
+
+  // Every other cross-origin request (Firestore, Firebase Auth, the Vercel
+  // API) goes straight to the network. Intercepting them used to route
+  // Firestore's long-lived listen channel through this worker; a worker
+  // with a fetch in flight cannot be replaced, so new releases sat in
+  // "waiting" for as long as the app was open. It also risked caching
+  // private API responses.
+  if (url.origin !== self.location.origin) return;
 
   // App image/icon assets: cache-first with dynamic cache fallback
   if (url.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/)) {

@@ -1341,9 +1341,51 @@ function cancelStartupWatchdog() {
 // ── Initialization ─────────────────────────────────────────────
 
 function registerServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
-  }
+  if (!('serviceWorker' in navigator)) return;
+
+  // A new release's service worker activates immediately (skipWaiting +
+  // clients.claim in sw.js), but this page keeps running the code it loaded
+  // with. When control changes, offer a reload instead of forcing one, so an
+  // in-progress review or quiz is never interrupted. The very first install
+  // also fires controllerchange — the page is already current then.
+  var hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!hadController) {
+      hadController = true;
+      return;
+    }
+    showUpdateBanner();
+  });
+
+  navigator.serviceWorker.register('sw.js').then(function (registration) {
+    // Browsers only re-check sw.js on navigation; an installed PWA can stay
+    // open for days, so also check whenever the app returns to the foreground.
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        registration.update().catch(function () {});
+      }
+    });
+  }).catch(function () {});
+}
+
+/** Show the "new version available" banner (once). */
+function showUpdateBanner() {
+  if (document.getElementById('update-banner')) return;
+  var banner = document.createElement('div');
+  banner.id = 'update-banner';
+  banner.className = 'update-banner';
+  banner.setAttribute('role', 'status');
+  banner.innerHTML =
+    '<span class="update-banner-text">A new version of Bayan is available.</span>' +
+    '<button type="button" class="btn btn-sm update-banner-reload">Reload</button>' +
+    '<button type="button" class="update-banner-dismiss" aria-label="Dismiss">✕</button>';
+  banner.querySelector('.update-banner-reload').onclick = function () {
+    window.location.reload();
+  };
+  banner.querySelector('.update-banner-dismiss').onclick = function () {
+    banner.remove();
+  };
+  document.body.appendChild(banner);
 }
 
 // ── Data Schema Versioning ─────────────────────────────────────

@@ -2948,6 +2948,41 @@ body::before {
   font-weight: 600;
 }
 
+/* ── App Update Banner ──────────────────────────────────────── */
+/* Sits just above the bottom nav, like toasts, but stays until acted on. */
+.update-banner {
+  position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  width: calc(100% - 24px);
+  max-width: 456px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 10px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius-section);
+  box-shadow: var(--shadow-elevated);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.update-banner-text {
+  flex: 1;
+}
+
+.update-banner-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  padding: 6px;
+  cursor: pointer;
+}
+
 /* ── Delete Account Modal ───────────────────────────────────── */
 .delete-account-warning {
   font-size: 14px;
