@@ -513,8 +513,9 @@
     @media (max-width: 520px) {
       .lp-wrap { padding: 0 20px; }
       .lp-header-inner { padding: 14px 20px; }
-      .lp-header-nav { gap: 14px; }
-      .lp-signin { display: none; }
+      .lp-header-nav { gap: 8px; }
+      .lp-signin { font-size: 13px; }
+      .lp-header-nav .lp-cta { padding: 10px 14px; font-size: 13px; }
       .rf-grid { grid-template-columns: 1fr; }
       .lp-tier { padding: 28px 22px; }
     }
@@ -539,7 +540,7 @@
           Bayan
         </a>
         <nav class="lp-header-nav" aria-label="Site">
-          <a class="lp-signin" href="./">Sign in</a>
+          <a class="lp-signin" href="./?auth=login">Sign in</a>
           <a class="lp-cta" href="./">Start Learning</a>
         </nav>
       </div>

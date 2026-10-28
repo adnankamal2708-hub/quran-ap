@@ -1374,6 +1374,18 @@ function showUpdateBanner() {
   var banner = document.createElement('div');
   banner.id = 'update-banner';
   banner.className = 'update-banner';
+  // The old page's stylesheet can still be active when its service worker
+  // listener announces a new release. Keep the prompt usable across that
+  // version boundary even when its CSS class is not present in the old page.
+  banner.style.cssText =
+    'position:fixed;bottom:calc(72px + env(safe-area-inset-bottom));' +
+    'left:50%;transform:translateX(-50%);z-index:10001;' +
+    'box-sizing:border-box;width:calc(100% - 24px);max-width:456px;' +
+    'display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;' +
+    'background:var(--surface2,#242219);border:1px solid var(--gold-dim,#7a6530);' +
+    'border-radius:var(--radius-section,12px);' +
+    'box-shadow:var(--shadow-elevated,0 8px 40px rgba(0,0,0,.5));' +
+    'color:var(--text,#e8e2d5);font-size:14px;';
   banner.setAttribute('role', 'status');
   banner.innerHTML =
     '<span class="update-banner-text">A new version of Bayan is available.</span>' +
@@ -1799,6 +1811,25 @@ function handleCheckoutParams() {
 // LANDING PAGE UPGRADE INTENT HANDLING
 // ═══════════════════════════════════════════════════════════════
 
+/** Route the landing page's sign-in link directly to the login form. */
+function handleAuthParam() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('auth') !== 'login') return;
+
+  // Remove the intent so refreshing the app doesn't reopen the login view.
+  var cleanUrl = window.location.pathname + window.location.hash;
+  history.replaceState(null, '', cleanUrl);
+
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (!user && window.__auth && typeof window.__auth.getCurrentUser === 'function') {
+    user = window.__auth.getCurrentUser();
+  }
+  if (user) return;
+
+  if (typeof showAuthView === 'function') showAuthView('login');
+  if (typeof switchView === 'function') switchView('auth');
+}
+
 /**
  * Handle ?upgrade=monthly and ?upgrade=yearly — a paid-plan click from the
  * landing page's pricing cards.
@@ -1862,5 +1893,6 @@ init();
 // Use a small delay to let the splash screen start hiding first
 setTimeout(function() {
   try { handleCheckoutParams(); } catch (e) { console.warn('[app] Checkout param handler error:', e.message || e); }
+  try { handleAuthParam(); } catch (e) { console.warn('[app] Auth param handler error:', e.message || e); }
   try { handleUpgradeParam(); } catch (e) { console.warn('[app] Upgrade param handler error:', e.message || e); }
 }, 200);
