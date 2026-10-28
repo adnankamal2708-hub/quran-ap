@@ -23,10 +23,11 @@ The app should always prioritize:
 - HTML
 - CSS
 - Vanilla JavaScript (ES6)
-- Firebase v9 Modular SDK
+- Firebase modular SDK (currently v12, loaded from the gstatic CDN in js/services/firebase-core.js)
 - Firestore
 - Firebase Authentication
-- GitHub Pages
+- GitHub Pages (the app, deployed from dist/)
+- Vercel serverless functions in api/ (Polar payments, customer portal, account deletion)
 - Progressive Web App (PWA)
 
 Avoid introducing frameworks unless there is a compelling long-term reason.
@@ -91,9 +92,19 @@ Keep lesson data separate from application logic.
 
 ---
 
+# Build
+
+`npm run build` concatenates the files listed in build-files.js into the
+bundles and writes dist/ (the only thing deployed). Build outputs —
+dist/, js/*.bundle.min.js and styles.min.css — are generated, not
+committed. Add new source files to build-files.js (word files in
+js/data/ are discovered automatically).
+
+---
+
 # Firebase
 
-Always use Firebase v9 Modular SDK.
+Always use the Firebase modular SDK (v9+ API style; currently v12).
 
 Never introduce deprecated Firebase APIs.
 

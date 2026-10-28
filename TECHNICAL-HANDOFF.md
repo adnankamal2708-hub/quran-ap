@@ -121,7 +121,7 @@ The single source of truth. `isPremium()` applies a documented **5-rule priority
 (see header comment, implemented in `_applySubscriptionDoc`): no doc → false; status ≠
 `active` → false; active but `currentPeriodEnd` in the past → false; missing
 `currentPeriodEnd` → true; future → true. All upgrade CTAs go through
-`requestUpgrade(reason, {plan})` (Stripe Checkout POST → Vercel), and feature checks go
+`requestUpgrade(reason, {plan})` (Polar Checkout via POST → Vercel `api/create-checkout-session`), and feature checks go
 through `hasFeature(FEATURES.X)`.
 
 ### 2.4 Foundation Course — `js/data-core/foundation.js` + `js/learning-journey.js`

@@ -381,9 +381,9 @@
   }
 
   /**
-   * Request an upgrade to premium via Stripe Checkout.
+   * Request an upgrade to premium via Polar Checkout.
    *
-   * Opens a Stripe Checkout session by POSTing to the backend endpoint.
+   * Opens a Polar Checkout session by POSTing to the backend endpoint.
    * Every upgrade button in the app should call this instead of navigating
    * directly. This ensures future payment providers can be plugged in
    * without changing UI code.
@@ -458,7 +458,7 @@
         throw new Error('No checkout URL in response');
       }
 
-      // Redirect to Stripe Checkout
+      // Redirect to Polar Checkout
       window.location.href = data.url;
 
     } catch (e) {
