@@ -24,60 +24,14 @@ var ROOT = path.resolve(__dirname, '..');
 var VERBOSE = process.argv.indexOf('--verbose') >= 0;
 
 // ═══════════════════════════════════════════════════════════════
-// File Discovery (mirrors build.js ordering)
+// File Discovery (shared with build.js via build-files.js)
 // ═══════════════════════════════════════════════════════════════
 
-var DATA_FILES = (function () {
-  var dataDir = path.join(ROOT, 'js', 'data');
-  if (!fs.existsSync(dataDir)) return ['js/data.js'];
-
-  var entries = fs.readdirSync(dataDir).filter(function (f) { return f.endsWith('.js'); });
-  var core = ['js/data.js'];
-  var surahMeta = [];
-  var thematic = [];
-  var perSurah = [];
-
-  entries.forEach(function (f) {
-    var fullPath = 'js/data/' + f;
-    if (fullPath === 'js/data.js') return;
-    if (fullPath === 'js/data/surahs.js') {
-      surahMeta.push(fullPath);
-    } else if (/^words-surah-\d+-/.test(f)) {
-      perSurah.push(fullPath);
-    } else {
-      thematic.push(fullPath);
-    }
-  });
-
-  perSurah.sort(function (a, b) {
-    var numA = parseInt(a.match(/words-surah-(\d+)/)[1], 10);
-    var numB = parseInt(b.match(/words-surah-(\d+)/)[1], 10);
-    return numA - numB;
-  });
-  thematic.sort();
-
-  return core.concat(surahMeta).concat(thematic).concat(perSurah);
-})();
-
-// firebase-core.js is NOT included in this list — it's loaded as a
-// separate ES module (<script type="module">) with CDN imports.
-// It is checked via static analysis below.
-var APP_FILES = [
-  'js/services/config.js',
-  'js/services/auth-service.js',
-  'js/services/sync-service.js',
-  'js/services/user-service.js',
-  'js/vocabulary.js',
-  'js/srs.js',
-  'js/ui.js',
-  'js/quiz.js',
-  'js/auth-ui.js',
-  'js/profile-ui.js',
-  'js/analytics.js',
-  'js/ux-polish.js',
-  'js/learner-profile-bridge.js',
-  'js/app.js',
-];
+// Same ordered lists build.js bundles (build-files.js), so this checks
+// exactly the code that ships.
+var _buildFiles = require('../build-files').getBuildFiles();
+var DATA_FILES = _buildFiles.DATA_FILES;
+var APP_FILES = _buildFiles.APP_FILES;
 
 var ALL_KEY_FILES = DATA_FILES.concat(APP_FILES);
 

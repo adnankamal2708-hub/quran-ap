@@ -14,6 +14,7 @@
 var assert = require('assert');
 var fs = require('fs');
 var path = require('path');
+var loadVocabularyWords = require('./load-vocabulary').loadVocabularyWords;
 
 var passed = 0, failed = 0;
 
@@ -362,25 +363,7 @@ suite('RenderAyahs Token Completeness (Regression Protection)', function() {
   if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
 
   // Load vocabulary data for matching
-  var _VOCAB_WORDS = [];
-  try {
-    // Try to load from data files
-    var dataDir = path.join(__dirname, '..', 'js', 'data');
-    if (fs.existsSync(dataDir)) {
-      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
-        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
-      });
-      var allWordsCode = '';
-      allWordsCode += 'var ALL_WORDS = [];\n';
-      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
-      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
-        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
-      }
-      // Place into global scope
-      try { eval(allWordsCode); } catch (e) { /* ignore */ }
-      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
-    }
-  } catch (e) { /* ignore */ }
+  var _VOCAB_WORDS = loadVocabularyWords();
 
   // Build normalized vocabulary lookup from actual words
   var _vocabByNorm = {};
@@ -628,23 +611,7 @@ suite('HTML Leakage & Markup Correctness (Regression Protection)', function() {
   if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
 
   // Load vocabulary data
-  var _VOCAB_WORDS = [];
-  try {
-    var dataDir = path.join(__dirname, '..', 'js', 'data');
-    if (fs.existsSync(dataDir)) {
-      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
-        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
-      });
-      var allWordsCode = '';
-      allWordsCode += 'var ALL_WORDS = [];\n';
-      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
-      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
-        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
-      }
-      try { eval(allWordsCode); } catch (e) { /* ignore */ }
-      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
-    }
-  } catch (e) { /* ignore */ }
+  var _VOCAB_WORDS = loadVocabularyWords();
 
   // Helper: strip HTML tags for inspection
   function stripHtml(str) {
@@ -1076,23 +1043,7 @@ suite('HTML Leakage & Markup Correctness (Regression Protection)', function() {
 // data files into user-visible text. Checks all rendering paths.
 
 suite('Comprehensive HTML Leakage Audit (all rendering paths)', function() {
-  var _VOCAB_WORDS = [];
-  try {
-    var dataDir = path.join(__dirname, '..', 'js', 'data');
-    if (fs.existsSync(dataDir)) {
-      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
-        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
-      });
-      var allWordsCode = '';
-      allWordsCode += 'var ALL_WORDS = [];\n';
-      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
-      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
-        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
-      }
-      try { eval(allWordsCode); } catch (e) { /* ignore */ }
-      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
-    }
-  } catch (e) { /* ignore */ }
+  var _VOCAB_WORDS = loadVocabularyWords();
 
   function stripHtml(str) {
     return str.replace(/<[^>]+>/g, '');

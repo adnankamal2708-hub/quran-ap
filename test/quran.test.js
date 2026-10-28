@@ -14,6 +14,7 @@
 var assert = require('assert');
 var fs = require('fs');
 var path = require('path');
+var loadVocabularyWords = require('./load-vocabulary').loadVocabularyWords;
 
 var passed = 0, failed = 0;
 
@@ -362,25 +363,7 @@ suite('RenderAyahs Token Completeness (Regression Protection)', function() {
   if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
 
   // Load vocabulary data for matching
-  var _VOCAB_WORDS = [];
-  try {
-    // Try to load from data files
-    var dataDir = path.join(__dirname, '..', 'js', 'data');
-    if (fs.existsSync(dataDir)) {
-      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
-        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
-      });
-      var allWordsCode = '';
-      allWordsCode += 'var ALL_WORDS = [];\n';
-      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
-      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
-        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
-      }
-      // Place into global scope
-      try { eval(allWordsCode); } catch (e) { /* ignore */ }
-      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
-    }
-  } catch (e) { /* ignore */ }
+  var _VOCAB_WORDS = loadVocabularyWords();
 
   // Build normalized vocabulary lookup from actual words
   var _vocabByNorm = {};
@@ -752,23 +735,7 @@ suite('Pipeline Integrity: Vocabulary Alignment', function() {
   if (!qt) { console.log('  ⚠ Quran data not available — skipping'); return; }
 
   // Load vocabulary
-  var _VOCAB_WORDS = [];
-  try {
-    var dataDir = path.join(__dirname, '..', 'js', 'data');
-    if (fs.existsSync(dataDir)) {
-      var dataFiles = fs.readdirSync(dataDir).filter(function(f) {
-        return f.endsWith('.js') && f !== 'juz-data.js' && f !== 'surahs.js';
-      });
-      var allWordsCode = '';
-      allWordsCode += 'var ALL_WORDS = [];\n';
-      allWordsCode += fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8');
-      for (var dfi = 0; dfi < dataFiles.length; dfi++) {
-        allWordsCode += fs.readFileSync(path.join(dataDir, dataFiles[dfi]), 'utf8');
-      }
-      try { eval(allWordsCode); } catch (e) { /* ignore */ }
-      _VOCAB_WORDS = (typeof ALL_WORDS !== 'undefined') ? ALL_WORDS : [];
-    }
-  } catch (e) { /* ignore */ }
+  var _VOCAB_WORDS = loadVocabularyWords();
 
   if (_VOCAB_WORDS.length === 0) {
     console.log('  ⚠ No vocabulary data — skipping vocab alignment tests');
@@ -857,8 +824,9 @@ suite('Rename Integrity (Reader→Quran Migration)', function() {
   });
 
   // TEST: No "reader.js" references in build.js
-  test('No "reader.js" reference remains in build.js', function() {
-    var buildPath = path.join(__dirname, '..', 'build.js');
+  test('No "reader.js" reference remains in the build file list', function() {
+    // The bundle file list lives in build-files.js (shared with build.js)
+    var buildPath = path.join(__dirname, '..', 'build-files.js');
     if (!fs.existsSync(buildPath)) return;
     var build = fs.readFileSync(buildPath, 'utf8');
     // Must reference quran.js

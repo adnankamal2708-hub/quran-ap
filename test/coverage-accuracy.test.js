@@ -274,7 +274,6 @@ suite('Lesson display strings & user-facing copy', function() {
 
   test('No "84%" claim remains in user-facing source files', function() {
     var files = [
-      'js/data.js',
       'js/data-core/foundation.js',
       'js/data-core/adaptive.js',
       'js/data-core/progress-aggregator.js',

@@ -197,7 +197,7 @@ npm run build && node test/dry-load.js && npm test && npx playwright test
 
 ## Module Structure
 
-The monolithic `data.js` (3,443 lines) and `ui.js` (3,401 lines) have been split into focused modules for better maintainability:
+Code is split into focused modules (the old `data.js` / `ui.js` monoliths are gone). The ordered bundle inputs are listed in `build-files.js`, shared by `build.js`, `test/dry-load.js` and `test/comment-lint.js`:
 
 **`js/data-core/`** — Data layer (8 modules):
 - `vocab-data.js` — `ALL_WORDS`, `CANONICAL_WORDS`, deduplication

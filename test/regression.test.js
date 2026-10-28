@@ -765,7 +765,7 @@ suite('Words Section — Scroll & CSS Integrity', function() {
   
   // Test 5: setView scrolls content to top on every view switch
   test('setView() scrolls .content to top', function() {
-    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui.js'), 'utf8');
+    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'dom-helpers.js'), 'utf8');
     assert.ok(uiContent.indexOf('content.scrollTop = 0') >= 0,
       'setView() must contain content.scrollTop = 0');
   });
@@ -822,8 +822,8 @@ suite('Global View CSS Integrity', function() {
 // ═══════════════════════════════════════════════════════════════
 
 suite('View Switch Scroll Protection', function() {
-  test('setView() in ui.js scrolls to top on view change', function() {
-    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui.js'), 'utf8');
+  test('setView() in dom-helpers.js scrolls to top on view change', function() {
+    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'dom-helpers.js'), 'utf8');
     var match = uiContent.match(/content\.scrollTop\s*=\s*0/);
     assert.ok(match, 'setView() must set content.scrollTop = 0');
   });
@@ -885,7 +885,7 @@ suite('Profile Scroll Position (No Hidden Content)', function() {
   
   // Test: setView scrolls .content to top on view switch
   test('setView scrolls content to top for all views including profile', function() {
-    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui.js'), 'utf8');
+    var uiContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'dom-helpers.js'), 'utf8');
     assert.ok(uiContent.indexOf('content.scrollTop = 0') >= 0,
       'setView() must set content.scrollTop = 0');
   });

@@ -2,7 +2,7 @@
 /**
  * foundation-course.test.js — Foundation Course Unit Tests
  *
- * Tests the core Foundation Course logic in js/data.js:
+ * Tests the core Foundation Course logic in js/data-core/:
  *   - Progress state management (localStorage)
  *   - Course construction (buildFoundationCourse)
  *   - Coverage calculations (calculateCoverage, getFoundationCoverage)

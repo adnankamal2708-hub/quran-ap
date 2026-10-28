@@ -18,7 +18,7 @@ No framework. No build step beyond concatenation + minification (see [Build](#bu
 
 - Auto-discovers data files from `js/data/` and `js/data-core/` (see `DATA_FILES` builder in `build.js`).
 - Concatenates everything into two production bundles served by `index.html`:
-  - `data.bundle.min.js` — data-core modules + all word data + `js/data.js`
+  - `data.bundle.min.js` — data-core modules + all word data
   - `app.bundle.min.js` — everything else (services, UI, app wiring)
 - Minifies both with **terser**, minifies CSS and inlines it, generates `dist/`, and
   updates the service worker (`sw.js`) precache list.
@@ -63,7 +63,7 @@ the bundle concatenates them into one scope.
 - **Sources:** `js/data-core/vocab-data.js` (defines `ALL_WORDS`/`CANONICAL_WORDS`),
   `js/data/occurrence-index.js` (real Quranic token/occurrence counts),
   `js/data/surahs.js`, and ~120 `words-surah-*.js` files plus thematic files.
-- **Enrichment:** `enrichCanonicalMetadata` (in `js/data-core/foundation.js` / `js/data.js`)
+- **Enrichment:** `enrichCanonicalMetadata` (in `js/data-core/foundation.js`)
   computes per-word `frequencyRank` and `frequencyPercentile` from **real occ data**
   (the occurrence index), not file order. Foundation Course top-100 and the free-tier-300
   gate both derive from this same ranking (see §3.1).
