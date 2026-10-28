@@ -358,15 +358,117 @@ ts('Profile — Event Wiring', function() {
   });
 });
 
+// ── Delete Account ──
+// The flow is async (re-auth → server delete), so these tests are queued
+// with ta() and awaited before the summary prints.
+
+function setupDeleteModal() {
+  var ids = ['delete-account-modal', 'delete-account-password-group', 'delete-account-google-hint',
+    'delete-account-error', 'btn-confirm-delete-account'];
+  var els = {};
+  ids.forEach(function(id) { els[id] = createEl(id); });
+  els['delete-account-password'] = createEl('delete-account-password');
+  els['delete-account-password'].value = '';
+  return els;
+}
+
+/** Install delete-flow mocks; returns a call log. */
+function mockDeleteFlow(opts) {
+  opts = opts || {};
+  var calls = [];
+  global.__mockUser = { uid: 'u1', email: 'test@example.com' };
+  global.getReauthMethod = function() { return opts.method || 'password'; };
+  global.reauthenticate = function(email, pwd) {
+    calls.push('reauth:' + email + ':' + pwd);
+    return opts.reauthError ? Promise.reject(opts.reauthError) : Promise.resolve();
+  };
+  global.reauthenticateWithGoogle = function() {
+    calls.push('reauth-google');
+    return opts.reauthError ? Promise.reject(opts.reauthError) : Promise.resolve();
+  };
+  global.deleteAccount = function() {
+    calls.push('delete');
+    return opts.deleteError ? Promise.reject(opts.deleteError) : Promise.resolve(true);
+  };
+  global.releaseFocusTrap = function() {};
+  localStorage.setItem('quran_srs_data', '{"w1":{}}');
+  return calls;
+}
+
 ts('Profile — Delete Account', function() {
-  t('handleDeleteAccount aborts on cancel', async function() {
-    global.__mockUser = { uid: 'u1', email: 'test@example.com' };
-    global.confirm = function() { return false; };
-    var deleted = false;
-    global.deleteProfile = function() { deleted = true; return Promise.resolve(true); };
-    await handleDeleteAccount();
-    assert.ok(!deleted);
+  t('handleDeleteAccount only opens the modal (deletes nothing)', function() {
+    var els = setupDeleteModal();
+    var calls = mockDeleteFlow();
+    handleDeleteAccount();
+    assert.strictEqual(els['delete-account-modal'].style.display, 'flex');
+    assert.deepStrictEqual(calls, []);
   });
+
+  t('Google-only users see the Google hint instead of a password field', function() {
+    var els = setupDeleteModal();
+    mockDeleteFlow({ method: 'google.com' });
+    handleDeleteAccount();
+    assert.strictEqual(els['delete-account-password-group'].style.display, 'none');
+    assert.strictEqual(els['delete-account-google-hint'].style.display, '');
+  });
+});
+
+var _asyncTests = [];
+function ta(name, fn) { _asyncTests.push({ name: name, fn: fn }); }
+
+ta('Delete: empty password shows an error and deletes nothing', async function() {
+  var els = setupDeleteModal();
+  var calls = mockDeleteFlow();
+  await handleDeleteAccountSubmit();
+  assert.deepStrictEqual(calls, []);
+  assert.strictEqual(els['delete-account-error'].style.display, 'block');
+});
+
+ta('Delete: password user re-authenticates, then deletes and clears local data', async function() {
+  var els = setupDeleteModal();
+  var calls = mockDeleteFlow();
+  els['delete-account-password'].value = 'secret';
+  await handleDeleteAccountSubmit();
+  assert.deepStrictEqual(calls, ['reauth:test@example.com:secret', 'delete']);
+  assert.strictEqual(localStorage.getItem('quran_srs_data'), null, 'local data cleared');
+  assert.strictEqual(global.__lastView, 'auth');
+});
+
+ta('Delete: Google user re-authenticates with the popup', async function() {
+  setupDeleteModal();
+  var calls = mockDeleteFlow({ method: 'google.com' });
+  await handleDeleteAccountSubmit();
+  assert.deepStrictEqual(calls, ['reauth-google', 'delete']);
+});
+
+ta('Delete: wrong password stops before deleting and keeps local data', async function() {
+  var els = setupDeleteModal();
+  var calls = mockDeleteFlow({ reauthError: new Error('Incorrect password.') });
+  els['delete-account-password'].value = 'wrong';
+  await handleDeleteAccountSubmit();
+  assert.deepStrictEqual(calls, ['reauth:test@example.com:wrong']);
+  assert.strictEqual(els['delete-account-error'].textContent, 'Incorrect password.');
+  assert.ok(localStorage.getItem('quran_srs_data'), 'local data kept');
+  assert.strictEqual(els['btn-confirm-delete-account'].disabled, false, 'button re-enabled');
+});
+
+ta('Delete: closing the Google popup is silent', async function() {
+  var els = setupDeleteModal();
+  var cancelled = new Error('Sign-in cancelled.');
+  cancelled.silent = true;
+  mockDeleteFlow({ method: 'google.com', reauthError: cancelled });
+  await handleDeleteAccountSubmit();
+  assert.notStrictEqual(els['delete-account-error'].style.display, 'block');
+});
+
+ta('Delete: server failure shows the error and keeps local data', async function() {
+  var els = setupDeleteModal();
+  mockDeleteFlow({ deleteError: new Error('Could not delete your account. Please try again.') });
+  els['delete-account-password'].value = 'secret';
+  await handleDeleteAccountSubmit();
+  assert.strictEqual(els['delete-account-error'].textContent, 'Could not delete your account. Please try again.');
+  assert.ok(localStorage.getItem('quran_srs_data'), 'local data kept');
+  assert.notStrictEqual(global.__lastView, 'auth');
 });
 
 ts('Profile — RenderProfileProgress', function() {
@@ -798,9 +900,28 @@ ts('Profile — Subsection Tab Interactivity (Regression)', function() {
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 
-var total = passed + failed;
-console.log('\n' + '='.repeat(50));
-console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + total + ' total');
-console.log('='.repeat(50));
+(async function() {
+  if (_asyncTests.length) console.log('\n📋 Profile — Delete Account (async flow)');
+  for (var i = 0; i < _asyncTests.length; i++) {
+    var at = _asyncTests[i];
+    mock.resetDOM();
+    mock.clearStorage();
+    global.__lastView = null;
+    try {
+      await at.fn();
+      passed++;
+      console.log('  ✅ ' + at.name);
+    } catch (e) {
+      failed++;
+      console.log('  ❌ ' + at.name);
+      console.log('     ' + (e.message || e).split('\n')[0]);
+    }
+  }
 
-process.exit(failed > 0 ? 1 : 0);
+  var total = passed + failed;
+  console.log('\n' + '='.repeat(50));
+  console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + total + ' total');
+  console.log('='.repeat(50));
+
+  process.exit(failed > 0 ? 1 : 0);
+})();

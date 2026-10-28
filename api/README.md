@@ -64,11 +64,12 @@ run test purchases without real payments. Switching between them is a
    Add all the variables from the table above.
 
 4. **Deploy**
-   Click **Deploy**. Vercel will automatically discover `api/create-checkout-session.js` and `api/webhook.js` and expose them at:
+   Click **Deploy**. Vercel will automatically discover the files in `api/` and expose them at:
 
    ```
    https://your-project.vercel.app/api/create-checkout-session
    https://your-project.vercel.app/api/webhook
+   https://your-project.vercel.app/api/delete-account
    ```
 
 5. **Register the webhook endpoint in Polar**
@@ -157,6 +158,35 @@ Valid plans: `"monthly"` or `"yearly"`.
 Polar webhook endpoint. Does not accept direct API calls — only Polar.
 Returns `200 { "received": true }` on success, `403` on signature
 verification failure.
+
+Events for a Firebase user that no longer exists (e.g. the revoke that
+follows account deletion) are acknowledged but not written.
+
+### `POST /api/delete-account`
+
+Permanently deletes the caller's account. Called by the Profile →
+Delete Account flow after the user re-authenticates.
+
+**Headers:** `Authorization: Bearer <Firebase ID token>` — the sign-in or
+re-authentication must be **under 5 minutes old**.
+
+Steps, in order (each idempotent, so a failed request can be retried):
+
+1. Revoke every live Polar subscription for the user (looked up by
+   `external_customer_id = uid`, plus the ID stored in `subscriptions/{uid}`).
+   **If Polar can't be queried or a revoke fails, nothing is deleted.**
+2. Delete `profiles/{uid}`, `learning/{uid}` and `subscriptions/{uid}`.
+3. Delete the Firebase Auth user.
+
+**Response:** `200 { "deleted": true }`
+
+**Errors:**
+- `401` — Missing/invalid token, or `{ "code": "requires-recent-login" }` when the sign-in is too old
+- `500` — Server misconfiguration or a failed step (check Vercel logs)
+
+> **Polar token scopes:** `POLAR_ACCESS_TOKEN` must include
+> `subscriptions:read` and `subscriptions:write`, or account deletion
+> fails safely at step 1.
 
 ---
 

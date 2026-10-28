@@ -35,14 +35,18 @@ function setupKeyboardShortcuts() {
     // Check if any modal is open
     var passwordModal = document.getElementById('password-change-modal');
     var sessionModal = document.getElementById('session-summary-modal');
+    var deleteModal = document.getElementById('delete-account-modal');
+    var deleteModalOpen = deleteModal && deleteModal.style.display === 'flex';
     var anyModalOpen = (passwordModal && passwordModal.style.display === 'flex') ||
-                       (sessionModal && sessionModal.style.display === 'flex');
+                       (sessionModal && sessionModal.style.display === 'flex') ||
+                       deleteModalOpen;
 
     if (anyModalOpen) {
       if (e.key === 'Escape') {
         e.preventDefault();
         closeSessionSummary();
         closePasswordModal();
+        if (deleteModalOpen) closeDeleteAccountModal();
       }
       return;
     }

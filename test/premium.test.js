@@ -117,6 +117,8 @@ function _loadPremium() {
     setTimeout: setTimeout,
     clearTimeout: clearTimeout,
     onAuthChange: null,
+    // Defined by js/services/config.js, which precedes premium.js in the bundle
+    API_BASE_URL: 'https://quran-ap-pzso.vercel.app',
     // Proxy fetch through global.fetch so tests can set it dynamically
     fetch: function (url, opts) {
       if (typeof global.fetch !== 'function') {

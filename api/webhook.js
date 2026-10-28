@@ -233,6 +233,20 @@ function buildSubscriptionData(subscription) {
 }
 
 /**
+ * Whether a Firebase Auth user exists. Lookup errors other than
+ * user-not-found count as "exists", so a transient Auth outage can never
+ * cost a paying user their entitlement write.
+ */
+async function authUserExists(uid) {
+  try {
+    await admin.auth().getUser(uid);
+    return true;
+  } catch (err) {
+    return !(err && err.code === 'auth/user-not-found');
+  }
+}
+
+/**
  * Upsert a subscription document in Firestore.
  * Field names match the previous Stripe shape (status/currentPeriodEnd/
  * plan/updatedAt) so isPremium() reads identically; only the ID fields
@@ -240,6 +254,13 @@ function buildSubscriptionData(subscription) {
  */
 async function upsertSubscription(uid, data) {
   if (!uid) return;
+  // Deleting an account revokes its subscription, and Polar then sends a
+  // webhook for it — don't re-create subscriptions/{uid} for a user who
+  // no longer exists (see api/delete-account.js).
+  if (!(await authUserExists(uid))) {
+    console.warn(`[webhook] Skipping subscription write for deleted user ${uid}`);
+    return;
+  }
   const subscriptionData = {
     status: data.status,
     polarCustomerId: data.polarCustomerId || null,

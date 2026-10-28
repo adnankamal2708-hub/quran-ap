@@ -31,21 +31,51 @@ var Module = require('module');
  */
 function installModuleStubs() {
   var firestoreWrites = [];
+  var firestoreDeletes = [];   // { name, id } per committed batch delete
+  var firestoreDocs = {};      // 'collection/id' → data, served by get()
+  var deletedAuthUsers = [];
+  var missingAuthUsers = {};   // uid → true makes getUser reject user-not-found
+  var authCalls = { verifyIdTokenCheckRevoked: [] };
+
+  function docRef(name, id) {
+    return {
+      _name: name,
+      _id: id,
+      set: function (data, opts) {
+        firestoreWrites.push({ name: name, id: id, data: data, opts: opts });
+        return Promise.resolve();
+      },
+      get: function () {
+        var data = firestoreDocs[name + '/' + id];
+        return Promise.resolve({ exists: data !== undefined, data: function () { return data; } });
+      },
+    };
+  }
 
   var mockDb = {
     collection: function (name) {
+      return { doc: function (id) { return docRef(name, id); } };
+    },
+    batch: function () {
+      var pending = [];
       return {
-        doc: function (id) {
-          return {
-            set: function (data, opts) {
-              firestoreWrites.push({ name: name, id: id, data: data, opts: opts });
-              return Promise.resolve();
-            },
-          };
+        delete: function (ref) { pending.push({ name: ref._name, id: ref._id }); },
+        commit: function () {
+          pending.forEach(function (d) {
+            firestoreDeletes.push(d);
+            delete firestoreDocs[d.name + '/' + d.id];
+          });
+          return Promise.resolve();
         },
       };
     },
   };
+
+  function authError(code) {
+    var err = new Error(code);
+    err.code = code;
+    return err;
+  }
 
   var mockAdmin = {
     // Non-empty so the handlers' `if (!admin.apps.length)` init block is
@@ -54,14 +84,28 @@ function installModuleStubs() {
     initializeApp: function () {},
     auth: function () {
       return {
-        verifyIdToken: function (token) {
+        verifyIdToken: function (token, checkRevoked) {
+          authCalls.verifyIdTokenCheckRevoked.push(checkRevoked === true);
+          var now = Math.floor(Date.now() / 1000);
           if (token === 'valid-token') {
-            return Promise.resolve({ uid: 'user-123', email: 'user@example.com' });
+            return Promise.resolve({ uid: 'user-123', email: 'user@example.com', auth_time: now });
           }
           if (token === 'valid-token-no-email') {
-            return Promise.resolve({ uid: 'user-123' });
+            return Promise.resolve({ uid: 'user-123', auth_time: now });
+          }
+          if (token === 'stale-login-token') {
+            // Signed in an hour ago — too old for sensitive operations
+            return Promise.resolve({ uid: 'user-123', email: 'user@example.com', auth_time: now - 3600 });
           }
           return Promise.reject(new Error('Firebase ID token has invalid signature'));
+        },
+        getUser: function (uid) {
+          if (missingAuthUsers[uid]) return Promise.reject(authError('auth/user-not-found'));
+          return Promise.resolve({ uid: uid });
+        },
+        deleteUser: function (uid) {
+          deletedAuthUsers.push(uid);
+          return Promise.resolve();
         },
       };
     },
@@ -91,6 +135,11 @@ function installModuleStubs() {
     admin: mockAdmin,
     micro: mockMicro,
     firestoreWrites: firestoreWrites,
+    firestoreDeletes: firestoreDeletes,
+    firestoreDocs: firestoreDocs,
+    deletedAuthUsers: deletedAuthUsers,
+    missingAuthUsers: missingAuthUsers,
+    authCalls: authCalls,
     setRawBody: function (body) {
       mockRawBody = body;
     },

@@ -23,8 +23,8 @@ var {
   updateEmail: _updateEmail,
   updatePassword: _updatePassword,
   sendEmailVerification,
-  deleteUser,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
   EmailAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
@@ -507,20 +507,71 @@ async function reauthenticate(email, password) {
 }
 
 /**
- * Delete the current user's account.
+ * Re-authenticate a Google-only user via popup before sensitive operations.
+ */
+async function reauthenticateWithGoogle() {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  if (!auth || !auth.currentUser) {
+    throw new Error('No user is signed in.');
+  }
+  try {
+    await reauthenticateWithPopup(auth.currentUser, new GoogleAuthProvider());
+    return true;
+  } catch (e) {
+    if (e && e.code === 'auth/user-mismatch') {
+      throw new Error('Please choose the Google account you signed in with.');
+    }
+    throw _translateGoogleError(e);
+  }
+}
+
+/**
+ * How the current user re-authenticates: 'password' if they have an
+ * email/password credential, otherwise 'google.com'. Null when signed out.
+ */
+function getReauthMethod() {
+  const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
+  const user = auth && auth.currentUser;
+  if (!user) return null;
+  const providers = (user.providerData || []).map(function (p) { return p.providerId; });
+  return providers.indexOf('password') >= 0 || providers.indexOf('google.com') < 0 ? 'password' : 'google.com';
+}
+
+/**
+ * Permanently delete the current user's account via the server
+ * (api/delete-account.js), which cancels any Polar subscription and removes
+ * all cloud data before deleting the auth user. Requires a recent sign-in —
+ * call reauthenticate() / reauthenticateWithGoogle() first.
  */
 async function deleteAccount() {
   const auth = window.__firebaseCore ? window.__firebaseCore.getAuth() : null;
   if (!auth || !auth.currentUser) {
     throw new Error('No user is signed in.');
   }
+
+  let response;
   try {
-    await deleteUser(auth.currentUser);
-    _currentUser = null;
-    return true;
+    const token = await auth.currentUser.getIdToken(true);
+    response = await fetch(API_BASE_URL + '/api/delete-account', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
   } catch (e) {
-    throw _translateFirebaseError(e);
+    throw new Error('Could not reach the server. Check your connection and try again.');
   }
+
+  if (!response.ok) {
+    const body = await response.json().catch(function () { return {}; });
+    if (body.code === 'requires-recent-login') {
+      throw new Error('For your security, please confirm your identity again.');
+    }
+    throw new Error(body.error || 'Could not delete your account. Please try again.');
+  }
+
+  // The auth user no longer exists server-side; clear the local session
+  // (logout() also suppresses the "Session expired" toast).
+  await logout();
+  return true;
 }
 
 // ── Error Translation ─────────────────────────────────────────
@@ -582,6 +633,8 @@ window.updateDisplayName = updateDisplayName;
 window.updateEmail = updateEmail;
 window.updatePassword = updatePassword;
 window.reauthenticate = reauthenticate;
+window.reauthenticateWithGoogle = reauthenticateWithGoogle;
+window.getReauthMethod = getReauthMethod;
 window.deleteAccount = deleteAccount;
 
 window.__auth = {
@@ -603,5 +656,7 @@ window.__auth = {
   updateEmail: updateEmail,
   updatePassword: updatePassword,
   reauthenticate: reauthenticate,
+  reauthenticateWithGoogle: reauthenticateWithGoogle,
+  getReauthMethod: getReauthMethod,
   deleteAccount: deleteAccount,
 };

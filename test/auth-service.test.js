@@ -25,13 +25,13 @@ var passed = 0;
 var failed = 0;
 var failedNames = [];
 
-function loadAuthService(mockCore) {
+function loadAuthService(mockCore, extraGlobals) {
   var windowObj = { __firebaseCore: mockCore };
-  var sandbox = {
+  var sandbox = Object.assign({
     window: windowObj,
     console: { log: function () {}, warn: function () {}, error: function () {} },
     URLSearchParams: require('url').URLSearchParams,
-  };
+  }, extraGlobals || {});
   var src = fs.readFileSync(path.join(__dirname, '..', 'js/services/auth-service.js'), 'utf8');
   vm.runInNewContext(src, sandbox);
   return {
@@ -169,6 +169,101 @@ async function run() {
     try { await svc.signInWithGoogle(); } catch (e) { threw = e; }
     assert.ok(threw);
     assert.ok(threw.message.indexOf('not available') >= 0);
+  });
+
+  // ── Account deletion ─────────────────────────────────
+  console.log('\n📋 Auth Service — Delete Account\n');
+
+  function makeDeleteCore(providerIds, log) {
+    var currentUser = {
+      providerData: providerIds.map(function (id) { return { providerId: id }; }),
+      getIdToken: function (force) { log.push('token:' + force); return Promise.resolve('id-token'); },
+    };
+    return {
+      getAuth: function () { return { currentUser: currentUser }; },
+      signOut: function () { log.push('signOut'); return Promise.resolve(); },
+      reauthenticateWithPopup: function (user, provider) {
+        log.push('popup:' + provider.providerId);
+        return Promise.resolve();
+      },
+      GoogleAuthProvider: function GoogleAuthProvider() { this.providerId = 'google.com'; },
+    };
+  }
+
+  function loadWithFetch(core, response, log) {
+    return loadAuthService(core, {
+      API_BASE_URL: 'https://api.example',
+      fetch: function (url, opts) {
+        log.push('fetch:' + opts.method + ' ' + url + ' ' + opts.headers.Authorization);
+        return response instanceof Error ? Promise.reject(response) : Promise.resolve(response);
+      },
+    }).auth;
+  }
+
+  function jsonRes(status, body) {
+    return { ok: status >= 200 && status < 300, status: status, json: function () { return Promise.resolve(body); } };
+  }
+
+  await t('deleteAccount posts a fresh ID token to the server, then signs out', async function () {
+    var log = [];
+    var auth = loadWithFetch(makeDeleteCore(['password'], log), jsonRes(200, { deleted: true }), log);
+    assert.strictEqual(await auth.deleteAccount(), true);
+    assert.deepStrictEqual(log, [
+      'token:true',
+      'fetch:POST https://api.example/api/delete-account Bearer id-token',
+      'signOut',
+    ]);
+  });
+
+  await t('deleteAccount maps requires-recent-login to a friendly message', async function () {
+    var log = [];
+    var auth = loadWithFetch(makeDeleteCore(['password'], log),
+      jsonRes(401, { error: 'x', code: 'requires-recent-login' }), log);
+    var threw = null;
+    try { await auth.deleteAccount(); } catch (e) { threw = e; }
+    assert.ok(threw && /confirm your identity/.test(threw.message));
+    assert.ok(log.indexOf('signOut') < 0, 'must stay signed in on failure');
+  });
+
+  await t('deleteAccount surfaces the server error and stays signed in', async function () {
+    var log = [];
+    var auth = loadWithFetch(makeDeleteCore(['password'], log),
+      jsonRes(500, { error: 'Could not delete the account. Please try again.' }), log);
+    var threw = null;
+    try { await auth.deleteAccount(); } catch (e) { threw = e; }
+    assert.strictEqual(threw.message, 'Could not delete the account. Please try again.');
+    assert.ok(log.indexOf('signOut') < 0);
+  });
+
+  await t('deleteAccount reports a network failure clearly', async function () {
+    var log = [];
+    var auth = loadWithFetch(makeDeleteCore(['password'], log), new TypeError('Failed to fetch'), log);
+    var threw = null;
+    try { await auth.deleteAccount(); } catch (e) { threw = e; }
+    assert.ok(threw && /reach the server/.test(threw.message));
+  });
+
+  await t('getReauthMethod: password when a password credential exists', async function () {
+    var log = [];
+    assert.strictEqual(loadWithFetch(makeDeleteCore(['google.com', 'password'], log), null, log).getReauthMethod(), 'password');
+    assert.strictEqual(loadWithFetch(makeDeleteCore(['google.com'], log), null, log).getReauthMethod(), 'google.com');
+  });
+
+  await t('reauthenticateWithGoogle uses the popup with a Google provider', async function () {
+    var log = [];
+    var auth = loadWithFetch(makeDeleteCore(['google.com'], log), null, log);
+    await auth.reauthenticateWithGoogle();
+    assert.deepStrictEqual(log, ['popup:google.com']);
+  });
+
+  await t('reauthenticateWithGoogle explains a different-account pick', async function () {
+    var log = [];
+    var core = makeDeleteCore(['google.com'], log);
+    core.reauthenticateWithPopup = function () { return Promise.reject({ code: 'auth/user-mismatch' }); };
+    var auth = loadWithFetch(core, null, log);
+    var threw = null;
+    try { await auth.reauthenticateWithGoogle(); } catch (e) { threw = e; }
+    assert.strictEqual(threw.message, 'Please choose the Google account you signed in with.');
   });
 
   var total = passed + failed;

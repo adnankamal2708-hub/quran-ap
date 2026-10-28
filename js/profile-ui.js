@@ -123,6 +123,21 @@ function wireAccountEvents() {
     };
   }
 
+  var deleteForm = document.getElementById('delete-account-form');
+  if (deleteForm) {
+    deleteForm.onsubmit = function (e) {
+      e.preventDefault();
+      handleDeleteAccountSubmit();
+    };
+  }
+
+  var deleteCancel = document.getElementById('btn-cancel-delete-account');
+  if (deleteCancel) {
+    deleteCancel.onclick = function () {
+      closeDeleteAccountModal();
+    };
+  }
+
   // Password change form
   var pwdForm = document.getElementById('password-change-form');
   if (pwdForm) {
@@ -524,32 +539,100 @@ async function handlePasswordChangeSubmit() {
 
 // ── Delete Account ────────────────────────────────────────────
 
-async function handleDeleteAccount() {
+/** Open the delete-account confirmation modal. */
+function handleDeleteAccount() {
   var user = getCurrentUser();
   if (!user) return;
 
-  // Confirm with the user
-  var confirm1 = confirm('Are you sure you want to delete your account? This cannot be undone.');
-  if (!confirm1) return;
+  var modal = document.getElementById('delete-account-modal');
+  if (!modal) return;
 
-  var confirm2 = confirm('Final warning: this permanently deletes your account and all learning data. This cannot be undone.');
-  if (!confirm2) return;
+  var usesPassword = getReauthMethod() !== 'google.com';
+  var pwdGroup = document.getElementById('delete-account-password-group');
+  var googleHint = document.getElementById('delete-account-google-hint');
+  var pwdInput = document.getElementById('delete-account-password');
+  var errorEl = document.getElementById('delete-account-error');
+  if (pwdGroup) pwdGroup.style.display = usesPassword ? '' : 'none';
+  if (googleHint) googleHint.style.display = usesPassword ? 'none' : '';
+  if (pwdInput) pwdInput.value = '';
+  if (errorEl) errorEl.style.display = 'none';
+  _setDeleteAccountBusy(false);
 
+  modal.style.display = 'flex';
+  modal.onclick = function (e) {
+    if (e.target === modal) closeDeleteAccountModal();
+  };
+  var appEl = document.querySelector('.app');
+  if (appEl) appEl.setAttribute('aria-hidden', 'true');
+  trapFocus(modal);
+  // trapFocus focuses the first input, which is hidden for Google users
+  var focusTarget = usesPassword ? pwdInput : document.getElementById('btn-confirm-delete-account');
+  if (focusTarget && focusTarget.focus) focusTarget.focus();
+}
+
+function closeDeleteAccountModal() {
+  var modal = document.getElementById('delete-account-modal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  modal.onclick = null;
+  releaseFocusTrap(modal);
+  var appEl = document.querySelector('.app');
+  if (appEl) appEl.removeAttribute('aria-hidden');
+}
+
+function _setDeleteAccountBusy(busy) {
+  var btn = document.getElementById('btn-confirm-delete-account');
+  if (!btn) return;
+  btn.disabled = busy;
+  btn.textContent = busy ? 'Deleting…' : 'Delete permanently';
+}
+
+/**
+ * Re-authenticate (password or Google popup), then delete the account via
+ * the server, which also cancels any subscription and wipes cloud data.
+ */
+async function handleDeleteAccountSubmit() {
+  var user = getCurrentUser();
+  if (!user) return;
+
+  var errorEl = document.getElementById('delete-account-error');
+  var pwdInput = document.getElementById('delete-account-password');
+  if (errorEl) errorEl.style.display = 'none';
+
+  var usesPassword = getReauthMethod() !== 'google.com';
+  var password = pwdInput ? pwdInput.value : '';
+  if (usesPassword && !password) {
+    if (errorEl) {
+      errorEl.textContent = 'Please enter your password.';
+      errorEl.style.display = 'block';
+    }
+    if (pwdInput) pwdInput.setAttribute('aria-describedby', 'delete-account-error');
+    return;
+  }
+
+  _setDeleteAccountBusy(true);
   try {
-    // Delete profile data from Firestore
-    await deleteProfile(user.uid);
+    if (usesPassword) {
+      await reauthenticate(user.email, password);
+    } else {
+      await reauthenticateWithGoogle();
+    }
 
-    // Delete auth account
     await deleteAccount();
 
-    // Clear local data
+    // Clear local data, then show the sign-in screen
+    // (Profile-tab entry point — exposes Google sign-in)
     localStorage.clear();
-
-    // Navigate to auth view (Profile-tab entry point — exposes Google sign-in)
+    closeDeleteAccountModal();
     showAuthView('login', { google: true });
     switchView('auth');
   } catch (e) {
-    alert('Failed to delete account: ' + e.message);
+    _setDeleteAccountBusy(false);
+    if (e && e.silent) return; // Google popup closed by the user
+    if (errorEl) {
+      errorEl.textContent = e.message;
+      errorEl.style.display = 'block';
+    }
   }
 }
 

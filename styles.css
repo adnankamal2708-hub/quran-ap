@@ -2948,6 +2948,20 @@ body::before {
   font-weight: 600;
 }
 
+/* ── Delete Account Modal ───────────────────────────────────── */
+.delete-account-warning {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.btn.btn-danger {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
 /* ── Session Summary Modal ──────────────────────────────────── */
 .session-summary .session-summary-stats {
   display: grid;

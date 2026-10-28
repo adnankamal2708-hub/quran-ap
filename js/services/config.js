@@ -26,6 +26,9 @@ const FIREBASE_CONFIG = {
   appId:             "1:857901285463:web:9dc416c77b0add0e366312",
 };
 
+/** Base URL of the Vercel API (api/ functions: checkout, delete-account) */
+const API_BASE_URL = 'https://quran-ap-pzso.vercel.app';
+
 // ── Feature flags ─────────────────────────────────────────────
 
 /** Automatically sync data on login (no prompt). If false, user is asked. */

@@ -218,6 +218,23 @@ function run() {
       assert.strictEqual(stubs.firestoreWrites[0].data.status, 'canceled');
     });
 
+    await runTest('event for a deleted user does not re-create the doc', async function () {
+      // Account deletion revokes the subscription; the resulting webhook
+      // must not write subscriptions/{uid} back for a user that is gone.
+      setupWebhook();
+      stubs.missingAuthUsers['user-123'] = true;
+      try {
+        var res = await deliver({
+          type: 'subscription.revoked',
+          data: activeSubscription({ status: 'canceled' }),
+        });
+        assert.strictEqual(res.statusCode, 200);
+        assert.strictEqual(stubs.firestoreWrites.length, 0);
+      } finally {
+        delete stubs.missingAuthUsers['user-123'];
+      }
+    });
+
     await runTest('subscription.past_due writes past_due status', async function () {
       setupWebhook();
       var res = await deliver({

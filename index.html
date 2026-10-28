@@ -1342,6 +1342,28 @@ getResults: function () { return _safeguardResults; },
         </div>
       </div>
 
+      <!-- ── DELETE ACCOUNT MODAL ── -->
+      <div class="modal-overlay" id="delete-account-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
+        <div class="modal-content">
+          <div class="modal-title" id="delete-account-title">🗑️ Delete Account</div>
+          <p class="delete-account-warning">This permanently deletes your account and all your learning progress, on this device and in the cloud. Any active Bayan Premium subscription is cancelled immediately. This cannot be undone.</p>
+          <form id="delete-account-form" autocomplete="on">
+            <div id="delete-account-password-group">
+              <!-- Hidden username field for password manager accessibility -->
+              <input type="text" name="delete-account-username" autocomplete="username" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0.01" tabindex="-1" aria-hidden="true" />
+              <label class="auth-label" for="delete-account-password">Enter your password to confirm</label>
+              <input class="auth-input" id="delete-account-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+            </div>
+            <p class="delete-account-warning" id="delete-account-google-hint" style="display:none">You'll be asked to sign in with Google again to confirm.</p>
+            <div class="auth-error" id="delete-account-error" style="display:none" role="alert"></div>
+            <div class="profile-edit-actions mt-16">
+              <button class="btn btn-sm btn-danger flex-1" id="btn-confirm-delete-account" type="submit">Delete permanently</button>
+              <button class="btn btn-sm btn-outline flex-1" id="btn-cancel-delete-account" type="button">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Keyboard Hints -->
       <div class="kbd-hint" id="kbd-hints" role="tooltip" aria-label="Keyboard shortcuts">
         <span class="kbd-group"><kbd>←</kbd><kbd>→</kbd> Navigate</span>

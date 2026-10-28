@@ -432,7 +432,7 @@
       var plan = (options && options.plan === 'yearly') ? 'yearly' : 'monthly';
 
       // POST to the checkout endpoint
-      var response = await fetch('https://quran-ap-pzso.vercel.app/api/create-checkout-session', {
+      var response = await fetch(API_BASE_URL + '/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + token,
