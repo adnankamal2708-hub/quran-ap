@@ -108,6 +108,33 @@ jobs:
           echo "::warning::Tests failed on Node.js ${{ matrix.node-version }}"
           echo "::error::Check the test output above for details"
 
+  # Runs firestore.rules in the Firestore emulator (needs Java, which the
+  # runner provides). Rules are not deployed by CI — this only verifies them.
+  firestore-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Setup Java (Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install rules test dependencies
+        run: npm install --no-save @firebase/rules-unit-testing@5.0.2 firebase@12.15.0 firebase-tools@15.25.0
+        timeout-minutes: 5
+
+      - name: Run Firestore rules tests in the emulator
+        run: npx firebase emulators:exec --only firestore --project demo-bayan "node test/firestore-rules.test.js"
+        timeout-minutes: 10
+
   build-check:
     runs-on: ubuntu-latest
     needs: test
@@ -158,7 +185,7 @@ jobs:
 
   summary:
     runs-on: ubuntu-latest
-    needs: [test, build-check, security-scan]
+    needs: [test, firestore-rules, build-check, security-scan]
     if: always()
     steps:
       - name: Overall status
@@ -168,18 +195,20 @@ jobs:
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Unit Tests | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Firestore Rules | ${{ needs.firestore-rules.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Check | ${{ needs.build-check.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security Scan | ${{ needs.security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Determine pipeline success
-          if [ "${{ needs.test.result }}" = "success" ] && [ "${{ needs.build-check.result }}" = "success" ]; then
+          if [ "${{ needs.test.result }}" = "success" ] && [ "${{ needs.firestore-rules.result }}" = "success" ] && [ "${{ needs.build-check.result }}" = "success" ]; then
             echo "✅ Pipeline passed — ready for deployment" >> $GITHUB_STEP_SUMMARY
             exit 0
           else
             echo "❌ Pipeline failed — review logs before deployment" >> $GITHUB_STEP_SUMMARY
             echo "Failed jobs:"
             [ "${{ needs.test.result }}" != "success" ] && echo "  - Unit Tests: ${{ needs.test.result }}"
+            [ "${{ needs.firestore-rules.result }}" != "success" ] && echo "  - Firestore Rules: ${{ needs.firestore-rules.result }}"
             [ "${{ needs.build-check.result }}" != "success" ] && echo "  - Build Check: ${{ needs.build-check.result }}"
             [ "${{ needs.security-scan.result }}" != "success" ] && echo "  - Security Scan: ${{ needs.security-scan.result }}"
             exit 1

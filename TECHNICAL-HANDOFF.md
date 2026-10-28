@@ -78,9 +78,14 @@ the bundle concatenates them into one scope.
 - Always v9 modular via `window.__firebaseCore` — never the namespaced legacy API.
 - Firestore reads are gated and cached; `premium.js` holds the one live `onSnapshot`
   listener on `subscriptions/{uid}` (see §3.2).
-- `firestore.rules` + `api/` (Vercel functions, e.g. `create-checkout-session`) handle
-  the server side; client never exposes secrets. The Vercel handlers are covered by
-  `test/api-checkout.test.js` + `test/api-webhook.test.js` (see §4).
+- `firestore.rules` + `api/` (Vercel functions: `create-checkout-session`, `webhook`,
+  `delete-account`) handle the server side; client never exposes secrets. The Vercel
+  handlers are covered by `test/api-*.test.js` (see §4).
+- `learning/{uid}` writes require an active subscription (`hasActivePremium` in
+  `firestore.rules`, mirroring `isPremium()`), so cloud sync can't be enabled by
+  bypassing the client gate. Rules are tested in the emulator by
+  `test/firestore-rules.test.js` (CI job `firestore-rules`) and are **not** deployed
+  by CI — run `firebase deploy --only firestore:rules` after changing them.
 
 ---
 
