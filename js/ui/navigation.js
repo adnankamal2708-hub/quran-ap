@@ -15,7 +15,7 @@ let _onlineSyncSetup = false;
 
 // ── View Switching ─────────────────────────────────────────────
 
-function switchView(viewName) {
+function switchView(viewName, options) {
   // Re-entrant guard: prevent race conditions from rapid tab clicks
   if (_switchingView) return;
   _switchingView = true;
@@ -36,7 +36,7 @@ function switchView(viewName) {
   // ── Force active tab state to match currentView ──
   // This ensures the bottom-nav highlight is always in sync regardless
   // of any state issues in setView() or other view-switching paths.
-  _updateActiveTab(viewName);
+  _updateActiveTab(viewName, options && options.navContext);
   
   // Apply progressive disclosure (show/hide advanced features based on progress)
   if (window.__ux && typeof window.__ux.applyProgressiveDisclosure === 'function') {
@@ -128,7 +128,7 @@ function switchView(viewName) {
  * This is called by switchView() after setView() to ensure the tab highlight
  * always matches the visible page, regardless of any state issues.
  */
-function _updateActiveTab(viewName) {
+function _updateActiveTab(viewName, navContext) {
   // Map view names to their corresponding nav tab IDs
   var tabMap = {
     dashboard: 'tab-dashboard',
@@ -144,7 +144,10 @@ function _updateActiveTab(viewName) {
     navTabs[ti].removeAttribute('aria-current');
   }
   
-  var tabId = tabMap[viewName];
+  // Keep the originating tab selected when a protected tab routes a guest
+  // to sign-in. The auth view is still the active content view, while the
+  // bottom navigation preserves the user's Profile context.
+  var tabId = tabMap[navContext] || tabMap[viewName];
   if (tabId) {
     var tabEl = document.getElementById(tabId);
     if (tabEl) {

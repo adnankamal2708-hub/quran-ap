@@ -114,10 +114,10 @@ const VIEWS = [
     label: 'Quran',
   },
   {
-    id: 'view-profile',
+    id: 'view-auth',
     tab: '#tab-profile',
-    selectors: ['.profile-container', '.profile-avatar', '.pf-tab-bar'],
-    label: 'Profile',
+    selectors: ['#auth-login-form', '#auth-google-login', '#auth-title'],
+    label: 'Profile sign-in gate',
   },
 ];
 

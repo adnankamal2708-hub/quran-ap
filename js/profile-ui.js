@@ -1539,7 +1539,7 @@ async function renderFullProfile(preferredTab) {
       // been released before switching.
       await Promise.resolve();
       if (typeof switchView === 'function') {
-        switchView('auth');
+        switchView('auth', { navContext: 'profile' });
       }
     }
   } catch (e) {

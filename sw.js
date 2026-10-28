@@ -10,7 +10,7 @@
 //   • Offline reader support via aggressive vocabulary caching
 // ═══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'bayan-v81';
+const CACHE_NAME = 'bayan-v82';
 // Note: build.js replaces CACHE_NAME with a timestamp-based version ('quran-vocab-v<timestamp>')
 // at build time. The service worker update cycle (install → wait → activate) then ensures
 // all clients get the fresh cache automatically on their next visit.
@@ -42,7 +42,7 @@ const PRECACHE_URLS = [
   './assets/logo/apple-touch-icon-180.png',
   './assets/logo/pwa-icon-192-solid.png',
   './assets/logo/pwa-icon-512-solid.png',
-  './js/quran/surah-index.js',
+  './js/quran/surah-index.min.js',
 ];
 
 // Install: pre-cache all static assets, then skip waiting to activate immediately

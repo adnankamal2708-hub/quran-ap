@@ -513,12 +513,12 @@ test.describe('Dashboard', () => {
   });
 
   test('bottom navigation switches views', async ({ page }) => {
-    // Click each nav tab and verify the view switches
+    // Guest users are routed to the login view from Profile; the other tabs
+    // open their corresponding learning views directly.
     const tabs = [
       { tab: '#tab-paths', view: '#view-learn' },
       { tab: '#tab-list', view: '#view-list' },
       { tab: '#tab-quran', view: '#view-quran' },
-      { tab: '#tab-profile', view: '#view-profile' },
     ];
 
     for (const { tab, view } of tabs) {
@@ -526,21 +526,19 @@ test.describe('Dashboard', () => {
       await page.waitForTimeout(300);
       await expect(page.locator(view)).toBeVisible();
     }
+
+    await page.locator('#tab-profile').click();
+    await expect(page.locator('#view-auth')).toBeVisible();
+    await expect(page.locator('#auth-login')).toBeVisible();
+    await expect(page.locator('#auth-google-login')).toBeVisible();
   });
 
-  test('profile view shows learning progress', async ({ page }) => {
+  test('guest profile entry opens sign-in with Google option', async ({ page }) => {
     await page.locator('#tab-profile').click();
-    await page.waitForTimeout(800);
-
-    await expect(page.locator('#view-profile')).toBeVisible();
-
-    // Profile defaults to the Account sub-tab — open Progress & Insights
-    await page.locator('.pf-tab[data-pf-tab="progress"]').click();
-    await page.waitForTimeout(500);
-
-    // Progress section should be visible
-    await expect(page.locator('#profile-progress')).toBeVisible();
-    await expect(page.locator('#profile-progress').locator('.profile-pstat').first()).toBeVisible();
+    await expect(page.locator('#view-auth')).toBeVisible();
+    await expect(page.locator('#auth-login')).toBeVisible();
+    await expect(page.locator('#auth-google-login')).toBeVisible();
+    await expect(page.locator('#tab-profile')).toHaveAttribute('aria-current', 'page');
   });
 });
 
@@ -837,8 +835,9 @@ test.describe('Keyboard Shortcuts', () => {
 
   test('P key switches to profile', async ({ page }) => {
     await page.keyboard.press('p');
-    await page.waitForTimeout(500);
-    await expect(page.locator('#view-profile')).toBeVisible();
+    await expect(page.locator('#view-auth')).toBeVisible();
+    await expect(page.locator('#auth-login')).toBeVisible();
+    await expect(page.locator('#tab-profile')).toHaveAttribute('aria-current', 'page');
   });
 });
 
@@ -1189,33 +1188,18 @@ test.describe('Analytics View', () => {
     await skipOnboarding(page);
   });
 
-  test('profile view renders progress content', async ({ page }) => {
+  test('guest profile entry routes to the sign-in gate', async ({ page }) => {
     await page.locator('#tab-profile').click();
-    await page.waitForTimeout(1000);
-
-    await expect(page.locator('#view-profile')).toBeVisible();
-
-    // Profile defaults to the Account sub-tab — open Progress & Insights
-    await page.locator('.pf-tab[data-pf-tab="progress"]').click();
-    await page.waitForTimeout(500);
-
-    // Progress section should be present
-    await expect(page.locator('#profile-progress')).toBeVisible();
+    await expect(page.locator('#view-auth')).toBeVisible();
+    await expect(page.locator('#auth-login')).toBeVisible();
+    await expect(page.locator('#auth-google-login')).toBeVisible();
   });
 
-  test('profile progress sub-tab is clickable', async ({ page }) => {
+  test('profile sign-in gate retains profile navigation context', async ({ page }) => {
     await page.locator('#tab-profile').click();
-    await page.waitForTimeout(1000);
-
-    // Click the Progress sub-tab
-    const progressTab = page.locator('.pf-tab').filter({ hasText: /Progress/i });
-    await expect(progressTab).toBeVisible();
-    await progressTab.click();
-    await page.waitForTimeout(500);
-
-    // Progress content should be visible
-    const content = page.locator('#profile-progress');
-    await expect(content).toBeVisible();
+    await expect(page.locator('#view-auth')).toBeVisible();
+    await expect(page.locator('#tab-profile')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#auth-google-login')).toBeVisible();
   });
 });
 
@@ -1277,11 +1261,10 @@ test.describe('Progress Persistence', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    // Navigate to profile to check SRS data persisted
-    await page.locator('#tab-profile').click();
-    await page.waitForTimeout(500);
-
-    await expect(page.locator('#view-profile')).toBeVisible();
+    // Check persistence directly; guest Profile access intentionally opens
+    // the sign-in gate rather than rendering the signed-in profile screen.
+    const persistedSrs = await page.evaluate(() => JSON.parse(localStorage.getItem('quran_srs_data') || '{}'));
+    expect(persistedSrs.test_word_1).toMatchObject({ totalReviews: 1, stage: 1 });
   });
 });
 
