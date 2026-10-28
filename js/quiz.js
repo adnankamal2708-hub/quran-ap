@@ -26,6 +26,12 @@ let quizFinished = false;
  * If the quiz is already in progress and hasn't finished, preserve state.
  */
 function initQuiz() {
+  // Cancel any pending auto-navigation timer from a previous quiz completion
+  if (window.__autoNavTimer) {
+    clearTimeout(window.__autoNavTimer);
+    window.__autoNavTimer = null;
+  }
+
   // Preserve quiz state if already in progress and not finished
   if (quizWords.length > 0 && !quizFinished && quizIndex < quizWords.length) {
     // If we already have a question displayed, just make sure it's visible
@@ -134,8 +140,9 @@ function answerQuiz(btn, chosen, correct, wordId) {
   } else {
     btn.classList.add('wrong');
     rateSRSWord(wordId, 0);
+    // Highlight correct button using data-correct attribute to avoid textContent collision
     for (var bi = 0; bi < allOpts.length; bi++) {
-      if (allOpts[bi].textContent === correct) allOpts[bi].classList.add('correct');
+      if (allOpts[bi].getAttribute('data-correct') === 'true') allOpts[bi].classList.add('correct');
     }
     feedback.innerHTML = '\u2717 Answer: ' + correct + relContext;
     feedback.style.color = 'var(--red)';
@@ -299,15 +306,15 @@ function nextQuiz() {
         }
       } else {
         // Mark this lesson as completed
-        var hadLesson = !isLessonCompleted(activeLessonIndex);
+        var hadLessonStd = !isLessonCompleted(activeLessonIndex);
         completeLesson(activeLessonIndex);
         
-        if (hadLesson && typeof checkForLessonCompletionCelebration === 'function') {
+        if (hadLessonStd && typeof checkForLessonCompletionCelebration === 'function') {
           checkForLessonCompletionCelebration(activeLessonIndex);
         }
         
         // Show surah connection after lesson completion
-        if (hadLesson && typeof getSurahsImprovedByLesson === 'function') {
+        if (hadLessonStd && typeof getSurahsImprovedByLesson === 'function') {
           var surahImprovements = getSurahsImprovedByLesson(activeLessonIndex);
           if (surahImprovements && surahImprovements.length > 0 && typeof showSurahConnectionToast === 'function') {
             showSurahConnectionToast(surahImprovements);
@@ -315,7 +322,7 @@ function nextQuiz() {
         }
 
         // Post-lesson sign-in prompt for guest users (first lesson only, non-blocking)
-        if (hadLesson && typeof window.__ux !== 'undefined' && typeof window.__ux.showPostLessonSignInPrompt === 'function') {
+        if (hadLessonStd && typeof window.__ux !== 'undefined' && typeof window.__ux.showPostLessonSignInPrompt === 'function') {
           window.__ux.showPostLessonSignInPrompt();
         }
       }

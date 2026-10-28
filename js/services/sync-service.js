@@ -16,15 +16,10 @@
 // ═══════════════════════════════════════════════════════════════
 
 // ── Import Firebase functions from the core bridge ─────────────
-// Use `var` (not `const`) so that when build.js concatenates multiple
-// service files, the same variable names can be safely re-declared.
-var {
-  doc: _doc,
-  getDoc: _getDoc,
-  setDoc: _setDoc,
-  deleteDoc: _deleteDoc,
-  serverTimestamp: _serverTimestamp,
-} = window.__firebaseCore || {};
+// Declared here as vars and bound inside initSync() after Firebase core
+// is confirmed ready. This avoids a race condition where the module-level
+// destructuring runs before window.__firebaseCore is populated.
+var _doc, _getDoc, _setDoc, _deleteDoc, _serverTimestamp;
 
 /** @type {boolean} Whether Firestore is available */
 let _syncReady = false;
@@ -55,6 +50,14 @@ function initSync() {
       _syncReady = false;
       return false;
     }
+
+    // Bind Firebase Firestore functions now that core is confirmed ready
+    var _core = window.__firebaseCore;
+    _doc             = _core.doc;
+    _getDoc          = _core.getDoc;
+    _setDoc          = _core.setDoc;
+    _deleteDoc       = _core.deleteDoc;
+    _serverTimestamp = _core.serverTimestamp;
 
     // NOTE: Offline persistence is already enabled in firebase-core.js initCore().
     // No need to enable it again here.
@@ -336,11 +339,18 @@ function mergeData(localData, cloudData) {
     Object.keys(localNotes).forEach(function (k) { merged.notes[k] = localNotes[k]; });
   }
 
-  // Streak: keep the higher streak value, but use most recent date
+  // Streak: keep the highest streak count, and the most recent lastDate independently.
+  // Picking the whole object by streak count alone could pair a high streak with a stale
+  // lastDate from another device, which would break the next-day continuation check.
   if (localData.streak || cloudData.streak) {
     var localStreak = localData.streak || { streak: 0, lastDate: null };
     var cloudStreak = cloudData.streak || { streak: 0, lastDate: null };
-    merged.streak = (localStreak.streak >= cloudStreak.streak) ? localStreak : cloudStreak;
+    merged.streak = {
+      streak: Math.max(localStreak.streak || 0, cloudStreak.streak || 0),
+      lastDate: (localStreak.lastDate || '') > (cloudStreak.lastDate || '')
+        ? localStreak.lastDate
+        : cloudStreak.lastDate,
+    };
   }
 
   // Settings: local preferred (most recent)

@@ -65,6 +65,8 @@ function renderQuizQuestion(currentWordObj, allWords) {
     b.className = 'quiz-opt';
     b.textContent = opt;
     b.setAttribute('role', 'button');
+    // Mark the correct answer so feedback highlighting doesn't rely on textContent matching
+    if (opt === correct) b.setAttribute('data-correct', 'true');
     b.onclick = function () { handleQuizAnswer(b, opt, correct, currentWordObj.id); };
     optionsEl.appendChild(b);
   });

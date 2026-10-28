@@ -42,7 +42,7 @@ const PRECACHE_URLS = [
   './assets/logo/apple-touch-icon-180.png',
   './assets/logo/pwa-icon-192-solid.png',
   './assets/logo/pwa-icon-512-solid.png',
-  './js/quran/surah-index.min.js',
+  './js/quran/surah-index.js',
 ];
 
 // Install: pre-cache all static assets, then skip waiting to activate immediately

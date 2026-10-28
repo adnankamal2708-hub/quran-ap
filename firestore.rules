@@ -135,8 +135,9 @@ service cloud.firestore {
                             && data.event.size() > 0
                             && data.event.size() <= 100;
 
-        let validData        = data.data is map
-                            && data.data.keys().size() <= 8;
+        let validData        = !('data' in data)
+                            || (data.data is map
+                            && data.data.keys().size() <= 8);
 
         let validTimestamp   = data.timestamp is timestamp
                             || data.timestamp is number;

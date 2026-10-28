@@ -121,12 +121,16 @@ function rateSRS(rating) {
   _ratingSRS = true;
   
   const w = getCurrentWord();
-  if (!w) return;
+  if (!w) {
+    // No word to rate — release the guard immediately so buttons stay functional
+    _ratingSRS = false;
+    return;
+  }
   rateSRSWord(w.id, rating);
 
-  // Track review session recall for session summary (Priority 2)
+  // Track review session recall for session summary
   if (reviewMode) {
-    if (typeof _reviewSessionRecalled !== 'undefined') {
+    if (typeof _reviewSessionRecalled !== 'undefined' && typeof _reviewSessionTotal !== 'undefined') {
       if (rating >= 2) _reviewSessionRecalled++;
       _reviewSessionTotal++;
     }
@@ -332,8 +336,8 @@ function updateLessonProgressDisplay() {
 
     // Show foundation lesson relationship context (root families, related words) — collapsible accordion
     if (typeof getFoundationLessonRelationshipContext === 'function') {
-      var fCtx = getFoundationLessonRelationshipContext(activeLessonIndex);
-      if (fCtx && fCtx.rootFamilies && fCtx.rootFamilies.length > 0) {
+      var fRelCtxData = getFoundationLessonRelationshipContext(activeLessonIndex);
+      if (fRelCtxData && fRelCtxData.rootFamilies && fRelCtxData.rootFamilies.length > 0) {
         var fRelCtx = DOM.get('foundation-relationship-context');
         if (fRelCtx) {
           var ctxHtml = '<div class="foundation-accordion">';
@@ -345,25 +349,25 @@ function updateLessonProgressDisplay() {
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
           ctxHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
-          for (var rfi = 0; rfi < fCtx.rootFamilies.length; rfi++) {
-            var rf = fCtx.rootFamilies[rfi];
+          for (var rfi = 0; rfi < fRelCtxData.rootFamilies.length; rfi++) {
+            var rf = fRelCtxData.rootFamilies[rfi];
             ctxHtml += '<span class="ai-chip-root">' + rf.root + ' <span class="ai-chip-sub">(' + rf.rootMeaning + ')</span></span>';
           }
           ctxHtml += '</div>';
           // Already learned related
-          if (fCtx.alreadyLearnedRelated && fCtx.alreadyLearnedRelated.length > 0) {
+          if (fRelCtxData.alreadyLearnedRelated && fRelCtxData.alreadyLearnedRelated.length > 0) {
             ctxHtml += '<div class="ai-chip-al-title">✓ Already learned:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
-            for (var ali = 0; ali < fCtx.alreadyLearnedRelated.length; ali++) {
-              var al = fCtx.alreadyLearnedRelated[ali];
+            for (var ali = 0; ali < fRelCtxData.alreadyLearnedRelated.length; ali++) {
+              var al = fRelCtxData.alreadyLearnedRelated[ali];
               ctxHtml += '<span class="ai-chip-al">' + al.arabic + ' <span class="ai-chip-sub">(' + al.english + ')</span></span>';
             }
             ctxHtml += '</div>';
           }
           // Upcoming related
-          if (fCtx.upcomingRelated && fCtx.upcomingRelated.length > 0) {
+          if (fRelCtxData.upcomingRelated && fRelCtxData.upcomingRelated.length > 0) {
             ctxHtml += '<div class="ai-chip-up-title">Related words coming in future lessons:</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
-            for (var upi = 0; upi < fCtx.upcomingRelated.length; upi++) {
-              var up = fCtx.upcomingRelated[upi];
+            for (var upi = 0; upi < fRelCtxData.upcomingRelated.length; upi++) {
+              var up = fRelCtxData.upcomingRelated[upi];
               ctxHtml += '<span class="ai-chip-up">' + up.arabic + ' <span class="ai-chip-sub">(' + up.english + ') - Lesson ' + (up.lessonId + 1) + '</span></span>';
             }
             ctxHtml += '</div>';
