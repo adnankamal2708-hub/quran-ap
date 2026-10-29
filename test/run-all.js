@@ -32,6 +32,7 @@ var TESTS = [
   "quran-data.test.js",
   "quran-pipeline.test.js",
   "quran-loader.test.js",
+  "quran-reader.test.js",
   "services.test.js",
   "foundation-course.test.js",
   "quran.test.js",
