@@ -5657,6 +5657,9 @@ body::before {
   min-width: 36px;
   padding: 2px 8px;
   flex-shrink: 0;
+  /* The .db-sc-* colour class also paints the bar's gradient; here it should
+     only colour the text */
+  background: none;
 }
 .db-surah-row-pct.db-sc-gold { color: var(--gold); }
 .db-surah-row-pct.db-sc-blue { color: var(--blue); }
