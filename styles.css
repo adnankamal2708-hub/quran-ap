@@ -8232,12 +8232,18 @@ body::before {
   flex: 1;
   min-width: 0;
 }
+/* The label gives way on narrow screens; the badge never does */
+.ls-path-item > span:not(.ls-path-pct) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .ls-path-pct {
   font-size: 11px;
   color: var(--gold-muted);
   font-weight: 600;
   text-align: right;
-  flex: 0 !important;
+  flex: none !important; /* keep its natural width: flex 0 let "Premium" shrink and get clipped */
   display: inline-flex;
   align-items: center;
   justify-content: center;
