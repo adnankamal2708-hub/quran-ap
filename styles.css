@@ -10527,12 +10527,18 @@ body::before {
   outline: none;
 }
 
-/* Mastery color classes */
-.quran-token-mastered { color: var(--gold, #c9a84c); }
-.quran-token-known { color: #4caf50; }
-.quran-token-learning { color: #42a5f5; }
-.quran-token-seen { color: #888; }
-.quran-token-unknown { color: #ff7043; }
+/* Mastery color classes — from the app palette. Words not studied yet read
+   as plain text with a faint dotted underline (still tappable), so a new
+   learner's first surah isn't painted in a warning colour. */
+.quran-token-mastered { color: var(--gold); }
+.quran-token-known { color: var(--green); }
+.quran-token-learning { color: var(--blue); }
+.quran-token-seen { color: var(--text-muted); }
+.quran-token-unknown {
+  color: var(--text);
+  text-decoration: underline dotted rgba(201, 168, 76, 0.45);
+  text-underline-offset: 0.45em;
+}
 
 /* Plain (non-vocab) Arabic */
 .quran-plain-arabic {
@@ -10662,11 +10668,14 @@ body::before {
 }
 
 /* Legend swatch colors */
-.quran-legend-swatch.quran-token-mastered { background: var(--gold, #c9a84c); }
-.quran-legend-swatch.quran-token-known { background: #4caf50; }
-.quran-legend-swatch.quran-token-learning { background: #42a5f5; }
-.quran-legend-swatch.quran-token-seen { background: #888; }
-.quran-legend-swatch.quran-token-unknown { background: #ff7043; }
+.quran-legend-swatch.quran-token-mastered { background: var(--gold); }
+.quran-legend-swatch.quran-token-known { background: var(--green); }
+.quran-legend-swatch.quran-token-learning { background: var(--blue); }
+.quran-legend-swatch.quran-token-seen { background: var(--text-muted); }
+.quran-legend-swatch.quran-token-unknown {
+  background: transparent;
+  border: 1px dashed rgba(201, 168, 76, 0.6);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    styles.css — PREMIUM UX POLISH

@@ -683,7 +683,7 @@ var _tooltips = {
   'quran-mode': {
     selector: '#view-quran',
     title: '📖 Interactive Reading',
-    message: 'Tap any colored word to see its meaning, root, and tafsir. Mastered words appear in gold, new words in red.',
+    message: 'Tap any highlighted word to see its meaning, root, and tafsir. Mastered words appear in gold; words not studied yet are underlined.',
     position: 'bottom'
   },
   'word-details': {

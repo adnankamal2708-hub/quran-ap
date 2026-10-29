@@ -867,6 +867,18 @@ suite('View Switch Scroll Protection', function() {
     assert.ok(cssContent.indexOf('.top-bar-compact .top-meta-row') >= 0, 'compact header CSS rule exists');
   });
 
+  test('Quran reader word colours come from the app palette', function() {
+    // Unstudied words were painted bright orange (#ff7043), so a new learner's
+    // whole first surah looked like an error state.
+    ['mastered', 'known', 'learning', 'seen', 'unknown'].forEach(function(level) {
+      var m = cssContent.match(new RegExp('\\.quran-token-' + level + '\\s*\\{([^}]*)\\}'));
+      assert.ok(m, 'rule for .quran-token-' + level);
+      var color = (m[1].match(/(?:^|;|\s)color:\s*([^;]+)/) || [])[1] || '';
+      assert.ok(/^var\(--[a-z-]+\)$/.test(color.trim()), level + ' uses a palette token, got: ' + color);
+    });
+    assert.ok(cssContent.indexOf('#ff7043') < 0, 'no off-palette orange left');
+  });
+
   test('renderExplorer() in explorer.js scrolls to top', function() {
     var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
     assert.ok(explorerContent.indexOf('content.scrollTop = 0') >= 0,
