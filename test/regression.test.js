@@ -143,83 +143,6 @@ function cssContains(pattern) {
 // ═══════════════════════════════════════════════════════════════
 
 suite('CSS Class Name Verification', function() {
-  // These class names were previously orphaned (had missing selectors)
-  test('stat-card-emoji class exists', function() {
-    assert.ok(cssContains('.stat-card-emoji'), 'stat-card-emoji should exist in styles.css');
-  });
-
-  test('stat-card-value class exists', function() {
-    assert.ok(cssContains('.stat-card-value'), 'stat-card-value should exist in styles.css');
-  });
-
-  test('stat-card-label class exists', function() {
-    assert.ok(cssContains('.stat-card-label'), 'stat-card-label should exist in styles.css');
-  });
-
-  test('streak-box class exists', function() {
-    assert.ok(cssContains('.streak-box'), 'streak-box should exist in styles.css');
-  });
-
-  test('streak-box pseudo-selectors exist', function() {
-    assert.ok(cssContains('streak-box::before'), 'streak-box::before should exist');
-    assert.ok(cssContains('.streak-box:hover'), 'streak-box:hover should exist');
-  });
-
-  test('streak-box sub-elements exist', function() {
-    assert.ok(cssContains('.streak-box-title'), 'streak-box-title should exist');
-    assert.ok(cssContains('.streak-box-row'), 'streak-box-row should exist');
-    assert.ok(cssContains('.streak-box-value'), 'streak-box-value should exist');
-    assert.ok(cssContains('.streak-box-suffix'), 'streak-box-suffix should exist');
-    assert.ok(cssContains('.streak-box-desc'), 'streak-box-desc should exist');
-  });
-
-  test('progress-section-title class exists', function() {
-    assert.ok(cssContains('.progress-section-title'), 'progress-section-title should exist');
-  });
-
-  test('progress-section-subtitle class exists', function() {
-    assert.ok(cssContains('.progress-section-subtitle'), 'progress-section-subtitle should exist');
-  });
-
-  test('progress-section-content class exists', function() {
-    assert.ok(cssContains('.progress-section-content'), 'progress-section-content should exist');
-  });
-
-  test('user-btn class exists', function() {
-    assert.ok(cssContains('.user-btn'), 'user-btn should exist in styles.css');
-  });
-
-  test('user-btn pseudo-classes exist', function() {
-    assert.ok(cssContains('.user-btn:hover'), '.user-btn:hover should exist');
-    assert.ok(cssContains('.user-btn:focus-visible'), '.user-btn:focus-visible should exist');
-    assert.ok(cssContains('.user-btn:active'), '.user-btn:active should exist');
-  });
-
-  test('foundation-cov-grid class exists', function() {
-    assert.ok(cssContains('.foundation-cov-grid'), 'foundation-cov-grid should exist');
-  });
-
-  test('foundation-cov-item class exists (with hover)', function() {
-    assert.ok(cssContains('.foundation-cov-item'), 'foundation-cov-item should exist');
-    assert.ok(cssContains('.foundation-cov-item:hover'), 'foundation-cov-item:hover should exist');
-  });
-
-  test('foundation-cov-value class exists', function() {
-    assert.ok(cssContains('.foundation-cov-value'), 'foundation-cov-value should exist');
-  });
-
-  test('foundation-cov-label class exists', function() {
-    assert.ok(cssContains('.foundation-cov-label'), 'foundation-cov-label should exist');
-  });
-
-  test('profile-stats-grid class exists', function() {
-    assert.ok(cssContains('.profile-stats-grid'), 'profile-stats-grid should exist');
-  });
-
-  test('word-network-chip-context class exists', function() {
-    assert.ok(cssContains('.word-network-chip-context'), 'word-network-chip-context should exist');
-  });
-
   test('empty-state class exists', function() {
     assert.ok(cssContains('.empty-state {'), 'empty-state should exist');
   });
@@ -489,7 +412,7 @@ suite('Component Smoke Tests', function() {
   });
 
   test('utility classes exist', function() {
-    var utils = ['.is-hidden', '.w-full', '.text-center', '.text-muted',
+    var utils = ['.w-full', '.text-center', '.text-muted',
                  '.sr-only', '.flex', '.flex-1'];
     utils.forEach(function(u) {
       assert.ok(cssContains(u), u + ' should exist');
@@ -497,7 +420,7 @@ suite('Component Smoke Tests', function() {
   });
 
   test('margin utility classes exist', function() {
-    var margins = ['.mt-8', '.mt-10', '.mt-12', '.mt-14', '.mt-16', '.mt-20', '.mt-24', '.mb-8'];
+    var margins = ['.mt-8', '.mt-10', '.mt-12', '.mt-16'];
     margins.forEach(function(m) {
       assert.ok(cssContains(m), m + ' should exist');
     });
@@ -602,33 +525,10 @@ suite('Dashboard Components', function() {
   });
 
   test('dashboard ring/comprehension classes exist', function() {
-    assert.ok(cssContains('.db-comp-row'), 'db-comp-row should exist');
     assert.ok(cssContains('.db-ring-wrap'), 'db-ring-wrap should exist');
     assert.ok(cssContains('.db-ring-fill'), 'db-ring-fill should exist');
     assert.ok(cssContains('.db-ring-text'), 'db-ring-text should exist');
     assert.ok(cssContains('.db-comp-headline-value'), 'db-comp-headline-value should exist');
-  });
-
-  test('dashboard progress fill variants exist', function() {
-    assert.ok(cssContains('.db-fill-green'), 'db-fill-green should exist');
-    assert.ok(cssContains('.db-fill-blue'), 'db-fill-blue should exist');
-    assert.ok(cssContains('.db-fill-purple'), 'db-fill-purple should exist');
-  });
-
-  test('dashboard achievement classes exist', function() {
-    assert.ok(cssContains('.db-achievement'), 'db-achievement should exist');
-    assert.ok(cssContains('.db-ach-item'), 'db-ach-item should exist');
-    assert.ok(cssContains('.dashboard-ach-chip'), 'dashboard-ach-chip should exist');
-  });
-
-  test('dashboard CTA classes exist', function() {
-    assert.ok(cssContains('.db-cta'), 'db-cta should exist');
-    assert.ok(cssContains('.db-cta-title'), 'db-cta-title should exist');
-  });
-
-  test('dashboard weekly section exists', function() {
-    assert.ok(cssContains('.db-weekly'), 'db-weekly should exist');
-    assert.ok(cssContains('.db-weekly-item'), 'db-weekly-item should exist');
   });
 
   test('dashboard error state class exists', function() {
@@ -1110,9 +1010,6 @@ suite('Explorer Structured Components', function() {
   // Test: CSS class definitions exist for all structured components
   test('CSS for structured components exists in styles.css', function() {
     var required = [
-      '.explorer-diff-stars',
-      '.explorer-star.filled',
-      '.explorer-star.empty',
       '.explorer-freq-pill',
       '.explorer-foundation-badge',
       '.explorer-priority-chip',
