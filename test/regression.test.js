@@ -906,6 +906,18 @@ suite('View Switch Scroll Protection', function() {
     assert.ok(cssContent.indexOf('.top-bar-compact .top-meta-row') >= 0, 'compact header CSS rule exists');
   });
 
+  test('plan picker is not offered on a checkout return or upgrade visit', function() {
+    // A learner coming back from a paid checkout may not be marked premium
+    // yet (webhook lag), so the startup plan-picker check must skip it.
+    var appSrc = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+    var call = appSrc.indexOf('maybeShowPlanPicker');
+    assert.ok(call >= 0, 'startup offers the plan picker');
+    var guard = appSrc.slice(call, call + 200);
+    assert.ok(guard.indexOf('(checkout|upgrade)=') >= 0, 'skips ?checkout= and ?upgrade= visits');
+    assert.ok(call < appSrc.indexOf('function handleCheckoutParams'),
+      'URL is read in init(), before handleCheckoutParams() cleans it');
+  });
+
   test('Quran reader word colours come from the app palette', function() {
     // Unstudied words were painted bright orange (#ff7043), so a new learner's
     // whole first surah looked like an error state.

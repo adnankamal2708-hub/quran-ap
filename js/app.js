@@ -1624,8 +1624,12 @@ function init() {
         if (!onbDone) {
           // Show onboarding after splash screen is fully removed (~1500ms min + 800ms hide + 800ms remove + buffer)
           setTimeout(function() { window.__DEV__ && console.log('[startup] [13b] Showing onboarding overlay'); window.__ux.showOnboarding(); }, 3000);
-        } else if (typeof window.__ux.maybeShowPlanPicker === 'function') {
-          // Returning learner: offer plans once, after their first lesson
+        } else if (typeof window.__ux.maybeShowPlanPicker === 'function' &&
+                   !/[?&](checkout|upgrade)=/.test(window.location.search)) {
+          // Returning learner: offer plans once, after their first lesson —
+          // but not on a visit that is a checkout return (the webhook may
+          // not have marked them premium yet) or already heading to checkout.
+          // Read here, before handleCheckoutParams() cleans the URL.
           setTimeout(function() {
             window.__ux.maybeShowPlanPicker().catch(function (e) { console.warn('[app] Plan picker check failed:', e.message); });
           }, 3000);
