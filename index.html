@@ -834,6 +834,11 @@ getResults: function () { return _safeguardResults; },
           <div class="quran-top-bar">
             <button class="quran-back-btn" id="quran-back-to-list" type="button" aria-label="Back to surah list">← Back</button>
             <h2 class="quran-title" id="quran-surah-title">Select a Surah</h2>
+            <div class="reader-controls" role="group" aria-label="Reading options">
+              <button class="reader-btn" id="reader-size-down" type="button" aria-label="Smaller Arabic text" title="Smaller Arabic text">A<span aria-hidden="true">−</span></button>
+              <button class="reader-btn" id="reader-size-up" type="button" aria-label="Larger Arabic text" title="Larger Arabic text">A<span aria-hidden="true">+</span></button>
+              <button class="reader-btn reader-meanings-btn" id="reader-meanings" type="button" aria-pressed="false" title="Show the meaning under each word you can study">Meanings</button>
+            </div>
           </div>
           <div class="quran-verses" id="quran-verses">
             <!-- Rendered dynamically by renderAyahs() -->

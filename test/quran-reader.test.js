@@ -197,6 +197,33 @@ ts('R2 — Reader displays ORIGINAL corpus text, never dictionary substitutions'
 });
 
 // ═══════════════════════════════════════════════════════════════
+// R4 — Reading options: word meanings and Arabic text size
+// ═══════════════════════════════════════════════════════════════
+
+ts('R4 — Word meanings and text size', function () {
+  t('a studied word carries its gloss in data-gloss, and its text is still the verse text', function () {
+    if (!readerResult) { console.log('     (sandbox unavailable — skipping)'); return; }
+    // CSS draws the gloss (::after) when Meanings is on, so the token's own
+    // text never gains English and copy/paste keeps the verse intact.
+    assert.ok(/data-gloss="Guidance"[^>]*>هُدٗى<\/span>/.test(readerResult.html),
+      'gloss attribute on the token, corpus text as its only content');
+  });
+
+  t('saved reader options load; bad or out-of-range values fall back to defaults', function () {
+    if (!readerSandbox || !readerSandbox._loadReaderPrefs) { console.log('     (sandbox unavailable — skipping)'); return; }
+    var load = readerSandbox._loadReaderPrefs;
+    var def = { size: readerSandbox.READER_DEFAULT_SIZE, meanings: false };
+    assert.deepStrictEqual(load(), def, 'nothing saved');
+    localStorage.setItem('bayan_reader_prefs', JSON.stringify({ size: 3, meanings: true }));
+    assert.deepStrictEqual(load(), { size: 3, meanings: true }, 'saved values');
+    localStorage.setItem('bayan_reader_prefs', JSON.stringify({ size: 9, meanings: 'yes' }));
+    assert.deepStrictEqual(load(), def, 'out-of-range size, non-boolean meanings');
+    localStorage.setItem('bayan_reader_prefs', 'not json');
+    assert.deepStrictEqual(load(), def, 'corrupt value');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // R3 — Highlight routing through _highlightOccurrenceText
 // ═══════════════════════════════════════════════════════════════
 

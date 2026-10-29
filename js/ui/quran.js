@@ -391,6 +391,7 @@ function openSurahForReading(surahId) {
   var mainEl = document.getElementById('quran-main');
   if (listEl) listEl.style.display = 'none';
   if (mainEl) mainEl.style.display = 'block';
+  wireReaderControls();
 
   // Check if per-surah verse data is already available
   var quranData = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
@@ -501,8 +502,12 @@ function renderAyahs() {
         // substitute the dictionary/canonical form. The dictionary form is
         // used only for matching and for accessible labels (aria/title).
         var escapedToken = token.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        // The gloss is drawn by CSS (::after) when "Meanings" is on, so the
+        // token's text stays exactly the verse text.
+        var gloss = String(matchedWord.english || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         html += '<span class="quran-word-token quran-token-' + colorClass + '" ' +
           'data-word-id="' + matchedWord.id + '" ' +
+          'data-gloss="' + gloss + '" ' +
           'tabindex="0" role="button" ' +
           'aria-label="' + escapedArabic + ' — ' + (matchedWord.meaning || matchedWord.english || '') + '" ' +
           'title="' + escapedArabic + ' — ' + (matchedWord.english || '') + '">' +
@@ -827,6 +832,59 @@ function wireQuranEvents() {
   if (backBtn) {
     backBtn.onclick = goBackToSurahList;
   }
+  wireReaderControls();
+}
+
+// ── Reading Options (Arabic text size, word meanings) ──────────
+// Remembered on this device.
+
+var READER_SIZES = [24, 28, 32, 38]; // px
+var READER_DEFAULT_SIZE = 1;
+var READER_PREFS_KEY = 'bayan_reader_prefs';
+
+function _loadReaderPrefs() {
+  var prefs = { size: READER_DEFAULT_SIZE, meanings: false };
+  try {
+    var saved = JSON.parse(localStorage.getItem(READER_PREFS_KEY) || '{}');
+    if (saved.size >= 0 && saved.size < READER_SIZES.length) prefs.size = saved.size;
+    prefs.meanings = saved.meanings === true;
+  } catch (e) { /* corrupt or unavailable storage: use defaults */ }
+  return prefs;
+}
+
+function _applyReaderPrefs(prefs) {
+  var main = document.getElementById('quran-main');
+  if (!main) return;
+  main.style.setProperty('--reader-arabic-size', READER_SIZES[prefs.size] + 'px');
+  main.classList.toggle('show-glosses', prefs.meanings);
+  var down = document.getElementById('reader-size-down');
+  var up = document.getElementById('reader-size-up');
+  var meanings = document.getElementById('reader-meanings');
+  if (down) down.disabled = prefs.size === 0;
+  if (up) up.disabled = prefs.size === READER_SIZES.length - 1;
+  if (meanings) meanings.setAttribute('aria-pressed', prefs.meanings ? 'true' : 'false');
+}
+
+function _setReaderPrefs(prefs) {
+  _applyReaderPrefs(prefs);
+  try { localStorage.setItem(READER_PREFS_KEY, JSON.stringify(prefs)); } catch (e) { /* non-critical */ }
+}
+
+function wireReaderControls() {
+  var prefs = _loadReaderPrefs();
+  _applyReaderPrefs(prefs);
+  var down = document.getElementById('reader-size-down');
+  var up = document.getElementById('reader-size-up');
+  var meanings = document.getElementById('reader-meanings');
+  if (down) down.onclick = function () {
+    prefs.size = Math.max(0, prefs.size - 1); _setReaderPrefs(prefs);
+  };
+  if (up) up.onclick = function () {
+    prefs.size = Math.min(READER_SIZES.length - 1, prefs.size + 1); _setReaderPrefs(prefs);
+  };
+  if (meanings) meanings.onclick = function () {
+    prefs.meanings = !prefs.meanings; _setReaderPrefs(prefs);
+  };
 }
 
 // ── Reading Journey Summary (used by Profile page) ─────────────
