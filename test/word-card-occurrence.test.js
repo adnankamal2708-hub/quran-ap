@@ -228,7 +228,7 @@ suite('Word card learning context', function () {
     global.getFoundationLessonForWord = function () { return 0; };
     renderWordLearningContext(w);
     delete global.getFoundationLessonForWord;
-    return document.getElementById('word-learning-context').innerHTML;
+    return document.getElementById('word-learning-context').textContent;
   }
 
   test('surah count uses the occurrence index, not the sample verses', function () {
@@ -252,6 +252,14 @@ suite('Word card learning context', function () {
     delete global._getIndexRefsForWord;
     assert.ok(html.indexOf('Occurs') < 0 && html.indexOf('3,309') < 0, 'no duplicate count: ' + html);
     assert.ok(html.indexOf('In 1 surah') >= 0 && html.indexOf('In 1 surahs') < 0, 'singular for one surah');
+  });
+
+  test('renders as plain text with no stray pin icon', function () {
+    global._getIndexRefsForWord = function () { return ['1:1']; };
+    var text = renderContext({ id: 'ctx4', arabic: 'x', occ: 5, frequencyRank: 3 });
+    delete global._getIndexRefsForWord;
+    assert.ok(text.indexOf('📍') < 0, 'no pin emoji: ' + text);
+    assert.strictEqual(text, 'Learned in Foundation Lesson 1 · #3 most frequent · In 1 surah');
   });
 });
 

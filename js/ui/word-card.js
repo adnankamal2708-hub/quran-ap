@@ -329,8 +329,9 @@ function renderWordLearningContext(w) {
   }
   
   if (parts.length > 0) {
-    ctxEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap">' +
-      '<span>📍</span><span>' + parts.join(' \u00B7 ') + '</span></span>';
+    // Plain centred text: the old pin icon sat in a wrapping flex row and
+    // ended up alone on its own line, left of the centred card.
+    ctxEl.textContent = parts.join(' \u00B7 ');
     ctxEl.style.display = 'block';
   } else {
     ctxEl.style.display = 'none';
