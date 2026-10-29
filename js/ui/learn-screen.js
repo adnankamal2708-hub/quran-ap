@@ -210,10 +210,49 @@ function wireLearnScreenEvents() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// "MORE FOR THIS WORD" PANEL — notes, roots, word connections and
+// lesson stats, folded under the word card so the word stays the focus.
+// Open/closed is remembered on this device.
+// ═══════════════════════════════════════════════════════════════
+
+var LEARN_MORE_OPEN_KEY = 'bayan_learn_more_open';
+
+function _applyLearnMoreOpen(open) {
+  var panel = document.getElementById('learn-more');
+  var btn = document.getElementById('learn-more-toggle');
+  if (!panel || !btn) return;
+  panel.hidden = !open;
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+/** Open or close the panel and remember the choice. */
+function setLearnMoreOpen(open) {
+  _applyLearnMoreOpen(open);
+  try { localStorage.setItem(LEARN_MORE_OPEN_KEY, open ? '1' : '0'); } catch (e) { /* non-critical */ }
+}
+
+/** Restore the remembered state and wire the toggle. Called once at startup. */
+function initLearnMore() {
+  var btn = document.getElementById('learn-more-toggle');
+  if (!btn) return;
+  var open = false;
+  try { open = localStorage.getItem(LEARN_MORE_OPEN_KEY) === '1'; } catch (e) { /* non-critical */ }
+  _applyLearnMoreOpen(open);
+  btn.onclick = function () { setLearnMoreOpen(btn.getAttribute('aria-expanded') !== 'true'); };
+}
+
+/** Show a dot on the toggle while the current word has a saved note. */
+function updateLearnMoreNoteDot(hasNote) {
+  var btn = document.getElementById('learn-more-toggle');
+  if (btn) btn.classList.toggle('has-note', !!hasNote);
+}
+
+// ═══════════════════════════════════════════════════════════════
 // EXPORT
 // ═══════════════════════════════════════════════════════════════
 
 window.__learnScreen = {
   render: renderLearnScreen,
   wireEvents: wireLearnScreenEvents,
+  setMoreOpen: setLearnMoreOpen,
 };

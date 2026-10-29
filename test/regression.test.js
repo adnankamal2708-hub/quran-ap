@@ -873,6 +873,25 @@ suite('View Switch Scroll Protection', function() {
     assert.deepStrictEqual(found, [], 'emoji left in markup: ' + found.join(' '));
   });
 
+  test('Learn keeps notes, roots and lesson info in the "More" panel', function() {
+    // The word card stays the focus: extras sit in #learn-more (closed by
+    // default), while the verse box opened by "Show in ayah" and the quiz
+    // button stay outside it.
+    var html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+    var start = html.indexOf('<div class="learn-more" id="learn-more" hidden>');
+    var end = html.indexOf('<!-- end learn-more -->');
+    assert.ok(start > 0 && end > start, 'panel present and closed by default');
+    var inside = function (id) { var i = html.indexOf('id="' + id + '"'); return i > start && i < end; };
+    ['notes-box', 'root-box', 'word-network', 'extended-relationships', 'ls-info-sections'].forEach(function (id) {
+      assert.ok(inside(id), id + ' is inside the panel');
+    });
+    ['ayah-box', 'learn-more-toggle'].forEach(function (id) {
+      assert.ok(!inside(id), id + ' is outside the panel');
+    });
+    assert.strictEqual((html.match(/>Take a quiz</g) || []).length, 1, 'one quiz button');
+    assert.ok(html.indexOf('>Take a quiz<') > end, 'quiz button after the panel');
+  });
+
   test('Quran reader word colours come from the app palette', function() {
     // Unstudied words were painted bright orange (#ff7043), so a new learner's
     // whole first surah looked like an error state.

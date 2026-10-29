@@ -542,6 +542,26 @@ getResults: function () { return _safeguardResults; },
           <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <span class="sr-only">Toggle quick flashcard mode</span><span aria-hidden="true">Quick</span></button>
         </div>
 
+        <section class="ayah-box" id="ayah-box" aria-label="Quranic verse context">
+          <div class="ayah-arabic" id="ayah-arabic" lang="ar" dir="rtl"></div>
+          <div class="ayah-translation" id="ayah-translation"></div>
+          <div class="ayah-ref" id="ayah-ref"></div>
+          <div class="tafsir-box" id="tafsir-box" aria-label="Ibn Kathir tafsir">
+            <div class="tafsir-header"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Ibn Kathir — Tafsir</div>
+            <div class="tafsir-text" id="tafsir-text"></div>
+          </div>
+        </section>
+
+        <!-- Extras for the current word and lesson, folded away so the word stays the focus -->
+        <button class="learn-more-toggle" id="learn-more-toggle" type="button" aria-expanded="false" aria-controls="learn-more">
+          <span class="learn-more-text">
+            <span class="learn-more-title">More for this word<span class="learn-more-dot" aria-hidden="true"></span></span>
+            <span class="learn-more-sub">Notes, roots, word connections, lesson stats</span>
+          </span>
+          <svg class="learn-more-arrow" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="learn-more" id="learn-more" hidden>
+
         <div class="notes-box" id="notes-box" style="display:none">
           <div class="notes-header"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Personal Notes</div>
           <textarea class="notes-input" id="notes-input" placeholder="Write your notes about this word…" rows="2"></textarea>
@@ -598,20 +618,8 @@ getResults: function () { return _safeguardResults; },
           </div>
         </section>
 
-        <section class="ayah-box" id="ayah-box" aria-label="Quranic verse context">
-          <div class="ayah-arabic" id="ayah-arabic" lang="ar" dir="rtl"></div>
-          <div class="ayah-translation" id="ayah-translation"></div>
-          <div class="ayah-ref" id="ayah-ref"></div>
-          <div class="tafsir-box" id="tafsir-box" aria-label="Ibn Kathir tafsir">
-            <div class="tafsir-header"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Ibn Kathir — Tafsir</div>
-            <div class="tafsir-text" id="tafsir-text"></div>
-          </div>
-        </section>
-
         <!-- ═══ COLLAPSIBLE INFO SECTIONS (below vocabulary, learning-focused) ═══ -->
         <div id="ls-info-sections">
-
-          <button class="btn btn-outline" type="button" onclick="switchView('quiz')">Take a quiz</button>
 
           <!-- Section 1: Learning Paths (Continue card, Reviews due, Paths grid) -->
           <div class="ls-collapsible">
@@ -649,6 +657,11 @@ getResults: function () { return _safeguardResults; },
 
         </div>
         <!-- end ls-info-sections -->
+
+        </div>
+        <!-- end learn-more -->
+
+        <button class="btn btn-outline learn-quiz-btn" type="button" onclick="switchView('quiz')">Take a quiz</button>
       </section>
 
       <!-- ── QUIZ VIEW ── -->

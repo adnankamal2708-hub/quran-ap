@@ -165,6 +165,7 @@ function renderWordCard(w, currentIndex, total, isReview) {
   var notesInput = DOM.get('notes-input');
   if (notesBox) notesBox.style.display = 'block';
   if (notesInput) notesInput.value = getNote(w.id);
+  if (typeof updateLearnMoreNoteDot === 'function') updateLearnMoreNoteDot(!!String(getNote(w.id) || '').trim());
 
   // Show occurrence navigation for words with multiple contexts
   var occNav = DOM.get('occ-nav');
@@ -902,6 +903,8 @@ function _tafsirLegacyLocalCheck() {
 function highlightRootBox() {
   const rootBox = document.getElementById('root-box');
   if (!rootBox) return;
+  // The root box lives in the "More for this word" panel
+  if (typeof setLearnMoreOpen === 'function') setLearnMoreOpen(true);
   rootBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   rootBox.style.transition = 'border-color 0.4s ease';
   rootBox.style.borderColor = 'var(--gold)';

@@ -208,6 +208,7 @@ function saveNote() {
   if (!w) return;
   var text = document.getElementById('notes-input').value;
   setNote(w.id, text);
+  if (typeof updateLearnMoreNoteDot === 'function') updateLearnMoreNoteDot(!!text.trim());
 }
 
 // ── Lesson Progress Display ────────────────────────────────────
@@ -846,6 +847,9 @@ function wireEvents() {
     }
   });
   safeOnClick('qa-bookmark', toggleBookmark);
+
+  // "More for this word" panel (notes, roots, word connections, lesson stats)
+  if (typeof initLearnMore === 'function') initLearnMore();
 
   // Notes (auto-save on blur)
   var notesInput = document.getElementById('notes-input');
