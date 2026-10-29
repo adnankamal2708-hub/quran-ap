@@ -3081,6 +3081,12 @@ body::before {
   border-top: 1px solid var(--border);
 }
 
+/* Next/Personalize stays on the right even when Back is hidden on the
+   first step (alone, space-between left it stranded on the left) */
+#onboarding-next {
+  margin-left: auto;
+}
+
 .session-summary-encouragement {
   text-align: center;
   font-family: var(--serif);

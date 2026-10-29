@@ -928,6 +928,10 @@ suite('View Switch Scroll Protection', function() {
       'long lesson titles end in an ellipsis');
   });
 
+  test('onboarding Next button stays right-aligned when Back is hidden', function() {
+    assert.ok(/#onboarding-next \{[^}]*margin-left:\s*auto/.test(cssContent));
+  });
+
   test('Quran reader word colours come from the app palette', function() {
     // Unstudied words were painted bright orange (#ff7043), so a new learner's
     // whole first surah looked like an error state.
