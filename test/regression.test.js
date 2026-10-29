@@ -918,6 +918,16 @@ suite('View Switch Scroll Protection', function() {
       'URL is read in init(), before handleCheckoutParams() cleans it');
   });
 
+  test('Learn mode picker and lesson button each get a full row', function() {
+    // Side by side, the long lesson title squeezed the picker to its arrow
+    // and ran off 320px screens.
+    var m = cssContent.match(/\n\.lesson-header-actions \{([^}]*)\}/g) || [];
+    var last = m[m.length - 1] || '';
+    assert.ok(/flex-direction:\s*column/.test(last), 'last .lesson-header-actions rule stacks its children');
+    assert.ok(/\.lesson-header-actions \.continue-lesson-btn \{[^}]*text-overflow:\s*ellipsis/.test(cssContent),
+      'long lesson titles end in an ellipsis');
+  });
+
   test('Quran reader word colours come from the app palette', function() {
     // Unstudied words were painted bright orange (#ff7043), so a new learner's
     // whole first surah looked like an error state.

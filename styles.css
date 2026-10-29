@@ -11183,10 +11183,33 @@ body::before {
   transition: width 0.5s var(--ease-default);
 }
 
+/* The mode picker and the lesson button each get their own row. Side by
+   side, the button's long lesson title squeezed the picker down to just
+   its arrow and pushed past the edge of narrow screens. */
 .lesson-header-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
+}
+
+.lesson-header-actions .auth-input,
+.lesson-header-actions .continue-lesson-btn {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+}
+
+.lesson-header-actions .continue-lesson-btn {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* "0 of 10 foundation lessons complete" ends in an ellipsis on narrow
+   screens instead of being cut mid-word */
+.lesson-progress-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .continue-lesson-btn {
