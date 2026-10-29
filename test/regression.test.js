@@ -293,6 +293,31 @@ suite('Typography System', function() {
     assert.ok(cssContains('--text-3xs: 11px'), 'text-3xs is raised to the 11px floor');
   });
 
+  test('muted gold text passes WCAG AA contrast on every surface', function() {
+    // --gold-dim as a text colour was 3.4:1 on the page and 2.8:1 on cards.
+    function token(name) {
+      var m = cssContent.match(new RegExp('--' + name + ':\\s*(#[0-9a-fA-F]{6})'));
+      assert.ok(m, '--' + name + ' is defined');
+      return m[1];
+    }
+    function luminance(hex) {
+      return [1, 3, 5].map(function(i) {
+        var c = parseInt(hex.substr(i, 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      }).reduce(function(sum, c, i) { return sum + c * [0.2126, 0.7152, 0.0722][i]; }, 0);
+    }
+    function contrast(a, b) {
+      var la = luminance(a), lb = luminance(b);
+      return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+    }
+    ['bg', 'surface', 'surface2'].forEach(function(surface) {
+      var ratio = contrast(token('gold-muted'), token(surface));
+      assert.ok(ratio >= 4.5, '--gold-muted on --' + surface + ' is ' + ratio.toFixed(2) + ':1');
+    });
+    assert.ok(!/(^|[;{\s])color:\s*var\(--gold-dim/.test(cssContent),
+      'text uses --gold-muted, not --gold-dim');
+  });
+
   test('no text is set below 11px', function() {
     // About 170 rules used 7–10px (bottom-nav labels, header stats, plan
     // features). SVG ring labels are exempt: their size is in viewBox units.

@@ -533,7 +533,7 @@
     if (issues.length === 0) {
       return '<div style="color:var(--green, #4a9e6b);font-size:11px">\u2713 No startup issues detected.</div>';
     }
-    var html = '<div style="font-size:11px;color:var(--gold-dim, #7a6530);margin-bottom:4px">' +
+    var html = '<div style="font-size:11px;color:var(--gold-muted);margin-bottom:4px">' +
       issues.length + ' startup issue(s):</div>';
     for (var i = 0; i < issues.length; i++) {
       var icon = issues[i].type === 'dom' ? '\uD83D\uDD32' : issues[i].type === 'css' ? '\uD83C\uDFA8' : '\uD83D\uDD24';

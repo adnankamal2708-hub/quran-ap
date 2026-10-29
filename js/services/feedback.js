@@ -242,7 +242,7 @@
         statusEl.textContent = result.stored === 'local'
           ? 'Saved on this device. It has not been sent yet.'
           : '✓ Thank you! Your feedback was received.';
-        statusEl.style.color = result.stored === 'local' ? 'var(--gold-dim)' : 'var(--green)';
+        statusEl.style.color = result.stored === 'local' ? 'var(--gold-muted)' : 'var(--green)';
         textEl.value = '';
         if (emailEl) emailEl.value = '';
         if (result.stored !== 'local') {
@@ -253,7 +253,7 @@
         }
       } else {
         statusEl.textContent = '⚠ ' + (result && result.error || 'Could not save feedback.');
-        statusEl.style.color = 'var(--gold-dim)';
+        statusEl.style.color = 'var(--gold-muted)';
       }
     }
 

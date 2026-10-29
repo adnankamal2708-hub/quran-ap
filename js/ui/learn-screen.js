@@ -61,7 +61,7 @@ function renderLearnScreen() {
   } else {
     $journeyMsg = 'Welcome! Your first lesson starts here.';
   }
-  h += '<div class="ls-journey-msg" style="font-size:12px;color:var(--gold-dim);margin-bottom:10px;text-align:center;line-height:1.5">' + $journeyMsg + '</div>';
+  h += '<div class="ls-journey-msg" style="font-size:12px;color:var(--gold-muted);margin-bottom:10px;text-align:center;line-height:1.5">' + $journeyMsg + '</div>';
 
   // ═══ PHASE 2 (Foundation complete — guided reading / independent reading) ═══
   // The Continue action lives in the persistent lesson header (continue-learning-btn);

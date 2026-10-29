@@ -711,7 +711,7 @@ function _renderWordRelationshipsEmptyState() {
   container.style.display = 'block';
   container.innerHTML =
     '<div class="word-network-section" style="text-align:center;padding:14px 16px">' +
-      '<div class="word-network-title" style="color:var(--gold-dim);margin-bottom:4px">🔗 Word Relationships</div>' +
+      '<div class="word-network-title" style="color:var(--gold-muted);margin-bottom:4px">🔗 Word Relationships</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.6">No word relationships found for this word.</div>' +
     '</div>';
 }

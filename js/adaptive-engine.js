@@ -629,8 +629,8 @@ function getSessionRating(stats) {
 
   var ratings = {
     0: { stars: '☆☆☆☆☆', label: 'Start your session', color: 'var(--text-muted)' },
-    1: { stars: '★☆☆☆☆', label: 'Good start', color: 'var(--gold-dim)' },
-    2: { stars: '★★☆☆☆', label: 'Decent session', color: 'var(--gold-dim)' },
+    1: { stars: '★☆☆☆☆', label: 'Good start', color: 'var(--gold-muted)' },
+    2: { stars: '★★☆☆☆', label: 'Decent session', color: 'var(--gold-muted)' },
     3: { stars: '★★★☆☆', label: 'Good session', color: 'var(--gold)' },
     4: { stars: '★★★★☆', label: 'Great session', color: 'var(--gold)' },
     5: { stars: '★★★★★', label: 'Excellent session!', color: 'var(--gold-light)' },

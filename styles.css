@@ -20,6 +20,8 @@
   --gold: #c9a84c;
   --gold-light: #e8c97a;
   --gold-dim: #7a6530;
+  /* --gold-dim lightened so it passes WCAG AA (4.5:1) as text on every surface */
+  --gold-muted: #a2873e;
   --text: #e8e2d5;
   --text-muted: #918777;
   --green: #4a9e6b;
@@ -193,7 +195,7 @@ body::before {
 .bismillah {
   font-family: var(--arabic);
   font-size: 15px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   opacity: 0.7;
   letter-spacing: 0.02em;
 }
@@ -326,11 +328,10 @@ body::before {
 
 .word-num {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   margin-bottom: 14px;
-  opacity: 0.8;
 }
 
 .arabic-word {
@@ -473,7 +474,7 @@ body::before {
 .root-word-arabic {
   font-family: var(--arabic);
   font-size: 16px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   direction: rtl;
 }
 
@@ -505,7 +506,7 @@ body::before {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-bottom: 9px;
   font-weight: 500;
 }
@@ -553,7 +554,7 @@ body::before {
 .word-network-chip-arabic {
   font-family: var(--arabic);
   font-size: 18px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   direction: rtl;
   line-height: 1.3;
 }
@@ -590,7 +591,7 @@ body::before {
 
 .semantic-group-name {
   font-size: 12px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   margin-bottom: 3px;
 }
@@ -652,7 +653,7 @@ body::before {
 
 .ayah-ref {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-top: 6px;
   text-align: right;
 }
@@ -735,7 +736,7 @@ body::before {
 .root-reinforcement-badge {
   display: inline-block;
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -859,7 +860,7 @@ body::before {
 
 .srs-btn.hard {
   border-color: rgba(201, 168, 76, 0.3);
-  color: var(--gold-dim);
+  color: var(--gold-muted);
 }
 
 .srs-btn.hard:hover {
@@ -1318,7 +1319,7 @@ body::before {
 }
 
 .wordlist-item.locked-word .wordlist-arabic {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
 }
 
 .wordlist-item.locked-word .locked-badge {
@@ -1352,7 +1353,7 @@ body::before {
 
 .review-banner p {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   flex: 1;
   font-weight: 400;
 }
@@ -1373,7 +1374,7 @@ body::before {
   display: none;
 }
 .guest-notice-icon {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   flex-shrink: 0;
   display: flex;
 }
@@ -1559,7 +1560,7 @@ body::before {
 }
 
 .legal-footer a {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   text-decoration: none;
   transition: color 0.15s var(--ease-default);
 }
@@ -1623,7 +1624,7 @@ body::before {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: var(--gold-dim);
+  background: var(--gold-muted);
   color: var(--bg);
   font-size: 11px;
   font-weight: 600;
@@ -1904,6 +1905,7 @@ body::before {
   :root {
     --text-muted: #b8a898;
     --gold-dim: #c9a84c;
+    --gold-muted: #c9a84c;
     --border: #4a4440;
   }
   body::before {
@@ -2171,7 +2173,7 @@ body::before {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-bottom: 10px;
   font-weight: 500;
   position: relative;
@@ -2469,8 +2471,7 @@ body::before {
 
 .guest-badge {
   font-size: 11px;
-  color: var(--gold-dim);
-  opacity: 0.6;
+  color: var(--gold-muted);
 }
 
 .header-signin-link {
@@ -2562,7 +2563,7 @@ body::before {
 }
 
 .auth-link {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-size: 12px;
   text-decoration: none;
   cursor: pointer;
@@ -2868,7 +2869,7 @@ body::before {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-bottom: 12px;
   font-weight: 500;
 }
@@ -3432,7 +3433,7 @@ body::before {
 .db-inline-text-xs { font-size: 11px; color: var(--text-muted); }
 .db-inline-green { color: var(--green) !important; }
 .db-inline-gold { color: var(--gold) !important; }
-.db-inline-gold-dim { color: var(--gold-dim) !important; }
+.db-inline-gold-dim { color: var(--gold-muted) !important; }
 .db-inline-blue { color: var(--blue) !important; }
 .db-inline-red { color: var(--red) !important; }
 .db-inline-purple { color: var(--purple) !important; }
@@ -3448,7 +3449,7 @@ body::before {
 .db-inline-section-sm { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
 .db-inline-row { font-size: 11px; color: var(--text); padding: 4px 0; border-bottom: 1px solid var(--border); }
 .db-inline-row:last-child { border-bottom: none; }
-.db-inline-row span:last-child { color: var(--gold-dim); font-weight: 500; }
+.db-inline-row span:last-child { color: var(--gold-muted); font-weight: 500; }
 .db-inline-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
 .db-inline-label-green { font-size: 11px; color: var(--green); margin-bottom: 6px; font-weight: 500; }
 .db-inline-label-red { font-size: 11px; color: var(--red); margin-bottom: 6px; font-weight: 500; }
@@ -3514,7 +3515,7 @@ body::before {
   width: 24px;
   height: 24px;
   margin: 0 auto 6px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   opacity: 0.8;
 }
 .db-hero-stat-icon svg {
@@ -3559,7 +3560,7 @@ body::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   flex-shrink: 0;
 }
 .db-section-icon svg {
@@ -3572,7 +3573,7 @@ body::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   opacity: 0.6;
   margin-bottom: 4px;
 }
@@ -3915,7 +3916,7 @@ body::before {
 
 .explorer-occ-ref {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   margin-bottom: 4px;
 }
@@ -3949,7 +3950,7 @@ body::before {
   border-radius: var(--radius-pill);
   padding: 6px 12px;
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: var(--body);
@@ -4032,7 +4033,7 @@ body::before {
 .explorer-chip-arabic {
   font-family: var(--arabic);
   font-size: 16px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   direction: rtl;
   line-height: 1.3;
 }
@@ -4062,7 +4063,7 @@ body::before {
 
 .explorer-semantic-name {
   font-size: 12px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
 }
 
@@ -4157,7 +4158,7 @@ body::before {
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: 6px 14px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -4190,7 +4191,7 @@ body::before {
 .explorer-section-title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 8px;
@@ -4263,7 +4264,7 @@ body::before {
 
 .explorer-info-value {
   font-size: 12px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   line-height: 1.3;
 }
@@ -4299,7 +4300,7 @@ body::before {
 .explorer-context-stat-value {
   display: block;
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   line-height: 1.3;
 }
@@ -4367,7 +4368,7 @@ body::before {
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: 6px 14px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-size: 11px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -4401,7 +4402,7 @@ body::before {
 
 .explorer-ayah-ref {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
 }
 
@@ -4491,7 +4492,7 @@ body::before {
 .explorer-occ-count {
   font-size: 12px;
   font-weight: 600;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
 }
 .explorer-occ-unit {
   font-size: 11px;
@@ -4985,7 +4986,7 @@ body::before {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-bottom: 14px;
   font-weight: 500;
 }
@@ -5092,7 +5093,7 @@ body::before {
   border-bottom: none;
 }
 .analytics-cov-row span:last-child {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -5422,7 +5423,7 @@ body::before {
 }
 .analytics-ach-date {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-top: 6px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -5913,7 +5914,7 @@ body::before {
 /* Section rows for surah comprehension */
 .ai-surah-row { font-size: 11px; color: var(--text); padding: 4px 0; border-bottom: 1px solid var(--border); }
 .ai-surah-row:last-child { border-bottom: none; }
-.ai-surah-row .ai-pct { color: var(--gold-dim); float: right; }
+.ai-surah-row .ai-pct { color: var(--gold-muted); float: right; }
 
 /* Metric grid items */
 .ai-metric { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
@@ -5938,7 +5939,7 @@ body::before {
 
 /* Color helpers */
 .ai-c-gold { color: var(--gold); }
-.ai-c-gold-dim { color: var(--gold-dim); }
+.ai-c-gold-dim { color: var(--gold-muted); }
 .ai-c-green { color: var(--green); }
 .ai-c-blue { color: var(--blue); }
 .ai-c-purple { color: var(--purple); }
@@ -6268,7 +6269,7 @@ body::before {
 }
 .db-arrow {
   font-size: 18px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
@@ -6411,7 +6412,7 @@ body::before {
 }
 .db-comp-headline-milestone {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-top: 6px;
   padding: 3px 8px;
   background: rgba(201,168,76,0.08);
@@ -6581,7 +6582,7 @@ body::before {
   border-radius: 50%;
   background: var(--surface2);
   border: 1px solid var(--border);
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   opacity: 0.6;
   transition: all 0.3s ease;
 }
@@ -6704,7 +6705,7 @@ body::before {
 .db-comp-headline-milestone {
   display: inline-block;
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   background: rgba(201,168,76,0.08);
   border: 1px solid rgba(201,168,76,0.15);
   border-radius: 8px;
@@ -6760,7 +6761,7 @@ body::before {
   color: var(--text-muted);
 }
 .db-goal-remaining-icon {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   display: inline-flex;
   align-items: center;
 }
@@ -6775,7 +6776,7 @@ body::before {
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
 }
 .db-goal-complete {
@@ -6973,7 +6974,7 @@ body::before {
 }
 .db-hero-detail {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -7107,7 +7108,7 @@ body::before {
 }
 .db-path-action-hint {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   text-align: right;
   margin-top: 8px;
   font-weight: 500;
@@ -7180,7 +7181,7 @@ body::before {
   transition: all 0.2s ease;
 }
 .db-card-collapsible-header:hover {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
 }
 .db-collapse-arrow {
   font-size: 12px;
@@ -7863,13 +7864,13 @@ body::before {
 }
 
 .quran-continue-time {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-size: 11px;
 }
 
 .quran-continue-arrow {
   font-size: 16px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   transition: transform 0.15s ease;
 }
 .quran-continue-card:hover .quran-continue-arrow {
@@ -8141,7 +8142,7 @@ body::before {
 }
 .ls-card-arrow {
   font-size: 14px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
@@ -8233,7 +8234,7 @@ body::before {
 }
 .ls-path-pct {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 600;
   text-align: right;
   flex: 0 !important;
@@ -8305,7 +8306,7 @@ body::before {
 }
 .ls-daily-icon {
   flex-shrink: 0;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
 }
 .ls-daily-label {
   flex: 1;
@@ -8473,7 +8474,7 @@ body::before {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   margin-bottom: 8px;
 }
@@ -8644,8 +8645,8 @@ body::before {
 .db-goal-bar-text { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; flex-shrink: 0; min-width: 48px; text-align: right; font-weight: 500; }
 .db-goal-details { font-size: 11px; color: var(--text-muted); padding: 4px 0; }
 .db-goal-remaining { display: flex; align-items: center; gap: 6px; }
-.db-goal-remaining-icon { flex-shrink: 0; display: flex; align-items: center; color: var(--gold-dim); }
-.db-goal-estimate { font-size: 11px; color: var(--gold-dim); margin-left: auto; font-weight: 500; }
+.db-goal-remaining-icon { flex-shrink: 0; display: flex; align-items: center; color: var(--gold-muted); }
+.db-goal-estimate { font-size: 11px; color: var(--gold-muted); margin-left: auto; font-weight: 500; }
 .db-goal-complete { text-align: center; padding: 2px 0; color: var(--green); }
 
 /* ── Motivation Card ── */
@@ -8934,7 +8935,7 @@ body::before {
 
 /* Unlock item text */
 .ai-unlock-item { font-size: 11px; }
-.ai-unlock-gold-dim { font-size: 11px; color: var(--gold-dim); }
+.ai-unlock-gold-dim { font-size: 11px; color: var(--gold-muted); }
 
 /* Foundation journey section */
 .foundation-journey-section { margin-top: 8px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
@@ -9545,7 +9546,7 @@ body::before {
 .rc-root-arabic {
   font-family: var(--arabic);
   font-size: 18px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   direction: rtl;
   min-width: 28px;
   text-align: center;
@@ -9582,7 +9583,7 @@ body::before {
   border: none;
   padding: 8px 0;
   font-size: 12px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   cursor: pointer;
   font-family: var(--body);
   transition: all 0.2s ease;
@@ -9868,7 +9869,7 @@ body::before {
   text-transform: capitalize;
 }
 .profile-ach-cat-count {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 600;
 }
 .profile-ach-section {
@@ -9883,7 +9884,7 @@ body::before {
 }
 .profile-ach-section-icon {
   font-size: 12px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
 }
 .profile-ach-section-title {
   font-size: 12px;
@@ -9985,7 +9986,7 @@ body::before {
 }
 .profile-ach-date {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   margin-top: 6px;
   padding-top: 6px;
   border-top: 1px solid var(--border);
@@ -10020,7 +10021,7 @@ body::before {
 }
 .profile-ach-progress-text {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-style: italic;
 }
 
@@ -10140,7 +10141,7 @@ body::before {
   line-height: 1.5;
 }
 .pf-about-attrib-line a {
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -11047,7 +11048,7 @@ body::before {
 .ls-path-pct {
   margin-left: auto;
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-muted);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }

@@ -368,7 +368,7 @@ var issues = getIssues();
 if (issues.length === 0) {
 return '<div style="color:var(--green, #4a9e6b);font-size:11px">\u2713 No startup issues detected.</div>';
 }
-var html = '<div style="font-size:11px;color:var(--gold-dim, #7a6530);margin-bottom:4px">' +
+var html = '<div style="font-size:11px;color:var(--gold-muted);margin-bottom:4px">' +
 issues.length + ' startup issue(s):</div>';
 for (var i = 0; i < issues.length; i++) {
 var icon = issues[i].type === 'dom' ? '\uD83D\uDD32' : issues[i].type === 'css' ? '\uD83C\uDFA8' : '\uD83D\uDD24';
@@ -504,7 +504,7 @@ getResults: function () { return _safeguardResults; },
           <div class="word-num" id="word-num" aria-live="polite">Word 1 of 20</div>
           <div class="arabic-word" id="arabic-word" lang="ar" dir="rtl">اللَّهُ</div>
           <div class="transliteration" id="transliteration">Allāhu</div>
-          <div style="font-size:11px;color:var(--gold-dim);margin:0 0 4px;min-height:16px" id="surah-badge"></div>
+          <div style="font-size:11px;color:var(--gold-muted);margin:0 0 4px;min-height:16px" id="surah-badge"></div>
           <div id="occ-nav" style="display:none;justify-content:center;align-items:center;gap:6px;margin:2px 0 6px" role="group" aria-label="Context navigation">
             <button class="qa-btn" id="occ-prev" type="button" style="font-size:11px;padding:4px 10px">← Prev context</button>
             <span id="occ-label" style="font-size:11px;color:var(--text-muted);min-width:32px;text-align:center">1/1</span>
@@ -516,7 +516,7 @@ getResults: function () { return _safeguardResults; },
           <div id="sr-pill" class="sr-pill sr-new" aria-live="polite"><span aria-hidden="true">🆕</span> New word</div>
           <div class="occurrence-tag" id="occurrences"><svg viewBox="0 0 24 24" width="10" height="10" stroke="var(--green)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Appears 2,699 times</div>
           <div id="root-reinforcement-badge" style="display:none;margin-top:6px;text-align:center"></div>
-          <div id="word-learning-context" style="display:none;font-size:11px;color:var(--gold-dim);margin:6px 0 10px;text-align:center;line-height:1.5;padding:0 8px"></div>
+          <div id="word-learning-context" style="display:none;font-size:11px;color:var(--gold-muted);margin:6px 0 10px;text-align:center;line-height:1.5;padding:0 8px"></div>
         </article>
 
         <div class="nav-row" id="nav-row">
@@ -1175,7 +1175,7 @@ getResults: function () { return _safeguardResults; },
                     <span class="profile-email" id="profile-email"></span>
                     <span class="profile-verified-badge" id="profile-email-verified"></span>
                   </div>
-                  <div class="profile-learner-stage" id="profile-learner-stage" style="font-size:11px;color:var(--gold-dim);margin-top:4px">🌱 Beginning your journey</div>
+                  <div class="profile-learner-stage" id="profile-learner-stage" style="font-size:11px;color:var(--gold-muted);margin-top:4px">🌱 Beginning your journey</div>
                 </div>
               </div>
               <div id="profile-info">
