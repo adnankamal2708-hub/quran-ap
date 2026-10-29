@@ -158,35 +158,54 @@ function _buildVerseData(surahId, quranSurah, vocabWords) {
 
 // ── Vocab-Only Fallback ────────────────────────────────────────
 
-function _buildFromVocabOnly(surahId) {
-  _quranAyahGroups = {};
-  _quranVerseKeys = [];
-  for (var wi = 0; wi < _quranSurahWords.length; wi++) {
-    var word = _quranSurahWords[wi];
-    var processedKeys = {};
-    if (word.occurrences && word.occurrences.length > 0) {
-      for (var oi = 0; oi < word.occurrences.length; oi++) {
-        var occ = word.occurrences[oi];
-        if (!occ.surahId || occ.surahId === surahId) {
-          var vk = occ.verseKey || (surahId + ':1');
-          if (!processedKeys[vk]) {
-            if (!_quranAyahGroups[vk]) {
-              // Strip HTML from ayahA — renderAyahs() splits by whitespace
-              // and expects plain Arabic text, not HTML from word data files
-              var plainAyah = occ.ayahA ? occ.ayahA.replace(/<[^>]+>/g, '') : '';
-              _quranAyahGroups[vk] = { words: [], ayahA: plainAyah, ayahT: occ.ayahT || '' };
-              _quranVerseKeys.push(vk);
-            }
-            _quranAyahGroups[vk].words.push(word);
-            processedKeys[vk] = true;
-          }
-        }
-      }
-    }
+/**
+ * Render a loading or load-failed state in place of the verses.
+ * @param {'loading'|'error'} state
+ */
+function _renderSurahLoadState(state, surahId) {
+  var container = document.getElementById('quran-verses');
+  if (!container) return;
+  var info = _getSurahInfo(surahId);
+  var name = info ? info.englishName : 'Surah ' + surahId;
+  if (state === 'loading') {
+    container.innerHTML = '<div class="quran-empty" role="status">Loading ' + name + '\u2026</div>';
+    return;
   }
-  _quranVerseKeys.sort(function(a, b) {
-    return (parseInt(a.split(':')[1], 10) || 0) - (parseInt(b.split(':')[1], 10) || 0);
-  });
+  container.innerHTML = '<div class="quran-empty" role="alert">' +
+    '<div>Couldn\u2019t load ' + name + '. Check your connection and try again.</div>' +
+    '<button class="btn btn-sm quran-load-retry" id="quran-load-retry" type="button">Try again</button>' +
+    '</div>';
+  var retry = document.getElementById('quran-load-retry');
+  if (retry) retry.onclick = function () { openSurahForReading(surahId); };
+}
+
+/**
+ * Fetch a surah's full text, then render it — or a retryable error. A failed
+ * load is not cached by the loader, so "Try again" makes a fresh request.
+ */
+function _loadSurahText(surahId) {
+  var loader = window.__quranLoader;
+  if (!loader || typeof loader.loadSurah !== 'function') {
+    _renderSurahLoadState('error', surahId);
+    return;
+  }
+  _renderSurahLoadState('loading', surahId);
+  function failed() {
+    if (_quranSurahId === surahId) _renderSurahLoadState('error', surahId);
+  }
+  loader.loadSurah(surahId).then(function (loaded) {
+    // The learner may have moved on to another surah meanwhile
+    if (_quranSurahId !== surahId) return;
+    var data = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
+    if (!loaded || !data || !data.verses || data.verses.length === 0) { failed(); return; }
+    var built = _buildVerseData(surahId, data, _quranSurahWords);
+    _quranAyahGroups = built.ayahGroups;
+    _quranVerseKeys = built.verseKeys;
+    renderAyahs();
+    if (window.__learningJourney && window.__learningJourney.recordMomentum) {
+      window.__learningJourney.recordMomentum('ayah_read', _quranVerseKeys.length);
+    }
+  }, failed);
 }
 
 // ── Surah Browser ──────────────────────────────────────────────
@@ -382,26 +401,11 @@ function openSurahForReading(surahId) {
     var fullData = _buildVerseData(surahId, quranData, _quranSurahWords);
     _quranAyahGroups = fullData.ayahGroups;
     _quranVerseKeys = fullData.verseKeys;
-  } else if (_quranSurahWords.length > 0) {
-    // No Quran data yet — show vocab-only fallback while loading
-    _buildFromVocabOnly(surahId);
-
-    // Trigger async load of per-surah verse data
-    if (window.__quranLoader && typeof window.__quranLoader.loadSurah === 'function') {
-      window.__quranLoader.loadSurah(surahId).then(function (loaded) {
-        // Only re-render if user is still on the same surah
-        if (!loaded || _quranSurahId !== surahId) return;
-        var newData = window.__QURAN_TEXT ? window.__QURAN_TEXT[surahId] : null;
-        if (newData && newData.verses && newData.verses.length > 0) {
-          var fullData2 = _buildVerseData(surahId, newData, _quranSurahWords);
-          _quranAyahGroups = fullData2.ayahGroups;
-          _quranVerseKeys = fullData2.verseKeys;
-          renderAyahs();
-          renderSurahBrowser();
-        }
-      });
-    }
   } else {
+    // The surah's text isn't loaded yet. Show a loading state, never the
+    // vocabulary example sentences: those are often shortened quotes and
+    // only cover verses that contain a vocabulary word, so presenting them
+    // as "Verse N" misquoted the Quran (e.g. Al-Fatiha without verse 3).
     _quranAyahGroups = {};
     _quranVerseKeys = [];
   }
@@ -414,13 +418,18 @@ function openSurahForReading(surahId) {
     window.__feedback.trackEvent('surah_opened', { surahId: surahId });
   }
 
-  renderAyahs();
-  
-  // Record ayah_read momentum once per surah open (not on re-renders — Part 6)
-  if (window.__learningJourney && window.__learningJourney.recordMomentum && _quranVerseKeys.length > 0) {
-    window.__learningJourney.recordMomentum('ayah_read', _quranVerseKeys.length);
+  if (dataReady) {
+    renderAyahs();
+
+    // Record ayah_read momentum once per surah open (not on re-renders — Part 6)
+    if (window.__learningJourney && window.__learningJourney.recordMomentum && _quranVerseKeys.length > 0) {
+      window.__learningJourney.recordMomentum('ayah_read', _quranVerseKeys.length);
+    }
+  } else {
+    // Renders the text when it arrives (and records momentum then)
+    _loadSurahText(surahId);
   }
-  
+
   renderSurahBrowser(); // Update active state in list
 
   var versesContainer = document.getElementById('quran-verses');

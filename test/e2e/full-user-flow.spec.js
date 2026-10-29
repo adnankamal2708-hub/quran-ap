@@ -785,6 +785,43 @@ test.describe('Quran Surah List', () => {
     await page.locator('.quran-surah-item[data-surah-id="1"]').click();
     await expect(page.locator('#quran-surah-title')).toContainText(/Fatiha|الفاتحة/, { timeout: 10000 });
   });
+
+});
+
+test.describe('Quran Reader Load Failure', () => {
+  // page.route() can't see requests a service worker handles, so keep the
+  // worker out of the way to simulate the network failing and recovering.
+  test.use({ serviceWorkers: 'block' });
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await skipOnboarding(page);
+    await page.locator('#tab-quran').click();
+    await page.waitForSelector('.quran-surah-item', { timeout: 10000 });
+  });
+
+  test('a surah that fails to load offers a retry, never partial verses', async ({ page }) => {
+    const fs = require('fs');
+    const path = require('path');
+    const distFile = (name) => fs.readFileSync(path.join(__dirname, '..', '..', 'dist', 'js', 'quran', name), 'utf8');
+    const js = (body) => ({ status: 200, contentType: 'application/javascript', body });
+    await page.route('**/js/quran/surah-index.min.js', (route) => route.fulfill(js(distFile('surah-index.min.js'))));
+    // First attempt: the surah file can't be fetched
+    await page.route('**/js/quran/surah-1.min.js', (route) => route.abort());
+
+    await page.locator('.quran-surah-item[data-surah-id="1"]').click();
+    await expect(page.locator('#quran-load-retry')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#quran-verses')).toContainText('Couldn');
+    // Vocabulary example sentences must not stand in for verses
+    await expect(page.locator('.quran-ayah')).toHaveCount(0);
+
+    // Connection back: Try again loads the real surah, all seven verses
+    await page.unroute('**/js/quran/surah-1.min.js');
+    await page.route('**/js/quran/surah-1.min.js', (route) => route.fulfill(js(distFile('surah-1.min.js'))));
+    await page.locator('#quran-load-retry').click();
+    await expect(page.locator('.quran-ayah')).toHaveCount(7, { timeout: 10000 });
+    await expect(page.locator('#quran-ayah-1-3')).toBeVisible();
+  });
 });
 
 // ── Keyboard Shortcuts ─────────────────────────────────────────

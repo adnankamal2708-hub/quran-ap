@@ -99,7 +99,7 @@ suite('Critical Runtime Dependencies (app.bundle.min.js)', function() {
     { symbol: 'openSurahForReading', reason: 'Entry point for opening a surah' },
     { symbol: 'renderAyahs', reason: 'Renders individual ayah cards' },
     { symbol: '_buildVerseData', reason: 'Builds complete verse data from Quran dataset' },
-    { symbol: '_buildFromVocabOnly', reason: 'Fallback when Quran data not yet loaded' },
+    { symbol: '_loadSurahText', reason: 'Loads surah text, with loading and retry states' },
     { symbol: '_normArabicForMatch', reason: 'Arabic normalization for vocabulary matching' },
     { symbol: 'renderQuran', reason: 'Main Quran view renderer' },
 
