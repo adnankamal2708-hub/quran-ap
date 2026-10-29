@@ -269,6 +269,9 @@ function renderSurahBrowser() {
   for (var ii = 0; ii < items.length; ii++) {
     (function(el) {
       var sid = parseInt(el.getAttribute('data-surah-id'), 10);
+      // Per-row coverage: the loop's isCovered is function-scoped, so reading
+      // it here would give every row the last surah's value.
+      var isCovered = !el.classList.contains('quran-surah-uncovered');
       el.onclick = function() {
         if (isCovered) {
           openSurahForReading(sid);

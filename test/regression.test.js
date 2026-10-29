@@ -936,6 +936,15 @@ suite('View Switch Scroll Protection', function() {
     assert.ok(/\.filter-chips \{[^}]*flex-wrap:\s*nowrap[^}]*overflow-x:\s*auto/.test(cssContent), 'rows scroll instead of wrapping');
   });
 
+  test('surah list click handlers read each row\'s own coverage', function() {
+    // isCovered was the loop's function-scoped var, so every row's handler
+    // saw the LAST surah's coverage.
+    var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'quran.js'), 'utf8');
+    var wiring = src.slice(src.indexOf('// Wire surah clicks'), src.indexOf('// Wire surah clicks') + 900);
+    assert.ok(/var isCovered = !el\.classList\.contains\('quran-surah-uncovered'\)/.test(wiring),
+      'coverage is read from the clicked row');
+  });
+
   test('onboarding Next button stays right-aligned when Back is hidden', function() {
     assert.ok(/#onboarding-next \{[^}]*margin-left:\s*auto/.test(cssContent));
   });
