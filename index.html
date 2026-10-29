@@ -1036,7 +1036,7 @@ getResults: function () { return _safeguardResults; },
               <label class="auth-label" for="auth-login-email">Email</label>
               <input class="auth-input" id="auth-login-email" type="email" placeholder="your@email.com" autocomplete="username" required />
               <label class="auth-label" for="auth-login-password">Password</label>
-              <input class="auth-input" id="auth-login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+              <input class="auth-input" id="auth-login-password" type="password" placeholder="Your password" autocomplete="current-password" required />
               <div class="auth-remember-row">
                 <label class="auth-checkbox-label">
                   <input type="checkbox" id="auth-remember" checked />
@@ -1066,9 +1066,9 @@ getResults: function () { return _safeguardResults; },
               <label class="auth-label" for="auth-signup-email">Email</label>
               <input class="auth-input" id="auth-signup-email" type="email" placeholder="your@email.com" autocomplete="username" required />
               <label class="auth-label" for="auth-signup-password">Password (min 6 chars)</label>
-              <input class="auth-input" id="auth-signup-password" type="password" placeholder="••••••••" autocomplete="new-password" required />
+              <input class="auth-input" id="auth-signup-password" type="password" placeholder="At least 6 characters" autocomplete="new-password" required />
               <label class="auth-label" for="auth-signup-confirm">Confirm password</label>
-              <input class="auth-input" id="auth-signup-confirm" type="password" placeholder="••••••••" autocomplete="new-password" required />
+              <input class="auth-input" id="auth-signup-confirm" type="password" placeholder="Repeat your password" autocomplete="new-password" required />
               <div class="auth-error" id="auth-signup-error" style="display:none"></div>
               <button class="btn auth-submit-btn" id="auth-signup-submit" type="submit">Create Account</button>
             </form>
@@ -1104,9 +1104,9 @@ getResults: function () { return _safeguardResults; },
               <!-- Hidden username field for password manager accessibility -->
               <input type="text" name="reset-username" autocomplete="username" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0.01" tabindex="-1" aria-hidden="true" />
               <label class="auth-label" for="auth-reset-password">New password (min 6 chars)</label>
-              <input class="auth-input" id="auth-reset-password" type="password" placeholder="••••••••" autocomplete="new-password" required />
+              <input class="auth-input" id="auth-reset-password" type="password" placeholder="At least 6 characters" autocomplete="new-password" required />
               <label class="auth-label" for="auth-reset-confirm">Confirm new password</label>
-              <input class="auth-input" id="auth-reset-confirm" type="password" placeholder="••••••••" autocomplete="new-password" required />
+              <input class="auth-input" id="auth-reset-confirm" type="password" placeholder="Repeat your new password" autocomplete="new-password" required />
               <div class="auth-error" id="auth-reset-error" style="display:none"></div>
               <div class="auth-success" id="auth-reset-success" style="display:none"></div>
               <button class="btn auth-submit-btn" id="auth-reset-submit" type="submit">Reset Password</button>
@@ -1334,11 +1334,11 @@ getResults: function () { return _safeguardResults; },
               <!-- Hidden username field for password manager accessibility -->
               <input type="text" name="pwd-change-username" autocomplete="username" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0.01" tabindex="-1" aria-hidden="true" />
             <label class="auth-label" for="password-change-current">Current password</label>
-            <input class="auth-input" id="password-change-current" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <input class="auth-input" id="password-change-current" type="password" placeholder="Your current password" autocomplete="current-password" required />
             <label class="auth-label" for="password-change-new">New password (min 6 chars)</label>
-            <input class="auth-input" id="password-change-new" type="password" placeholder="••••••••" autocomplete="new-password" required />
+            <input class="auth-input" id="password-change-new" type="password" placeholder="At least 6 characters" autocomplete="new-password" required />
             <label class="auth-label" for="password-change-confirm">Confirm new password</label>
-            <input class="auth-input" id="password-change-confirm" type="password" placeholder="••••••••" autocomplete="new-password" required />
+            <input class="auth-input" id="password-change-confirm" type="password" placeholder="Repeat your new password" autocomplete="new-password" required />
             <div class="auth-error" id="password-change-error" style="display:none"></div>
             <div class="auth-success" id="password-change-success" style="display:none"></div>
             <div class="profile-edit-actions mt-16">
@@ -1359,7 +1359,7 @@ getResults: function () { return _safeguardResults; },
               <!-- Hidden username field for password manager accessibility -->
               <input type="text" name="delete-account-username" autocomplete="username" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0.01" tabindex="-1" aria-hidden="true" />
               <label class="auth-label" for="delete-account-password">Enter your password to confirm</label>
-              <input class="auth-input" id="delete-account-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+              <input class="auth-input" id="delete-account-password" type="password" placeholder="Your password" autocomplete="current-password" />
             </div>
             <p class="delete-account-warning" id="delete-account-google-hint" style="display:none">You'll be asked to sign in with Google again to confirm.</p>
             <div class="auth-error" id="delete-account-error" style="display:none" role="alert"></div>
