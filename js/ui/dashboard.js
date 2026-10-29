@@ -264,7 +264,141 @@ function renderDashboard() {
   $h += '<p class="db-greeting-sub">' + $greetingSub + '</p>';
   $h += '</div></div>';
 
-  // ═══ 2. QURAN COMPREHENSION HEADLINE ═══
+  // ═══ 2. UP NEXT — the one primary action, first on the page ═══
+  // Every other card below is secondary (outline buttons, smaller titles).
+  $h += '<div class="db-section-label db-up-next-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> ' + ($noProgress ? 'Start here' : 'Up next') + '</div>';
+  
+  // Determine next learning step
+  if ($fTotal > 0 && !$foundationComplete) {
+    $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="' + ($noProgress ? 'Start' : 'Continue') + ' Foundation Course">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('layers', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">Foundation Course</div>';
+    $h += '<div class="db-card-sub">';
+    if ($nextLessonTitle) $h += $nextLessonTitle + ' · ';
+    $h += 'Lesson ' + $nextLessonNum + ' of ' + $fTotal + '</div>';
+    $h += '</div>';
+    $h += '<button class="btn btn-sm" type="button">' + ($noProgress ? 'Start' : 'Resume') + '</button>';
+    $h += '</div>';
+    // Foundation progress bar
+    $h += '<div class="db-progress db-progress-tight">';
+    $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $fPct + '%"></div></div>';
+    $h += '<span class="db-progress-text">' + $fCompleted + '/' + $fTotal + '</span>';
+    $h += '</div></div>';
+  } else if ($foundationComplete && window.__phase2 && window.__phase2.getLearningPhase) {
+    // ── Foundation complete — show Graduation + Phase 2 state ──
+    // Check if this is the first time seeing Foundation complete (graduation moment)
+    var $_gradKey = 'bayan_grad_seen';
+    var $_gradSeen = false;
+    try { $_gradSeen = localStorage.getItem($_gradKey) === '1'; } catch (e) {}
+    
+    // Show graduation celebration card (first time only)
+    if (!$_gradSeen && window.__phase2.getGraduationData) {
+      var $_gradData = window.__phase2.getGraduationData();
+      $h += '<div class="db-card" id="db-graduation" style="background:linear-gradient(135deg,var(--surface2),rgba(201,168,76,0.06));border:1px solid var(--gold);">';
+      $h += '<div class="db-card-row" style="padding:4px 0">';
+      $h += '<span style="font-size:32px">' + $icon($iconName($_gradData.icon), 32) + '</span>';
+      $h += '<div class="db-card-body">';
+      $h += '<div class="db-card-title" style="font-size:16px;color:var(--gold)">' + $_gradData.title + '</div>';
+      $h += '<div class="db-card-sub" style="font-size:11px;line-height:1.5;margin-top:4px">' + $_gradData.message + '</div>';
+      $h += '</div></div></div>';
+      // Mark graduation as seen
+      try { localStorage.setItem($_gradKey, '1'); } catch (e) {}
+    }
+    
+    var $hasPhase2Access = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.GUIDED_READING);
+    if (!$hasPhase2Access) {
+      // Free Foundation graduate — show locked teaser card
+      $h += '<div class="db-card db-up-next db-action-card" id="db-phase2-locked" tabindex="0" role="button" aria-label="Guided Reading — Premium feature">';
+      $h += '<div class="db-card-row">';
+      $h += '<div class="db-card-icon" style="opacity:0.5">' + $icon('lock', 22) + '</div>';
+      $h += '<div class="db-card-body">';
+      $h += '<div class="db-card-title">Guided Reading</div>';
+      $h += '<div class="db-card-sub">Foundation complete! Unlock structured surah-by-surah reading with Premium.</div>';
+      $h += '</div>';
+      $h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'guided-reading\');event.stopPropagation()">' + uiIcon('star') + 'Upgrade</button>';
+      $h += '</div></div>';
+    } else {
+    var $p2Phase = window.__phase2.getLearningPhase();
+    if ($p2Phase === 'guided-reading') {
+      // Show Guided Reading card
+      var $nextSurah = window.__phase2.getNextGuidedSurah ? window.__phase2.getNextGuidedSurah() : null;
+      var $p2Progress = window.__phase2.getGuidedReadingProgress ? window.__phase2.getGuidedReadingProgress() : null;
+      if ($nextSurah) {
+        var $preview = window.__phase2.getSurahPreview ? window.__phase2.getSurahPreview($nextSurah.surahId) : null;
+        $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-guided-reading" tabindex="0" role="button" aria-label="Guided Reading: Surah ' + ($preview ? $preview.surahName : $nextSurah.surahId) + '">';
+        $h += '<div class="db-card-row">';
+        $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('book-open', 22) + '</div>';
+        $h += '<div class="db-card-body">';
+        $h += '<div class="db-card-title">Guided Reading</div>';
+        $h += '<div class="db-card-sub">';
+        if ($preview) $h += $preview.surahName + ' · ' + $preview.estimatedComprehension + '% estimated comprehension';
+        $h += '</div>';
+        $h += '</div>';
+        $h += '<button class="btn btn-sm" type="button">Read</button>';
+        $h += '</div>';
+        if ($p2Progress) {
+          $h += '<div class="db-progress db-progress-tight">';
+          $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $p2Progress.percent + '%"></div></div>';
+          $h += '<span class="db-progress-text">' + $p2Progress.completed + '/' + $p2Progress.total + '</span>';
+          $h += '</div>';
+        }
+        $h += '</div>';
+      }
+    } else if ($p2Phase === 'phase2') {
+      // Independent reading — show expand vocabulary recommendation
+      var $expansionWords = window.__phase2.getExpansionVocabulary ? window.__phase2.getExpansionVocabulary(3) : [];
+      $h += '<div class="db-card db-up-next" id="db-independent-reading">';
+      $h += '<div class="db-card-row">';
+      $h += '<div class="db-card-icon db-icon-green-faint">' + $icon('layers', 22) + '</div>';
+      $h += '<div class="db-card-body">';
+      $h += '<div class="db-card-title">' + $masteredCount + ' Words Mastered — Independent Reading</div>';
+      $h += '<div class="db-card-sub">';
+      if ($expansionWords.length > 0) {
+        $h += $expansionWords.length + ' new words recommended to expand your vocabulary';
+      } else {
+        $h += 'Explore any surah — your vocabulary foundation is strong';
+      }
+      $h += '</div>';
+      $h += '</div></div></div>';
+    }
+    }
+  } else if ($dueCount > 0 && $reviewsToday === 0) {
+    // No foundation or complete — show reviews as next step
+    $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-continue-learning-review" tabindex="0" role="button" aria-label="' + $dueCount + ' reviews due">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon db-icon-gold-faint">' + $icon('repeat', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">Review Due Words</div>';
+    $h += '<div class="db-card-sub">' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' due for reinforcement</div>';
+    $h += '</div>';
+    $h += '<span class="db-badge">' + $dueCount + '</span>';
+    $h += '</div></div>';
+  } else if ($masteredCount > 0) {
+    // Already reviewed or nothing due — show mastery milestone
+    $h += '<div class="db-card db-up-next">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon db-icon-green-faint">' + $icon('check-circle', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">' + $masteredCount + ' Words Mastered</div>';
+    $h += '<div class="db-card-sub">' + $coveragePct + '% Quran coverage · ' + $totalWords + ' total words</div>';
+    $h += '</div></div></div>';
+  } else {
+    // Fresh start — foundation course
+    $h += '<div class="db-card db-up-next db-action-card" id="db-continue-learning-start" tabindex="0" role="button" aria-label="Start Foundation Course">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('star', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">Start Foundation Course</div>';
+    $h += '<div class="db-card-sub">Master the 100 most frequent Quranic words</div>';
+    $h += '</div>';
+    $h += '<button class="btn btn-sm" type="button">Begin</button>';
+    $h += '</div></div>';
+  }
+
+
+  // ═══ 3. QURAN COMPREHENSION HEADLINE ═══
   // Ring + milestone are only meaningful once real comprehension exists — a 0%
   // ring is zero-noise for brand-new users, so render a simple welcome line instead.
   $h += '<div class="db-card db-comp-headline" id="db-comp-headline"' + ($comprehensionPct > 0 ? ' tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%"' : '') + '>';
@@ -315,7 +449,7 @@ function renderDashboard() {
   }
   $h += '</div>';
 
-  // ═══ 3. TODAY'S GOAL ═══
+  // ═══ 4. TODAY'S GOAL ═══
   $h += '<div class="db-card db-goal-card" id="db-goal-card">';
   $h += '<div class="db-section-label db-section-label-compact"><span class="db-section-icon" aria-hidden="true">' + $icon('target', 14) + '</span> Today\'s Goal</div>';
   
@@ -374,7 +508,7 @@ function renderDashboard() {
   $h += '</div>';
   } // end else (daily goal for non-new users)
 
-  // ═══ 4. CONTINUE READING ═══
+  // ═══ 5. CONTINUE READING ═══
   // "Continue" only once there is something to continue
   $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> ' + ($lastRead && $lastRead.surahId ? 'Continue Reading' : 'Read the Quran') + '</div>';
   
@@ -403,7 +537,7 @@ function renderDashboard() {
     $h += '<div class="db-card-title">' + $lastSurahName + '</div>';
     $h += '<div class="db-card-sub">' + $lastSurahEnglish + $lastVerseLabel + ' · ' + $lastTimeAgo + '</div>';
     $h += '</div>';
-    $h += '<button class="btn btn-sm" type="button">Continue</button>';
+    $h += '<button class="btn btn-sm btn-outline" type="button">Continue</button>';
     $h += '</div></div>';
   } else {
     // No reading history — recommend a starting surah
@@ -414,139 +548,7 @@ function renderDashboard() {
     $h += '<div class="db-card-title">Start Reading</div>';
     $h += '<div class="db-card-sub">Begin your Quran reading journey with Surah Al-Fatiha</div>';
     $h += '</div>';
-    $h += '<button class="btn btn-sm" type="button">Begin</button>';
-    $h += '</div></div>';
-  }
-
-  // ═══ 5. CONTINUE LEARNING ═══
-  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> ' + ($noProgress ? 'Start Learning' : 'Continue Learning') + '</div>';
-  
-  // Determine next learning step
-  if ($fTotal > 0 && !$foundationComplete) {
-    $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="' + ($noProgress ? 'Start' : 'Continue') + ' Foundation Course">';
-    $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('layers', 22) + '</div>';
-    $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">Foundation Course</div>';
-    $h += '<div class="db-card-sub">';
-    if ($nextLessonTitle) $h += $nextLessonTitle + ' · ';
-    $h += 'Lesson ' + $nextLessonNum + ' of ' + $fTotal + '</div>';
-    $h += '</div>';
-    $h += '<button class="btn btn-sm" type="button">' + ($noProgress ? 'Start' : 'Resume') + '</button>';
-    $h += '</div>';
-    // Foundation progress bar
-    $h += '<div class="db-progress db-progress-tight">';
-    $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $fPct + '%"></div></div>';
-    $h += '<span class="db-progress-text">' + $fCompleted + '/' + $fTotal + '</span>';
-    $h += '</div></div>';
-  } else if ($foundationComplete && window.__phase2 && window.__phase2.getLearningPhase) {
-    // ── Foundation complete — show Graduation + Phase 2 state ──
-    // Check if this is the first time seeing Foundation complete (graduation moment)
-    var $_gradKey = 'bayan_grad_seen';
-    var $_gradSeen = false;
-    try { $_gradSeen = localStorage.getItem($_gradKey) === '1'; } catch (e) {}
-    
-    // Show graduation celebration card (first time only)
-    if (!$_gradSeen && window.__phase2.getGraduationData) {
-      var $_gradData = window.__phase2.getGraduationData();
-      $h += '<div class="db-card" id="db-graduation" style="background:linear-gradient(135deg,var(--surface2),rgba(201,168,76,0.06));border:1px solid var(--gold);">';
-      $h += '<div class="db-card-row" style="padding:4px 0">';
-      $h += '<span style="font-size:32px">' + $icon($iconName($_gradData.icon), 32) + '</span>';
-      $h += '<div class="db-card-body">';
-      $h += '<div class="db-card-title" style="font-size:16px;color:var(--gold)">' + $_gradData.title + '</div>';
-      $h += '<div class="db-card-sub" style="font-size:11px;line-height:1.5;margin-top:4px">' + $_gradData.message + '</div>';
-      $h += '</div></div></div>';
-      // Mark graduation as seen
-      try { localStorage.setItem($_gradKey, '1'); } catch (e) {}
-    }
-    
-    var $hasPhase2Access = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.GUIDED_READING);
-    if (!$hasPhase2Access) {
-      // Free Foundation graduate — show locked teaser card
-      $h += '<div class="db-card db-action-card" id="db-phase2-locked" tabindex="0" role="button" aria-label="Guided Reading — Premium feature">';
-      $h += '<div class="db-card-row">';
-      $h += '<div class="db-card-icon" style="opacity:0.5">' + $icon('lock', 22) + '</div>';
-      $h += '<div class="db-card-body">';
-      $h += '<div class="db-card-title">Guided Reading</div>';
-      $h += '<div class="db-card-sub">Foundation complete! Unlock structured surah-by-surah reading with Premium.</div>';
-      $h += '</div>';
-      $h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'guided-reading\');event.stopPropagation()">' + uiIcon('star') + 'Upgrade</button>';
-      $h += '</div></div>';
-    } else {
-    var $p2Phase = window.__phase2.getLearningPhase();
-    if ($p2Phase === 'guided-reading') {
-      // Show Guided Reading card
-      var $nextSurah = window.__phase2.getNextGuidedSurah ? window.__phase2.getNextGuidedSurah() : null;
-      var $p2Progress = window.__phase2.getGuidedReadingProgress ? window.__phase2.getGuidedReadingProgress() : null;
-      if ($nextSurah) {
-        var $preview = window.__phase2.getSurahPreview ? window.__phase2.getSurahPreview($nextSurah.surahId) : null;
-        $h += '<div class="db-card db-action-card db-card-highlight" id="db-guided-reading" tabindex="0" role="button" aria-label="Guided Reading: Surah ' + ($preview ? $preview.surahName : $nextSurah.surahId) + '">';
-        $h += '<div class="db-card-row">';
-        $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('book-open', 22) + '</div>';
-        $h += '<div class="db-card-body">';
-        $h += '<div class="db-card-title">Guided Reading</div>';
-        $h += '<div class="db-card-sub">';
-        if ($preview) $h += $preview.surahName + ' · ' + $preview.estimatedComprehension + '% estimated comprehension';
-        $h += '</div>';
-        $h += '</div>';
-        $h += '<button class="btn btn-sm" type="button">Read</button>';
-        $h += '</div>';
-        if ($p2Progress) {
-          $h += '<div class="db-progress db-progress-tight">';
-          $h += '<div class="db-progress-track"><div class="db-progress-fill" style="width:' + $p2Progress.percent + '%"></div></div>';
-          $h += '<span class="db-progress-text">' + $p2Progress.completed + '/' + $p2Progress.total + '</span>';
-          $h += '</div>';
-        }
-        $h += '</div>';
-      }
-    } else if ($p2Phase === 'phase2') {
-      // Independent reading — show expand vocabulary recommendation
-      var $expansionWords = window.__phase2.getExpansionVocabulary ? window.__phase2.getExpansionVocabulary(3) : [];
-      $h += '<div class="db-card" id="db-independent-reading">';
-      $h += '<div class="db-card-row">';
-      $h += '<div class="db-card-icon db-icon-green-faint">' + $icon('layers', 22) + '</div>';
-      $h += '<div class="db-card-body">';
-      $h += '<div class="db-card-title">' + $masteredCount + ' Words Mastered — Independent Reading</div>';
-      $h += '<div class="db-card-sub">';
-      if ($expansionWords.length > 0) {
-        $h += $expansionWords.length + ' new words recommended to expand your vocabulary';
-      } else {
-        $h += 'Explore any surah — your vocabulary foundation is strong';
-      }
-      $h += '</div>';
-      $h += '</div></div></div>';
-    }
-    }
-  } else if ($dueCount > 0 && $reviewsToday === 0) {
-    // No foundation or complete — show reviews as next step
-    $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-learning-review" tabindex="0" role="button" aria-label="' + $dueCount + ' reviews due">';
-    $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon db-icon-gold-faint">' + $icon('repeat', 22) + '</div>';
-    $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">Review Due Words</div>';
-    $h += '<div class="db-card-sub">' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + ' due for reinforcement</div>';
-    $h += '</div>';
-    $h += '<span class="db-badge">' + $dueCount + '</span>';
-    $h += '</div></div>';
-  } else if ($masteredCount > 0) {
-    // Already reviewed or nothing due — show mastery milestone
-    $h += '<div class="db-card">';
-    $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon db-icon-green-faint">' + $icon('check-circle', 22) + '</div>';
-    $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">' + $masteredCount + ' Words Mastered</div>';
-    $h += '<div class="db-card-sub">' + $coveragePct + '% Quran coverage · ' + $totalWords + ' total words</div>';
-    $h += '</div></div></div>';
-  } else {
-    // Fresh start — foundation course
-    $h += '<div class="db-card db-action-card" id="db-continue-learning-start" tabindex="0" role="button" aria-label="Start Foundation Course">';
-    $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('star', 22) + '</div>';
-    $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">Start Foundation Course</div>';
-    $h += '<div class="db-card-sub">Master the 100 most frequent Quranic words</div>';
-    $h += '</div>';
-    $h += '<button class="btn btn-sm" type="button">Begin</button>';
+    $h += '<button class="btn btn-sm btn-outline" type="button">Begin</button>';
     $h += '</div></div>';
   }
 
