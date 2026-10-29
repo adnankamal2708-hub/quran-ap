@@ -143,8 +143,10 @@ test.describe('Onboarding Tour', () => {
     // Overlay should be hidden
     await expect(page.locator('#onboarding-overlay')).not.toBeVisible();
 
-    // Dashboard should be visible instead
-    await expect(page.locator('#view-dashboard')).toBeVisible();
+    // Skipping goes straight to the first lesson — no plan picker in between
+    // (it is offered on a later visit, after lesson 1)
+    await expect(page.locator('#view-learn')).toBeVisible();
+    await expect(page.locator('#plan-picker-overlay')).toHaveCount(0);
   });
 
   test('revisit onboarding from settings', async ({ page }) => {
