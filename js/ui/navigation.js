@@ -162,17 +162,7 @@ function _updateActiveTab(viewName, navContext) {
   }
   
   // Update the sliding indicator position
-  var indicator = document.getElementById('bn-indicator');
-  if (indicator) {
-    var activeTab = document.querySelector('.nav-tab.active');
-    if (activeTab) {
-      var tabs = document.querySelectorAll('.nav-tab');
-      var activeIdx = Array.prototype.indexOf.call(tabs, activeTab);
-      if (activeIdx >= 0) {
-        indicator.style.transform = 'translateX(' + (activeIdx * 100) + '%)';
-      }
-    }
-  }
+  if (typeof positionNavIndicator === 'function') positionNavIndicator();
 }
 
 // ── Lesson Navigation Helpers ──────────────────────────────────

@@ -44,18 +44,7 @@ function setView(viewName) {
       if (tabEl) tabEl.classList.toggle('active', name === viewName);
     }
   }
-  // Update the sliding bn-indicator position to match the active tab
-  var indicator = document.getElementById('bn-indicator');
-  if (indicator) {
-    var activeTab = document.querySelector('.nav-tab.active');
-    if (activeTab) {
-      var tabs = document.querySelectorAll('.nav-tab');
-      var activeIdx = Array.prototype.indexOf.call(tabs, activeTab);
-      if (activeIdx >= 0) {
-        indicator.style.transform = 'translateX(' + (activeIdx * 100) + '%)';
-      }
-    }
-  }
+  positionNavIndicator();
 
   // Update aria-current on nav tabs for accessibility
   var navTabs = ['dashboard', 'learn', 'quiz', 'list', 'quran'];
@@ -92,20 +81,17 @@ function setView(viewName) {
 }
 
 /**
- * Initialize the bn-indicator position on first render.
- * Called once after DOM is ready, before the first setView().
+ * Move the bottom-nav highlight onto the active tab, matching its measured
+ * position and width. Tabs aren't equal widths ("Dashboard" is wider) and
+ * the nav has side padding, so a fixed 1/5-width slot started at the screen
+ * edge and drifted off the tabs.
  */
-function initBNIndicator() {
+function positionNavIndicator() {
   var indicator = document.getElementById('bn-indicator');
-  if (!indicator) return;
   var activeTab = document.querySelector('.nav-tab.active');
-  if (activeTab) {
-    var tabs = document.querySelectorAll('.nav-tab');
-    var activeIdx = Array.prototype.indexOf.call(tabs, activeTab);
-    if (activeIdx >= 0) {
-      indicator.style.transform = 'translateX(' + (activeIdx * 100) + '%)';
-    }
-  }
+  if (!indicator || !activeTab) return;
+  indicator.style.width = activeTab.offsetWidth + 'px';
+  indicator.style.transform = 'translateX(' + activeTab.offsetLeft + 'px)';
 }
 
 /** Track current occurrence index when viewing a canonical word */

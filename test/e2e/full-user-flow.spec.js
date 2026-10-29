@@ -546,73 +546,54 @@ test.describe('Dashboard', () => {
 
 // ── Bottom Nav Indicator ──────────────────────────────────────
 
+// The highlight is measured against the active tab: tabs are not equal
+// widths ("Dashboard" is wider) and the nav has side padding.
+async function expectIndicatorOn(page, tabSelector) {
+  await page.waitForFunction((sel) => {
+    const ind = document.getElementById('bn-indicator');
+    const tab = document.querySelector(sel);
+    if (!ind || !tab) return false;
+    // Wait for the spring transition to finish: it overshoots on the way.
+    if (ind.getAnimations().length > 0) return false;
+    const a = ind.getBoundingClientRect();
+    const b = tab.getBoundingClientRect();
+    return Math.abs(a.left - b.left) < 1.5 && Math.abs(a.width - b.width) < 1.5;
+  }, tabSelector, { timeout: 5000 });
+}
+
 test.describe('Bottom Nav Indicator', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await skipOnboarding(page);
-    // After onboarding + plan picker the app lands on the Foundation lesson
-    // (learn view). These tests exercise the bottom nav, so land on dashboard.
+    // Skipping onboarding lands on the first Foundation lesson (learn view).
+    // These tests exercise the bottom nav, so start from the dashboard.
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
   });
 
-  test('initial load positions indicator on dashboard tab (index 0)', async ({ page }) => {
-    const indicator = page.locator('#bn-indicator');
-    await expect(indicator).toBeVisible();
-
-    // Wait for the indicator transition to fully settle on dashboard (index 0).
-    // The indicator animates (350ms spring) from the post-onboarding Learn
-    // position to Dashboard, so wait until it has effectively stopped (tx≈0).
-    await page.waitForFunction(() => {
-      const el = document.getElementById('bn-indicator');
-      if (!el) return false;
-      const m = window.getComputedStyle(el).transform;
-      const match = m && m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match && Math.abs(parseFloat(match[1])) < 0.5;
-    }, { timeout: 5000 });
-
-    const tx = await indicator.evaluate(el => {
-      const m = window.getComputedStyle(el).transform;
-      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1]) || 0) : -1;
-    });
-
-    // Dashboard is first tab (index 0) → translateX = 0
-    expect(Math.abs(tx)).toBe(0);
-
-    // Dashboard tab should have aria-current="page"
+  test('initial load positions indicator on dashboard tab', async ({ page }) => {
+    await expect(page.locator('#bn-indicator')).toBeVisible();
+    await expectIndicatorOn(page, '#tab-dashboard');
     await expect(page.locator('#tab-dashboard')).toHaveAttribute('aria-current', 'page');
   });
 
+  test('indicator stays inside the nav, off the screen edge', async ({ page }) => {
+    await expectIndicatorOn(page, '#tab-dashboard');
+    const gap = await page.evaluate(() => {
+      const ind = document.getElementById('bn-indicator').getBoundingClientRect();
+      const nav = document.querySelector('.bottom-nav').getBoundingClientRect();
+      return { left: ind.left - nav.left, right: nav.right - ind.right };
+    });
+    expect(gap.left).toBeGreaterThan(2);
+    expect(gap.right).toBeGreaterThan(-0.5);
+  });
+
   test('each tab click moves indicator to correct position', async ({ page }) => {
-    const indicator = page.locator('#bn-indicator');
-    const tabs = [
-      { id: '#tab-dashboard', name: 'dashboard', index: 0 },
-      { id: '#tab-paths', name: 'learn', index: 1 },
-      { id: '#tab-list', name: 'list', index: 2 },
-      { id: '#tab-quran', name: 'quran', index: 3 },
-      { id: '#tab-profile', name: 'profile', index: 4 },
-    ];
-
-    // Measure indicator width once (stable across all tabs since they're equal-width)
-    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
-
+    const tabs = ['#tab-dashboard', '#tab-paths', '#tab-list', '#tab-quran', '#tab-profile'];
     for (const tab of tabs) {
-      await page.locator(tab.id).click();
-      // Wait for CSS transition to complete (350ms spring easing)
-      await page.waitForTimeout(500);
-
-      const tx = await indicator.evaluate(el => {
-        const m = window.getComputedStyle(el).transform;
-        const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-        return match ? Math.round(parseFloat(match[1])) : -1;
-      });
-
-      const expectedTx = Math.round(tab.index * indicatorWidth);
-      expect(tx).toBe(expectedTx);
-
-      // The clicked tab should have aria-current="page"
-      await expect(page.locator(tab.id)).toHaveAttribute('aria-current', 'page');
+      await page.locator(tab).click();
+      await expectIndicatorOn(page, tab);
+      await expect(page.locator(tab)).toHaveAttribute('aria-current', 'page');
     }
   });
 
@@ -636,40 +617,14 @@ test.describe('Bottom Nav Indicator', () => {
   });
 
   test('keyboard shortcut W moves indicator to word list tab', async ({ page }) => {
-    const indicator = page.locator('#bn-indicator');
-    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
-
-    // Press W for word list (tab index 2)
     await page.keyboard.press('w');
-    await page.waitForTimeout(500);
-
-    const tx = await indicator.evaluate(el => {
-      const m = window.getComputedStyle(el).transform;
-      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1])) : -1;
-    });
-
-    const expectedTx = Math.round(2 * indicatorWidth);
-    expect(tx).toBe(expectedTx);
+    await expectIndicatorOn(page, '#tab-list');
     await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
   });
 
   test('keyboard shortcut R moves indicator to quran tab', async ({ page }) => {
-    const indicator = page.locator('#bn-indicator');
-    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
-
-    // Press R for quran (tab index 3)
     await page.keyboard.press('r');
-    await page.waitForTimeout(500);
-
-    const tx = await indicator.evaluate(el => {
-      const m = window.getComputedStyle(el).transform;
-      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1])) : -1;
-    });
-
-    const expectedTx = Math.round(3 * indicatorWidth);
-    expect(tx).toBe(expectedTx);
+    await expectIndicatorOn(page, '#tab-quran');
     await expect(page.locator('#tab-quran')).toHaveAttribute('aria-current', 'page');
   });
 
@@ -683,22 +638,12 @@ test.describe('Bottom Nav Indicator', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    // Dismiss onboarding + plan picker if they appear
+    // Dismiss onboarding if it appears
     await skipOnboarding(page);
 
-    // Fresh load lands on dashboard (Foundation lesson requires completion)
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
-
-    const indicator = page.locator('#bn-indicator');
-    const tx = await indicator.evaluate(el => {
-      const m = window.getComputedStyle(el).transform;
-      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1])) : -1;
-    });
-
-    // After refresh, should be back on dashboard (index 0)
-    expect(tx).toBe(0);
+    await expectIndicatorOn(page, '#tab-dashboard');
 
     // Only one active tab after refresh
     const activeCount = await page.evaluate(() => {
@@ -708,26 +653,12 @@ test.describe('Bottom Nav Indicator', () => {
   });
 
   test('indicator position is never stale — clicking quickly still ends on correct tab', async ({ page }) => {
-    const indicator = page.locator('#bn-indicator');
-    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
-
     // Rapidly click multiple tabs without waiting for animation
     await page.locator('#tab-quran').click();
     await page.locator('#tab-list').click();
     await page.locator('#tab-paths').click();
 
-    // Wait for final animation to settle
-    await page.waitForTimeout(600);
-
-    const tx = await indicator.evaluate(el => {
-      const m = window.getComputedStyle(el).transform;
-      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1])) : -1;
-    });
-
-    // Should be on learn tab (index 1)
-    const expectedTx = Math.round(1 * indicatorWidth);
-    expect(tx).toBe(expectedTx);
+    await expectIndicatorOn(page, '#tab-paths');
     await expect(page.locator('#tab-paths')).toHaveAttribute('aria-current', 'page');
 
     // Only one active tab
@@ -737,25 +668,19 @@ test.describe('Bottom Nav Indicator', () => {
     expect(activeCount).toBe(1);
   });
 
+  test('indicator follows the active tab after a resize', async ({ page }) => {
+    await page.locator('#tab-quran').click();
+    await expectIndicatorOn(page, '#tab-quran');
+    await page.setViewportSize({ width: 320, height: 700 });
+    await expectIndicatorOn(page, '#tab-quran');
+  });
+
   test('reduced-motion prefers no transition but still positions correctly', async ({ page }) => {
     // Set prefers-reduced-motion via CDP
     await page.emulateMedia({ reducedMotion: 'reduce' });
 
-    const indicator = page.locator('#bn-indicator');
-    const indicatorWidth = await indicator.evaluate(el => el.offsetWidth);
-
     await page.locator('#tab-profile').click();
-    await page.waitForTimeout(100);
-
-    const tx = await indicator.evaluate(el => {
-      const m = window.getComputedStyle(el).transform;
-      const match = m.match(/matrix\([^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*([^,]+),/);
-      return match ? Math.round(parseFloat(match[1])) : -1;
-    });
-
-    // Should be on profile tab (index 4) — immediately, no transition delay
-    const expectedTx = Math.round(4 * indicatorWidth);
-    expect(tx).toBe(expectedTx);
+    await expectIndicatorOn(page, '#tab-profile');
     await expect(page.locator('#tab-profile')).toHaveAttribute('aria-current', 'page');
   });
 });

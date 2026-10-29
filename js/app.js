@@ -1541,6 +1541,11 @@ function init() {
     window.__DEV__ && console.log('[startup] [6] Setting up keyboard shortcuts...');
     try { setupKeyboardShortcuts(); window.__DEV__ && console.log('[startup] [6a] setupKeyboardShortcuts completed'); } catch (e) { console.warn('[app] Keyboard shortcuts failed:', e.message); }
 
+    // Tab widths change with the viewport and once web fonts load, so keep
+    // the bottom-nav highlight measured against the active tab.
+    window.addEventListener('resize', positionNavIndicator);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionNavIndicator);
+
     // 5. Validate surah coverage and populate surah selector
     window.__DEV__ && console.log('[startup] [7] Validating surah coverage...');
     try { validateSurahCoverage(); } catch (e) { console.warn('[app] Surah coverage check failed:', e.message); }
