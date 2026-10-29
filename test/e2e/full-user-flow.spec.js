@@ -685,6 +685,64 @@ test.describe('Bottom Nav Indicator', () => {
   });
 });
 
+// ── Wide screens: side navigation ─────────────────────────────
+
+// From 1024px the bottom nav is a vertical sidebar; the highlight must also
+// match the active tab's top and height there.
+async function expectSidebarIndicatorOn(page, tabSelector) {
+  await page.waitForFunction((sel) => {
+    const ind = document.getElementById('bn-indicator');
+    const tab = document.querySelector(sel);
+    if (!ind || !tab || ind.getAnimations().length > 0) return false;
+    const a = ind.getBoundingClientRect();
+    const b = tab.getBoundingClientRect();
+    return Math.abs(a.left - b.left) < 1.5 && Math.abs(a.width - b.width) < 1.5 &&
+      Math.abs(a.top - b.top) < 1.5 && Math.abs(a.height - b.height) < 1.5;
+  }, tabSelector, { timeout: 5000 });
+}
+
+test.describe('Wide screen layout', () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await skipOnboarding(page);
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
+    await page.waitForSelector('#view-dashboard', { timeout: 5000 });
+  });
+
+  test('the nav is a sidebar and the highlight follows each tab', async ({ page }) => {
+    const nav = await page.locator('.bottom-nav').boundingBox();
+    expect(nav.x).toBeLessThan(200);
+    expect(nav.height).toBeGreaterThan(600);
+    for (const tab of ['#tab-dashboard', '#tab-paths', '#tab-list', '#tab-quran', '#tab-profile']) {
+      await page.locator(tab).click();
+      await expectSidebarIndicatorOn(page, tab);
+    }
+  });
+
+  test('resizing across 1024px swaps sidebar and bottom bar', async ({ page }) => {
+    await page.locator('#tab-list').click();
+    await page.setViewportSize({ width: 1023, height: 800 });
+    await expectIndicatorOn(page, '#tab-list');
+    const bar = await page.locator('.bottom-nav').boundingBox();
+    expect(bar.y + bar.height).toBeGreaterThan(780); // at the bottom
+    await page.setViewportSize({ width: 1024, height: 800 });
+    await expectSidebarIndicatorOn(page, '#tab-list');
+  });
+
+  test('Learn shows the word card and its details side by side', async ({ page }) => {
+    await page.locator('#tab-paths').click();
+    await expect(page.locator('#view-learn')).toBeVisible();
+    const main = await page.locator('.learn-main').boundingBox();
+    const side = await page.locator('.learn-side').boundingBox();
+    expect(side.x).toBeGreaterThan(main.x + main.width);
+    // Details are always shown here, so the toggle is not needed
+    await expect(page.locator('#notes-box')).toBeVisible();
+    await expect(page.locator('#learn-more-toggle')).toBeHidden();
+  });
+});
+
 // ── Offline Indicator ──────────────────────────────────────────
 
 // ── Search & Word List ─────────────────────────────────────────

@@ -194,8 +194,9 @@ function showPreLessonReviewPrompt(checkResult) {
   var reviewBanner = document.getElementById('review-banner');
   var learnView = document.getElementById('view-learn');
   if (learnView) {
-    if (reviewBanner && reviewBanner.nextSibling) {
-      learnView.insertBefore(banner, reviewBanner.nextSibling);
+    // Right after the review banner, inside whatever wraps it
+    if (reviewBanner && reviewBanner.parentNode) {
+      reviewBanner.parentNode.insertBefore(banner, reviewBanner.nextSibling);
     } else {
       learnView.insertBefore(banner, learnView.firstChild);
     }

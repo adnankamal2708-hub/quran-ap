@@ -84,14 +84,22 @@ function setView(viewName) {
  * Move the bottom-nav highlight onto the active tab, matching its measured
  * position and width. Tabs aren't equal widths ("Dashboard" is wider) and
  * the nav has side padding, so a fixed 1/5-width slot started at the screen
- * edge and drifted off the tabs.
+ * edge and drifted off the tabs. On wide screens the nav is a vertical
+ * sidebar, so the highlight also takes the tab's height and top.
  */
 function positionNavIndicator() {
   var indicator = document.getElementById('bn-indicator');
   var activeTab = document.querySelector('.nav-tab.active');
   if (!indicator || !activeTab) return;
+  var vertical = getComputedStyle(activeTab.parentNode).flexDirection === 'column';
   indicator.style.width = activeTab.offsetWidth + 'px';
-  indicator.style.transform = 'translateX(' + activeTab.offsetLeft + 'px)';
+  if (vertical) {
+    indicator.style.height = activeTab.offsetHeight + 'px';
+    indicator.style.transform = 'translate(' + activeTab.offsetLeft + 'px, ' + activeTab.offsetTop + 'px)';
+  } else {
+    indicator.style.height = ''; // the stylesheet's height for the bottom bar
+    indicator.style.transform = 'translateX(' + activeTab.offsetLeft + 'px)';
+  }
 }
 
 /** Track current occurrence index when viewing a canonical word */

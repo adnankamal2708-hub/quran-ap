@@ -1549,6 +1549,12 @@ function init() {
     // the bottom-nav highlight measured against the active tab.
     window.addEventListener('resize', positionNavIndicator);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionNavIndicator);
+    // The tabs' size animates when the nav switches between bottom bar and
+    // sidebar (1024px), so the resize event alone measures them mid-way.
+    if (window.ResizeObserver) {
+      var navObserver = new ResizeObserver(positionNavIndicator);
+      document.querySelectorAll('.bottom-nav, .nav-tab').forEach(function (el) { navObserver.observe(el); });
+    }
 
     // 5. Validate surah coverage and populate surah selector
     window.__DEV__ && console.log('[startup] [7] Validating surah coverage...');

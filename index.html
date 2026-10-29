@@ -475,6 +475,8 @@ getResults: function () { return _safeguardResults; },
 
       <!-- ── LEARN VIEW ── -->
       <section class="mode-view" id="view-learn" aria-label="Learn words">
+        <!-- Word card and its tools; on wide screens .learn-side sits beside it -->
+        <div class="learn-main">
         <div class="lesson-header">
           <div class="lesson-header-top">
             <button class="lesson-nav-btn" id="prev-lesson-btn" type="button" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -542,6 +544,10 @@ getResults: function () { return _safeguardResults; },
           <button class="qa-btn" type="button" id="qa-quick-mode" title="Toggle quick flashcard mode (hides details)"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <span class="sr-only">Toggle quick flashcard mode</span><span aria-hidden="true">Quick</span></button>
         </div>
 
+        </div>
+        <!-- end learn-main -->
+
+        <div class="learn-side">
         <section class="ayah-box" id="ayah-box" aria-label="Quranic verse context">
           <div class="ayah-arabic" id="ayah-arabic" lang="ar" dir="rtl"></div>
           <div class="ayah-translation" id="ayah-translation"></div>
@@ -662,6 +668,8 @@ getResults: function () { return _safeguardResults; },
         <!-- end learn-more -->
 
         <button class="btn btn-outline learn-quiz-btn" type="button" onclick="switchView('quiz')">Take a quiz</button>
+        </div>
+        <!-- end learn-side -->
       </section>
 
       <!-- ── QUIZ VIEW ── -->
