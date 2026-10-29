@@ -928,6 +928,14 @@ suite('View Switch Scroll Protection', function() {
       'long lesson titles end in an ellipsis');
   });
 
+  test('Words filter rows are labelled and stay on one line', function() {
+    // Two unlabelled "All" chips, and "Pronouns" wrapping onto its own line.
+    var html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+    assert.ok(/data-filter="type" data-value="all"[^>]*>All types</.test(html), 'type row says All types');
+    assert.ok(/data-filter="status" data-value="all"[^>]*>All words</.test(html), 'status row says All words');
+    assert.ok(/\.filter-chips \{[^}]*flex-wrap:\s*nowrap[^}]*overflow-x:\s*auto/.test(cssContent), 'rows scroll instead of wrapping');
+  });
+
   test('onboarding Next button stays right-aligned when Back is hidden', function() {
     assert.ok(/#onboarding-next \{[^}]*margin-left:\s*auto/.test(cssContent));
   });

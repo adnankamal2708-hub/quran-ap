@@ -1985,9 +1985,28 @@ body::before {
 
 .filter-chips {
   display: flex;
-  flex-wrap: wrap;
   gap: 5px;
   margin-bottom: 8px;
+  /* One scrollable line per filter group, so a chip never wraps onto a
+     line of its own */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* Room for the chips' focus outline, which a scroll box would clip */
+  padding: 4px 3px;
+  margin: -4px -3px 4px;
+  /* Fade the right edge so it's clear the row scrolls */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+}
+
+.filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chips .chip {
+  flex-shrink: 0;
 }
 
 .chip {
