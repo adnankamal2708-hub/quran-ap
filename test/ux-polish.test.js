@@ -494,6 +494,45 @@ suite('Plan Picker', function() {
   });
 });
 
+suite('Contextual Tooltips Timing', function() {
+  function setupQuranTarget() {
+    _resetDOM();
+    clearStorage();
+    global.window.innerWidth = 390;
+    var view = document.createElement('section');
+    view.id = 'view-quran';
+    document.body.appendChild(view);
+  }
+  function tooltipCount() {
+    return _bodyChildren.filter(function(el) {
+      return el._className && el._className.indexOf('ux-tooltip') >= 0;
+    }).length;
+  }
+
+  test('no tooltips before onboarding is finished (they covered the dialog)', function() {
+    setupQuranTarget();
+    _onboardedThisSession = false;
+    ux.showContextualTooltips('quran');
+    assert.strictEqual(tooltipCount(), 0);
+  });
+
+  test('tooltips show in the session where onboarding was finished', function() {
+    setupQuranTarget();
+    _onboardedThisSession = false;
+    ux.completeOnboarding();
+    ux.showContextualTooltips('quran');
+    assert.strictEqual(tooltipCount(), 1);
+  });
+
+  test('a returning learner who finished onboarding earlier gets no tooltips', function() {
+    setupQuranTarget();
+    _onboardedThisSession = false;
+    localStorage.setItem('quran_onboarding_done', 'true');
+    ux.showContextualTooltips('quran');
+    assert.strictEqual(tooltipCount(), 0);
+  });
+});
+
 suite('Welcome Slides Data', function() {
   test('_welcomeSlides has 1 consolidated slide', function() {
     assert.strictEqual(_welcomeSlides.length, 1);

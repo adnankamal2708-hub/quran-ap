@@ -21,6 +21,9 @@ var _TOOLTIP_SEEN_KEY = 'quran_tooltip_seen_';
 var _PROGRESSIVE_KEY = 'quran_progressive_unlocked';
 var _PLAN_PICKER_SEEN_KEY = 'quran_plan_picker_seen';
 
+// Set when onboarding finishes; contextual tooltips only show in that session
+var _onboardedThisSession = false;
+
 // ── Welcome Screens (1 consolidated slide) ────────────────────
 // The five former intro slides (app, foundation, comprehension, quran,
 // srs) were condensed into a single value-prop screen with four short
@@ -67,6 +70,7 @@ function hasInterruptedOnboarding() {
 
 /** Mark onboarding as completed and save preferences */
 function completeOnboarding() {
+  _onboardedThisSession = true;
   try {
     localStorage.setItem(_ONBOARDING_DONE_KEY, 'true');
     localStorage.removeItem(_ONBOARDING_STEP_KEY);
@@ -777,9 +781,13 @@ function showTooltip(tipId) {
   }, 6000);
 }
 
-/** Show relevant tooltips based on the current view */
+/**
+ * Show relevant tooltips based on the current view — only in the session
+ * where the learner finished onboarding. Before that they landed on top of
+ * the onboarding dialog; existing learners never get them out of the blue.
+ */
 function showContextualTooltips(viewName) {
-  if (hasCompletedOnboarding()) return;
+  if (!_onboardedThisSession) return;
 
   if (viewName === 'quran') {
     showTooltip('quran-mode');

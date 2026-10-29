@@ -117,13 +117,12 @@ function _switchViewCore(viewName, options) {
   }
   
   // Show contextual tooltips for first-time users after view renders
+  // (showContextualTooltips decides whether this learner should get them)
   if (window.__ux && typeof window.__ux.showContextualTooltips === 'function') {
-    if (typeof window.__ux.hasCompletedOnboarding === 'function' && !window.__ux.hasCompletedOnboarding()) {
-      // Delay slightly to let the view render first
-      setTimeout(function() {
-        window.__ux.showContextualTooltips(viewName);
-      }, 600);
-    }
+    // Delay slightly to let the view render first
+    setTimeout(function() {
+      window.__ux.showContextualTooltips(viewName);
+    }, 600);
   }
   
   if (document.activeElement) document.activeElement.blur();
