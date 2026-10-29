@@ -828,6 +828,45 @@ suite('View Switch Scroll Protection', function() {
     assert.ok(match, 'setView() must set content.scrollTop = 0');
   });
   
+  test('header lesson strip only shows on lesson views', function() {
+    // Run the real setView() against a minimal DOM in its own context.
+    var vm = require('vm');
+    function el() {
+      var classes = {};
+      return {
+        style: {},
+        classList: {
+          toggle: function(c, on) { if (on) classes[c] = true; else delete classes[c]; },
+          add: function(c) { classes[c] = true; },
+          remove: function(c) { delete classes[c]; },
+          contains: function(c) { return !!classes[c]; },
+        },
+        setAttribute: function() {}, removeAttribute: function() {},
+      };
+    }
+    var els = { 'top-bar': el(), content: el() };
+    var ctx = {
+      window: {},
+      document: {
+        getElementById: function(id) { return els[id] || null; },
+        querySelector: function() { return null; },
+        querySelectorAll: function() { return []; },
+      },
+    };
+    vm.createContext(ctx);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'dom-helpers.js'), 'utf8'), ctx);
+    var topBar = els['top-bar'];
+    ['dashboard', 'list', 'quran', 'profile', 'auth', 'explorer', 'review-center'].forEach(function(v) {
+      ctx.setView(v);
+      assert.ok(topBar.classList.contains('top-bar-compact'), v + ' should hide the lesson strip');
+    });
+    ['learn', 'quiz'].forEach(function(v) {
+      ctx.setView(v);
+      assert.ok(!topBar.classList.contains('top-bar-compact'), v + ' should show the lesson strip');
+    });
+    assert.ok(cssContent.indexOf('.top-bar-compact .top-meta-row') >= 0, 'compact header CSS rule exists');
+  });
+
   test('renderExplorer() in explorer.js scrolls to top', function() {
     var explorerContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
     assert.ok(explorerContent.indexOf('content.scrollTop = 0') >= 0,

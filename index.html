@@ -412,7 +412,7 @@ getResults: function () { return _safeguardResults; },
   <div class="app">
 
     <!-- TOP BAR -->
-    <header class="top-bar" role="banner">
+    <header class="top-bar top-bar-compact" id="top-bar" role="banner">
       <div class="top-primary-row">
         <div class="top-left-group">
           <img class="app-brand-emblem" src="assets/logo/bayan-icon-emblem-square.png" alt="Bayan" width="22" height="22" />
@@ -428,21 +428,22 @@ getResults: function () { return _safeguardResults; },
       <div class="top-meta-row">
         <div class="top-info-group" role="status" aria-label="Learning statistics">
           <span class="lesson-label" id="lesson-label">Foundation • Lesson 1 of 10</span>
-          <span class="top-meta-sep" aria-hidden="true">·</span>
-          <span class="top-meta-stat" id="stat-learned">0</span>
-          <span class="top-meta-stat-label">Learned</span>
-          <span class="top-meta-sep" aria-hidden="true">·</span>
-          <span class="top-meta-stat" id="stat-review">0</span>
-          <span class="top-meta-stat-label">Due</span>
-          <span class="top-meta-sep" aria-hidden="true">·</span>
-          <span class="top-meta-stat" id="stat-score">—</span>
-          <span class="top-meta-stat-label">Quiz</span>
-          <div class="goal-ring-wrap" id="goal-ring-wrap" title="Daily review goal" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <svg class="goal-ring" viewBox="0 0 36 36">
-              <path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path class="goal-ring-fill" id="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="0, 100" />
-              <text class="goal-ring-text" id="goal-ring-text" x="18" y="20.5">0</text>
-            </svg>
+          <div class="top-meta-stats">
+            <span class="top-meta-stat" id="stat-learned">0</span>
+            <span class="top-meta-stat-label">Learned</span>
+            <span class="top-meta-sep" aria-hidden="true">·</span>
+            <span class="top-meta-stat" id="stat-review">0</span>
+            <span class="top-meta-stat-label">Due</span>
+            <span class="top-meta-sep" aria-hidden="true">·</span>
+            <span class="top-meta-stat" id="stat-score">—</span>
+            <span class="top-meta-stat-label">Quiz</span>
+            <div class="goal-ring-wrap" id="goal-ring-wrap" title="Daily review goal" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+              <svg class="goal-ring" viewBox="0 0 36 36">
+                <path class="goal-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="goal-ring-fill" id="goal-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="0, 100" />
+                <text class="goal-ring-text" id="goal-ring-text" x="18" y="20.5">0</text>
+              </svg>
+            </div>
           </div>
         </div>
       </div>

@@ -209,12 +209,30 @@ body::before {
   margin-bottom: 8px;
 }
 
+/* Outside a lesson the header is just the brand row */
+.top-bar-compact .top-meta-row,
+.top-bar-compact .progress-row {
+  display: none;
+}
+
+.top-bar-compact .top-primary-row {
+  margin-bottom: 0;
+}
+
 .top-info-group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 4px 10px;
   min-width: 0;
   flex-wrap: wrap;
+}
+
+/* The stats wrap as one unit, so a count never ends up on the line above its label */
+.top-meta-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .top-meta-sep {
@@ -1788,6 +1806,9 @@ body::before {
     margin: 0;
   }
   .top-info-group {
+    gap: 3px 8px;
+  }
+  .top-meta-stats {
     gap: 3px;
   }
   .lesson-progress-info {
@@ -3078,7 +3099,9 @@ body::before {
   font-weight: 500;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lesson-header {

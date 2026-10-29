@@ -23,6 +23,10 @@ function getShortMeaning(meaning) {
   return (meaning || '').split('\u2014')[0].trim();
 }
 
+// Views that belong to a lesson. Only these show the header's lesson strip
+// (lesson title, Learned/Due/Quiz stats and word progress).
+var LESSON_VIEWS = ['learn', 'quiz'];
+
 /**
  * Set active view, switching visible tab content and nav tab highlight.
  */
@@ -77,6 +81,11 @@ function setView(viewName) {
   } else {
     window.__viewHasBeenSet = true;
   }
+
+  // Outside a lesson the header collapses to the brand row, so the lesson
+  // strip doesn't take a quarter of a phone screen on every tab.
+  var topBar = DOM.get('top-bar');
+  if (topBar) topBar.classList.toggle('top-bar-compact', LESSON_VIEWS.indexOf(viewName) < 0);
 
   var content = DOM.get('content');
   if (content) content.scrollTop = 0;
