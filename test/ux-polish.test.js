@@ -452,6 +452,18 @@ suite('Plan Picker', function() {
     assert.ok(o.innerHTML.indexOf('Yearly') >= 0, 'should have Yearly option');
   });
 
+  test('each plan card says what tapping it does; Yearly is marked best value', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    var html = document.getElementById('plan-picker-overlay').innerHTML;
+    ['Continue free', 'Choose Monthly', 'Choose Yearly'].forEach(function(cta) {
+      assert.ok(html.indexOf('<span class="plan-card-cta') >= 0 && html.indexOf(cta) >= 0, 'has CTA ' + cta);
+    });
+    assert.ok(/plan-card-featured[^>]*data-plan="yearly"/.test(html), 'Yearly card is featured');
+    assert.ok(html.indexOf('Best value') >= 0, 'Best value badge');
+    assert.ok(html.indexOf('📖') < 0, 'no emoji header icon');
+  });
+
   test('plan picker has skip link', function() {
     _resetDOM();
     ux.showPlanPicker();

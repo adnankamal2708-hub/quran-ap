@@ -361,27 +361,32 @@ function showPlanPicker() {
   overlay.innerHTML =
     '<div class="plan-picker-card">' +
       '<div class="plan-picker-header">' +
-        '<div class="plan-picker-icon">📖</div>' +
         '<h2 class="plan-picker-title">Choose Your Plan</h2>' +
         '<p class="plan-picker-desc">Start free and upgrade anytime. All plans include the full Foundation Course.</p>' +
       '</div>' +
       '<div class="plan-picker-options">' +
+        // Each card: name, badge and price on one row, features below and an
+        // explicit call to action, so it's clear the whole card is a button.
         // Free plan
         '<button class="plan-card" id="plan-free" type="button" data-plan="free">' +
-          '<div class="plan-card-badge plan-card-badge-free">Free</div>' +
-          '<div class="plan-card-name">Free</div>' +
-          '<div class="plan-card-price">$0</div>' +
+          '<div class="plan-card-head">' +
+            '<div class="plan-card-name">Free</div>' +
+            '<div class="plan-card-price">$0</div>' +
+          '</div>' +
           '<ul class="plan-card-features">' +
             '<li>Full Foundation Course</li>' +
             '<li>Basic reviews &amp; quizzes</li>' +
             '<li>Top 300 Quranic words</li>' +
           '</ul>' +
+          '<span class="plan-card-cta plan-card-cta-quiet">Continue free</span>' +
         '</button>' +
         // Monthly plan
         '<button class="plan-card plan-card-premium" id="plan-monthly" type="button" data-plan="monthly">' +
-          '<div class="plan-card-badge">Premium</div>' +
-          '<div class="plan-card-name">Monthly</div>' +
-          '<div class="plan-card-price">$2.99<span class="plan-card-period">/mo</span></div>' +
+          '<div class="plan-card-head">' +
+            '<div class="plan-card-name">Monthly</div>' +
+            '<div class="plan-card-badge">Premium</div>' +
+            '<div class="plan-card-price">$2.99<span class="plan-card-period">/mo</span></div>' +
+          '</div>' +
           '<ul class="plan-card-features">' +
             '<li>Everything in Free</li>' +
             '<li>All 1,208 Quranic words</li>' +
@@ -390,18 +395,21 @@ function showPlanPicker() {
             '<li>Guided Reading &amp; insights</li>' +
             '<li>Cloud sync &amp; data export</li>' +
           '</ul>' +
+          '<span class="plan-card-cta">Choose Monthly</span>' +
         '</button>' +
-        // Yearly plan
-        '<button class="plan-card plan-card-premium" id="plan-yearly" type="button" data-plan="yearly">' +
-          '<div class="plan-card-badge">Premium</div>' +
-          '<div class="plan-card-name">Yearly</div>' +
-          '<div class="plan-card-price">$19.99<span class="plan-card-period">/yr</span></div>' +
+        // Yearly plan — highlighted as the best value
+        '<button class="plan-card plan-card-premium plan-card-featured" id="plan-yearly" type="button" data-plan="yearly">' +
+          '<div class="plan-card-head">' +
+            '<div class="plan-card-name">Yearly</div>' +
+            '<div class="plan-card-badge">Best value</div>' +
+            '<div class="plan-card-price">$19.99<span class="plan-card-period">/yr</span></div>' +
+          '</div>' +
           '<ul class="plan-card-features">' +
             '<li>Everything in Monthly</li>' +
-            '<li>Full word relationships</li>' +
             '<li>~5 months free vs. monthly</li>' +
             '<li>Priority support</li>' +
           '</ul>' +
+          '<span class="plan-card-cta">Choose Yearly</span>' +
         '</button>' +
       '</div>' +
       '<div class="plan-picker-footer">' +

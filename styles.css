@@ -5506,7 +5506,7 @@ body::before {
 }
 .plan-picker-card {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-card); padding: 28px 20px 20px;
+  border-radius: var(--radius-card); padding: 20px 16px 14px;
   max-width: 460px; width: 100%; max-height: 90vh; overflow-y: auto;
   box-shadow: var(--shadow-elevated);
   transform: translateY(16px);
@@ -5516,10 +5516,7 @@ body::before {
   transform: translateY(0);
 }
 .plan-picker-header {
-  text-align: center; margin-bottom: 20px;
-}
-.plan-picker-icon {
-  font-size: 40px; margin-bottom: 8px; line-height: 1;
+  text-align: center; margin-bottom: 14px;
 }
 .plan-picker-title {
   font-size: 20px; font-family: var(--serif); color: var(--gold-light);
@@ -5528,17 +5525,39 @@ body::before {
 .plan-picker-desc {
   font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 0 4px;
 }
+/* Plans stack, one full-width card each: three side-by-side columns
+   squeezed 9-11px text into ~100px on a phone. */
 .plan-picker-options {
-  display: flex; gap: 8px; margin-bottom: 16px;
+  display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;
 }
 .plan-card {
-  flex: 1; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius-section); padding: 14px 10px;
-  cursor: pointer; text-align: center; font-family: var(--body);
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-section); padding: 14px 16px;
+  cursor: pointer; text-align: left; font-family: var(--body);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 8px;
   -webkit-appearance: none; appearance: none;
   min-width: 0;
+}
+.plan-card-head {
+  display: flex; align-items: center; gap: 8px;
+}
+.plan-card-head .plan-card-price {
+  margin-left: auto;
+}
+.plan-card-featured {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 4px 16px rgba(201,168,76,0.12);
+}
+.plan-card-cta {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+  color: var(--bg); border-radius: var(--radius-btn);
+  padding: 7px 14px; font-size: 12px; font-weight: 600;
+}
+.plan-card-cta-quiet {
+  background: transparent; color: var(--text-muted);
+  border: 1px solid var(--border);
 }
 .plan-card:hover {
   border-color: var(--gold-dim); transform: translateY(-2px);
@@ -5562,11 +5581,6 @@ body::before {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
   background: var(--gold); color: var(--bg);
   border-radius: 10px; padding: 2px 8px; font-weight: 600;
-  margin-bottom: 4px;
-}
-.plan-card-badge-free {
-  background: transparent; border: 1px solid var(--border);
-  color: var(--text-muted);
 }
 .plan-card-name {
   font-size: 14px; color: var(--text); font-weight: 500;
@@ -5579,9 +5593,10 @@ body::before {
   font-size: 11px; color: var(--text-muted); font-weight: 400;
 }
 .plan-card-features {
-  list-style: none; padding: 0; margin: 6px 0 0;
-  font-size: 11px; color: var(--text-muted); line-height: 1.6;
+  list-style: none; padding: 0; margin: 0;
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
   text-align: left;
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px;
 }
 .plan-card-features li {
   padding: 1px 0;
@@ -5609,12 +5624,11 @@ body::before {
   border-radius: 4px;
 }
 
-/* Narrow screens: keep the three plan cards usable at 320px */
+/* Narrow screens: one feature per line */
 @media (max-width: 380px) {
   .plan-picker-overlay { padding: 12px; }
-  .plan-picker-options { gap: 6px; }
-  .plan-card { padding: 12px 6px; }
-  .plan-card-features { font-size: 11px; }
+  .plan-card { padding: 12px 14px; }
+  .plan-card-features { grid-template-columns: 1fr; }
   .plan-card-price { font-size: 19px; }
 }
 
