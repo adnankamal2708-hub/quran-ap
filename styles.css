@@ -2060,8 +2060,11 @@ body::before {
 .kbd-hint {
   position: fixed;
   bottom: 64px;
-  left: 50%;
-  transform: translateX(-50%);
+  /* Centred with auto margins, not translateX(-50%): the fadeInUp entrance
+     animates transform and would replace the centring offset. */
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-section);
