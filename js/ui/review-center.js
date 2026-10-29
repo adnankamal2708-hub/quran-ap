@@ -298,7 +298,7 @@ function renderReviewCenter() {
 
   // Mixed Review — mixed easy/hard review
   $h += '<div class="rc-mode-card" id="rc-mode-mixed" tabindex="0" role="button" aria-label="Start mixed review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(201,168,76,0.12)">🎲</div>';
+  $h += '<div class="rc-mode-icon" style="background:rgba(201,168,76,0.12)">' + uiIcon('shuffle', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Mixed Review</div>';
   $h += '<div class="rc-mode-sub">Balanced difficulty</div>';
@@ -346,7 +346,7 @@ function renderReviewCenter() {
 
     // Quick actions row
     $h += '<div class="rc-quick-actions-row">';
-    $h += '<button class="rc-quick-btn" id="rc-start-mixed" type="button">🎲 Mixed Review</button>';
+    $h += '<button class="rc-quick-btn" id="rc-start-mixed" type="button">' + uiIcon('shuffle') + 'Mixed Review</button>';
     $h += '<button class="rc-quick-btn" id="rc-start-quick" type="button">' + uiIcon('bolt') + 'Quick Review</button>';
     $h += '</div>';
 
