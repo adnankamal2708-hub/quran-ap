@@ -1800,9 +1800,6 @@ body::before {
   .top-meta-stat {
     font-size: 11px;
   }
-  .top-meta-stat-label {
-    display: none;
-  }
   .top-meta-sep {
     margin: 0;
   }
