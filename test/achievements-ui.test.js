@@ -104,6 +104,7 @@ global.document = {
 var profileUICode = fs.readFileSync(path.join(__dirname, '..', 'js', 'profile-ui.js'), 'utf8');
 
 try {
+  require('./load-components')(); // uiIcon, iconText, dataIcon
   eval(profileUICode);
 } catch (e) {
   console.error('Failed to load profile-ui.js:', e.message);

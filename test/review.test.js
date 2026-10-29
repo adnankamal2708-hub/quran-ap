@@ -207,6 +207,7 @@ var reviewMode = false;
 var currentWord = 0;
 var activeLessonIndex = 0;
 
+require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(reviewCode);
 
 // ═══════════════════════════════════════════════════════════════

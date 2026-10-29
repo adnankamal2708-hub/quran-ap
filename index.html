@@ -273,7 +273,7 @@ if (el && !el.hasAttribute('data-safeguard-fallback')) {
 el.setAttribute('data-safeguard-fallback', 'true');
 el.innerHTML = fallbackHTML ||
 '<div style="text-align:center;padding:20px;color:var(--text-muted, #8a8070);font-size:12px">' +
-'⚠️ <strong>' + name + '</strong> encountered an error. ' +
+'<strong>' + name + '</strong> encountered an error. ' +
 'Other sections should still work.' +
 '</div>';
 }
@@ -322,7 +322,7 @@ if (!grid || grid.children.length > 0) return;
 var issueCount = getIssues().length;
 grid.innerHTML =
 '<div style="text-align:center;padding:24px 16px">' +
-'<div style="font-size:40px;margin-bottom:12px">📖</div>' +
+'<div style="margin-bottom:12px;color:var(--gold-muted)"><svg aria-hidden="true" viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>' +
 '<h2 style="font-size:16px;color:var(--gold-light, #e8c97a);margin:0 0 6px">Bayan</h2>' +
 '<p style="font-size:12px;color:var(--text-muted, #8a8070);line-height:1.5;margin:0 0 16px">' +
 'Loading your learning experience\u2026' +
@@ -515,7 +515,7 @@ getResults: function () { return _safeguardResults; },
           <div class="word-type" id="word-type">Proper Noun</div>
           <div class="word-pattern" id="word-pattern"></div>
           <div class="meaning" id="meaning">Allah — God</div>
-          <div id="sr-pill" class="sr-pill sr-new" aria-live="polite"><span aria-hidden="true">🆕</span> New word</div>
+          <div id="sr-pill" class="sr-pill sr-new" aria-live="polite"><span aria-hidden="true"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon ui-icon-only"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> New word</div>
           <div class="occurrence-tag" id="occurrences"><svg viewBox="0 0 24 24" width="10" height="10" stroke="var(--green)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Appears 2,699 times</div>
           <div id="root-reinforcement-badge" style="display:none;margin-top:6px;text-align:center"></div>
           <div id="word-learning-context" style="display:none;font-size:11px;color:var(--text-muted);margin:6px 0 10px;text-align:center;line-height:1.5;padding:0 8px"></div>
@@ -833,12 +833,12 @@ getResults: function () { return _safeguardResults; },
         <!-- Header with back button -->
         <div class="explorer-header">
           <button class="explorer-back-btn" id="explorer-back" type="button" aria-label="Back to previous view">← Back</button>
-          <div class="explorer-header-title">📖 Vocabulary Explorer</div>
+          <div class="explorer-header-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Vocabulary Explorer</div>
         </div>
 
         <!-- ── Core Information Section ── -->
         <section class="explorer-section" id="explorer-core" aria-label="Core word information">
-          <div class="explorer-section-title">📝 Core Information</div>
+          <div class="explorer-section-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Core Information</div>
           <div class="explorer-core-card">
             <div class="explorer-arabic" id="explorer-arabic" lang="ar" dir="rtl">اللَّهُ</div>
             <div class="explorer-translit" id="explorer-translit">Allāhu</div>
@@ -872,7 +872,7 @@ getResults: function () { return _safeguardResults; },
 
         <!-- ── Quran Context Section ── -->
         <section class="explorer-section" id="explorer-quran-context" aria-label="Quran context">
-          <div class="explorer-section-title">📖 Quran Context</div>
+          <div class="explorer-section-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Quran Context</div>
           <div class="explorer-context-card">
             <div class="explorer-context-stats">
               <div class="explorer-context-stat">
@@ -908,14 +908,14 @@ getResults: function () { return _safeguardResults; },
 
             <!-- Tafsir -->
             <div class="explorer-tafsir-section">
-              <button class="qa-btn w-full text-center" id="explorer-tafsir-btn" type="button">📚 Load Ibn Kathir Tafsir</button>
+              <button class="qa-btn w-full text-center" id="explorer-tafsir-btn" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Load Ibn Kathir Tafsir</button>
               <div class="explorer-tafsir-box" id="explorer-tafsir-box" style="display:none">
                 <div class="explorer-tafsir-text" id="explorer-tafsir-text"></div>
               </div>
             </div>
 
             <!-- All occurrences list (collapsible) -->
-            <button class="qa-btn w-full text-center mt-8" id="explorer-all-occ-btn" type="button" aria-expanded="false">📋 View all occurrences</button>
+            <button class="qa-btn w-full text-center mt-8" id="explorer-all-occ-btn" type="button" aria-expanded="false"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>View all occurrences</button>
             <div id="explorer-all-occ-list" style="display:none"></div>
 
             <!-- Related Surahs -->
@@ -928,38 +928,38 @@ getResults: function () { return _safeguardResults; },
 
         <!-- ── Vocabulary Relationships Section ── -->
         <section class="explorer-section" id="explorer-relationships" aria-label="Vocabulary relationships">
-          <div class="explorer-section-title">🔗 Vocabulary Relationships</div>
+          <div class="explorer-section-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Vocabulary Relationships</div>
           <div class="explorer-rel-card" id="explorer-rel-content">
             <div class="explorer-rel-section" id="explorer-root-family-section">
-              <div class="explorer-rel-subtitle">🌱 Root Family</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>Root Family</div>
               <div class="explorer-chip-list" id="explorer-root-family-list"></div>
             </div>
             <div class="explorer-rel-section" id="explorer-derived-forms-section">
-              <div class="explorer-rel-subtitle">📐 Derived Forms</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Derived Forms</div>
               <div class="explorer-chip-list" id="explorer-derived-forms-list"></div>
             </div>
             <div class="explorer-rel-section" id="explorer-morph-section">
-              <div class="explorer-rel-subtitle">🔬 Morphological Relatives</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Morphological Relatives</div>
               <div class="explorer-chip-list" id="explorer-morph-list"></div>
             </div>
             <div class="explorer-rel-section" id="explorer-similar-section">
-              <div class="explorer-rel-subtitle">🔗 Similar Words</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Similar Words</div>
               <div class="explorer-chip-list" id="explorer-similar-list"></div>
             </div>
             <div class="explorer-rel-section" id="explorer-confused-section">
-              <div class="explorer-rel-subtitle">⚠️ Frequently Confused</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Frequently Confused</div>
               <div class="explorer-chip-list" id="explorer-confused-list"></div>
             </div>
             <div class="explorer-rel-section" id="explorer-semantic-section">
-              <div class="explorer-rel-subtitle">🏷️ Semantic Groups</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Semantic Groups</div>
               <div class="explorer-chip-list" id="explorer-semantic-list"></div>
             </div>
             <div class="explorer-rel-section" id="explorer-related-section">
-              <div class="explorer-rel-subtitle">🔗 Related Quranic Words</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Related Quranic Words</div>
               <div class="explorer-chip-list" id="explorer-related-list"></div>
             </div>
             <div class="explorer-rel-section" id="explorer-equiv-section">
-              <div class="explorer-rel-subtitle">🔄 Contextual Equivalents</div>
+              <div class="explorer-rel-subtitle"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Contextual Equivalents</div>
               <div class="explorer-chip-list" id="explorer-equiv-list"></div>
             </div>
           </div>
@@ -967,11 +967,11 @@ getResults: function () { return _safeguardResults; },
 
         <!-- ── Personal Learning Progress Section ── -->
         <section class="explorer-section" id="explorer-learning-progress" aria-label="Learning progress">
-          <div class="explorer-section-title">📊 My Learning Progress</div>
+          <div class="explorer-section-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>My Learning Progress</div>
           <div class="explorer-progress-card">
             <div class="explorer-progress-grid" id="explorer-progress-grid">
               <div class="explorer-progress-item">
-                <span class="explorer-progress-value" id="explorer-srs-stage">🆕</span>
+                <span class="explorer-progress-value" id="explorer-srs-stage"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon ui-icon-only"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
                 <span class="explorer-progress-label">Mastery Status</span>
               </div>
               <div class="explorer-progress-item">
@@ -1002,18 +1002,18 @@ getResults: function () { return _safeguardResults; },
 
         <!-- ── Learning Actions ── -->
         <section class="explorer-section" id="explorer-actions" aria-label="Learning actions">
-          <div class="explorer-section-title">🎯 Learning Actions</div>
+          <div class="explorer-section-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Learning Actions</div>
           <div class="explorer-actions-card">
             <div class="explorer-actions-grid">
-              <button class="explorer-action-btn" id="explorer-btn-bookmark" type="button">⭐ Bookmark</button>
-              <button class="explorer-action-btn" id="explorer-btn-practice-related" type="button">🔗 Practice related</button>
+              <button class="explorer-action-btn" id="explorer-btn-bookmark" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Bookmark</button>
+              <button class="explorer-action-btn" id="explorer-btn-practice-related" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Practice related</button>
             </div>
           </div>
         </section>
 
         <!-- ── Personal Notes ── -->
         <section class="explorer-section" id="explorer-notes" aria-label="Personal notes">
-          <div class="explorer-section-title">📝 Personal Notes</div>
+          <div class="explorer-section-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Personal Notes</div>
           <div class="explorer-notes-card">
             <textarea class="explorer-notes-input" id="explorer-notes-input" placeholder="Write your notes about this word…" rows="3"></textarea>
           </div>
@@ -1114,7 +1114,7 @@ getResults: function () { return _safeguardResults; },
           </div>
           <div id="auth-verify" class="auth-form-view" style="display:none">
             <div class="auth-verify-content">
-              <div class="auth-verify-icon">📧</div>
+              <div class="auth-verify-icon"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon ui-icon-only"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
               <p class="auth-description">We sent a verification email to:</p>
               <p class="auth-verify-email" id="auth-verify-email">your@email.com</p>
               <p class="auth-description mt-12">Please check your inbox and click the verification link to continue.</p>
@@ -1160,10 +1160,10 @@ getResults: function () { return _safeguardResults; },
 
           <!-- ── Profile Subtab Navigation ── -->
           <div class="pf-tab-bar" role="tablist" aria-label="Profile sections">
-            <button class="pf-tab active" data-pf-tab="account" role="tab" aria-selected="true" type="button">👤 Account</button>
-            <button class="pf-tab" data-pf-tab="progress" role="tab" aria-selected="false" type="button">📊 Progress</button>
-            <button class="pf-tab" data-pf-tab="achievements" role="tab" aria-selected="false" type="button">🏆 Achievements</button>
-            <button class="pf-tab" data-pf-tab="about" role="tab" aria-selected="false" type="button">ℹ️ About</button>
+            <button class="pf-tab active" data-pf-tab="account" role="tab" aria-selected="true" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account</button>
+            <button class="pf-tab" data-pf-tab="progress" role="tab" aria-selected="false" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Progress</button>
+            <button class="pf-tab" data-pf-tab="achievements" role="tab" aria-selected="false" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>Achievements</button>
+            <button class="pf-tab" data-pf-tab="about" role="tab" aria-selected="false" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>About</button>
           </div>
 
           <!-- ═══ TAB 1: ACCOUNT ═══ -->
@@ -1172,19 +1172,19 @@ getResults: function () { return _safeguardResults; },
                 <div class="profile-avatar" id="profile-avatar">U</div>
                 <div class="profile-header-info">
                   <div class="profile-name" id="profile-name">User</div>
-                  <div class="profile-premium-badge" id="profile-premium-badge" style="display:none">⭐ Premium</div>
+                  <div class="profile-premium-badge" id="profile-premium-badge" style="display:none"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Premium</div>
                   <div class="profile-email-row">
                     <span class="profile-email" id="profile-email"></span>
                     <span class="profile-verified-badge" id="profile-email-verified"></span>
                   </div>
-                  <div class="profile-learner-stage" id="profile-learner-stage" style="font-size:11px;color:var(--gold-muted);margin-top:4px">🌱 Beginning your journey</div>
+                  <div class="profile-learner-stage" id="profile-learner-stage" style="font-size:11px;color:var(--gold-muted);margin-top:4px"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>Beginning your journey</div>
                 </div>
               </div>
               <div id="profile-info">
                 <div class="pf-detail-row"><span class="pf-detail-label">Joined</span><span class="pf-detail-value" id="profile-join-date">—</span></div>
                 <div class="pf-detail-row"><span class="pf-detail-label">Sync</span><span class="pf-detail-value" id="profile-sync-status">○ Offline</span></div>
                 <div class="pf-detail-row"><span class="pf-detail-label">Email verified</span><span class="pf-detail-value" id="profile-email-verified-status"></span></div>
-                <button class="pf-btn" id="btn-edit-profile" type="button">✏️ Edit Profile</button>
+                <button class="pf-btn" id="btn-edit-profile" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Profile</button>
               </div>
               <div id="profile-edit" style="display:none">
                 <label class="auth-label" for="profile-edit-name">Name</label>
@@ -1200,12 +1200,12 @@ getResults: function () { return _safeguardResults; },
               </div>
             </div>
             <div class="pf-card">
-              <div class="pf-card-title">⚙️ Settings</div>
+              <div class="pf-card-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</div>
               <div id="settings-info">
                 <div class="pf-detail-row"><span class="pf-detail-label">Daily review limit</span><span class="pf-detail-value" id="settings-daily-limit">25</span></div>
                 <div class="pf-detail-row"><span class="pf-detail-label">Session size</span><span class="pf-detail-value" id="settings-session-size">20</span></div>
                 <div class="pf-detail-row"><span class="pf-detail-label">Auto-import</span><span class="pf-detail-value" id="settings-auto-import">On</span></div>
-                <button class="pf-btn" id="btn-edit-settings" type="button">⚙️ Edit Settings</button>
+                <button class="pf-btn" id="btn-edit-settings" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Edit Settings</button>
               </div>
               <div id="settings-edit" style="display:none">
                 <label class="auth-label" for="settings-edit-limit">Daily review limit (5-100)</label>
@@ -1225,13 +1225,13 @@ getResults: function () { return _safeguardResults; },
               </div>
             </div>
             <div class="pf-card">
-              <div class="pf-card-title">🔐 Account Actions</div>
-              <button class="account-action-btn" id="btn-manage-subscription" type="button" style="display:none">💳 Manage Subscription</button>
-              <button class="account-action-btn" id="btn-change-password" type="button">🔑 Change Password</button>
-              <button class="account-action-btn" id="btn-export-data" type="button">📤 Export Learning Data</button>
-              <button class="account-action-btn" id="btn-import-data" type="button">📥 Import Learning Data</button>
-              <button class="account-action-btn account-action-danger" id="btn-delete-account" type="button">🗑️ Delete Account</button>
-              <button class="btn btn-sm btn-outline w-full mt-16" id="btn-logout" type="button">🚪 Sign Out</button>
+              <div class="pf-card-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Account Actions</div>
+              <button class="account-action-btn" id="btn-manage-subscription" type="button" style="display:none"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Manage Subscription</button>
+              <button class="account-action-btn" id="btn-change-password" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>Change Password</button>
+              <button class="account-action-btn" id="btn-export-data" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/><polyline points="16 16 12 12 8 16"/></svg>Export Learning Data</button>
+              <button class="account-action-btn" id="btn-import-data" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Import Learning Data</button>
+              <button class="account-action-btn account-action-danger" id="btn-delete-account" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete Account</button>
+              <button class="btn btn-sm btn-outline w-full mt-16" id="btn-logout" type="button"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
             </div>
           </div>
 
@@ -1260,7 +1260,7 @@ getResults: function () { return _safeguardResults; },
       <!-- ── SESSION REVIEW SUMMARY MODAL ── -->
       <div class="modal-overlay" id="session-summary-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="session-summary-title">
         <div class="modal-content session-summary">
-          <div class="modal-title" id="session-summary-title">📊 Session Complete</div>
+          <div class="modal-title" id="session-summary-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Session Complete</div>
           <div class="session-summary-stats">
             <div class="session-stat">
               <div class="session-stat-value" id="session-words-reviewed">0</div>
@@ -1291,31 +1291,31 @@ getResults: function () { return _safeguardResults; },
             </div>
             <div class="session-stat" style="grid-column:1/-1;border-bottom:none">
               <div class="session-stat-value" id="session-streak-earned" style="font-size:14px">0</div>
-              <div class="session-stat-label">🔥 Streak Days</div>
+              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M12 2C8 6 4 10 4 14c0 4.418 3.582 8 8 8s8-3.582 8-8c0-4-4-8-8-12z"/></svg>Streak Days</div>
             </div>
             <!-- Adaptive session fields (gated: only shown when 5+ words reviewed) -->
             <div class="session-stat" id="session-card-accuracy">
               <div class="session-stat-value" id="session-accuracy">0%</div>
-              <div class="session-stat-label">🎯 Accuracy</div>
+              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Accuracy</div>
             </div>
             <div class="session-stat" id="session-card-retention">
               <div class="session-stat-value" id="session-retention">0%</div>
-              <div class="session-stat-label" title="% of previously learned words still remembered">🧠 Retention</div>
+              <div class="session-stat-label" title="% of previously learned words still remembered"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M12 2a7 7 0 0 0-7 7c0 2.1 1 4 2.5 5.2V19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-1m3-1a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3.8C20 13 21 11.1 21 9a7 7 0 0 0-7-7z"/></svg>Retention</div>
             </div>
             <div class="session-stat" id="session-card-needs-improvement">
               <div class="session-stat-value" id="session-needs-improvement">—</div>
-              <div class="session-stat-label">📚 Needs Improvement</div>
+              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Needs Improvement</div>
             </div>
             <div class="session-stat" id="session-card-coverage-gained">
               <div class="session-stat-value" id="session-coverage-gained">—</div>
-              <div class="session-stat-label">📈 Coverage Gained</div>
+              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Coverage Gained</div>
             </div>
             <div class="session-stat" id="session-card-rating" style="grid-column:1/-1;border-bottom:none">
               <div class="session-stat-value" id="session-rating-stars" style="font-size:18px;letter-spacing:2px"></div>
               <div class="session-stat-label" id="session-rating-label" style="font-size:11px"></div>
             </div>
           </div>
-          <div class="session-summary-encouragement" id="session-encouragement">Keep up the great work! 🌟</div>
+          <div class="session-summary-encouragement" id="session-encouragement">Keep up the great work!</div>
           <button class="btn w-full mt-16" id="session-summary-close" type="button">Continue Learning</button>
         </div>
       </div>
@@ -1329,7 +1329,7 @@ getResults: function () { return _safeguardResults; },
       <!-- ── PASSWORD CHANGE MODAL ── -->
       <div class="modal-overlay" id="password-change-modal" style="display:none" role="dialog" aria-modal="true" aria-label="Change password">
         <div class="modal-content">
-          <div class="modal-title" id="password-change-title">🔑 Change Password</div>
+          <div class="modal-title" id="password-change-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>Change Password</div>
           <form id="password-change-form" autocomplete="on">
               <!-- Hidden username field for password manager accessibility -->
               <input type="text" name="pwd-change-username" autocomplete="username" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0.01" tabindex="-1" aria-hidden="true" />
@@ -1352,7 +1352,7 @@ getResults: function () { return _safeguardResults; },
       <!-- ── DELETE ACCOUNT MODAL ── -->
       <div class="modal-overlay" id="delete-account-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
         <div class="modal-content">
-          <div class="modal-title" id="delete-account-title">🗑️ Delete Account</div>
+          <div class="modal-title" id="delete-account-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete Account</div>
           <p class="delete-account-warning">This permanently deletes your account and all your learning progress, on this device and in the cloud. Any active Bayan Premium subscription is cancelled immediately. This cannot be undone.</p>
           <form id="delete-account-form" autocomplete="on">
             <div id="delete-account-password-group">

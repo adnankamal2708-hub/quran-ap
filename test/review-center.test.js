@@ -224,6 +224,7 @@ var fs = require('fs');
 var path = require('path');
 var reviewCenterCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'review-center.js'), 'utf8');
 
+require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(reviewCenterCode);
 
 // ═══════════════════════════════════════════════════════════════

@@ -283,7 +283,7 @@ function renderWordList(loadMore) {
     var shortMeaning = getShortMeaning(w.meaning);
     d.setAttribute('aria-label', (isLocked ? 'Premium word (locked) — ' : 'Study ') + w.arabic + ' - ' + shortMeaning);
     var lockBadge = isLocked
-      ? '<span class="locked-badge" title="Premium word — beyond the free 300">\uD83D\uDD12</span>'
+      ? '<span class="locked-badge" title="Premium word — beyond the free 300">' + uiIcon('lock', true) + '</span>'
       : favStar + badge;
     d.innerHTML =
       '<div class="wordlist-arabic">' + w.arabic + '</div>' +
@@ -312,7 +312,7 @@ function renderWordList(loadMore) {
       // Explorer button
       var explorerBtn = document.createElement('button');
       explorerBtn.className = 'wordlist-qa-btn';
-      explorerBtn.textContent = '🔍 Explore';
+      explorerBtn.innerHTML = iconText('search', 'Explore');
       explorerBtn.setAttribute('aria-label', 'Open vocabulary explorer for ' + w.arabic);
       (function(wordObj) {
         explorerBtn.onclick = function(e) {
@@ -325,15 +325,15 @@ function renderWordList(loadMore) {
       // Bookmark button
       var bmBtn = document.createElement('button');
       bmBtn.className = 'wordlist-qa-btn' + (favs[w.id] ? ' active-qa' : '');
-      bmBtn.textContent = favs[w.id] ? '⭐' : '☆';
+      bmBtn.innerHTML = uiIcon('star', true);
       bmBtn.setAttribute('aria-label', (favs[w.id] ? 'Remove' : 'Add') + ' bookmark for ' + w.arabic);
       (function(wordObj) {
         bmBtn.onclick = function(e) {
           e.stopPropagation();
           if (typeof toggleFavorite === 'function') {
             var isNowFav = toggleFavorite(wordObj.id);
-            bmBtn.textContent = isNowFav ? '⭐' : '☆';
             bmBtn.className = 'wordlist-qa-btn' + (isNowFav ? ' active-qa' : '');
+            bmBtn.setAttribute('aria-label', (isNowFav ? 'Remove' : 'Add') + ' bookmark for ' + wordObj.arabic);
           }
         };
       })(w);
@@ -342,7 +342,7 @@ function renderWordList(loadMore) {
       // Flashcards button
       var flashBtn = document.createElement('button');
       flashBtn.className = 'wordlist-qa-btn';
-      flashBtn.textContent = '⚡ Flash';
+      flashBtn.innerHTML = iconText('bolt', 'Flash');
       flashBtn.setAttribute('aria-label', 'Study ' + w.arabic + ' in flashcard mode');
       (function(wordObj) {
         flashBtn.onclick = function(e) {

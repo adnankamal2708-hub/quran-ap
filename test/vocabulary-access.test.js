@@ -68,6 +68,7 @@ global.showToast = function () {};
 // ═══════════════════════════════════════════════════════════════
 // LOAD REAL MODULES (same chain as the bundled app)
 // ═══════════════════════════════════════════════════════════════
+require('./load-components')(); // uiIcon, iconText, dataIcon
 function load(rel) {
   var code = fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
   // let/const at eval top level do not leak to global scope; convert to var.
@@ -468,7 +469,7 @@ suite('Words tab — locked rows + live unlock', function () {
     assert.ok(freeRow.className.indexOf('locked-word') < 0, 'free row not locked');
     assert.ok(lockedRow, 'locked word row exists (discoverable, not hidden)');
     assert.ok(lockedRow.className.indexOf('locked-word') >= 0, 'locked row styled');
-    assert.ok(lockedRow.innerHTML.indexOf('\uD83D\uDD12') >= 0, 'lock badge shown');
+    assert.ok(/locked-badge[^>]*>\s*<svg/.test(lockedRow.innerHTML), 'lock badge shown');
     assert.ok(lockedRow.innerHTML.indexOf(_lockedSample.arabic) >= 0, 'word still visible');
   });
 

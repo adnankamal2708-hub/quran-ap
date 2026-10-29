@@ -173,8 +173,54 @@ function createSVGIcon(name, opts) {
     'external-link': '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
     'info': '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
     'refresh-cw': '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+    'tag': '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
+    'credit-card': '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
+    'shield': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
   };
   return '<svg ' + svgAttrs + '>' + (paths[name] || paths.book) + '</svg>';
+}
+
+/**
+ * A decorative line icon in place of an emoji: in front of UI text (titles,
+ * buttons, labels) or alone in an icon slot. It is sized in em by CSS, so it
+ * follows the surrounding font size, and coloured by the text.
+ * @param {string} name - createSVGIcon() name
+ * @param {boolean} [only] - the icon is the slot's only content (no text gap)
+ * @returns {string} SVG markup, hidden from screen readers
+ */
+function uiIcon(name, only) {
+  return createSVGIcon(name, { size: 16, className: only ? 'ui-icon ui-icon-only' : 'ui-icon' })
+    .replace('<svg ', '<svg aria-hidden="true" focusable="false" ');
+}
+
+/**
+ * uiIcon() followed by text, with the text HTML-escaped — for places that
+ * used to set textContent to an emoji plus text.
+ * @param {string} name - createSVGIcon() name
+ * @param {string} text
+ * @returns {string} HTML
+ */
+function iconText(name, text) {
+  var escaped = String(text == null ? '' : text).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+  return uiIcon(name) + escaped;
+}
+
+/**
+ * uiIcon() for an icon that comes from data (achievements, milestones,
+ * celebrations, empty states): accepts the emoji those records store, or an
+ * icon name. Unknown values fall back to a star rather than showing raw text.
+ * @param {string} value - emoji or createSVGIcon() name
+ * @param {boolean} [only]
+ * @returns {string} SVG markup
+ */
+function dataIcon(value, only) {
+  var raw = String(value || '');
+  var bare = raw.replace(/\uFE0F/g, '');
+  var name = iconNameFromEmoji(raw) || iconNameFromEmoji(bare) || iconNameFromEmoji(bare + '\uFE0F') ||
+    (/^[a-z][a-z-]*$/.test(raw) ? raw : 'star');
+  return uiIcon(name, only);
 }
 
 /**
@@ -284,6 +330,7 @@ function iconNameFromEmoji(emoji) {
     '❌': 'x', 'ℹ️': 'info', '🔔': 'bell', '🔕': 'bell-off',
     '🌻': 'sun', '💰': 'dollar-sign', '💳': 'credit-card',
     '🎒': 'book', '🚀': 'zap-off', '🤲': 'heart', '🙏': 'heart',
+    '🏗️': 'layers', '🛡️': 'shield', '💫': 'star', '📧': 'mail',
   };
   return map[emoji] || null;
 }
@@ -298,4 +345,7 @@ window.__components = {
   createBadge: createBadge,
   createSectionHeader: createSectionHeader,
   iconNameFromEmoji: iconNameFromEmoji,
+  uiIcon: uiIcon,
+  iconText: iconText,
+  dataIcon: dataIcon,
 };

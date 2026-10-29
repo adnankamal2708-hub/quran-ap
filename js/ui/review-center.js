@@ -217,7 +217,7 @@ function renderReviewCenter() {
   // ═══ SECTION 0: HEADER ═══
   $h += '<div class="rc-header">';
   $h += '<div class="rc-header-row">';
-  $h += '<div class="rc-header-icon" aria-hidden="true">📋</div>';
+  $h += '<div class="rc-header-icon" aria-hidden="true">' + uiIcon('list', true) + '</div>';
   $h += '<div>';
   $h += '<h2 class="rc-header-title">Review Center</h2>';
   $h += '<p class="rc-header-sub">Your central hub for revision</p>';
@@ -253,12 +253,12 @@ function renderReviewCenter() {
   $h += '</div>';
 
   // ═══ SECTION 2: REVIEW MODES ═══
-  $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">🎯</span> Review Modes</div>';
+  $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('target', true) + '</span> Review Modes</div>';
   $h += '<div class="rc-modes-grid">';
 
   // SRS Review — standard SRS review session
   $h += '<div class="rc-mode-card" id="rc-mode-srs" tabindex="0" role="button" aria-label="Start SRS review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(201,168,76,0.15)">🔄</div>';
+  $h += '<div class="rc-mode-icon" style="background:rgba(201,168,76,0.15)">' + uiIcon('refresh-cw', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">SRS Review</div>';
   $h += '<div class="rc-mode-sub">Standard spaced repetition</div>';
@@ -268,7 +268,7 @@ function renderReviewCenter() {
 
   // Quick Review — flashcard-style quick review
   $h += '<div class="rc-mode-card" id="rc-mode-quick" tabindex="0" role="button" aria-label="Start quick review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(74,158,107,0.15)">⚡</div>';
+  $h += '<div class="rc-mode-icon" style="background:rgba(74,158,107,0.15)">' + uiIcon('bolt', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Quick Review</div>';
   $h += '<div class="rc-mode-sub">Fast flashcard mode</div>';
@@ -278,7 +278,7 @@ function renderReviewCenter() {
 
   // Root Review — review by root family
   $h += '<div class="rc-mode-card" id="rc-mode-root" tabindex="0" role="button" aria-label="Start root review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(138,107,191,0.15)">🌱</div>';
+  $h += '<div class="rc-mode-icon" style="background:rgba(138,107,191,0.15)">' + uiIcon('leaf', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Root Review</div>';
   $h += '<div class="rc-mode-sub">By root families</div>';
@@ -288,7 +288,7 @@ function renderReviewCenter() {
 
   // Reading Review — words from reading mode
   $h += '<div class="rc-mode-card" id="rc-mode-reading" tabindex="0" role="button" aria-label="Start reading review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(74,126,194,0.15)">📖</div>';
+  $h += '<div class="rc-mode-icon" style="background:rgba(74,126,194,0.15)">' + uiIcon('book-open', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Reading Review</div>';
   $h += '<div class="rc-mode-sub">Words from reading</div>';
@@ -308,7 +308,7 @@ function renderReviewCenter() {
 
   // Weakest Words Review — focus on leeched/difficult
   $h += '<div class="rc-mode-card" id="rc-mode-weakest" tabindex="0" role="button" aria-label="Start weakest words review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(194,80,80,0.15)">💢</div>';
+  $h += '<div class="rc-mode-icon" style="background:rgba(194,80,80,0.15)">' + uiIcon('alert-triangle', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Weakest Words</div>';
   $h += '<div class="rc-mode-sub">Leeched & difficult</div>';
@@ -320,16 +320,16 @@ function renderReviewCenter() {
 
   // ═══ SECTION 3: REVIEWS DUE ═══
   if ($data.dueCount > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">🔁</span> Reviews Due <span class="rc-count-badge">' + $data.dueCount + '</span></div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('repeat', true) + '</span> Reviews Due <span class="rc-count-badge">' + $data.dueCount + '</span></div>';
 
     // Smart priority header
     var $priorityMsg = '';
     if ($data.overdueCount > 5) {
-      $priorityMsg = '⚠️ <strong>' + $data.overdueCount + ' overdue</strong> — review these first to protect retention';
+      $priorityMsg = '' + uiIcon('alert-triangle') + '<strong>' + $data.overdueCount + ' overdue</strong> — review these first to protect retention';
     } else if ($data.overdueCount > 0) {
-      $priorityMsg = '⚠️ <strong>' + $data.overdueCount + ' overdue</strong> — catch up soon';
+      $priorityMsg = '' + uiIcon('alert-triangle') + '<strong>' + $data.overdueCount + ' overdue</strong> — catch up soon';
     } else if ($data.leechCount > 0) {
-      $priorityMsg = '💢 <strong>' + $data.leechCount + ' leeched</strong> — focus on these difficult words';
+      $priorityMsg = '' + uiIcon('alert-triangle') + '<strong>' + $data.leechCount + ' leeched</strong> — focus on these difficult words';
     } else {
       var $estTime = estimateReviewTime($data.dueCount);
       $priorityMsg = '⏱️ ~' + $estTime.minutes + ' min review session — ' + $data.dueCount + ' word' + ($data.dueCount !== 1 ? 's' : '');
@@ -347,7 +347,7 @@ function renderReviewCenter() {
     // Quick actions row
     $h += '<div class="rc-quick-actions-row">';
     $h += '<button class="rc-quick-btn" id="rc-start-mixed" type="button">🎲 Mixed Review</button>';
-    $h += '<button class="rc-quick-btn" id="rc-start-quick" type="button">⚡ Quick Review</button>';
+    $h += '<button class="rc-quick-btn" id="rc-start-quick" type="button">' + uiIcon('bolt') + 'Quick Review</button>';
     $h += '</div>';
 
     // Show a few due words as preview
@@ -370,14 +370,14 @@ function renderReviewCenter() {
   } else {
     // No reviews due — show intelligent empty state (Part 3)
     var $noProgress = $data.masteredCount === 0 && $data.totalReviews === 0;
-    var $emptyIcon = $noProgress ? '🌱' : '✅';
+    var $emptyIcon = $noProgress ? 'leaf' : 'check-circle';
     var $emptyTitle = $noProgress ? 'Your review schedule starts here' : 'All caught up!';
     var $emptySub = $noProgress
       ? 'Complete your first Foundation lesson and your personalized review schedule will begin. Each lesson adds words to your review queue.'
       : 'No words due for review right now. Your retention is strong! Learn new vocabulary or read the Quran to keep building.';
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">🔁</span> Reviews Due</div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('repeat', true) + '</span> Reviews Due</div>';
     $h += '<div class="rc-empty-state">';
-    $h += '<div class="rc-empty-icon">' + $emptyIcon + '</div>';
+    $h += '<div class="rc-empty-icon">' + uiIcon($emptyIcon, true) + '</div>';
     $h += '<div class="rc-empty-title">' + $emptyTitle + '</div>';
     $h += '<div class="rc-empty-sub">' + $emptySub + '</div>';
     $h += '</div>';
@@ -385,10 +385,10 @@ function renderReviewCenter() {
 
   // ═══ SECTION 4: FORGOTTEN WORDS ═══
   if ($data.forgottenWords && $data.forgottenWords.length > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">💢</span> Forgotten Words <span class="rc-count-badge">' + $data.forgottenWords.length + '</span></div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('alert-triangle', true) + '</span> Forgotten Words <span class="rc-count-badge">' + $data.forgottenWords.length + '</span></div>';
     $h += '<div class="rc-card rc-warning-card" id="rc-forgotten-card">';
     $h += '<div class="rc-card-row">';
-    $h += '<div class="rc-card-icon" style="background:rgba(194,80,80,0.12)">💢</div>';
+    $h += '<div class="rc-card-icon" style="background:rgba(194,80,80,0.12)">' + uiIcon('alert-triangle', true) + '</div>';
     $h += '<div class="rc-card-body">';
     $h += '<div class="rc-card-title">' + $data.forgottenWords.length + ' word' + ($data.forgottenWords.length !== 1 ? 's' : '') + ' frequently forgotten</div>';
     $h += '<div class="rc-card-sub">';
@@ -403,7 +403,7 @@ function renderReviewCenter() {
 
   // ═══ SECTION 5: WEAK ROOTS ═══
   if ($data.weakRoots && $data.weakRoots.length > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">🌱</span> Weak Roots <span class="rc-count-badge">' + $data.weakRoots.length + '</span></div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('leaf', true) + '</span> Weak Roots <span class="rc-count-badge">' + $data.weakRoots.length + '</span></div>';
     $h += '<div class="rc-root-list">';
     for (var $rri = 0; $rri < Math.min(5, $data.weakRoots.length); $rri++) {
       var $rr = $data.weakRoots[$rri];
@@ -424,7 +424,7 @@ function renderReviewCenter() {
 
   // ═══ SECTION 6: RECENTLY LEARNED ═══
   if ($data.recentlyLearned && $data.recentlyLearned.length > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">📚</span> Recently Learned <span class="rc-count-badge">' + $data.recentlyLearned.length + '</span></div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('layers', true) + '</span> Recently Learned <span class="rc-count-badge">' + $data.recentlyLearned.length + '</span></div>';
     $h += '<div class="rc-word-preview-list">';
     for (var $rli = 0; $rli < Math.min(5, $data.recentlyLearned.length); $rli++) {
       var $rlw = $data.recentlyLearned[$rli];
@@ -439,14 +439,14 @@ function renderReviewCenter() {
 
   // ═══ SECTION 7: BOOKMARKED WORDS ═══
   if ($data.bookmarkedWords && $data.bookmarkedWords.length > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">📌</span> Bookmarked Words <span class="rc-count-badge">' + $data.bookmarkedWords.length + '</span></div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('map-pin', true) + '</span> Bookmarked Words <span class="rc-count-badge">' + $data.bookmarkedWords.length + '</span></div>';
     $h += '<div class="rc-word-preview-list">';
     for (var $bi = 0; $bi < Math.min(5, $data.bookmarkedWords.length); $bi++) {
       var $bw = $data.bookmarkedWords[$bi];
       $h += '<div class="rc-word-preview-item rc-clickable" data-word-id="' + $bw.id + '" tabindex="0" role="button" aria-label="' + ($bw.arabic || '') + ' — ' + ($bw.english || '') + '">';
       $h += '<span class="rc-word-preview-arabic">' + ($bw.arabic || '') + '</span>';
       $h += '<span class="rc-word-preview-eng">' + ($bw.english || '') + '</span>';
-      $h += '<span class="rc-word-preview-meta rc-bookmark-badge">📌</span>';
+      $h += '<span class="rc-word-preview-meta rc-bookmark-badge">' + uiIcon('map-pin', true) + '</span>';
       $h += '</div>';
     }
     $h += '</div>';
@@ -471,7 +471,7 @@ function renderReviewCenter() {
   }
 
   // ═══ SECTION 9: SMART PRIORITIZATION ═══
-  $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">⚙️</span> Smart Prioritization</div>';
+  $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('settings', true) + '</span> Smart Prioritization</div>';
   $h += '<div class="rc-card">';
   $h += '<div class="rc-smart-grid">';
 
@@ -523,7 +523,7 @@ function renderReviewCenter() {
   // Fallback: no priorities
   if ($data.overdueCount === 0 && $data.leechCount === 0 && $data.dueCount === 0 && $data.forgottenWords.length === 0) {
     $h += '<div class="rc-empty-state" style="padding:16px 0">';
-    $h += '<div class="rc-empty-title" style="font-size:14px">All clear! 🎉</div>';
+    $h += '<div class="rc-empty-title" style="font-size:14px">All clear!</div>';
     $h += '<div class="rc-empty-sub">No items need attention. Review new vocabulary to keep building.</div>';
     $h += '</div>';
   }
@@ -536,7 +536,7 @@ function renderReviewCenter() {
   // zero-data gates). totalReviews covers reviewsToday and mastered, so it is the
   // single sufficient condition.
   if ($data.totalReviews > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">📊</span> Today\'s Progress</div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('chart', true) + '</span> Today\'s Progress</div>';
     $h += '<div class="rc-card">';
     $h += '<div class="rc-today-grid">';
     $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.reviewsToday + '</div><div class="rc-today-label">Reviews Today</div></div>';
@@ -551,7 +551,7 @@ function renderReviewCenter() {
 
   // Forecast (review workload for next 1w-2w)
   if ($data.forecast && $data.forecast.length > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">📈</span> Review Forecast</div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('trend', true) + '</span> Review Forecast</div>';
     $h += '<div class="rc-card">';
     $h += '<div class="rc-forecast-grid">';
     for (var $fci = 0; $fci < $data.forecast.length; $fci++) {

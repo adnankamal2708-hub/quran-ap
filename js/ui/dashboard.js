@@ -183,6 +183,11 @@ function renderDashboard() {
 
   // SVG helper — uses the comprehensive icon system in components.js
   var $icons = window.__components && window.__components.createSVGIcon;
+  // An icon name, or the emoji some engine data still stores
+  function $iconName(value) {
+    var fromEmoji = window.__components && window.__components.iconNameFromEmoji;
+    return (fromEmoji && fromEmoji(value)) || value || 'lightbulb';
+  }
   function $icon(name, size) {
     if ($icons) return $icons(name, {size: size || 22});
     // Fallback: map icon names to SVG or emoji characters
@@ -254,7 +259,7 @@ function renderDashboard() {
   $h += '<div class="db-greeting">';
   $h += '<div class="db-greeting-icon" aria-hidden="true">' + $icon('book', 28) + '</div>';
   $h += '<div>';
-  var $premiumBadge = (window.__premium && window.__premium.isPremium()) ? ' <span class="db-premium-badge">⭐ Premium</span>' : '';
+  var $premiumBadge = (window.__premium && window.__premium.isPremium()) ? ' <span class="db-premium-badge">' + uiIcon('star') + 'Premium</span>' : '';
   $h += '<h2 class="db-greeting-title">Assalamu Alaikum' + $premiumBadge + '</h2>';
   $h += '<p class="db-greeting-sub">' + $greetingSub + '</p>';
   $h += '</div></div>';
@@ -284,21 +289,21 @@ function renderDashboard() {
   // Encouraging message based on progress level
   var $encouragementMsg = '';
   if ($comprehensionPct >= 80) {
-    $encouragementMsg = 'Exceptional! You understand the vast majority of Quranic vocabulary. ✨';
+    $encouragementMsg = 'Exceptional! You understand the vast majority of Quranic vocabulary.';
   } else if ($comprehensionPct >= 60) {
-    $encouragementMsg = 'Strong progress! Most verses are now accessible to you. 📖';
+    $encouragementMsg = 'Strong progress! Most verses are now accessible to you.';
   } else if ($comprehensionPct >= 40) {
-    $encouragementMsg = 'Building steadily! You can follow the flow of longer passages. 📚';
+    $encouragementMsg = 'Building steadily! You can follow the flow of longer passages.';
   } else if ($comprehensionPct >= 20) {
-    $encouragementMsg = 'Growing familiarity! Short verses are becoming recognizable. 🌱';
+    $encouragementMsg = 'Growing familiarity! Short verses are becoming recognizable.';
   } else if ($comprehensionPct > 0) {
-    $encouragementMsg = 'Every word counts! Keep going — you are building real understanding. 💪';
+    $encouragementMsg = 'Every word counts! Keep going — you are building real understanding.';
   } else {
     $encouragementMsg = 'Start learning Quranic vocabulary to unlock comprehension.';
   }
   $h += '<div class="db-comp-headline-msg">' + $encouragementMsg + '</div>';
   if ($compMilestone && $comprehensionPct > 0) {
-    $h += '<div class="db-comp-headline-milestone">🎯 ' + $compMilestone + '</div>';
+    $h += '<div class="db-comp-headline-milestone">' + uiIcon('target') + $compMilestone + '</div>';
   }
   $h += '</div></div>';
   // ── Comprehension Metrics Row (Coverage + Mastered) ──
@@ -318,7 +323,7 @@ function renderDashboard() {
   // For brand-new users with no progress, show a simple "Complete Lesson 1" goal
   if ($noProgress) {
     $h += '<div class="db-goal-new-user">';
-    $h += '<div style="font-size:13px;color:var(--text);margin-bottom:4px">🎯 Complete your first Foundation lesson</div>';
+    $h += '<div style="font-size:13px;color:var(--text);margin-bottom:4px">' + uiIcon('target') + 'Complete your first Foundation lesson</div>';
     $h += '<div style="font-size:11px;color:var(--text-muted)">Each lesson introduces 10 new Quranic words</div>';
     $h += '</div>';
     $h += '</div>';
@@ -357,7 +362,7 @@ function renderDashboard() {
     $h += '</div>';
   } else if ($dailyGoalProgress > 0) {
     $h += '<div class="db-goal-complete">';
-    $h += '<span>' + $icon('check-circle', 14) + ' Goal complete! 🎉</span>';
+    $h += '<span>' + $icon('check-circle', 14) + ' Goal complete!</span>';
     $h += '</div>';
   } else {
     $h += '<div class="db-goal-remaining">';
@@ -393,7 +398,7 @@ function renderDashboard() {
 
     $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-reading" tabindex="0" role="button" aria-label="Continue reading ' + $lastSurahName + $lastVerseLabel + '">';
     $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon db-icon-gold-dim">📖</div>';
+    $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('book-open', 22) + '</div>';
     $h += '<div class="db-card-body">';
     $h += '<div class="db-card-title">' + $lastSurahName + '</div>';
     $h += '<div class="db-card-sub">' + $lastSurahEnglish + $lastVerseLabel + ' · ' + $lastTimeAgo + '</div>';
@@ -404,7 +409,7 @@ function renderDashboard() {
     // No reading history — recommend a starting surah
     $h += '<div class="db-card db-action-card" id="db-continue-reading-start" tabindex="0" role="button" aria-label="Start reading the Quran">';
     $h += '<div class="db-card-row">';
-    $h += '<div class="db-card-icon db-icon-gold-faint">📖</div>';
+    $h += '<div class="db-card-icon db-icon-gold-faint">' + $icon('book-open', 22) + '</div>';
     $h += '<div class="db-card-body">';
     $h += '<div class="db-card-title">Start Reading</div>';
     $h += '<div class="db-card-sub">Begin your Quran reading journey with Surah Al-Fatiha</div>';
@@ -446,7 +451,7 @@ function renderDashboard() {
       var $_gradData = window.__phase2.getGraduationData();
       $h += '<div class="db-card" id="db-graduation" style="background:linear-gradient(135deg,var(--surface2),rgba(201,168,76,0.06));border:1px solid var(--gold);">';
       $h += '<div class="db-card-row" style="padding:4px 0">';
-      $h += '<span style="font-size:32px">' + $_gradData.icon + '</span>';
+      $h += '<span style="font-size:32px">' + $icon($iconName($_gradData.icon), 32) + '</span>';
       $h += '<div class="db-card-body">';
       $h += '<div class="db-card-title" style="font-size:16px;color:var(--gold)">' + $_gradData.title + '</div>';
       $h += '<div class="db-card-sub" style="font-size:11px;line-height:1.5;margin-top:4px">' + $_gradData.message + '</div>';
@@ -460,12 +465,12 @@ function renderDashboard() {
       // Free Foundation graduate — show locked teaser card
       $h += '<div class="db-card db-action-card" id="db-phase2-locked" tabindex="0" role="button" aria-label="Guided Reading — Premium feature">';
       $h += '<div class="db-card-row">';
-      $h += '<div class="db-card-icon" style="opacity:0.5">🔒</div>';
+      $h += '<div class="db-card-icon" style="opacity:0.5">' + $icon('lock', 22) + '</div>';
       $h += '<div class="db-card-body">';
       $h += '<div class="db-card-title">Guided Reading</div>';
       $h += '<div class="db-card-sub">Foundation complete! Unlock structured surah-by-surah reading with Premium.</div>';
       $h += '</div>';
-      $h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'guided-reading\');event.stopPropagation()">⭐ Upgrade</button>';
+      $h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'guided-reading\');event.stopPropagation()">' + uiIcon('star') + 'Upgrade</button>';
       $h += '</div></div>';
     } else {
     var $p2Phase = window.__phase2.getLearningPhase();
@@ -477,7 +482,7 @@ function renderDashboard() {
         var $preview = window.__phase2.getSurahPreview ? window.__phase2.getSurahPreview($nextSurah.surahId) : null;
         $h += '<div class="db-card db-action-card db-card-highlight" id="db-guided-reading" tabindex="0" role="button" aria-label="Guided Reading: Surah ' + ($preview ? $preview.surahName : $nextSurah.surahId) + '">';
         $h += '<div class="db-card-row">';
-        $h += '<div class="db-card-icon db-icon-gold-dim">📖</div>';
+        $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('book-open', 22) + '</div>';
         $h += '<div class="db-card-body">';
         $h += '<div class="db-card-title">Guided Reading</div>';
         $h += '<div class="db-card-sub">';
@@ -499,7 +504,7 @@ function renderDashboard() {
       var $expansionWords = window.__phase2.getExpansionVocabulary ? window.__phase2.getExpansionVocabulary(3) : [];
       $h += '<div class="db-card" id="db-independent-reading">';
       $h += '<div class="db-card-row">';
-      $h += '<div class="db-card-icon db-icon-green-faint">📚</div>';
+      $h += '<div class="db-card-icon db-icon-green-faint">' + $icon('layers', 22) + '</div>';
       $h += '<div class="db-card-body">';
       $h += '<div class="db-card-title">' + $masteredCount + ' Words Mastered — Independent Reading</div>';
       $h += '<div class="db-card-sub">';
@@ -560,7 +565,7 @@ function renderDashboard() {
   if ($rcDue > 0 || ($srsStats.totalReviews || 0) >= $rcMinReviews) {
   $h += '<div class="db-card db-action-card db-card-highlight" id="db-review-center-prompt" tabindex="0" role="button" aria-label="Review Center: ' + $rcDue + ' reviews due">';
   $h += '<div class="db-card-row">';
-  $h += '<div class="db-card-icon db-icon-gold-dim">📋</div>';
+  $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('list', 22) + '</div>';
   $h += '<div class="db-card-body">';
   $h += '<div class="db-card-title">Review Center</div>';
   $h += '<div class="db-card-sub">';
@@ -653,7 +658,7 @@ function renderDashboard() {
     $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('lightbulb', 14) + '</span> Recommendation</div>';
     $h += '<div class="db-card db-card-smart-rec db-action-card" id="' + $recSlot.id + '" tabindex="0" role="button" aria-label="' + $recSlot.title + '">';
     $h += '<div class="db-card-row">';
-    $h += '<div class="db-rec-icon">' + $icon($recSlot.icon, 18) + '</div>';
+    $h += '<div class="db-rec-icon">' + $icon($iconName($recSlot.icon), 18) + '</div>';
     $h += '<div class="db-card-body">';
     $h += '<div class="db-card-title db-card-title-sm">' + $recSlot.title + '</div>';
     $h += '<div class="db-card-sub db-card-sub-sm">' + $recSlot.message + '</div>';
@@ -704,12 +709,12 @@ function renderDashboard() {
   // ═══ 8. DAILY MOTIVATION ═══
   // Generate a dynamic, progress-based motivational message
   var $motivationMsg = '';
-  var $motivationIcon = '💪';
+  var $motivationIcon = 'fire';
   
   // Priority 1: Reviews done today
   if ($reviewsToday > 0) {
     $motivationMsg = 'You reinforced <strong>' + $reviewsToday + '</strong> word' + ($reviewsToday !== 1 ? 's' : '') + ' today. Every review builds lasting retention!';
-    $motivationIcon = '🔥';
+    $motivationIcon = 'fire';
   }
   // Priority 1b: Momentum — today's activity from current session
   else if ($hasMomentum && $reviewsToday === 0) {
@@ -718,63 +723,63 @@ function renderDashboard() {
     if ($momentum.wordsLearned > 0) $momentumParts.push($momentum.wordsLearned + ' word' + ($momentum.wordsLearned > 1 ? 's' : '') + ' learned');
     if ($momentum.ayahsRead > 0) $momentumParts.push($momentum.ayahsRead + ' ayahs read');
     $motivationMsg = 'Today: <strong>' + $momentumParts.join(', ') + '</strong>. Great progress!';
-    $motivationIcon = '📊';
+    $motivationIcon = 'chart';
   }
   // Priority 2: Comprehension growth (from analytics deltas)
   else if ($compDeltas && $compDeltas.weekChange && $compDeltas.weekChange > 0) {
     $motivationMsg = 'Your Quran comprehension increased by <strong>+' + $compDeltas.weekChange.toFixed(1) + '%</strong> this week. Consistent progress!';
-    $motivationIcon = '📈';
+    $motivationIcon = 'trend';
   }
   // Priority 3: Streak encouragement
   else if ($streak > 0) {
     var $streakMsg = '';
     if ($streak >= 7) {
-      $streakMsg = 'Impressive consistency! 🔥';
+      $streakMsg = 'Impressive consistency!';
     } else if ($streak <= 3) {
       $streakMsg = 'You\'re building a habit! ' + ($streak === 1 ? 'Day 1 done — the most important step.' : $streak + ' days strong!') + '';
     } else {
       $streakMsg = 'Keep it going — ' + (7 - ($streak % 7)) + ' more days to your next milestone.';
     }
     $motivationMsg = 'You\'re on a <strong>' + $streak + '-day streak</strong>! ' + $streakMsg;
-    $motivationIcon = '🔥';
+    $motivationIcon = 'fire';
   }
   // Priority 5b: Reviews due with urgency (returning user with completed lessons)
   else if ($dueCount > 0 && $fCompleted > 0 && $reviewsToday === 0) {
     $motivationMsg = '<strong>' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + '</strong> due. Returning now protects yesterday\'s learning and strengthens retention.';
-    $motivationIcon = '🛡️';
+    $motivationIcon = 'shield';
   }
   // Priority 5c: Low reviews due — almost done (non-returning, just few left)
   else if ($dueCount > 0 && $dueCount <= 5) {
     $motivationMsg = 'Only <strong>' + $dueCount + '</strong> review' + ($dueCount !== 1 ? 's' : '') + ' remaining. Quick session to stay on top!';
-    $motivationIcon = '🎯';
+    $motivationIcon = 'target';
   }
   // Priority 5d: Reviews due, general case
   else if ($dueCount > 0) {
     $motivationMsg = '<strong>' + $dueCount + ' word' + ($dueCount !== 1 ? 's' : '') + '</strong> due for review. Each review strengthens your Quran comprehension.';
-    $motivationIcon = '📚';
+    $motivationIcon = 'layers';
   }
   // Priority 6: Foundation milestone
   else if ($fTotal > 0 && $fCompleted > 0 && !$foundationComplete) {
-    $motivationMsg = 'You\'ve completed <strong>' + $fCompleted + ' of ' + $fTotal + '</strong> foundation lessons. ' + ($fPct >= 50 ? 'More than halfway there! 🎉' : 'Keep going — each lesson unlocks more of the Quran.') + '';
-    $motivationIcon = '🌟';
+    $motivationMsg = 'You\'ve completed <strong>' + $fCompleted + ' of ' + $fTotal + '</strong> foundation lessons. ' + ($fPct >= 50 ? 'More than halfway there!' : 'Keep going — each lesson unlocks more of the Quran.') + '';
+    $motivationIcon = 'star';
   }
   // Priority 7: Comprehension milestone
   else if ($comprehensionPct >= 50) {
-    $motivationMsg = 'You understand <strong>' + $comprehensionPct + '%</strong> of Quranic vocabulary. Remarkable achievement! ✨';
-    $motivationIcon = '🏆';
+    $motivationMsg = 'You understand <strong>' + $comprehensionPct + '%</strong> of Quranic vocabulary. Remarkable achievement!';
+    $motivationIcon = 'award';
   }
   // Priority 8: Words mastered
   else if ($masteredCount > 0) {
     $motivationMsg = '<strong>' + $masteredCount + ' words mastered</strong> — ' + $coveragePct + '% of Quran occurrences. Building real understanding!';
-    $motivationIcon = '💪';
+    $motivationIcon = 'fire';
   }
   // Priority 9: Foundation course milestone
   else if ($fTotal > 0) {
     if ($noProgress) {
       // Brand-new user — gentle welcome copy instead of a CTA that duplicates
       // the action cards above (Continue Learning is the single primary CTA).
-      $motivationMsg = 'Your journey to understand the Quran begins here. Take it one word at a time. ✨';
-      $motivationIcon = '💫';
+      $motivationMsg = 'Your journey to understand the Quran begins here. Take it one word at a time.';
+      $motivationIcon = 'star';
     } else {
     var $foundationTotalCoverage = typeof getFoundationTotalCoveragePercent === 'function'
       ? getFoundationTotalCoveragePercent()
@@ -784,18 +789,18 @@ function renderDashboard() {
     } else {
       $motivationMsg = 'Start the Foundation Course to master the 100 most frequent Quranic words and unlock most of the Quran!';
     }
-    $motivationIcon = '🌱';
+    $motivationIcon = 'leaf';
     }
   }
   // Fallback: Generic encouragement
   else {
-    $motivationMsg = 'Your journey to understand the Quran begins here. Start with one word today. ✨';
-    $motivationIcon = '💫';
+    $motivationMsg = 'Your journey to understand the Quran begins here. Start with one word today.';
+    $motivationIcon = 'star';
   }
   
   $h += '<div class="db-card db-motivation-card" id="db-motivation-card">';
   $h += '<div class="db-motivation-row">';
-  $h += '<span class="db-motivation-icon" aria-hidden="true">' + $motivationIcon + '</span>';
+  $h += '<span class="db-motivation-icon" aria-hidden="true">' + $icon($motivationIcon, 20) + '</span>';
   $h += '<p class="db-motivation-text">' + $motivationMsg + '</p>';
   $h += '</div></div>';
 
@@ -983,6 +988,6 @@ function renderDashboard() {
       console.error('[dashboard] renderDashboard error:', e);
     }
     var $d2 = document.getElementById('dashboard-grid');
-    if ($d2) $d2.innerHTML = '<div class="db-error">⚠️ We encountered an issue loading the dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
+    if ($d2) $d2.innerHTML = '<div class="db-error">' + uiIcon('alert-triangle') + 'We encountered an issue loading the dashboard. <button class="btn btn-sm mt-10" onclick="window.location.reload()">Reload</button></div>';
   }
 }

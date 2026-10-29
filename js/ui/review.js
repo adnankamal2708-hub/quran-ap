@@ -183,7 +183,7 @@ function showPreLessonReviewPrompt(checkResult) {
   banner.style.cssText = 'margin:8px 12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--gold);font-size:12px;line-height:1.5';
   banner.innerHTML = 
     '<div style="display:flex;align-items:flex-start;gap:8px">' +
-    '<span style="font-size:16px">🔁</span>' +
+    '<span style="font-size:16px">' + uiIcon('repeat', true) + '</span>' +
     '<div style="flex:1">' +
     '<div style="font-weight:500;color:var(--gold);margin-bottom:4px">' + checkResult.message + '</div>' +
     '<div style="display:flex;gap:8px">' +
@@ -452,7 +452,7 @@ function checkForLessonCompletionCelebration(lessonIndex) {
 function showSurahConnectionToast(surahImprovements) {
   var improvements = surahImprovements || [];
   if (improvements.length === 0) return;
-  var msg = '📖 Understanding improved in ' + improvements.slice(0, 3).join(', ') +
+  var msg = 'Understanding improved in ' + improvements.slice(0, 3).join(', ') +
     (improvements.length > 3 ? ', and ' + (improvements.length - 3) + ' more surahs' : '');
   if (window.__ux && window.__ux.showToast) {
     window.__ux.showToast(msg, 'success');

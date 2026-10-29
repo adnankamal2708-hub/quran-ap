@@ -302,6 +302,7 @@ global.escapeHtml = function(str) {
 var fs = require('fs');
 var path = require('path');
 var uxCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ux-polish.js'), 'utf8');
+require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(uxCode);
 
 var ux = global.window.__ux;
@@ -655,7 +656,9 @@ suite('renderEmptyState', function() {
   test('returns HTML with icon, title, and description', function() {
     var html = ux.renderEmptyState('\uD83D\uDCA1', 'No Data', 'Start learning');
     assert.ok(html.indexOf('empty-state') >= 0);
-    assert.ok(html.indexOf('\uD83D\uDCA1') >= 0);
+    // The emoji is drawn as its line icon, not shown raw
+    assert.ok(html.indexOf('<svg') >= 0 && html.indexOf('ui-icon') >= 0, 'icon rendered');
+    assert.ok(html.indexOf('\uD83D\uDCA1') < 0, 'no raw emoji');
     assert.ok(html.indexOf('No Data') >= 0);
     assert.ok(html.indexOf('Start learning') >= 0);
   });

@@ -53,6 +53,7 @@ global.document = makeDoc();
 global.window = global;
 
 // ── Load REAL UI sources ───────────────────────────────────────
+require('./load-components')(); // uiIcon, iconText, dataIcon
 function load(rel) {
   var code = fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
   // let/const at eval top level do not leak to global scope; convert to var
@@ -158,7 +159,7 @@ suite('Word card occurrence navigation', function () {
     assert.strictEqual(document.getElementById('occ-label').textContent, '1/2');
     assert.strictEqual(document.getElementById('occ-prev').disabled, true);
     assert.strictEqual(document.getElementById('occ-next').disabled, false);
-    assert.strictEqual(document.getElementById('surah-badge').textContent.indexOf('(1/2)') >= 0, true);
+    assert.strictEqual(document.getElementById('surah-badge').innerHTML.indexOf('(1/2)') >= 0, true);
   });
 
   test('Next context advances the label and updates the ayah display', function () {

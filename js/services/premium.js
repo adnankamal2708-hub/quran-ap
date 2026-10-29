@@ -547,7 +547,8 @@
     if (btn) {
       if (isLoading) {
         btn.disabled = true;
-        btn._premiumOrigText = btn.textContent || btn.innerHTML;
+        // Keep the markup, not just the text, so the button's icon comes back
+        btn._premiumOrigText = btn.innerHTML;
         btn.innerHTML = 'Please wait…';
       } else {
         btn.disabled = false;

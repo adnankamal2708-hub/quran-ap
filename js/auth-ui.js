@@ -660,7 +660,7 @@ function setButtonLoading(btn, loading) {
   btn.disabled = loading;
   if (loading) {
     btn._originalText = btn.textContent;
-    btn.textContent = '⏳ Processing...';
+    btn.textContent = 'Processing...';
   } else {
     btn.textContent = btn._originalText || btn.textContent;
   }

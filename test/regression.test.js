@@ -949,6 +949,30 @@ suite('View Switch Scroll Protection', function() {
     assert.ok(/#onboarding-next \{[^}]*margin-left:\s*auto/.test(cssContent));
   });
 
+  test('icon helpers draw line icons and escape text', function() {
+    require('./load-components')();
+    var icon = uiIcon('lock');
+    assert.ok(/^<svg aria-hidden="true" focusable="false" [^>]*class="ui-icon"/.test(icon), 'decorative svg: ' + icon.slice(0, 80));
+    assert.ok(uiIcon('lock', true).indexOf('class="ui-icon ui-icon-only"') >= 0, 'icon-only variant');
+    var labelled = iconText('star', 'Tom & <Jerry>');
+    assert.ok(/<\/svg>Tom &amp; &lt;Jerry&gt;$/.test(labelled), 'text is escaped: ' + labelled.slice(-40));
+    // Stored emoji (achievements, milestones) resolve to their line icon
+    assert.strictEqual(dataIcon('🏆'), uiIcon('award'));
+    assert.strictEqual(dataIcon('⚠'), uiIcon('alert-triangle'), 'emoji without its variation selector');
+    assert.strictEqual(dataIcon('leaf', true), uiIcon('leaf', true), 'icon names pass through');
+    assert.strictEqual(dataIcon(undefined), uiIcon('star'), 'missing icon falls back to a star');
+  });
+
+  test('page markup uses line icons, not emoji', function() {
+    // Emoji icons render differently on every phone and clash with the
+    // palette; markup outside scripts uses <svg class="ui-icon"> instead.
+    var html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8')
+      .replace(/<script[\s\S]*?<\/script>/g, '')
+      .replace(/<option[\s\S]*?<\/option>/g, ''); // options can't hold an svg (difficulty ★)
+    var found = html.match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2B50}\u{2705}\u{2728}]/gu) || [];
+    assert.deepStrictEqual(found, [], 'emoji left in markup: ' + found.join(' '));
+  });
+
   test('Quran reader word colours come from the app palette', function() {
     // Unstudied words were painted bright orange (#ff7043), so a new learner's
     // whole first surah looked like an error state.

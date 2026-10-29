@@ -136,6 +136,7 @@ global.currentView = 'learn';
 
 // Load the explorer module
 var explorerCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
+require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(explorerCode);
 
 // ═══════════════════════════════════════════════════════════════
@@ -422,7 +423,7 @@ ts('Explorer — Bookmark', function() {
     wireExplorerEvents(TEST_WORDS[0]);
     var btn = document.getElementById('explorer-btn-bookmark');
     btn.click();
-    assert.ok(btn.textContent.indexOf('Bookmarked') >= 0);
+    assert.ok(btn.innerHTML.indexOf('Bookmarked') >= 0);
     var favs = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
     assert.ok(favs[TEST_WORDS[0].id]);
   });
@@ -436,7 +437,7 @@ ts('Explorer — Bookmark', function() {
     wireExplorerEvents(TEST_WORDS[0]);
     var btn = document.getElementById('explorer-btn-bookmark');
     btn.click();
-    assert.ok(btn.textContent.indexOf('Bookmark') >= 0 && btn.textContent.indexOf('Bookmarked') < 0);
+    assert.ok(btn.innerHTML.indexOf('Bookmark') >= 0 && btn.innerHTML.indexOf('Bookmarked') < 0);
     var updatedFavs = JSON.parse(global.localStorage.getItem('quran_favorites') || '{}');
     assert.ok(!updatedFavs[TEST_WORDS[0].id]);
   });

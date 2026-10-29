@@ -398,7 +398,7 @@
             el.setAttribute('data-safeguard-fallback', 'true');
             el.innerHTML = fallbackHTML ||
               '<div style="text-align:center;padding:20px;color:var(--text-muted, #8a8070);font-size:12px">' +
-              '⚠️ <strong>' + name + '</strong> encountered an error. ' +
+              (typeof uiIcon === 'function' ? uiIcon('alert-triangle') : '') + '<strong>' + name + '</strong> encountered an error. ' +
               'Other sections should still work.' +
               '</div>';
           }
@@ -469,7 +469,7 @@
 
     grid.innerHTML =
       '<div style="text-align:center;padding:24px 16px">' +
-        '<div style="font-size:40px;margin-bottom:12px">📖</div>' +
+        '<div style="font-size:40px;margin-bottom:12px">' + (typeof uiIcon === 'function' ? uiIcon('book-open', true) : '') + '</div>' +
         '<h2 style="font-size:16px;color:var(--gold-light, #e8c97a);margin:0 0 6px">Bayan</h2>' +
         '<p style="font-size:12px;color:var(--text-muted, #8a8070);line-height:1.5;margin:0 0 16px">' +
           'Loading your learning experience\u2026' +

@@ -29,12 +29,12 @@ function renderWordCard(w, currentIndex, total, isReview) {
       var si = SURAH_INFO[occ.surahId];
       var verseRef = occ.verseKey ? occ.verseKey.split(':')[1] : '';
       var occLabel = occCount > 1 ? ' (' + (_currentOccurrenceIdx + 1) + '/' + occCount + ')' : '';
-      surahBadge.textContent = '\uD83D\uDCD6 ' + (si ? si.name : 'Surah ' + occ.surahId) + (verseRef ? ' \u00B7 Verse ' + verseRef : '') + occLabel;
+      surahBadge.innerHTML = iconText('book-open', (si ? si.name : 'Surah ' + occ.surahId) + (verseRef ? ' \u00B7 Verse ' + verseRef : '') + occLabel);
       surahBadge.style.display = 'block';
     } else if (w.surahIds && w.surahIds.length > 0 && SURAH_INFO) {
       // Fallback: show first surah this word appears in
       var firstSurah = SURAH_INFO[w.surahIds[0]];
-      surahBadge.textContent = '\uD83D\uDCD6 ' + (firstSurah ? firstSurah.name : 'Surah ' + w.surahIds[0]);
+      surahBadge.innerHTML = iconText('book-open', firstSurah ? firstSurah.name : 'Surah ' + w.surahIds[0]);
       surahBadge.style.display = 'block';
     } else {
       surahBadge.style.display = 'none';
@@ -64,7 +64,7 @@ function renderWordCard(w, currentIndex, total, isReview) {
 
   var nextBtn = DOM.get('btn-next');
   if (nextBtn) {
-    nextBtn.textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Done \u2713' : 'Quiz \u270F\uFE0F';
+    nextBtn.textContent = currentIndex < total - 1 ? 'Next \u2192' : isReview ? 'Done ✓' : 'Quiz';
   }
 
   // Word learning context — show why the user is seeing this word (Part 4)
@@ -247,31 +247,31 @@ function renderSRSStatusPill(wordId) {
   var srs = getSRSStatus(wordId);
   var pill = DOM.get('sr-pill');
   if (!pill) return;
-  var stageLabels = ['', '\uD83D\uDD0D', '\uD83C\uDF31', '\uD83D\uDCA1'];
+  var stageIcons = ['', 'search', 'leaf', 'lightbulb'];
   var stageNames = ['', 'Learning', 'Young', 'Mature'];
 
   if (srs.status === 'new') {
     pill.className = 'sr-pill sr-new';
-    pill.textContent = '\uD83C\uDD95 New word';
+    pill.innerHTML = iconText('star', 'New word');
     return;
   }
 
   var label = '';
   if (srs.status === 'review') {
     var overdueText = srs.daysUntilDue < 0 ? ' (overdue!)' : '';
-    var leechBadge = srs.isLeech ? ' \uD83D\uDCA2' : '';
-    label = '\uD83D\uDD01 Due for review' + overdueText + leechBadge;
+    // A leech (a word that keeps slipping) gets a warning icon instead
+    label = iconText(srs.isLeech ? 'alert-triangle' : 'repeat', 'Due for review' + overdueText);
     pill.className = 'sr-pill sr-review';
   } else {
     var daysText = srs.daysUntilDue > 0 ? 'Due in ' + srs.daysUntilDue + 'd' : 'Due today';
-    var stageIcon = stageLabels[srs.stage] || '';
     var stageName = stageNames[srs.stage] || '';
     var retentionText = srs.retention ? Math.round(srs.retention * 100) + '%' : '';
-    label = stageIcon + ' ' + stageName + ' \u00B7 ' + retentionText + ' \u00B7 ' + daysText;
+    var stageText = stageName + ' \u00B7 ' + retentionText + ' \u00B7 ' + daysText;
+    label = stageIcons[srs.stage] ? iconText(stageIcons[srs.stage], stageText) : iconText('circle', stageText);
     pill.className = 'sr-pill sr-mastered';
   }
 
-  pill.textContent = label;
+  pill.innerHTML = label;
 
   // Special styling for leeched words — set class name instead of inline styles
   if (srs.isLeech) {
@@ -656,13 +656,13 @@ function _renderRelationshipsLockedPanel() {
   container.style.display = 'block';
   container.innerHTML =
     '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
-      '<div style="font-size:24px;margin-bottom:6px">🔗</div>' +
+      '<div style="font-size:24px;margin-bottom:6px">' + uiIcon('link', true) + '</div>' +
       '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Word Relationships</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
         'Explore how words connect — similar words, derived forms, semantic groups, ' +
         'morphological relatives, and more with Premium.' +
       '</div>' +
-      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
     '</div>';
 }
 
@@ -712,7 +712,7 @@ function _renderWordRelationshipsEmptyState() {
   container.style.display = 'block';
   container.innerHTML =
     '<div class="word-network-section" style="text-align:center;padding:14px 16px">' +
-      '<div class="word-network-title" style="color:var(--gold-muted);margin-bottom:4px">🔗 Word Relationships</div>' +
+      '<div class="word-network-title" style="color:var(--gold-muted);margin-bottom:4px">' + uiIcon('link') + 'Word Relationships</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.6">No word relationships found for this word.</div>' +
     '</div>';
 }
@@ -861,7 +861,7 @@ async function _tafsirCheckDailyLimit() {
     if (tafsirBtn) {
       tafsirBtn.disabled = true;
       tafsirBtn.title = 'Daily tafsir limit reached. Resets tomorrow.';
-      tafsirBtn.textContent = '⚠️ Daily limit reached';
+      tafsirBtn.textContent = 'Daily limit reached';
     }
     var msg = 'Daily tafsir limit reached. Resets tomorrow, or upgrade for unlimited access.';
     if (window.__ux && typeof window.__ux.showToast === 'function') {
@@ -915,10 +915,10 @@ function updateBookmarkButton(wordId) {
   var btn = DOM.get('qa-bookmark');
   if (!btn) return;
   if (isFavorite(wordId)) {
-    btn.textContent = '\u2B50 Bookmarked';
+    btn.innerHTML = iconText('star', 'Bookmarked');
     btn.classList.add('active-qa');
   } else {
-    btn.textContent = '\u2606 Bookmark';
+    btn.innerHTML = iconText('star', 'Bookmark');
     btn.classList.remove('active-qa');
   }
 }

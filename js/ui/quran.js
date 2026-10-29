@@ -265,7 +265,7 @@ function renderSurahBrowser() {
     var quranIdxInfo = _getSurahInfo(lastPos.surahId);
     var surahName = quranIdxInfo ? quranIdxInfo.name : 'Surah ' + lastPos.surahId;
     html += '<div class="quran-continue-card" id="quran-continue-btn" tabindex="0" role="button" aria-label="Continue reading ' + surahName + '">';
-    html += '<div class="quran-continue-icon">📖</div>';
+    html += '<div class="quran-continue-icon">' + uiIcon('book-open', true) + '</div>';
     html += '<div class="quran-continue-info">';
     html += '<div class="quran-continue-title">Continue Reading</div>';
     html += '<div class="quran-continue-sub">' + surahName + '</div>';
@@ -452,7 +452,7 @@ function renderAyahs() {
 
   if (_quranVerseKeys.length === 0) {
     container.innerHTML = '<div class="quran-empty">' +
-      '<div style="font-size: 32px; margin-bottom: 12px">📖</div>' +
+      '<div style="font-size: 32px; margin-bottom: 12px">' + uiIcon('book-open', true) + '</div>' +
       '<div>No verses available for this surah.</div>' +
       '</div>';
     return;
@@ -602,7 +602,7 @@ function renderQuran() {
             }
             $quranPreviewHtml = '<div class="quran-encourage-card" id="quran-guided-preview" style="margin-bottom:14px;padding:12px 16px;background:var(--surface2);border:1px solid var(--gold-dim);border-radius:10px;font-size:12px;line-height:1.6">' +
               '<div style="display:flex;align-items:flex-start;gap:10px">' +
-              '<span style="font-size:22px">📖</span>' +
+              '<span style="font-size:22px">' + uiIcon('book-open', true) + '</span>' +
               '<div style="flex:1">' +
               '<div style="font-weight:600;color:var(--gold);margin-bottom:4px;font-size:13px">Next Guided Reading: ' + $gPreview.surahName + '</div>' +
               '<div style="color:var(--text-muted);font-size:11px">' +
@@ -611,7 +611,7 @@ function renderQuran() {
               $recurringHtml +
               '</div>' +
               '<div style="margin-top:6px;display:flex;gap:8px">' +
-              '<span style="font-size:11px;color:var(--green)">📈 Estimated comprehension: ' + $gPreview.estimatedComprehension + '%</span>' +
+              '<span style="font-size:11px;color:var(--green)">' + uiIcon('trend') + 'Estimated comprehension: ' + $gPreview.estimatedComprehension + '%</span>' +
               '<span style="font-size:11px;color:var(--text-muted)">⏱️ ~' + $gPreview.estMinutes + ' min</span>' +
               '</div>' +
               '<button class="btn btn-sm" id="quran-guided-start" type="button" style="margin-top:8px;background:var(--gold);color:var(--bg);border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:11px">Start Reading →</button>' +
@@ -631,7 +631,7 @@ function renderQuran() {
       ? window.__learningJourney.isCardDismissed('quran-encourage', 24) : false;
     if ($masteredCount2 > 0 && !$cardDismissed) {
       $encouragementCard = '<div class="quran-encourage-card" id="quran-encourage-card" style="margin-bottom:14px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--text-muted);line-height:1.5;display:flex;align-items:center;gap:8px">' +
-        '<span style="font-size:18px">📚</span>' +
+        '<span style="font-size:18px">' + uiIcon('layers', true) + '</span>' +
         '<span style="flex:1">You have mastered <strong style="color:var(--gold)">' + $masteredCount2 + ' words</strong> — look for highlighted vocabulary while reading.' +
         ($compPctQuran > 0 ? ' Your estimated comprehension is <strong style="color:var(--gold)">' + $compPctQuran + '%</strong>.' : '') +
         '</span>' +
@@ -640,7 +640,7 @@ function renderQuran() {
     }
     versesContainer.innerHTML = $quranPreviewHtml + $encouragementCard +
       '<div class="quran-empty">' +
-      '<div style="font-size: 42px; margin-bottom: 16px">📖</div>' +
+      '<div style="font-size: 42px; margin-bottom: 16px">' + uiIcon('book-open', true) + '</div>' +
       '<div style="font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px">Select a Surah</div>' +
       '<div style="font-size: 12px; color: var(--text-muted); line-height: 1.6; max-width: 300px; margin: 0 auto">' +
       'Choose a surah from the list to begin reading. Words you have studied are highlighted.</div>' +
@@ -710,7 +710,7 @@ function showUncoveredSurahMessage(surahId) {
 
   if (maxSurah === 0) {
     versesContainer.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;gap:12px">' +
-      '<div style="font-size:40px">\uD83D\uDCDA</div>' +
+      '<div style="font-size:40px">' + uiIcon('layers', true) + '</div>' +
       '<div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.4">Vocabulary data is loading</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;max-width:320px">' +
       'The vocabulary database is still loading. Please try again in a moment.' +
@@ -726,7 +726,7 @@ function showUncoveredSurahMessage(surahId) {
   }
 
   versesContainer.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;gap:12px">' +
-    '<div style="font-size:40px">\uD83D\uDCDA</div>' +
+    '<div style="font-size:40px">' + uiIcon('layers', true) + '</div>' +
     '<div style="font-size:15px;font-weight:600;color:var(--text);line-height:1.4">Vocabulary for this surah isn\'t available yet</div>' +
     '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;max-width:320px">' +
     'Bayan is currently covering surahs 1\u2013' + maxSurah + ', with more added regularly. ' +
@@ -791,7 +791,7 @@ function goBackToSurahList() {
           '</div>';
       }
       $compCard.innerHTML = '<div style="display:flex;align-items:flex-start;gap:10px">' +
-        '<span style="font-size:24px">✨</span>' +
+        '<span style="font-size:24px">' + uiIcon('star', true) + '</span>' +
         '<div style="flex:1">' +
         '<div style="font-weight:600;color:var(--gold);margin-bottom:6px;font-size:14px">' + $completionData.surahName + ' Complete</div>' +
         '<div style="color:var(--text-muted);font-size:11px">' +

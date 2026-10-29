@@ -52,7 +52,7 @@ function initQuiz() {
     quizAnswered = false;
     quizFinished = true;
     var wordEl = DOM.get('quiz-word');
-    if (wordEl) wordEl.textContent = '📚';
+    if (wordEl) wordEl.innerHTML = uiIcon('layers', true);
     var optionsEl = DOM.get('quiz-options');
     if (optionsEl) optionsEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No words available for quiz.</div>';
     DOM.get('quiz-score-display').textContent = '';
@@ -158,7 +158,7 @@ function answerQuiz(btn, chosen, correct, wordId) {
  */
 function renderQuizCompletion(score, total) {
   var pct = total > 0 ? Math.round((score / total) * 100) : 0;
-  DOM.get('quiz-word').textContent = '\uD83C\uDF89';
+  DOM.get('quiz-word').innerHTML = uiIcon('celebration', true);
   DOM.get('quiz-options').innerHTML = '';
   var feedback = DOM.get('quiz-feedback');
   var mode = (typeof getOrganizationMode === 'function' ? getOrganizationMode() : 'lesson');
@@ -203,13 +203,13 @@ function renderQuizCompletion(score, total) {
   if (milestoneMsg && milestoneMsg.message) {
     milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
       '<div style="display:flex;align-items:flex-start;gap:8px">' +
-      '<span style="font-size:20px">' + (milestoneMsg.icon || '\uD83C\uDF31') + '</span>' +
+      '<span style="font-size:20px">' + dataIcon(milestoneMsg.icon || 'leaf', true) + '</span>' +
       '<span style="color:var(--text);flex:1">' + milestoneMsg.message + '</span>' +
       '</div></div>';
   } else if (celebrationDetails) {
     milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
       '<div style="display:flex;align-items:flex-start;gap:8px">' +
-      '<span style="font-size:20px">📊</span>' +
+      '<span style="font-size:20px">' + uiIcon('chart', true) + '</span>' +
       '<span style="color:var(--text);flex:1">' + celebrationDetails + '</span>' +
       '</div></div>';
   }

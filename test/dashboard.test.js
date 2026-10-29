@@ -335,6 +335,7 @@ var path = require('path');
   // Extract + eval the cache function preamble
   var preCode = uiCode.substring(codeStart, fnIdx);
   if (preCode.indexOf('var _forecastCache') >= 0) {
+    require('./load-components')(); // uiIcon, iconText, dataIcon
     global.eval(preCode);
   }
 

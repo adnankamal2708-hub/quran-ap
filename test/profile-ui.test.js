@@ -82,6 +82,7 @@ global.window.__sessionAchievementsOpen = false;
 
 // Load the profile UI module
 var profileCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'profile-ui.js'), 'utf8');
+require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(profileCode);
 
 // ═══════════════════════════════════════════════════════════════
@@ -892,8 +893,8 @@ ts('Profile — Subsection Tab Interactivity (Regression)', function() {
     mockPremium(false);
     wireAccountEvents();
     _refreshDataExportButtons();
-    assert.ok(btns.exp.innerHTML.indexOf('🔒') >= 0, 'export shows locked label');
-    assert.ok(btns.imp.innerHTML.indexOf('🔒') >= 0, 'import shows locked label');
+    assert.ok(btns.exp.innerHTML.indexOf('Premium</span>') >= 0, 'export shows locked label');
+    assert.ok(btns.imp.innerHTML.indexOf('Premium</span>') >= 0, 'import shows locked label');
     btns.exp.click();
     assert.strictEqual(premiumReason, 'data-export', 'free click routes to requestUpgrade');
     assert.ok(!exportCalled, 'export flow NOT triggered for free user');
@@ -924,11 +925,11 @@ ts('Profile — Subsection Tab Interactivity (Regression)', function() {
     var btns = setupExportButtons();
     mockPremium(false);
     _refreshDataExportButtons();
-    assert.ok(btns.exp.innerHTML.indexOf('🔒') >= 0, 'locked while free');
+    assert.ok(btns.exp.innerHTML.indexOf('Premium</span>') >= 0, 'locked while free');
     mockPremium(true);
     _refreshDataExportButtons();
-    assert.ok(btns.exp.innerHTML.indexOf('🔒') < 0, 'unlocked after premium flips');
-    assert.ok(btns.imp.innerHTML.indexOf('🔒') < 0, 'import unlocked too');
+    assert.ok(btns.exp.innerHTML.indexOf('Premium</span>') < 0, 'unlocked after premium flips');
+    assert.ok(btns.imp.innerHTML.indexOf('Premium</span>') < 0, 'import unlocked too');
   });
 
   global.window.__premium = undefined;

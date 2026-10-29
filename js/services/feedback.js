@@ -177,7 +177,7 @@
 
     card.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
-        '<div style="font-size:16px;font-weight:600;color:var(--text)">💬 Send Feedback</div>' +
+        '<div style="font-size:16px;font-weight:600;color:var(--text)">' + uiIcon('message-circle') + 'Send Feedback</div>' +
         '<button id="fb-close" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1" aria-label="Close">✕</button>' +
       '</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">' +
@@ -224,7 +224,7 @@
 
     if (!textEl || !textEl.value.trim()) {
       if (statusEl) {
-        statusEl.textContent = '⚠ Please enter your feedback.';
+        statusEl.innerHTML = iconText('alert-triangle', 'Please enter your feedback.');
         statusEl.style.color = 'var(--red)';
       }
       return;
@@ -252,7 +252,7 @@
           }, 2000);
         }
       } else {
-        statusEl.textContent = '⚠ ' + (result && result.error || 'Could not save feedback.');
+        statusEl.innerHTML = iconText('alert-triangle', result && result.error || 'Could not save feedback.');
         statusEl.style.color = 'var(--gold-muted)';
       }
     }

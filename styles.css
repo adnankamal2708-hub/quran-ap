@@ -3512,6 +3512,27 @@ body::before {
 }
 
 /* ── SVG Icon System ─────────────────────────────────────── */
+/* uiIcon(): a line icon replacing emoji icons. Sized in em so it matches
+   the text it sits in, or fills a large icon slot like the emoji did. */
+.ui-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+  margin-right: 0.35em;
+}
+
+.ui-icon-only {
+  margin-right: 0;
+  vertical-align: middle;
+}
+
+/* Active toggles (bookmarked, Quick mode on) show a filled icon */
+.active-qa .ui-icon {
+  fill: currentColor;
+}
+
 .icon-inline {
   display: inline-flex;
   align-items: center;

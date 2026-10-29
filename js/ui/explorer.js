@@ -100,12 +100,12 @@ function renderExplorerLocked(w) {
   panel.style.display = 'block';
   panel.innerHTML =
     '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
-      '<div style="font-size:24px;margin-bottom:6px">🔒</div>' +
+      '<div style="font-size:24px;margin-bottom:6px">' + uiIcon('lock', true) + '</div>' +
       '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Vocabulary Expansion</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
         'The Free plan includes the 300 most frequent Quranic words. This word is part of the extended vocabulary — upgrade to Premium to unlock its full word detail: meanings, occurrences, tafsir, relationships, and study tools.' +
       '</div>' +
-      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'vocabulary-expansion\')">⭐ Upgrade to Premium</button>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'vocabulary-expansion\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
     '</div>';
 
   // Wire the back button so a locked view is never a dead end.
@@ -185,7 +185,7 @@ function renderExplorer() {
   // Foundation lesson — structured badge
   var fLessonEl = DOM.get('explorer-foundation-lesson');
   if (w.foundationLessonId !== undefined && w.foundationLessonId >= 0) {
-    fLessonEl.innerHTML = '<span class="explorer-foundation-badge">📘 Foundation ' + (w.foundationLessonId + 1) + '</span>';
+    fLessonEl.innerHTML = '<span class="explorer-foundation-badge">' + uiIcon('book') + 'Foundation ' + (w.foundationLessonId + 1) + '</span>';
   } else {
     fLessonEl.innerHTML = '<span class="explorer-foundation-badge not-in-course">Not in Foundation Course</span>';
   }
@@ -368,13 +368,13 @@ function renderExplorerRelationshipsLocked() {
   lockedContainer.style.display = 'block';
   lockedContainer.innerHTML =
     '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
-      '<div style="font-size:24px;margin-bottom:6px">🔗</div>' +
+      '<div style="font-size:24px;margin-bottom:6px">' + uiIcon('link', true) + '</div>' +
       '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Word Relationships</div>' +
       '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
         'Explore how words connect — similar words, derived forms, semantic groups, ' +
         'morphological relatives, and more with Premium.' +
       '</div>' +
-      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">⭐ Upgrade to Premium</button>' +
+      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
     '</div>';
   // Hide the gated relationship sections (by section id — root family stays).
   var _explorerRelSections = [
@@ -594,17 +594,17 @@ function renderExplorerLearningProgress(w, srsStatus, srsEntry) {
   if (stageEl) {
     var srsHtml = '';
     if (srsStatus && srsStatus.status === 'new') {
-      srsHtml = '<span class="explorer-srs-badge status-new">🆕 New — Not yet studied</span>';
+      srsHtml = '<span class="explorer-srs-badge status-new">' + uiIcon('star') + 'New — Not yet studied</span>';
     } else if (srsStatus && srsStatus.status === 'review') {
       var overdueText = srsStatus.daysUntilDue < 0 ? ' (overdue!)' : '';
       var overdueClass = srsStatus.daysUntilDue < 0 ? 'due-now' : '';
-      srsHtml = '<span class="explorer-srs-badge status-review">🔁 Due for review' + overdueText + '</span>';
+      srsHtml = '<span class="explorer-srs-badge status-review">' + uiIcon('repeat') + 'Due for review' + overdueText + '</span>';
     } else if (srsStatus) {
       var stageNames = ['', 'Learning', 'Young', 'Mature'];
       var stageName = stageNames[srsStatus.stage] || 'Mastered';
-      srsHtml = '<span class="explorer-srs-badge status-mastered">✓ ' + stageName + '</span>';
+      srsHtml = '<span class="explorer-srs-badge status-mastered">' + uiIcon('check') + stageName + '</span>';
     } else {
-      srsHtml = '<span class="explorer-srs-badge status-new">🆕 New — Not yet studied</span>';
+      srsHtml = '<span class="explorer-srs-badge status-new">' + uiIcon('star') + 'New — Not yet studied</span>';
     }
     stageEl.innerHTML = srsHtml;
   }
@@ -617,7 +617,7 @@ function renderExplorerLearningProgress(w, srsStatus, srsEntry) {
       var isCompleted = typeof isFoundationLessonCompleted === 'function' 
         ? isFoundationLessonCompleted(w.foundationLessonId) : false;
       fHtml = '<span class="explorer-foundation-badge' + (isCompleted ? '' : '') + '">' 
-        + (isCompleted ? '✓' : '📘') + ' Foundation ' + (w.foundationLessonId + 1) 
+        + uiIcon(isCompleted ? 'check' : 'book') + 'Foundation ' + (w.foundationLessonId + 1) 
         + (isCompleted ? ' completed' : ' — in progress') + '</span>';
     } else {
       fHtml = '<span class="explorer-foundation-badge not-in-course">—</span>';
@@ -694,7 +694,7 @@ function renderExplorerActions(w, srsStatus) {
   var bookmarkBtn = DOM.get('explorer-btn-bookmark');
   if (bookmarkBtn) {
     var isFav = typeof isFavorite === 'function' ? isFavorite(w.id) : false;
-    bookmarkBtn.textContent = isFav ? '⭐ Bookmarked' : '☆ Bookmark';
+    bookmarkBtn.innerHTML = iconText('star', isFav ? 'Bookmarked' : 'Bookmark');
     bookmarkBtn.className = 'explorer-action-btn' + (isFav ? ' active-qa' : '');
   }
 }
@@ -737,7 +737,7 @@ function wireExplorerEvents(w) {
       var isVisible = tafsirBox.style.display === 'block';
       if (isVisible) {
         tafsirBox.style.display = 'none';
-        tafsirBtn.textContent = '📚 Load Ibn Kathir Tafsir';
+        tafsirBtn.innerHTML = iconText('layers', 'Load Ibn Kathir Tafsir');
       } else {
         var occ = window.__explorerCurrentOcc || (_explorerWord && _explorerWord.occurrences && _explorerWord.occurrences[0]);
         var text = '';
@@ -746,7 +746,7 @@ function wireExplorerEvents(w) {
         else text = 'Ibn Kathir commentary not available for this word.';
         tafsirText.textContent = text;
         tafsirBox.style.display = 'block';
-        tafsirBtn.textContent = '📚 Hide Tafsir';
+        tafsirBtn.innerHTML = iconText('layers', 'Hide Tafsir');
       }
     };
   }
@@ -759,10 +759,10 @@ function wireExplorerEvents(w) {
       if (!listEl) return;
       if (listEl.style.display === 'block') {
         listEl.style.display = 'none';
-        allOccBtn.textContent = '📋 View all occurrences';
+        allOccBtn.innerHTML = iconText('list', 'View all occurrences');
         allOccBtn.setAttribute('aria-expanded', 'false');
       } else {
-        allOccBtn.textContent = '📋 Hide occurrences';
+        allOccBtn.innerHTML = iconText('list', 'Hide occurrences');
         allOccBtn.setAttribute('aria-expanded', 'true');
         renderExplorerAllOccurrences(listEl, _explorerWord);
         listEl.style.display = 'block';
@@ -776,7 +776,7 @@ function wireExplorerEvents(w) {
     bookmarkBtn.onclick = function() {
       if (typeof toggleFavorite === 'function') {
         var isNowFav = toggleFavorite(w.id);
-        bookmarkBtn.textContent = isNowFav ? '⭐ Bookmarked' : '☆ Bookmark';
+        bookmarkBtn.innerHTML = iconText('star', isNowFav ? 'Bookmarked' : 'Bookmark');
         bookmarkBtn.className = 'explorer-action-btn' + (isNowFav ? ' active-qa' : '');
       }
     };
@@ -839,7 +839,7 @@ async function _explorerTafsirCheckDailyLimit() {
     if (tafsirBtn) {
       tafsirBtn.disabled = true;
       tafsirBtn.title = 'Daily tafsir limit reached. Resets tomorrow.';
-      tafsirBtn.textContent = '⚠️ Daily limit reached';
+      tafsirBtn.innerHTML = iconText('alert-triangle', 'Daily limit reached');
     }
     var msg = 'Daily tafsir limit reached. Resets tomorrow, or upgrade for unlimited access.';
     if (window.__ux && typeof window.__ux.showToast === 'function') {

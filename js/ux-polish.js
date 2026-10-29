@@ -216,7 +216,7 @@ function renderOnboardingScreen(idx) {
 
   } else if (idx === _SCREEN_GOAL) {
     // ── Learning Goal Selection ──
-    html += '<div class="onboarding-icon">🎯</div>';
+    html += '<div class="onboarding-icon">' + uiIcon('target', true) + '</div>';
     html += '<h2 class="onboarding-title">Set Your Daily Goal</h2>';
     html += '<p class="onboarding-desc">How much time can you dedicate to learning each day? We\'ll use this to personalize your review schedule.</p>';
     html += '<div class="onboarding-choices" role="radiogroup" aria-label="Daily learning goal">';
@@ -224,7 +224,7 @@ function renderOnboardingScreen(idx) {
     var goals = [
       { value: '5', label: '5 min', desc: 'Casual — just a few words daily' },
       { value: '10', label: '10 min', desc: 'Light — steady and sustainable' },
-      { value: '15', label: '15 min', desc: 'Balanced — our recommendation ✨' },
+      { value: '15', label: '15 min', desc: 'Balanced — our recommendation' },
       { value: '20', label: '20+ min', desc: 'Intensive — fastest progress' }
     ];
     for (var gi = 0; gi < goals.length; gi++) {
@@ -239,7 +239,7 @@ function renderOnboardingScreen(idx) {
 
   } else if (idx === _SCREEN_LEVEL) {
     // ── Experience Level Selection ──
-    html += '<div class="onboarding-icon">🧠</div>';
+    html += '<div class="onboarding-icon">' + uiIcon('brain', true) + '</div>';
     html += '<h2 class="onboarding-title">Your Experience Level</h2>';
     html += '<p class="onboarding-desc">How familiar are you with Quranic vocabulary? This helps us personalize recommendations — you\'ll still start with the Foundation Course.</p>';
     html += '<div class="onboarding-choices" role="radiogroup" aria-label="Experience level">';
@@ -690,31 +690,36 @@ function releaseOnboardingFocus() {
 var _tooltips = {
   'quran-mode': {
     selector: '#view-quran',
-    title: '📖 Interactive Reading',
+    icon: 'book-open',
+    title: 'Interactive Reading',
     message: 'Tap any highlighted word to see its meaning, root, and tafsir. Mastered words appear in gold; words not studied yet are underlined.',
     position: 'bottom'
   },
   'word-details': {
     selector: '#qa-show-more',
-    title: '🔍 Word Details',
+    icon: 'search',
+    title: 'Word Details',
     message: 'Tap to see the full word profile — including root family, similar words, and Ibn Kathir tafsir.',
     position: 'top'
   },
   'review-center': {
     selector: '#db-review-center-prompt',
-    title: '📋 Review Center',
+    icon: 'list',
+    title: 'Review Center',
     message: 'Your hub for all review modes — flashcards, quizzes, and focused practice sessions.',
     position: 'top'
   },
   'paths': {
     selector: '#tab-paths',
-    title: '📚 Learning Paths',
+    icon: 'layers',
+    title: 'Learning Paths',
     message: 'Switch between Foundation Course, surah-by-surah study, root families, or difficulty-based learning.',
     position: 'top'
   },
   'dashboard': {
     selector: '#tab-dashboard',
-    title: '🏠 Dashboard',
+    icon: 'chart',
+    title: 'Dashboard',
     message: 'Your learning overview — track comprehension, review progress, and discover personalized recommendations.',
     position: 'top'
   }
@@ -743,7 +748,7 @@ function showTooltip(tipId) {
   tooltip.className = 'ux-tooltip ux-tooltip-' + (tip.position || 'top');
   tooltip.setAttribute('role', 'tooltip');
   tooltip.innerHTML =
-    '<div class="ux-tooltip-header">' + (tip.title || '') + '</div>' +
+    '<div class="ux-tooltip-header">' + (tip.icon ? uiIcon(tip.icon) : '') + (tip.title || '') + '</div>' +
     '<div class="ux-tooltip-body">' + (tip.message || '') + '</div>' +
     '<button class="ux-tooltip-close" type="button" aria-label="Got it">Got it</button>';
 
@@ -931,7 +936,7 @@ function unlockProgressiveFeature(feature) {
  */
 function renderEmptyState(icon, title, desc, actionHtml) {
   var html = '<div class="empty-state">';
-  html += '<div class="empty-state-icon">' + icon + '</div>';
+  html += '<div class="empty-state-icon">' + dataIcon(icon, true) + '</div>';
   html += '<div class="empty-state-title">' + escapeHtml(title) + '</div>';
   html += '<div class="empty-state-desc">' + desc + '</div>';
   if (actionHtml) {
@@ -1027,12 +1032,12 @@ function showToast(message, type, duration) {
   toast.setAttribute('role', 'alert');
 
   var icons = {
-    success: '✓',
-    error: '✖',
-    info: 'ℹ️',
-    warning: '⚠️'
+    success: 'check-circle',
+    error: 'x',
+    info: 'info',
+    warning: 'alert-triangle'
   };
-  var icon = icons[type] || 'ℹ️';
+  var icon = uiIcon(icons[type] || 'info', true);
 
   toast.innerHTML = '<span class="toast-icon">' + icon + '</span><span class="toast-message">' + escapeHtml(message) + '</span>';
 
@@ -1175,11 +1180,11 @@ function showMilestoneCelebration(milestone) {
 
   overlay.innerHTML =
     '<div class="milestone-card">' +
-      '<div class="milestone-icon">' + (milestone.icon || '🎉') + '</div>' +
+      '<div class="milestone-icon">' + dataIcon(milestone.icon || 'celebration', true) + '</div>' +
       '<div class="milestone-title">Milestone Reached!</div>' +
       '<div class="milestone-name">' + escapeHtml(milestone.label) + '</div>' +
       '<div class="milestone-desc">' + (milestone.insight || '') + '</div>' +
-      '<button class="btn btn-sm milestone-btn" id="milestone-close-btn" type="button">👍 Awesome!</button>' +
+      '<button class="btn btn-sm milestone-btn" id="milestone-close-btn" type="button">' + uiIcon('thumbs-up') + 'Awesome!</button>' +
     '</div>';
 
   document.body.appendChild(overlay);

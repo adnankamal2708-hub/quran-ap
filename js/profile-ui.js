@@ -210,29 +210,29 @@ async function renderProfileView() {
     var stageComprehension = (typeof calculateCoverage === 'function' ? calculateCoverage() : {}).estimatedComprehension || 0;
     
     var stageLabel = 'Beginning your journey';
-    var stageIcon = '🌱';
+    var stageIcon = 'leaf';
     if (stageFTotal > 0 && stageFCompleted >= stageFTotal) {
       stageLabel = 'Independent Quran learner';
-      stageIcon = '📖';
+      stageIcon = 'book-open';
     } else if (stageFCompleted >= 5) {
       stageLabel = 'Strengthening long-term memory';
-      stageIcon = '🧠';
+      stageIcon = 'brain';
     } else if (stageFCompleted >= 2) {
       stageLabel = 'Building your foundation';
-      stageIcon = '🏗️';
+      stageIcon = 'layers';
     } else if (stageFCompleted >= 1) {
       stageLabel = 'Beginning your journey';
-      stageIcon = '🌱';
+      stageIcon = 'leaf';
     }
     // Override for high comprehension
     if (stageComprehension >= 70) {
       stageLabel = 'Advanced Quran reader';
-      stageIcon = '📚';
+      stageIcon = 'layers';
     } else if (stageComprehension >= 40 && stageFCompleted < 2) {
       stageLabel = 'Developing reader';
-      stageIcon = '📖';
+      stageIcon = 'book-open';
     }
-    stageEl.textContent = stageIcon + ' ' + stageLabel;
+    stageEl.innerHTML = iconText(stageIcon, stageLabel);
   }
 
   // Load stats (used by the sync-status gate below)
@@ -262,10 +262,10 @@ async function renderProfileView() {
   var verifiedEl = document.getElementById('profile-email-verified');
   if (verifiedEl) {
     if (user.emailVerified) {
-      verifiedEl.textContent = '✓ Verified';
+      verifiedEl.innerHTML = iconText('check', 'Verified');
       verifiedEl.style.color = 'var(--green)';
     } else {
-      verifiedEl.textContent = '⚠ Not verified — check your inbox';
+      verifiedEl.innerHTML = iconText('alert-triangle', 'Not verified — check your inbox');
       verifiedEl.style.color = 'var(--red)';
     }
   }
@@ -285,7 +285,7 @@ async function renderProfileView() {
       syncEl.textContent = 'Syncing...';
       syncEl.style.color = 'var(--gold)';
     } else if (syncStatus.pending) {
-      syncEl.textContent = '⚠ Pending sync — changes not saved to cloud';
+      syncEl.innerHTML = iconText('alert-triangle', 'Pending sync — changes not saved to cloud');
       syncEl.style.color = 'var(--red)';
     } else if (syncStatus.ready && _isPremium) {
       syncEl.textContent = '✓ Cloud sync active';
@@ -678,13 +678,13 @@ function _refreshDataExportButtons() {
   var importBtn = document.getElementById('btn-import-data');
   if (exportBtn) {
     exportBtn.innerHTML = has
-      ? '📤 Export Learning Data'
-      : '🔒 📤 Export Learning Data <span style="color:var(--gold);font-size:11px;margin-left:4px">Premium</span>';
+      ? uiIcon('upload-cloud') + 'Export Learning Data'
+      : uiIcon('lock') + 'Export Learning Data <span style="color:var(--gold);font-size:11px;margin-left:4px">Premium</span>';
   }
   if (importBtn) {
     importBtn.innerHTML = has
-      ? '📥 Import Learning Data'
-      : '🔒 📥 Import Learning Data <span style="color:var(--gold);font-size:11px;margin-left:4px">Premium</span>';
+      ? uiIcon('download-cloud') + 'Import Learning Data'
+      : uiIcon('lock') + 'Import Learning Data <span style="color:var(--gold);font-size:11px;margin-left:4px">Premium</span>';
   }
 }
 
@@ -823,7 +823,7 @@ function renderProfileProgress() {
   // Foundation Course
   if (fTotal > 0) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">📘 Foundation Course</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('book') + 'Foundation Course</div>';
     h += '<div class="profile-bar-row"><span class="profile-bar-label">Progress</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-gold" style="width:' + fPct + '%"></div></div><span class="profile-bar-value">' + fCompleted + '/' + fTotal + '</span></div>';
     if (coverage) {
       var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
@@ -837,7 +837,7 @@ function renderProfileProgress() {
   var surahComp = typeof getAllSurahComprehension === 'function' ? getAllSurahComprehension() : [];
   var sCompleted = typeof getCompletedSurahCount === 'function' ? getCompletedSurahCount() : 0;
   h += '<div class="profile-subsection">';
-  h += '<div class="profile-subsection-title">📖 Surah Learning</div>';
+  h += '<div class="profile-subsection-title">' + uiIcon('book-open') + 'Surah Learning</div>';
   h += '<div class="profile-bar-row"><span class="profile-bar-label">Studied</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-blue" style="width:' + (surahIds.length > 0 ? Math.round((sCompleted / surahIds.length) * 100) : 0) + '%"></div></div><span class="profile-bar-value">' + sCompleted + '/' + surahIds.length + '</span></div>';
 
   // Lowest comprehension — only meaningful once several surahs have real
@@ -869,7 +869,7 @@ function renderProfileProgress() {
   var rfCompleted = typeof getCompletedRootFamilyCount === 'function' ? getCompletedRootFamilyCount() : 0;
   var rootMastery = typeof getRootFamilyMastery === 'function' ? getRootFamilyMastery() : null;
   h += '<div class="profile-subsection">';
-  h += '<div class="profile-subsection-title">🌱 Root Families</div>';
+  h += '<div class="profile-subsection-title">' + uiIcon('leaf') + 'Root Families</div>';
   if (rootMastery) {
     h += '<div class="profile-bar-row"><span class="profile-bar-label">Mastered</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-purple" style="width:' + (rootMastery.totalRoots > 0 ? Math.round((rootMastery.fullyMasteredRoots / rootMastery.totalRoots) * 100) : 0) + '%"></div></div><span class="profile-bar-value">' + rootMastery.fullyMasteredRoots + '/' + rootMastery.totalRoots + '</span></div>';
   } else {
@@ -879,13 +879,13 @@ function renderProfileProgress() {
 
   // Learning stages breakdown — single segmented bar with color legend
   var stageItems = [
-    { label: '🆕 New', val: srsStats.newCount || 0, fillCls: 'profile-fill-blue', color: 'var(--blue)' },
-    { label: '🔍 Learning', val: srsStats.learning || 0, fillCls: 'profile-fill-purple', color: 'var(--purple)' },
-    { label: '🌱 Young', val: srsStats.young || 0, fillCls: 'profile-fill-gold', color: 'var(--gold-dim)' },
-    { label: '💡 Mature', val: srsStats.mature || 0, fillCls: 'profile-fill-green', color: 'var(--green)' },
+    { label: 'New', val: srsStats.newCount || 0, fillCls: 'profile-fill-blue', color: 'var(--blue)' },
+    { label: 'Learning', val: srsStats.learning || 0, fillCls: 'profile-fill-purple', color: 'var(--purple)' },
+    { label: 'Young', val: srsStats.young || 0, fillCls: 'profile-fill-gold', color: 'var(--gold-dim)' },
+    { label: 'Mature', val: srsStats.mature || 0, fillCls: 'profile-fill-green', color: 'var(--green)' },
   ];
   h += '<div class="profile-subsection">';
-  h += '<div class="profile-subsection-title">📊 Learning Stages</div>';
+  h += '<div class="profile-subsection-title">' + uiIcon('chart') + 'Learning Stages</div>';
   var totalStaged = stageItems.reduce(function(s, it) { return s + it.val; }, 0);
   if (totalStaged > 0) {
     h += '<div class="profile-stage-bar">';
@@ -913,7 +913,7 @@ function renderProfileProgress() {
   }
   if (readingSummary) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">📖 Reading</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('book-open') + 'Reading</div>';
     h += '<div class="profile-reading-grid">';
     h += '<div><span class="profile-bar-value">' + readingSummary.totalSurahsRead + '</span><span class="profile-pstat-label">Surahs Read</span></div>';
     h += '<div><span class="profile-bar-value">' + (readingSummary.totalAyahs || 0) + '</span><span class="profile-pstat-label">Ayahs Read</span></div>';
@@ -927,7 +927,7 @@ function renderProfileProgress() {
   // under a user-facing label with a direction hint.
   if ($totalReviews >= $rcMinReviews) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">❤️ SRS Health</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('heart') + 'SRS Health</div>';
     h += '<div class="profile-srs-grid">';
     h += '<div><span class="profile-bar-value ai-c-green">' + (srsStats.avgRetention || 0) + '%</span><span class="profile-pstat-label">Retention</span></div>';
     h += '<div><span class="profile-bar-value ai-c-blue">' + (srsStats.avgEaseFactor ? srsStats.avgEaseFactor.toFixed(2) : '2.50') + '</span><span class="profile-pstat-label">Review Ease</span><span class="profile-pstat-hint">higher = more stable</span></div>';
@@ -940,7 +940,7 @@ function renderProfileProgress() {
   // account; gate behind the same 5-review minimum used elsewhere.
   if ($totalReviews >= $rcMinReviews) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">📅 Review Forecast</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('calendar') + 'Review Forecast</div>';
     var intervals = [0, 3, 7, 14, 30];
     var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
     var forecastColors = ['var(--gold)', 'var(--gold)', 'var(--green)', 'var(--blue)', 'var(--blue)'];
@@ -978,7 +978,7 @@ function renderProfileInsights() {
 
   if (!analytics) {
     h += '<div style="padding:12px;text-align:center;font-size:11px;color:var(--text-muted)">' +
-      '📊 Start learning to unlock insights about your progress. Study words and complete reviews to build your learning profile.' +
+      'Start learning to unlock insights about your progress. Study words and complete reviews to build your learning profile.' +
       '</div>';
     container.innerHTML = h;
     return;
@@ -995,12 +995,12 @@ function renderProfileInsights() {
   // ONLY the locked panel, never partial real data alongside a lock message.
   if (!_hasAdvanced) {
     h += '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center">';
-    h += '<div style="font-size:24px;margin-bottom:6px">📈</div>';
+    h += '<div style="font-size:24px;margin-bottom:6px">' + uiIcon('trend', true) + '</div>';
     h += '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Advanced Insights</div>';
     h += '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
       'Track your progress trends, view weekly and monthly summaries, and get personalized learning forecasts with Premium.' +
       '</div>';
-    h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'advanced-insights\')">⭐ Upgrade to Premium</button>';
+    h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'advanced-insights\')">' + uiIcon('star') + 'Upgrade to Premium</button>';
     h += '</div>';
     container.innerHTML = h;
     return;
@@ -1009,7 +1009,7 @@ function renderProfileInsights() {
   // Weekly Summary
   if (periods && periods.week) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">📈 This Week</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('trend') + 'This Week</div>';
     h += '<div class="profile-insight-grid">';
     h += '<div><span class="profile-bar-value">+' + (periods.week.gainMastered || 0) + '</span><span class="profile-pstat-label">Words Gained</span></div>';
     h += '<div><span class="profile-bar-value">' + periods.week.totalReviews + '</span><span class="profile-pstat-label">Reviews</span></div>';
@@ -1021,7 +1021,7 @@ function renderProfileInsights() {
   // Monthly Summary
   if (periods && periods.month) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">📊 This Month</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('chart') + 'This Month</div>';
     h += '<div class="profile-insight-grid">';
     h += '<div><span class="profile-bar-value">+' + (periods.month.gainMastered || 0) + '</span><span class="profile-pstat-label">Words Gained</span></div>';
     h += '<div><span class="profile-bar-value">' + periods.month.totalReviews + '</span><span class="profile-pstat-label">Reviews</span></div>';
@@ -1033,7 +1033,7 @@ function renderProfileInsights() {
   if (profile) {
     if (profile.strongRoots && profile.strongRoots.length > 0) {
       h += '<div class="profile-subsection">';
-      h += '<div class="profile-subsection-title">💪 Strongest Roots</div>';
+      h += '<div class="profile-subsection-title">' + uiIcon('fire') + 'Strongest Roots</div>';
       for (var sri = 0; sri < Math.min(profile.strongRoots.length, 5); sri++) {
         var sr = profile.strongRoots[sri];
         h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:11px">' + sr.root + '</span><span style="font-size:11px;color:var(--text-muted);flex:1">' + (sr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:11px;color:var(--green)">' + sr.masteryScore + '%</span></div>';
@@ -1042,7 +1042,7 @@ function renderProfileInsights() {
     }
     if (profile.weakRoots && profile.weakRoots.length > 0) {
       h += '<div class="profile-subsection">';
-      h += '<div class="profile-subsection-title">🌱 Needs Practice</div>';
+      h += '<div class="profile-subsection-title">' + uiIcon('leaf') + 'Needs Practice</div>';
       for (var wri = 0; wri < Math.min(profile.weakRoots.length, 5); wri++) {
         var wr = profile.weakRoots[wri];
         h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:11px">' + wr.root + '</span><span style="font-size:11px;color:var(--text-muted);flex:1">' + (wr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:11px;color:var(--red)">' + wr.masteryScore + '%</span></div>';
@@ -1055,7 +1055,7 @@ function renderProfileInsights() {
     if (quizHistory && quizHistory.total > 0) {
       var qAcc = Math.round((quizHistory.correct / quizHistory.total) * 100);
       h += '<div class="profile-subsection">';
-      h += '<div class="profile-subsection-title">📝 Quiz Performance</div>';
+      h += '<div class="profile-subsection-title">' + uiIcon('edit') + 'Quiz Performance</div>';
       h += '<div class="profile-insight-grid">';
       h += '<div><span class="profile-bar-value">' + quizHistory.total + '</span><span class="profile-pstat-label">Questions</span></div>';
       h += '<div><span class="profile-bar-value">' + qAcc + '%</span><span class="profile-pstat-label">Accuracy</span></div>';
@@ -1065,7 +1065,7 @@ function renderProfileInsights() {
     // Learning trends (consistency)
     if (periods && periods.consistency !== undefined) {
       h += '<div class="profile-subsection">';
-      h += '<div class="profile-subsection-title">🎯 Consistency</div>';
+      h += '<div class="profile-subsection-title">' + uiIcon('target') + 'Consistency</div>';
       h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:11px">Active days</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + periods.consistency + '%;background:var(--gold)"></div></div><span class="profile-bar-value" style="font-size:11px">' + periods.consistency + '%</span></div>';
       h += '</div>';
     }
@@ -1088,9 +1088,9 @@ function renderProfileInsights() {
   var ms = typeof getMilestoneStatus === 'function' ? getMilestoneStatus(covPct) : null;
   if (ms && ms.nextMilestone) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">🎯 Next Milestone</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('target') + 'Next Milestone</div>';
     h += '<div class="ai-card-sm" style="padding:8px 12px">';
-    h += '<div class="ai-text-sm ai-c-gold" style="font-weight:500;margin-bottom:2px">' + ms.nextMilestone.icon + ' ' + ms.nextMilestone.label + '</div>';
+    h += '<div class="ai-text-sm ai-c-gold" style="font-weight:500;margin-bottom:2px">' + dataIcon(ms.nextMilestone.icon) + ms.nextMilestone.label + '</div>';
     h += '<div class="ai-label-xs">~' + ms.wordsToNextMilestone + ' words, ~' + ms.lessonsToNextMilestone + ' lessons away</div>';
     h += '</div></div>';
   }
@@ -1109,13 +1109,13 @@ function renderProfileAbout() {
   var h = '';
   h += '<div class="pf-about-card">';
   h += '<div class="pf-about-header">';
-  h += '<div class="pf-about-icon">📖</div>';
+  h += '<div class="pf-about-icon">' + uiIcon('book-open', true) + '</div>';
   h += '<div class="pf-about-info">';
   h += '<div class="pf-about-name">Bayan</div>';
   h += '<div class="pf-about-version">v2.0 · Understand the Quran, one word at a time</div>';
   h += '</div></div>';
   h += '<div class="pf-about-desc">Bayan is a free, open-source Quranic Arabic learning app. It uses spaced repetition, root analysis, and context-based learning to help you understand the Quran in its original language.</div>';
-  h += '<div class="pf-about-mission"><span class="pf-about-mission-icon">🎯</span> Our mission is to make Quranic Arabic accessible to everyone, anywhere, for free.</div>';
+  h += '<div class="pf-about-mission"><span class="pf-about-mission-icon">' + uiIcon('target', true) + '</span> Our mission is to make Quranic Arabic accessible to everyone, anywhere, for free.</div>';
 
   // Quran Data Attribution
   h += '<div class="pf-about-attribution">';
@@ -1132,17 +1132,17 @@ function renderProfileAbout() {
 
   // Links
   h += '<div class="pf-about-links">';
-  h += '<button class="pf-about-link" id="btn-revisit-onboarding" type="button">🔄 Replay Tour</button>';
+  h += '<button class="pf-about-link" id="btn-revisit-onboarding" type="button">' + uiIcon('refresh-cw') + 'Replay Tour</button>';
   // URLs are split to avoid damage from build.js comment stripper which strips // as line comments
   var $ghUrl = 'https:' + '/' + '/github.com/adnankamal2708-hub/quran-ap';
   h += '<a class="pf-about-link pf-about-link-ext" href="' + $ghUrl + '" target="_blank" rel="noopener noreferrer">🌐 GitHub</a>';
-  h += '<button class="pf-about-link" id="btn-send-feedback" type="button">💬 Send Feedback</button>';
+  h += '<button class="pf-about-link" id="btn-send-feedback" type="button">' + uiIcon('message-circle') + 'Send Feedback</button>';
   h += '<span class="pf-about-link pf-about-link-static">📜 Open Source (MIT)</span>';
-  h += '<a class="pf-about-link pf-about-link-ext" href="privacy-policy.html" target="_blank" rel="noopener noreferrer" id="profile-privacy-link">🔒 Privacy Policy</a>';
+  h += '<a class="pf-about-link pf-about-link-ext" href="privacy-policy.html" target="_blank" rel="noopener noreferrer" id="profile-privacy-link">' + uiIcon('lock') + 'Privacy Policy</a>';
   h += '<a class="pf-about-link pf-about-link-ext" href="terms-of-service.html" target="_blank" rel="noopener noreferrer" id="profile-terms-link">📜 Terms of Service</a>';
   h += '</div>';
 
-  h += '<div class="pf-about-footer">Made with ❤️ for the love of the Quran</div>';
+  h += '<div class="pf-about-footer">Made with ' + uiIcon('heart') + 'for the love of the Quran</div>';
   h += '</div>';
 
   container.innerHTML = h;
@@ -1185,7 +1185,7 @@ function renderProfileAchievements() {
 
   if (achievements.length === 0) {
     h += '<div class="profile-ach-empty">' +
-      '<div class="profile-ach-empty-icon">🏆</div>' +
+      '<div class="profile-ach-empty-icon">' + uiIcon('award', true) + '</div>' +
       '<div class="profile-ach-empty-text">Complete your first lesson to start earning achievements.</div>' +
       '<div class="profile-ach-empty-sub">Milestones are unlocked as you master words, maintain streaks, and progress through the Foundation Course.</div>' +
       '</div>';
@@ -1193,7 +1193,7 @@ function renderProfileAchievements() {
     // ── Premium Progress Summary ──
     h += '<div class="profile-ach-summary">';
     h += '<div class="profile-ach-summary-top">';
-    h += '<div class="profile-ach-summary-icon">🏆</div>';
+    h += '<div class="profile-ach-summary-icon">' + uiIcon('award', true) + '</div>';
     h += '<div class="profile-ach-summary-info">';
     h += '<div class="profile-ach-summary-title">Progress Summary</div>';
     h += '<div class="profile-ach-summary-sub">' + earned.length + ' of ' + achievements.length + ' unlocked</div>';
@@ -1234,7 +1234,7 @@ function renderProfileAchievements() {
         var ea = earned[ei];
         h += '<div class="profile-ach-card earned">';
         h += '<div class="profile-ach-card-top">';
-        h += '<div class="profile-ach-icon earned-icon">' + (ea.icon || '🏆') + '</div>';
+        h += '<div class="profile-ach-icon earned-icon">' + dataIcon(ea.icon || 'award', true) + '</div>';
         h += '<div class="profile-ach-card-info">';
         h += '<div class="profile-ach-title">' + ea.title + '</div>';
         h += '<div class="profile-ach-desc">' + ea.description + '</div>';
@@ -1272,7 +1272,7 @@ function renderProfileAchievements() {
     if (inProgress.length > 0) {
       h += '<div class="profile-ach-section">';
       h += '<div class="profile-ach-section-header">';
-      h += '<span class="profile-ach-section-icon">🎯</span>';
+      h += '<span class="profile-ach-section-icon">' + uiIcon('target', true) + '</span>';
       h += '<span class="profile-ach-section-title">In Progress</span>';
       h += '<span class="profile-ach-section-count">' + inProgress.length + '</span>';
       h += '</div>';
@@ -1281,7 +1281,7 @@ function renderProfileAchievements() {
         var pa = inProgress[pi];
         h += '<div class="profile-ach-card in-progress">';
         h += '<div class="profile-ach-card-top">';
-        h += '<div class="profile-ach-icon inprogress-icon">' + (pa.icon || '🏆') + '</div>';
+        h += '<div class="profile-ach-icon inprogress-icon">' + dataIcon(pa.icon || 'award', true) + '</div>';
         h += '<div class="profile-ach-card-info">';
         h += '<div class="profile-ach-title">' + pa.title + '</div>';
         h += '<div class="profile-ach-desc">' + pa.description + '</div>';
@@ -1297,7 +1297,7 @@ function renderProfileAchievements() {
     if (trulyLocked.length > 0) {
       h += '<div class="profile-ach-section">';
       h += '<div class="profile-ach-section-header">';
-      h += '<span class="profile-ach-section-icon">🔒</span>';
+      h += '<span class="profile-ach-section-icon">' + uiIcon('lock', true) + '</span>';
       h += '<span class="profile-ach-section-title">Locked</span>';
       h += '<span class="profile-ach-section-count">' + trulyLocked.length + '</span>';
       h += '</div>';
@@ -1306,12 +1306,12 @@ function renderProfileAchievements() {
         var la = trulyLocked[li];
         h += '<div class="profile-ach-card locked">';
         h += '<div class="profile-ach-card-top">';
-        h += '<div class="profile-ach-icon locked-icon">' + (la.icon || '🏆') + '</div>';
+        h += '<div class="profile-ach-icon locked-icon">' + dataIcon(la.icon || 'award', true) + '</div>';
         h += '<div class="profile-ach-card-info">';
         h += '<div class="profile-ach-title">' + la.title + '</div>';
         h += '<div class="profile-ach-desc">' + la.description + '</div>';
         h += '</div>';
-        h += '<div class="profile-ach-lock-icon">🔒</div>';
+        h += '<div class="profile-ach-lock-icon">' + uiIcon('lock', true) + '</div>';
         h += '</div>';
         h += '</div>';
       }
@@ -1348,7 +1348,7 @@ function renderProfileCalendar() {
   if (readingJourney) {
     var surahCount = readingJourney.surahs ? Object.keys(readingJourney.surahs).length : 0;
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">📖 Reading Activity</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('book-open') + 'Reading Activity</div>';
     h += '<div class="profile-insight-grid">';
     h += '<div><span class="profile-bar-value">' + surahCount + '</span><span class="profile-pstat-label">Surahs Read</span></div>';
     h += '<div><span class="profile-bar-value">' + (readingJourney.totalAyahsRead || 0) + '</span><span class="profile-pstat-label">Ayahs Read</span></div>';
@@ -1364,7 +1364,7 @@ function renderProfileCalendar() {
   var sCompleted = typeof getCompletedSurahCount === 'function' ? getCompletedSurahCount() : 0;
 
   h += '<div class="profile-subsection">';
-  h += '<div class="profile-subsection-title">🎯 Learning Milestones</div>';
+  h += '<div class="profile-subsection-title">' + uiIcon('target') + 'Learning Milestones</div>';
   h += '<div style="display:flex;flex-direction:column;gap:6px">';
   h += '<div class="pui-milestone"><span>Foundation Lessons</span><span class="ai-c-gold">' + fCompleted + '/' + fTotal + '</span></div>';
   h += '<div class="pui-milestone"><span>Surahs Studied</span><span class="ai-c-gold">' + sCompleted + '/' + surahIds.length + '</span></div>';
@@ -1516,7 +1516,7 @@ function _showProfileFallback() {
   // Replace skeleton placeholder shapes with a fallback message
   skel.innerHTML =
     '<div class="profile-skeleton-card" style="text-align:center;padding:40px 20px">' +
-      '<div style="font-size:48px;margin-bottom:12px;opacity:0.6">📖</div>' +
+      '<div style="font-size:48px;margin-bottom:12px;opacity:0.6">' + uiIcon('book-open', true) + '</div>' +
       '<div style="font-size:16px;color:var(--gold-light,#e8c97a);margin-bottom:8px;font-weight:500">Bayan Profile</div>' +
       '<p style="font-size:12px;color:var(--text-muted,#8a8070);line-height:1.5;margin:0 auto 16px;max-width:280px">' +
         'Your profile was temporarily unavailable. Tap retry to try again.' +

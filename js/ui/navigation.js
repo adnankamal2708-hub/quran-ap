@@ -315,12 +315,12 @@ function populateSurahSelector() {
   // Base options
   var lessonOpt = document.createElement('option');
   lessonOpt.value = 'lesson';
-  lessonOpt.textContent = '📚 Lessons (sequential)';
+  lessonOpt.textContent = 'Lessons (sequential)';
   select.appendChild(lessonOpt);
   
   var foundationOpt = document.createElement('option');
   foundationOpt.value = 'foundation';
-  foundationOpt.textContent = '📘 Foundation Course (frequency)';
+  foundationOpt.textContent = 'Foundation Course (frequency)';
   select.appendChild(foundationOpt);
   
   // Get surah IDs that have vocabulary
@@ -336,7 +336,7 @@ function populateSurahSelector() {
   // Add surah option for "Surah mode"
   var surahModeOpt = document.createElement('option');
   surahModeOpt.value = 'surah';
-  surahModeOpt.textContent = '📖 Surah Mode (by surah)';
+  surahModeOpt.textContent = 'Surah Mode (by surah)';
   select.appendChild(surahModeOpt);
   
   // Add a second separator

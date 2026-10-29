@@ -280,12 +280,12 @@ function updateLessonProgressDisplay() {
       var $sentenceTypes = fLesson && fLesson.cumulativeCoverageNum && fLesson.cumulativeCoverageNum > 30 ? ['basic sentence structures', 'frequent verb forms', 'common prepositions'] : ['common Quranic phrases', 'frequent word patterns', 'basic sentence flow'];
       
       unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-        '<h3 class="foundation-unlock-title">🔓 After this lesson you will:</h3>' +
+        '<h3 class="foundation-unlock-title">' + uiIcon('unlock') + 'After this lesson you will:</h3>' +
         '<div class="foundation-unlock-items">' +
         '<span class="db-inline-green ai-unlock-item">✓ Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
         '<span class="db-inline-green ai-unlock-item">✓ Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
         '<span class="db-inline-green ai-unlock-item">✓ Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
-        (fLesson && fLesson.comprehensionGain > 0 ? '<span class="ai-unlock-gold-dim">📈 Estimated comprehension gain: +' + fLesson.comprehensionGain + '%</span>' : '') +
+        (fLesson && fLesson.comprehensionGain > 0 ? '<span class="ai-unlock-gold-dim">' + uiIcon('trend') + 'Estimated comprehension gain: +' + fLesson.comprehensionGain + '%</span>' : '') +
         '</div></div>';
       unlocksEl.style.display = 'block';
     }
@@ -302,7 +302,7 @@ function updateLessonProgressDisplay() {
       var $remainingBar = Math.round((($currentComp || 0) / 100) * 24);
       // Create a simple visual progress representation
       journeyEl.innerHTML = '<div class="foundation-journey-section">' +
-        '<h4 class="db-inline-value-sm ai-journey-title">🗺️ Your Journey</h4>' +
+        '<h4 class="db-inline-value-sm ai-journey-title">' + uiIcon('map-pin') + 'Your Journey</h4>' +
         '<div class="db-progress">' +
         '<div class="db-progress-track">' +
         '<div class="db-progress-fill" style="height:6px;width:' + (fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0) + '%;background:var(--gold);border-radius:3px"></div></div>' +
@@ -345,7 +345,7 @@ function updateLessonProgressDisplay() {
           // Root families section (always expanded)
           ctxHtml += '<div class="foundation-acc-section foundation-acc-expanded">';
           ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="true">';
-          ctxHtml += '<span>🌱 Root families in this lesson</span><span class="foundation-acc-arrow">▼</span>';
+          ctxHtml += '<span>' + uiIcon('leaf') + 'Root families in this lesson</span><span class="foundation-acc-arrow">▼</span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
           ctxHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
@@ -377,7 +377,7 @@ function updateLessonProgressDisplay() {
           // Grammar notes section (collapsed by default)
           ctxHtml += '<div class="foundation-acc-section">';
           ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="false">';
-          ctxHtml += '<span>📝 Grammar notes</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
+          ctxHtml += '<span>' + uiIcon('edit') + 'Grammar notes</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
           ctxHtml += '<div class="ai-acc-body">Focus on the root letters and their core meaning. Notice how different patterns (wazn) modify the meaning. Pay attention to how this word functions in its ayah context.</div>';
@@ -386,7 +386,7 @@ function updateLessonProgressDisplay() {
           // Learning tips section (collapsed by default)
           ctxHtml += '<div class="foundation-acc-section">';
           ctxHtml += '<button class="foundation-acc-header" onclick="var s=this.closest(\'.foundation-acc-section\');s.classList.toggle(\'foundation-acc-expanded\');this.setAttribute(\'aria-expanded\',s.classList.contains(\'foundation-acc-expanded\'))" type="button" aria-expanded="false">';
-          ctxHtml += '<span>💡 Learning tips</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
+          ctxHtml += '<span>' + uiIcon('lightbulb') + 'Learning tips</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
           ctxHtml += '<div class="ai-acc-body">Review the root family words together to see patterns. Try to recognize this word when you see it in Quranic verses. Consistent daily review is more effective than cramming.</div>';
@@ -409,16 +409,16 @@ function updateLessonProgressDisplay() {
         ? getFoundationLessonContextMsg(nextIncomplete) : { title: '' };
       var nextTitle = nextLessonCtx.title ? ' \u2014 ' + nextLessonCtx.title : '';
       if (nextIncomplete === 0 && isFoundationLessonCompleted(0) && fTotal > 0) {
-        continueBtn.textContent = '🎉 Foundation Complete!';
+        continueBtn.innerHTML = iconText('celebration', 'Foundation Complete!');
         continueBtn.disabled = true;
       } else if (nextIncomplete === activeLessonIndex) {
-        continueBtn.textContent = '📖 Foundation ' + (nextIncomplete + 1) + nextTitle;
+        continueBtn.innerHTML = iconText('book-open', 'Foundation ' + (nextIncomplete + 1) + nextTitle);
         continueBtn.disabled = false;
       } else if (isFoundationLessonCompleted(activeLessonIndex) && nextIncomplete < fTotal) {
-        continueBtn.textContent = '🔓 Unlock Foundation ' + (nextIncomplete + 1) + nextTitle;
+        continueBtn.innerHTML = iconText('unlock', 'Unlock Foundation ' + (nextIncomplete + 1) + nextTitle);
         continueBtn.disabled = false;
       } else {
-        continueBtn.textContent = '📖 Continue Foundation ' + (nextIncomplete + 1);
+        continueBtn.innerHTML = iconText('book-open', 'Continue Foundation ' + (nextIncomplete + 1));
         continueBtn.disabled = false;
       }
     }
@@ -463,10 +463,10 @@ function updateLessonProgressDisplay() {
     if (continueBtn) {
       var nextRF = typeof getNextIncompleteRootFamily === 'function' ? getNextIncompleteRootFamily() : '';
       if (nextRF) {
-        continueBtn.textContent = '\uD83C\uDF31 Next Root Family';
+        continueBtn.innerHTML = iconText('leaf', 'Next Root Family');
         continueBtn.disabled = false;
       } else {
-        continueBtn.textContent = '\uD83C\uDF89 All Root Families Complete!';
+        continueBtn.innerHTML = iconText('celebration', 'All Root Families Complete!');
         continueBtn.disabled = true;
       }
     }
@@ -503,13 +503,13 @@ function updateLessonProgressDisplay() {
     if (continueBtn) {
       var nextD = typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1;
       if (dCompleted >= 5) {
-        continueBtn.textContent = '\uD83C\uDF89 All Levels Complete!';
+        continueBtn.innerHTML = iconText('celebration', 'All Levels Complete!');
         continueBtn.disabled = true;
       } else if (nextD !== dLevel) {
-        continueBtn.textContent = '\uD83D\uDCE8 Continue Level ' + nextD;
+        continueBtn.innerHTML = iconText('layers', 'Continue Level ' + nextD);
         continueBtn.disabled = false;
       } else {
-        continueBtn.textContent = '\uD83D\uDCE8 Study Level ' + dLevel;
+        continueBtn.innerHTML = iconText('layers', 'Study Level ' + dLevel);
         continueBtn.disabled = false;
       }
     }
@@ -581,15 +581,15 @@ function updateLessonProgressDisplay() {
       var surahRootCount = Object.keys(surahRootSet).length;
       
       unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-        '<h3 class="foundation-unlock-title">\uD83D\uDD13 Studying this surah helps you:</h3>' +
+        '<h3 class="foundation-unlock-title">' + uiIcon('unlock') + 'Studying this surah helps you:</h3>' +
         '<div class="foundation-unlock-items">' +
         '<span class="db-inline-green ai-unlock-item">\u2713 Recognize ' + surahNouns + ' noun' + (surahNouns !== 1 ? 's' : '') + 
         ', ' + surahVerbs + ' verb' + (surahVerbs !== 1 ? 's' : '') + 
         ', and ' + surahParticles + ' particle' + (surahParticles !== 1 ? 's' : '') + ' specific to this surah</span>' +
         '<span class="db-inline-green ai-unlock-item">\u2713 Learn words from ' + surahRootCount + ' root famil' + (surahRootCount !== 1 ? 'ies' : 'y') + ' used in this surah\'s context</span>' +
         (surahCompPct > 0 
-          ? '<span class="ai-unlock-gold-dim">\uD83D\uDCC8 Current understanding of this surah: ' + surahCompPct + '%</span>'
-          : '<span class="db-inline-text-sm">\uD83D\uDCC8 Master words in this surah to understand it at a deeper level</span>') +
+          ? '<span class="ai-unlock-gold-dim">' + uiIcon('trend') + 'Current understanding of this surah: ' + surahCompPct + '%</span>'
+          : '<span class="db-inline-text-sm">' + uiIcon('trend') + 'Master words in this surah to understand it at a deeper level</span>') +
         '</div></div>';
       unlocksEl.style.display = 'block';
     }
@@ -603,7 +603,7 @@ function updateLessonProgressDisplay() {
       var $totalWords = $coverage ? $coverage.totalWords : 0;
       
       journeyEl.innerHTML = '<div class="foundation-journey-section">' +
-        '<h4 class="db-inline-value-sm ai-journey-title">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
+        '<h4 class="db-inline-value-sm ai-journey-title">' + uiIcon('map-pin') + 'Your Journey</h4>' +
         '<div class="db-progress">' +
         '<div class="db-progress-track">' +
         '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--blue);border-radius:3px"></div></div>' +
@@ -621,7 +621,7 @@ function updateLessonProgressDisplay() {
     var continueBtn = DOM.get('continue-learning-btn');
     if (continueBtn) {
       if (completed >= surahIds.length) {
-        continueBtn.textContent = '\uD83C\uDF89 All Surahs Complete!';
+        continueBtn.innerHTML = iconText('celebration', 'All Surahs Complete!');
         continueBtn.disabled = true;
       } else {
         var nextIncomplete = -1;
@@ -630,7 +630,7 @@ function updateLessonProgressDisplay() {
         }
         if (nextIncomplete >= 0) {
           var nextSurahName = typeof getSurahNameSimple === 'function' ? getSurahNameSimple(surahIds[nextIncomplete]) : 'Surah ' + surahIds[nextIncomplete];
-          continueBtn.textContent = '\uD83D\uDCD6 Continue ' + nextSurahName;
+          continueBtn.innerHTML = iconText('book-open', 'Continue ' + nextSurahName);
           continueBtn.disabled = false;
         }
       }
@@ -715,14 +715,14 @@ function updateLessonProgressDisplay() {
   var unlocksEl = DOM.get('foundation-unlocks');
   if (unlocksEl) {
     unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
-      '<h3 class="foundation-unlock-title">\uD83D\uDD13 What you will learn in this lesson:</h3>' +
+      '<h3 class="foundation-unlock-title">' + uiIcon('unlock') + 'What you will learn in this lesson:</h3>' +
       '<div class="foundation-unlock-items">' +
       '<span class="db-inline-green ai-unlock-item">\u2713 Practice ' + lessonNouns + ' noun' + (lessonNouns !== 1 ? 's' : '') + 
       ', ' + lessonVerbs + ' verb' + (lessonVerbs !== 1 ? 's' : '') + 
       ', and ' + lessonParticles + ' particle' + (lessonParticles !== 1 ? 's' : '') + '</span>' +
       '<span class="db-inline-green ai-unlock-item">\u2713 Explore ' + lessonRootCount + ' root famil' + (lessonRootCount !== 1 ? 'ies' : 'y') + ' to see word patterns</span>' +
       (lessonCoveragePct > 0 
-        ? '<span class="ai-unlock-gold-dim">\uD83D\uDCC8 These words appear ~' + lessonTotalOcc + ' times in the Quran</span>'
+        ? '<span class="ai-unlock-gold-dim">' + uiIcon('trend') + 'These words appear ~' + lessonTotalOcc + ' times in the Quran</span>'
         : '') +
       '</div></div>';
     unlocksEl.style.display = 'block';
@@ -736,7 +736,7 @@ function updateLessonProgressDisplay() {
     var surahsTotal = allSurahComp.length;
     
     journeyEl.innerHTML = '<div class="foundation-journey-section">' +
-      '<h4 class="db-inline-value-sm ai-journey-title">\uD83D\uDDFA\uFE0F Your Journey</h4>' +
+      '<h4 class="db-inline-value-sm ai-journey-title">' + uiIcon('map-pin') + 'Your Journey</h4>' +
       '<div class="db-progress">' +
       '<div class="db-progress-track">' +
       '<div class="db-progress-fill" style="height:6px;width:' + pct + '%;background:var(--gold);border-radius:3px"></div></div>' +
@@ -755,16 +755,16 @@ function updateLessonProgressDisplay() {
     if (continueBtn) {
     var nextIncomplete = getNextIncompleteLesson();
     if (nextIncomplete === 0 && isLessonCompleted(0) && getLessonCount() > 1) {
-      continueBtn.textContent = '\uD83C\uDF89 All Lessons Complete!';
+      continueBtn.innerHTML = iconText('celebration', 'All Lessons Complete!');
       continueBtn.disabled = true;
     } else if (nextIncomplete === activeLessonIndex) {
-      continueBtn.textContent = '\uD83D\uDCD6 Continue Lesson ' + (nextIncomplete + 1);
+      continueBtn.innerHTML = iconText('book-open', 'Continue Lesson ' + (nextIncomplete + 1));
       continueBtn.disabled = false;
     } else if (isLessonCompleted(activeLessonIndex) && nextIncomplete < getLessonCount()) {
-      continueBtn.textContent = '\uD83D\uDD13 Unlock Lesson ' + (nextIncomplete + 1) + '!';
+      continueBtn.innerHTML = iconText('unlock', 'Unlock Lesson ' + (nextIncomplete + 1) + '!');
       continueBtn.disabled = false;
     } else {
-      continueBtn.textContent = '\uD83D\uDCD6 Continue Lesson ' + (nextIncomplete + 1);
+      continueBtn.innerHTML = iconText('book-open', 'Continue Lesson ' + (nextIncomplete + 1));
       continueBtn.disabled = false;
     }
   }
@@ -784,10 +784,10 @@ function toggleQuickMode() {
   if (btn) {
     if (quickMode) {
       btn.classList.add('active-qa');
-      btn.innerHTML = '<span class="qa-btn-icon">\u26A1</span> Quick: ON';
+      btn.innerHTML = '<span class="qa-btn-icon">' + uiIcon('bolt', true) + '</span> Quick: ON';
     } else {
       btn.classList.remove('active-qa');
-      btn.innerHTML = '<span class="qa-btn-icon">\u26A1</span> Quick';
+      btn.innerHTML = '<span class="qa-btn-icon">' + uiIcon('bolt', true) + '</span> Quick';
     }
   }
   // Scroll word card into view in quick mode
@@ -1293,7 +1293,7 @@ function renderFallbackUI() {
   if (!dashboardGrid) return;
   dashboardGrid.innerHTML = '' +
     '<div class="ai-fb-wrap">' +
-      '<div class="ai-fb-icon">📖</div>' +
+      '<div class="ai-fb-icon">' + uiIcon('book-open', true) + '</div>' +
       '<h2 class="ai-fb-title">Welcome to Bayan</h2>' +
       '<p class="ai-fb-text">' +
         'Your Quran vocabulary learning app is loading. Please wait or try refreshing.' +
@@ -1734,9 +1734,9 @@ function handleCheckoutParams() {
 
     function showSuccess() {
       if (window.__ux && typeof window.__ux.showToast === 'function') {
-        window.__ux.showToast('You\'re premium now! 🎉', 'success', 6000);
+        window.__ux.showToast('You\'re premium now!', 'success', 6000);
       } else if (typeof showToast === 'function') {
-        showToast('You\'re premium now! 🎉', 'success', 6000);
+        showToast('You\'re premium now!', 'success', 6000);
       }
     }
 

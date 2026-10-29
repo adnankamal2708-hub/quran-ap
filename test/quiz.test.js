@@ -95,6 +95,7 @@ global.goToSurah = function(id) {};
 var fs = require('fs');
 var path = require('path');
 var quizCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'quiz.js'), 'utf8');
+require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(quizCode);
 
 // ═══════════════════════════════════════════════════════════════

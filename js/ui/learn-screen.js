@@ -76,7 +76,7 @@ function renderLearnScreen() {
         var $preview = window.__phase2.getSurahPreview ? window.__phase2.getSurahPreview($nextSurah.surahId) : null;
         var $gProgress = window.__phase2.getGuidedReadingProgress ? window.__phase2.getGuidedReadingProgress() : null;
         h += '<div class="ls-action-card ls-card-learn" id="ls-guided-reading" tabindex="0" role="button" aria-label="Guided Reading: ' + ($preview ? $preview.surahName : '') + '">';
-        h += '<div class="ls-card-icon">📖</div>';
+        h += '<div class="ls-card-icon">' + uiIcon('book-open', true) + '</div>';
         h += '<div class="ls-card-body">';
         h += '<div class="ls-card-title">Guided Reading: ' + ($preview ? $preview.surahName : '') + '</div>';
         h += '<div class="ls-card-sub">';
@@ -90,7 +90,7 @@ function renderLearnScreen() {
       }
     } else if ($p2Phase === 'phase2') {
       h += '<div class="ls-action-card" id="ls-independent-reading" style="opacity:0.85">';
-      h += '<div class="ls-card-icon">📚</div>';
+      h += '<div class="ls-card-icon">' + uiIcon('layers', true) + '</div>';
       h += '<div class="ls-card-body">';
       h += '<div class="ls-card-title">Independent Reading</div>';
       h += '<div class="ls-card-sub">All guided surahs complete! Open the Quran to explore any surah.</div>';
@@ -126,11 +126,11 @@ function renderLearnScreen() {
     h += '<div class="ls-path-item" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah">' + _lsIcon('book', 14) + ' <span>Surahs</span> <span class="ls-path-pct">' + ($surahTotal > 0 ? Math.round(($surahDone / $surahTotal) * 100) : 0) + '%</span></div>';
     h += '<div class="ls-path-item" id="ls-path-roots" tabindex="0" role="button" aria-label="Learn by roots">' + _lsIcon('leaf', 14) + ' <span>Roots</span> <span class="ls-path-pct">' + ($rfTotal > 0 ? Math.round(($rfDone / $rfTotal) * 100) : 0) + '%</span></div>';
   } else {
-    h += '<div class="ls-path-item ls-path-locked" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah — Premium feature">🔒 <span>Surahs</span> <span class="ls-path-pct" style="color:var(--gold)">Premium</span></div>';
-    h += '<div class="ls-path-item ls-path-locked" id="ls-path-roots" tabindex="0" role="button" aria-label="Learn by roots — Premium feature">🔒 <span>Roots</span> <span class="ls-path-pct" style="color:var(--gold)">Premium</span></div>';
+    h += '<div class="ls-path-item ls-path-locked" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah — Premium feature">' + uiIcon('lock', true) + '<span>Surahs</span> <span class="ls-path-pct" style="color:var(--gold)">Premium</span></div>';
+    h += '<div class="ls-path-item ls-path-locked" id="ls-path-roots" tabindex="0" role="button" aria-label="Learn by roots — Premium feature">' + uiIcon('lock', true) + '<span>Roots</span> <span class="ls-path-pct" style="color:var(--gold)">Premium</span></div>';
   }
   h += '<div class="ls-path-item" id="ls-path-difficulty" tabindex="0" role="button" aria-label="Learn by difficulty">' + _lsIcon('target', 14) + ' <span>Difficulty</span> <span class="ls-path-pct">' + Math.round(($diffDone / 5) * 100) + '%</span></div>';
-  h += '<div class="ls-path-item" id="ls-path-quiz" tabindex="0" role="button" aria-label="Take a quiz">' + _lsIcon('bolt', 14) + ' <span>Quiz</span> <span class="ls-path-pct">⚡</span></div>';
+  h += '<div class="ls-path-item" id="ls-path-quiz" tabindex="0" role="button" aria-label="Take a quiz">' + _lsIcon('bolt', 14) + ' <span>Quiz</span> <span class="ls-path-pct">' + uiIcon('bolt', true) + '</span></div>';
   h += '</div>'
 
   // ── Inject ──
