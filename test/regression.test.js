@@ -892,6 +892,62 @@ suite('View Switch Scroll Protection', function() {
     assert.ok(html.indexOf('>Take a quiz<') > end, 'quiz button after the panel');
   });
 
+  // ── Theme: System / Light / Dark ──
+  function runThemeScript(stored, deviceLight) {
+    // The <head> script, minified the way build.js does it on a CRLF
+    // checkout (every line joined): a // comment there once disabled it.
+    var html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8').replace(/\r?\n/g, '\r\n');
+    var min = html.replace(/\n\s+/g, '\n').replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ');
+    var script = (min.match(/<script>([^<]*__applyTheme[^<]*)<\/script>/) || [])[1];
+    assert.ok(script, 'theme script present in <head>');
+    var attrs = {};
+    var sandbox = {
+      document: { documentElement: { setAttribute: function (k, v) { attrs[k] = v; } } },
+      localStorage: { getItem: function () { return stored; } },
+    };
+    sandbox.window = sandbox;
+    sandbox.window.matchMedia = function () { return { matches: deviceLight, addEventListener: function () {} }; };
+    require('vm').runInNewContext(script, sandbox);
+    return attrs['data-theme'];
+  }
+
+  test('theme script sets data-theme from the device, or the saved choice', function() {
+    assert.strictEqual(runThemeScript(null, true), 'light', 'device in light mode');
+    assert.strictEqual(runThemeScript(null, false), 'dark', 'device in dark mode');
+    assert.strictEqual(runThemeScript('dark', true), 'dark', 'saved Dark beats the device');
+    assert.strictEqual(runThemeScript('light', false), 'light', 'saved Light beats the device');
+    assert.strictEqual(runThemeScript('bogus', true), 'light', 'unknown value follows the device');
+  });
+
+  test('theme button cycles System → Light → Dark and forgets the choice on System', function() {
+    var store = {};
+    var applied = 0;
+    var btn = { setAttribute: function () {}, innerHTML: '', title: '' };
+    var sandbox = {
+      localStorage: {
+        getItem: function (k) { return k in store ? store[k] : null; },
+        setItem: function (k, v) { store[k] = String(v); },
+        removeItem: function (k) { delete store[k]; },
+      },
+      document: { getElementById: function (id) { return id === 'theme-btn' ? btn : null; } },
+      uiIcon: function (name) { return '[' + name + ']'; },
+    };
+    sandbox.window = sandbox;
+    sandbox.window.__applyTheme = function () { applied++; };
+    require('vm').runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'theme.js'), 'utf8') + '\ninitThemeButton();', sandbox);
+    assert.strictEqual(btn.innerHTML, '[monitor]', 'starts on System');
+    btn.onclick();
+    assert.strictEqual(store.bayan_theme, 'light');
+    assert.strictEqual(btn.innerHTML, '[sun]');
+    btn.onclick();
+    assert.strictEqual(store.bayan_theme, 'dark');
+    assert.strictEqual(btn.innerHTML, '[moon]');
+    btn.onclick();
+    assert.ok(!('bayan_theme' in store), 'System removes the saved choice');
+    assert.strictEqual(btn.innerHTML, '[monitor]');
+    assert.strictEqual(applied, 3, 'theme re-applied on every change');
+  });
+
   test('Quran reader word colours come from the app palette', function() {
     // Unstudied words were painted bright orange (#ff7043), so a new learner's
     // whole first surah looked like an error state.

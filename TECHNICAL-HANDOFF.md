@@ -139,6 +139,10 @@ through `hasFeature(FEATURES.X)`.
   (`__premium.onChange → rerenderCurrentView`, lines 510–514).
 - `js/ui/dashboard.js` — `renderDashboard()`, the most-gated screen (see §3.3).
 - `js/ui/learn-screen.js` — Learn tab / active word-study card.
+- `js/ui/theme.js` — the top bar's System / Light / Dark theme button. The
+  inline `<head>` script in `index.html` sets `data-theme` before first
+  paint (block comments only there: the production build joins it onto one
+  line); `:root[data-theme="light"]` in `styles.css` holds the light palette.
 - `js/ui/word-card.js` — the word card in Learn; also gates root analysis behind
   progressive disclosure (`getProgressiveVisibility().showRootAnalysis`, needs 3+
   completed foundation lessons).

@@ -8,6 +8,25 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Bayan" />
   <meta name="theme-color" content="#c9a84c" />
+  <script>
+    /* Theme before first paint: the reader's choice (bayan_theme = light or
+       dark) or else the device setting, followed live. js/ui/theme.js
+       changes the choice; window.__applyTheme re-applies it.
+       Block comments only: the production build joins this onto one line. */
+    (function () {
+      var root = document.documentElement;
+      var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+      function apply() {
+        var pref = 'system';
+        try { pref = localStorage.getItem('bayan_theme') || 'system'; } catch (e) {}
+        var theme = pref === 'light' || pref === 'dark' ? pref : (mq && mq.matches ? 'light' : 'dark');
+        root.setAttribute('data-theme', theme);
+      }
+      apply();
+      if (mq && mq.addEventListener) mq.addEventListener('change', apply);
+      window.__applyTheme = apply;
+    })();
+  </script>
   <link rel="icon" type="image/png" sizes="16x16" href="assets/logo/favicon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/logo/favicon-32.png" />
   <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon-180.png" />
@@ -24,7 +43,7 @@
   <!-- ── SAFEGUARDS: Inline CSS fallback for extreme edge cases ── -->
   <style>
     /* Fallback design tokens used when CSS variables fail to resolve (safeguards.js) */
-    html { background: #0f0e0c; color: #e8e2d5; }
+    html { background: var(--bg, #0f0e0c); color: var(--text, #e8e2d5); }
     body { background: inherit; color: inherit; }
     /* If fonts fail to load, .fonts-failed is set by safeguards.js */
     html.fonts-failed .arabic-word { font-family: 'Traditional Arabic', 'Arabic Typesetting', serif; }
@@ -420,6 +439,7 @@ getResults: function () { return _safeguardResults; },
           <span class="beta-badge" id="beta-badge" style="display:none" title="">Beta</span>
         </div>
         <div class="top-right-group">
+          <button class="theme-btn" id="theme-btn" type="button" aria-label="Change theme"></button>
           <span class="guest-badge" id="guest-badge" style="display:none"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:2px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Guest</span><a id="header-signin-link" class="header-signin-link" href="#" style="display:none">Sign in</a>
           <button class="user-avatar-small" id="user-avatar-display" type="button" aria-label="Profile" onclick="switchView('profile')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
         </div>
@@ -1239,7 +1259,6 @@ getResults: function () { return _safeguardResults; },
                 <label class="auth-label" for="settings-edit-size">Session word count (5-153)</label>
                 <input class="auth-input" id="settings-edit-size" type="number" min="5" max="500" value="20" />
                 <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-auto" checked /><span>Auto-import local data on login</span></label>
-                <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-dark-theme" checked /><span>Dark theme (default)</span></label>
                 <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-show-celebrations" checked /><span>Show milestone celebrations</span></label>
                 <label class="auth-checkbox-label mt-12 flex gap-8"><input type="checkbox" id="settings-edit-notifications" checked /><span>Daily review reminder</span></label>
                 <div class="auth-error" id="settings-edit-error" style="display:none"></div>

@@ -187,7 +187,7 @@ function showPreLessonReviewPrompt(checkResult) {
     '<div style="flex:1">' +
     '<div style="font-weight:500;color:var(--gold);margin-bottom:4px">' + checkResult.message + '</div>' +
     '<div style="display:flex;gap:8px">' +
-    '<button id="pre-review-now" class="btn btn-sm" style="background:var(--gold);color:var(--bg);border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">Review Now</button>' +
+    '<button id="pre-review-now" class="btn btn-sm" style="background:var(--gold);color:var(--on-gold);border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">Review Now</button>' +
     '<button id="pre-review-continue" class="btn btn-sm" style="background:var(--bg-hover);color:var(--text);border:1px solid var(--border-light);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">Continue Anyway</button>' +
     '</div></div></div>';
   

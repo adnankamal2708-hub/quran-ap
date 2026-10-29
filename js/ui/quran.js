@@ -619,7 +619,7 @@ function renderQuran() {
               '<span style="font-size:11px;color:var(--green)">' + uiIcon('trend') + 'Estimated comprehension: ' + $gPreview.estimatedComprehension + '%</span>' +
               '<span style="font-size:11px;color:var(--text-muted)">⏱️ ~' + $gPreview.estMinutes + ' min</span>' +
               '</div>' +
-              '<button class="btn btn-sm" id="quran-guided-start" type="button" style="margin-top:8px;background:var(--gold);color:var(--bg);border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:11px">Start Reading →</button>' +
+              '<button class="btn btn-sm" id="quran-guided-start" type="button" style="margin-top:8px;background:var(--gold);color:var(--on-gold);border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:11px">Start Reading →</button>' +
               '</div></div></div>';
           }
         }
@@ -792,7 +792,7 @@ function goBackToSurahList() {
       if ($completionData.nextSurah) {
         $nextHtml = '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">' +
           '<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Next recommendation:</div>' +
-          '<button id="quran-next-guided" class="btn btn-sm" style="background:var(--gold);color:var(--bg);border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:11px">Continue to ' + $completionData.nextSurah.name + ' →</button>' +
+          '<button id="quran-next-guided" class="btn btn-sm" style="background:var(--gold);color:var(--on-gold);border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:11px">Continue to ' + $completionData.nextSurah.name + ' →</button>' +
           '</div>';
       }
       $compCard.innerHTML = '<div style="display:flex;align-items:flex-start;gap:10px">' +

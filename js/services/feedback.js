@@ -196,7 +196,7 @@
         'margin-top:8px;font-family:var(--body);outline:none;box-sizing:border-box"' +
         ' aria-label="Email address" />' +
       '<div id="fb-status" style="font-size:11px;margin-top:8px;min-height:18px;color:var(--text-muted)"></div>' +
-      '<button id="fb-submit" style="width:100%;background:var(--gold);color:var(--bg);' +
+      '<button id="fb-submit" style="width:100%;background:var(--gold);color:var(--on-gold);' +
         'border:none;border-radius:var(--radius-btn);padding:10px;font-size:13px;' +
         'font-weight:500;cursor:pointer;margin-top:10px;font-family:var(--body)">Send Feedback</button>';
 

@@ -217,6 +217,7 @@ Code is split into focused modules (the old `data.js` / `ui.js` monoliths are go
 - `explorer.js` — Vocabulary explorer
 - `analytics-ui.js` — Analytics rendering
 - `dashboard.js` — Dashboard rendering
+- `theme.js` — Light / dark theme choice (System, Light, Dark)
 
 ## Tech Stack
 

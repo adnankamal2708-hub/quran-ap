@@ -851,6 +851,9 @@ function wireEvents() {
   // "More for this word" panel (notes, roots, word connections, lesson stats)
   if (typeof initLearnMore === 'function') initLearnMore();
 
+  // Theme button in the top bar (System / Light / Dark)
+  if (typeof initThemeButton === 'function') initThemeButton();
+
   // Notes (auto-save on blur)
   var notesInput = document.getElementById('notes-input');
   if (notesInput) notesInput.onblur = saveNote;

@@ -42,6 +42,7 @@ const UI_FILES = [
   'js/quran/quran-loader.js',
   'js/ui/quran.js',
   'js/ui/learn-screen.js',
+  'js/ui/theme.js',
 ];
 
 // firebase-core.js is NOT in the bundle — it is loaded as a separate ES
