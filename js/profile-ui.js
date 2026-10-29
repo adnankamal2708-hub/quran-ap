@@ -679,12 +679,12 @@ function _refreshDataExportButtons() {
   if (exportBtn) {
     exportBtn.innerHTML = has
       ? '📤 Export Learning Data'
-      : '🔒 📤 Export Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
+      : '🔒 📤 Export Learning Data <span style="color:var(--gold);font-size:11px;margin-left:4px">Premium</span>';
   }
   if (importBtn) {
     importBtn.innerHTML = has
       ? '📥 Import Learning Data'
-      : '🔒 📥 Import Learning Data <span style="color:var(--gold);font-size:10px;margin-left:4px">Premium</span>';
+      : '🔒 📥 Import Learning Data <span style="color:var(--gold);font-size:11px;margin-left:4px">Premium</span>';
   }
 }
 
@@ -856,7 +856,7 @@ function renderProfileProgress() {
     for (var si = 0; si < Math.min(3, lowestList.length); si++) {
       var sc = lowestList[si];
       var sName = typeof getSurahInfo === 'function' && getSurahInfo(sc.surahId) ? getSurahInfo(sc.surahId).name : 'Surah ' + sc.surahId;
-      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + (sc.estimatedComprehension >= 50 ? 'profile-fill-gold' : 'profile-fill-red') + '" style="width:' + Math.max(1, sc.estimatedComprehension) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + sc.estimatedComprehension + '%</span></div>';
+      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:11px;min-width:70px">' + sName + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + (sc.estimatedComprehension >= 50 ? 'profile-fill-gold' : 'profile-fill-red') + '" style="width:' + Math.max(1, sc.estimatedComprehension) + '%"></div></div><span class="profile-bar-value" style="font-size:11px">' + sc.estimatedComprehension + '%</span></div>';
     }
     if (lowestList.length > 3) {
       h += '<div class="pui-value-sm pui-muted pui-center" style="margin-top:4px">+' + (lowestList.length - 3) + ' more surahs</div>';
@@ -957,7 +957,7 @@ function renderProfileProgress() {
         var entry = srsData[forecastWords[wi].id];
         if (entry && entry.dueDate && entry.dueDate <= cutoff) cnt++;
       }
-      h += '<div class="profile-bar-row"><span class="profile-forecast-dot" style="background:' + forecastColors[ii] + '"></span><span class="profile-bar-label" style="font-size:10px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + forecastFills[ii] + '" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, forecastWords.length)) * 100)) + '%"></div></div><span class="profile-bar-value" style="font-size:10px">' + cnt + '</span></div>';
+      h += '<div class="profile-bar-row"><span class="profile-forecast-dot" style="background:' + forecastColors[ii] + '"></span><span class="profile-bar-label" style="font-size:11px">' + intervalLabels[ii] + '</span><div class="profile-bar-track"><div class="profile-bar-fill ' + forecastFills[ii] + '" style="width:' + Math.min(100, Math.round((cnt / Math.max(1, forecastWords.length)) * 100)) + '%"></div></div><span class="profile-bar-value" style="font-size:11px">' + cnt + '</span></div>';
     }
     h += '</div>';
   }
@@ -1036,7 +1036,7 @@ function renderProfileInsights() {
       h += '<div class="profile-subsection-title">💪 Strongest Roots</div>';
       for (var sri = 0; sri < Math.min(profile.strongRoots.length, 5); sri++) {
         var sr = profile.strongRoots[sri];
-        h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + sr.root + '</span><span style="font-size:10px;color:var(--text-muted);flex:1">' + (sr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:10px;color:var(--green)">' + sr.masteryScore + '%</span></div>';
+        h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:11px">' + sr.root + '</span><span style="font-size:11px;color:var(--text-muted);flex:1">' + (sr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:11px;color:var(--green)">' + sr.masteryScore + '%</span></div>';
       }
       h += '</div>';
     }
@@ -1045,7 +1045,7 @@ function renderProfileInsights() {
       h += '<div class="profile-subsection-title">🌱 Needs Practice</div>';
       for (var wri = 0; wri < Math.min(profile.weakRoots.length, 5); wri++) {
         var wr = profile.weakRoots[wri];
-        h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">' + wr.root + '</span><span style="font-size:10px;color:var(--text-muted);flex:1">' + (wr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:10px;color:var(--red)">' + wr.masteryScore + '%</span></div>';
+        h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:11px">' + wr.root + '</span><span style="font-size:11px;color:var(--text-muted);flex:1">' + (wr.rootMeaning || '') + '</span><span class="profile-bar-value" style="font-size:11px;color:var(--red)">' + wr.masteryScore + '%</span></div>';
       }
       h += '</div>';
     }
@@ -1066,7 +1066,7 @@ function renderProfileInsights() {
     if (periods && periods.consistency !== undefined) {
       h += '<div class="profile-subsection">';
       h += '<div class="profile-subsection-title">🎯 Consistency</div>';
-      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:10px">Active days</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + periods.consistency + '%;background:var(--gold)"></div></div><span class="profile-bar-value" style="font-size:10px">' + periods.consistency + '%</span></div>';
+      h += '<div class="profile-bar-row"><span class="profile-bar-label" style="font-size:11px">Active days</span><div class="profile-bar-track"><div class="profile-bar-fill" style="width:' + periods.consistency + '%;background:var(--gold)"></div></div><span class="profile-bar-value" style="font-size:11px">' + periods.consistency + '%</span></div>';
       h += '</div>';
     }
 
@@ -1127,7 +1127,7 @@ function renderProfileAbout() {
   var $ccUrl = 'https:' + '/' + '/creativecommons.org/licenses/by-sa/4.0/';
   h += '<div class="pf-about-attrib-line">Arabic text from <a href="' + $tanzilUrl + '" target="_blank" rel="noopener noreferrer">Tanzil Project</a> and The Noble Qur\'an Encyclopedia.</div>';
   h += '<div class="pf-about-attrib-line">English translation by <strong>Saheeh International</strong> (from Tanzil.net).</div>';
-  h += '<div class="pf-about-attrib-line" style="font-size:10px;color:var(--text-muted);margin-top:4px">Licensed under <a href="' + $ccUrl + '" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);text-decoration:underline">CC-BY-SA 4.0</a>.</div>';
+  h += '<div class="pf-about-attrib-line" style="font-size:11px;color:var(--text-muted);margin-top:4px">Licensed under <a href="' + $ccUrl + '" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);text-decoration:underline">CC-BY-SA 4.0</a>.</div>';
   h += '</div></div>';
 
   // Links

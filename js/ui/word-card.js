@@ -329,7 +329,7 @@ function renderWordLearningContext(w) {
   }
   
   if (parts.length > 0) {
-    ctxEl.innerHTML = '<span style="font-size:10px;color:var(--text-muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap">' +
+    ctxEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap">' +
       '<span>📍</span><span>' + parts.join(' \u00B7 ') + '</span></span>';
     ctxEl.style.display = 'block';
   } else {

@@ -222,7 +222,7 @@ function createBadge(text, variant) {
     info: 'var(--blue)',
     gold: 'var(--gold)',
   };
-  badge.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:' + (colors[variant] || colors.default) + '22;color:' + (colors[variant] || colors.default) + ';line-height:1.4';
+  badge.style.cssText = 'display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:' + (colors[variant] || colors.default) + '22;color:' + (colors[variant] || colors.default) + ';line-height:1.4';
   badge.textContent = text;
   return badge;
 }

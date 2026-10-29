@@ -477,7 +477,7 @@
         '<button class="btn btn-sm" onclick="window.location.reload()" ' +
           'style="min-height:36px;padding:8px 20px;font-size:12px">\u21BB Reload</button>' +
         (issueCount > 0
-          ? '<div style="margin-top:12px;font-size:10px;color:var(--text-muted, #8a8070);opacity:0.5">' +
+          ? '<div style="margin-top:12px;font-size:11px;color:var(--text-muted, #8a8070);opacity:0.5">' +
             issueCount + ' startup issue(s) detected. See console for details.</div>'
           : '') +
       '</div>';
@@ -533,11 +533,11 @@
     if (issues.length === 0) {
       return '<div style="color:var(--green, #4a9e6b);font-size:11px">\u2713 No startup issues detected.</div>';
     }
-    var html = '<div style="font-size:10px;color:var(--gold-dim, #7a6530);margin-bottom:4px">' +
+    var html = '<div style="font-size:11px;color:var(--gold-dim, #7a6530);margin-bottom:4px">' +
       issues.length + ' startup issue(s):</div>';
     for (var i = 0; i < issues.length; i++) {
       var icon = issues[i].type === 'dom' ? '\uD83D\uDD32' : issues[i].type === 'css' ? '\uD83C\uDFA8' : '\uD83D\uDD24';
-      html += '<div style="font-size:10px;color:var(--text-muted, #8a8070);padding:2px 0">' +
+      html += '<div style="font-size:11px;color:var(--text-muted, #8a8070);padding:2px 0">' +
         icon + ' ' + issues[i].detail + '</div>';
     }
     return html;

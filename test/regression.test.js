@@ -281,7 +281,7 @@ suite('Typography System', function() {
   });
 
   test('typography scale includes all needed font-size values', function() {
-    assert.ok(cssContains('--text-xs: 10px'), 'text-xs should be 10px');
+    assert.ok(cssContains('--text-xs: 11px'), 'text-xs should be 11px (the readable floor)');
     assert.ok(cssContains('--text-sm: 12px'), 'text-sm should be 12px');
     assert.ok(cssContains('--text-base: 14px'), 'text-base should be 14px');
     assert.ok(cssContains('--text-lg: 18px'), 'text-lg should be 18px');
@@ -289,8 +289,22 @@ suite('Typography System', function() {
     assert.ok(cssContains('--text-2xl: 30px'), 'text-2xl should be 30px');
     assert.ok(cssContains('--text-3xl: 42px'), 'text-3xl should be 42px');
     assert.ok(cssContains('--text-4xl: 52px'), 'text-4xl should be 52px');
-    assert.ok(cssContains('--text-2xs: 8px'), 'text-2xs should be 8px');
-    assert.ok(cssContains('--text-3xs: 9px'), 'text-3xs should be 9px');
+    assert.ok(cssContains('--text-2xs: 11px'), 'text-2xs is raised to the 11px floor');
+    assert.ok(cssContains('--text-3xs: 11px'), 'text-3xs is raised to the 11px floor');
+  });
+
+  test('no text is set below 11px', function() {
+    // About 170 rules used 7–10px (bottom-nav labels, header stats, plan
+    // features). SVG ring labels are exempt: their size is in viewBox units.
+    var tooSmall = [];
+    var ruleRe = /([^{}]+)\{([^{}]*)\}/g;
+    var m;
+    while ((m = ruleRe.exec(cssContent))) {
+      if (/goal-ring-text|db-ring-text/.test(m[1])) continue;
+      var size = m[2].match(/font-size:\s*(\d+(?:\.\d+)?)px/);
+      if (size && parseFloat(size[1]) < 11) tooSmall.push(m[1].trim().split('\n').pop() + ' ' + size[1] + 'px');
+    }
+    assert.deepStrictEqual(tooSmall, [], 'rules below 11px: ' + tooSmall.slice(0, 5).join('; '));
   });
 
   test('no font-weight: 450 exists (Inter only has 300,400,500,600,700)', function() {

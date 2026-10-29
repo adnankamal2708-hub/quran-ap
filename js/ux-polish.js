@@ -379,7 +379,7 @@ function showPlanPicker() {
         '</button>' +
         // Monthly plan
         '<button class="plan-card plan-card-premium" id="plan-monthly" type="button" data-plan="monthly">' +
-          '<div class="plan-card-badge">⭐ Premium</div>' +
+          '<div class="plan-card-badge">Premium</div>' +
           '<div class="plan-card-name">Monthly</div>' +
           '<div class="plan-card-price">$2.99<span class="plan-card-period">/mo</span></div>' +
           '<ul class="plan-card-features">' +
@@ -393,7 +393,7 @@ function showPlanPicker() {
         '</button>' +
         // Yearly plan
         '<button class="plan-card plan-card-premium" id="plan-yearly" type="button" data-plan="yearly">' +
-          '<div class="plan-card-badge">⭐ Premium</div>' +
+          '<div class="plan-card-badge">Premium</div>' +
           '<div class="plan-card-name">Yearly</div>' +
           '<div class="plan-card-price">$19.99<span class="plan-card-period">/yr</span></div>' +
           '<ul class="plan-card-features">' +

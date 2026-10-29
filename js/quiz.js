@@ -127,7 +127,7 @@ function answerQuiz(btn, chosen, correct, wordId) {
       relParts.push('In ' + currentWord.surahCount + ' surah' + (currentWord.surahCount !== 1 ? 's' : ''));
     }
     if (relParts.length > 0) {
-      relContext = '<div class="quiz-rel-context" style="font-size:10px;color:var(--text-muted);margin-top:6px;padding:6px 8px;background:var(--bg-hover);border-radius:6px;line-height:1.5">' + relParts.join(' \u00B7 ') + '</div>';
+      relContext = '<div class="quiz-rel-context" style="font-size:11px;color:var(--text-muted);margin-top:6px;padding:6px 8px;background:var(--bg-hover);border-radius:6px;line-height:1.5">' + relParts.join(' \u00B7 ') + '</div>';
     }
   }
 

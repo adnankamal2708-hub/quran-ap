@@ -330,7 +330,7 @@ grid.innerHTML =
 '<button class="btn btn-sm" onclick="window.location.reload()" ' +
 'style="min-height:36px;padding:8px 20px;font-size:12px">\u21BB Reload</button>' +
 (issueCount > 0
-? '<div style="margin-top:12px;font-size:10px;color:var(--text-muted, #8a8070);opacity:0.5">' +
+? '<div style="margin-top:12px;font-size:11px;color:var(--text-muted, #8a8070);opacity:0.5">' +
 issueCount + ' startup issue(s) detected. See console for details.</div>'
 : '') +
 '</div>';
@@ -368,11 +368,11 @@ var issues = getIssues();
 if (issues.length === 0) {
 return '<div style="color:var(--green, #4a9e6b);font-size:11px">\u2713 No startup issues detected.</div>';
 }
-var html = '<div style="font-size:10px;color:var(--gold-dim, #7a6530);margin-bottom:4px">' +
+var html = '<div style="font-size:11px;color:var(--gold-dim, #7a6530);margin-bottom:4px">' +
 issues.length + ' startup issue(s):</div>';
 for (var i = 0; i < issues.length; i++) {
 var icon = issues[i].type === 'dom' ? '\uD83D\uDD32' : issues[i].type === 'css' ? '\uD83C\uDFA8' : '\uD83D\uDD24';
-html += '<div style="font-size:10px;color:var(--text-muted, #8a8070);padding:2px 0">' +
+html += '<div style="font-size:11px;color:var(--text-muted, #8a8070);padding:2px 0">' +
 icon + ' ' + issues[i].detail + '</div>';
 }
 return html;
@@ -504,11 +504,11 @@ getResults: function () { return _safeguardResults; },
           <div class="word-num" id="word-num" aria-live="polite">Word 1 of 20</div>
           <div class="arabic-word" id="arabic-word" lang="ar" dir="rtl">اللَّهُ</div>
           <div class="transliteration" id="transliteration">Allāhu</div>
-          <div style="font-size:10px;color:var(--gold-dim);margin:0 0 4px;min-height:16px" id="surah-badge"></div>
+          <div style="font-size:11px;color:var(--gold-dim);margin:0 0 4px;min-height:16px" id="surah-badge"></div>
           <div id="occ-nav" style="display:none;justify-content:center;align-items:center;gap:6px;margin:2px 0 6px" role="group" aria-label="Context navigation">
-            <button class="qa-btn" id="occ-prev" type="button" style="font-size:10px;padding:4px 10px">← Prev context</button>
-            <span id="occ-label" style="font-size:10px;color:var(--text-muted);min-width:32px;text-align:center">1/1</span>
-            <button class="qa-btn" id="occ-next" type="button" style="font-size:10px;padding:4px 10px">Next context →</button>
+            <button class="qa-btn" id="occ-prev" type="button" style="font-size:11px;padding:4px 10px">← Prev context</button>
+            <span id="occ-label" style="font-size:11px;color:var(--text-muted);min-width:32px;text-align:center">1/1</span>
+            <button class="qa-btn" id="occ-next" type="button" style="font-size:11px;padding:4px 10px">Next context →</button>
           </div>
           <div class="word-type" id="word-type">Proper Noun</div>
           <div class="word-pattern" id="word-pattern"></div>
@@ -516,7 +516,7 @@ getResults: function () { return _safeguardResults; },
           <div id="sr-pill" class="sr-pill sr-new" aria-live="polite"><span aria-hidden="true">🆕</span> New word</div>
           <div class="occurrence-tag" id="occurrences"><svg viewBox="0 0 24 24" width="10" height="10" stroke="var(--green)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Appears 2,699 times</div>
           <div id="root-reinforcement-badge" style="display:none;margin-top:6px;text-align:center"></div>
-          <div id="word-learning-context" style="display:none;font-size:10px;color:var(--gold-dim);margin:6px 0 10px;text-align:center;line-height:1.5;padding:0 8px"></div>
+          <div id="word-learning-context" style="display:none;font-size:11px;color:var(--gold-dim);margin:6px 0 10px;text-align:center;line-height:1.5;padding:0 8px"></div>
         </article>
 
         <div class="nav-row" id="nav-row">
@@ -629,7 +629,7 @@ getResults: function () { return _safeguardResults; },
               <svg class="ls-collapsible-arrow" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="ls-collapsible-body">
-              <div id="foundation-coverage" style="display:none;font-size:10px;color:var(--green);text-align:center" aria-live="polite"></div>
+              <div id="foundation-coverage" style="display:none;font-size:11px;color:var(--green);text-align:center" aria-live="polite"></div>
               <div id="foundation-unlocks" style="display:none" aria-live="polite"></div>
               <div id="foundation-journey" style="display:none" aria-live="polite"></div>
             </div>
@@ -893,9 +893,9 @@ getResults: function () { return _safeguardResults; },
 
             <!-- Occurrence navigation and display -->
             <div class="explorer-occ-nav" id="explorer-occ-nav" role="group" aria-label="Occurrence navigation">
-              <button class="qa-btn" id="explorer-occ-prev" type="button" style="font-size:10px;padding:6px 12px">← Prev</button>
+              <button class="qa-btn" id="explorer-occ-prev" type="button" style="font-size:11px;padding:6px 12px">← Prev</button>
               <span class="explorer-occ-label" id="explorer-occ-label">1 / 1</span>
-              <button class="qa-btn" id="explorer-occ-next" type="button" style="font-size:10px;padding:6px 12px">Next →</button>
+              <button class="qa-btn" id="explorer-occ-next" type="button" style="font-size:11px;padding:6px 12px">Next →</button>
             </div>
 
             <div class="explorer-occ-view">
@@ -1285,7 +1285,7 @@ getResults: function () { return _safeguardResults; },
               <div class="session-stat-label">Time Spent</div>
             </div>
             <div class="session-stat" style="grid-column:1/-1;padding:6px 0;border-bottom:none">
-              <div class="session-stat-next" style="font-size:10px;color:var(--text-muted)">Next: <span id="session-next-recommendation">Continue learning</span></div>
+              <div class="session-stat-next" style="font-size:11px;color:var(--text-muted)">Next: <span id="session-next-recommendation">Continue learning</span></div>
             </div>
             <div class="session-stat" style="grid-column:1/-1;border-bottom:none">
               <div class="session-stat-value" id="session-streak-earned" style="font-size:14px">0</div>
@@ -1310,7 +1310,7 @@ getResults: function () { return _safeguardResults; },
             </div>
             <div class="session-stat" id="session-card-rating" style="grid-column:1/-1;border-bottom:none">
               <div class="session-stat-value" id="session-rating-stars" style="font-size:18px;letter-spacing:2px"></div>
-              <div class="session-stat-label" id="session-rating-label" style="font-size:10px"></div>
+              <div class="session-stat-label" id="session-rating-label" style="font-size:11px"></div>
             </div>
           </div>
           <div class="session-summary-encouragement" id="session-encouragement">Keep up the great work! 🌟</div>
