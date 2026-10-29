@@ -2357,7 +2357,8 @@ body::before {
   z-index: 50;
   font-size: 10px;
   color: var(--text-muted);
-  white-space: nowrap;
+  width: max-content;
+  max-width: calc(100vw - 32px);
   gap: 10px;
   animation: fadeInUp 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   box-shadow: var(--shadow-elevated);
@@ -2384,6 +2385,8 @@ body::before {
 
 .kbd-hint .kbd-group {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 4px;
 }

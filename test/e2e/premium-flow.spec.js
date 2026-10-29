@@ -73,19 +73,20 @@ test.describe('Premium Checkout Flow', () => {
 
 });
 
-// The plan-picker test deliberately does NOT use the beforeEach above: skipping
-// onboarding in beforeEach completes onboarding and dismisses the picker
-// (marking it "seen"), which would prevent the picker from ever showing here.
+// The plan-picker test deliberately does NOT use the beforeEach above: the
+// picker is offered once, on a visit after the first Foundation lesson, so
+// this test seeds that state instead of going through onboarding.
 test.describe('Premium Checkout — Plan Picker (guest)', () => {
   test('choosing a paid plan in the plan picker prompts sign-in for guests', async ({ page }) => {
-    // Fresh context: skip onboarding, but leave the auto-shown plan picker up
-    // so we can click its paid plan cards.
     await page.goto('/');
-    try {
-      await page.waitForSelector('#onboarding-overlay', { timeout: 10000, state: 'visible' });
-      await page.locator('#onboarding-skip').click();
-      await page.waitForSelector('#onboarding-overlay', { state: 'hidden', timeout: 3000 });
-    } catch (e) {}
+    await page.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem('quran_onboarding_done', 'true');
+      localStorage.setItem('quran_foundation_progress', JSON.stringify({
+        currentLesson: 1, completedLessons: [0], quizPassed: { '0': true },
+      }));
+    });
+    await page.reload();
 
     await page.waitForSelector('#plan-picker-overlay.plan-picker-visible', { timeout: 15000 });
     await page.locator('.plan-card[data-plan="monthly"]').click();

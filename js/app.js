@@ -1579,11 +1579,13 @@ function init() {
     }
     try { setupOnlineSync(); } catch (e) { console.warn('[app] Online sync setup failed:', e.message); }
 
-    // 9. Show keyboard shortcut hints on first load (briefly)
+    // 9. Show keyboard shortcut hints once ever, and only where there is a
+    //    keyboard and mouse — on phones they are useless and covered the screen.
     setTimeout(function() {
-      if (!window._kbdHintsShown) {
+      if (shouldAutoShowKeyboardHints()) {
         window._kbdHintsShown = true;
         window._kbdHintsAutoShown = true;
+        markKeyboardHintsSeen();
         showKeyboardHints();
         window.__DEV__ && console.log('[startup] [11] Keyboard hints shown');
       }
@@ -1622,6 +1624,11 @@ function init() {
         if (!onbDone) {
           // Show onboarding after splash screen is fully removed (~1500ms min + 800ms hide + 800ms remove + buffer)
           setTimeout(function() { window.__DEV__ && console.log('[startup] [13b] Showing onboarding overlay'); window.__ux.showOnboarding(); }, 3000);
+        } else if (typeof window.__ux.maybeShowPlanPicker === 'function') {
+          // Returning learner: offer plans once, after their first lesson
+          setTimeout(function() {
+            window.__ux.maybeShowPlanPicker().catch(function (e) { console.warn('[app] Plan picker check failed:', e.message); });
+          }, 3000);
         }
       } catch (e) { console.warn('[app] UX init failed:', e.message); }
     } else {

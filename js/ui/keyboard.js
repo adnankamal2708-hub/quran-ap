@@ -7,6 +7,25 @@
 
 let _kbdHintsTimer = null;
 
+var KBD_HINTS_SEEN_KEY = 'bayan_kbd_hints_seen';
+
+// ── First-Load Auto-Show Gate ─────────────────────────────────
+
+// Auto-show the hints once ever, and only on devices with a keyboard and
+// a precise pointer. Touch devices can still open them with "?".
+function shouldAutoShowKeyboardHints() {
+  if (window._kbdHintsShown) return false;
+  try {
+    if (localStorage.getItem(KBD_HINTS_SEEN_KEY) === '1') return false;
+  } catch (e) { return false; }
+  if (typeof window.matchMedia !== 'function') return false;
+  return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+}
+
+function markKeyboardHintsSeen() {
+  try { localStorage.setItem(KBD_HINTS_SEEN_KEY, '1'); } catch (e) { /* non-critical */ }
+}
+
 // ── Show/Hide Keyboard Hints ──────────────────────────────────
 
 function showKeyboardHints() {

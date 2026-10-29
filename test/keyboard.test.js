@@ -381,6 +381,57 @@ suite('Auto-Shown Hints', function() {
   });
 });
 
+suite('Keyboard Hints First-Load Gate', function() {
+  function withPointer(fine, fn) {
+    global.window.matchMedia = function(q) {
+      return { matches: fine && q === '(hover: hover) and (pointer: fine)' };
+    };
+    try { fn(); } finally { delete global.window.matchMedia; }
+  }
+
+  test('auto-shows on a keyboard-and-mouse device the first time', function() {
+    clearStorage();
+    global.window._kbdHintsShown = false;
+    withPointer(true, function() {
+      assert.strictEqual(shouldAutoShowKeyboardHints(), true);
+    });
+  });
+
+  test('never auto-shows on touch devices', function() {
+    clearStorage();
+    global.window._kbdHintsShown = false;
+    withPointer(false, function() {
+      assert.strictEqual(shouldAutoShowKeyboardHints(), false);
+    });
+  });
+
+  test('does not auto-show again once seen on an earlier visit', function() {
+    clearStorage();
+    global.window._kbdHintsShown = false;
+    markKeyboardHintsSeen();
+    withPointer(true, function() {
+      assert.strictEqual(shouldAutoShowKeyboardHints(), false);
+    });
+  });
+
+  test('does not auto-show without matchMedia', function() {
+    clearStorage();
+    global.window._kbdHintsShown = false;
+    assert.strictEqual(shouldAutoShowKeyboardHints(), false);
+  });
+
+  test('does not auto-show when storage is unavailable', function() {
+    global.window._kbdHintsShown = false;
+    var orig = localStorage.getItem;
+    localStorage.getItem = function() { throw new Error('blocked'); };
+    try {
+      withPointer(true, function() {
+        assert.strictEqual(shouldAutoShowKeyboardHints(), false);
+      });
+    } finally { localStorage.getItem = orig; }
+  });
+});
+
 suite('showKeyboardHints', function() {
   test('shows the hint element', function() {
     resetDOM();

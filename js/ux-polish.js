@@ -447,18 +447,10 @@ function _handlePlanChoice(choice) {
   _markPlanPickerSeen();
   hidePlanPicker();
 
-  if (choice === 'free' || choice === 'skip') {
-    // Free or skip — proceed directly to Dashboard/Learning
-    _proceedAfterPlanPicker();
-  } else if (choice === 'monthly' || choice === 'yearly') {
-    // Premium plan — call requestUpgrade which redirects to Stripe
-    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-      window.__premium.requestUpgrade('plan-picker', { plan: choice });
-    } else {
-      _proceedAfterPlanPicker();
-    }
-  } else {
-    _proceedAfterPlanPicker();
+  // Free or skip just closes the picker — the learner stays where they are.
+  if ((choice === 'monthly' || choice === 'yearly') &&
+      window.__premium && typeof window.__premium.requestUpgrade === 'function') {
+    window.__premium.requestUpgrade('plan-picker', { plan: choice });
   }
 }
 
@@ -474,8 +466,8 @@ function hidePlanPicker() {
   document.body.classList.remove('body-overflow-locked');
 }
 
-/** Navigate after plan picker decision (reuses navigateToFirstAction logic) */
-function _proceedAfterPlanPicker() {
+/** Open the next Foundation lesson (the learner's first action after onboarding) */
+function _goToNextFoundationLesson() {
   setTimeout(function() {
     if (typeof goToFoundationLesson === 'function') {
       var firstLesson = 0;
@@ -497,7 +489,7 @@ function _proceedAfterPlanPicker() {
 }
 
 /** Navigate to the Foundation Course after onboarding */
-async function navigateToFirstAction() {
+function navigateToFirstAction() {
   // Apply onboarding preferences to the adaptive engine.
   // This is the single integration point — the bridge handles goal,
   // daily review limits, and session sizing based on onboarding selections.
@@ -510,31 +502,59 @@ async function navigateToFirstAction() {
     window.__srs.updateDailyReviewLimit(reviewLimit);
   }
 
-  // Show plan picker once before navigating (skip if already seen or user is premium).
-  // IMPORTANT: resolve the LIVE premium state from Firestore before deciding.
-  // isPremium() reads a cached flag that is loaded asynchronously after login —
-  // on a fresh session it can still be false for a genuinely premium user,
-  // which used to flash the upgrade picker at them. refresh() re-reads
-  // subscriptions/{uid} and returns the confirmed answer.
-  var isPremium = false;
-  if (window.__premium && typeof window.__premium.refresh === 'function') {
-    try { isPremium = await window.__premium.refresh(); }
+  _goToNextFoundationLesson();
+}
+
+/**
+ * Resolve the LIVE premium state before upselling. isPremium() reads a
+ * cached flag that loads asynchronously after login — on a fresh session it
+ * can still be false for a genuinely premium user, which used to flash the
+ * upgrade picker at them. refresh() re-reads subscriptions/{uid}.
+ */
+async function _resolvePremium() {
+  var premium = window.__premium;
+  if (!premium) return false;
+  if (typeof premium.refresh === 'function') {
+    try { return !!(await premium.refresh()); }
     catch (e) {
-      // Refresh failed (e.g. offline) — fall back to cached state rather
-      // than blocking navigation entirely.
-      isPremium = !!(window.__premium && typeof window.__premium.isPremium === 'function' && window.__premium.isPremium());
+      // Refresh failed (e.g. offline) — fall back to the cached state.
+      return typeof premium.isPremium === 'function' && !!premium.isPremium();
     }
-  } else if (window.__premium && typeof window.__premium.isPremium === 'function') {
-    isPremium = window.__premium.isPremium();
   }
+  return typeof premium.isPremium === 'function' && !!premium.isPremium();
+}
 
-  if (!hasSeenPlanPicker() && !isPremium) {
-    showPlanPicker();
-    return;
+/**
+ * Wait for Firebase to restore any saved session. Returns false when that
+ * can't be confirmed, so a premium user is never upsold just because their
+ * session hadn't loaded yet (refresh() treats "no user" as not premium).
+ */
+async function _authSettled() {
+  var core = window.__firebaseCore;
+  var auth = core && typeof core.getAuth === 'function' ? core.getAuth() : null;
+  if (!auth) return false;
+  if (typeof auth.authStateReady === 'function') {
+    try { await auth.authStateReady(); } catch (e) { return false; }
   }
+  // The app's cached user must agree with Firebase before premium is checked.
+  var cached = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  return !auth.currentUser || !!(cached && cached.uid === auth.currentUser.uid);
+}
 
-  // Plan picker already seen or user is premium — navigate directly
-  _proceedAfterPlanPicker();
+/**
+ * Show the plan picker once, on a visit after the learner has finished their
+ * first Foundation lesson. It used to appear straight after onboarding, stacked
+ * on the tour, the guest banner and the shortcut hints before the learner had
+ * seen a single word. Returns true when the picker was shown.
+ */
+async function maybeShowPlanPicker() {
+  if (hasSeenPlanPicker()) return false;
+  if (typeof isFoundationLessonCompleted !== 'function' || !isFoundationLessonCompleted(0)) return false;
+  if (!(await _authSettled())) return false;
+  if (await _resolvePremium()) return false;
+  if (document.getElementById('plan-picker-overlay')) return false;
+  showPlanPicker();
+  return true;
 }
 
 // ── Wire Onboarding Events ───────────────────────────────────
@@ -1192,6 +1212,7 @@ window.__ux = {
   showMilestoneCelebration: showMilestoneCelebration,
   // Plan picker
   showPlanPicker: showPlanPicker,
+  maybeShowPlanPicker: maybeShowPlanPicker,
   hidePlanPicker: hidePlanPicker,
   hasSeenPlanPicker: hasSeenPlanPicker,
 };

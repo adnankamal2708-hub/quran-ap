@@ -881,12 +881,12 @@ suite('Exported API surface', function() {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// PLAN PICKER PREMIUM GATING — REGRESSION TESTS
+// PLAN PICKER TIMING & PREMIUM GATING — REGRESSION TESTS
 //
-// navigateToFirstAction() must resolve the LIVE premium state (refresh())
-// before deciding whether to show the upgrade picker. A premium user on a
-// fresh session used to see the picker because the cached isPremium() flag
-// was still false while the Firestore subscription doc was loading.
+// The picker no longer interrupts onboarding: it is offered once, on a later
+// visit, after the first Foundation lesson. It must resolve the LIVE premium
+// state (refresh()) — and wait for the saved session to restore — before
+// deciding, so a premium user on a fresh session is never upsold.
 // ═══════════════════════════════════════════════════════════════
 
 var _asyncTests = [];
@@ -909,81 +909,112 @@ async function runAllAsyncTests() {
   }
 }
 
-suite('Plan Picker Premium Gating', function() {
-  addAsyncTest('premium user (refresh=true) does NOT see the plan picker', async function() {
-    _resetDOM();
-    clearStorage();
-    global.window.__premium = {
-      refresh: async function () { return true; },
-      isPremium: function () { return true; },
-      requestUpgrade: function () {},
-      FEATURES: {},
-    };
-    await navigateToFirstAction();
-    var overlay = document.getElementById('plan-picker-overlay');
-    assert.strictEqual(overlay, null, 'no plan picker for premium user');
-    delete global.window.__premium;
+function _setupPicker(opts) {
+  _resetDOM();
+  clearStorage();
+  global.isFoundationLessonCompleted = function (i) { return i === 0 && !!opts.lessonDone; };
+  var authUser = opts.authUser === undefined ? null : opts.authUser;
+  global.window.__firebaseCore = opts.noAuth ? undefined : {
+    getAuth: function () {
+      return { currentUser: authUser, authStateReady: async function () {} };
+    },
+  };
+  global.getCurrentUser = function () { return opts.cachedUser === undefined ? authUser : opts.cachedUser; };
+  global.window.__premium = {
+    refresh: opts.refreshThrows
+      ? async function () { throw new Error('offline'); }
+      : async function () { return !!opts.premium; },
+    isPremium: function () { return !!opts.cachedPremium; },
+    requestUpgrade: function () {},
+    FEATURES: {},
+  };
+}
+
+function _teardownPicker() {
+  delete global.window.__premium;
+  delete global.window.__firebaseCore;
+  delete global.isFoundationLessonCompleted;
+  delete global.getCurrentUser;
+}
+
+suite('Plan Picker Timing & Premium Gating', function() {
+  addAsyncTest('finishing onboarding goes to the first lesson without the plan picker', async function() {
+    _setupPicker({ lessonDone: false });
+    var opened = null;
+    global.goToFoundationLesson = function (i) { opened = i; };
+    global.getNextIncompleteFoundationLesson = function () { return 0; };
+    navigateToFirstAction();
+    flushTimeouts();
+    assert.strictEqual(document.getElementById('plan-picker-overlay'), null, 'no picker during onboarding');
+    assert.strictEqual(opened, 0, 'opened the first lesson');
+    delete global.goToFoundationLesson;
+    delete global.getNextIncompleteFoundationLesson;
+    _teardownPicker();
   });
 
-  addAsyncTest('premium user (refresh=true) with picker already seen still navigates cleanly', async function() {
-    _resetDOM();
-    clearStorage();
-    global.window.__premium = {
-      refresh: async function () { return true; },
-      isPremium: function () { return true; },
-      requestUpgrade: function () {},
-      FEATURES: {},
-    };
+  addAsyncTest('not offered before the first lesson is complete', async function() {
+    _setupPicker({ lessonDone: false });
+    assert.strictEqual(await ux.maybeShowPlanPicker(), false);
+    assert.strictEqual(document.getElementById('plan-picker-overlay'), null);
+    _teardownPicker();
+  });
+
+  addAsyncTest('free guest who finished lesson 1 sees the picker once', async function() {
+    _setupPicker({ lessonDone: true, premium: false });
+    assert.strictEqual(await ux.maybeShowPlanPicker(), true);
+    assert.ok(document.getElementById('plan-picker-overlay') !== null, 'picker shown');
+    _teardownPicker();
+  });
+
+  addAsyncTest('not offered again once seen', async function() {
+    _setupPicker({ lessonDone: true, premium: false });
     localStorage.setItem('quran_plan_picker_seen', 'true');
-    await navigateToFirstAction();
-    var overlay = document.getElementById('plan-picker-overlay');
-    assert.strictEqual(overlay, null, 'no plan picker when already seen');
-    delete global.window.__premium;
+    assert.strictEqual(await ux.maybeShowPlanPicker(), false);
+    _teardownPicker();
   });
 
-  addAsyncTest('free user (refresh=false) still sees the plan picker', async function() {
-    _resetDOM();
-    clearStorage();
-    global.window.__premium = {
-      refresh: async function () { return false; },
-      isPremium: function () { return false; },
-      requestUpgrade: function () {},
-      FEATURES: {},
-    };
-    await navigateToFirstAction();
-    var overlay = document.getElementById('plan-picker-overlay');
-    assert.ok(overlay !== null, 'plan picker shown for free user');
-    delete global.window.__premium;
+  addAsyncTest('premium user (refresh=true) does NOT see the plan picker', async function() {
+    _setupPicker({ lessonDone: true, premium: true, authUser: { uid: 'u1' } });
+    assert.strictEqual(await ux.maybeShowPlanPicker(), false);
+    assert.strictEqual(document.getElementById('plan-picker-overlay'), null);
+    _teardownPicker();
+  });
+
+  addAsyncTest('not offered while the saved session has not reached the app yet', async function() {
+    _setupPicker({ lessonDone: true, premium: false, authUser: { uid: 'u1' }, cachedUser: null });
+    assert.strictEqual(await ux.maybeShowPlanPicker(), false);
+    _teardownPicker();
+  });
+
+  addAsyncTest('not offered when Firebase auth is unavailable', async function() {
+    _setupPicker({ lessonDone: true, premium: false, noAuth: true });
+    assert.strictEqual(await ux.maybeShowPlanPicker(), false);
+    _teardownPicker();
   });
 
   addAsyncTest('refresh failure falls back to cached premium state', async function() {
-    _resetDOM();
-    clearStorage();
-    global.window.__premium = {
-      refresh: async function () { throw new Error('offline'); },
-      isPremium: function () { return true; },
-      requestUpgrade: function () {},
-      FEATURES: {},
-    };
-    await navigateToFirstAction();
-    var overlay = document.getElementById('plan-picker-overlay');
-    assert.strictEqual(overlay, null, 'no plan picker when cached state says premium');
-    delete global.window.__premium;
+    _setupPicker({ lessonDone: true, refreshThrows: true, cachedPremium: true });
+    assert.strictEqual(await ux.maybeShowPlanPicker(), false);
+    _teardownPicker();
   });
 
   addAsyncTest('refresh failure with non-premium cached state still shows picker', async function() {
-    _resetDOM();
-    clearStorage();
-    global.window.__premium = {
-      refresh: async function () { throw new Error('offline'); },
-      isPremium: function () { return false; },
-      requestUpgrade: function () {},
-      FEATURES: {},
-    };
-    await navigateToFirstAction();
-    var overlay = document.getElementById('plan-picker-overlay');
-    assert.ok(overlay !== null, 'plan picker shown when cached state says free');
-    delete global.window.__premium;
+    _setupPicker({ lessonDone: true, refreshThrows: true, cachedPremium: false });
+    assert.strictEqual(await ux.maybeShowPlanPicker(), true);
+    _teardownPicker();
+  });
+
+  addAsyncTest('choosing Free or Skip closes the picker without navigating', async function() {
+    _setupPicker({ lessonDone: true, premium: false });
+    var navigated = false;
+    global.goToFoundationLesson = function () { navigated = true; };
+    await ux.maybeShowPlanPicker();
+    document.getElementById('plan-picker-skip').onclick();
+    flushTimeouts();
+    assert.strictEqual(navigated, false, 'stays on the current screen');
+    assert.strictEqual(ux.hasSeenPlanPicker(), true, 'marked as seen');
+    delete global.goToFoundationLesson;
+    _teardownPicker();
   });
 });
 
