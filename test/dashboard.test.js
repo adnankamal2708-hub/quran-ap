@@ -473,7 +473,10 @@ suite('Continue Learning Section', function() {
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('Foundation Course') >= 0, 'should show Foundation Course prompt');
-    assert.ok(html.indexOf('Resume') >= 0, 'should show Resume button');
+    // Nothing to resume yet: the learner hasn't started
+    assert.ok(html.indexOf('>Start</button>') >= 0, 'should show Start button');
+    assert.ok(html.indexOf('>Resume</button>') < 0, 'no Resume before any progress');
+    assert.ok(html.indexOf('Start Learning') >= 0, 'section reads Start Learning');
   });
 
   test('in-progress state shows Foundation Course with lesson info', function() {
@@ -486,6 +489,8 @@ suite('Continue Learning Section', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('Foundation Course') >= 0, 'should show Foundation Course');
     assert.ok(html.indexOf('4/') >= 0, 'should show progress count');
+    assert.ok(html.indexOf('>Resume</button>') >= 0, 'in-progress learner can Resume');
+    assert.ok(html.indexOf('Continue Learning') >= 0, 'section reads Continue Learning');
   });
 
   test('has db-continue-learning id and is clickable', function() {
@@ -522,6 +527,9 @@ suite('Continue Reading Section', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('Start Reading') >= 0, 'should show Start Reading');
     assert.ok(html.indexOf('Al-Fatiha') >= 0, 'should recommend Al-Fatiha');
+    // Nothing to continue yet
+    assert.ok(html.indexOf('Read the Quran') >= 0, 'section reads Read the Quran');
+    assert.ok(html.indexOf('Continue Reading') < 0, 'no Continue Reading without history');
   });
 
   test('has db-continue-reading-start id', function() {
@@ -984,8 +992,8 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('Recommendation') === -1, 'no recommendation section for new user');
     assert.ok(html.indexOf('Build your foundation') === -1, 'no build-foundation card');
-    // Continue Learning is the single primary CTA for new users
-    assert.ok(html.indexOf('Continue Learning') >= 0, 'Continue Learning remains');
+    // The learning section is the single primary CTA for new users
+    assert.ok(html.indexOf('Start Learning') >= 0, 'Start Learning section remains');
     assert.ok(document.getElementById('db-continue-learning') !== null, 'Continue Learning card present');
     assert.ok(document.getElementById('db-continue-learning-start') === null, 'no duplicate start card');
   });

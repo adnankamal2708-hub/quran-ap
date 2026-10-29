@@ -370,7 +370,8 @@ function renderDashboard() {
   } // end else (daily goal for non-new users)
 
   // ═══ 4. CONTINUE READING ═══
-  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> Continue Reading</div>';
+  // "Continue" only once there is something to continue
+  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> ' + ($lastRead && $lastRead.surahId ? 'Continue Reading' : 'Read the Quran') + '</div>';
   
   if ($lastRead && $lastRead.surahId) {
     // Last read position available — show resume card
@@ -413,11 +414,11 @@ function renderDashboard() {
   }
 
   // ═══ 5. CONTINUE LEARNING ═══
-  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> Continue Learning</div>';
+  $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> ' + ($noProgress ? 'Start Learning' : 'Continue Learning') + '</div>';
   
   // Determine next learning step
   if ($fTotal > 0 && !$foundationComplete) {
-    $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="Continue Foundation Course">';
+    $h += '<div class="db-card db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="' + ($noProgress ? 'Start' : 'Continue') + ' Foundation Course">';
     $h += '<div class="db-card-row">';
     $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('layers', 22) + '</div>';
     $h += '<div class="db-card-body">';
@@ -426,7 +427,7 @@ function renderDashboard() {
     if ($nextLessonTitle) $h += $nextLessonTitle + ' · ';
     $h += 'Lesson ' + $nextLessonNum + ' of ' + $fTotal + '</div>';
     $h += '</div>';
-    $h += '<button class="btn btn-sm" type="button">Resume</button>';
+    $h += '<button class="btn btn-sm" type="button">' + ($noProgress ? 'Start' : 'Resume') + '</button>';
     $h += '</div>';
     // Foundation progress bar
     $h += '<div class="db-progress db-progress-tight">';

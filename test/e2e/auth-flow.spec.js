@@ -50,7 +50,7 @@ test.describe('Authentication Flow', () => {
     // Signup → login
     await page.locator('#auth-login-link').click();
     await expect(page.locator('#auth-login')).toBeVisible();
-    await expect(page.locator('#auth-title')).toHaveText('Welcome Back');
+    await expect(page.locator('#auth-title')).toHaveText('Sign In');
 
     // Login → signup
     await page.locator('#auth-signup-link').click();
@@ -136,7 +136,7 @@ test.describe('Authentication Flow', () => {
 
     // Should open the auth view with login form visible
     await expect(page.locator('#auth-login')).toBeVisible();
-    await expect(page.locator('#auth-title')).toHaveText('Welcome Back');
+    await expect(page.locator('#auth-title')).toHaveText('Sign In');
   });
 
   test('Google sign-in option stays hidden via the header sign-in link (Stage A gate)', async ({ page }) => {

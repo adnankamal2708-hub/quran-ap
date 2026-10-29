@@ -138,7 +138,7 @@ ts('Auth — View Switching', function() {
     // `_currentAuthView` is scoped inside the eval'd module, so we check DOM only
     assert.strictEqual(document.getElementById('auth-login').style.display, 'block');
     assert.strictEqual(document.getElementById('auth-signup').style.display, 'none');
-    assert.strictEqual(document.getElementById('auth-title').textContent, 'Welcome Back');
+    assert.strictEqual(document.getElementById('auth-title').textContent, 'Sign In');
   });
 
   t('showAuthView shows signup view', function() {

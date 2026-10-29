@@ -55,7 +55,7 @@ function showAuthView(viewName, opts) {
   // Update title
   var titleEl = document.getElementById('auth-title');
   var titles = {
-    'login': 'Welcome Back',
+    'login': 'Sign In',
     'signup': 'Create Account',
     'forgot': 'Reset Password',
     'reset': 'Set New Password',
