@@ -739,6 +739,54 @@ test.describe('Word List & Search', () => {
   });
 });
 
+// ── Quran Surah List ───────────────────────────────────────────
+
+test.describe('Quran Surah List', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await skipOnboarding(page);
+    await page.locator('#tab-quran').click();
+    await page.waitForSelector('.quran-surah-item', { timeout: 10000 });
+  });
+
+  const visibleSurahs = (page) => page.evaluate(() =>
+    [...document.querySelectorAll('.quran-surah-item')]
+      .filter((el) => el.offsetParent !== null)
+      .map((el) => el.getAttribute('data-surah-id')));
+
+  test('search filters the list by English name or number', async ({ page }) => {
+    const search = page.locator('#quran-surah-search');
+    await expect(search).toBeVisible();
+
+    await search.fill('cow');
+    expect(await visibleSurahs(page)).toEqual(['2']);
+
+    await search.fill('112');
+    expect(await visibleSurahs(page)).toEqual(['112']);
+
+    await search.fill('');
+    expect((await visibleSurahs(page)).length).toBe(114);
+  });
+
+  test('a search with no match says so', async ({ page }) => {
+    await page.locator('#quran-surah-search').fill('zzzz');
+    expect(await visibleSurahs(page)).toEqual([]);
+    await expect(page.locator('#quran-surah-no-match')).toBeVisible();
+  });
+
+  test('rows line up: number, English name and Arabic name in fixed columns', async ({ page }) => {
+    const lefts = await page.evaluate(() =>
+      [...document.querySelectorAll('.quran-surah-item')].slice(0, 6).map((row) =>
+        Math.round(row.querySelector('.quran-surah-english').getBoundingClientRect().left)));
+    expect(new Set(lefts).size).toBe(1);
+  });
+
+  test('tapping a surah opens it', async ({ page }) => {
+    await page.locator('.quran-surah-item[data-surah-id="1"]').click();
+    await expect(page.locator('#quran-surah-title')).toContainText(/Fatiha|الفاتحة/, { timeout: 10000 });
+  });
+});
+
 // ── Keyboard Shortcuts ─────────────────────────────────────────
 
 test.describe('Keyboard Shortcuts', () => {

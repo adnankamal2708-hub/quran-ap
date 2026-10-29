@@ -10436,7 +10436,10 @@ body::before {
 
 /* Layout */
 .quran-surah-list {
-  padding: 16px;
+  /* .content already pads the view; a second 16px made the list narrower
+     than everything above it */
+  padding: 0;
+  width: 100%;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -10603,54 +10606,105 @@ body::before {
   border-radius: 50%;
 }
 
-/* Surah list items */
-.quran-surah-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 4px;
-  border: 1px solid transparent;
+/* Surah search */
+.quran-surah-search {
+  width: 100%;
+  margin-bottom: 8px;
 }
 
-.quran-surah-item:hover,
+.quran-surah-no-match {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Surah list items: a fixed grid so the columns line up whatever the name
+   length — number badge | English name over verse count | Arabic name —
+   with a divider between rows. */
+.quran-surah-item {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "num english arabic"
+    "num meta    arabic";
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border: 1px solid transparent;
+  border-bottom-color: var(--border);
+  margin-bottom: 0;
+}
+
+.quran-surah-item[hidden] {
+  display: none;
+}
+
+.quran-surah-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: none;
+}
+
 .quran-surah-item:focus-visible {
-  background: var(--surface-hover, rgba(255, 255, 255, 0.05));
-  border-color: var(--border, #333);
-  outline: none;
+  background: rgba(255, 255, 255, 0.04);
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
 }
 
 .quran-surah-active {
   background: rgba(201, 168, 76, 0.1);
-  border-color: var(--gold-dim, rgba(201, 168, 76, 0.3));
+  border-color: var(--gold-dim);
 }
 
 .quran-surah-num {
+  grid-area: num;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 700;
-  color: var(--gold, #c9a84c);
-  min-width: 32px;
+  font-weight: 600;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
 }
 
 .quran-surah-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text, #eee);
-  font-family: 'Traditional Arabic', 'Amiri', serif;
+  grid-area: arabic;
+  font-size: 20px;
+  line-height: 1.4;
+  color: var(--gold-light);
+  font-family: var(--arabic);
+  text-align: right;
 }
 
 .quran-surah-english {
-  font-size: 12px;
-  color: var(--text-muted, #888);
-  flex: 1;
+  grid-area: english;
+  font-size: 14px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.quran-surah-verses {
+.quran-surah-verses,
+.quran-surah-coming-soon {
+  grid-area: meta;
   font-size: 11px;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
+}
+
+.quran-surah-verses + .quran-surah-coming-soon {
+  /* Uncovered surahs: show the note after the verse count */
+  grid-area: auto;
+  grid-column: 2 / -1;
+  margin-top: 0;
 }
 
 /* Continue reading card */

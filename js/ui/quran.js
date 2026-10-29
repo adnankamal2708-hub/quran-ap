@@ -191,6 +191,29 @@ function _buildFromVocabOnly(surahId) {
 
 // ── Surah Browser ──────────────────────────────────────────────
 
+/** Lower-case and drop punctuation/spaces so "al baqarah" matches "Al-Baqarah" */
+function _normSurahSearch(text) {
+  return String(text || '').toLowerCase().replace(/[\s'’`\-.]/g, '');
+}
+
+/** Filter the rendered surah rows as the learner types (no re-render) */
+function _wireSurahSearch(container) {
+  var input = document.getElementById('quran-surah-search');
+  var noMatch = document.getElementById('quran-surah-no-match');
+  if (!input) return;
+  input.oninput = function() {
+    var q = _normSurahSearch(input.value);
+    var rows = container.querySelectorAll('.quran-surah-item');
+    var shown = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var hit = !q || (rows[i].getAttribute('data-search') || '').indexOf(q) >= 0;
+      rows[i].hidden = !hit;
+      if (hit) shown++;
+    }
+    if (noMatch) noMatch.hidden = shown > 0;
+  };
+}
+
 function renderSurahBrowser() {
   var container = document.getElementById('quran-surah-list');
   if (!container) return;
@@ -232,6 +255,11 @@ function renderSurahBrowser() {
     html += '</div>';
   }
 
+  // Search: 114 surahs is a long scroll to find one by name or number
+  html += '<input class="auth-input quran-surah-search" id="quran-surah-search" type="search" ' +
+    'placeholder="Search by name or number" aria-label="Search surahs" autocomplete="off">';
+  html += '<div class="quran-surah-no-match" id="quran-surah-no-match" hidden>No surah matches that search.</div>';
+
   for (var si = 0; si < surahIds.length; si++) {
     var sid = surahIds[si];
     quranIdxInfo = _getSurahInfo(sid);
@@ -241,9 +269,13 @@ function renderSurahBrowser() {
     var activeClass = isActive ? ' quran-surah-active' : '';
     var isCovered = _dataReady && sid <= _maxCoveredSurah;
     var coveredClass = isCovered ? '' : ' quran-surah-uncovered';
+    var searchText = _normSurahSearch(sid + ' ' + quranIdxInfo.englishName + ' ' +
+      (quranIdxInfo.transliteration || '') + ' ' + quranIdxInfo.name);
 
-    html += '<div class="quran-surah-item' + activeClass + coveredClass + '" data-surah-id="' + sid + '" tabindex="0" role="button">';
-    html += '<span class="quran-surah-num">' + sid + '.</span>';
+    html += '<div class="quran-surah-item' + activeClass + coveredClass + '" data-surah-id="' + sid + '" ' +
+      'data-search="' + searchText.replace(/"/g, '') + '" tabindex="0" role="button" ' +
+      'aria-label="' + sid + '. ' + quranIdxInfo.englishName.replace(/"/g, '') + ', ' + quranIdxInfo.total_verses + ' verses">';
+    html += '<span class="quran-surah-num">' + sid + '</span>';
     html += '<span class="quran-surah-name">' + quranIdxInfo.name + '</span>';
     html += '<span class="quran-surah-english">' + quranIdxInfo.englishName + '</span>';
     html += '<span class="quran-surah-verses">' + quranIdxInfo.total_verses + ' verses</span>';
@@ -254,6 +286,8 @@ function renderSurahBrowser() {
   }
 
   container.innerHTML = html;
+
+  _wireSurahSearch(container);
 
   // Wire Continue Reading
   var continueCard = document.getElementById('quran-continue-btn');
