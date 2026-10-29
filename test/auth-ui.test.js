@@ -602,6 +602,28 @@ ts('Auth — Header Sign-In Link', function() {
     assert.strictEqual(document.getElementById('header-signin-link').style.display, 'inline');
   });
 
+  t('guest avatar shows a person icon, not a made-up initial', function() {
+    _storage = {};
+    global.__mockUser = null;
+    createEl('user-avatar-display');
+    createEl('guest-badge');
+    createEl('header-signin-link');
+    updateAuthUI(null);
+    var avatar = document.getElementById('user-avatar-display');
+    assert.ok(avatar.innerHTML.indexOf('<svg') === 0, 'icon for guests: ' + avatar.innerHTML.slice(0, 20));
+    assert.strictEqual(avatar.title, 'Sign in');
+  });
+
+  t('signed-in avatar shows the user initial', function() {
+    _storage = {};
+    global.__mockUser = { uid: 'u1', email: 'zara@b.com', displayName: '', emailVerified: true };
+    createEl('user-avatar-display');
+    createEl('guest-badge');
+    createEl('header-signin-link');
+    updateAuthUI(global.__mockUser);
+    assert.strictEqual(document.getElementById('user-avatar-display').textContent, 'Z');
+  });
+
   t('hidden for signed-in users', function() {
     _storage = {};
     global.__mockUser = { uid: 'u1', email: 'a@b.com', displayName: 'A', emailVerified: true };

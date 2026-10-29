@@ -599,6 +599,8 @@ function updateGuestNotice(user) {
 
 // ── UI Update ─────────────────────────────────────────────────
 
+var GUEST_AVATAR_ICON = '<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+
 /**
  * Update UI elements based on authentication state.
  */
@@ -630,7 +632,8 @@ function updateAuthUI(user) {
     }
   } else {
     if (avatarDisplay) {
-      avatarDisplay.textContent = 'U';
+      // A person icon, not a made-up initial, for someone who isn't signed in
+      avatarDisplay.innerHTML = GUEST_AVATAR_ICON;
       avatarDisplay.title = 'Sign in';
     }
     if (guestBadge) guestBadge.style.display = 'inline';
