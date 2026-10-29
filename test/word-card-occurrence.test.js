@@ -220,6 +220,42 @@ suite('Word card occurrence navigation', function () {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// LEARNING CONTEXT LINE — surah count comes from the Quran-wide index
+// ═══════════════════════════════════════════════════════════════
+
+suite('Word card learning context', function () {
+  function renderContext(w) {
+    global.getFoundationLessonForWord = function () { return 0; };
+    renderWordLearningContext(w);
+    delete global.getFoundationLessonForWord;
+    return document.getElementById('word-learning-context').innerHTML;
+  }
+
+  test('surah count uses the occurrence index, not the sample verses', function () {
+    global._getIndexRefsForWord = function () { return ['2:5', '2:9', '3:1', '114:6']; };
+    var html = renderContext({ id: 'ctx1', arabic: 'مَن', occ: 3309, frequencyRank: 1, surahIds: [45], surahCount: 1 });
+    delete global._getIndexRefsForWord;
+    assert.ok(html.indexOf('In 3 surahs') >= 0, 'counts distinct indexed surahs: ' + html);
+    assert.ok(html.indexOf('In 1 surah') < 0, 'does not use the sample-verse count');
+  });
+
+  test('omits the surah count when the word is not in the index', function () {
+    global._getIndexRefsForWord = function () { return null; };
+    var html = renderContext({ id: 'ctx2', arabic: 'x', occ: 12, frequencyRank: 40, surahIds: [2], surahCount: 1 });
+    delete global._getIndexRefsForWord;
+    assert.ok(html.indexOf('surah') < 0, 'no surah count shown: ' + html);
+  });
+
+  test('does not repeat the occurrence count already on the card', function () {
+    global._getIndexRefsForWord = function () { return ['1:1']; };
+    var html = renderContext({ id: 'ctx3', arabic: 'x', occ: 3309, frequencyRank: 1 });
+    delete global._getIndexRefsForWord;
+    assert.ok(html.indexOf('Occurs') < 0 && html.indexOf('3,309') < 0, 'no duplicate count: ' + html);
+    assert.ok(html.indexOf('In 1 surah') >= 0 && html.indexOf('In 1 surahs') < 0, 'singular for one surah');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 

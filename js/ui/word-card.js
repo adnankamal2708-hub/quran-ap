@@ -282,8 +282,25 @@ function renderSRSStatusPill(wordId) {
 }
 
 /**
+ * Count the distinct surahs a word appears in, from the Quran-wide
+ * occurrence index. w.surahIds only lists the word's sample verses, so it
+ * claimed "In 1 surah" for words found all over the Quran. Returns 0 when
+ * the word isn't in the index, so no count is shown rather than a wrong one.
+ */
+function getIndexedSurahCount(w) {
+  var refs = typeof _getIndexRefsForWord === 'function' ? _getIndexRefsForWord(w) : null;
+  if (!refs || !refs.length) return 0;
+  var surahs = {};
+  for (var i = 0; i < refs.length; i++) {
+    surahs[String(refs[i]).split(':')[0]] = true;
+  }
+  return Object.keys(surahs).length;
+}
+
+/**
  * Render learning context — shows why the user is seeing this word.
- * Displays foundation lesson, frequency rank, occurrence count, and surah count.
+ * Displays foundation lesson, frequency rank and surah count. The occurrence
+ * count is already on the card ("Appears N times"), so it isn't repeated here.
  */
 function renderWordLearningContext(w) {
   if (!w) return;
@@ -305,16 +322,10 @@ function renderWordLearningContext(w) {
     parts.push('#' + w.frequencyRank + ' most frequent');
   }
   
-  // Occurrence count
-  if (w.occ && w.occ > 0) {
-    parts.push('Occurs ' + w.occ.toLocaleString() + ' times');
-  }
-  
   // Surah count
-  if (w.surahCount && w.surahCount > 0) {
-    parts.push('In ' + w.surahCount + ' surah' + (w.surahCount !== 1 ? 's' : ''));
-  } else if (w.surahIds && w.surahIds.length > 0) {
-    parts.push('In ' + w.surahIds.length + ' surah' + (w.surahIds.length !== 1 ? 's' : ''));
+  var surahCount = getIndexedSurahCount(w);
+  if (surahCount > 0) {
+    parts.push('In ' + surahCount + ' surah' + (surahCount !== 1 ? 's' : ''));
   }
   
   if (parts.length > 0) {
