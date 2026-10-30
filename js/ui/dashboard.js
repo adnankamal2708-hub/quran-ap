@@ -208,6 +208,29 @@ function renderDashboard() {
     return $fallback[name] || '✦';
   }
 
+  // One row per joined track: name, its own % of the Quran and a hairline bar.
+  // Only Word meanings has a percentage in Phase 1; refreshing it first keeps
+  // the stored high-water mark (and so Home) from showing a stale 0%.
+  var $trackIds = getJoinedTrackIds();
+  function $buildTrackRows() {
+    var $rows = '';
+    for (var $ti = 0; $ti < $trackIds.length; $ti++) {
+      var $tid = $trackIds[$ti];
+      var $tname = escapeHtml(t('track.' + $tid + '.name'));
+      var $tpct = $tid === 'words' ? refreshWordMeaningsPercent().percent : null;
+      var $ttext = $tpct === null ? '' : escapeHtml(t('percent.words', { p: $tpct }));
+      $rows += '<button type="button" class="db-track-row" id="db-track-row-' + $tid + '" data-track="' + $tid + '"' +
+        ' aria-label="' + $tname + ($ttext ? ', ' + $ttext : '') + '">';
+      $rows += '<span class="db-track-row-name">' + $tname + '</span>';
+      if ($ttext) {
+        $rows += '<span class="db-track-row-pct">' + $ttext + '</span>';
+        $rows += '<span class="db-track-row-bar" aria-hidden="true"><span style="width:' + Math.min(100, $tpct) + '%"></span></span>';
+      }
+      $rows += '</button>';
+    }
+    return $rows ? '<div class="db-tracks">' + $rows + '</div>' : '';
+  }
+
   // ── Build HTML ──
   var $h = '';
 
@@ -508,6 +531,36 @@ function renderDashboard() {
   $h += '</div>';
   } // end else (daily goal for non-new users)
 
+  // ═══ TRACK ROWS — one slim progress row per joined learning track ═══
+  $h += $buildTrackRows();
+
+  // ═══ REVIEW CENTER PROMPT ═══
+  // Only meaningful once reviews exist — hidden for a brand-new user ("All caught
+  // up / 0 due" with nothing behind it). Same 5-lifetime-reviews minimum used by
+  // Session Complete / Word Detail / Review Center retention.
+  var $rcDue = $dueReviews.length;
+  var $rcMinReviews = (typeof _RC_RETENTION_MIN_REVIEWS !== 'undefined') ? _RC_RETENTION_MIN_REVIEWS : 5;
+  if ($rcDue > 0 || ($srsStats.totalReviews || 0) >= $rcMinReviews) {
+  $h += '<div class="db-card db-action-card db-card-highlight" id="db-review-center-prompt" tabindex="0" role="button" aria-label="Review Center: ' + $rcDue + ' reviews due">';
+  $h += '<div class="db-card-row">';
+  $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('list', 22) + '</div>';
+  $h += '<div class="db-card-body">';
+  $h += '<div class="db-card-title">Review Center</div>';
+  $h += '<div class="db-card-sub">';
+  if ($rcDue > 0) {
+    var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));
+    $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' due';
+    if ($srsStats.overdue > 0) $h += ' · ' + $srsStats.overdue + ' overdue';
+    $h += ' · ~' + $rcEst + ' min';
+  } else {
+    $h += 'All caught up — track your revision progress';
+  }
+  $h += '</div>';
+  $h += '</div>';
+  $h += '<span class="db-arrow db-arrow-dim">→</span>';
+  $h += '</div></div>';
+  } // end review center gate
+
   // ═══ 5. CONTINUE READING ═══
   // "Continue" only once there is something to continue
   $h += '<div class="db-section-label"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> ' + ($lastRead && $lastRead.surahId ? 'Continue Reading' : 'Read the Quran') + '</div>';
@@ -557,33 +610,6 @@ function renderDashboard() {
   // document order. Each is individually gated on real data — no manual
   // show/hide toggle (the removed "Show more stats" button promised stats that
   // don't exist for brand-new users and reset on every dashboard re-render).
-
-  // ═══ REVIEW CENTER PROMPT ═══
-  // Only meaningful once reviews exist — hidden for a brand-new user ("All caught
-  // up / 0 due" with nothing behind it). Same 5-lifetime-reviews minimum used by
-  // Session Complete / Word Detail / Review Center retention.
-  var $rcDue = $dueReviews.length;
-  var $rcMinReviews = (typeof _RC_RETENTION_MIN_REVIEWS !== 'undefined') ? _RC_RETENTION_MIN_REVIEWS : 5;
-  if ($rcDue > 0 || ($srsStats.totalReviews || 0) >= $rcMinReviews) {
-  $h += '<div class="db-card db-action-card db-card-highlight" id="db-review-center-prompt" tabindex="0" role="button" aria-label="Review Center: ' + $rcDue + ' reviews due">';
-  $h += '<div class="db-card-row">';
-  $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('list', 22) + '</div>';
-  $h += '<div class="db-card-body">';
-  $h += '<div class="db-card-title">Review Center</div>';
-  $h += '<div class="db-card-sub">';
-  if ($rcDue > 0) {
-    var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));
-    $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' due';
-    if ($srsStats.overdue > 0) $h += ' · ' + $srsStats.overdue + ' overdue';
-    $h += ' · ~' + $rcEst + ' min';
-  } else {
-    $h += 'All caught up — track your revision progress';
-  }
-  $h += '</div>';
-  $h += '</div>';
-  $h += '<span class="db-arrow db-arrow-dim">→</span>';
-  $h += '</div></div>';
-  } // end review center gate
 
   // ═══ SURAH PROGRESS — Lowest Comprehension Surahs ═══
   // Same gate as renderProfileProgress(): the ranking is zero-noise until several
@@ -882,6 +908,16 @@ function renderDashboard() {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $surahEl.onclick(); }
       };
     })($surahRows[$suri]);
+  }
+
+  // Track rows — open that track's path
+  for (var $tri = 0; $tri < $trackIds.length; $tri++) {
+    (function($tid) {
+      var $rowEl = document.getElementById('db-track-row-' + $tid);
+      if ($rowEl) $rowEl.onclick = function() {
+        if (typeof switchView === 'function') switchView('track', { trackId: $tid });
+      };
+    })($trackIds[$tri]);
   }
 
   // Review Center prompt — navigate to review-center view

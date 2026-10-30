@@ -201,7 +201,10 @@ var _mockSurahProgress = null;
 var _mockSRSStats = null;
 var _switchViewCalled = '';
 var _goToFoundationCalled = false;
-var _startReviewCalled = false;function resetState() {
+var _startReviewCalled = false;
+var _switchViewOptions = null;
+function resetState() {
+  clearStorage();
   _mockSRS = {};
   _mockDueReviews = [];
   _mockStreakData = { streak: 0, lastDate: null };
@@ -212,6 +215,7 @@ var _startReviewCalled = false;function resetState() {
   _mockSurahProgress = null;
   _mockSRSStats = null;
   _switchViewCalled = '';
+  _switchViewOptions = null;
   _goToFoundationCalled = false;
   _startReviewCalled = false;
   _mixedCount = 0;
@@ -256,7 +260,9 @@ function setupGlobals() {
   global.getCurrentFoundationLessonIndex = function() { return 0; };
   global.getNextIncompleteFoundationLesson = function() { return 0; };
   global.calculateCoverage = function() { return _mockCoverage ? JSON.parse(JSON.stringify(_mockCoverage)) : null; };
-  global.switchView = function(v) { _switchViewCalled = v; };
+  global.switchView = function(v, options) { _switchViewCalled = v; _switchViewOptions = options || null; };
+  // The Word meanings percentage follows the mocked coverage
+  global.getWordMeaningsPercent = function() { return _mockCoverage ? _mockCoverage.coveragePercent : 0; };
   global.goToFoundationLesson = function() { _goToFoundationCalled = true; };
   global.startReview = function() { _startReviewCalled = true; };
   global.updateStatsDisplay = function() {};
@@ -314,6 +320,18 @@ function setupGlobals() {
 
 var fs = require('fs');
 var path = require('path');
+
+// Track modules the track rows read (real code, not stubs)
+global.window = global.window || {};
+global.escapeHtml = function(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+};
+['js/i18n/strings-en.js', 'js/data-core/tracks.js', 'js/data-core/word-meanings-track.js'].forEach(function(rel) {
+  // Indirect eval so top-level declarations become globals.
+  (0, eval)(fs.readFileSync(path.join(__dirname, '..', rel), 'utf8'));
+});
 
 (function() {
   var uiModulePath = path.join(__dirname, '..', 'js', 'ui', 'dashboard.js');
@@ -1142,6 +1160,76 @@ suite('Dashboard Clutter — Returning User (real progress)', function() {
     assert.strictEqual(statCount, 4, 'four hero stats for returning user');
     assert.ok(html.indexOf('db-hero-stat-label">Comprehension') >= 0, 'Comprehension stat shown');
     assert.ok(html.indexOf('db-hero-stat-label">Reviews') >= 0, 'Reviews stat shown');
+  });
+});
+
+suite('Track rows', function() {
+  // The markup escapes the apostrophe; compare the text a reader sees
+  function readable(html) { return html.replace(/&#39;/g, "'"); }
+  function rowTags(html) {
+    return html.match(/<[a-z]+[^>]*class="(?:[^"]*\s)?db-track-row(?:\s[^"]*)?"[^>]*>/g) || [];
+  }
+
+  test('one row per joined track, after the daily goal and before due reviews', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = readable(getInnerHTML());
+    assert.strictEqual(rowTags(html).length, 1, 'exactly one track row by default');
+    var row = html.indexOf('id="db-track-row-words"');
+    assert.ok(html.indexOf('Word meanings', row) > row, 'row shows the track name');
+    assert.ok(html.indexOf("% of the Quran's words understood", row) > row, 'row shows the track percentage');
+    assert.ok(row > html.indexOf('db-goal-card'), 'after the streak and daily goal block');
+    assert.ok(row < html.indexOf('db-review-center-prompt'), "before today's due reviews");
+  });
+
+  test('the Up next card still comes before the track rows', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('id="db-continue-learning"') < html.indexOf('id="db-track-row-words"'), 'Up next first');
+  });
+
+  test('the row shows the track percentage, refreshing a stale stored high-water mark', function() {
+    resetState();
+    setupGlobals();
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
+    assert.strictEqual(getTrackPercent('words'), 0, 'nothing stored yet');
+    setupDashboardGrid();
+    renderDashboard();
+    var html = readable(getInnerHTML());
+    assert.ok(html.indexOf("12.5% of the Quran's words understood") >= 0, 'shows the live percentage');
+    assert.strictEqual(getTrackPercent('words'), 12.5, 'high-water mark updated');
+  });
+
+  test('the row is a button with an accessible name that opens the track path', function() {
+    resetState();
+    setupGlobals();
+    setupDashboardGrid();
+    renderDashboard();
+    var tag = rowTags(getInnerHTML())[0];
+    assert.ok(/^<button\b/.test(tag) && tag.indexOf('type="button"') >= 0, 'a real button');
+    assert.ok(/aria-label="Word meanings[^"]*"/.test(tag), 'accessible name includes the track and percentage');
+    var el = document.getElementById('db-track-row-words');
+    assert.ok(el && el._onclick, 'row is wired');
+    el._onclick();
+    assert.strictEqual(_switchViewCalled, 'track');
+    assert.deepStrictEqual(_switchViewOptions, { trackId: 'words' });
+  });
+
+  test('the progress bar fill is capped at 100%', function() {
+    resetState();
+    setupGlobals();
+    _mockCoverage = { coveragePercent: 140, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('style="width:100%"') >= 0, 'fill capped');
+    assert.ok(html.indexOf('width:140%') < 0, 'no overflowing fill');
   });
 });
 
