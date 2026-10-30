@@ -722,11 +722,62 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
   });
 
-  test('finishing without "completely new" leaves start-from-zero off', function() {
+  test('Next-finish without "completely new" writes start-from-zero as off', function() {
     renderTracksScreen();
+    wireOnboardingEvents();
     setStartFromZero(true); // left over from an earlier run
-    ux.completeOnboarding();
+    global.goToFoundationLesson = function() {};
+    document.getElementById('onboarding-next').click();
+    delete global.goToFoundationLesson;
     assert.strictEqual(isStartFromZero(), false);
+  });
+
+  test('Skip leaves a stored start-from-zero alone', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    setStartFromZero(true);
+    var before = loadTracks().updatedAt;
+    global.goToFoundationLesson = function() {};
+    document.getElementById('onboarding-skip').click();
+    delete global.goToFoundationLesson;
+    assert.strictEqual(isStartFromZero(), true);
+    assert.strictEqual(loadTracks().updatedAt, before, 'tracks not rewritten');
+    assert.strictEqual(ux.hasCompletedOnboarding(), true);
+  });
+
+  test('Escape leaves a stored start-from-zero alone', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    setStartFromZero(true);
+    global.goToFoundationLesson = function() {};
+    _onboardingKeyHandler({ key: 'Escape', preventDefault: function() {} });
+    delete global.goToFoundationLesson;
+    assert.strictEqual(isStartFromZero(), true);
+    assert.strictEqual(ux.hasCompletedOnboarding(), true);
+  });
+
+  test('re-running onboarding never overwrites a stored level', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    localStorage.setItem('quran_onboarding_level', 'advanced');
+    global.goToFoundationLesson = function() {};
+    document.getElementById('onboarding-next').click();
+    assert.strictEqual(ux.getOnboardingLevel(), 'advanced');
+    renderTracksScreen();
+    localStorage.setItem('quran_onboarding_level', 'advanced');
+    wireOnboardingEvents();
+    document.getElementById('onboarding-skip').click();
+    delete global.goToFoundationLesson;
+    assert.strictEqual(ux.getOnboardingLevel(), 'advanced');
+  });
+
+  test('first-time onboarding still stores the beginner level', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    global.goToFoundationLesson = function() {};
+    document.getElementById('onboarding-next').click();
+    delete global.goToFoundationLesson;
+    assert.strictEqual(ux.getOnboardingLevel(), 'beginner');
   });
 
   test('finishing joins the selected released tracks and ignores unreleased ones', function() {

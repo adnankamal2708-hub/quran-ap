@@ -77,18 +77,25 @@ function hasInterruptedOnboarding() {
   } catch (e) { return false; }
 }
 
-/** Mark onboarding as completed and save preferences */
-function completeOnboarding() {
+/**
+ * Mark onboarding as completed and save preferences. Only what the learner
+ * answered is written: a Skip/Escape ({ answered: false }) leaves tracks and
+ * start-from-zero alone, and a stored level is never overwritten.
+ */
+function completeOnboarding(options) {
+  var answered = !(options && options.answered === false);
   _onboardedThisSession = true;
   try {
     localStorage.setItem(_ONBOARDING_DONE_KEY, 'true');
     localStorage.removeItem(_ONBOARDING_STEP_KEY);
     // Save preferences
     if (_selectedGoal) localStorage.setItem(_ONBOARDING_GOAL_KEY, _selectedGoal);
-    if (_selectedLevel) localStorage.setItem(_ONBOARDING_LEVEL_KEY, _selectedLevel);
+    if (_selectedLevel && localStorage.getItem(_ONBOARDING_LEVEL_KEY) === null) {
+      localStorage.setItem(_ONBOARDING_LEVEL_KEY, _selectedLevel);
+    }
   } catch (e) {}
 
-  _applyTrackChoices();
+  if (answered) _applyTrackChoices();
 
   // Track milestone
   if (window.__feedback && window.__feedback.trackEvent) {
@@ -646,7 +653,7 @@ function wireOnboardingEvents() {
     skipBtn.onclick = function() {
       _selectedGoal = _selectedGoal || '10'; // Default to 10 min
       _selectedLevel = _selectedLevel || 'beginner';
-      completeOnboarding();
+      completeOnboarding({ answered: false });
       hideOnboarding();
       navigateToFirstAction();
     };
@@ -706,7 +713,7 @@ var _onboardingKeyHandler = function(e) {
     e.preventDefault();
     if (!_selectedGoal) _selectedGoal = '10';
     if (!_selectedLevel) _selectedLevel = 'beginner';
-    completeOnboarding();
+    completeOnboarding({ answered: false });
     hideOnboarding();
     navigateToFirstAction();
   } else if (e.key === 'ArrowRight' || e.key === ' ') {
