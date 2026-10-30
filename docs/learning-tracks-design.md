@@ -1,7 +1,8 @@
 # Learning tracks: design
 
-Status: agreed design, 2026-10-31. Nothing here is built yet. Phase 1 is
-planned step by step in [plans/phase-1-tracks.md](plans/phase-1-tracks.md).
+Status: agreed design, 2026-10-31. Phase 1 built 2026-10-31; Phases 2–4 not
+started. Phase 1 was planned step by step in
+[plans/phase-1-tracks.md](plans/phase-1-tracks.md).
 
 Bayan grows from one vocabulary course into four learning tracks, so a
 learner can choose what they want to learn, from reading Arabic letters for

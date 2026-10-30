@@ -45,6 +45,7 @@ The application currently contains or will contain:
 - Progress tracking
 - Streaks
 - Surah learning
+- Learning tracks
 - User authentication
 - Cloud synchronization
 - Offline mode

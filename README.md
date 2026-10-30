@@ -4,6 +4,7 @@
 
 ## Features
 
+- **Learning Tracks** — Choose what to learn on the Learn tab; Phase 1 ships the Word meanings track (levels 0–3) with an adaptive placement test, a Practice tab of drills, and per-root lessons
 - **Foundation Course** — Master the 100 most frequent Quranic words across 10 progressive lessons (coverage dynamically calculated from vocabulary data)
 - **Learn by Surah** — Study vocabulary in Quranic context, surah by surah
 - **Root Family Learning** — Explore Arabic morphology by studying words grouped by root letters
@@ -26,7 +27,9 @@
 ├── build.js                — Production build script (minification + bundling)
 ├── js/
 │   ├── app.js              — Application bootstrap & orchestration
-│   ├── data-core/          — Split data modules (vocab, foundation, SRS, etc.)
+│   ├── data-core/          — Split data modules (vocab, foundation, SRS, tracks, etc.)
+│   ├── exercises/          — Exercise engine, placement test, drills, root lessons (no DOM)
+│   ├── i18n/               — UI strings and the `t()` lookup
 │   ├── ui/                 — Split UI modules (word-card, explorer, dashboard, etc.)
 │   ├── vocabulary.js       — Word search, filtering, relationships engine
 │   ├── srs.js              — SM-2 spaced repetition algorithm
@@ -199,7 +202,7 @@ npm run build && node test/dry-load.js && npm test && npx playwright test
 
 Code is split into focused modules (the old `data.js` / `ui.js` monoliths are gone). The ordered bundle inputs are listed in `build-files.js`, shared by `build.js`, `test/dry-load.js` and `test/comment-lint.js`:
 
-**`js/data-core/`** — Data layer (8 modules):
+**`js/data-core/`** — Data layer (10 modules):
 - `vocab-data.js` — `ALL_WORDS`, `CANONICAL_WORDS`, deduplication
 - `surah-org.js` — Surah organization mode
 - `foundation.js` — Foundation Course, coverage, milestones
@@ -208,8 +211,18 @@ Code is split into focused modules (the old `data.js` / `ui.js` monoliths are go
 - `adaptive.js` — Adaptive engine, learner profile
 - `quiz-history.js` — Quiz result tracking
 - `surah-progress.js` — Surah completion tracking
+- `tracks.js` — Learning tracks: joined tracks, main track, levels, per-track percentage high-water marks, placement attempts (`localStorage` key `quran_tracks`, synced as the `tracks` field of `learning/{uid}`)
+- `word-meanings-track.js` — Maps Foundation lessons, guided-reading surahs, surah study and root families onto Word meanings levels 0–3, with locks and the Quran-percentage refresh
 
-**`js/ui/`** — UI rendering (7 modules):
+**`js/exercises/`** — Pure exercise logic, no DOM (4 modules):
+- `exercise-engine.js` — Item shapes (`read-choose`, `build`, `spot`) and answer checking
+- `placement.js` — Adaptive placement test and its question bank
+- `word-drills.js` — Practice drills ("Spot the word", "Build the verse")
+- `root-lesson.js` — Builds a "Study by root" lesson from the vocabulary
+
+**`js/i18n/`** — `strings-en.js`: all UI text for the track screens, read through `t(key, vars)`
+
+**`js/ui/`** — UI rendering (selected modules):
 - `dom-helpers.js` — DOM element cache
 - `word-card.js` — Word card, root box, relationships
 - `stats-ui.js` — Stats, filters, word list
@@ -218,6 +231,13 @@ Code is split into focused modules (the old `data.js` / `ui.js` monoliths are go
 - `analytics-ui.js` — Analytics rendering
 - `dashboard.js` — Dashboard rendering
 - `theme.js` — Light / dark theme choice (System, Light, Dark)
+- `tracks-ui.js` — Learn tab: track list (`tracks` view) and a track's path (`track` view)
+- `exercise-ui.js` — Renders one exercise item
+- `placement-ui.js` — Placement test screen (`test` view)
+- `drill-ui.js` — Practice drills on the Practice tab
+- `root-lesson-ui.js` — Root list and root lessons (`root-lesson` view)
+
+The bottom navigation has five tabs: Home (dashboard), Learn (tracks), Practice (the Review Center plus drills), Quran and Profile. Onboarding asks "What do you want to learn?" (`ux-polish.js`), Home shows a row per joined track (`dashboard.js`), and the session summary shows the Quran percentage gained (`review.js`).
 
 ## Tech Stack
 

@@ -70,8 +70,11 @@ the bundle concatenates them into one scope.
 - **Storage:** progress/SRS lives in `localStorage` under `quran_*` keys
   (`quran_srs_data`, `quran_favorites`, `quran_notes`, `quran_streak`, `quran_quiz`,
   `quran_lesson_progress`, `quran_surah_progress`, `quran_foundation_progress`,
-  `quran_analytics_*`). Cloud copies live in Firestore `learning/{uid}` (whole blob) and
-  `profiles/{uid}`; subscriptions in `subscriptions/{uid}`.
+  `quran_tracks`, `quran_analytics_*`). Cloud copies live in Firestore `learning/{uid}` (whole
+  blob) and `profiles/{uid}`; subscriptions in `subscriptions/{uid}`. `quran_tracks` is the
+  `tracks` field of the `learning/{uid}` blob (`SYNC_KEY_MAP` in `sync-service.js`); `mergeData`
+  merges it with `mergeTrackState` (membership follows the newer side, levels and percentages
+  take the higher value).
 
 ### 1.4 Firebase
 
@@ -134,11 +137,13 @@ through `hasFeature(FEATURES.X)`.
 
 ### 2.5 UI Layer
 
-- `js/ui/navigation.js` — view switching (`switchView`), bottom-nav (5 tabs:
-  dashboard/paths/words/profile/quran), and the **single cross-module premium subscriber**
+- `js/ui/navigation.js` — view switching (`switchView`), bottom-nav (5 tabs: Home
+  `tab-home` → dashboard, Learn `tab-learn` → tracks, Practice `tab-practice` → review-center,
+  Quran, Profile; the Learn tab also covers the `track`, `root-lesson`, `learn`, `quiz`, `list`
+  and `explorer` views, the Practice tab covers `test`), and the **single cross-module premium subscriber**
   (`__premium.onChange → rerenderCurrentView`, lines 510–514).
 - `js/ui/dashboard.js` — `renderDashboard()`, the most-gated screen (see §3.3).
-- `js/ui/learn-screen.js` — Learn tab / active word-study card.
+- `js/ui/learn-screen.js` — the active word-study card (`learn` view, under the Learn tab).
 - `js/ui/theme.js` — the top bar's System / Light / Dark theme button. The
   inline `<head>` script in `index.html` sets `data-theme` before first
   paint (block comments only there: the production build joins it onto one
@@ -151,11 +156,40 @@ through `hasFeature(FEATURES.X)`.
 - `js/ui/stats-ui.js` — Words list rendering + badges; locked rows for premium words.
 - `js/ui/quran.js` — Quran reader; word tokens render from the corpus (visible for all
   words), tapping opens Explorer which applies the gate.
-- `js/ui/review-center.js` — Review Center with the `_RC_RETENTION_MIN_REVIEWS` gate
-  (see §3.3).
+- `js/ui/review-center.js` — Review Center (the Practice tab) with the `_RC_RETENTION_MIN_REVIEWS` gate
+  (see §3.3); the drills run inside it via `js/ui/drill-ui.js`.
 - `js/profile-ui.js` — Profile/Progress/Insights tabs, `renderProfileProgress()` with the
   `LOWEST_COMP_HIDE_THRESHOLD` gate.
-- `js/ux-polish.js` — onboarding slides, plan-picker auto-show, `getProgressiveVisibility`.
+- `js/ux-polish.js` — onboarding slides, plan-picker auto-show, `getProgressiveVisibility`;
+  onboarding screen 3 "What do you want to learn?" sets the main track, level and
+  start-from-zero choice (stored in `quran_tracks`).
+
+### 2.6 Learning Tracks
+
+Design: `docs/learning-tracks-design.md`. Phase 1 builds the Word meanings track (`words`);
+the other tracks exist in the data model but are not released (`isTrackReleased`).
+
+- `js/data-core/tracks.js` — track membership, main track, levels 0–3, per-track
+  high-water percentages, placement attempts. Level and percentage only grow, so leaving
+  and rejoining restores them. Stored in `quran_tracks`, synced as `tracks`
+  (`mergeTrackState`). A learner with no saved state is on `words`; existing progress
+  keys are never written by this module.
+- `js/data-core/word-meanings-track.js` — maps Foundation lessons (level 0), guided-reading
+  surahs (levels 1–2 by difficulty), surah study and root families (level 3) onto the
+  levels, with locks, and `refreshWordMeaningsPercent`.
+- `js/i18n/strings-en.js` — `t(key, vars)`; all new UI text goes here.
+- `js/exercises/exercise-engine.js` + `js/ui/exercise-ui.js` — `read-choose`, `build` and
+  `spot` items: pure checking and one shared renderer.
+- `js/exercises/placement.js` + `js/ui/placement-ui.js` — adaptive placement test (view
+  `test`); raises the level, never lowers it.
+- `js/exercises/word-drills.js` + `js/ui/drill-ui.js` — Practice drills; they do not touch
+  SRS data.
+- `js/exercises/root-lesson.js` + `js/ui/root-lesson-ui.js` — root list and root lessons
+  (view `root-lesson`); read-choose answers update SRS.
+- `js/ui/tracks-ui.js` — Learn tab: track list (view `tracks`) and a track's path (view
+  `track`).
+- `js/ui/dashboard.js` shows a row per joined track on Home; `js/ui/review.js` shows the
+  "+x%" Quran percentage gained in the session summary.
 
 ---
 
