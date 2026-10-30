@@ -1,0 +1,85 @@
+/**
+ * strings-en.js — English UI strings and the t() lookup.
+ *
+ * STRINGS.en is a flat key -> string map, grouped by comment headers. Values
+ * may contain {name} placeholders, filled from the vars object passed to t().
+ * Add new keys here; render new UI text only through t().
+ */
+
+var STRINGS = {
+  en: {
+    // ── Learning tracks ──
+    'track.qaida.name': 'Read Arabic from zero',
+    'track.tajweed.name': 'Tajweed',
+    'track.words.name': 'Word meanings',
+    'track.understanding.name': 'Understanding',
+    'track.qaida.desc': 'Learn to read the Arabic letters and marks',
+    'track.tajweed.desc': 'Recite with correct pronunciation and rules',
+    'track.words.desc': "Learn the meanings of the Quran's words",
+    'track.understanding.desc': 'Translation and the grammar behind it',
+
+    // ── Levels ──
+    'level.0': 'Beginner',
+    'level.1': 'Elementary',
+    'level.2': 'Intermediate',
+    'level.3': 'Advanced',
+
+    // ── Quran progress ──
+    'percent.words': "{p}% of the Quran's words understood",
+    'percent.words.gained': "+{p}% of the Quran's words",
+
+    // ── Learn and track menus ──
+    'tracks.comingSoon': 'Coming soon',
+    'tracks.add': 'Add a track',
+    'tracks.makeMain': 'Make main track',
+    'tracks.leave': 'Leave track',
+    'tracks.main': 'Main track',
+    'tracks.allWords': 'All words',
+
+    // ── Practice tab ──
+    'practice.due': 'Due today',
+    'practice.drills': 'Drills',
+    'practice.tests': 'Tests',
+
+    // ── Placement test ──
+    'test.words.title': 'Word meanings placement test',
+    'test.words.desc': 'About 5 minutes · finds your level',
+    'test.result.level': 'Your level: {level}',
+    'test.result.kept': "You're already at {level}; your level stays.",
+    'test.result.strengths': 'Strengths',
+    'test.result.gaps': 'To work on',
+    'test.result.start': 'Start at {lesson}',
+
+    // ── Onboarding ──
+    'onboarding.tracks.title': 'What do you want to learn?',
+    'onboarding.tracks.desc': 'Pick one or more. You can change this any time.',
+    'onboarding.new': "I'm completely new",
+    'onboarding.new.desc': 'Start from the very beginning',
+    'onboarding.test': 'Take a short test',
+    'onboarding.test.desc': 'Find your level in about 5 minutes',
+
+    // ── Drills ──
+    'drill.spot.title': 'Spot the word',
+    'drill.spot.prompt': 'Tap the word that means “{meaning}”',
+    'drill.build.title': 'Build the verse',
+    'drill.build.prompt': 'Put the words in order',
+  },
+};
+
+/**
+ * Look up an English string and fill its {name} placeholders from vars.
+ * A missing key returns the key itself and reports it via __diag when present.
+ */
+function t(key, vars) {
+  var table = STRINGS.en;
+  if (!Object.prototype.hasOwnProperty.call(table, key)) {
+    var diag = typeof window !== 'undefined' ? window.__diag : null;
+    if (diag && typeof diag.warn === 'function') {
+      diag.warn('i18n', 't', 'Missing string key: ' + key);
+    }
+    return key;
+  }
+  return table[key].replace(/\{(\w+)\}/g, function(match, name) {
+    return vars && Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : match;
+  });
+}

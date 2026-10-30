@@ -49,6 +49,7 @@ const UI_FILES = [
 // firebase-core.js is NOT in the bundle — it is loaded as a separate ES
 // module (<script type="module">) so its CDN imports work.
 const APP_FILES = [
+  'js/i18n/strings-en.js',
   'js/services/config.js',
   'js/services/auth-service.js',
   'js/services/sync-service.js',
