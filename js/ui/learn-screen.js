@@ -141,6 +141,48 @@ function renderLearnScreen() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// OPENERS — shared by the cards and path items below and by the
+// Learn tab's track path (tracks-ui.js)
+// ═══════════════════════════════════════════════════════════════
+
+/** Open the Quran reader, at a guided-reading surah when one is given. */
+function openGuidedSurah(surahId) {
+  if (typeof switchView === 'function') switchView('quran');
+  if (surahId && typeof openSurahForReading === 'function') {
+    setTimeout(function() { openSurahForReading(surahId); }, 100);
+  }
+}
+
+function _hasVocabularyExpansion() {
+  return !!(window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION));
+}
+
+/** Surah study (premium): the Learn view, or the upgrade prompt. */
+function openSurahStudy() {
+  if (_hasVocabularyExpansion()) {
+    if (typeof switchView === 'function') switchView('learn');
+  } else if (window.__premium) {
+    window.__premium.requestUpgrade('vocabulary-expansion');
+  }
+}
+
+/** Root families (premium): the first root family, or the upgrade prompt. */
+function openRootFamilies() {
+  if (_hasVocabularyExpansion()) {
+    if (typeof goToRootFamily === 'function') goToRootFamily();
+    else if (typeof switchView === 'function') switchView('learn');
+  } else if (window.__premium) {
+    window.__premium.requestUpgrade('vocabulary-expansion');
+  }
+}
+
+/** Learn by difficulty, at the next level not yet finished. */
+function openNextDifficultyLevel() {
+  if (typeof goToDifficultyLevel === 'function') goToDifficultyLevel(typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1);
+  else if (typeof switchView === 'function') switchView('learn');
+}
+
+// ═══════════════════════════════════════════════════════════════
 // EVENT WIRING — Learn action card click handlers
 // ═══════════════════════════════════════════════════════════════
 
@@ -163,13 +205,9 @@ function wireLearnScreenEvents() {
 
   // Guided Reading — open Quran with next recommended surah
   $lwire('ls-guided-reading', function() {
-    if (typeof switchView === 'function') switchView('quran');
-    if (window.__phase2 && typeof window.__phase2.getNextGuidedSurah === 'function') {
-      var $gNextS = window.__phase2.getNextGuidedSurah();
-      if ($gNextS && typeof openSurahForReading === 'function') {
-        setTimeout(function() { openSurahForReading($gNextS.surahId); }, 100);
-      }
-    }
+    var $gNextS = window.__phase2 && typeof window.__phase2.getNextGuidedSurah === 'function'
+      ? window.__phase2.getNextGuidedSurah() : null;
+    openGuidedSurah($gNextS ? $gNextS.surahId : null);
   });
 
   // Independent Reading — open Quran
@@ -182,27 +220,9 @@ function wireLearnScreenEvents() {
     if (typeof goToFoundationLesson === 'function') goToFoundationLesson($fNextIdx || 0);
     else if (typeof switchView === 'function') switchView('learn');
   });
-  $lwire('ls-path-surah', function() {
-    var $hasExp = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION);
-    if ($hasExp) {
-      if (typeof switchView === 'function') switchView('learn');
-    } else if (window.__premium) {
-      window.__premium.requestUpgrade('vocabulary-expansion');
-    }
-  });
-  $lwire('ls-path-roots', function() {
-    var $hasExp = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION);
-    if ($hasExp) {
-      if (typeof goToRootFamily === 'function') goToRootFamily();
-      else if (typeof switchView === 'function') switchView('learn');
-    } else if (window.__premium) {
-      window.__premium.requestUpgrade('vocabulary-expansion');
-    }
-  });
-  $lwire('ls-path-difficulty', function() {
-    if (typeof goToDifficultyLevel === 'function') goToDifficultyLevel(typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1);
-    else if (typeof switchView === 'function') switchView('learn');
-  });
+  $lwire('ls-path-surah', openSurahStudy);
+  $lwire('ls-path-roots', openRootFamilies);
+  $lwire('ls-path-difficulty', openNextDifficultyLevel);
   // Quiz — launch from Paths
   $lwire('ls-path-quiz', function() {
     if (typeof switchView === 'function') switchView('quiz');

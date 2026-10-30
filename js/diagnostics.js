@@ -301,7 +301,7 @@ window.__diag = (function() {
     });
 
     // Check navigation
-    var navIds = ['tab-dashboard', 'tab-learn', 'tab-quiz', 'tab-list'];
+    var navIds = ['tab-home', 'tab-learn', 'tab-practice', 'tab-quran', 'tab-profile'];
     var navOk = 0;
     navIds.forEach(function(id) {
       if (document.getElementById(id)) navOk++;

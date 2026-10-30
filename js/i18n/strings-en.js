@@ -35,6 +35,16 @@ var STRINGS = {
     'tracks.leave': 'Leave track',
     'tracks.main': 'Main track',
     'tracks.allWords': 'All words',
+    'tracks.roots': 'Roots',
+    'tracks.difficulty': 'Difficulty',
+    'tracks.quiz': 'Quiz',
+    'tracks.yours': 'Your tracks',
+    'tracks.menu': 'Options for {track}',
+    'tracks.back': 'All tracks',
+    'tracks.premium': 'Premium',
+    'tracks.locked': 'Finish {level} to unlock',
+    'tracks.finished': 'Finished',
+    'tracks.more': 'More ways to learn',
 
     // ── Practice tab ──
     'practice.due': 'Due today',

@@ -16,13 +16,15 @@ window.__validation = (function() {
 
   /** Valid view names that switchView can navigate to */
   var VALID_ROUTES = [
-    'dashboard', 'learn', 'quiz', 'list',
+    'dashboard', 'tracks', 'track', 'learn', 'quiz', 'list',
     'explorer', 'auth', 'profile', 'settings',
   ];
 
   /** Map of route → required DOM element ID */
   var ROUTE_VIEWS = {
     dashboard: 'view-dashboard',
+    tracks: 'view-tracks',
+    track: 'view-track',
     learn: 'view-learn',
     quiz: 'view-quiz',
     list: 'view-list',
@@ -43,17 +45,18 @@ window.__validation = (function() {
 
   /** Bottom nav tab IDs */
   var NAV_IDS = [
-    'tab-dashboard', 'tab-learn', 'tab-quiz',
-    'tab-list',
+    'tab-home', 'tab-learn', 'tab-practice',
+    'tab-quran', 'tab-profile',
   ];
 
   /** Map of element IDs expected to have onclick handlers */
   var INTERACTIVE_ELEMENTS = {
     // Bottom nav
-    'tab-dashboard': { purpose: 'Navigate to dashboard' },
-    'tab-learn': { purpose: 'Navigate to learn view' },
-    'tab-quiz': { purpose: 'Navigate to quiz' },
-    'tab-list': { purpose: 'Navigate to word list' },
+    'tab-home': { purpose: 'Navigate to the Home dashboard' },
+    'tab-learn': { purpose: 'Navigate to the track list' },
+    'tab-practice': { purpose: 'Navigate to the Review Center' },
+    'tab-quran': { purpose: 'Navigate to the Quran reader' },
+    'tab-profile': { purpose: 'Navigate to the profile' },
     // Card interactions (set dynamically)
   };
 

@@ -67,6 +67,27 @@ async function skipOnboarding(page) {
   await dismissPlanPicker(page);
 }
 
+// ── Helpers: reach the word card and word list through the Learn tab ──
+// Learn → Word meanings card → its path. The first Beginner lesson is
+// Foundation lesson 1; the path's footer opens the word list.
+async function openWordMeaningsPath(page) {
+  await page.locator('#tab-learn').click();
+  await page.locator('#view-tracks .track-card-open[data-track="words"]').click();
+  await expect(page.locator('#view-track')).toBeVisible();
+}
+
+async function openWordCard(page) {
+  await openWordMeaningsPath(page);
+  await page.locator('#view-track .track-lesson[data-kind="foundation"][data-ref="0"]').click();
+  await expect(page.locator('#view-learn')).toBeVisible();
+}
+
+async function openWordList(page) {
+  await openWordMeaningsPath(page);
+  await page.locator('#view-track .track-path-link[data-action="all-words"]').click();
+  await expect(page.locator('#view-list')).toBeVisible();
+}
+
 // ── Onboarding Tour ────────────────────────────────────────────
 
 test.describe('Onboarding Tour', () => {
@@ -201,9 +222,7 @@ test.describe('Foundation Lesson Flow', () => {
 
   test('foundation lesson navigation', async ({ page }) => {
     // Navigate to learn view
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
-    await expect(page.locator('#view-learn')).toBeVisible();
+    await openWordCard(page);
 
     // Switch to foundation mode
     await page.locator('#surah-select').selectOption('foundation');
@@ -219,8 +238,7 @@ test.describe('Foundation Lesson Flow', () => {
   });
 
   test('word card displays correctly', async ({ page }) => {
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
@@ -237,8 +255,7 @@ test.describe('Foundation Lesson Flow', () => {
   });
 
   test('navigate between words with prev/next', async ({ page }) => {
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
@@ -263,8 +280,7 @@ test.describe('SRS Rating', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await skipOnboarding(page);
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
   });
@@ -312,8 +328,7 @@ test.describe('Quiz Flow', () => {
 
   test('quiz view shows questions after navigating from lesson', async ({ page }) => {
     // Start with foundation lesson, then go to quiz
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
@@ -333,8 +348,7 @@ test.describe('Quiz Flow', () => {
   });
 
   test('answering quiz moves to next question', async ({ page }) => {
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
@@ -359,8 +373,7 @@ test.describe('Quiz Flow', () => {
   });
 
   test('quiz completes with score display', async ({ page }) => {
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
 
@@ -439,8 +452,7 @@ test.describe('Review Banner & SRS Review', () => {
     await page.waitForTimeout(1500);
 
     // Navigate to learn view
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
 
     // Review banner should be visible
     const banner = page.locator('#review-banner');
@@ -477,8 +489,7 @@ test.describe('Review Banner & SRS Review', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
 
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
 
     // Click review button
     await page.locator('#review-start-btn').click();
@@ -518,9 +529,10 @@ test.describe('Dashboard', () => {
     // Guest users are routed to the login view from Profile; the other tabs
     // open their corresponding learning views directly.
     const tabs = [
-      { tab: '#tab-paths', view: '#view-learn' },
-      { tab: '#tab-list', view: '#view-list' },
+      { tab: '#tab-learn', view: '#view-tracks' },
+      { tab: '#tab-practice', view: '#view-review-center' },
       { tab: '#tab-quran', view: '#view-quran' },
+      { tab: '#tab-home', view: '#view-dashboard' },
     ];
 
     for (const { tab, view } of tabs) {
@@ -544,10 +556,52 @@ test.describe('Dashboard', () => {
   });
 });
 
+// ── Learn tab: track list and path ────────────────────────────
+
+test.describe('Learn tab', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await skipOnboarding(page);
+  });
+
+  test('shows Word meanings as the main track and the other tracks as coming soon', async ({ page }) => {
+    await page.locator('#tab-learn').click();
+    await expect(page.locator('#view-tracks')).toBeVisible();
+    await expect(page.locator('#view-tracks .track-card.is-joined')).toHaveCount(1);
+    await expect(page.locator('#view-tracks .track-card.is-main')).toContainText('Word meanings');
+    await expect(page.locator('#view-tracks .track-card-soon')).toHaveCount(3);
+  });
+
+  test('the track menu offers Make main and a disabled Leave', async ({ page }) => {
+    await page.locator('#tab-learn').click();
+    const toggle = page.locator('#view-tracks .track-card-more').first();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('#view-tracks .track-menu-leave')).toBeDisabled();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#view-tracks .track-menu').first()).toBeHidden();
+  });
+
+  test('the path lists four levels and opens a lesson on the word card', async ({ page }) => {
+    await openWordMeaningsPath(page);
+    await expect(page.locator('#view-track .track-level')).toHaveCount(4);
+    await expect(page.locator('#view-track .track-level').first()).toContainText('Beginner');
+    await expect(page.locator('#tab-learn')).toHaveAttribute('aria-current', 'page');
+    await page.locator('#view-track .track-lesson[data-kind="foundation"][data-ref="0"]').click();
+    await expect(page.locator('#word-card')).toBeVisible();
+    await expect(page.locator('#tab-learn')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('the path footer opens the word list', async ({ page }) => {
+    await openWordList(page);
+    await expect(page.locator('.wordlist-item').first()).toBeVisible();
+  });
+});
+
 // ── Bottom Nav Indicator ──────────────────────────────────────
 
 // The highlight is measured against the active tab: tabs are not equal
-// widths ("Dashboard" is wider) and the nav has side padding.
+// widths ("Practice" is wider) and the nav has side padding.
 async function expectIndicatorOn(page, tabSelector) {
   await page.waitForFunction((sel) => {
     const ind = document.getElementById('bn-indicator');
@@ -571,14 +625,14 @@ test.describe('Bottom Nav Indicator', () => {
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
   });
 
-  test('initial load positions indicator on dashboard tab', async ({ page }) => {
+  test('initial load positions indicator on the Home tab', async ({ page }) => {
     await expect(page.locator('#bn-indicator')).toBeVisible();
-    await expectIndicatorOn(page, '#tab-dashboard');
-    await expect(page.locator('#tab-dashboard')).toHaveAttribute('aria-current', 'page');
+    await expectIndicatorOn(page, '#tab-home');
+    await expect(page.locator('#tab-home')).toHaveAttribute('aria-current', 'page');
   });
 
   test('indicator stays inside the nav, off the screen edge', async ({ page }) => {
-    await expectIndicatorOn(page, '#tab-dashboard');
+    await expectIndicatorOn(page, '#tab-home');
     const gap = await page.evaluate(() => {
       const ind = document.getElementById('bn-indicator').getBoundingClientRect();
       const nav = document.querySelector('.bottom-nav').getBoundingClientRect();
@@ -589,7 +643,7 @@ test.describe('Bottom Nav Indicator', () => {
   });
 
   test('each tab click moves indicator to correct position', async ({ page }) => {
-    const tabs = ['#tab-dashboard', '#tab-paths', '#tab-list', '#tab-quran', '#tab-profile'];
+    const tabs = ['#tab-home', '#tab-learn', '#tab-practice', '#tab-quran', '#tab-profile'];
     for (const tab of tabs) {
       await page.locator(tab).click();
       await expectIndicatorOn(page, tab);
@@ -598,7 +652,7 @@ test.describe('Bottom Nav Indicator', () => {
   });
 
   test('only one tab is ever active at a time', async ({ page }) => {
-    const tabs = ['#tab-dashboard', '#tab-paths', '#tab-list', '#tab-quran', '#tab-profile'];
+    const tabs = ['#tab-home', '#tab-learn', '#tab-practice', '#tab-quran', '#tab-profile'];
 
     for (const tabId of tabs) {
       await page.locator(tabId).click();
@@ -616,10 +670,16 @@ test.describe('Bottom Nav Indicator', () => {
     }
   });
 
-  test('keyboard shortcut W moves indicator to word list tab', async ({ page }) => {
+  test('keyboard shortcut W (word list) moves indicator to the Learn tab', async ({ page }) => {
     await page.keyboard.press('w');
-    await expectIndicatorOn(page, '#tab-list');
-    await expect(page.locator('#tab-list')).toHaveAttribute('aria-current', 'page');
+    await expectIndicatorOn(page, '#tab-learn');
+    await expect(page.locator('#tab-learn')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('a word card opened from the path keeps the indicator on the Learn tab', async ({ page }) => {
+    await openWordCard(page);
+    await expectIndicatorOn(page, '#tab-learn');
+    await expect(page.locator('#tab-learn')).toHaveAttribute('aria-current', 'page');
   });
 
   test('keyboard shortcut R moves indicator to quran tab', async ({ page }) => {
@@ -628,7 +688,7 @@ test.describe('Bottom Nav Indicator', () => {
     await expect(page.locator('#tab-quran')).toHaveAttribute('aria-current', 'page');
   });
 
-  test('browser refresh restores indicator on dashboard tab', async ({ page }) => {
+  test('browser refresh restores indicator on the Home tab', async ({ page }) => {
     // Navigate to profile first
     await page.locator('#tab-profile').click();
     await page.waitForTimeout(500);
@@ -643,7 +703,7 @@ test.describe('Bottom Nav Indicator', () => {
 
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('dashboard'); });
     await page.waitForSelector('#view-dashboard', { timeout: 5000 });
-    await expectIndicatorOn(page, '#tab-dashboard');
+    await expectIndicatorOn(page, '#tab-home');
 
     // Only one active tab after refresh
     const activeCount = await page.evaluate(() => {
@@ -655,11 +715,11 @@ test.describe('Bottom Nav Indicator', () => {
   test('indicator position is never stale — clicking quickly still ends on correct tab', async ({ page }) => {
     // Rapidly click multiple tabs without waiting for animation
     await page.locator('#tab-quran').click();
-    await page.locator('#tab-list').click();
-    await page.locator('#tab-paths').click();
+    await page.locator('#tab-practice').click();
+    await page.locator('#tab-learn').click();
 
-    await expectIndicatorOn(page, '#tab-paths');
-    await expect(page.locator('#tab-paths')).toHaveAttribute('aria-current', 'page');
+    await expectIndicatorOn(page, '#tab-learn');
+    await expect(page.locator('#tab-learn')).toHaveAttribute('aria-current', 'page');
 
     // Only one active tab
     const activeCount = await page.evaluate(() => {
@@ -715,25 +775,24 @@ test.describe('Wide screen layout', () => {
     const nav = await page.locator('.bottom-nav').boundingBox();
     expect(nav.x).toBeLessThan(200);
     expect(nav.height).toBeGreaterThan(600);
-    for (const tab of ['#tab-dashboard', '#tab-paths', '#tab-list', '#tab-quran', '#tab-profile']) {
+    for (const tab of ['#tab-home', '#tab-learn', '#tab-practice', '#tab-quran', '#tab-profile']) {
       await page.locator(tab).click();
       await expectSidebarIndicatorOn(page, tab);
     }
   });
 
   test('resizing across 1024px swaps sidebar and bottom bar', async ({ page }) => {
-    await page.locator('#tab-list').click();
+    await page.locator('#tab-practice').click();
     await page.setViewportSize({ width: 1023, height: 800 });
-    await expectIndicatorOn(page, '#tab-list');
+    await expectIndicatorOn(page, '#tab-practice');
     const bar = await page.locator('.bottom-nav').boundingBox();
     expect(bar.y + bar.height).toBeGreaterThan(780); // at the bottom
     await page.setViewportSize({ width: 1024, height: 800 });
-    await expectSidebarIndicatorOn(page, '#tab-list');
+    await expectSidebarIndicatorOn(page, '#tab-practice');
   });
 
   test('Learn shows the word card and its details side by side', async ({ page }) => {
-    await page.locator('#tab-paths').click();
-    await expect(page.locator('#view-learn')).toBeVisible();
+    await openWordCard(page);
     const main = await page.locator('.learn-main').boundingBox();
     const side = await page.locator('.learn-side').boundingBox();
     expect(side.x).toBeGreaterThan(main.x + main.width);
@@ -754,8 +813,7 @@ test.describe('Word List & Search', () => {
   });
 
   test('word list view shows vocabulary', async ({ page }) => {
-    await page.locator('#tab-list').click();
-    await page.waitForTimeout(500);
+    await openWordList(page);
 
     await expect(page.locator('#view-list')).toBeVisible();
     await expect(page.locator('#wordlist-container')).toBeVisible();
@@ -767,8 +825,7 @@ test.describe('Word List & Search', () => {
   });
 
   test('search filters words', async ({ page }) => {
-    await page.locator('#tab-list').click();
-    await page.waitForTimeout(500);
+    await openWordList(page);
 
     // Type a search term
     await page.locator('#search-input').fill('allah');
@@ -781,8 +838,7 @@ test.describe('Word List & Search', () => {
   });
 
   test('filter chips change word list', async ({ page }) => {
-    await page.locator('#tab-list').click();
-    await page.waitForTimeout(500);
+    await openWordList(page);
 
     // Click a filter chip — try "Nouns"
     const nounChip = page.locator('#filter-type-chips .chip[data-value="noun"]');
@@ -917,8 +973,7 @@ test.describe('SRS Rating - Edge Cases', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await skipOnboarding(page);
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
   });
@@ -997,8 +1052,7 @@ test.describe('Quiz Completion - Edge Cases', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await skipOnboarding(page);
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('quiz'); });
@@ -1100,8 +1154,7 @@ test.describe('Quiz Completion - Edge Cases', () => {
 
 test.describe('Vocabulary Explorer', () => {
   async function navigateToWordAndOpenExplorer(page) {
-    await page.locator('#tab-list').click();
-    await page.waitForTimeout(800);
+    await openWordList(page);
 
     // Click first word in list to navigate to learn view
     const firstItem = page.locator('.wordlist-item').first();
@@ -1294,7 +1347,7 @@ test.describe('Progress Persistence', () => {
     await page.reload();
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
-    await page.locator('#tab-paths').click();
+    await page.evaluate(() => { if (typeof switchView === 'function') switchView('learn'); });
     await page.waitForTimeout(500);
 
     const lessonLabel = page.locator('#lesson-label');
@@ -1344,8 +1397,7 @@ test.describe('Quick Flashcard Mode', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await skipOnboarding(page);
-    await page.locator('#tab-paths').click();
-    await page.waitForTimeout(500);
+    await openWordCard(page);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
   });

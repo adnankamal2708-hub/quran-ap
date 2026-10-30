@@ -817,10 +817,10 @@ function safeOnClick(id, fn) {
 
 
 function wireEvents() {
-  // Bottom nav tabs (5-tab layout: Dashboard, Paths, Words, Profile, Quran)
-  safeOnClick('tab-dashboard', function () { switchView('dashboard'); });
-  safeOnClick('tab-paths', function () { switchView('learn'); });
-  safeOnClick('tab-list', function () { switchView('list'); });
+  // Bottom nav tabs (5-tab layout: Home, Learn, Practice, Quran, Profile)
+  safeOnClick('tab-home', function () { switchView('dashboard'); });
+  safeOnClick('tab-learn', function () { switchView('tracks'); });
+  safeOnClick('tab-practice', function () { switchView('review-center'); });
   safeOnClick('tab-quran', function () { switchView('quran'); });
   safeOnClick('tab-profile', function () { switchView('profile'); });
 

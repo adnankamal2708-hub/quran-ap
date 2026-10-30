@@ -710,14 +710,14 @@ var _tooltips = {
     position: 'top'
   },
   'paths': {
-    selector: '#tab-paths',
+    selector: '#tab-learn',
     icon: 'layers',
     title: 'Learning Paths',
     message: 'Switch between Foundation Course, surah-by-surah study, root families, or difficulty-based learning.',
     position: 'top'
   },
   'dashboard': {
-    selector: '#tab-dashboard',
+    selector: '#tab-home',
     icon: 'chart',
     title: 'Dashboard',
     message: 'Your learning overview — track comprehension, review progress, and discover personalized recommendations.',

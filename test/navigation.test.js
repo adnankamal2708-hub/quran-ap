@@ -229,6 +229,103 @@ suite('switchView Dispatching', function() {
   });
 });
 
+suite('Five-tab active state', function() {
+  var TAB_IDS = ['tab-home', 'tab-learn', 'tab-practice', 'tab-quran', 'tab-profile'];
+
+  function makeTab(id) {
+    var classes = {};
+    var attrs = {};
+    return {
+      id: id,
+      classList: {
+        add: function(c) { classes[c] = true; },
+        remove: function(c) { delete classes[c]; },
+        contains: function(c) { return !!classes[c]; },
+      },
+      setAttribute: function(a, v) { attrs[a] = v; },
+      removeAttribute: function(a) { delete attrs[a]; },
+      getAttribute: function(a) { return attrs[a] === undefined ? null : attrs[a]; },
+    };
+  }
+
+  /** Run switchView against a fake five-tab nav; returns the active tab ids. */
+  function activeTabsAfter(viewName, options) {
+    var tabs = TAB_IDS.map(makeTab);
+    var byId = {};
+    tabs.forEach(function(tab) { byId[tab.id] = tab; });
+    var origGet = document.getElementById;
+    var origAll = document.querySelectorAll;
+    document.getElementById = function(id) { return byId[id] || null; };
+    document.querySelectorAll = function(sel) { return sel === '.nav-tab' ? tabs : []; };
+    try {
+      switchView(viewName, options);
+    } finally {
+      document.getElementById = origGet;
+      document.querySelectorAll = origAll;
+    }
+    return tabs.filter(function(tab) { return tab.classList.contains('active'); })
+      .map(function(tab) { return tab.id; });
+  }
+
+  test("switchView('list') marks tab-learn active", function() {
+    assert.deepStrictEqual(activeTabsAfter('list'), ['tab-learn']);
+  });
+
+  test("switchView('review-center') marks tab-practice active", function() {
+    assert.deepStrictEqual(activeTabsAfter('review-center'), ['tab-practice']);
+  });
+
+  test('dashboard maps to tab-home', function() {
+    assert.deepStrictEqual(activeTabsAfter('dashboard'), ['tab-home']);
+  });
+
+  test('tracks, track, learn, quiz and explorer map to tab-learn', function() {
+    ['tracks', 'track', 'learn', 'quiz', 'explorer'].forEach(function(view) {
+      assert.deepStrictEqual(activeTabsAfter(view), ['tab-learn'], view);
+    });
+  });
+
+  test('test maps to tab-practice', function() {
+    assert.deepStrictEqual(activeTabsAfter('test'), ['tab-practice']);
+  });
+
+  test('the active tab gets aria-current="page"', function() {
+    var tabs = TAB_IDS.map(makeTab);
+    var origGet = document.getElementById;
+    var origAll = document.querySelectorAll;
+    document.getElementById = function(id) { return tabs[TAB_IDS.indexOf(id)] || null; };
+    document.querySelectorAll = function(sel) { return sel === '.nav-tab' ? tabs : []; };
+    try {
+      switchView('track');
+    } finally {
+      document.getElementById = origGet;
+      document.querySelectorAll = origAll;
+    }
+    assert.strictEqual(tabs[1].getAttribute('aria-current'), 'page');
+    assert.strictEqual(tabs[0].getAttribute('aria-current'), null);
+  });
+
+  test("switchView('tracks') renders the track list", function() {
+    global.renderTracks = function() { _callLog.push('renderTracks'); };
+    try {
+      switchView('tracks');
+    } finally {
+      delete global.renderTracks;
+    }
+    assert.ok(_callLog.indexOf('renderTracks') >= 0);
+  });
+
+  test("switchView('track') renders the path of the given track", function() {
+    global.renderTrackPath = function(id) { _callLog.push('renderTrackPath:' + id); };
+    try {
+      switchView('track', { trackId: 'words' });
+    } finally {
+      delete global.renderTrackPath;
+    }
+    assert.ok(_callLog.indexOf('renderTrackPath:words') >= 0);
+  });
+});
+
 suite('Foundation Lesson Navigation', function() {
   test('goToFoundationLesson ignores invalid negative index', function() {
     goToFoundationLesson(-1);

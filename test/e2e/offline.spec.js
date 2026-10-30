@@ -77,7 +77,9 @@ test.describe('Offline Use — PWA', () => {
     // ── Phase 4: vocabulary reading works offline ──
     // Open the Foundation lesson word card (same path the online suite uses) —
     // its Arabic text + meaning come from the cached data bundle.
-    await page.locator('#tab-paths').click();
+    await page.locator('#tab-learn').click();
+    await page.locator('#view-tracks .track-card-open[data-track="words"]').click();
+    await page.locator('#view-track .track-lesson[data-kind="foundation"][data-ref="0"]').click();
     await page.waitForTimeout(500);
     await page.locator('#surah-select').selectOption('foundation');
     await page.waitForTimeout(500);
@@ -87,8 +89,11 @@ test.describe('Offline Use — PWA', () => {
     expect(arabic.length).toBeGreaterThan(0);
     expect(meaning.length).toBeGreaterThan(0);
 
-    // The word-list view also renders from the cached data bundle.
-    await page.locator('#tab-list').click();
+    // The word-list view (Learn → Word meanings → All words) also renders
+    // from the cached data bundle.
+    await page.locator('#tab-learn').click();
+    await page.locator('#view-tracks .track-card-open[data-track="words"]').click();
+    await page.locator('#view-track .track-path-link[data-action="all-words"]').click();
     await expect(page.locator('#wordlist-container')).toBeVisible({ timeout: 10000 });
     const itemCount = await page.locator('.wordlist-item').count();
     expect(itemCount).toBeGreaterThan(0);

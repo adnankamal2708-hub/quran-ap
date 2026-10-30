@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // visual-regression.spec.js — Full Layout Audit
 //
-// Tests all 5 main views at mobile (390×844) and desktop
+// Tests the 5 tab views at mobile (390×844) and desktop
 // (1280×800) widths. Takes screenshots and verifies that each
 // view:
 //   • renders visible content
@@ -91,21 +91,21 @@ const VIEWPORTS = [
 const VIEWS = [
   {
     id: 'view-dashboard',
-    tab: '#tab-dashboard',
+    tab: '#tab-home',
     selectors: ['#dashboard-grid', '.db-greeting', '.db-card'],
-    label: 'Dashboard',
+    label: 'Home',
   },
   {
-    id: 'view-learn',
-    tab: '#tab-paths',
-    selectors: ['#word-card', '#arabic-word', '#meaning', '#lesson-progress-text'],
+    id: 'view-tracks',
+    tab: '#tab-learn',
+    selectors: ['.track-list', '.track-card-name', '.track-card-soon'],
     label: 'Learn',
   },
   {
-    id: 'view-list',
-    tab: '#tab-list',
-    selectors: ['#wordlist-container', '#search-input', '.wordlist-item'],
-    label: 'Words',
+    id: 'view-review-center',
+    tab: '#tab-practice',
+    selectors: ['#review-center-grid', '.rc-section-label'],
+    label: 'Practice',
   },
   {
     id: 'view-quran',

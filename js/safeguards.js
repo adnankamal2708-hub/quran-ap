@@ -35,9 +35,9 @@
     { id: 'view-auth',         name: 'Auth view' },
     { id: 'view-profile',      name: 'Profile view' },
     // Nav tabs
-    { id: 'tab-dashboard',     name: 'Dashboard nav tab' },
-    { id: 'tab-paths',         name: 'Paths nav tab' },
-    { id: 'tab-list',          name: 'Words nav tab' },
+    { id: 'tab-home',          name: 'Home nav tab' },
+    { id: 'tab-learn',         name: 'Learn nav tab' },
+    { id: 'tab-practice',      name: 'Practice nav tab' },
     { id: 'tab-quran',        name: 'Quran nav tab' },
     { id: 'tab-profile',       name: 'Profile nav tab' },
     // Top bar stats

@@ -57,6 +57,14 @@ function _switchViewCore(viewName, options) {
     if (typeof renderDashboard === 'function') renderDashboard();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderDashboard() not found');
   }
+  if (viewName === 'tracks') {
+    if (typeof renderTracks === 'function') renderTracks();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderTracks() not found');
+  }
+  if (viewName === 'track') {
+    if (typeof renderTrackPath === 'function') renderTrackPath(options && options.trackId);
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderTrackPath() not found');
+  }
   if (viewName === 'learn') {
     if (typeof window.__learnScreen !== 'undefined' && window.__learnScreen.render) {
       window.__learnScreen.render();
@@ -136,9 +144,15 @@ function _switchViewCore(viewName, options) {
 function _updateActiveTab(viewName, navContext) {
   // Map view names to their corresponding nav tab IDs
   var tabMap = {
-    dashboard: 'tab-dashboard',
-    learn: 'tab-paths',
-    list: 'tab-list',
+    dashboard: 'tab-home',
+    tracks: 'tab-learn',
+    track: 'tab-learn',
+    learn: 'tab-learn',
+    quiz: 'tab-learn',
+    list: 'tab-learn',
+    explorer: 'tab-learn',
+    'review-center': 'tab-practice',
+    test: 'tab-practice',
     quran: 'tab-quran',
     profile: 'tab-profile',
   };
@@ -466,6 +480,12 @@ function rerenderCurrentView() {
   var viewName = currentView;
   if (viewName === 'dashboard') {
     if (typeof renderDashboard === 'function') renderDashboard();
+  }
+  if (viewName === 'tracks') {
+    if (typeof renderTracks === 'function') renderTracks();
+  }
+  if (viewName === 'track') {
+    if (typeof renderTrackPath === 'function') renderTrackPath();
   }
   if (viewName === 'learn') {
     if (typeof window.__learnScreen !== 'undefined' && window.__learnScreen.render) {
