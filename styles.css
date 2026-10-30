@@ -7655,12 +7655,14 @@ body::before {
 .show-glosses .quran-token-unknown {
   text-decoration: none;
 }
-.show-glosses .quran-word-token {
+.show-glosses .quran-word-token,
+.show-glosses .quran-plain-arabic {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
 }
-.show-glosses .quran-word-token::after {
+.show-glosses .quran-word-token::after,
+.show-glosses .quran-plain-arabic::after {
   content: attr(data-gloss);
   max-width: 8em;
   margin-top: 2px;
@@ -7673,6 +7675,23 @@ body::before {
   text-align: center;
   white-space: normal;
   color: var(--text-muted);
+}
+/* A word not in Bayan's word list has no meaning to show yet: a faint
+   dash marks the gap (see .reader-gloss-note) instead of a blank space */
+.show-glosses .quran-plain-arabic::after {
+  content: "\2013";
+  content: "\2013" / "";
+  opacity: 0.5;
+}
+.reader-gloss-note {
+  display: none;
+  margin: 10px 16px 0;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.show-glosses .reader-gloss-note {
+  display: block;
 }
 
 /* Plain (non-vocab) Arabic */
