@@ -199,6 +199,41 @@ function estimateReviewTime(wordCount) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PRACTICE GROUPS — Due today, Drills, Tests
+// ═══════════════════════════════════════════════════════════════
+
+function _rcGroupTitle(key) {
+  return '<h3 class="rc-group-title">' + t(key) + '</h3>';
+}
+
+function _rcModeCard(id, iconName, iconBg, title, sub) {
+  return '<div class="rc-mode-card" id="' + id + '" tabindex="0" role="button">' +
+    '<div class="rc-mode-icon" style="background:' + iconBg + '">' + uiIcon(iconName, true) + '</div>' +
+    '<div class="rc-mode-info"><div class="rc-mode-title">' + title + '</div>' +
+    '<div class="rc-mode-sub">' + sub + '</div></div>' +
+    '<div class="rc-mode-arrow">→</div></div>';
+}
+
+/** The two Quran drills; the question appears in #rc-drill-host (drill-ui.js). */
+function _rcDrillCards() {
+  var canSpot = typeof hasLearnedWords === 'function' && hasLearnedWords();
+  var h = '<div class="rc-modes-grid">';
+  h += _rcModeCard('rc-drill-spot', 'target', 'rgba(201,168,76,0.15)', t('drill.spot.title'),
+    t(canSpot ? 'drill.spot.desc' : 'drill.needWords'));
+  h += _rcModeCard('rc-drill-build', 'layers', 'rgba(74,126,194,0.15)', t('drill.build.title'), t('drill.build.desc'));
+  h += '</div>';
+  h += '<div id="rc-drill-host" class="rc-drill-host"></div>';
+  return h;
+}
+
+/** One card per released track's placement test (only Word meanings in Phase 1). */
+function _rcTestCards() {
+  return '<div class="rc-modes-grid rc-modes-grid-single">' +
+    _rcModeCard('rc-test-words', 'check-circle', 'rgba(74,158,107,0.15)', t('test.words.title'), t('test.words.desc')) +
+    '</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════
 // MAIN RENDER FUNCTION
 // ═══════════════════════════════════════════════════════════════
 
@@ -251,6 +286,9 @@ function renderReviewCenter() {
   $h += '</div>';
 
   $h += '</div>';
+
+  var $headH = $h;
+  $h = '';
 
   // ═══ SECTION 2: REVIEW MODES ═══
   $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('target', true) + '</span> Review Modes</div>';
@@ -318,6 +356,9 @@ function renderReviewCenter() {
 
   $h += '</div>';
 
+  var $modesH = $h;
+  $h = '';
+
   // ═══ SECTION 3: REVIEWS DUE ═══
   if ($data.dueCount > 0) {
     $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('repeat', true) + '</span> Reviews Due <span class="rc-count-badge">' + $data.dueCount + '</span></div>';
@@ -382,6 +423,9 @@ function renderReviewCenter() {
     $h += '<div class="rc-empty-sub">' + $emptySub + '</div>';
     $h += '</div>';
   }
+
+  var $dueH = $h;
+  $h = '';
 
   // ═══ SECTION 4: FORGOTTEN WORDS ═══
   if ($data.forgottenWords && $data.forgottenWords.length > 0) {
@@ -469,6 +513,9 @@ function renderReviewCenter() {
     }
     $h += '</div>';
   }
+
+  var $listsH = $h;
+  $h = '';
 
   // ═══ SECTION 9: SMART PRIORITIZATION ═══
   $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('settings', true) + '</span> Smart Prioritization</div>';
@@ -564,6 +611,12 @@ function renderReviewCenter() {
     $h += '</div></div>';
   }
 
+  // ── Group: Due today, Drills, Tests ──
+  $h = $headH +
+    _rcGroupTitle('practice.due') + $dueH + $h +
+    _rcGroupTitle('practice.drills') + $modesH + $listsH + _rcDrillCards() +
+    _rcGroupTitle('practice.tests') + _rcTestCards();
+
   // ── Inject HTML ──
   var $rcContainer = document.getElementById('review-center-grid');
   if (!$rcContainer) return;
@@ -643,6 +696,17 @@ function wireReviewCenterEvents($data) {
       if (typeof startReview === 'function') startReview();
     });
     // Note: startReview already prioritizes leeched words first
+  });
+
+  // ── Drills and tests ──
+  $wire('rc-drill-spot', function() {
+    if (typeof startWordDrill === 'function') startWordDrill('spot', document.getElementById('rc-drill-host'));
+  });
+  $wire('rc-drill-build', function() {
+    if (typeof startWordDrill === 'function') startWordDrill('build', document.getElementById('rc-drill-host'));
+  });
+  $wire('rc-test-words', function() {
+    if (typeof startPlacementTest === 'function') startPlacementTest(WORDS_TRACK_ID);
   });
 
   // ── Start review buttons ──

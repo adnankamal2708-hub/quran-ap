@@ -226,6 +226,8 @@ var reviewCenterCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'r
 
 require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(reviewCenterCode);
+(0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'i18n', 'strings-en.js'), 'utf8'));
+(0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'exercises', 'word-drills.js'), 'utf8'));
 
 // ═══════════════════════════════════════════════════════════════
 // TEST HELPERS
@@ -1331,6 +1333,112 @@ suite('Edge Cases — Accessibility', function() {
     renderReviewCenter();
     var html = grid._innerHTML;
     assert.ok(html.indexOf('aria-label') >= 0, 'should have aria-label attributes');
+  });
+});
+
+
+function renderGrid() {
+  var grid = makeEl('div');
+  grid.id = 'review-center-grid';
+  _elementsById['review-center-grid'] = grid;
+  renderReviewCenter();
+  return grid._innerHTML;
+}
+
+function inOrder(html, needles) {
+  var last = -1;
+  needles.forEach(function(needle) {
+    var at = html.indexOf(needle);
+    assert.ok(at >= 0, 'missing: ' + needle);
+    assert.ok(at > last, 'out of order: ' + needle);
+    last = at;
+  });
+}
+
+suite('renderReviewCenter — Practice groups', function() {
+  test('shows Due today, then Drills, then Tests', function() {
+    inOrder(renderGrid(), ['Due today', 'Drills', 'Tests']);
+  });
+
+  test('the Tests section has the Word meanings placement test', function() {
+    var html = renderGrid();
+    var tests = html.slice(html.indexOf('Tests'));
+    assert.ok(tests.indexOf('Word meanings placement test') >= 0);
+    assert.ok(tests.indexOf('About 5 minutes') >= 0);
+  });
+
+  test('Reviews Due, Smart Prioritization and Today\'s Progress sit under Due today', function() {
+    _mockDueReviews = [{ id: 'w1' }];
+    _mockSRSStats = { total: 10, mature: 2, dueToday: 1, totalReviews: 20, reviewsToday: 1, newCount: 3, learning: 1, young: 1, overdue: 0, avgRetention: 85 };
+    _mockForecast = [{ count: 3, label: 'Tomorrow' }];
+    inOrder(renderGrid(), ['Due today', 'Reviews Due', 'Smart Prioritization', "Today's Progress", 'Review Forecast', 'Drills']);
+  });
+
+  test('Review Modes and the word lists sit under Drills, before the new drills', function() {
+    _mockForgottenWords = [{ arabic: 'نور', english: 'light' }];
+    _mockProfile = { weakRoots: [{ root: 'ك ت ب', rootMeaning: 'write', mastered: 1, total: 4, masteryScore: 25 }] };
+    _mockFavorites = { w1: true };
+    inOrder(renderGrid(), ['Drills', 'Review Modes', 'Forgotten Words', 'Weak Roots', 'Bookmarked Words', 'rc-drill-spot', 'rc-drill-build', 'Tests']);
+  });
+
+  test('has the two new drill cards, titled from the strings', function() {
+    var html = renderGrid();
+    assert.ok(html.indexOf('id="rc-drill-spot"') >= 0);
+    assert.ok(html.indexOf('id="rc-drill-build"') >= 0);
+    assert.ok(html.indexOf('Spot the word') >= 0);
+    assert.ok(html.indexOf('Build the verse') >= 0);
+  });
+
+  test('the Spot card says to learn words first when nothing is learned', function() {
+    assert.ok(renderGrid().indexOf('Learn a few words first') >= 0);
+  });
+
+  test('the Spot card stops saying so once a word is learned', function() {
+    _mockSRSData = { cw_1: { stage: 1 } };
+    assert.ok(renderGrid().indexOf('Learn a few words first') < 0);
+  });
+
+  test('a drill host sits under the drill cards', function() {
+    assert.ok(renderGrid().indexOf('id="rc-drill-host"') >= 0);
+  });
+
+  test('clicking a drill card starts that drill in the host', function() {
+    var host = makeEl('div');
+    host.id = 'rc-drill-host';
+    _elementsById['rc-drill-host'] = host;
+    ['rc-drill-spot', 'rc-drill-build'].forEach(function(id) {
+      var card = makeEl('div');
+      card.id = id;
+      _elementsById[id] = card;
+    });
+    var started = [];
+    global.startWordDrill = function(kind, container) { started.push([kind, container]); };
+    try {
+      renderGrid();
+      _elementsById['rc-drill-spot'].click();
+      _elementsById['rc-drill-build'].click();
+    } finally {
+      delete global.startWordDrill;
+    }
+    assert.deepStrictEqual(started.map(function(entry) { return entry[0]; }), ['spot', 'build']);
+    assert.strictEqual(started[0][1], host, 'drills render into the host');
+  });
+
+  test('clicking the test card starts the Word meanings placement test', function() {
+    var card = makeEl('div');
+    card.id = 'rc-test-words';
+    _elementsById['rc-test-words'] = card;
+    var started = [];
+    global.startPlacementTest = function(track) { started.push(track); };
+    global.WORDS_TRACK_ID = 'words';
+    try {
+      renderGrid();
+      card.click();
+    } finally {
+      delete global.startPlacementTest;
+      delete global.WORDS_TRACK_ID;
+    }
+    assert.deepStrictEqual(started, ['words']);
   });
 });
 

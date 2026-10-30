@@ -62,6 +62,8 @@ var TESTS = [
   "placement.test.js",
   "tracks-ui.test.js",
   "placement-ui.test.js",
+  "word-drills.test.js",
+  "drill-ui.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;

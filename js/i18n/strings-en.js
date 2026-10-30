@@ -86,6 +86,13 @@ var STRINGS = {
     'drill.spot.prompt': 'Tap the word that means “{meaning}”',
     'drill.build.title': 'Build the verse',
     'drill.build.prompt': 'Put the words in order',
+    'drill.spot.desc': 'Find a word you know in an ayah',
+    'drill.build.desc': 'Put an ayah back in order',
+    'drill.needWords': 'Learn a few words first',
+    'drill.noMatch': 'None of your words are in these ayahs yet. Learn a few more.',
+    'drill.loading': 'Loading the ayahs…',
+    'drill.unavailable': 'The Quran text could not be loaded. Check your connection and try again.',
+    'drill.again': 'New drill',
 
     // ── Exercises ──
     'exercise.check': 'Check',

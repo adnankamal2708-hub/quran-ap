@@ -6285,6 +6285,48 @@ body::before {
   font-weight: 600;
 }
 
+/* ── Practice groups: Due today, Drills, Tests ─────────────── */
+.rc-group-title {
+  margin: var(--spacing-xl) 0 var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--serif);
+  font-size: var(--heading-lg);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rc-modes-grid.rc-modes-grid-single {
+  grid-template-columns: 1fr;
+}
+
+/* ── Practice drills (js/ui/drill-ui.js) ───────────────────── */
+.rc-drill-host:empty {
+  display: none;
+}
+
+.rc-drill-host {
+  min-width: 0;
+  margin-bottom: 16px;
+  padding: var(--spacing-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+.drill-hint,
+.drill-message {
+  margin: 0 0 var(--spacing-md);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.drill-again {
+  display: block;
+  margin: var(--spacing-md) auto 0;
+}
+
 /* ── Review Center: Section Labels ─────────────────────────── */
 .rc-section-label {
   font-size: var(--text-xs);
