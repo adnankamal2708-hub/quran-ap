@@ -80,6 +80,7 @@ var STRINGS = {
     'onboarding.new.desc': 'Start from the very beginning',
     'onboarding.test': 'Take a short test',
     'onboarding.test.desc': 'Find your level in about 5 minutes',
+    'onboarding.tracks.required': 'Pick at least one thing to learn.',
 
     // ── Drills ──
     'drill.spot.title': 'Spot the word',

@@ -136,22 +136,23 @@ test.describe('Onboarding Tour', () => {
     await slide.locator('.onboarding-choice').first().click();
     await page.waitForTimeout(300);
 
-    // Step 2 → 3 (experience level)
+    // Step 2 → 3 (what to learn)
     await nextBtn.click();
     await page.waitForTimeout(300);
-    await expect(slide).toContainText('Your Experience Level');
+    await expect(slide).toContainText('What do you want to learn?');
 
     // Back to step 2 still works
     await prevBtn.click();
     await page.waitForTimeout(300);
     await expect(slide).toContainText('Set Your Daily Goal');
 
-    // Forward to step 3 again, pick a level, verify Start Learning CTA
+    // Forward to step 3 again: Word meanings is preselected, the other three
+    // tracks are disabled; verify Start Learning CTA
     await nextBtn.click();
     await page.waitForTimeout(300);
-    await expect(slide).toContainText('Your Experience Level');
-    await slide.locator('.onboarding-choice').first().click();
-    await page.waitForTimeout(300);
+    await expect(slide).toContainText('What do you want to learn?');
+    await expect(slide.locator('.onboarding-choice[data-value="words"]')).toHaveAttribute('aria-checked', 'true');
+    await expect(slide.locator('.onboarding-choice:disabled')).toHaveCount(3);
     await expect(nextBtn).toContainText('Start Learning');
   });
 

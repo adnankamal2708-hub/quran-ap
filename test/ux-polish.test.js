@@ -303,6 +303,9 @@ var fs = require('fs');
 var path = require('path');
 var uxCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ux-polish.js'), 'utf8');
 require('./load-components')(); // uiIcon, iconText, dataIcon
+// Track state and English strings, which the onboarding "What do you want to learn?" screen uses
+(0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'tracks.js'), 'utf8'));
+(0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'i18n', 'strings-en.js'), 'utf8'));
 eval(uxCode);
 
 var ux = global.window.__ux;
@@ -634,21 +637,148 @@ suite('Onboarding Goal Selection Screen', function() {
   });
 });
 
-suite('Onboarding Level Selection Screen', function() {
-  test('level screen renders 4 choices', function() {
+suite('Onboarding "What do you want to learn?" Screen', function() {
+  function renderTracksScreen() {
     _resetDOM();
+    clearStorage();
     setupOnboardingDOM();
-    renderOnboardingScreen(2); // level screen
-    var slide = document.getElementById('onboarding-slide');
-    assert.ok(slide.innerHTML.indexOf('onboarding-choice') >= 0);
+    _selectedTracks = [DEFAULT_TRACK_ID];
+    _startFromZero = false;
+    _wantsPlacementTest = false;
+    renderOnboardingScreen(2);
+    return document.getElementById('onboarding-slide').innerHTML;
+  }
+
+  test('screen 3 is titled "What do you want to learn?"', function() {
+    var html = renderTracksScreen();
+    assert.ok(html.indexOf('What do you want to learn?') >= 0);
+    assert.ok(html.indexOf('Experience') < 0, 'the old level question is gone');
   });
 
-  test('level screen shows Experience Level title', function() {
-    _resetDOM();
-    setupOnboardingDOM();
-    renderOnboardingScreen(2);
-    var slide = document.getElementById('onboarding-slide');
-    assert.ok(slide.innerHTML.indexOf('Experience') >= 0);
+  test('screen 3 is a checkbox group, not a radio group', function() {
+    var html = renderTracksScreen();
+    assert.ok(html.indexOf('role="checkbox"') >= 0);
+    assert.ok(html.indexOf('role="radio"') < 0);
+    assert.ok(html.indexOf('radiogroup') < 0);
+  });
+
+  test('screen 3 offers the four tracks, "completely new" and "take a test"', function() {
+    var html = renderTracksScreen();
+    assert.strictEqual(html.match(/class="onboarding-choice[ "]/g).length, 6);
+    ['Read Arabic from zero', 'Tajweed', 'Word meanings', 'Understanding',
+     'completely new', 'Take a short test'].forEach(function(label) {
+      assert.ok(html.indexOf(label) >= 0, label + ' is shown');
+    });
+  });
+
+  test('three unreleased tracks are disabled and marked "Coming soon"', function() {
+    var html = renderTracksScreen();
+    assert.strictEqual(html.match(/aria-disabled="true"/g).length, 3);
+    assert.strictEqual(html.match(/ disabled[ >]/g).length, 3);
+    assert.strictEqual(html.match(/Coming soon/g).length, 3);
+  });
+
+  test('Word meanings is preselected and nothing else is', function() {
+    var html = renderTracksScreen();
+    assert.strictEqual(html.match(/aria-checked="true"/g).length, 1);
+    assert.ok(/data-value="words"[^>]*aria-checked="true"/.test(html));
+  });
+
+  test('toggling a track or option flips it', function() {
+    renderTracksScreen();
+    _toggleChoice('words');
+    assert.deepStrictEqual(_selectedTracks, []);
+    _toggleChoice('words');
+    assert.deepStrictEqual(_selectedTracks, ['words']);
+    _toggleChoice('new');
+    assert.strictEqual(_startFromZero, true);
+    _toggleChoice('test');
+    assert.strictEqual(_wantsPlacementTest, true);
+    _toggleChoice('new');
+    assert.strictEqual(_startFromZero, false);
+  });
+
+  test('an unreleased track cannot be toggled on', function() {
+    renderTracksScreen();
+    _toggleChoice('qaida');
+    assert.deepStrictEqual(_selectedTracks, ['words']);
+  });
+
+  test('Next needs at least one track and stays on the screen', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    _selectedTracks = [];
+    document.getElementById('onboarding-next').click();
+    assert.strictEqual(_onboardingIdx, 2);
+    assert.strictEqual(ux.hasCompletedOnboarding(), false);
+  });
+
+  test('"Completely new" turns on start-from-zero and keeps Word meanings at Beginner', function() {
+    renderTracksScreen();
+    _startFromZero = true;
+    ux.completeOnboarding();
+    assert.strictEqual(isStartFromZero(), true);
+    assert.strictEqual(getTrackLevel('words'), 0);
+    assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
+  });
+
+  test('finishing without "completely new" leaves start-from-zero off', function() {
+    renderTracksScreen();
+    setStartFromZero(true); // left over from an earlier run
+    ux.completeOnboarding();
+    assert.strictEqual(isStartFromZero(), false);
+  });
+
+  test('finishing joins the selected released tracks and ignores unreleased ones', function() {
+    renderTracksScreen();
+    _selectedTracks = ['qaida', 'words'];
+    ux.completeOnboarding();
+    assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
+  });
+
+  test('the learner is never left with zero tracks', function() {
+    renderTracksScreen();
+    _selectedTracks = ['qaida'];
+    ux.completeOnboarding();
+    assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
+  });
+
+  test('"Take a short test" opens the Word meanings test instead of the first lesson', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    var started = [];
+    var opened = [];
+    global.startPlacementTest = function(id) { started.push(id); };
+    global.goToFoundationLesson = function(i) { opened.push(i); };
+    _wantsPlacementTest = true;
+    document.getElementById('onboarding-next').click();
+    flushTimeouts();
+    assert.deepStrictEqual(started, ['words']);
+    assert.deepStrictEqual(opened, [], 'no first lesson');
+    assert.strictEqual(ux.hasCompletedOnboarding(), true);
+    assert.strictEqual(document.getElementById('onboarding-overlay').style.display, 'none', 'overlay closed first');
+    delete global.startPlacementTest;
+    delete global.goToFoundationLesson;
+  });
+
+  test('without the test option, finishing goes to the first lesson', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    var started = [];
+    var opened = [];
+    global.startPlacementTest = function(id) { started.push(id); };
+    global.goToFoundationLesson = function(i) { opened.push(i); };
+    document.getElementById('onboarding-next').click();
+    flushTimeouts();
+    assert.deepStrictEqual(started, []);
+    assert.strictEqual(opened.length, 1);
+    delete global.startPlacementTest;
+    delete global.goToFoundationLesson;
+  });
+
+  test('step is still saved for interruption recovery', function() {
+    renderTracksScreen();
+    assert.strictEqual(localStorage.getItem('quran_onboarding_step'), '2');
   });
 });
 

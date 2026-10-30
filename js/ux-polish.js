@@ -2,9 +2,9 @@
 // ux-polish.js — Premium Onboarding, Tooltips, Empty States, UX
 //
 // Features:
-//   • Premium 3-screen onboarding flow (intro + goal + level)
+//   • Premium 3-screen onboarding flow (intro + goal + what to learn)
 //   • Learning goal selection (5/10/15/20+ min/day)
-//   • Experience level selection (Beginner/Some/Intermediate/Advanced)
+//   • Learning track selection (multi-select; Word meanings preselected)
 //   • Contextual tooltips for first-time users
 //   • Progressive disclosure for advanced features
 //   • Enhanced empty states across all views
@@ -44,13 +44,22 @@ var _welcomeSlides = [
 // ── Onboarding Screen IDs ────────────────────────────────────
 var _SCREEN_WELCOME_END = 0; // Consolidated intro slide (only welcome screen)
 var _SCREEN_GOAL = 1;        // Learning goal selection
-var _SCREEN_LEVEL = 2;       // Experience level
+var _SCREEN_LEVEL = 2;       // What do you want to learn? (learning tracks)
 var _TOTAL_SCREENS = 3;
 
 // ── Onboarding State ─────────────────────────────────────────
 var _onboardingIdx = 0;
 var _selectedGoal = null;     // '5', '10', '15', '20'
-var _selectedLevel = null;    // 'beginner', 'some', 'intermediate', 'advanced'
+var _selectedLevel = null;    // 'beginner' (kept for older callers; no longer asked)
+
+// Screen 3 choices: Word meanings is preselected; the other two options are
+// not tracks. They combine freely: "completely new" turns on start-from-zero,
+// "take a test" opens the placement test once onboarding closes.
+var _selectedTracks = [DEFAULT_TRACK_ID];
+var _startFromZero = false;
+var _wantsPlacementTest = false;
+var _CHOICE_NEW = 'new';
+var _CHOICE_TEST = 'test';
 
 // ── Progress persistence ─────────────────────────────────────
 
@@ -79,6 +88,8 @@ function completeOnboarding() {
     if (_selectedLevel) localStorage.setItem(_ONBOARDING_LEVEL_KEY, _selectedLevel);
   } catch (e) {}
 
+  _applyTrackChoices();
+
   // Track milestone
   if (window.__feedback && window.__feedback.trackEvent) {
     window.__feedback.trackEvent('onboarding_completed', {
@@ -86,6 +97,16 @@ function completeOnboarding() {
       level: _selectedLevel || 'beginner'
     });
   }
+}
+
+/**
+ * Join every selected track the app has released and record "completely new".
+ * Joining is idempotent and tracks.js always keeps at least Word meanings
+ * joined, so the learner is never left with zero tracks.
+ */
+function _applyTrackChoices() {
+  _selectedTracks.forEach(joinTrack);
+  setStartFromZero(_startFromZero);
 }
 
 /** Reset onboarding (for revisiting from Profile → Settings) */
@@ -118,6 +139,9 @@ function showOnboarding() {
   _onboardingIdx = 0;
   _selectedGoal = null;
   _selectedLevel = null;
+  _selectedTracks = [DEFAULT_TRACK_ID];
+  _startFromZero = false;
+  _wantsPlacementTest = false;
 
   // Check if there's an interrupted step to resume
   if (hasInterruptedOnboarding()) {
@@ -238,26 +262,17 @@ function renderOnboardingScreen(idx) {
     html += '</div>';
 
   } else if (idx === _SCREEN_LEVEL) {
-    // ── Experience Level Selection ──
+    // ── What do you want to learn? (multi-select) ──
     html += '<div class="onboarding-icon">' + uiIcon('brain', true) + '</div>';
-    html += '<h2 class="onboarding-title">Your Experience Level</h2>';
-    html += '<p class="onboarding-desc">How familiar are you with Quranic vocabulary? This helps us personalize recommendations — you\'ll still start with the Foundation Course.</p>';
-    html += '<div class="onboarding-choices" role="radiogroup" aria-label="Experience level">';
-
-    var levels = [
-      { value: 'beginner', label: 'Beginner', desc: 'New to Quranic Arabic vocabulary' },
-      { value: 'some', label: 'Some Knowledge', desc: 'Know a handful of common words' },
-      { value: 'intermediate', label: 'Intermediate', desc: 'Recognize many words, but gaps remain' },
-      { value: 'advanced', label: 'Advanced', desc: 'Strong vocabulary but want structured review' }
-    ];
-    for (var li = 0; li < levels.length; li++) {
-      var lv = levels[li];
-      var lSelected = (_selectedLevel === lv.value);
-      html += '<button class="onboarding-choice' + (lSelected ? ' onboarding-choice-selected' : '') + '" data-value="' + lv.value + '" type="button" role="radio" aria-checked="' + (lSelected ? 'true' : 'false') + '">';
-      html += '<span class="onboarding-choice-value">' + lv.label + '</span>';
-      html += '<span class="onboarding-choice-desc">' + lv.desc + '</span>';
-      html += '</button>';
+    html += '<h2 class="onboarding-title">' + escapeHtml(t('onboarding.tracks.title')) + '</h2>';
+    html += '<p class="onboarding-desc">' + escapeHtml(t('onboarding.tracks.desc')) + '</p>';
+    html += '<div class="onboarding-choices" role="group" aria-label="' + escapeHtml(t('onboarding.tracks.title')) + '">';
+    for (var ti = 0; ti < TRACK_IDS.length; ti++) {
+      var trackId = TRACK_IDS[ti];
+      html += _renderLearnChoice(trackId, t('track.' + trackId + '.name'), t('track.' + trackId + '.desc'), !isTrackReleased(trackId));
     }
+    html += _renderLearnChoice(_CHOICE_NEW, t('onboarding.new'), t('onboarding.new.desc'), false);
+    html += _renderLearnChoice(_CHOICE_TEST, t('onboarding.test'), t('onboarding.test.desc'), false);
     html += '</div>';
   }
 
@@ -303,13 +318,53 @@ function renderOnboardingScreen(idx) {
   wireChoiceButtons();
 }
 
-/** Wire choice button clicks for goal/level/notification screens */
+/** One checkbox option of the "What do you want to learn?" screen */
+function _renderLearnChoice(value, label, desc, comingSoon) {
+  var checked = !comingSoon && _isChoiceSelected(value);
+  var html = '<button class="onboarding-choice' + (checked ? ' onboarding-choice-selected' : '') + (comingSoon ? ' onboarding-choice-disabled' : '') + '" data-value="' + value + '" type="button" role="checkbox" aria-checked="' + (checked ? 'true' : 'false') + '"' + (comingSoon ? ' disabled aria-disabled="true"' : '') + '>';
+  html += '<span class="onboarding-choice-value">' + escapeHtml(label) + '</span>';
+  html += '<span class="onboarding-choice-desc">' + escapeHtml(desc) + '</span>';
+  if (comingSoon) html += '<span class="onboarding-choice-badge">' + escapeHtml(t('tracks.comingSoon')) + '</span>';
+  html += '</button>';
+  return html;
+}
+
+function _isChoiceSelected(value) {
+  if (value === _CHOICE_NEW) return _startFromZero;
+  if (value === _CHOICE_TEST) return _wantsPlacementTest;
+  return _selectedTracks.indexOf(value) >= 0;
+}
+
+/** Flip a screen-3 option; returns its new state. Unreleased tracks stay off. */
+function _toggleChoice(value) {
+  var on = !_isChoiceSelected(value);
+  if (value === _CHOICE_NEW) {
+    _startFromZero = on;
+  } else if (value === _CHOICE_TEST) {
+    _wantsPlacementTest = on;
+  } else if (isTrackReleased(value)) {
+    _selectedTracks = _selectedTracks.filter(function(id) { return id !== value; });
+    if (on) _selectedTracks.push(value);
+  } else {
+    return false;
+  }
+  return on;
+}
+
+/** Wire choice button clicks for the goal and learn screens */
 function wireChoiceButtons() {
   var choiceBtns = document.querySelectorAll('.onboarding-choice');
   for (var ci = 0; ci < choiceBtns.length; ci++) {
     (function(btn) {
       btn.onclick = function() {
         var value = btn.getAttribute('data-value');
+        // Multi-select screen: each option toggles on its own
+        if (_onboardingIdx === _SCREEN_LEVEL) {
+          var on = _toggleChoice(value);
+          btn.classList.toggle('onboarding-choice-selected', on);
+          btn.setAttribute('aria-checked', on ? 'true' : 'false');
+          return;
+        }
         // Deselect all siblings
         var parent = btn.parentNode;
         var siblings = parent.querySelectorAll('.onboarding-choice');
@@ -324,13 +379,13 @@ function wireChoiceButtons() {
         // Store value based on which screen we're on
         if (_onboardingIdx === _SCREEN_GOAL) {
           _selectedGoal = value;
-        } else if (_onboardingIdx === _SCREEN_LEVEL) {
-          _selectedLevel = value;
         }
       };
       btn.onkeydown = function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
+          // Space toggles a checkbox; it must not also trigger Next
+          if (_onboardingIdx === _SCREEN_LEVEL) e.stopPropagation();
           btn.click();
         }
       };
@@ -500,8 +555,8 @@ function _goToNextFoundationLesson() {
   }, 200);
 }
 
-/** Navigate to the Foundation Course after onboarding */
-function navigateToFirstAction() {
+/** Apply the daily goal to the review limit and session sizing */
+function _applyOnboardingPreferences() {
   // Apply onboarding preferences to the adaptive engine.
   // This is the single integration point — the bridge handles goal,
   // daily review limits, and session sizing based on onboarding selections.
@@ -513,8 +568,22 @@ function navigateToFirstAction() {
     var reviewLimit = Math.max(10, Math.min(100, goalMinutes * 5));
     window.__srs.updateDailyReviewLimit(reviewLimit);
   }
+}
 
+/** Navigate to the Foundation Course after onboarding */
+function navigateToFirstAction() {
+  _applyOnboardingPreferences();
   _goToNextFoundationLesson();
+}
+
+/** Where the learner goes once the overlay is closed: the test they asked for, or the first lesson */
+function _leaveOnboarding() {
+  if (!_wantsPlacementTest || typeof startPlacementTest !== 'function') {
+    navigateToFirstAction();
+    return;
+  }
+  _applyOnboardingPreferences();
+  startPlacementTest(DEFAULT_TRACK_ID);
 }
 
 /**
@@ -600,8 +669,8 @@ function wireOnboardingEvents() {
         showToast('Please select a daily learning goal.', 'info', 2000);
         return;
       }
-      if (_onboardingIdx === _SCREEN_LEVEL && !_selectedLevel) {
-        showToast('Please select your experience level.', 'info', 2000);
+      if (_onboardingIdx === _SCREEN_LEVEL && _selectedTracks.length === 0) {
+        showToast(t('onboarding.tracks.required'), 'info', 2000);
         return;
       }
 
@@ -613,7 +682,7 @@ function wireOnboardingEvents() {
         if (!_selectedLevel) _selectedLevel = 'beginner';
         completeOnboarding();
         hideOnboarding();
-        navigateToFirstAction();
+        _leaveOnboarding();
       }
     };
   }
