@@ -32,7 +32,7 @@ var LESSON_VIEWS = ['learn', 'quiz'];
  */
 function setView(viewName) {
   // All possible views — both main content and overlay views
-  var views = ['dashboard', 'tracks', 'track', 'learn', 'quiz', 'list', 'explorer', 'auth', 'profile', 'settings', 'quran', 'review-center', 'test'];
+  var views = ['dashboard', 'tracks', 'track', 'learn', 'quiz', 'list', 'explorer', 'auth', 'profile', 'settings', 'quran', 'review-center', 'test', 'root-lesson'];
   for (var i = 0; i < views.length; i++) {
     var name = views[i];
     var viewEl = DOM.get('view-' + name);

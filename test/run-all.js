@@ -63,6 +63,7 @@ var TESTS = [
   "tracks-ui.test.js",
   "placement-ui.test.js",
   "word-drills.test.js",
+  "root-lesson.test.js",
   "drill-ui.test.js",
 ];
 var totalPassed = 0;

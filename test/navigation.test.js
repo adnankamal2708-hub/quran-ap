@@ -285,6 +285,10 @@ suite('Five-tab active state', function() {
     });
   });
 
+  test('root-lesson maps to tab-learn', function() {
+    assert.deepStrictEqual(activeTabsAfter('root-lesson'), ['tab-learn']);
+  });
+
   test('test maps to tab-practice', function() {
     assert.deepStrictEqual(activeTabsAfter('test'), ['tab-practice']);
   });
@@ -323,6 +327,16 @@ suite('Five-tab active state', function() {
       delete global.renderTrackPath;
     }
     assert.ok(_callLog.indexOf('renderTrackPath:words') >= 0);
+  });
+
+  test("switchView('root-lesson') renders the root list or lesson", function() {
+    global.renderRootLesson = function() { _callLog.push('renderRootLesson'); };
+    try {
+      switchView('root-lesson');
+    } finally {
+      delete global.renderRootLesson;
+    }
+    assert.ok(_callLog.indexOf('renderRootLesson') >= 0);
   });
 
   test("switchView('test') renders the placement test", function() {

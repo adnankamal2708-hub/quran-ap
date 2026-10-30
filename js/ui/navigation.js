@@ -65,6 +65,10 @@ function _switchViewCore(viewName, options) {
     if (typeof renderTrackPath === 'function') renderTrackPath(options && options.trackId);
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderTrackPath() not found');
   }
+  if (viewName === 'root-lesson') {
+    if (typeof renderRootLesson === 'function') renderRootLesson();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderRootLesson() not found');
+  }
   if (viewName === 'test') {
     if (typeof renderPlacementTest === 'function') renderPlacementTest();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderPlacementTest() not found');
@@ -151,6 +155,7 @@ function _updateActiveTab(viewName, navContext) {
     dashboard: 'tab-home',
     tracks: 'tab-learn',
     track: 'tab-learn',
+    'root-lesson': 'tab-learn',
     learn: 'tab-learn',
     quiz: 'tab-learn',
     list: 'tab-learn',

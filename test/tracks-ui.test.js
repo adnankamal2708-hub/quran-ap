@@ -95,6 +95,7 @@ load('js/data-core/word-meanings-track.js');
 load('js/phase2-surahs.js');
 load('js/ui/learn-screen.js');
 load('js/ui/tracks-ui.js');
+load('js/ui/root-lesson-ui.js');
 
 // ═══════════════════════════════════════════════════════════════
 // TEST HELPERS
@@ -332,14 +333,14 @@ test('a guided surah opens the Quran reader at that surah', function() {
   assert.deepStrictEqual(calls, ['switchView:quran', 'openSurahForReading:112']);
 });
 
-test('surah study and root families open the existing paths', function() {
+test('surah study opens the Learn view and root families open the root list', function() {
   premiumGuided = true;
   premiumExpansion = true;
   raiseTrackLevel('words', 3);
   renderTrackPath('words');
   clickAction('view-track', { 'data-action': 'lesson', 'data-kind': 'surah-study' });
   clickAction('view-track', { 'data-action': 'lesson', 'data-kind': 'root-families' });
-  assert.deepStrictEqual(calls, ['switchView:learn', 'goToRootFamily']);
+  assert.deepStrictEqual(calls, ['switchView:learn', 'switchView:root-lesson']);
 });
 
 test('the footer row holds All words, Roots, Difficulty and Quiz', function() {
@@ -357,6 +358,23 @@ test('footer items open the word list, roots, difficulty and quiz', function() {
   });
   assert.deepStrictEqual(calls, ['switchView:list', 'goToDifficultyLevel:2', 'switchView:quiz']);
   assert.deepStrictEqual(upgradeReasons, ['vocabulary-expansion'], 'Roots asks a free learner to upgrade');
+});
+
+test('a free learner is asked to upgrade, and never reaches the root list', function() {
+  raiseTrackLevel('words', 3);
+  renderTrackPath('words');
+  clickAction('view-track', { 'data-action': 'upgrade', 'data-level': 3 });
+  clickAction('view-track', { 'data-action': 'roots' });
+  assert.deepStrictEqual(calls, []);
+  assert.deepStrictEqual(upgradeReasons, ['vocabulary-expansion', 'vocabulary-expansion']);
+});
+
+test('a premium learner opens the root list from the Roots footer item', function() {
+  premiumExpansion = true;
+  renderTrackPath('words');
+  clickAction('view-track', { 'data-action': 'roots' });
+  assert.deepStrictEqual(calls, ['switchView:root-lesson']);
+  assert.deepStrictEqual(upgradeReasons, []);
 });
 
 test('the back button returns to the track list', function() {

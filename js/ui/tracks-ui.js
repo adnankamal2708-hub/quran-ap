@@ -9,7 +9,7 @@
 // Both views are rendered as HTML (data text escaped) and handle clicks
 // by delegation on the view: every interactive element carries a
 // data-action. Lessons and footer items reuse the existing openers
-// (goToFoundationLesson, openGuidedSurah, openRootFamilies, ...).
+// (goToFoundationLesson, openGuidedSurah, openRootList, ...).
 // ═══════════════════════════════════════════════════════════════
 
 /** Track whose path renderTrackPath() shows when called without an id */
@@ -191,7 +191,7 @@ function _openPathLesson(kind, ref) {
   if (kind === 'foundation') goToFoundationLesson(Number(ref));
   else if (kind === 'guided-surah') openGuidedSurah(Number(ref));
   else if (kind === 'surah-study') openSurahStudy();
-  else if (kind === 'root-families') openRootFamilies();
+  else if (kind === 'root-families') openRootList();
 }
 
 function _closeTrackMenus(view) {
@@ -232,7 +232,7 @@ function _runLearnAction(el, view) {
     if (window.__premium) window.__premium.requestUpgrade(TRACK_LEVEL_UPGRADE_REASONS[el.getAttribute('data-level')]);
   }
   else if (action === 'all-words') switchView('list');
-  else if (action === 'roots') openRootFamilies();
+  else if (action === 'roots') openRootList();
   else if (action === 'difficulty') openNextDifficultyLevel();
   else if (action === 'quiz') switchView('quiz');
 }

@@ -40,6 +40,7 @@ const UI_FILES = [
   'js/ui/quiz-ui.js',
   'js/ui/exercise-ui.js',
   'js/ui/placement-ui.js',
+  'js/ui/root-lesson-ui.js',
   'js/ui/drill-ui.js',
   'js/ui/explorer.js',
   'js/ui/analytics-ui.js',
@@ -66,6 +67,7 @@ const APP_FILES = [
   'js/exercises/exercise-engine.js',
   'js/exercises/placement.js',
   'js/exercises/word-drills.js',
+  'js/exercises/root-lesson.js',
 ].concat(UI_FILES).concat([
   'js/quiz.js',
   'js/auth-ui.js',

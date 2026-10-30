@@ -176,6 +176,16 @@ function openRootFamilies() {
   }
 }
 
+/** Study by root (premium): the root list, or the upgrade prompt. */
+function openRootList() {
+  if (_hasVocabularyExpansion()) {
+    if (typeof showRootList === 'function') showRootList();
+    else if (typeof switchView === 'function') switchView('learn');
+  } else if (window.__premium) {
+    window.__premium.requestUpgrade('vocabulary-expansion');
+  }
+}
+
 /** Learn by difficulty, at the next level not yet finished. */
 function openNextDifficultyLevel() {
   if (typeof goToDifficultyLevel === 'function') goToDifficultyLevel(typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1);

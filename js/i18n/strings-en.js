@@ -95,6 +95,24 @@ var STRINGS = {
     'drill.unavailable': 'The Quran text could not be loaded. Check your connection and try again.',
     'drill.again': 'New drill',
 
+    // ── Root lessons ──
+    'root.letters': 'The root',
+    'root.appears': 'Appears {n} times in the Quran',
+    'root.family': 'The family',
+    'root.otherForms': 'Other forms',
+    'root.practice': 'Practice',
+    'root.done': 'Root complete',
+    'root.spot.prompt': 'Tap every word from the root {root}',
+    'root.progress': 'Question {n} of {total}',
+    'root.row.meta': '{words} in family · {n} in the Quran',
+    'root.continue': 'Continue',
+    'root.next': 'Next',
+    'root.finish': 'Finish',
+    'root.score': '{n} of {total} correct',
+    'root.noGain': 'Nothing new counted yet. Words count once they stick in review.',
+    'root.all': 'All roots',
+    'root.back': 'Back',
+
     // ── Exercises ──
     'exercise.check': 'Check',
     'exercise.correct': 'Correct',

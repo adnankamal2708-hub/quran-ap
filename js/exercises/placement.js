@@ -154,23 +154,35 @@ function normalizeMeaning(english) {
   return english.trim().toLowerCase().replace(/^(the|a|an|to) /, '');
 }
 
-/** English meanings: the correct one plus up to 3 distractors with distinct meanings. */
-function pickMeaningOptions(word) {
-  var options = [word.english];
-  var seen = [normalizeMeaning(word.english)];
-  // Ask for spare distractors: several can share a meaning.
-  getDistractors(word, WORD_MEANINGS_OPTIONS * 2).forEach(function(distractor) {
-    var form = normalizeMeaning(distractor.english);
+// Appends candidates whose meaning is not on the list yet, up to the option count.
+function addMeaningOptions(options, seen, candidates) {
+  candidates.forEach(function(candidate) {
+    var form = normalizeMeaning(candidate.english);
     if (options.length < WORD_MEANINGS_OPTIONS && seen.indexOf(form) === -1) {
-      options.push(distractor.english);
+      options.push(candidate.english);
       seen.push(form);
     }
   });
+}
+
+/**
+ * English meanings: the correct one plus up to 3 distractors with distinct
+ * meanings. `preferred` (optional) is a list of words to take distractors
+ * from first, e.g. the other words of a root; getDistractors fills the rest.
+ */
+function pickMeaningOptions(word, preferred) {
+  var options = [word.english];
+  var seen = [normalizeMeaning(word.english)];
+  addMeaningOptions(options, seen, preferred || []);
+  if (options.length < WORD_MEANINGS_OPTIONS) {
+    // Ask for spare distractors: several can share a meaning.
+    addMeaningOptions(options, seen, getDistractors(word, WORD_MEANINGS_OPTIONS * 2));
+  }
   return options;
 }
 
-function buildMeaningItem(word) {
-  var options = shuffleArray(pickMeaningOptions(word));
+function buildMeaningItem(word, preferred) {
+  var options = shuffleArray(pickMeaningOptions(word, preferred));
   return {
     type: 'read-choose',
     prompt: { arabic: word.arabic },
@@ -200,7 +212,7 @@ function buildWordMeaningsBank(attempt) {
   var bank = {};
   bands.forEach(function(words, level) {
     bank[level] = rotateList(words, (attempt || 0) * WORD_MEANINGS_ROTATION_STEP)
-      .map(buildMeaningItem)
+      .map(function(word) { return buildMeaningItem(word); })
       .filter(function(item) { return validateExercise(item) === null; });
   });
   return bank;

@@ -17,7 +17,7 @@ window.__validation = (function() {
   /** Valid view names that switchView can navigate to */
   var VALID_ROUTES = [
     'dashboard', 'tracks', 'track', 'learn', 'quiz', 'list',
-    'explorer', 'auth', 'profile', 'settings', 'test',
+    'explorer', 'auth', 'profile', 'settings', 'test', 'root-lesson',
   ];
 
   /** Map of route → required DOM element ID */
@@ -26,6 +26,7 @@ window.__validation = (function() {
     tracks: 'view-tracks',
     track: 'view-track',
     test: 'view-test',
+    'root-lesson': 'view-root-lesson',
     learn: 'view-learn',
     quiz: 'view-quiz',
     list: 'view-list',
