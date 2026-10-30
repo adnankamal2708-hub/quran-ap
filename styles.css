@@ -2969,21 +2969,25 @@ body::before {
   opacity: 1;
 }
 
-/* ── Streak card icon alignment fix ──
- * Only the Streak card has a .db-hero-stat-icon above the value.
- * Without compensation, the icon's 30px height+margin pushes the
- * value and label ~30px lower than the other three stat cards.
- * Absolute positioning keeps the icon visible but removes its layout
- * footprint so values align on the same baseline. */
+/* ── Streak card: icon beside the value ──
+ * Only the Streak card has an icon. Above the value it would push the
+ * value and label lower than the other three cards (and pinned on top
+ * instead, it overlapped the number), so it sits on the value's row:
+ * icon and value side by side, the label spanning underneath. */
 .db-hero-stat[data-db-action="streak"] {
-  position: relative;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  align-items: center;
+  column-gap: 4px;
 }
 .db-hero-stat[data-db-action="streak"] .db-hero-stat-icon {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 18px;
+  height: 18px;
   margin: 0;
+}
+.db-hero-stat[data-db-action="streak"] .db-hero-stat-label {
+  grid-column: 1 / -1;
 }
 
 /* Section label with icon */
