@@ -57,6 +57,7 @@ var TESTS = [
   "tracks.test.js",
   "i18n.test.js",
   "word-meanings-track.test.js",
+  "exercise-engine.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;

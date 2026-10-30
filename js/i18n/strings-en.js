@@ -63,6 +63,11 @@ var STRINGS = {
     'drill.spot.prompt': 'Tap the word that means “{meaning}”',
     'drill.build.title': 'Build the verse',
     'drill.build.prompt': 'Put the words in order',
+
+    // ── Exercises ──
+    'exercise.check': 'Check',
+    'exercise.correct': 'Correct',
+    'exercise.incorrect': 'Not quite',
   },
 };
 

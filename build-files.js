@@ -38,6 +38,7 @@ const UI_FILES = [
   'js/ui/word-card.js',
   'js/ui/stats-ui.js',
   'js/ui/quiz-ui.js',
+  'js/ui/exercise-ui.js',
   'js/ui/explorer.js',
   'js/ui/analytics-ui.js',
   'js/ui/dashboard.js',
@@ -59,6 +60,7 @@ const APP_FILES = [
   'js/services/premium.js',
   'js/vocabulary.js',
   'js/srs.js',
+  'js/exercises/exercise-engine.js',
 ].concat(UI_FILES).concat([
   'js/quiz.js',
   'js/auth-ui.js',
