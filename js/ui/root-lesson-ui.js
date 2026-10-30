@@ -43,8 +43,7 @@ function _rlTitle(textKey) {
 
 // ── Root list ───────────────────────────────────────────────────
 
-function _rootRowMarkup(family) {
-  var done = isRootFamilyCompleted(family.root);
+function _rootRowMarkup(family, done) {
   var h = '<li><button type="button" class="root-row' + (done ? ' is-done' : '') + '"' +
     ' data-action="open-root" data-root="' + _rlEsc(family.root) + '">';
   h += '<span class="root-row-letters" lang="ar" dir="rtl">' + _rlEsc(family.root) + '</span>';
@@ -66,7 +65,11 @@ function _listMarkup() {
   h += '<div class="root-head">' + _rlBack('back-to-path', 'root.back') + '</div>';
   h += _rlTitle('tracks.roots');
   h += '<ol class="root-list">';
-  getRootFamilyLessons().forEach(function(family) { h += _rootRowMarkup(family); });
+  // Read the finished roots once: asking per row would rebuild the families 600+ times.
+  var completed = loadRootFamilyProgress().completedRoots;
+  getRootFamilyLessons().forEach(function(family) {
+    h += _rootRowMarkup(family, completed.indexOf(family.root) !== -1);
+  });
   h += '</ol></div>';
   return h;
 }
@@ -224,6 +227,8 @@ function _nextExercise() {
 async function _loadRootSpot(run) {
   var loader = window.__quranLoader;
   if (!loader) return;
+  // Already built with the lesson, because the surah was in memory.
+  if (run.lesson.exercises.some(function(item) { return item.type === 'spot'; })) return;
   var surahIds = rootSpotSurahIds(run.rootKey);
   for (var i = 0; i < surahIds.length; i++) {
     try {

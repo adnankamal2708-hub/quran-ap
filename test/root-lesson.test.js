@@ -327,7 +327,7 @@ suite('buildRootLesson: the spot exercise', function() {
     assert.deepStrictEqual(item.answer, expected);
     assert.ok(item.answer.length >= 1 && item.answer.length < item.tokens.length);
     assert.ok(item.answer.indexOf(drillWords(FILLER).length) >= 0, 'the anchor token is in the answer');
-    assert.ok(item.prompt.text.indexOf(family.root) >= 0, 'the prompt names the root');
+    assert.strictEqual(item.prompt.text, 'Tap every word from this family');
   });
 
   test('the lesson includes the spot item last when the ayah is loaded', function() {
@@ -363,10 +363,10 @@ suite('buildRootLesson: the spot exercise', function() {
     assert.strictEqual(buildRootSpotItem(family.root), null, 'too many tokens');
   });
 
-  test('a token that is also another root\'s word is not counted as this root\'s', function() {
+  test('an ayah with a token spelled like a family word of another root is skipped', function() {
     // مِنْ is stored under the root of the most frequent family, and is also
-    // the form of a particle with another root; "tap the words of this root"
-    // would be a trick question for it.
+    // the form of a particle with another root. Tapping it would be fair but
+    // marked wrong, so no ayah holding it is used.
     var shared = FIRST.words.filter(function(w) { return norm(w.arabic) === norm('مِنْ'); })[0];
     assert.ok(shared, 'data holds the shared form in the first family');
     var own = FIRST.words.filter(function(w) {
@@ -376,9 +376,32 @@ suite('buildRootLesson: the spot exercise', function() {
     resetQuran();
     LOADED = [Number(ownKey.split(':')[0])];
     AYAHS[ownKey] = 'مِنْ ' + own.arabic + ' ' + FILLER;
+    assert.strictEqual(buildRootSpotItem(FIRST.root), null, 'skipped');
+    AYAHS[ownKey] = FILLER + ' ' + own.arabic + ' ' + FILLER;
     var item = buildRootSpotItem(FIRST.root);
-    assert.ok(item, 'a spot item');
-    assert.deepStrictEqual(item.answer, [1], 'only the root\'s own token');
+    assert.ok(item, 'the same ayah without the shared form is used');
+    assert.strictEqual(validateExercise(item), null);
+  });
+
+  test('an ayah with a prefixed word of the family is skipped, not marked wrong', function() {
+    var prefixed = ['وَ', 'فَ', 'بِ', 'لِ', 'كَ', 'ٱلۡ', 'وَٱلۡ', 'بِٱلۡ'];
+    prefixed.forEach(function(prefix) {
+      resetQuran();
+      LOADED = [surahId];
+      AYAHS[key] = FILLER + ' ' + anchor.arabic + ' ' + prefix + anchor.arabic;
+      assert.strictEqual(buildRootSpotItem(family.root), null, 'prefix ' + prefix);
+    });
+    resetQuran();
+    LOADED = [surahId];
+    AYAHS[key] = FILLER + ' ' + anchor.arabic + ' ' + FILLER;
+    assert.ok(buildRootSpotItem(family.root), 'a clean ayah still gives a spot item');
+  });
+
+  test('li + al- (written with one lam) before a family word also counts as prefixed', function() {
+    var form = norm(anchor.arabic);
+    assert.ok(rootPrefixStrippedForms('ل' + 'ل' + form).indexOf(form) >= 0);
+    assert.ok(rootPrefixStrippedForms('و' + 'ب' + 'ال' + form).indexOf(form) >= 0);
+    assert.strictEqual(rootPrefixStrippedForms(form).indexOf('') , -1);
   });
 
   test('rootSpotSurahIds lists the surahs of the family\'s ayahs, each once, at most 3', function() {
@@ -527,6 +550,19 @@ suite('Screen: the root list', function() {
     assert.strictEqual(markup.split('data-action="open-root"').length - 1, FAMILIES.length);
     assert.ok(markup.indexOf('data-root="' + FIRST.root + '"') < markup.indexOf('data-root="' + FAMILIES[1].root + '"'));
     assert.ok(markup.indexOf(FIRST.rootMeaning) >= 0);
+  });
+
+  test('rendering the list rebuilds the families a bounded number of times', function() {
+    resetScreen();
+    var real = global.getRootFamilyLessons;
+    var builds = 0;
+    global.getRootFamilyLessons = function() { builds++; return real(); };
+    try {
+      renderRootLesson();
+    } finally {
+      global.getRootFamilyLessons = real;
+    }
+    assert.ok(builds <= 2, 'built ' + builds + ' times');
   });
 
   test('finished roots are marked on their row', function() {
@@ -690,6 +726,27 @@ suite('Screen: the lesson', function() {
     assert.strictEqual(types[types.length - 1], 'spot');
     var readCount = types.filter(function(type) { return type === 'read-choose'; }).length;
     assert.strictEqual(rated.length, readCount, 'only the read-choose answers are rated');
+  });
+
+  test('a surah already in memory gives exactly one spot exercise', async function() {
+    resetScreen();
+    var family = findFamily(function(f) {
+      return f.words.length >= 2 && f.words.some(function(w) {
+        return w.arabic.split(/\s+/).length === 1 && w.occurrences && w.occurrences.length > 0;
+      });
+    });
+    var anchor = family.words.filter(function(w) {
+      return w.arabic.split(/\s+/).length === 1 && w.occurrences && w.occurrences.length > 0;
+    })[0];
+    var key = anchor.occurrences[0].verseKey;
+    var surahId = Number(key.split(':')[0]);
+    AYAHS[key] = 'وَقَالَ ' + anchor.arabic + ' لَهُمُ';
+    LOADED = [surahId];
+    AYAHS['load:' + surahId] = true;
+
+    await startRootLesson(family.root);
+    var spots = _rootRun.lesson.exercises.filter(function(item) { return item.type === 'spot'; });
+    assert.strictEqual(spots.length, 1);
   });
 
   test('when the text cannot load the lesson still finishes', async function() {

@@ -102,7 +102,7 @@ var STRINGS = {
     'root.otherForms': 'Other forms',
     'root.practice': 'Practice',
     'root.done': 'Root complete',
-    'root.spot.prompt': 'Tap every word from the root {root}',
+    'root.spot.prompt': 'Tap every word from this family',
     'root.progress': 'Question {n} of {total}',
     'root.row.meta': '{words} in family · {n} in the Quran',
     'root.continue': 'Continue',

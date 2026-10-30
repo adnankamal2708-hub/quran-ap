@@ -134,22 +134,56 @@ function rootSpotSurahIds(rootKey) {
   return ids.slice(0, ROOT_LESSON_SPOT_MAX_SURAHS);
 }
 
-/**
- * Normalized forms of the family's words. A form that another root's word
- * also has (the particle مِنْ, say) is left out: "tap the words of this
- * root" would have no single right answer for it.
- */
+/** Normalized forms of the family's words: { form: true }. */
 function rootFamilyForms(family) {
-  var elsewhere = {};
-  getCanonicalWords().forEach(function(word) {
-    if (word.root !== family.root) elsewhere[drillNormalize(word.arabic)] = true;
-  });
   var forms = {};
   family.words.forEach(function(word) {
     var form = drillNormalize(word.arabic);
-    if (form && !elsewhere[form]) forms[form] = true;
+    if (form) forms[form] = true;
   });
   return forms;
+}
+
+/**
+ * Family forms that a word of another root is also written as (the particle
+ * مِنْ, say). Such a token cannot be said to belong to this family, so an
+ * ayah holding one is not used for the spot question.
+ */
+function rootAmbiguousForms(family, forms) {
+  var ambiguous = {};
+  getCanonicalWords().forEach(function(word) {
+    var form = drillNormalize(word.arabic);
+    if (word.root !== family.root && forms[form]) ambiguous[form] = true;
+  });
+  return ambiguous;
+}
+
+/** A normalized token without a leading conjunction, preposition and/or "al-" (all variants). */
+function rootPrefixStrippedForms(form) {
+  var stripped = [];
+  ['', 'و', 'ف'].forEach(function(conjunction) {
+    ['', 'ب', 'ل', 'ك'].forEach(function(preposition) {
+      var prefix = conjunction + preposition;
+      if (prefix && form.indexOf(prefix) !== 0) return;
+      var rest = form.slice(prefix.length);
+      if (prefix) stripped.push(rest);
+      // "al-" after the prefix; li + al- is written with a single lam (lil-).
+      if (rest.indexOf('ال') === 0) stripped.push(rest.slice(2));
+      if (preposition === 'ل' && rest.indexOf('ل') === 0) stripped.push(rest.slice(1));
+    });
+  });
+  return stripped;
+}
+
+/**
+ * True when a token that is not in the answer is a family word with a
+ * prefix: the learner would be right to tap it, so the ayah is unfair.
+ */
+function rootHasPrefixedFamilyToken(tokens, answer, forms) {
+  return tokens.some(function(token, index) {
+    if (answer.indexOf(index) !== -1) return false;
+    return rootPrefixStrippedForms(drillNormalize(token)).some(function(form) { return forms[form]; });
+  });
 }
 
 function rootSpotAnswer(tokens, forms) {
@@ -164,6 +198,7 @@ function buildRootSpot(family) {
   var loader = window.__quranLoader;
   if (!loader) return null;
   var forms = rootFamilyForms(family);
+  var ambiguous = rootAmbiguousForms(family, forms);
   var keys = rootVerseKeys(family);
   for (var i = 0; i < keys.length; i++) {
     var parts = keys[i].split(':');
@@ -175,9 +210,12 @@ function buildRootSpot(family) {
     var answer = rootSpotAnswer(tokens, forms);
     // No match gives nothing to find; every token matching gives the answer away.
     if (answer.length === 0 || answer.length === tokens.length) continue;
+    // A token the learner could fairly tap, but that would be marked wrong: skip the ayah.
+    if (tokens.some(function(token) { return ambiguous[drillNormalize(token)]; })) continue;
+    if (rootHasPrefixedFamilyToken(tokens, answer, forms)) continue;
     var item = {
       type: 'spot',
-      prompt: { text: t('root.spot.prompt', { root: family.root }) },
+      prompt: { text: t('root.spot.prompt') },
       tokens: tokens,
       answer: answer,
       tag: ROOT_LESSON_TAG,
