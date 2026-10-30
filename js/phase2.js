@@ -23,7 +23,7 @@
  * Free Foundation graduates cannot access guided reading or vocabulary expansion.
  */
 function _isPhase2Gated() {
-  if (!isFoundationGraduate()) return false;
+  if (!hasReachedGuidedReading()) return false;
   return !window.__premium || !window.__premium.hasFeature(window.__premium.FEATURES.GUIDED_READING);
 }
 
@@ -41,7 +41,7 @@ function isFoundationGraduate() {
  * Returns: 'foundation' | 'foundation-complete' | 'guided-reading' | 'phase2'
  */
 function getLearningPhase() {
-  if (!isFoundationGraduate()) return 'foundation';
+  if (!hasReachedGuidedReading()) return 'foundation';
   if (!isGuidedReadingComplete()) return 'guided-reading';
   return 'phase2';
 }

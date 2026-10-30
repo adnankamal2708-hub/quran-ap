@@ -28,6 +28,7 @@ const DATA_CORE_FILES = [
   'js/data-core/quiz-history.js',
   'js/data-core/surah-progress.js',
   'js/data-core/tracks.js',
+  'js/data-core/word-meanings-track.js',
 ];
 
 // UI modules in dependency order

@@ -56,6 +56,7 @@ var TESTS = [
   "vocabulary-access.test.js",
   "tracks.test.js",
   "i18n.test.js",
+  "word-meanings-track.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
