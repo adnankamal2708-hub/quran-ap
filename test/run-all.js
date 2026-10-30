@@ -58,6 +58,7 @@ var TESTS = [
   "i18n.test.js",
   "word-meanings-track.test.js",
   "exercise-engine.test.js",
+  "exercise-ui.test.js",
   "placement.test.js",
   "tracks-ui.test.js",
   "placement-ui.test.js",

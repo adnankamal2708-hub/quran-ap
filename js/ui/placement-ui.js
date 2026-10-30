@@ -61,9 +61,11 @@ function startPlacementTest(trackId) {
 /** Raise the stored level to the placed one and keep what the screen needs. */
 function _finishPlacement() {
   var placed = getPlacementResult(_placement.state);
-  var raised = raiseTrackLevel(WORDS_TRACK_ID, placed.level);
+  var earned = getTrackLevel(WORDS_TRACK_ID);
+  raiseTrackLevel(WORDS_TRACK_ID, placed.level);
   _placement.result = {
-    raised: raised,
+    // Only a lower result is a "level stays"; an equal one is simply the level.
+    kept: placed.level < earned,
     // After a lower retake the learner keeps the level already earned.
     level: getTrackLevel(WORDS_TRACK_ID),
     strengths: placed.strengths,
@@ -111,7 +113,7 @@ function _resultMarkup() {
   var h = '<div class="placement placement-result">';
   h += _headMarkup(t('test.words.title'), 'test.close');
   h += '<p class="placement-level" role="status">' +
-    _plEsc(t(result.raised ? 'test.result.level' : 'test.result.kept', { level: levelName })) + '</p>';
+    _plEsc(t(result.kept ? 'test.result.kept' : 'test.result.level', { level: levelName })) + '</p>';
   h += _chipGroup('test.result.strengths', result.strengths, 'strength');
   h += _chipGroup('test.result.gaps', result.gaps, 'gap');
   h += '<button type="button" class="btn placement-start" data-action="start-lesson">' +
@@ -147,6 +149,7 @@ function _questionMarkup(number) {
 
 /** Called by the exercise once the learner has checked an answer. */
 function _onPlacementAnswer(correct) {
+  if (!_placement) return;
   _placement.state = answerPlacementItem(_placement.state, correct);
   if (isPlacementFinished(_placement.state)) _finishPlacement();
 
@@ -176,10 +179,20 @@ function renderPlacementTest() {
 
 // ── Actions ─────────────────────────────────────────────────────
 
+/**
+ * End the test session and empty the view, so the finished exercise is
+ * disconnected and its keyboard listener goes with it.
+ */
+function _endPlacement() {
+  _placement = null;
+  var view = document.getElementById('view-test');
+  if (view) view.innerHTML = '';
+}
+
 /** Leave the test (mid-way or from the result) for the view it was started from. */
 function _leavePlacement() {
   var returnView = _placement ? _placement.returnView : PLACEMENT_DEFAULT_RETURN_VIEW;
-  _placement = null;
+  _endPlacement();
   switchView(returnView);
 }
 
@@ -191,7 +204,7 @@ function _leavePlacement() {
 function _startPlacedLesson() {
   var level = _placement.result.level;
   var lesson = _firstLessonOfLevel(level);
-  _placement = null;
+  _endPlacement();
   if (!lesson || getWordMeaningsLevelLock(level) === 'premium') switchView('track', { trackId: WORDS_TRACK_ID });
   else _openPathLesson(lesson.kind, lesson.ref);
 }

@@ -314,12 +314,32 @@ test('a lower retake says the level stays and keeps level 3', function() {
   assert.strictEqual(getTrackLevel('words'), 3);
 });
 
-test('a first test that places at Beginner keeps level 0 and says so', function() {
+test('an equal result (first test placing at Beginner) shows "Your level", not "level stays"', function() {
   startPlacementTest('words');
   renderPlacementTest();
   takeTest(allWrong);
   assert.strictEqual(getTrackLevel('words'), 0);
-  assert.ok(html().indexOf('already at Beginner; your level stays') >= 0, html());
+  assert.ok(html().indexOf('Your level: Beginner') >= 0, html());
+  assert.ok(html().indexOf('your level stays') < 0);
+});
+
+test('a lower result keeps the stored level and says "level stays"', function() {
+  raiseTrackLevel('words', 2);
+  startPlacementTest('words');
+  renderPlacementTest();
+  takeTest(allWrong);
+  assert.ok(html().indexOf('already at Intermediate; your level stays') >= 0, html());
+  assert.strictEqual(getTrackLevel('words'), 2);
+});
+
+test('a higher result shows "Your level" and raises the level', function() {
+  raiseTrackLevel('words', 1);
+  startPlacementTest('words');
+  renderPlacementTest();
+  takeTest(allCorrect);
+  assert.ok(html().indexOf('Your level: Advanced') >= 0, html());
+  assert.ok(html().indexOf('your level stays') < 0);
+  assert.strictEqual(getTrackLevel('words'), 3);
 });
 
 test('the result lists strengths as chips', function() {
@@ -383,6 +403,25 @@ test('quitting with no known origin returns to the track list', function() {
   renderPlacementTest();
   clickAction('quit');
   assert.deepStrictEqual(calls, ['switchView:tracks']);
+});
+
+test('a stray answer after quitting does nothing and does not throw', function() {
+  startPlacementTest('words');
+  renderPlacementTest();
+  var stale = rendered[0];
+  clickAction('quit');
+  assert.strictEqual(html(), '', 'the view is emptied');
+  assert.doesNotThrow(function() { stale.onAnswer(true, 0); });
+  assert.strictEqual(getTrackLevel('words'), 0);
+  assert.strictEqual(html('placement-next'), '');
+});
+
+test('starting a lesson empties the view', function() {
+  startPlacementTest('words');
+  renderPlacementTest();
+  takeTest(allWrong);
+  clickAction('start-lesson');
+  assert.strictEqual(html(), '');
 });
 
 test('after quitting, the view no longer holds the old test', function() {

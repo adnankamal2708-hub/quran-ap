@@ -232,12 +232,15 @@ function renderExercise(container, item, onAnswer) {
   }
 
   // Enter checks from anywhere except the Check button itself, which clicks
-  // natively. The listener removes itself once the exercise leaves the page.
+  // natively. The listener removes itself once the exercise leaves the page,
+  // and ignores keys while the exercise is on screen nowhere (a hidden view
+  // stays in the DOM).
   function onKeyDown(e) {
     if (!root.isConnected) {
       document.removeEventListener('keydown', onKeyDown);
       return;
     }
+    if (root.getClientRects().length === 0) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     var tag = e.target && e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
