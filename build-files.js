@@ -39,6 +39,7 @@ const UI_FILES = [
   'js/ui/stats-ui.js',
   'js/ui/quiz-ui.js',
   'js/ui/exercise-ui.js',
+  'js/ui/placement-ui.js',
   'js/ui/explorer.js',
   'js/ui/analytics-ui.js',
   'js/ui/dashboard.js',

@@ -65,6 +65,10 @@ function _switchViewCore(viewName, options) {
     if (typeof renderTrackPath === 'function') renderTrackPath(options && options.trackId);
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderTrackPath() not found');
   }
+  if (viewName === 'test') {
+    if (typeof renderPlacementTest === 'function') renderPlacementTest();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderPlacementTest() not found');
+  }
   if (viewName === 'learn') {
     if (typeof window.__learnScreen !== 'undefined' && window.__learnScreen.render) {
       window.__learnScreen.render();

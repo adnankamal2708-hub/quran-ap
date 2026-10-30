@@ -324,6 +324,16 @@ suite('Five-tab active state', function() {
     }
     assert.ok(_callLog.indexOf('renderTrackPath:words') >= 0);
   });
+
+  test("switchView('test') renders the placement test", function() {
+    global.renderPlacementTest = function() { _callLog.push('renderPlacementTest'); };
+    try {
+      switchView('test');
+    } finally {
+      delete global.renderPlacementTest;
+    }
+    assert.ok(_callLog.indexOf('renderPlacementTest') >= 0);
+  });
 });
 
 suite('Foundation Lesson Navigation', function() {

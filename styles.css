@@ -9234,6 +9234,122 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   Placement test (placement-ui.js): intro, question and result
+   in #view-test
+   ═══════════════════════════════════════════════════════════════ */
+.placement {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  min-width: 0;
+}
+.placement-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+.placement-title {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--serif);
+  font-size: var(--heading-lg);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.placement-desc {
+  margin: 0;
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
+.placement-quit {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 var(--spacing-sm);
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-family: var(--body);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.placement-quit:hover {
+  color: var(--text);
+}
+.placement-body {
+  padding: var(--spacing-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+.placement-actions {
+  display: flex;
+  justify-content: center;
+}
+.placement-actions:empty {
+  display: none;
+}
+.placement-level {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: var(--heading-xl);
+  color: var(--gold);
+  overflow-wrap: anywhere;
+}
+.placement-group-title {
+  margin: 0 0 var(--spacing-sm);
+  font-family: var(--body);
+  font-size: var(--heading-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.placement-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.placement-chip {
+  padding: var(--spacing-xs) 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+.placement-chip.is-strength {
+  border-color: var(--green);
+}
+.placement-chip.is-gap {
+  border-color: var(--gold-dim);
+}
+.placement-start,
+.placement-next {
+  width: 100%;
+  min-height: 44px;
+  white-space: normal;
+}
+.placement-quit:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+@media (min-width: 1024px) {
+  .placement-start,
+  .placement-next {
+    width: auto;
+    min-width: 240px;
+    align-self: flex-start;
+  }
+  .placement-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    Wide screens (1024px+): side navigation and wider content
    The phone layout is a single 480px column. Here the bottom nav
    becomes a sidebar, screens get a comfortable reading width, and

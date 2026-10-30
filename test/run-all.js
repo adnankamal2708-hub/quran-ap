@@ -60,6 +60,7 @@ var TESTS = [
   "exercise-engine.test.js",
   "placement.test.js",
   "tracks-ui.test.js",
+  "placement-ui.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
