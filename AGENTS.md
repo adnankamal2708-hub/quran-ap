@@ -43,7 +43,6 @@ The application currently contains or will contain:
 - Review system
 - Quiz engine
 - Progress tracking
-- XP system
 - Streaks
 - Surah learning
 - User authentication
@@ -214,9 +213,10 @@ Never generate impossible or misleading questions.
 
 Progress tracking is critical.
 
+No XP, points or leaderboards; progress is shown as % of the Quran.
+
 Always preserve:
 
-- XP
 - streaks
 - completed lessons
 - review history
