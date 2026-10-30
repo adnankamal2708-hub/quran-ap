@@ -4,8 +4,9 @@
 
 **Goal:** Restructure Bayan around learning tracks. Today's course becomes
 the Word meanings track. Add the five-tab navigation, the Practice tab, the
-new onboarding question and the Word meanings placement test. No new lesson
-content.
+new onboarding question and the Word meanings placement test. Root study
+becomes a real lesson built from data the app already has. No new lesson
+content is written.
 
 **Architecture:** One new data module owns track membership, main track,
 levels and per-track percentages. It is stored under one new localStorage key
@@ -642,7 +643,93 @@ surrounding code), HTML, CSS tokens in styles.css, Firebase modular SDK v12
 - [ ] **Step 5: Commit** "Ask what the learner wants to learn during
   onboarding".
 
-### Task 12: Docs and final verification
+### Task 12: Deeper root lessons
+
+**Files:**
+- Create: `js/exercises/root-lesson.js`, which builds the lesson data and is
+  pure.
+- Create: `js/ui/root-lesson-ui.js`, which renders the lesson.
+- Modify: `index.html` (new `#view-root-lesson` section)
+- Modify: `build-files.js` (`root-lesson.js` after `word-drills.js`,
+  `root-lesson-ui.js` after `placement-ui.js`)
+- Modify: `js/ui/tracks-ui.js`. The level-3 "Root families" lesson opens a
+  root list, most frequent first, using `getRootFamilyLessons()`. Each row
+  opens a root lesson.
+- Modify: `js/ui/navigation.js` (render `root-lesson`; its tab is
+  `tab-learn`)
+- Modify: `styles.css` (`.root-*` rules with existing tokens)
+- Test: `test/root-lesson.test.js` (add to `run-all.js`)
+
+**Interfaces:**
+- Consumes:
+  - `getRootFamilyLessons()`, `completeRootFamily(rootKey)` and
+    `isRootFamilyCompleted(rootKey)` (lesson-system.js).
+  - `rateSRSWord(wordId, rating)` (srs.js).
+  - `renderExercise` and `validateExercise` (Task 4).
+  - `recordTrackPercent` and `getWordMeaningsPercent` (Tasks 1 and 3).
+  - The Quran text through `window.__quranLoader`.
+- Produces:
+  - `buildRootLesson(rootKey) -> RootLesson | null`. A `RootLesson` is
+    `{ root, letters: string[], meaning, note, occurrences, groups: [{ pattern, words: Word[] }], exercises: Item[] }`:
+    - **`letters`:** the root split into its letters.
+    - **`meaning`:** the family's `rootMeaning`.
+    - **`note`:** the first non-empty `rootPattern` among its words.
+    - **`occurrences`:** the sum of the family's `occ`.
+    - **`groups`:** words grouped by their `pattern` field. Words whose
+      pattern is `'—'` or missing go in a final group named `'Other forms'`.
+    - **`exercises`:** up to 6 items:
+      - one `read-choose` per family word, up to 4. The Arabic is the
+        prompt, and the options are the correct meaning plus distractors
+        taken from the same family first, then `getDistractors`.
+      - one `spot` item over an ayah, from `verseKey` of a family word.
+        The answer is every token from this root, matched by normalized
+        form against the family's words.
+    - It returns null for an unknown root.
+  - `startRootLesson(rootKey)`: switches to `root-lesson`.
+- Lesson flow, one screen per part:
+  1. **The root:** its letters, meaning, note, and "Appears {n} times in the
+     Quran".
+  2. **The family:** words grouped by pattern, each showing Arabic, meaning,
+     and the pattern label exactly as stored. No new pattern explanations:
+     those wait for teacher review in Phase 4.
+  3. **The exercises.**
+  4. **The finish screen:**
+     - every `read-choose` answer calls `rateSRSWord(word.id, 2)` when
+       correct and `rateSRSWord(word.id, 0)` when wrong, as quiz.js does;
+     - when the exercises are done, `completeRootFamily(rootKey)` runs;
+     - the screen shows `t('percent.words.gained')` from
+       `recordTrackPercent('words', getWordMeaningsPercent())`.
+- Add string keys to `js/i18n/strings-en.js`:
+  - `root.letters`: "The root"
+  - `root.appears`: "Appears {n} times in the Quran"
+  - `root.family`: "The family"
+  - `root.otherForms`: "Other forms"
+  - `root.practice`: "Practice"
+  - `root.done`: "Root complete"
+
+- [ ] **Step 1: Write the failing tests:**
+  - **The most frequent root:** for the first root of
+    `getRootFamilyLessons()`:
+    - `letters.length` is 3;
+    - `occurrences` equals the sum of its words' `occ`;
+    - every family word appears in exactly one group;
+    - every exercise passes `validateExercise`.
+  - **Ungrouped words:** a word with `pattern: '—'` lands in "Other forms".
+  - **Unknown root:** `buildRootLesson('xyz') === null`.
+  - **Distractors:** a family with ≥4 words gives `read-choose` distractors
+    that come from the same family.
+  - **SRS ratings:** in the UI test, answering an exercise correctly calls a
+    stubbed `rateSRSWord` with rating 2, and wrongly with 0.
+  - **Finishing:** finishing calls `completeRootFamily` once.
+- [ ] **Step 2: Run** `node test/root-lesson.test.js`. Expected: FAIL.
+- [ ] **Step 3: Implement both files** and the path change.
+- [ ] **Step 4: Run** the tests, then `run-all.js`, then build. Manually check
+  two roots, one large family and one small, at 390px and 1440px in both
+  themes.
+- [ ] **Step 5: Commit** "Teach each root as a lesson: letters, family by
+  pattern, practice".
+
+### Task 13: Docs and final verification
 
 **Files:**
 - Modify:
