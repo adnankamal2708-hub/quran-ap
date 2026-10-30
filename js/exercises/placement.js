@@ -148,13 +148,22 @@ function rotateList(list, steps) {
   return list.slice(shift).concat(list.slice(0, shift));
 }
 
-/** English meanings: the correct one plus up to 3 distinct distractors. */
+// "The Earth" and "Earth" (or "The One" and "One") are the same answer, so
+// options are compared with case and a leading article/"to" removed.
+function normalizeMeaning(english) {
+  return english.trim().toLowerCase().replace(/^(the|a|an|to) /, '');
+}
+
+/** English meanings: the correct one plus up to 3 distractors with distinct meanings. */
 function pickMeaningOptions(word) {
   var options = [word.english];
-  // Ask for spare distractors: two can share an English meaning.
+  var seen = [normalizeMeaning(word.english)];
+  // Ask for spare distractors: several can share a meaning.
   getDistractors(word, WORD_MEANINGS_OPTIONS * 2).forEach(function(distractor) {
-    if (options.length < WORD_MEANINGS_OPTIONS && options.indexOf(distractor.english) === -1) {
+    var form = normalizeMeaning(distractor.english);
+    if (options.length < WORD_MEANINGS_OPTIONS && seen.indexOf(form) === -1) {
       options.push(distractor.english);
+      seen.push(form);
     }
   });
   return options;

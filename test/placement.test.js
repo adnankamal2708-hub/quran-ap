@@ -270,6 +270,23 @@ suite('Word meanings bank', function() {
     });
   });
 
+  test('no item has two options that differ only by case or a leading article', function() {
+    function normalized(option) {
+      return option.trim().toLowerCase().replace(/^(the|a|an|to) /, '');
+    }
+    // Distractor choice is random, so check several freshly built banks.
+    [bank, buildWordMeaningsBank(0), buildWordMeaningsBank(1), buildWordMeaningsBank(2)].forEach(function(candidate) {
+      [0, 1, 2, 3].forEach(function(level) {
+        candidate[level].forEach(function(item) {
+          var forms = item.options.map(normalized);
+          var distinct = forms.filter(function(form, i) { return forms.indexOf(form) === i; });
+          assert.strictEqual(distinct.length, forms.length,
+            'near-duplicate options for ' + item.prompt.arabic + ': ' + item.options.join(' / '));
+        });
+      });
+    });
+  });
+
   test('items offer 4 options and are tagged with typeCategory', function() {
     [0, 1, 2, 3].forEach(function(level) {
       bank[level].forEach(function(item) {
