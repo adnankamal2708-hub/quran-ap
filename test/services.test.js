@@ -113,7 +113,7 @@ function checkActionCode() {
 var vm = require('vm');
 var path = require('path');
 var fs = require('fs');
-['js/services/config.js', 'js/services/sync-service.js'].forEach(function(f) {
+['js/services/config.js', 'js/data-core/tracks.js', 'js/services/sync-service.js'].forEach(function(f) {
   var full = path.join(__dirname, '..', f);
   vm.runInThisContext(fs.readFileSync(full, 'utf8'), { filename: full });
 });
@@ -536,6 +536,28 @@ suite('Sync — no progress loss across devices', function() {
     assert.strictEqual(JSON.parse(localStorage.getItem('quran_difficulty_progress')).currentDifficulty, 2);
     assert.strictEqual(JSON.parse(localStorage.getItem('quran_quiz_history')).total, 2);
     assert.strictEqual(JSON.parse(localStorage.getItem('quran_learning_goal')).id, 'daily');
+  });
+
+  test('tracks round-trip through export and import, and merge keeps the higher level', function() {
+    clearStorage();
+    localStorage.setItem('quran_tracks', JSON.stringify({
+      version: 1, main: 'words', startFromZero: false, updatedAt: 100,
+      tracks: { words: { joined: true, level: 1, percentHigh: 10, placementAttempts: 0, updatedAt: 100 } },
+    }));
+    var local = exportLocalData();
+    assert.strictEqual(local.tracks.tracks.words.level, 1, 'tracks are exported');
+
+    var cloud = { tracks: {
+      version: 1, main: 'words', startFromZero: false, updatedAt: 50,
+      tracks: { words: { joined: true, level: 2, percentHigh: 5, placementAttempts: 0, updatedAt: 50 } },
+    } };
+    var merged = mergeData(local, cloud);
+    assert.strictEqual(merged.tracks.tracks.words.level, 2, 'higher level wins');
+    assert.strictEqual(merged.tracks.tracks.words.percentHigh, 10, 'higher percentage wins');
+
+    clearStorage();
+    importLocalData(merged);
+    assert.strictEqual(JSON.parse(localStorage.getItem('quran_tracks')).tracks.words.level, 2, 'tracks are imported');
   });
 
   test('lessonProgress from the cloud reaches a new device', function() {

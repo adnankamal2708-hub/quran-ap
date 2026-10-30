@@ -103,6 +103,7 @@ var SYNC_KEY_MAP = {
   analyticsHistory: 'quran_analytics_history',
   analyticsAchievements: 'quran_analytics_achievements',
   analyticsSessions: 'quran_analytics_sessions',
+  tracks: 'quran_tracks',
   syncMeta: 'quran_sync_meta',
 };
 
@@ -626,6 +627,14 @@ function mergeData(localData, cloudData) {
   if (localData.analyticsAchievements || cloudData.analyticsAchievements) {
     merged.analyticsAchievements = _mergeAchievements(
       localData.analyticsAchievements, cloudData.analyticsAchievements);
+  }
+
+  // Learning tracks: membership follows the newer side, levels and
+  // percentages take the higher value (mergeTrackState, data-core/tracks.js)
+  if (localData.tracks || cloudData.tracks) {
+    merged.tracks = typeof mergeTrackState === 'function'
+      ? mergeTrackState(localData.tracks, cloudData.tracks)
+      : (localData.tracks || cloudData.tracks);
   }
 
   return merged;

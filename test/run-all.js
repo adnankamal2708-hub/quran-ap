@@ -54,6 +54,7 @@ var TESTS = [
   "occurrence-uniqueness.test.js",
   "word-card-occurrence.test.js",
   "vocabulary-access.test.js",
+  "tracks.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
