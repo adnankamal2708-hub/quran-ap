@@ -138,6 +138,34 @@ suite('validateExercise', function() {
     assert.ok(typeof validateExercise({ type: 'nope' }) === 'string');
     assert.ok(typeof validateExercise(null) === 'string');
   });
+  test('spot: duplicate answer indexes are invalid', function() {
+    assert.ok(typeof validateExercise(spot({ answer: [1, 1] })) === 'string');
+    assert.ok(typeof validateExercise(spot({ answer: [1, 3, 1] })) === 'string');
+  });
+  test('read-choose: fewer than 2 options is invalid', function() {
+    assert.ok(typeof validateExercise(readChoose({ options: ['book'], answer: 0 })) === 'string');
+    assert.ok(typeof validateExercise(readChoose({ options: [], answer: 0 })) === 'string');
+  });
+  test('build: no pieces is invalid', function() {
+    assert.ok(typeof validateExercise(build({ pieces: [], answer: [] })) === 'string');
+  });
+  test('a missing prompt is invalid for every type', function() {
+    assert.ok(typeof validateExercise(readChoose({ prompt: undefined })) === 'string');
+    assert.ok(typeof validateExercise(build({ prompt: undefined })) === 'string');
+    assert.ok(typeof validateExercise(spot({ prompt: undefined })) === 'string');
+    assert.ok(typeof validateExercise(readChoose({ prompt: null })) === 'string');
+  });
+  test('read-choose without prompt.arabic is invalid', function() {
+    assert.ok(typeof validateExercise(readChoose({ prompt: {} })) === 'string');
+    assert.ok(typeof validateExercise(readChoose({ prompt: { arabic: '' } })) === 'string');
+    assert.ok(typeof validateExercise(readChoose({ prompt: { text: 'x' } })) === 'string');
+  });
+  test('build and spot without prompt.text are invalid', function() {
+    assert.ok(typeof validateExercise(build({ prompt: {} })) === 'string');
+    assert.ok(typeof validateExercise(build({ prompt: { text: '' } })) === 'string');
+    assert.ok(typeof validateExercise(spot({ prompt: {} })) === 'string');
+    assert.ok(typeof validateExercise(spot({ prompt: { arabic: 'x' } })) === 'string');
+  });
 });
 
 suite('exercise strings', function() {

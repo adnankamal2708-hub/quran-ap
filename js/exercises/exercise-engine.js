@@ -47,8 +47,14 @@ function checkExercise(item, response) {
   return false;
 }
 
+function hasText(value) {
+  return typeof value === 'string' && value.length > 0;
+}
+
 function validateReadChoose(item) {
+  if (!item.prompt || !hasText(item.prompt.arabic)) return 'read-choose needs prompt.arabic';
   if (!Array.isArray(item.options)) return 'read-choose options must be an array';
+  if (item.options.length < 2) return 'read-choose needs at least 2 options';
   if (!isIndexInRange(item.answer, item.options.length)) return 'read-choose answer is out of range';
   var distinct = item.options.filter(function(option, i) {
     return item.options.indexOf(option) === i;
@@ -58,18 +64,25 @@ function validateReadChoose(item) {
 }
 
 function validateBuild(item) {
+  if (!item.prompt || !hasText(item.prompt.text)) return 'build needs prompt.text';
   if (!Array.isArray(item.pieces) || !Array.isArray(item.answer)) return 'build pieces and answer must be arrays';
+  if (item.pieces.length === 0) return 'build has no pieces';
   if (!sameItemsAnyOrder(item.pieces, item.answer)) return 'build pieces are not a permutation of the answer';
   return null;
 }
 
 function validateSpot(item) {
+  if (!item.prompt || !hasText(item.prompt.text)) return 'spot needs prompt.text';
   if (!Array.isArray(item.tokens) || !Array.isArray(item.answer)) return 'spot tokens and answer must be arrays';
   if (item.answer.length === 0) return 'spot answer is empty';
   var inRange = item.answer.every(function(index) {
     return isIndexInRange(index, item.tokens.length);
   });
-  return inRange ? null : 'spot answer is out of range';
+  if (!inRange) return 'spot answer is out of range';
+  var distinct = item.answer.filter(function(index, i) {
+    return item.answer.indexOf(index) === i;
+  });
+  return distinct.length === item.answer.length ? null : 'spot answer has duplicate indexes';
 }
 
 /** Returns an error message for a malformed item, or null when it is valid. */

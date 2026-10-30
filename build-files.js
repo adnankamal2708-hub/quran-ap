@@ -61,6 +61,7 @@ const APP_FILES = [
   'js/vocabulary.js',
   'js/srs.js',
   'js/exercises/exercise-engine.js',
+  'js/exercises/placement.js',
 ].concat(UI_FILES).concat([
   'js/quiz.js',
   'js/auth-ui.js',
