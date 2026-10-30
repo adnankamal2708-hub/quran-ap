@@ -180,7 +180,8 @@ global.loadSRS = function() { return _srsData; };
 global.updateWordCard = function() { _callLog.push('updateWordCard'); };
 global.updateReviewBanner = function() { _callLog.push('updateReviewBanner'); };
 global.loadStreakData = function() { return { streak: 5 }; };
-global.calculateCoverage = function() { return { estimatedComprehension: 45, coveragePercent: 45 }; };
+var _coveragePercent = 45;
+global.calculateCoverage = function() { return { estimatedComprehension: 45, coveragePercent: _coveragePercent }; };
 global.getMilestoneStatus = function(pct) { return null; };
 global.getNextActionRecommendation = function() { return 'Continue learning'; };
 global.getMixedReviewQueue = function() { return []; };
@@ -208,6 +209,10 @@ var currentWord = 0;
 var activeLessonIndex = 0;
 
 require('./load-components')(); // uiIcon, iconText, dataIcon
+// Real track modules: the summary reads the Quran percentage gained from them
+['js/i18n/strings-en.js', 'js/data-core/tracks.js', 'js/data-core/word-meanings-track.js'].forEach(function(rel) {
+  (0, eval)(fs.readFileSync(path.join(__dirname, '..', rel), 'utf8'));
+});
 eval(reviewCode);
 
 // ═══════════════════════════════════════════════════════════════
@@ -519,6 +524,53 @@ suite('Session Summary Modal', function() {
     assert.strictEqual(mockElements['session-best-category'], undefined);
 
     global.document.getElementById = origGetElementById;
+  });
+});
+
+suite('Quran percentage gained', function() {
+  function finishSession(startPercent, endPercent) {
+    _srsData = {};
+    _reviewQueue = [{ id: 'w1' }, { id: 'w2' }, { id: 'w3' }, { id: 'w4' }, { id: 'w5' }];
+    _coveragePercent = startPercent;
+    startReview();
+    _coveragePercent = endPercent; // a word was mastered during the session
+    endReview();
+    _coveragePercent = 45;
+    reviewQueue = [];
+    _reviewQueue = [];
+  }
+
+  test('shows the gain as +x.x% after a session', function() {
+    clearStorage();
+    finishSession(10.0, 10.4);
+    assert.strictEqual(mockElements['session-coverage-gained'].textContent, '+0.4%');
+  });
+
+  test('shows a dash when coverage did not rise', function() {
+    clearStorage();
+    finishSession(10.0, 10.4);
+    finishSession(10.4, 10.1); // an SRS lapse lowered coverage
+    assert.strictEqual(mockElements['session-coverage-gained'].textContent, '—');
+  });
+
+  test('measures from session start when no high-water mark was stored', function() {
+    clearStorage();
+    finishSession(43.2, 43.6);
+    assert.strictEqual(mockElements['session-coverage-gained'].textContent, '+0.4%');
+  });
+
+  test('a mixed review also snapshots the baseline at its start', function() {
+    clearStorage();
+    _srsData = {};
+    global.getMixedReviewQueue = function() { return [{ id: 'w1' }]; };
+    _coveragePercent = 43.2;
+    startMixedReview();
+    _coveragePercent = 43.6;
+    endReview();
+    _coveragePercent = 45;
+    global.getMixedReviewQueue = function() { return []; };
+    reviewQueue = [];
+    assert.strictEqual(mockElements['session-coverage-gained'].textContent, '+0.4%');
   });
 });
 

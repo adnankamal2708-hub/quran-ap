@@ -11,9 +11,20 @@ var _reviewSessionTotal = 0;
 
 // ── Review Session Lifecycle ──────────────────────────────────
 
+/**
+ * Bring the stored Quran-percentage high-water mark up to today's coverage.
+ * Called at session start so the figure shown at the end counts only what
+ * this session added. Returns the rise since the last mark (0 when none).
+ */
+function refreshQuranPercentGained() {
+  if (typeof refreshWordMeaningsPercent !== 'function') return 0;
+  return refreshWordMeaningsPercent().gained;
+}
+
 function startReview() {
   reviewQueue = getDueReviews();
   if (!reviewQueue.length) return;
+  refreshQuranPercentGained();
   _reviewOriginalMastered = 0;
   _reviewSessionRecalled = 0;
   _reviewSessionTotal = 0;
@@ -75,6 +86,7 @@ function endReview() {
     milestoneToCelebrate: milestoneToCelebrate,
     sessionRecalled: _reviewSessionRecalled || 0,
     sessionTotal: _reviewSessionTotal || 0,
+    quranPercentGained: refreshQuranPercentGained(),
   };
   
   // Record momentum for today's learning (Part 6)
@@ -118,6 +130,7 @@ function startMixedReview() {
   
   setOrganizationMode('lesson');
   setActiveSurahId(null);
+  refreshQuranPercentGained();
   
   _reviewOriginalMastered = 0;
   var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
@@ -280,6 +293,16 @@ function showSessionSummary(stats) {
   var $recallRate = $sessionTotal > 0 ? Math.round(($sessionRecalled / $sessionTotal) * 100) : 0;
   var $forgottenCount = $sessionTotal - $sessionRecalled;
   
+  var $coverageGainedEl = document.getElementById('session-coverage-gained');
+  if ($coverageGainedEl) {
+    var $quranGained = stats.quranPercentGained || 0;
+    // The card shows just the "+x.x%" figure; the label under it
+    // ("of the Quran's words") is static in index.html.
+    $coverageGainedEl.textContent = $quranGained > 0
+      ? '+' + $quranGained.toFixed(1) + '%'
+      : '—';
+  }
+
   var $accuracyEl = document.getElementById('session-accuracy');
   if ($accuracyEl) {
     $accuracyEl.textContent = $recallRate + '%';
