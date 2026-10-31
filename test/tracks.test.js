@@ -273,6 +273,60 @@ suite('mergeTrackState', function() {
   });
 });
 
+suite('Cloud sync after track changes', function() {
+  var queued;
+
+  function withSignedIn(user, fn) {
+    queued = [];
+    global.window = { __sync: { queueSync: function(uid) { queued.push(uid); } } };
+    global.getCurrentUser = function() { return user; };
+    try { fn(); } finally {
+      delete global.window;
+      delete global.getCurrentUser;
+    }
+  }
+
+  test('a raised level queues one sync', function() {
+    withSignedIn({ uid: 'u1' }, function() {
+      raiseTrackLevel('words', 2);
+      assert.deepStrictEqual(queued, ['u1']);
+    });
+  });
+
+  test('a level that does not go up queues nothing', function() {
+    raiseTrackLevel('words', 2);
+    withSignedIn({ uid: 'u1' }, function() {
+      raiseTrackLevel('words', 1);
+      assert.deepStrictEqual(queued, []);
+    });
+  });
+
+  test('join, leave, make main and start-from-zero each queue a sync', function() {
+    global.isTrackReleased = function() { return true; };
+    withSignedIn({ uid: 'u1' }, function() {
+      joinTrack('qaida');
+      setMainTrack('qaida');
+      leaveTrack('qaida');
+      setStartFromZero(true);
+      assert.deepStrictEqual(queued, ['u1', 'u1', 'u1', 'u1']);
+    });
+  });
+
+  test('recording the percentage does not queue a sync', function() {
+    withSignedIn({ uid: 'u1' }, function() {
+      recordTrackPercent('words', 12.5);
+      assert.deepStrictEqual(queued, []);
+    });
+  });
+
+  test('signed out: nothing is queued and nothing throws', function() {
+    withSignedIn(null, function() {
+      raiseTrackLevel('words', 1);
+      assert.deepStrictEqual(queued, []);
+    });
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
 // RESULTS
 // ═══════════════════════════════════════════════════════════════

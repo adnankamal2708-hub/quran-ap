@@ -102,6 +102,17 @@ function saveTracks(state, touchedId) {
   }
 }
 
+/**
+ * Ask for a cloud sync after a change the learner made (join, leave, main
+ * track, level, start-from-zero), as other progress writes do. Not called
+ * for the percentage high-water mark, which moves too often.
+ */
+function queueTracksSync() {
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  var sync = typeof window !== 'undefined' ? window.__sync : null;
+  if (user && sync && sync.queueSync) sync.queueSync(user.uid);
+}
+
 function getMainTrackId() {
   return loadTracks().main;
 }
@@ -121,6 +132,7 @@ function joinTrack(id) {
   if (state.tracks[id].joined) return true;
   state.tracks[id].joined = true;
   saveTracks(state, id);
+  queueTracksSync();
   return true;
 }
 
@@ -133,6 +145,7 @@ function leaveTrack(id) {
   if (!remaining) return false;
   if (state.main === id) state.main = remaining;
   saveTracks(state, id);
+  queueTracksSync();
   return true;
 }
 
@@ -143,6 +156,7 @@ function setMainTrack(id) {
   if (state.main === id) return true;
   state.main = id;
   saveTracks(state);
+  queueTracksSync();
   return true;
 }
 
@@ -159,6 +173,7 @@ function raiseTrackLevel(id, level) {
   if (level <= state.tracks[id].level) return false;
   state.tracks[id].level = level;
   saveTracks(state, id);
+  queueTracksSync();
   return true;
 }
 
@@ -191,6 +206,7 @@ function setStartFromZero(on) {
   var state = loadTracks();
   state.startFromZero = !!on;
   saveTracks(state);
+  queueTracksSync();
 }
 
 /** Placement attempts so far for a track; returns the count, then increments it. */
