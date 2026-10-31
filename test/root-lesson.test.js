@@ -148,10 +148,15 @@ suite('buildRootLesson: the most frequent root', function() {
     assert.strictEqual(lesson.note, expected);
   });
 
-  test('every family word is in exactly one group', function() {
-    var grouped = [];
-    lesson.groups.forEach(function(group) { grouped = grouped.concat(group.words); });
-    assert.deepStrictEqual(wordIds(grouped), wordIds(FIRST.words));
+  test('every family word is shown once, or merged into a shown word with its meaning', function() {
+    var shown = [];
+    var merged = [];
+    lesson.groups.forEach(function(group) {
+      shown = shown.concat(group.words);
+      group.words.forEach(function(w) { merged = merged.concat(group.sameMeaning[w.id] || []); });
+    });
+    assert.strictEqual(wordIds(shown).length, new Set(wordIds(shown)).size, 'no word shown twice');
+    assert.deepStrictEqual(wordIds(shown.concat(merged)), wordIds(FIRST.words));
   });
 
   test('every exercise passes validateExercise', function() {
@@ -200,7 +205,77 @@ suite('buildRootLesson: grouping by pattern', function() {
     assert.ok(family, 'data has a family with two words of one pattern');
     var group = buildRootLesson(family.root).groups.filter(function(g) { return g.pattern === 'فِعَال'; })[0];
     assert.ok(group);
-    assert.strictEqual(group.words.length, family.words.filter(function(w) { return w.pattern === 'فِعَال'; }).length);
+    var meanings = family.words.filter(function(w) { return w.pattern === 'فِعَال'; })
+      .map(function(w) { return normalizeMeaning(w.english); })
+      .filter(function(m, i, all) { return all.indexOf(m) === i; });
+    assert.strictEqual(group.words.length, meanings.length);
+  });
+});
+
+suite('buildRootLesson: words with the same meaning', function() {
+  function shownRows(lesson) {
+    var rows = [];
+    lesson.groups.forEach(function(g) { rows = rows.concat(g.words); });
+    return rows;
+  }
+
+  test('أ-ل-ه shows God/Deity once; the other case ending is merged into it', function() {
+    var lesson = buildRootLesson('أ-ل-ه');
+    var rows = shownRows(lesson).filter(function(w) { return w.english === 'God/Deity'; });
+    assert.strictEqual(rows.length, 1);
+    var group = lesson.groups.filter(function(g) { return g.words.indexOf(rows[0]) >= 0; })[0];
+    assert.strictEqual(group.sameMeaning[rows[0].id].length, 1);
+    // إِلَٰهٍ and إِلَٰهَ differ only in the final vowel: nothing more to show.
+    assert.strictEqual(group.alsoWritten[rows[0].id], undefined);
+  });
+
+  test('a same-meaning word with different letters is listed under the shown one', function() {
+    var lesson = buildRootLesson('أ-م-ن');
+    var rows = shownRows(lesson).filter(function(w) { return normalizeMeaning(w.english) === 'believers'; });
+    assert.strictEqual(rows.length, 1);
+    var group = lesson.groups.filter(function(g) { return g.words.indexOf(rows[0]) >= 0; })[0];
+    assert.ok(group.alsoWritten[rows[0].id].length >= 1);
+  });
+
+  test('no family shows two rows with the same meaning', function() {
+    FAMILIES.forEach(function(family) {
+      var meanings = shownRows(buildRootLesson(family.root)).map(function(w) { return normalizeMeaning(w.english); });
+      assert.strictEqual(meanings.length, new Set(meanings).size, family.root);
+    });
+  });
+
+  test('the shown row is the most frequent word of its meaning', function() {
+    var lesson = buildRootLesson('أ-م-ن');
+    lesson.groups.forEach(function(g) {
+      g.words.forEach(function(w) {
+        (g.sameMeaning[w.id] || []).forEach(function(other) { assert.ok((w.occ || 0) >= (other.occ || 0), other.arabic); });
+      });
+    });
+  });
+
+  test('a spelling identical to the shown one is not listed again', function() {
+    FAMILIES.forEach(function(family) {
+      buildRootLesson(family.root).groups.forEach(function(g) {
+        g.words.forEach(function(w) {
+          var also = g.alsoWritten[w.id] || [];
+          also.forEach(function(a) { assert.notStrictEqual(norm(a), norm(w.arabic), family.root + ' ' + a); });
+          assert.strictEqual(also.length, new Set(also.map(norm)).size, family.root + ' repeats a spelling');
+        });
+      });
+    });
+  });
+});
+
+suite('word data: pattern labels', function() {
+  test('every stored pattern is a template built on ف-ع-ل', function() {
+    var bad = [];
+    FAMILIES.forEach(function(family) {
+      family.words.forEach(function(w) {
+        if (!w.pattern || w.pattern === '—') return;
+        if (!/[فعل]/.test(w.pattern.replace(/[ً-ْٰ]/g, ''))) bad.push(w.arabic + ' → ' + w.pattern);
+      });
+    });
+    assert.deepStrictEqual(bad, []);
   });
 
   test('a family with no patterns at all has only "Other forms"', function() {
@@ -611,6 +686,16 @@ suite('Screen: the lesson', function() {
     assert.ok(markup.indexOf('Appears ' + lesson.occurrences + ' times in the Quran') >= 0);
   });
 
+  test('a merged spelling is shown under its row as "Also written"', async function() {
+    resetScreen();
+    await startRootLesson('أ-م-ن');
+    renderRootLesson();
+    clickAction('continue');
+    var markup = html();
+    assert.ok(markup.indexOf('class="root-lesson-word-also"') >= 0);
+    assert.ok(markup.indexOf('Also written') >= 0);
+  });
+
   test('the family screen groups words by the pattern exactly as stored', async function() {
     resetScreen();
     var family = findFamily(function(f) {
@@ -621,10 +706,14 @@ suite('Screen: the lesson', function() {
     clickAction('continue');
     var markup = html();
     assert.ok(markup.indexOf('The family') >= 0);
+    // Same-meaning words share a row: each spelling is on screen, each
+    // meaning appears (case aside), and every shown row's pattern heads a group.
     family.words.forEach(function(w) {
       assert.ok(markup.indexOf(escapeHtml(w.arabic)) >= 0, w.arabic);
-      assert.ok(markup.indexOf(escapeHtml(w.english)) >= 0, w.english);
-      if (w.pattern && w.pattern !== '—') assert.ok(markup.indexOf(w.pattern) >= 0, w.pattern);
+      assert.ok(markup.toLowerCase().indexOf(escapeHtml(w.english).toLowerCase()) >= 0, w.english);
+    });
+    buildRootLesson(family.root).groups.forEach(function(g) {
+      if (g.pattern !== 'Other forms') assert.ok(markup.indexOf(g.pattern) >= 0, g.pattern);
     });
     assert.ok(markup.indexOf('Other forms') >= 0 || family.words.every(function(w) { return w.pattern && w.pattern !== '—'; }));
   });

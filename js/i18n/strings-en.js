@@ -105,6 +105,7 @@ var STRINGS = {
     'root.appears': 'Appears {n} times in the Quran',
     'root.family': 'The family',
     'root.otherForms': 'Other forms',
+    'root.alsoWritten': 'Also written',
     'root.practice': 'Practice',
     'root.done': 'Root complete',
     'root.spot.prompt': 'Tap every word from this family',

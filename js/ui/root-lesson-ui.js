@@ -99,8 +99,14 @@ function _familyGroupMarkup(group) {
   h += '<h3 class="root-group-title"' + _rlArabicAttrs(group.pattern) + '>' + _rlEsc(group.pattern) + '</h3>';
   h += '<ul class="root-words">';
   group.words.forEach(function(word) {
+    var also = group.alsoWritten && group.alsoWritten[word.id];
     h += '<li class="root-lesson-word"><span class="root-lesson-word-ar" lang="ar" dir="rtl">' + _rlEsc(word.arabic) + '</span>' +
-      '<span class="root-lesson-word-en">' + _rlEsc(word.english) + '</span></li>';
+      '<span class="root-lesson-word-en">' + _rlEsc(word.english);
+    if (also) {
+      h += '<small class="root-lesson-word-also">' + _rlEsc(t('root.alsoWritten')) + ' ' +
+        also.map(function(a) { return '<span lang="ar" dir="rtl">' + _rlEsc(a) + '</span>'; }).join(' · ') + '</small>';
+    }
+    h += '</span></li>';
   });
   return h + '</ul></section>';
 }

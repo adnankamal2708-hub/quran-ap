@@ -3,7 +3,7 @@
  *
  * Pure: no DOM, no storage. A RootLesson is
  *   { root, letters:string[], meaning, note, occurrences,
- *     groups:[{ pattern, words:Word[] }], exercises:Item[] }
+ *     groups:[{ pattern, words:Word[], sameMeaning, alsoWritten }], exercises:Item[] }
  * Only data already in the app is shown; pattern labels are exactly as stored.
  *   letters      the root's letters ('/' separates alternative roots)
  *   note         the first non-empty rootPattern among the family's words
@@ -43,23 +43,55 @@ function rootWordsByFrequency(words) {
   return words.slice().sort(function(a, b) { return (b.occ || 0) - (a.occ || 0); });
 }
 
+/**
+ * One row per meaning. The data keeps each spelling as its own word (إِلَٰهٍ
+ * and إِلَٰهَ both count towards coverage), so the most frequent one is shown
+ * and the rest are merged into it: `sameMeaning[id]` holds the merged words,
+ * `alsoWritten[id]` their spellings whose letters differ from the shown one
+ * (a different case ending alone is not listed).
+ */
+function mergeSameMeaningWords(words) {
+  var rows = [];
+  var rowByMeaning = {};
+  rootWordsByFrequency(words).forEach(function(word) {
+    var meaning = word.english ? normalizeMeaning(word.english) : null;
+    var row = meaning !== null ? rowByMeaning[meaning] : null;
+    if (row) {
+      row.merged.push(word);
+      var form = drillNormalize(word.arabic);
+      if (row.forms.indexOf(form) === -1) {
+        row.forms.push(form);
+        row.alsoWritten.push(word.arabic);
+      }
+      return;
+    }
+    row = { word: word, merged: [], alsoWritten: [], forms: [drillNormalize(word.arabic)] };
+    rows.push(row);
+    if (meaning !== null) rowByMeaning[meaning] = row;
+  });
+  return rows;
+}
+
 function groupRootWords(words) {
   var byPattern = {};
   var patterns = [];
-  var other = [];
-  rootWordsByFrequency(words).forEach(function(word) {
-    if (!rootWordHasPattern(word)) {
-      other.push(word);
-      return;
+  var other = { pattern: t('root.otherForms'), words: [], sameMeaning: {}, alsoWritten: {} };
+  mergeSameMeaningWords(words).forEach(function(row) {
+    var word = row.word;
+    var group = other;
+    if (rootWordHasPattern(word)) {
+      if (!byPattern[word.pattern]) {
+        byPattern[word.pattern] = { pattern: word.pattern, words: [], sameMeaning: {}, alsoWritten: {} };
+        patterns.push(word.pattern);
+      }
+      group = byPattern[word.pattern];
     }
-    if (!byPattern[word.pattern]) {
-      byPattern[word.pattern] = [];
-      patterns.push(word.pattern);
-    }
-    byPattern[word.pattern].push(word);
+    group.words.push(word);
+    if (row.merged.length > 0) group.sameMeaning[word.id] = row.merged;
+    if (row.alsoWritten.length > 0) group.alsoWritten[word.id] = row.alsoWritten;
   });
-  var groups = patterns.map(function(pattern) { return { pattern: pattern, words: byPattern[pattern] }; });
-  if (other.length > 0) groups.push({ pattern: t('root.otherForms'), words: other });
+  var groups = patterns.map(function(pattern) { return byPattern[pattern]; });
+  if (other.words.length > 0) groups.push(other);
   return groups;
 }
 

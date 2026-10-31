@@ -9660,6 +9660,16 @@ body::before {
   text-align: right;
   overflow-wrap: anywhere;
 }
+.root-lesson-word-also {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-sm);
+}
+.root-lesson-word-also [lang="ar"] {
+  font-family: var(--arabic);
+  font-size: var(--text-base);
+  color: var(--text);
+}
 .root-body {
   padding: var(--spacing-lg);
   background: var(--surface);
