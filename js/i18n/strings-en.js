@@ -45,6 +45,10 @@ var STRINGS = {
     'tracks.locked': 'Finish {level} to unlock',
     'tracks.finished': 'Finished',
     'tracks.more': 'More ways to learn',
+    'tracks.lessonN': 'Lesson {n}',
+    'tracks.surahN': 'Surah {n}',
+    'tracks.surahStudy': 'Surah study',
+    'tracks.rootFamilies': 'Root families',
 
     // ── Practice tab ──
     'practice.due': 'Due today',

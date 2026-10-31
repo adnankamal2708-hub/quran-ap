@@ -165,6 +165,28 @@ test('guided surah lessons report completion and every lesson has a title', func
   });
 });
 
+test('lesson titles come from the strings file through t() when it is loaded', function() {
+  global.t = function(key, vars) { return '[' + key + (vars ? ':' + JSON.stringify(vars) : '') + ']'; };
+  var savedTitle = global.getFoundationLessonThematicTitle;
+  global.getFoundationLessonThematicTitle = function() { return ''; };
+  try {
+    var levels = getWordMeaningsLevels();
+    assert.strictEqual(levels[0].lessons[0].title, '[tracks.lessonN:{"n":1}]');
+    assert.strictEqual(levels[1].lessons[0].title, '[tracks.surahN:{"n":1}]');
+    assert.deepStrictEqual(levels[3].lessons.map(function(l) { return l.title; }),
+      ['[tracks.surahStudy]', '[tracks.rootFamilies]']);
+  } finally {
+    delete global.t;
+    global.getFoundationLessonThematicTitle = savedTitle;
+  }
+});
+
+test('without t() (data bundle before the app bundle) titles fall back to English', function() {
+  assert.strictEqual(typeof t, 'undefined');
+  assert.deepStrictEqual(getWordMeaningsLevels()[3].lessons.map(function(l) { return l.title; }),
+    ['Surah study', 'Root families']);
+});
+
 console.log('\nLevel locks');
 
 test('level 0 is never locked', function() {

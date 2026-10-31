@@ -25,6 +25,14 @@ function wordsPremiumHas(featureName) {
   return premium.hasFeature(premium.FEATURES[featureName]);
 }
 
+/**
+ * UI text through t(). This file loads in the data bundle, before
+ * strings-en.js, so the English fallback covers a call made before then.
+ */
+function wordsText(key, fallback, vars) {
+  return typeof t === 'function' ? t(key, vars) : fallback;
+}
+
 function buildFoundationLevelLessons() {
   var total = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
   var lessons = [];
@@ -33,7 +41,7 @@ function buildFoundationLevelLessons() {
     lessons.push({
       kind: 'foundation',
       number: i + 1,
-      title: title || 'Lesson ' + (i + 1),
+      title: title || wordsText('tracks.lessonN', 'Lesson ' + (i + 1), { n: i + 1 }),
       completed: isFoundationLessonCompleted(i),
       ref: i,
     });
@@ -43,7 +51,7 @@ function buildFoundationLevelLessons() {
 
 function guidedSurahTitle(surahId) {
   var info = typeof SURAH_INFO !== 'undefined' ? SURAH_INFO[surahId] : null;
-  return info && info.nameSimple ? info.nameSimple : 'Surah ' + surahId;
+  return info && info.nameSimple ? info.nameSimple : wordsText('tracks.surahN', 'Surah ' + surahId, { n: surahId });
 }
 
 function buildGuidedLevelLessons(keepSurah) {
@@ -66,8 +74,8 @@ function buildStudyLevelLessons() {
   var studied = typeof getCompletedSurahCount === 'function' ? getCompletedSurahCount() : 0;
   var roots = typeof getCompletedRootFamilyCount === 'function' ? getCompletedRootFamilyCount() : 0;
   return [
-    { kind: 'surah-study', number: 1, title: 'Surah study', completed: studied > 0, ref: null },
-    { kind: 'root-families', number: 2, title: 'Root families', completed: roots > 0, ref: null },
+    { kind: 'surah-study', number: 1, title: wordsText('tracks.surahStudy', 'Surah study'), completed: studied > 0, ref: null },
+    { kind: 'root-families', number: 2, title: wordsText('tracks.rootFamilies', 'Root families'), completed: roots > 0, ref: null },
   ];
 }
 
