@@ -15,6 +15,7 @@
 //   • Timeline: gold beam fills with scroll progress
 //   • Progress: example ring and counter
 //   • Try it: "Spot the word" demo and the root family
+//   • Closing: Al-Qamar 54:17 lights up word by word
 //
 // Outside the app bundle; only the landing page loads it.
 // ═══════════════════════════════════════════════════════════════
@@ -324,6 +325,25 @@
     });
   }
 
+  // ── Closing verse ──────────────────────────────────────────────
+  // Al-Qamar 54:17 lights up word by word (timing in CSS), once, when
+  // most of the verse is in view. Its rays pause while it is off screen.
+  function initClosingVerse() {
+    var section = $('.lp-closing');
+    var words = section && $('.lp-verse-words', section);
+    if (!words || reduceMotion || !('IntersectionObserver' in window)) return;
+    section.classList.add('is-armed');
+    var play = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      section.classList.add('is-playing');
+      play.disconnect();
+    }, { threshold: 0.6 });
+    play.observe(words);
+    new IntersectionObserver(function (entries) {
+      section.classList.toggle('is-offscreen', !entries[0].isIntersecting);
+    }).observe(section);
+  }
+
   function init() {
     if (reduceMotion) root.classList.add('lp-reduced');
     initHeroPaths();
@@ -336,6 +356,7 @@
     initSpotDemo();
     initRootFamily();
     initSpotlight();
+    initClosingVerse();
     if (scrollTasks.length) {
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll);

@@ -738,23 +738,130 @@
     .lp-tier .lp-cta, .lp-tier .lp-btn-ghost { margin-top: auto; width: 100%; }
 
     /* ── Closing ─────────────────────────────────────────────── */
-    .lp-closing { padding: 130px 0 120px; text-align: center; position: relative; overflow: hidden; }
-    .lp-closing::before {
-      content: "";
+    /* Closing: Al-Qamar 54:17 lights up word by word, then its translation,
+       the four places it is repeated, and the button. Hidden states apply
+       only once landing-motion.js arms the section (.is-armed); without JS
+       or with reduced motion everything shows as written. */
+    .lp-closing {
+      position: relative;
+      overflow: hidden;
+      min-height: 92vh;
+      min-height: 92svh;
+      display: flex;
+      align-items: center;
+      padding: clamp(110px, 16vh, 180px) 0;
+      text-align: center;
+    }
+    /* The light comes from behind the first line of Arabic: a point at the
+       top of the content box, painted behind the words (z-index -1). The
+       rays start a little way out, so they never meet behind the text. */
+    .lp-closing-light {
       position: absolute;
       left: 50%;
-      top: 0;
-      width: min(900px, 120vw);
-      height: 420px;
-      transform: translateX(-50%);
-      background: radial-gradient(ellipse at top, var(--gold-soft), transparent 70%);
+      top: clamp(26px, 4.3vw, 46px);
+      width: 0;
+      height: 0;
+      z-index: -1;
       pointer-events: none;
+      transition: opacity 3s ease;
     }
-    .lp-closing-ayah { font-family: var(--arabic); font-size: clamp(28px, 4.6vw, 44px); line-height: 1.8; color: var(--gold-light); }
-    .lp-closing-tr { font-family: var(--serif); font-style: italic; color: var(--text-muted); margin-top: 10px; font-size: 17px; }
-    .lp-closing-tr small { font-style: normal; font-size: 13px; }
-    .lp-closing .lp-h2 { margin-top: 44px; }
-    .lp-closing .lp-hero-ctas { margin-top: 28px; }
+    .lp-closing-light::before {
+      content: "";
+      position: absolute;
+      width: min(1100px, 160vw);
+      height: 640px;
+      transform: translate(-50%, -42%);
+      background: radial-gradient(ellipse closest-side, color-mix(in srgb, var(--gold) 16%, transparent), transparent);
+    }
+    .lp-closing .lp-rays {
+      -webkit-mask-image: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.7) 3%, rgba(0, 0, 0, 0.55) 10%, transparent 26%);
+      mask-image: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.7) 3%, rgba(0, 0, 0, 0.55) 10%, transparent 26%);
+    }
+    .lp-closing.is-offscreen .lp-rays { animation-play-state: paused; }
+    .lp-closing-inner { position: relative; z-index: 1; width: 100%; }
+
+    .lp-verse-words {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 22px clamp(16px, 2.6vw, 34px);
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .lp-verse-w { display: flex; flex-direction: column; align-items: center; gap: 4px; --t: calc(0.25s + var(--i) * 0.34s); }
+    .lp-verse-ar {
+      font-family: var(--arabic);
+      font-size: clamp(32px, 5.4vw, 58px);
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .lp-verse-en {
+      font-size: 14px;
+      line-height: 1.35;
+      color: var(--gold);
+      max-width: 9.5em;
+    }
+    .lp-verse-w:hover .lp-verse-ar { color: var(--gold-light); }
+    .lp-verse-tr {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(18px, 2.2vw, 22px);
+      line-height: 1.55;
+      color: var(--text-muted);
+      max-width: 34em;
+      margin: 34px auto 0;
+    }
+    .lp-verse-tr strong { font-weight: 500; color: var(--text); }
+    .lp-verse-ref {
+      margin-top: 10px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .lp-verse-echo {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: baseline;
+      gap: 6px 14px;
+      margin-top: 30px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .lp-verse-echo span { flex-basis: 100%; }
+    .lp-verse-echo b { font-weight: 500; font-variant-numeric: tabular-nums; }
+    .lp-verse-echo b.is-here { color: var(--gold); }
+    .lp-closing .lp-hero-ctas { margin-top: 40px; }
+
+    .lp-closing.is-armed .lp-closing-light { opacity: 0.35; }
+    .lp-closing.is-armed .lp-verse-ar { color: color-mix(in srgb, var(--text) 24%, transparent); }
+    .lp-closing.is-armed .lp-verse-en,
+    .lp-closing.is-armed .lp-verse-tr,
+    .lp-closing.is-armed .lp-verse-ref,
+    .lp-closing.is-armed .lp-verse-echo > *,
+    .lp-closing.is-armed .lp-hero-ctas { opacity: 0; transform: translateY(10px); }
+    .lp-closing.is-playing .lp-closing-light { opacity: 1; }
+    .lp-closing.is-playing .lp-verse-ar {
+      color: var(--text);
+      text-shadow: 0 0 28px color-mix(in srgb, var(--gold) 30%, transparent);
+      transition: color 0.8s ease var(--t), text-shadow 1.6s ease var(--t);
+    }
+    .lp-closing.is-playing .lp-verse-en,
+    .lp-closing.is-playing .lp-verse-tr,
+    .lp-closing.is-playing .lp-verse-ref,
+    .lp-closing.is-playing .lp-verse-echo > *,
+    .lp-closing.is-playing .lp-hero-ctas {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.7s var(--ease-out) var(--t), transform 0.7s var(--ease-out) var(--t);
+    }
+    .lp-closing.is-playing .lp-verse-en { --t: calc(0.4s + var(--i) * 0.34s); }
+    .lp-closing.is-playing .lp-verse-tr { --t: 2.6s; }
+    .lp-closing.is-playing .lp-verse-ref { --t: 2.9s; }
+    .lp-closing.is-playing .lp-verse-echo > * { --t: calc(3.4s + var(--j, 0) * 0.16s); }
+    .lp-closing.is-playing .lp-hero-ctas { --t: 4.2s; }
 
     /* ── Footer ──────────────────────────────────────────────── */
     .lp-footer { border-top: 1px solid var(--hairline); }
@@ -1200,13 +1307,30 @@
       </section>
 
       <!-- Closing -->
-      <section class="lp-closing">
-        <div class="lp-wrap" data-reveal>
-          <p class="lp-closing-ayah" lang="ar" dir="rtl">وَلَقَدۡ يَسَّرۡنَا ٱلۡقُرۡءَانَ لِلذِّكۡرِ فَهَلۡ مِن مُّدَّكِرٖ</p>
-          <p class="lp-closing-tr">“And We have certainly made the Qur'an easy for remembrance, so is there any who will remember?” <small>— Al-Qamar 54:17</small></p>
-          <h2 class="lp-h2">Start understanding today</h2>
+      <section class="lp-closing" aria-labelledby="lp-closing-title">
+        <div class="lp-wrap lp-closing-inner">
+          <div class="lp-closing-light" aria-hidden="true"><div class="lp-rays"></div></div>
+          <h2 class="lp-sr" id="lp-closing-title">Start understanding today</h2>
+          <p class="lp-sr" lang="ar" dir="rtl">وَلَقَدۡ يَسَّرۡنَا ٱلۡقُرۡءَانَ لِلذِّكۡرِ فَهَلۡ مِن مُّدَّكِرٖ</p>
+          <div class="lp-verse-words" dir="rtl" aria-hidden="true">
+            <span class="lp-verse-w" style="--i:0"><span class="lp-verse-ar" lang="ar">وَلَقَدۡ</span><span class="lp-verse-en" dir="ltr">and We have certainly</span></span>
+            <span class="lp-verse-w" style="--i:1"><span class="lp-verse-ar" lang="ar">يَسَّرۡنَا</span><span class="lp-verse-en" dir="ltr">made easy</span></span>
+            <span class="lp-verse-w" style="--i:2"><span class="lp-verse-ar" lang="ar">ٱلۡقُرۡءَانَ</span><span class="lp-verse-en" dir="ltr">the Quran</span></span>
+            <span class="lp-verse-w" style="--i:3"><span class="lp-verse-ar" lang="ar">لِلذِّكۡرِ</span><span class="lp-verse-en" dir="ltr">for remembrance</span></span>
+            <span class="lp-verse-w" style="--i:4"><span class="lp-verse-ar" lang="ar">فَهَلۡ</span><span class="lp-verse-en" dir="ltr">so is there</span></span>
+            <span class="lp-verse-w" style="--i:5"><span class="lp-verse-ar" lang="ar">مِن مُّدَّكِرٖ</span><span class="lp-verse-en" dir="ltr">any who will remember?</span></span>
+          </div>
+          <p class="lp-verse-tr">“And We have certainly made the Qur'an easy for remembrance, <strong>so is there any who will remember?</strong>”</p>
+          <p class="lp-verse-ref">Al-Qamar 54:17</p>
+          <p class="lp-verse-echo">
+            <span style="--j:0">Repeated four times in Surah Al-Qamar</span>
+            <b class="is-here" style="--j:1">54:17</b>
+            <b style="--j:2">54:22</b>
+            <b style="--j:3">54:32</b>
+            <b style="--j:4">54:40</b>
+          </p>
           <div class="lp-hero-ctas">
-            <a class="lp-cta" href="./">Start learning free
+            <a class="lp-cta" href="./">Begin learning
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
           </div>
