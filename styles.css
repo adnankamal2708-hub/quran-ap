@@ -6137,14 +6137,16 @@ body::before {
 }
 .ux-tooltip-top::after {
   bottom: -7px;
-  left: 50%;
+  left: var(--ux-tooltip-arrow-x, 50%);
   margin-left: -6px;
   border-top: none;
   border-left: none;
 }
+/* Placed over a target taller than the screen: nothing to point at */
+.ux-tooltip-inside::after { display: none; }
 .ux-tooltip-bottom::after {
   top: -7px;
-  left: 50%;
+  left: var(--ux-tooltip-arrow-x, 50%);
   margin-left: -6px;
   border-bottom: none;
   border-right: none;

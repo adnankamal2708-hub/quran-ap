@@ -549,6 +549,57 @@ suite('Contextual Tooltips Timing', function() {
   });
 });
 
+suite('Tooltip placement stays on screen', function() {
+  var TIP = { width: 280, height: 120 };
+  var PHONE = { width: 390, height: 844, bottomInset: 60 };
+  function rect(top, bottom, left, right) {
+    return { top: top, bottom: bottom, left: left, right: right, width: right - left, height: bottom - top };
+  }
+  function onScreen(p, view) {
+    return p.top >= 8 && p.top + TIP.height <= view.height - view.bottomInset - 8 &&
+      p.left >= 8 && p.left + TIP.width <= view.width - 8;
+  }
+
+  test('goes above the target when there is room', function() {
+    var p = _tooltipPlacement(rect(500, 540, 100, 200), TIP, PHONE, 'top');
+    assert.strictEqual(p.side, 'top');
+    assert.strictEqual(p.top, 500 - 8 - TIP.height);
+    assert.ok(onScreen(p, PHONE));
+  });
+
+  test('flips below a target near the top edge (desktop sidebar tab)', function() {
+    var desktop = { width: 1280, height: 800, bottomInset: 0 };
+    var p = _tooltipPlacement(rect(20, 68, 14, 216), TIP, desktop, 'top');
+    assert.strictEqual(p.side, 'bottom');
+    assert.strictEqual(p.top, 68 + 8);
+    assert.ok(onScreen(p, desktop));
+  });
+
+  test('flips above a target near the bottom, clear of the bottom nav', function() {
+    var p = _tooltipPlacement(rect(700, 740, 100, 200), TIP, PHONE, 'bottom');
+    assert.strictEqual(p.side, 'top');
+    assert.ok(onScreen(p, PHONE));
+  });
+
+  test('a target taller than half the screen gets the tooltip inside it', function() {
+    var p = _tooltipPlacement(rect(127, 6904, 0, 390), TIP, PHONE, 'bottom');
+    assert.strictEqual(p.side, 'inside');
+    assert.ok(onScreen(p, PHONE));
+  });
+
+  test('never leaves the screen, even with no room on either side', function() {
+    var tiny = { width: 320, height: 300, bottomInset: 0 };
+    var p = _tooltipPlacement(rect(100, 140, 0, 40), TIP, tiny, 'top');
+    assert.ok(p.top >= 8 && p.left >= 8 && p.left + TIP.width <= tiny.width - 8);
+  });
+
+  test('the arrow points at the target even when the tooltip is pushed sideways', function() {
+    var p = _tooltipPlacement(rect(500, 540, 10, 50), TIP, PHONE, 'top');
+    assert.strictEqual(p.left, 8);
+    assert.strictEqual(p.arrowX, 22, 'target centre 30 minus left 8');
+  });
+});
+
 suite('Welcome Slides Data', function() {
   test('_welcomeSlides has 1 consolidated slide', function() {
     assert.strictEqual(_welcomeSlides.length, 1);

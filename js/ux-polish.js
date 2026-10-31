@@ -829,9 +829,81 @@ var _tooltips = {
   }
 };
 
+function _clamp(value, low, high) {
+  return Math.max(low, Math.min(high, value));
+}
+
+/**
+ * Where a tooltip goes: on its preferred side ('top' = above) of the
+ * target's visible part, flipped when that side has no room, and always
+ * inside the viewport above view.bottomInset (the phone tab bar). A target
+ * taller than half the viewport (a whole view) gets the tooltip inside it,
+ * near the top of what is showing.
+ * Returns { top, left, side: 'top' | 'bottom' | 'inside', arrowX }.
+ */
+function _tooltipPlacement(target, tip, view, preferred) {
+  var margin = 8;
+  var gap = 8;
+  var minTop = margin;
+  var maxTop = view.height - view.bottomInset - tip.height - margin;
+  var visibleTop = Math.max(target.top, 0);
+  var visibleBottom = Math.min(target.bottom, view.height - view.bottomInset);
+  var left = _clamp(target.left + (target.width - tip.width) / 2, margin, view.width - tip.width - margin);
+  var arrowX = _clamp(target.left + target.width / 2 - left, 16, tip.width - 16);
+
+  if (visibleBottom - visibleTop > view.height / 2) {
+    return { top: _clamp(visibleTop + gap, minTop, maxTop), left: left, side: 'inside', arrowX: arrowX };
+  }
+  var above = visibleTop - tip.height - gap;
+  var below = visibleBottom + gap;
+  var fitsAbove = above >= minTop;
+  var fitsBelow = below <= maxTop;
+  var side = preferred === 'bottom'
+    ? (fitsBelow || !fitsAbove ? 'bottom' : 'top')
+    : (fitsAbove || !fitsBelow ? 'top' : 'bottom');
+  return { top: _clamp(side === 'top' ? above : below, minTop, maxTop), left: left, side: side, arrowX: arrowX };
+}
+
+/**
+ * Height of the tab bar when it sits along the bottom (phones); 0 when it
+ * is a sidebar, or when `el` is in the tab bar (a tip about a tab).
+ */
+function _bottomNavInset(el) {
+  if (el && el.closest && el.closest('.bottom-nav')) return 0;
+  var nav = document.querySelector('.bottom-nav');
+  if (!nav || !nav.getBoundingClientRect) return 0;
+  var r = nav.getBoundingClientRect();
+  return r.height > 0 && r.top > window.innerHeight / 2 ? Math.max(0, window.innerHeight - r.top) : 0;
+}
+
+/** True when some of the element shows in the viewport (always true where layout is unknown). */
+function _isOnScreen(el) {
+  if (!window.innerHeight) return true;
+  var r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < window.innerHeight - _bottomNavInset(el);
+}
+
+/** Tips waiting for their target to scroll into view, by id */
+var _tooltipWatchers = {};
+
+/** Show the tip once its target is in view (fully, or half the screen of a tall one). */
+function _showTooltipWhenVisible(tipId, targetEl) {
+  if (_tooltipWatchers[tipId] || typeof IntersectionObserver !== 'function') return;
+  _tooltipWatchers[tipId] = new IntersectionObserver(function(entries) {
+    var entry = entries[0];
+    if (!entry.isIntersecting) return;
+    if (entry.intersectionRatio < 1 && entry.intersectionRect.height < window.innerHeight / 2) return;
+    _tooltipWatchers[tipId].disconnect();
+    delete _tooltipWatchers[tipId];
+    showTooltip(tipId);
+  }, { threshold: [0, 0.5, 1] });
+  _tooltipWatchers[tipId].observe(targetEl);
+}
+
 /**
  * Show a contextual tooltip for a first-time user.
- * Each tooltip is shown only once.
+ * Each tooltip is shown only once, when its target is on screen; it
+ * follows the target as the page scrolls and closes once it scrolls away.
  */
 function showTooltip(tipId) {
   if (!tipId || !_tooltips[tipId]) return;
@@ -843,13 +915,17 @@ function showTooltip(tipId) {
   var tip = _tooltips[tipId];
   var targetEl = document.querySelector(tip.selector);
   if (!targetEl) return;
+  if (!_isOnScreen(targetEl)) {
+    _showTooltipWhenVisible(tipId, targetEl);
+    return;
+  }
 
   // Mark as seen
   try { localStorage.setItem(_TOOLTIP_SEEN_KEY + tipId, 'true'); } catch (e) {}
 
   // Create tooltip element
   var tooltip = document.createElement('div');
-  tooltip.className = 'ux-tooltip ux-tooltip-' + (tip.position || 'top');
+  tooltip.className = 'ux-tooltip';
   tooltip.setAttribute('role', 'tooltip');
   tooltip.innerHTML =
     '<div class="ux-tooltip-header">' + (tip.icon ? uiIcon(tip.icon) : '') + (tip.title || '') + '</div>' +
@@ -858,18 +934,38 @@ function showTooltip(tipId) {
 
   document.body.appendChild(tooltip);
 
-  // Position relative to target
-  var targetRect = targetEl.getBoundingClientRect();
-  var tipRect = tooltip.getBoundingClientRect();
-  var padding = 8;
-
-  if (tip.position === 'top') {
-    tooltip.style.left = Math.max(8, Math.min(window.innerWidth - tipRect.width - 8, targetRect.left + (targetRect.width - tipRect.width) / 2)) + 'px';
-    tooltip.style.top = (targetRect.top - tipRect.height - padding) + 'px';
-  } else if (tip.position === 'bottom') {
-    tooltip.style.left = Math.max(8, Math.min(window.innerWidth - tipRect.width - 8, targetRect.left + (targetRect.width - tipRect.width) / 2)) + 'px';
-    tooltip.style.top = (targetRect.bottom + padding) + 'px';
+  function place() {
+    var tipRect = tooltip.getBoundingClientRect();
+    var spot = _tooltipPlacement(
+      targetEl.getBoundingClientRect(),
+      { width: tipRect.width, height: tipRect.height },
+      { width: window.innerWidth, height: window.innerHeight, bottomInset: _bottomNavInset(targetEl) },
+      tip.position
+    );
+    tooltip.className = 'ux-tooltip ux-tooltip-' + spot.side + (tooltip.classList.contains('ux-tooltip-visible') ? ' ux-tooltip-visible' : '');
+    tooltip.style.left = spot.left + 'px';
+    tooltip.style.top = spot.top + 'px';
+    if (tooltip.style.setProperty) tooltip.style.setProperty('--ux-tooltip-arrow-x', spot.arrowX + 'px');
   }
+
+  function dismiss() {
+    document.removeEventListener('scroll', onScroll, true);
+    if (window.removeEventListener) window.removeEventListener('resize', onScroll);
+    tooltip.classList.remove('ux-tooltip-visible');
+    setTimeout(function() {
+      if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip);
+    }, 250);
+  }
+
+  function onScroll() {
+    if (!tooltip.parentNode) return;
+    if (_isOnScreen(targetEl)) place();
+    else dismiss();
+  }
+
+  place();
+  document.addEventListener('scroll', onScroll, true);
+  if (window.addEventListener) window.addEventListener('resize', onScroll);
 
   // Animate in
   requestAnimationFrame(function() {
@@ -878,23 +974,11 @@ function showTooltip(tipId) {
 
   // Close handler
   var closeBtn = tooltip.querySelector('.ux-tooltip-close');
-  if (closeBtn) {
-    closeBtn.onclick = function() {
-      tooltip.classList.remove('ux-tooltip-visible');
-      setTimeout(function() {
-        if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip);
-      }, 250);
-    };
-  }
+  if (closeBtn) closeBtn.onclick = dismiss;
 
   // Auto-dismiss after 6 seconds
   setTimeout(function() {
-    if (tooltip.parentNode) {
-      tooltip.classList.remove('ux-tooltip-visible');
-      setTimeout(function() {
-        if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip);
-      }, 250);
-    }
+    if (tooltip.parentNode) dismiss();
   }, 6000);
 }
 
