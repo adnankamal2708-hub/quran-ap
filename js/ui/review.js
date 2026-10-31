@@ -21,6 +21,15 @@ function refreshQuranPercentGained() {
   return refreshWordMeaningsPercent().gained;
 }
 
+/**
+ * Reviews run on the Learn screen. Show it, keeping the tab the review was
+ * started from (Practice, Home) lit rather than Learn.
+ */
+function showReviewScreen() {
+  var from = typeof currentView !== 'undefined' ? currentView : null;
+  switchView('learn', from && from !== 'learn' ? { navContext: from } : undefined);
+}
+
 function startReview() {
   reviewQueue = getDueReviews();
   if (!reviewQueue.length) return;
@@ -36,6 +45,7 @@ function startReview() {
   }
   reviewMode = true;
   currentWord = 0;
+  if (typeof currentView !== 'undefined' && currentView !== 'learn') showReviewScreen();
   DOM.get('review-banner').classList.remove('visible');
   updateWordCard();
 }
@@ -143,8 +153,8 @@ function startMixedReview() {
   currentWord = 0;
   activeLessonIndex = 0;
   window.__lastReviewWasMixed = true;
+  showReviewScreen();
   DOM.get('review-banner').classList.remove('visible');
-  switchView('learn');
   updateWordCard();
 }
 

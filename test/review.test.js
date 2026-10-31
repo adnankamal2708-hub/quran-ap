@@ -331,6 +331,36 @@ suite('startReview', function() {
     assert.strictEqual(currentWord, 0);
   });
 
+  test('started from Practice, the review opens with Practice still the lit tab', function() {
+    var calls = [];
+    global.currentView = 'review-center';
+    global.switchView = function(v, options) { calls.push([v, options]); global.currentView = v; };
+    _reviewQueue = [{ id: 'w1', arabic: 'test' }];
+    _srsData = {};
+    try {
+      startReview();
+    } finally {
+      global.switchView = function() {};
+      delete global.currentView;
+    }
+    assert.deepStrictEqual(calls, [['learn', { navContext: 'review-center' }]]);
+    assert.strictEqual(reviewMode, true);
+  });
+
+  test('already on the Learn screen, startReview stays put', function() {
+    var calls = [];
+    global.currentView = 'learn';
+    global.switchView = function(v) { calls.push(v); };
+    _reviewQueue = [{ id: 'w1', arabic: 'test' }];
+    try {
+      startReview();
+    } finally {
+      global.switchView = function() {};
+      delete global.currentView;
+    }
+    assert.deepStrictEqual(calls, []);
+  });
+
   test('startReview counts already-mastered words', function() {
     _srsData = { w1: { stage: 2 }, w2: { stage: 1 } };
     _reviewQueue = [{ id: 'w1' }, { id: 'w2' }];
@@ -581,6 +611,21 @@ suite('Mixed Review', function() {
     startMixedReview();
     assert.ok(switchedToDashboard);
     global.switchView = function() {};
+  });
+
+  test('started from Home, the mixed review keeps Home the lit tab', function() {
+    var calls = [];
+    global.currentView = 'dashboard';
+    global.switchView = function(v, options) { calls.push([v, options]); };
+    global.getMixedReviewQueue = function() { return [{ id: 'w1' }]; };
+    try {
+      startMixedReview();
+    } finally {
+      global.switchView = function() {};
+      global.getMixedReviewQueue = function() { return []; };
+      delete global.currentView;
+    }
+    assert.deepStrictEqual(calls, [['learn', { navContext: 'dashboard' }]]);
   });
 });
 
