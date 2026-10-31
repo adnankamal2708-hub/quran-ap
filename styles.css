@@ -7544,9 +7544,11 @@ body::before {
   -webkit-overflow-scrolling: touch;
 }
 .pf-tab {
-  flex: 1;
+  /* Grow to share the bar, but never shrink below the label ("Achievements"
+     spilled into its neighbours on phones); the bar scrolls if it must. */
+  flex: 1 0 auto;
   min-width: 0;
-  padding: 8px 6px;
+  padding: 8px 4px;
   font-size: var(--text-xs);
   font-weight: 500;
   color: var(--text-muted);
@@ -7558,6 +7560,11 @@ body::before {
   white-space: nowrap;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   font-family: inherit;
+}
+/* The four labels need a touch less room to fit a 320px screen */
+@media (max-width: 340px) {
+  .pf-tab-bar { gap: 2px; }
+  .pf-tab { padding-left: 2px; padding-right: 2px; }
 }
 .pf-tab:hover {
   background: rgba(201, 168, 76, 0.08);
