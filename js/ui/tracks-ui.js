@@ -37,7 +37,7 @@ function _trackPercent(trackId) {
 function _joinedTrackCard(trackId, isMain, canLeave) {
   var name = t('track.' + trackId + '.name');
   var percent = _trackPercent(trackId);
-  var meta = t('level.' + getTrackLevel(trackId));
+  var meta = t('level.' + (trackId === WORDS_TRACK_ID ? getWordMeaningsLevel() : getTrackLevel(trackId)));
   if (percent !== null) meta += ' · ' + t('percent.words', { p: percent });
 
   var h = '<article class="track-card is-joined' + (isMain ? ' is-main' : '') + '">';

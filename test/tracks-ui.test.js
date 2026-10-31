@@ -198,6 +198,13 @@ test('the Word meanings card shows its level and percentage and records the high
   assert.strictEqual(getTrackPercent('words'), 43.2);
 });
 
+test('a Foundation graduate with no placement test is shown as Elementary', function() {
+  for (var i = 0; i < 10; i++) foundationDone.push(i);
+  renderTracks();
+  assert.ok(cards()[0].indexOf('Elementary') >= 0, cards()[0]);
+  assert.ok(cards()[0].indexOf('Beginner') < 0);
+});
+
 test('the Leave item is disabled with one track joined', function() {
   renderTracks();
   var leave = tagsWithClass(cards()[0], 'track-menu-leave');

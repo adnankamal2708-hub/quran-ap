@@ -58,25 +58,23 @@ function startPlacementTest(trackId) {
 
 // ── Result ──────────────────────────────────────────────────────
 
-/** Raise the stored level to the placed one and keep what the screen needs. */
+/**
+ * Raise the stored level to the placed one and keep what the screen needs.
+ * The level compared and shown is the effective one, so a Foundation
+ * graduate is never told they are a Beginner.
+ */
 function _finishPlacement() {
   var placed = getPlacementResult(_placement.state);
-  var earned = getTrackLevel(WORDS_TRACK_ID);
+  var earned = getWordMeaningsLevel();
   raiseTrackLevel(WORDS_TRACK_ID, placed.level);
   _placement.result = {
-    // Only a lower result is a "level stays"; an equal one is simply the level.
+    // Only a lower result is a "level stays"; an equal one is simply the level (R9).
     kept: placed.level < earned,
-    // After a lower retake the learner keeps the level already earned.
-    level: getTrackLevel(WORDS_TRACK_ID),
+    // After a lower result the learner keeps the level already earned.
+    level: getWordMeaningsLevel(),
     strengths: placed.strengths,
     gaps: placed.gaps,
   };
-}
-
-/** The first lesson of a level, or null when the level has none. */
-function _firstLessonOfLevel(level) {
-  var levelData = getWordMeaningsLevels()[level];
-  return levelData && levelData.lessons.length > 0 ? levelData.lessons[0] : null;
 }
 
 function _lessonLabel(lesson) {
@@ -108,7 +106,7 @@ function _chipGroup(titleKey, tags, kind) {
 function _resultMarkup() {
   var result = _placement.result;
   var levelName = t('level.' + result.level);
-  var lesson = _firstLessonOfLevel(result.level);
+  var lesson = getWordMeaningsNextLesson(result.level);
 
   var h = '<div class="placement placement-result">';
   h += _headMarkup(t('test.words.title'), 'test.close');
@@ -197,13 +195,13 @@ function _leavePlacement() {
 }
 
 /**
- * Open the first lesson of the learner's level through the Learn path's
- * opener. A premium-locked level opens the track path instead, so the
- * learner sees the lock and the upgrade prompt.
+ * Open the learner's next lesson (the first unfinished one at or above their
+ * level) through the Learn path's opener. A premium-locked level opens the
+ * track path instead, so the learner sees the lock and the upgrade prompt.
  */
 function _startPlacedLesson() {
   var level = _placement.result.level;
-  var lesson = _firstLessonOfLevel(level);
+  var lesson = getWordMeaningsNextLesson(level);
   _endPlacement();
   if (!lesson || getWordMeaningsLevelLock(level) === 'premium') switchView('track', { trackId: WORDS_TRACK_ID });
   else _openPathLesson(lesson.kind, lesson.ref);

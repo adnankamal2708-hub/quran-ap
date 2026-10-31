@@ -216,6 +216,85 @@ test('level 3 is progress-locked until level 2 is complete or placed', function(
   assert.strictEqual(getWordMeaningsLevelLock(3), null);
 });
 
+console.log('\nEffective level');
+
+test('getWordMeaningsLevel is Beginner for a new learner', function() {
+  assert.strictEqual(getWordMeaningsLevel(), 0);
+});
+
+test('a Foundation graduate with no placement is Elementary', function() {
+  completeFoundation(10);
+  assert.strictEqual(getTrackLevel('words'), 0);
+  assert.strictEqual(getWordMeaningsLevel(), 1);
+});
+
+test('finishing level 1 too makes the learner Intermediate', function() {
+  completeFoundation(10);
+  getWordMeaningsLevels()[1].lessons.forEach(function(l) { completeGuidedSurah(l.ref); });
+  assert.strictEqual(getWordMeaningsLevel(), 2);
+});
+
+test('a placed level counts even with nothing finished, and a lower finish never lowers it', function() {
+  raiseTrackLevel('words', 2);
+  assert.strictEqual(getWordMeaningsLevel(), 2);
+  completeFoundation(10);
+  assert.strictEqual(getWordMeaningsLevel(), 2);
+});
+
+test('getWordMeaningsLevel does not write the stored level', function() {
+  completeFoundation(10);
+  getWordMeaningsLevel();
+  assert.strictEqual(getTrackLevel('words'), 0);
+});
+
+console.log('\nNext lesson');
+
+test('getWordMeaningsNextLesson(0) is the first unfinished Foundation lesson', function() {
+  completeFoundation(3);
+  var lesson = getWordMeaningsNextLesson(0);
+  assert.strictEqual(lesson.kind, 'foundation');
+  assert.strictEqual(lesson.ref, 3);
+  assert.strictEqual(lesson.level, 0);
+});
+
+test('a graduate with guided reading moves on to the first guided surah', function() {
+  premiumGuided = true;
+  completeFoundation(10);
+  var lesson = getWordMeaningsNextLesson(0);
+  assert.strictEqual(lesson.kind, 'guided-surah');
+  assert.strictEqual(lesson.ref, getWordMeaningsLevels()[1].lessons[0].ref);
+  assert.strictEqual(lesson.level, 1);
+});
+
+test('skips finished guided surahs', function() {
+  premiumGuided = true;
+  raiseTrackLevel('words', 1);
+  var lessons = getWordMeaningsLevels()[1].lessons;
+  completeGuidedSurah(lessons[0].ref);
+  assert.strictEqual(getWordMeaningsNextLesson(1).ref, lessons[1].ref);
+});
+
+test('a premium-locked level gives null (never a finished lesson below it)', function() {
+  completeFoundation(10);
+  assert.strictEqual(getWordMeaningsNextLesson(0), null);
+  assert.strictEqual(getWordMeaningsNextLesson(1), null);
+});
+
+test('a progress-locked level gives null', function() {
+  premiumGuided = true;
+  completeFoundation(3);
+  assert.strictEqual(getWordMeaningsNextLesson(1), null);
+});
+
+test('level 3 lessons stay open: surah study is next even once started (R8)', function() {
+  premiumGuided = true;
+  premiumExpansion = true;
+  raiseTrackLevel('words', 3);
+  studiedSurahs = 1;
+  completedRoots = 1;
+  assert.strictEqual(getWordMeaningsNextLesson(3).kind, 'surah-study');
+});
+
 console.log('\nGuided-reading gate');
 
 test('hasReachedGuidedReading is false for a new learner', function() {

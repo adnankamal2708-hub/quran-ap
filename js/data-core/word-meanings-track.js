@@ -81,9 +81,12 @@ function getWordMeaningsLevels() {
   ];
 }
 
-function isWordMeaningsLevelComplete(level) {
-  var lessons = getWordMeaningsLevels()[level].lessons;
+function levelLessonsDone(lessons) {
   return lessons.length > 0 && lessons.every(function(lesson) { return lesson.completed; });
+}
+
+function isWordMeaningsLevelComplete(level) {
+  return levelLessonsDone(getWordMeaningsLevels()[level].lessons);
 }
 
 /**
@@ -96,6 +99,45 @@ function getWordMeaningsLevelLock(level) {
   if (!wordsPremiumHas(feature)) return 'premium';
   if (getTrackLevel(WORDS_TRACK_ID) >= level) return null;
   return isWordMeaningsLevelComplete(level - 1) ? null : 'progress';
+}
+
+/**
+ * The learner's level in this track: the placed (stored) level, or the
+ * highest level whose earlier levels are all finished, whichever is higher.
+ * Finishing levels never writes the stored level; this only reads.
+ */
+function getWordMeaningsLevel() {
+  var levels = getWordMeaningsLevels();
+  var finished = 0;
+  while (finished < levels.length - 1 && levelLessonsDone(levels[finished].lessons)) finished++;
+  return Math.max(getTrackLevel(WORDS_TRACK_ID), finished);
+}
+
+function isLessonOpenToStart(lesson, level) {
+  // Level 3 entries are open-ended: `completed` means "started" (R8).
+  if (level === 3) return true;
+  if (lesson.completed) return false;
+  if (lesson.kind !== 'foundation' || typeof isFoundationLessonUnlocked !== 'function') return true;
+  return isFoundationLessonUnlocked(lesson.ref);
+}
+
+/**
+ * The first unfinished lesson at or above `level` that this learner can
+ * open, with its `level` added; null when the next level with something
+ * left is locked (premium or progress) or nothing is left.
+ */
+function getWordMeaningsNextLesson(level) {
+  var levels = getWordMeaningsLevels();
+  for (var l = Math.max(0, level); l < levels.length; l++) {
+    if (getWordMeaningsLevelLock(l) !== null) return null;
+    var lessons = levels[l].lessons;
+    for (var i = 0; i < lessons.length; i++) {
+      if (!isLessonOpenToStart(lessons[i], l)) continue;
+      lessons[i].level = l;
+      return lessons[i];
+    }
+  }
+  return null;
 }
 
 /** True once a learner may start guided reading: graduate, or placed at level 1+. */

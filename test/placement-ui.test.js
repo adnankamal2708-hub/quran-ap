@@ -66,8 +66,9 @@ global.window = {
 
 // Foundation stubs: ten lessons.
 global.getFoundationLessonCount = function() { return 10; };
-global.isFoundationLessonCompleted = function() { return false; };
-global.isFoundationLessonUnlocked = function(i) { return i === 0; };
+var foundationDone = [];
+global.isFoundationLessonCompleted = function(i) { return foundationDone.indexOf(i) >= 0; };
+global.isFoundationLessonUnlocked = function(i) { return i === 0 || foundationDone.indexOf(i - 1) >= 0; };
 global.getFoundationLessonThematicTitle = function(i) { return 'Theme ' + (i + 1); };
 global.calculateCoverage = function() { return { coveragePercent: 0 }; };
 global.getCompletedSurahCount = function() { return 0; };
@@ -147,6 +148,7 @@ function test(name, fn) {
   bankBuilds = [];
   bankTags = ['verb', 'noun'];
   rendered = [];
+  foundationDone = [];
   premiumGuided = false;
   premiumExpansion = false;
   try {
@@ -505,6 +507,39 @@ test('after a lower retake the button starts at the level the learner keeps', fu
   renderPlacementTest();
   takeTest(allWrong);
   assert.ok(html().indexOf('Start at Surah study') >= 0, html());
+});
+
+test('a Foundation graduate who scores Beginner keeps Elementary ("level stays")', function() {
+  for (var i = 0; i < 10; i++) foundationDone.push(i);
+  startPlacementTest('words');
+  renderPlacementTest();
+  takeTest(allWrong);
+  assert.ok(html().indexOf('already at Elementary; your level stays') >= 0, html());
+  assert.ok(html().indexOf('Foundation lesson') < 0, 'Start never names a finished Foundation lesson');
+  calls = [];
+  clickAction('start-lesson');
+  assert.deepStrictEqual(calls, ['switchView:track:words'], 'free learner: Elementary is premium-locked');
+});
+
+test('a premium graduate who scores Beginner starts at the first guided surah', function() {
+  premiumGuided = true;
+  for (var i = 0; i < 10; i++) foundationDone.push(i);
+  startPlacementTest('words');
+  renderPlacementTest();
+  takeTest(allWrong);
+  var first = getWordMeaningsLevels()[1].lessons[0];
+  assert.ok(html().indexOf('Start at ' + escapeHtml(first.title)) >= 0, html());
+});
+
+test('placed at Beginner partway through Foundation: Start opens the next unfinished lesson', function() {
+  foundationDone = [0, 1, 2];
+  startPlacementTest('words');
+  renderPlacementTest();
+  takeTest(allWrong);
+  assert.ok(html().indexOf('Start at Foundation lesson 4') >= 0, html());
+  calls = [];
+  clickAction('start-lesson');
+  assert.deepStrictEqual(calls, ['goToFoundationLesson:3']);
 });
 
 test('starting a lesson ends the test session', function() {
