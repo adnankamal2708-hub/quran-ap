@@ -90,10 +90,16 @@ function loadTracks() {
   }
 }
 
-/** Stamp the state (and optionally one track) with the current time and save. */
-function saveTracks(state, touchedId) {
+/**
+ * Save, stamping the touched track and, when the learner changed a choice
+ * (join, leave, main track, start-from-zero), the top level. Progress
+ * writes leave the top-level stamp alone: it decides membership in
+ * mergeTrackState, so progress on one device must not undo a choice made
+ * later on another.
+ */
+function saveTracks(state, touchedId, choiceChanged) {
   var now = Date.now();
-  state.updatedAt = now;
+  if (choiceChanged) state.updatedAt = now;
   if (touchedId) state.tracks[touchedId].updatedAt = now;
   try {
     localStorage.setItem(TRACKS_KEY, JSON.stringify(state));
@@ -131,7 +137,7 @@ function joinTrack(id) {
   var state = loadTracks();
   if (state.tracks[id].joined) return true;
   state.tracks[id].joined = true;
-  saveTracks(state, id);
+  saveTracks(state, id, true);
   queueTracksSync();
   return true;
 }
@@ -144,7 +150,7 @@ function leaveTrack(id) {
   var remaining = firstJoinedTrackId(state.tracks);
   if (!remaining) return false;
   if (state.main === id) state.main = remaining;
-  saveTracks(state, id);
+  saveTracks(state, id, true);
   queueTracksSync();
   return true;
 }
@@ -155,7 +161,7 @@ function setMainTrack(id) {
   if (!state.tracks[id].joined) return false;
   if (state.main === id) return true;
   state.main = id;
-  saveTracks(state);
+  saveTracks(state, null, true);
   queueTracksSync();
   return true;
 }
@@ -205,7 +211,7 @@ function isStartFromZero() {
 function setStartFromZero(on) {
   var state = loadTracks();
   state.startFromZero = !!on;
-  saveTracks(state);
+  saveTracks(state, null, true);
   queueTracksSync();
 }
 

@@ -200,12 +200,39 @@ suite('Levels, percentage and attempts', function() {
 
   test('state persists under quran_tracks and stamps updatedAt', function() {
     raiseTrackLevel('words', 1);
+    setStartFromZero(true);
     var saved = JSON.parse(localStorage.getItem(TRACKS_KEY));
     assert.strictEqual(saved.version, 1);
     assert.strictEqual(saved.main, 'words');
     assert.ok(saved.updatedAt > 0);
     assert.ok(saved.tracks.words.updatedAt > 0);
     assert.strictEqual(saved.tracks.words.level, 1);
+  });
+
+  test('progress writes stamp only the track, so they cannot outvote a track choice made elsewhere', function() {
+    localStorage.setItem(TRACKS_KEY, JSON.stringify({ main: 'words', updatedAt: 1000, tracks: { words: { joined: true } } }));
+    raiseTrackLevel('words', 1);
+    recordTrackPercent('words', 5);
+    nextPlacementAttempt('words');
+    var saved = JSON.parse(localStorage.getItem(TRACKS_KEY));
+    assert.strictEqual(saved.updatedAt, 1000, 'top-level stamp is for joins, leaves, main track and start-from-zero');
+    assert.ok(saved.tracks.words.updatedAt > 1000);
+
+    var otherDevice = JSON.parse(JSON.stringify(saved));
+    otherDevice.updatedAt = 2000;
+    otherDevice.startFromZero = true;
+    var merged = mergeTrackState(saved, otherDevice);
+    assert.strictEqual(merged.startFromZero, true, 'the later choice wins over a device that only made progress');
+    assert.strictEqual(merged.tracks.words.level, 1);
+  });
+
+  test('choice writes stamp the top level', function() {
+    localStorage.setItem(TRACKS_KEY, JSON.stringify({ main: 'words', updatedAt: 1000, tracks: { words: { joined: true } } }));
+    setStartFromZero(true);
+    assert.ok(JSON.parse(localStorage.getItem(TRACKS_KEY)).updatedAt > 1000);
+    localStorage.setItem(TRACKS_KEY, JSON.stringify({ main: 'words', updatedAt: 1000, tracks: { words: { joined: true } } }));
+    setMainTrack('words');
+    assert.strictEqual(JSON.parse(localStorage.getItem(TRACKS_KEY)).updatedAt, 1000, 'no change, no stamp');
   });
 });
 
