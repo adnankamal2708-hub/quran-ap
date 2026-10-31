@@ -3149,7 +3149,7 @@ ALL_WORDS.push(
     translit: 'al-Mushrikīn',
     type: 'Noun',
     typeCategory: 'noun',
-    pattern: 'مُشْرِك',
+    pattern: 'مُفْعِل',
     english: 'The polytheists',
     meaning: 'The polytheists — those who associate partners with Allah',
     root: 'ش-ر-ك',

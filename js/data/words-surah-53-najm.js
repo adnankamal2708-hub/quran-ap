@@ -102,7 +102,7 @@ ALL_WORDS.push(
     translit: 'Al-Muntahā',
     type: 'Noun',
     typeCategory: 'noun',
-    pattern: 'مُنْتَهَىٰ',
+    pattern: 'مُفْتَعَل',
     english: 'The Utmost Boundary',
     meaning: 'The utmost boundary — the farthest point, the limit of creation',
     root: 'ن-هـ-ي',

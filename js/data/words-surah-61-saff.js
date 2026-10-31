@@ -226,7 +226,7 @@ ALL_WORDS.push(
     translit: 'Āmanū',
     type: 'Verb',
     typeCategory: 'verb',
-    pattern: 'آمَنُوا',
+    pattern: 'أَفْعَلُوا',
     english: 'They Believed',
     meaning: 'They believed — they accepted faith, they trusted in Allah',
     root: 'أ-م-ن',
