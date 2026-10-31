@@ -382,7 +382,7 @@
     .lp-verse-note { margin-top: 16px; font-size: 13px; color: var(--text-muted); text-align: center; }
 
     /* ── Statement: words light up with scroll ────────────────── */
-    .lp-statement { position: relative; height: 190vh; }
+    .lp-statement { position: relative; height: 170vh; }
     .lp-statement-sticky {
       position: sticky;
       top: 0;
@@ -398,11 +398,11 @@
       max-width: 24ch;
       max-width: 880px;
     }
-    .lp-sw { color: var(--text); opacity: 0.16; transition: opacity 0.35s ease; }
-    .lp-sw.is-lit { opacity: 1; }
+    /* --a (0 → 1) is set per word from scroll position; unlit words stay readable. */
+    .lp-sw { color: color-mix(in srgb, var(--text) calc(30% + 70% * var(--a, 0)), var(--bg)); }
     .lp-statement.is-static { height: auto; padding: 120px 0; }
     .lp-statement.is-static .lp-statement-sticky { position: static; height: auto; }
-    .lp-statement.is-static .lp-sw { opacity: 1; }
+    .lp-statement.is-static .lp-sw { --a: 1; }
 
     /* ── Tracks ──────────────────────────────────────────────── */
     .lp-tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
@@ -767,7 +767,7 @@
       .lp-signin { display: none; }
       .lp-tracks { grid-template-columns: 1fr; }
       .lp-facts { grid-template-columns: 1fr; }
-      .lp-statement { height: 160vh; }
+      .lp-statement { height: 150vh; }
       .lp-hero-ctas .lp-cta, .lp-hero-ctas .lp-btn-ghost { width: 100%; }
       .lp-verse-line { gap: 8px 18px; }
       .lp-branches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1200,7 +1200,8 @@
       [data-reveal], .lp-hero h1 .lp-hw, .lp-fade-up, .lp-vw-en { opacity: 1; filter: none; transform: none; }
       .lp-statement { height: auto; padding: 120px 0; }
       .lp-statement-sticky { position: static; height: auto; }
-      .lp-sw, .lp-step { opacity: 1; }
+      .lp-sw { --a: 1; }
+      .lp-step { opacity: 1; }
     </style>
   </noscript>
   <script type="module" src="js/services/firebase-core.js"></script>

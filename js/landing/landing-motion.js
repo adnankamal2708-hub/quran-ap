@@ -117,7 +117,12 @@
     return clamp((start - rect.top) / total, 0, 1);
   }
 
-  // Statement: each word brightens in reading order.
+  // Statement: words brighten in reading order, a few at a time so the
+  // light moves as a soft gradient. It starts just before the paragraph
+  // pins and finishes with a third of the pinned scroll to spare, so the
+  // whole sentence can be read before it moves on.
+  var STATEMENT_SPREAD = 4;          // words fading in at once
+  var STATEMENT_FINISH = 0.65;       // share of the pinned scroll used
   function initStatement() {
     var block = $('.lp-statement');
     if (!block) return;
@@ -133,13 +138,24 @@
       return span;
     });
     if (reduceMotion) { block.classList.add('is-static'); return; }
-    var lit = -1;
+    var last = -1;
+    var levels = spans.map(function () { return 0; });
     scrollTasks.push(function () {
-      var p = progressThrough(block, 0.75, 0.55);
-      var n = Math.round(p * spans.length);
-      if (n === lit) return;
-      for (var i = 0; i < spans.length; i++) spans[i].classList.toggle('is-lit', i < n);
-      lit = n;
+      var rect = block.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var lead = vh * 0.35;
+      var travel = Math.max(rect.height - vh, 1) * STATEMENT_FINISH;
+      var p = clamp((lead - rect.top) / (lead + travel), 0, 1);
+      if (Math.abs(p - last) < 0.002) return;
+      last = p;
+      var head = p * (spans.length + STATEMENT_SPREAD);
+      for (var i = 0; i < spans.length; i++) {
+        var a = Math.round(clamp((head - i) / STATEMENT_SPREAD, 0, 1) * 50) / 50;
+        if (a === levels[i]) continue;
+        levels[i] = a;
+        spans[i].style.setProperty('--a', a);
+        spans[i].classList.toggle('is-lit', a === 1);
+      }
     });
   }
 
