@@ -56,6 +56,7 @@ var TESTS = [
   "vocabulary-access.test.js",
   "learn-screen.test.js",
   "tracks.test.js",
+  "account-progress.test.js",
   "i18n.test.js",
   "word-meanings-track.test.js",
   "exercise-engine.test.js",

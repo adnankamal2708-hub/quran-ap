@@ -638,6 +638,8 @@ async function handleDeleteAccountSubmit() {
       await reauthenticateWithGoogle();
     }
 
+    // This sign-out clears storage below; nothing is put aside for a deleted account.
+    if (window.__accountProgress) window.__accountProgress.skipNextSignOutStash(true);
     await deleteAccount();
 
     // Clear local data, then show the sign-in screen
@@ -647,6 +649,7 @@ async function handleDeleteAccountSubmit() {
     showAuthView('login', { google: true });
     switchView('auth');
   } catch (e) {
+    if (window.__accountProgress) window.__accountProgress.skipNextSignOutStash(false);
     _setDeleteAccountBusy(false);
     if (e && e.silent) return; // Google popup closed by the user
     if (errorEl) {

@@ -475,6 +475,11 @@ async function promptImportLocalData() {
   var user = getCurrentUser();
   if (!user) return;
 
+  // Bring back this account's progress, put aside at its last sign-out
+  // (account-progress.js); harmless if its auth listener already did.
+  var progress = window.__accountProgress;
+  if (progress) progress.restore(user.uid);
+
   // Check if there's local data worth importing
   var localData = exportLocalData ? exportLocalData() : {};
   var hasData = localData.srsData && Object.keys(localData.srsData).length > 0;
@@ -485,6 +490,7 @@ async function promptImportLocalData() {
     var cloudData = await downloadFromCloud(user.uid);
     if (cloudData) {
       importLocalData(mergeData(localData, cloudData));
+      if (progress) progress.refresh();
     }
     _importPrompted = true;
     return;
@@ -493,6 +499,7 @@ async function promptImportLocalData() {
   if (AUTO_IMPORT_ON_LOGIN) {
     // Auto-import without asking
     await fullSync(user.uid);
+    if (progress) progress.refresh();
     _importPrompted = true;
     return;
   }
@@ -501,6 +508,7 @@ async function promptImportLocalData() {
   var confirmed = confirm('You have local learning progress. Would you like to sync it with your account to access it from any device?');
   if (confirmed) {
     await fullSync(user.uid);
+    if (progress) progress.refresh();
   }
   _importPrompted = true;
 }

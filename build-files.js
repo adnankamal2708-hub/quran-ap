@@ -59,6 +59,7 @@ const APP_FILES = [
   'js/services/config.js',
   'js/services/auth-service.js',
   'js/services/sync-service.js',
+  'js/services/account-progress.js',
   'js/services/user-service.js',
   'js/services/feedback.js',
   'js/services/premium.js',
