@@ -6016,6 +6016,13 @@ body::before {
   margin: 16px 0 8px;
   text-align: left;
 }
+.onboarding-group-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
 .onboarding-choice {
   background: var(--surface2);
   border: 2px solid var(--border);

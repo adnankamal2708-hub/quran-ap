@@ -698,6 +698,55 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.strictEqual(_startFromZero, false);
   });
 
+  test('"Completely new" also picks Word meanings, which it starts in', function() {
+    renderTracksScreen();
+    _toggleChoice('words');
+    _toggleChoice('new');
+    assert.deepStrictEqual(_selectedTracks, ['words']);
+  });
+
+  test('"Take a short test" also picks Word meanings, the track it tests', function() {
+    renderTracksScreen();
+    _toggleChoice('words');
+    _toggleChoice('test');
+    assert.deepStrictEqual(_selectedTracks, ['words']);
+  });
+
+  test('unticking Word meanings also unticks the options that need it', function() {
+    renderTracksScreen();
+    _toggleChoice('new');
+    _toggleChoice('test');
+    _toggleChoice('words');
+    assert.deepStrictEqual(_selectedTracks, []);
+    assert.strictEqual(_startFromZero, false);
+    assert.strictEqual(_wantsPlacementTest, false);
+  });
+
+  test('picking both options after unticking Word meanings lets Next through', function() {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    _toggleChoice('words');
+    _toggleChoice('new');
+    _toggleChoice('test');
+    global.startPlacementTest = function() {};
+    document.getElementById('onboarding-next').click();
+    delete global.startPlacementTest;
+    assert.strictEqual(ux.hasCompletedOnboarding(), true);
+  });
+
+  test('tracks and the extra options are labelled as separate groups', function() {
+    var html = renderTracksScreen();
+    var tracksAt = html.indexOf('>Tracks<');
+    var alsoAt = html.indexOf('>Also<');
+    assert.ok(tracksAt >= 0 && alsoAt > tracksAt, 'Tracks label, then Also label');
+    assert.ok(html.indexOf('data-value="words"') > tracksAt && html.indexOf('data-value="words"') < alsoAt);
+    assert.ok(html.indexOf('data-value="new"') > alsoAt);
+  });
+
+  test('with no track picked, the message names what to pick', function() {
+    assert.strictEqual(t('onboarding.tracks.required'), 'Choose at least one track. Word meanings is available now.');
+  });
+
   test('an unreleased track cannot be toggled on', function() {
     renderTracksScreen();
     _toggleChoice('qaida');

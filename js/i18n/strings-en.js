@@ -85,7 +85,9 @@ var STRINGS = {
     'onboarding.new.desc': 'Start from the very beginning',
     'onboarding.test': 'Take a short test',
     'onboarding.test.desc': 'Find your level in about 5 minutes',
-    'onboarding.tracks.required': 'Pick at least one thing to learn.',
+    'onboarding.tracks.required': 'Choose at least one track. Word meanings is available now.',
+    'onboarding.group.tracks': 'Tracks',
+    'onboarding.group.extras': 'Also',
 
     // ── Drills ──
     'drill.spot.title': 'Spot the word',

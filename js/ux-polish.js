@@ -273,11 +273,17 @@ function renderOnboardingScreen(idx) {
     html += '<div class="onboarding-icon">' + uiIcon('brain', true) + '</div>';
     html += '<h2 class="onboarding-title">' + escapeHtml(t('onboarding.tracks.title')) + '</h2>';
     html += '<p class="onboarding-desc">' + escapeHtml(t('onboarding.tracks.desc')) + '</p>';
-    html += '<div class="onboarding-choices" role="group" aria-label="' + escapeHtml(t('onboarding.tracks.title')) + '">';
+    // Tracks and the two extra options are separate groups: the extras are
+    // not tracks, and both need Word meanings (see _toggleChoice).
+    html += '<div class="onboarding-choices" role="group" aria-label="' + escapeHtml(t('onboarding.group.tracks')) + '">';
+    html += '<p class="onboarding-group-label">' + escapeHtml(t('onboarding.group.tracks')) + '</p>';
     for (var ti = 0; ti < TRACK_IDS.length; ti++) {
       var trackId = TRACK_IDS[ti];
       html += _renderLearnChoice(trackId, t('track.' + trackId + '.name'), t('track.' + trackId + '.desc'), !isTrackReleased(trackId));
     }
+    html += '</div>';
+    html += '<div class="onboarding-choices" role="group" aria-label="' + escapeHtml(t('onboarding.group.extras')) + '">';
+    html += '<p class="onboarding-group-label">' + escapeHtml(t('onboarding.group.extras')) + '</p>';
     html += _renderLearnChoice(_CHOICE_NEW, t('onboarding.new'), t('onboarding.new.desc'), false);
     html += _renderLearnChoice(_CHOICE_TEST, t('onboarding.test'), t('onboarding.test.desc'), false);
     html += '</div>';
@@ -342,20 +348,40 @@ function _isChoiceSelected(value) {
   return _selectedTracks.indexOf(value) >= 0;
 }
 
-/** Flip a screen-3 option; returns its new state. Unreleased tracks stay off. */
+/**
+ * Flip a screen-3 option; returns its new state. Unreleased tracks stay off.
+ * "Completely new" and the placement test both use Word meanings (it is the
+ * track a new learner starts in and the one the test places), so picking
+ * either picks Word meanings too, and dropping Word meanings drops them.
+ */
 function _toggleChoice(value) {
   var on = !_isChoiceSelected(value);
-  if (value === _CHOICE_NEW) {
-    _startFromZero = on;
-  } else if (value === _CHOICE_TEST) {
-    _wantsPlacementTest = on;
+  if (value === _CHOICE_NEW || value === _CHOICE_TEST) {
+    if (value === _CHOICE_NEW) _startFromZero = on;
+    else _wantsPlacementTest = on;
+    if (on && _selectedTracks.indexOf(DEFAULT_TRACK_ID) === -1) _selectedTracks.push(DEFAULT_TRACK_ID);
   } else if (isTrackReleased(value)) {
     _selectedTracks = _selectedTracks.filter(function(id) { return id !== value; });
     if (on) _selectedTracks.push(value);
+    if (!on && value === DEFAULT_TRACK_ID) {
+      _startFromZero = false;
+      _wantsPlacementTest = false;
+    }
   } else {
     return false;
   }
   return on;
+}
+
+/** Show every screen-3 option's current state (one tap can change several). */
+function _syncLearnChoices() {
+  var btns = document.querySelectorAll('.onboarding-choice');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].disabled) continue;
+    var on = _isChoiceSelected(btns[i].getAttribute('data-value'));
+    btns[i].classList.toggle('onboarding-choice-selected', on);
+    btns[i].setAttribute('aria-checked', on ? 'true' : 'false');
+  }
 }
 
 /** Wire choice button clicks for the goal and learn screens */
@@ -367,9 +393,8 @@ function wireChoiceButtons() {
         var value = btn.getAttribute('data-value');
         // Multi-select screen: each option toggles on its own
         if (_onboardingIdx === _SCREEN_LEVEL) {
-          var on = _toggleChoice(value);
-          btn.classList.toggle('onboarding-choice-selected', on);
-          btn.setAttribute('aria-checked', on ? 'true' : 'false');
+          _toggleChoice(value);
+          _syncLearnChoices();
           return;
         }
         // Deselect all siblings
