@@ -4571,8 +4571,11 @@ body::before {
 .signin-prompt {
   position: fixed;
   bottom: 68px;
-  left: 50%;
-  transform: translateX(-50%);
+  /* Centred with auto margins, not translateX(-50%): the fadeIn entrance
+     animates transform and would replace the centring offset. */
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   max-width: 360px;
   width: calc(100% - 32px);
   background: var(--surface);
