@@ -15,6 +15,7 @@
 //   • Timeline: gold beam fills with scroll progress
 //   • Progress: example ring and counter
 //   • Try it: "Spot the word" demo and the root family
+//   • Golden lines: run down the whole page and meet behind the verse
 //   • Closing: Al-Qamar 54:17 lights up word by word
 //
 // Outside the app bundle; only the landing page loads it.
@@ -325,20 +326,227 @@
     });
   }
 
+  // ── Golden lines through the page ──────────────────────────────
+  // Lines fade in low in the hero, where its own lines fade out, sway down
+  // the side margins past every section, and sweep in to fade into the
+  // light behind the closing verse. Each line is drawn as short pieces
+  // grouped by section, so only pieces beside sections on screen animate
+  // (gold light drifting down them). Each line also brightens from the
+  // top down to the reader's position; when that reaches the verse, the
+  // verse lights up. With reduced motion the lines are drawn, still.
+  var FLOW_PER_SIDE = narrow ? 3 : 6;
+  var FLOW_STEP = narrow ? 600 : 420;   // px between the points each line passes through
+  var FLOW_READ_LINE = 0.55;   // share of the viewport height the light follows
+  var flowState = null;        // { pieces, targetY, groups, sections, main }
+  var flowPlaysVerse = false;
+
+  // Smooth curve through points (Catmull-Rom as cubic Béziers), one 'd' per span.
+  function flowSpans(pts) {
+    var spans = [];
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+      var c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+      var c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+      spans.push({ y0: p1.y, y1: p2.y, d: 'M' + p1.x.toFixed(1) + ' ' + p1.y.toFixed(1) +
+        'C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1) });
+    }
+    return spans;
+  }
+
+  // A vertical gold gradient in page coordinates: stops are [offset, opacity].
+  function flowFade(id, y1, y2, stops) {
+    var grad = document.createElementNS(SVG_NS, 'linearGradient');
+    grad.setAttribute('id', id);
+    grad.setAttribute('gradientUnits', 'userSpaceOnUse');
+    grad.setAttribute('x1', '0'); grad.setAttribute('x2', '0');
+    grad.setAttribute('y1', String(y1)); grad.setAttribute('y2', String(y2));
+    stops.forEach(function (s) {
+      var stop = document.createElementNS(SVG_NS, 'stop');
+      stop.setAttribute('offset', String(s[0]));
+      stop.setAttribute('style', 'stop-color: var(--gold); stop-opacity: ' + s[1]);
+      grad.appendChild(stop);
+    });
+    return grad;
+  }
+
+  function flowPath(cls, d, extra) {
+    var p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('class', cls);
+    p.setAttribute('d', d);
+    p.setAttribute('pathLength', '1');
+    if (extra) extra(p);
+    return p;
+  }
+
+  function buildFlow(svg, main) {
+    var mainBox = main.getBoundingClientRect();
+    var light = $('.lp-closing-light');
+    var sections = $all(':scope > section', main);
+    if (!light || sections.length < 3) return null;
+    var w = main.clientWidth, h = main.clientHeight;
+    var lb = light.getBoundingClientRect();
+    var target = { x: lb.left - mainBox.left, y: lb.top - mainBox.top };
+    var tops = sections.map(function (s) { return s.getBoundingClientRect().top - mainBox.top; });
+    var hero = sections[0].getBoundingClientRect().height;
+    var closingTop = tops[tops.length - 1];
+    // The side margin beside the content column; lines sway across it.
+    var gutter = Math.max(24, (w - 1120) / 2 + 24);
+    var lo = gutter < 60 ? 2 : gutter * 0.08;
+    var hi = gutter < 60 ? gutter + 6 : gutter * 0.92;
+    var startY = hero * 0.6;
+
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    // Lines fade in low in the hero, where its own lines fade out, and fade
+    // into the verse's glow instead of meeting in a point.
+    var defs = document.createElementNS(SVG_NS, 'defs');
+    defs.appendChild(flowFade('lp-flow-in', startY, startY + 320, [[0, 0], [1, 1]]));
+    defs.appendChild(flowFade('lp-flow-out', closingTop, target.y, [[0, 1], [0.55, 1], [1, 0]]));
+    svg.appendChild(defs);
+    var groups = sections.map(function () {
+      var g = document.createElementNS(SVG_NS, 'g');
+      svg.appendChild(g);
+      return g;
+    });
+    function groupFor(y) {
+      for (var i = tops.length - 1; i >= 0; i--) if (y >= tops[i]) return groups[i];
+      return groups[0];
+    }
+
+    var pieces = [];
+    for (var side = 0; side < 2; side++) {
+      for (var k = 0; k < FLOW_PER_SIDE; k++) {
+        var share = FLOW_PER_SIDE > 1 ? k / (FLOW_PER_SIDE - 1) : 0.5;
+        // Each line sways across the margin at its own rate, so neighbours
+        // cross and braid rather than running in parallel.
+        var period = 1500 + ((k * 7 + side * 3) % 6) * 220;
+        var phase = k * 1.3 + side * 0.7;
+        var pts = [];
+        for (var y = startY; y < closingTop - 60; y += FLOW_STEP) {
+          var sway = 0.5 + 0.44 * Math.sin((y / period) * Math.PI * 2 + phase);
+          // Start spread out (inner lines nearer the content), then sway freely.
+          var settle = clamp((y - startY) / 900, 0, 1);
+          var t = (1 - settle) * (0.15 + 0.7 * share) + settle * sway;
+          pts.push({ x: lo + (hi - lo) * t, y: y });
+        }
+        if (pts.length < 2) continue;
+        var spans = flowSpans(pts);
+        // Last span: in from the margin and down towards the light behind the verse.
+        var last = pts[pts.length - 1];
+        spans.push({ y0: last.y, y1: target.y, out: true, d: 'M' + last.x.toFixed(1) + ' ' + last.y.toFixed(1) +
+          'C' + last.x.toFixed(1) + ' ' + (last.y + (target.y - last.y) * 0.5).toFixed(1) + ' ' +
+          (target.x + (last.x - target.x) * 0.45).toFixed(1) + ' ' + (target.y - (target.y - last.y) * 0.35).toFixed(1) + ' ' +
+          target.x.toFixed(1) + ' ' + target.y.toFixed(1) });
+        spans.forEach(function (span, si) {
+          var d = span.d;
+          if (side === 1) d = d.replace(/(-?[\d.]+) (-?[\d.]+)/g, function (_, px, py) { return (w - parseFloat(px)).toFixed(1) + ' ' + py; });
+          var fade = span.out ? 'url(#lp-flow-out)' : si === 0 ? 'url(#lp-flow-in)' : null;
+          function styled(p) { if (fade) p.style.stroke = fade; return p; }
+          var g = groupFor((span.y0 + span.y1) / 2);
+          g.appendChild(styled(flowPath('lp-flow-base', d)));
+          g.appendChild(styled(flowPath('lp-flow-drift', d, function (p) {
+            p.style.setProperty('--dur', (6 + ((k * 5 + si * 3 + side * 2) % 5)) + 's');
+            p.style.setProperty('--delay', '-' + (((k * 2.3 + si * 1.7 + side) % 9)).toFixed(1) + 's');
+          })));
+          var lit = styled(flowPath('lp-flow-lit', d));
+          g.appendChild(lit);
+          pieces.push({ el: lit, y0: span.y0, y1: span.y1, f: -1 });
+        });
+      }
+    }
+    return { pieces: pieces, targetY: target.y, groups: groups, sections: sections };
+  }
+
+  function updateFlow() {
+    if (!flowState) return;
+    var main = flowState.main;
+    var line = window.innerHeight * FLOW_READ_LINE - main.getBoundingClientRect().top;
+    for (var i = 0; i < flowState.pieces.length; i++) {
+      var piece = flowState.pieces[i];
+      var f = clamp((line - piece.y0) / Math.max(1, piece.y1 - piece.y0), 0, 1);
+      f = Math.round(f * 200) / 200;
+      if (f === piece.f) continue;
+      piece.f = f;
+      piece.el.style.strokeDashoffset = String(1 - f);
+    }
+    if (flowPlaysVerse && line >= flowState.targetY) {
+      var closing = $('.lp-closing');
+      if (closing) closing.classList.add('is-playing');
+      flowPlaysVerse = false;
+    }
+  }
+
+  function initFlow() {
+    var main = $('main');
+    if (!main || !document.createElementNS) return;
+    var host = document.createElement('div');
+    host.className = 'lp-flow';
+    host.setAttribute('aria-hidden', 'true');
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    host.appendChild(svg);
+    main.insertBefore(host, main.firstChild);
+
+    var io = null;
+    function build() {
+      var built = buildFlow(svg, main);
+      if (!built) return;
+      built.main = main;
+      flowState = built;
+      if (reduceMotion || !('IntersectionObserver' in window)) {
+        host.classList.add('is-still');
+        return;
+      }
+      // Animate only the pieces beside sections that are on screen.
+      if (io) io.disconnect();
+      io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var g = built.groups[built.sections.indexOf(entry.target)];
+          if (g) g.classList.toggle('is-live', entry.isIntersecting);
+        });
+      }, { rootMargin: '25% 0px' });
+      built.sections.forEach(function (s) { io.observe(s); });
+      updateFlow();
+    }
+
+    build();
+    if (!flowState) return;
+    if (!reduceMotion) {
+      flowPlaysVerse = true;
+      scrollTasks.push(updateFlow);
+    }
+    // Rebuild when the layout changes (resize, fonts, images).
+    var timer = null;
+    var lastW = main.clientWidth, lastH = main.clientHeight;
+    function rebuildSoon() {
+      if (main.clientWidth === lastW && main.clientHeight === lastH) return;
+      lastW = main.clientWidth; lastH = main.clientHeight;
+      clearTimeout(timer);
+      timer = setTimeout(build, 150);
+    }
+    if ('ResizeObserver' in window) new ResizeObserver(rebuildSoon).observe(main);
+    else window.addEventListener('resize', rebuildSoon);
+  }
+
   // ── Closing verse ──────────────────────────────────────────────
-  // Al-Qamar 54:17 lights up word by word (timing in CSS), once, when
-  // most of the verse is in view. Its rays pause while it is off screen.
+  // Al-Qamar 54:17 lights up word by word (timing in CSS), once: when the
+  // golden lines reach it, or (without them) when most of it is in view.
+  // Its rays pause while it is off screen.
   function initClosingVerse() {
     var section = $('.lp-closing');
     var words = section && $('.lp-verse-words', section);
     if (!words || reduceMotion || !('IntersectionObserver' in window)) return;
     section.classList.add('is-armed');
-    var play = new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting) return;
-      section.classList.add('is-playing');
-      play.disconnect();
-    }, { threshold: 0.6 });
-    play.observe(words);
+    if (flowPlaysVerse) updateFlow();
+    else {
+      var play = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting) return;
+        section.classList.add('is-playing');
+        play.disconnect();
+      }, { threshold: 0.6 });
+      play.observe(words);
+    }
     new IntersectionObserver(function (entries) {
       section.classList.toggle('is-offscreen', !entries[0].isIntersecting);
     }).observe(section);
@@ -356,6 +564,7 @@
     initSpotDemo();
     initRootFamily();
     initSpotlight();
+    initFlow();
     initClosingVerse();
     if (scrollTasks.length) {
       window.addEventListener('scroll', onScroll, { passive: true });
