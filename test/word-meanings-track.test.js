@@ -323,6 +323,31 @@ test('free non-graduate at track level 0 stays in the foundation phase and is no
   assert.strictEqual(_isPhase2Gated(), false);
 });
 
+test('a free learner placed at level 1 gets no expansion vocabulary (premium-gated, as graduates)', function() {
+  global.ALL_WORDS = [{ id: 'w1', arabic: 'x', english: 'y', frequency: 1 }];
+  global.loadSRS = function() { return {}; };
+  try {
+    raiseTrackLevel('words', 1);
+    assert.deepStrictEqual(getExpansionVocabulary(5), []);
+  } finally {
+    delete global.ALL_WORDS;
+    delete global.loadSRS;
+  }
+});
+
+test('a free learner placed at level 1 gets no Phase 2 dashboard action', function() {
+  raiseTrackLevel('words', 1);
+  assert.strictEqual(getPhase2DashboardAction(), null);
+});
+
+test('a premium learner placed at level 1 gets the guided-reading dashboard action', function() {
+  premiumGuided = true;
+  raiseTrackLevel('words', 1);
+  var action = getPhase2DashboardAction();
+  assert.ok(action, 'an action is returned');
+  assert.strictEqual(action.type, 'guided-reading');
+});
+
 console.log('\nCoverage percentage');
 
 test('getWordMeaningsPercent returns the coverage percent', function() {

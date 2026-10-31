@@ -291,8 +291,31 @@ function renderDashboard() {
   // Every other card below is secondary (outline buttons, smaller titles).
   $h += '<div class="db-section-label db-up-next-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> ' + ($noProgress ? 'Start here' : 'Up next') + '</div>';
   
+  // A learner placed above Beginner (not yet a graduate) whose level is open
+  // to them continues from that level, not from Foundation lesson 1.
+  var $trackNext = null;
+  if (!$foundationComplete && typeof getWordMeaningsLevel === 'function' && getTrackLevel(WORDS_TRACK_ID) > 0) {
+    var $wmLevel = getWordMeaningsLevel();
+    if (getWordMeaningsLevelLock($wmLevel) === null) $trackNext = getWordMeaningsNextLesson($wmLevel);
+  }
+
   // Determine next learning step
-  if ($fTotal > 0 && !$foundationComplete) {
+  if ($trackNext) {
+    var $tnLabel = $trackNext.kind === 'foundation'
+      ? t('test.start.foundation', { n: $trackNext.number })
+      : $trackNext.title;
+    var $tnTrack = t('track.words.name');
+    $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-track-next" tabindex="0" role="button" aria-label="' +
+      escapeHtml($tnTrack + ': ' + $tnLabel) + '">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('layers', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">' + escapeHtml($tnTrack) + '</div>';
+    $h += '<div class="db-card-sub">' + escapeHtml(t('level.' + $trackNext.level) + ' · ' + $tnLabel) + '</div>';
+    $h += '</div>';
+    $h += '<button class="btn btn-sm" type="button">' + escapeHtml(t('upnext.continue')) + '</button>';
+    $h += '</div></div>';
+  } else if ($fTotal > 0 && !$foundationComplete) {
     $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="' + ($noProgress ? 'Start' : 'Continue') + ' Foundation Course">';
     $h += '<div class="db-card-row">';
     $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('layers', 22) + '</div>';
@@ -942,6 +965,12 @@ function renderDashboard() {
   $wire('db-continue-learning', function() {
     if (typeof goToFoundationLesson === 'function') goToFoundationLesson($nextIncompleteF);
     else if (typeof switchView === 'function') switchView('learn');
+  });
+
+  // Continue Learning — the placed learner's next Word meanings lesson
+  $wire('db-track-next', function() {
+    if ($trackNext && typeof _openPathLesson === 'function') _openPathLesson($trackNext.kind, $trackNext.ref);
+    else if (typeof switchView === 'function') switchView('track', { trackId: WORDS_TRACK_ID });
   });
 
   // Continue Learning — Reviews due

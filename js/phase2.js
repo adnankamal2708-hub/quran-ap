@@ -280,7 +280,7 @@ function getSurahCompletionSummary(surahId) {
  */
 function getExpansionVocabulary(limit) {
   // Gate against VOCABULARY_EXPANSION (separate from guided reading)
-  if (isFoundationGraduate() && (!window.__premium || !window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION))) return [];
+  if (hasReachedGuidedReading() && (!window.__premium || !window.__premium.hasFeature(window.__premium.FEATURES.VOCABULARY_EXPANSION))) return [];
   limit = limit || 10;
   var srsData = typeof loadSRS === 'function' ? loadSRS() : {};
   var allWords = typeof ALL_WORDS !== 'undefined' ? ALL_WORDS : [];
@@ -355,10 +355,10 @@ function getExpansionVocabulary(limit) {
 
 /**
  * Get the Phase 2 primary action for the Dashboard.
- * Returns null if Foundation not yet complete.
+ * Returns null until the learner reaches guided reading (graduate or placed).
  */
 function getPhase2DashboardAction() {
-  if (!isFoundationGraduate()) return null;
+  if (!hasReachedGuidedReading()) return null;
   if (_isPhase2Gated()) return null;
 
   var phase = getLearningPhase();

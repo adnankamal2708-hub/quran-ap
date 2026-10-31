@@ -264,6 +264,9 @@ function setupGlobals() {
   // The Word meanings percentage follows the mocked coverage
   global.getWordMeaningsPercent = function() { return _mockCoverage ? _mockCoverage.coveragePercent : 0; };
   global.goToFoundationLesson = function() { _goToFoundationCalled = true; };
+  // Per-lesson Foundation state for the Word meanings level map
+  global.isFoundationLessonCompleted = function(i) { return i < _mockFoundationCompleted; };
+  global.isFoundationLessonUnlocked = function(i) { return i <= _mockFoundationCompleted; };
   global.startReview = function() { _startReviewCalled = true; };
   global.updateStatsDisplay = function() {};
   global.updateReviewBanner = function() {};
@@ -328,7 +331,7 @@ global.escapeHtml = function(str) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
 };
-['js/i18n/strings-en.js', 'js/data-core/tracks.js', 'js/data-core/word-meanings-track.js'].forEach(function(rel) {
+['js/i18n/strings-en.js', 'js/data-core/tracks.js', 'js/data-core/word-meanings-track.js', 'js/phase2-surahs.js'].forEach(function(rel) {
   // Indirect eval so top-level declarations become globals.
   (0, eval)(fs.readFileSync(path.join(__dirname, '..', rel), 'utf8'));
 });
@@ -1230,6 +1233,82 @@ suite('Track rows', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('style="width:100%"') >= 0, 'fill capped');
     assert.ok(html.indexOf('width:140%') < 0, 'no overflowing fill');
+  });
+});
+
+suite('Up next after the placement test', function() {
+  var PREMIUM_ALL = {
+    FEATURES: { GUIDED_READING: 'guided_reading', VOCABULARY_EXPANSION: 'vocabulary_expansion' },
+    hasFeature: function() { return true; },
+    isPremium: function() { return true; },
+    requestUpgrade: function() {},
+  };
+
+  function withPremium(premium, fn) {
+    var saved = global.window.__premium;
+    global.window.__premium = premium;
+    try { fn(); } finally { global.window.__premium = saved; }
+  }
+
+  test('a premium learner placed at Elementary gets the first guided surah, not Foundation', function() {
+    resetState();
+    setupGlobals();
+    raiseTrackLevel('words', 1);
+    withPremium(PREMIUM_ALL, function() {
+      setupDashboardGrid();
+      renderDashboard();
+    });
+    var html = getInnerHTML();
+    var first = getWordMeaningsLevels()[1].lessons[0];
+    var card = html.indexOf('id="db-track-next"');
+    assert.ok(card >= 0, 'track Up next card shown');
+    assert.ok(html.indexOf('id="db-continue-learning"') < 0, 'no Foundation card');
+    assert.ok(html.indexOf(escapeHtml(first.title), card) > card, 'names the first guided surah');
+    assert.ok(card < html.indexOf('db-comp-headline'), 'still the first card');
+  });
+
+  test('clicking it opens that lesson through the Learn path opener', function() {
+    resetState();
+    setupGlobals();
+    raiseTrackLevel('words', 1);
+    var opened = [];
+    global._openPathLesson = function(kind, ref) { opened.push(kind + ':' + ref); };
+    try {
+      withPremium(PREMIUM_ALL, function() {
+        setupDashboardGrid();
+        renderDashboard();
+        document.getElementById('db-track-next')._onclick();
+      });
+    } finally {
+      delete global._openPathLesson;
+    }
+    var first = getWordMeaningsLevels()[1].lessons[0];
+    assert.deepStrictEqual(opened, ['guided-surah:' + first.ref]);
+  });
+
+  test('a free learner placed at Elementary still sees the Foundation card', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    raiseTrackLevel('words', 1);
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('id="db-continue-learning"') >= 0, 'Foundation card as today');
+    assert.ok(html.indexOf('id="db-track-next"') < 0);
+  });
+
+  test('an unplaced premium learner still sees the Foundation card', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    withPremium(PREMIUM_ALL, function() {
+      setupDashboardGrid();
+      renderDashboard();
+    });
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('id="db-continue-learning"') >= 0);
+    assert.ok(html.indexOf('id="db-track-next"') < 0);
   });
 });
 

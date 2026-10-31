@@ -60,6 +60,7 @@ var STRINGS = {
     'test.result.gaps': 'To work on',
     'test.result.start': 'Start at {lesson}',
     'test.start.foundation': 'Foundation lesson {n}',
+    'upnext.continue': 'Continue',
     'test.question': 'Question {n}',
     'test.begin': 'Start the test',
     'test.next': 'Next',
