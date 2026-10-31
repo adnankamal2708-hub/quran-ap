@@ -95,6 +95,42 @@ function learnedWordsByForm() {
   return learned;
 }
 
+/** A normalized token without a leading conjunction, preposition and/or "al-" (all variants). */
+function drillPrefixStrippedForms(form) {
+  var stripped = [];
+  ['', 'و', 'ف'].forEach(function(conjunction) {
+    ['', 'ب', 'ل', 'ك'].forEach(function(preposition) {
+      var prefix = conjunction + preposition;
+      if (prefix && form.indexOf(prefix) !== 0) return;
+      var rest = form.slice(prefix.length);
+      if (prefix) stripped.push(rest);
+      // "al-" after the prefix; li + al- is written with a single lam (lil-).
+      if (rest.indexOf('ال') === 0) stripped.push(rest.slice(2));
+      if (preposition === 'ل' && rest.indexOf('ل') === 0) stripped.push(rest.slice(1));
+    });
+  });
+  return stripped;
+}
+
+/**
+ * True when a token that is not in the answer is one of the answer forms
+ * with a prefix: the learner would be right to tap it, so the ayah is unfair.
+ * forms is a set of normalized forms ({ form: true }).
+ */
+function drillHasPrefixedToken(tokens, answer, forms) {
+  // A prefix can absorb a form's own "al-" (li + ٱللَّه is written لِلَّه),
+  // so compare against each form without its "al-" too.
+  var bare = {};
+  Object.keys(forms).forEach(function(form) {
+    bare[form] = true;
+    if (form.indexOf('ال') === 0) bare[form.slice(2)] = true;
+  });
+  return tokens.some(function(token, index) {
+    if (answer.indexOf(index) !== -1) return false;
+    return drillPrefixStrippedForms(drillNormalize(token)).some(function(form) { return bare[form]; });
+  });
+}
+
 function spotCandidates(ayahs, learned) {
   var candidates = [];
   ayahs.forEach(function(ayah) {
@@ -108,9 +144,12 @@ function spotCandidates(ayahs, learned) {
     });
     Object.keys(answers).forEach(function(form) {
       // An answer covering the whole ayah would give the question away.
-      if (answers[form].length < ayah.words.length) {
-        candidates.push({ tokens: ayah.words, answer: answers[form], word: learned[form] });
-      }
+      if (answers[form].length >= ayah.words.length) return;
+      // A prefixed copy of the word (وَ, بِ, ٱلۡ…) would be a fair tap marked wrong.
+      var forms = {};
+      forms[form] = true;
+      if (drillHasPrefixedToken(ayah.words, answers[form], forms)) return;
+      candidates.push({ tokens: ayah.words, answer: answers[form], word: learned[form] });
     });
   });
   return candidates;

@@ -198,6 +198,48 @@ suite('buildSpotDrill', function() {
     }
   });
 
+  test('skips an ayah where the word also appears with a prefix (it would be marked wrong)', function() {
+    // لِلَّهِ is li + al- + Allah: tapping it would be right but is not in the answer.
+    AYAHS['78:5'] = { text: 'ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱللَّهِ', translation: 'x' };
+    try {
+      learn('ٱللَّهِ');
+      for (var r = 0; r < 1; r += 0.05) {
+        var item = buildSpotDrill(function() { return r; });
+        assert.ok(item, 'other ayahs still give an item');
+        assert.notStrictEqual(item.tokens.join(' '), AYAHS['78:5'].text);
+      }
+    } finally {
+      delete AYAHS['78:5'];
+    }
+  });
+
+  test('skips ayahs with a wa- prefixed copy of the word', function() {
+    AYAHS['78:4'] = { text: 'رَبِّ ٱلسَّمَٰوَٰتِ وَرَبِّ ٱلۡأَرۡضِ', translation: 'x' };
+    try {
+      learn('رَبِّ');
+      for (var r = 0; r < 1; r += 0.05) {
+        var item = buildSpotDrill(function() { return r; });
+        assert.notStrictEqual(item.tokens.join(' '), AYAHS['78:4'].text);
+      }
+    } finally {
+      delete AYAHS['78:4'];
+    }
+  });
+
+  test('a multi-tap ayah is accepted and the prompt asks for every word', function() {
+    learn('رَبِّ');
+    assert.ok(/every word/.test(t('drill.spot.prompt', { meaning: 'x' })), 'prompt says "every word"');
+    var found = false;
+    for (var r = 0; r < 1; r += 0.05) {
+      var item = buildSpotDrill(function() { return r; });
+      if (item.answer.length > 1) {
+        found = true;
+        assert.strictEqual(checkExercise(item, item.answer), true);
+      }
+    }
+    assert.ok(found, 'a two-tap ayah (78:1) is used');
+  });
+
   test('returns null when no learned word occurs in the loaded ayahs', function() {
     learn('كِتَٰب');
     assert.strictEqual(buildSpotDrill(), null);

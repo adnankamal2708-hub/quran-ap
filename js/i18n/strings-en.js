@@ -84,7 +84,7 @@ var STRINGS = {
 
     // ── Drills ──
     'drill.spot.title': 'Spot the word',
-    'drill.spot.prompt': 'Tap the word that means “{meaning}”',
+    'drill.spot.prompt': 'Tap every word that means “{meaning}”',
     'drill.build.title': 'Build the verse',
     'drill.build.prompt': 'Put the words in order',
     'drill.spot.desc': 'Find a word you know in an ayah',

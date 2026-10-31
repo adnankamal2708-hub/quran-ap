@@ -58,7 +58,7 @@ suite('t() lookup', function() {
 
   test('fills a placeholder with curly quotes around it', function() {
     assert.strictEqual(t('drill.spot.prompt', { meaning: 'book' }),
-      'Tap the word that means “book”');
+      'Tap every word that means “book”');
   });
 
   test('returns the key itself for a missing key', function() {
@@ -133,7 +133,7 @@ suite('STRINGS table', function() {
     'onboarding.test': 'Take a short test',
     'onboarding.test.desc': 'Find your level in about 5 minutes',
     'drill.spot.title': 'Spot the word',
-    'drill.spot.prompt': 'Tap the word that means “{meaning}”',
+    'drill.spot.prompt': 'Tap every word that means “{meaning}”',
     'drill.build.title': 'Build the verse',
     'drill.build.prompt': 'Put the words in order',
   };

@@ -399,9 +399,9 @@ suite('buildRootLesson: the spot exercise', function() {
 
   test('li + al- (written with one lam) before a family word also counts as prefixed', function() {
     var form = norm(anchor.arabic);
-    assert.ok(rootPrefixStrippedForms('ل' + 'ل' + form).indexOf(form) >= 0);
-    assert.ok(rootPrefixStrippedForms('و' + 'ب' + 'ال' + form).indexOf(form) >= 0);
-    assert.strictEqual(rootPrefixStrippedForms(form).indexOf('') , -1);
+    assert.ok(drillPrefixStrippedForms('ل' + 'ل' + form).indexOf(form) >= 0);
+    assert.ok(drillPrefixStrippedForms('و' + 'ب' + 'ال' + form).indexOf(form) >= 0);
+    assert.strictEqual(drillPrefixStrippedForms(form).indexOf('') , -1);
   });
 
   test('rootSpotSurahIds lists the surahs of the family\'s ayahs, each once, at most 3', function() {

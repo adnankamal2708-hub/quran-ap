@@ -158,34 +158,6 @@ function rootAmbiguousForms(family, forms) {
   return ambiguous;
 }
 
-/** A normalized token without a leading conjunction, preposition and/or "al-" (all variants). */
-function rootPrefixStrippedForms(form) {
-  var stripped = [];
-  ['', 'و', 'ف'].forEach(function(conjunction) {
-    ['', 'ب', 'ل', 'ك'].forEach(function(preposition) {
-      var prefix = conjunction + preposition;
-      if (prefix && form.indexOf(prefix) !== 0) return;
-      var rest = form.slice(prefix.length);
-      if (prefix) stripped.push(rest);
-      // "al-" after the prefix; li + al- is written with a single lam (lil-).
-      if (rest.indexOf('ال') === 0) stripped.push(rest.slice(2));
-      if (preposition === 'ل' && rest.indexOf('ل') === 0) stripped.push(rest.slice(1));
-    });
-  });
-  return stripped;
-}
-
-/**
- * True when a token that is not in the answer is a family word with a
- * prefix: the learner would be right to tap it, so the ayah is unfair.
- */
-function rootHasPrefixedFamilyToken(tokens, answer, forms) {
-  return tokens.some(function(token, index) {
-    if (answer.indexOf(index) !== -1) return false;
-    return rootPrefixStrippedForms(drillNormalize(token)).some(function(form) { return forms[form]; });
-  });
-}
-
 function rootSpotAnswer(tokens, forms) {
   var answer = [];
   tokens.forEach(function(token, index) {
@@ -212,7 +184,7 @@ function buildRootSpot(family) {
     if (answer.length === 0 || answer.length === tokens.length) continue;
     // A token the learner could fairly tap, but that would be marked wrong: skip the ayah.
     if (tokens.some(function(token) { return ambiguous[drillNormalize(token)]; })) continue;
-    if (rootHasPrefixedFamilyToken(tokens, answer, forms)) continue;
+    if (drillHasPrefixedToken(tokens, answer, forms)) continue;
     var item = {
       type: 'spot',
       prompt: { text: t('root.spot.prompt') },
