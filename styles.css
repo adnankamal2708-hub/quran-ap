@@ -1260,6 +1260,12 @@ body::before {
   min-height: 44px;
 }
 
+/* Long one-word answers ("Preservation/Protection") wrap instead of being cut off */
+.ex-option-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .ex-option-num {
   flex-shrink: 0;
   font-size: var(--text-xs);
@@ -2912,6 +2918,11 @@ body::before {
   letter-spacing: 0.04em;
   white-space: nowrap;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* The title is rendered as a block inside the label, so it needs its own ellipsis */
+.lesson-label > div {
   overflow: hidden;
   text-overflow: ellipsis;
 }
