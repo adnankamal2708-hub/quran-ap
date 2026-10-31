@@ -112,7 +112,7 @@ the bundle concatenates them into one scope.
   Ranking is computed lazily by `_buildFreqRankMap()` — sorts canonical words by `occ`
   descending (same sort Foundation uses), assigning 1-based ranks. **Not a hardcoded list**,
   so new vocabulary stays correct automatically.
-- Search: `searchWords(query)` (multi-field index built once), used by the Words tab list
+- Search: `searchWords(query)` (multi-field index built once), used by the Words list (Learn tab)
   (`renderWordList` in `js/ui/stats-ui.js`) and Quran reader matching.
 - Relationships: `getSemanticGroups` / `getDerivedForms` / `getContextualEquivalents` /
   `getConfusedWith` etc., backed by a cache (`invalidateRelationsCache`) and capped by
@@ -151,7 +151,7 @@ through `hasFeature(FEATURES.X)`.
 - `js/ui/word-card.js` — the word card in Learn; also gates root analysis behind
   progressive disclosure (`getProgressiveVisibility().showRootAnalysis`, needs 3+
   completed foundation lessons).
-- `js/ui/explorer.js` — Words tab detail view: `renderExplorer()` + locked variant
+- `js/ui/explorer.js` — Explorer detail view (Learn tab): `renderExplorer()` + locked variant
   `renderExplorerLocked(w)` for premium-tier words; relationship panels gated by premium.
 - `js/ui/stats-ui.js` — Words list rendering + badges; locked rows for premium words.
 - `js/ui/quran.js` — Quran reader; word tokens render from the corpus (visible for all
