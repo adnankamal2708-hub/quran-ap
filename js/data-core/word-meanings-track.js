@@ -100,12 +100,14 @@ function isWordMeaningsLevelComplete(level) {
 /**
  * Why a level can't be opened: null (open), 'premium' (needs a plan) or
  * 'progress' (finish the previous level first, or place into this one).
+ * Level 3 (surah study, root families) has no progress lock: Premium has
+ * always opened these directly, as the path's Roots footer item still does.
  */
 function getWordMeaningsLevelLock(level) {
   if (level <= 0) return null;
   var feature = level === 3 ? 'VOCABULARY_EXPANSION' : 'GUIDED_READING';
   if (!wordsPremiumHas(feature)) return 'premium';
-  if (getTrackLevel(WORDS_TRACK_ID) >= level) return null;
+  if (level === 3 || getTrackLevel(WORDS_TRACK_ID) >= level) return null;
   return isWordMeaningsLevelComplete(level - 1) ? null : 'progress';
 }
 

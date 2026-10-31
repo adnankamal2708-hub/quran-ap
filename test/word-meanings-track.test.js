@@ -230,11 +230,9 @@ test('level 2 needs level 1 complete or a placed track level', function() {
   assert.strictEqual(getWordMeaningsLevelLock(2), null);
 });
 
-test('level 3 is progress-locked until level 2 is complete or placed', function() {
+test('level 3 is open to a premium learner at any level, as the Roots footer item is', function() {
   premiumGuided = true;
   premiumExpansion = true;
-  assert.strictEqual(getWordMeaningsLevelLock(3), 'progress');
-  raiseTrackLevel('words', 3);
   assert.strictEqual(getWordMeaningsLevelLock(3), null);
 });
 
