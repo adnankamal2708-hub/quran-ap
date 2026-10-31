@@ -2279,6 +2279,8 @@ body::before {
   align-items: center;
   gap: 4px;
 }
+/* A key stays on the same line as its label when the group wraps */
+.kbd-hint .kbd-pair { white-space: nowrap; }
 
 /* ── User Button & Badge ────────────────────────────────────── */
 
