@@ -174,9 +174,14 @@ the other tracks exist in the data model but are not released (`isTrackReleased`
   and rejoining restores them. Stored in `quran_tracks`, synced as `tracks`
   (`mergeTrackState`). A learner with no saved state is on `words`; existing progress
   keys are never written by this module.
+  Learner-made changes (join, leave, main track, a raised level, start-from-zero) queue a
+  cloud sync; the percentage high-water mark does not.
 - `js/data-core/word-meanings-track.js` — maps Foundation lessons (level 0), guided-reading
   surahs (levels 1–2 by difficulty), surah study and root families (level 3) onto the
-  levels, with locks, and `refreshWordMeaningsPercent`.
+  levels, with locks, and `refreshWordMeaningsPercent`. `getWordMeaningsLevel()` is the
+  shown level: the placed level or the level reached by finishing earlier ones, whichever
+  is higher; `getWordMeaningsNextLesson(level)` is the next open lesson (placement
+  "Start at", and Home's Up next for a placed learner).
 - `js/i18n/strings-en.js` — `t(key, vars)`; all new UI text goes here.
 - `js/exercises/exercise-engine.js` + `js/ui/exercise-ui.js` — `read-choose`, `build` and
   `spot` items: pure checking and one shared renderer.
