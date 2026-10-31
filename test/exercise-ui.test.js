@@ -35,6 +35,10 @@ function makeEl(tag) {
     appendChild: function(child) { el.children.push(child); child.parent = el; return child; },
     addEventListener: function(type, fn) { (el.listeners[type] = el.listeners[type] || []).push(fn); },
     querySelectorAll: function() { return []; },
+    contains: function(other) {
+      for (var node = other; node; node = node.parent) if (node === el) return true;
+      return false;
+    },
     getClientRects: function() {
       for (var node = el; node; node = node.parent) if (!node.visible) return [];
       return [{}];
@@ -45,6 +49,7 @@ function makeEl(tag) {
 
 var documentListeners = [];
 global.document = {
+  body: makeEl('body'),
   createElement: makeEl,
   addEventListener: function(type, fn) { if (type === 'keydown') documentListeners.push(fn); },
   removeEventListener: function(type, fn) { documentListeners = documentListeners.filter(function(f) { return f !== fn; }); },
@@ -91,8 +96,8 @@ function setup() {
   return { view: view, root: root, answers: answers };
 }
 
-function press(key) {
-  var event = { key: key, target: { tagName: 'BODY' }, prevented: false, preventDefault: function() { this.prevented = true; } };
+function press(key, target) {
+  var event = { key: key, target: target || document.body, prevented: false, preventDefault: function() { this.prevented = true; } };
   documentListeners.slice().forEach(function(fn) { fn(event); });
   return event;
 }
@@ -124,6 +129,28 @@ test('the exercise works again when its view is shown again', function() {
   s.view.visible = true;
   press('2');
   press('Enter');
+  assert.deepStrictEqual(s.answers, [true]);
+});
+
+test('Enter on a focused button outside the exercise is left alone (Quit, tabs, cards)', function() {
+  var s = setup();
+  var quit = makeEl('button');
+  s.view.appendChild(quit);
+  var tab = makeEl('button');
+  press('2');
+  var onQuit = press('Enter', quit);
+  var onTab = press('Enter', tab);
+  assert.strictEqual(onQuit.prevented, false, 'Quit keeps its Enter');
+  assert.strictEqual(onTab.prevented, false, 'a bottom tab keeps its Enter');
+  assert.deepStrictEqual(s.answers, [], 'nothing was checked');
+});
+
+test('Enter on a focused option inside the exercise still checks', function() {
+  var s = setup();
+  var option = makeEl('button');
+  s.root.appendChild(option);
+  press('2');
+  assert.strictEqual(press('Enter', option).prevented, true);
   assert.deepStrictEqual(s.answers, [true]);
 });
 

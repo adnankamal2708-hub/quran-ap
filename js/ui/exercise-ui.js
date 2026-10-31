@@ -231,10 +231,11 @@ function renderExercise(container, item, onAnswer) {
     if (typeof onAnswer === 'function') onAnswer(correct, response);
   }
 
-  // Enter checks from anywhere except the Check button itself, which clicks
-  // natively. The listener removes itself once the exercise leaves the page,
-  // and ignores keys while the exercise is on screen nowhere (a hidden view
-  // stays in the DOM).
+  // Enter checks when focus is inside the exercise or on nothing (the body),
+  // except on the Check button itself, which clicks natively; Enter on any
+  // other focused control (Quit, the tabs) is left to it. The listener
+  // removes itself once the exercise leaves the page, and ignores keys while
+  // the exercise is on screen nowhere (a hidden view stays in the DOM).
   function onKeyDown(e) {
     if (!root.isConnected) {
       document.removeEventListener('keydown', onKeyDown);
@@ -244,7 +245,9 @@ function renderExercise(container, item, onAnswer) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     var tag = e.target && e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    if (e.key === 'Enter' && e.target !== checkButton) {
+    if (e.key === 'Enter') {
+      var focusInside = e.target === document.body || root.contains(e.target);
+      if (!focusInside || e.target === checkButton) return;
       e.preventDefault();
       check();
     } else if (view.pick && /^[1-9]$/.test(e.key)) {
