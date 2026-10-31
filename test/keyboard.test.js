@@ -202,19 +202,19 @@ suite('Input/Textarea Ignoring', function() {
   test('skips shortcuts when input is focused', function() {
     setupKeyboardShortcuts();
     fireKey('l', { target: { tagName: 'INPUT' } });
-    assert.strictEqual(_shortcutLog.indexOf('switchView:learn'), -1);
+    assert.strictEqual(_shortcutLog.indexOf('switchView:tracks'), -1);
   });
 
   test('skips shortcuts when textarea is focused', function() {
     setupKeyboardShortcuts();
     fireKey('l', { target: { tagName: 'TEXTAREA' } });
-    assert.strictEqual(_shortcutLog.indexOf('switchView:learn'), -1);
+    assert.strictEqual(_shortcutLog.indexOf('switchView:tracks'), -1);
   });
 
   test('skips shortcuts when select is focused', function() {
     setupKeyboardShortcuts();
     fireKey('l', { target: { tagName: 'SELECT' } });
-    assert.strictEqual(_shortcutLog.indexOf('switchView:learn'), -1);
+    assert.strictEqual(_shortcutLog.indexOf('switchView:tracks'), -1);
   });
 });
 
@@ -254,16 +254,28 @@ suite('Modal Handling', function() {
 });
 
 suite('Navigation Shortcuts', function() {
-  test('L key switches to learn view', function() {
+  test('L key opens the Learn tab (the track list)', function() {
     setupKeyboardShortcuts();
     fireKey('l');
-    assert.ok(_shortcutLog.indexOf('switchView:learn') >= 0);
+    assert.ok(_shortcutLog.indexOf('switchView:tracks') >= 0);
   });
 
-  test('D key switches to dashboard', function() {
+  test('H key switches to Home', function() {
+    setupKeyboardShortcuts();
+    fireKey('h');
+    assert.ok(_shortcutLog.indexOf('switchView:dashboard') >= 0);
+  });
+
+  test('D key still switches to Home', function() {
     setupKeyboardShortcuts();
     fireKey('d');
     assert.ok(_shortcutLog.indexOf('switchView:dashboard') >= 0);
+  });
+
+  test('V key opens Practice (the Review Center)', function() {
+    setupKeyboardShortcuts();
+    fireKey('v');
+    assert.ok(_shortcutLog.indexOf('switchView:review-center') >= 0);
   });
 
   test('W key switches to list', function() {
@@ -287,13 +299,13 @@ suite('Navigation Shortcuts', function() {
   test('Uppercase navigation keys work', function() {
     setupKeyboardShortcuts();
     fireKey('L');
-    assert.ok(_shortcutLog.indexOf('switchView:learn') >= 0);
+    assert.ok(_shortcutLog.indexOf('switchView:tracks') >= 0);
   });
 
   test('Navigation keys ignored with modifier', function() {
     setupKeyboardShortcuts();
     fireKey('l', { ctrlKey: true });
-    assert.strictEqual(_shortcutLog.indexOf('switchView:learn'), -1);
+    assert.strictEqual(_shortcutLog.indexOf('switchView:tracks'), -1);
   });
 });
 

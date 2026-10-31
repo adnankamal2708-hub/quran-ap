@@ -122,10 +122,12 @@ function setupKeyboardShortcuts() {
         break;
     }
 
-    // Global navigation shortcuts (no modifier keys) — 5-tab nav
+    // Global navigation shortcuts (no modifier keys) — the five tabs, plus
+    // W for the word list. D is the old key for Home and still works.
     if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-      if (e.key === 'l' || e.key === 'L') { e.preventDefault(); switchView('learn'); }
-      else if (e.key === 'd' || e.key === 'D') { e.preventDefault(); switchView('dashboard'); }
+      if (e.key === 'l' || e.key === 'L') { e.preventDefault(); switchView('tracks'); }
+      else if (e.key === 'h' || e.key === 'H' || e.key === 'd' || e.key === 'D') { e.preventDefault(); switchView('dashboard'); }
+      else if (e.key === 'v' || e.key === 'V') { e.preventDefault(); switchView('review-center'); }
       else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); switchView('list'); }
       else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); switchView('quran'); }
       else if (e.key === 'p' || e.key === 'P') { e.preventDefault(); switchView('profile'); }
