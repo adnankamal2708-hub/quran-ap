@@ -65,6 +65,7 @@ var STRINGS = {
     'test.result.start': 'Start at {lesson}',
     'test.start.foundation': 'Foundation lesson {n}',
     'upnext.continue': 'Continue',
+    'upnext.start': 'Start',
     'test.question': 'Question {n}',
     'test.begin': 'Start the test',
     'test.next': 'Next',

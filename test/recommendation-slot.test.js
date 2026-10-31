@@ -258,6 +258,17 @@ suite('Rule 4 — Continue Foundation (priority 250)', function() {
     coveragePct: 0,
   };
 
+  test('no Foundation rec when Up next is already a track lesson (placed learner)', function() {
+    var rec = slot.getPrimary(Object.assign({}, contState, { trackNext: true }));
+    assert.ok(!rec || rec.id !== 'rec-foundation');
+    var graduate = Object.assign({}, contState, {
+      trackNext: true, foundationComplete: true, p2Phase: 'guided-reading',
+      nextSurahPreview: { surahName: 'Al-Fatihah', surahId: 1 },
+    });
+    rec = slot.getPrimary(graduate);
+    assert.ok(!rec || rec.id !== 'rec-guided-reading', 'no guided-reading rec either');
+  });
+
   test('returns foundation rec when user has started but not completed', function() {
     var rec = slot.getPrimary(contState);
     assertRecShape(rec, 'continue-foundation');

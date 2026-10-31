@@ -97,11 +97,12 @@
 
     // 4. Continue Foundation lesson (user has started but hasn't completed)
     // Requires !s.noProgress so brand-new users don't skip to this before
-    // seeing the onboarding recommendation.
+    // seeing the onboarding recommendation. Skipped when Up next already
+    // shows a placed learner's track lesson (s.trackNext), as is rule 5.
     {
       priority: 250,
       name: 'continue-foundation',
-      test: function (s) { return !s.noProgress && s.fTotal > 0 && !s.foundationComplete; },
+      test: function (s) { return !s.noProgress && !s.trackNext && s.fTotal > 0 && !s.foundationComplete; },
       build: function (s) {
         var nextNum = (s.nextIncompleteF || 0) + 1;
         var lessonTitle = s.nextLessonTitle || '';
@@ -125,7 +126,7 @@
       name: 'guided-reading',
       test: function (s) {
         if (!window.__premium || !window.__premium.hasFeature(window.__premium.FEATURES.GUIDED_READING)) return false;
-        return s.foundationComplete && s.p2Phase === 'guided-reading' && s.nextSurahPreview != null;
+        return !s.trackNext && s.foundationComplete && s.p2Phase === 'guided-reading' && s.nextSurahPreview != null;
       },
       build: function (s) {
         var preview = s.nextSurahPreview;

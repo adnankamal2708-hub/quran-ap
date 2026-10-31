@@ -1312,6 +1312,98 @@ suite('Up next after the placement test', function() {
     assert.ok(html.indexOf('id="db-track-next"') < 0);
   });
 
+  function withGraduatePhase2(fn) {
+    var saved = global.window.__phase2;
+    global.window.__phase2 = {
+      getLearningPhase: function() { return 'guided-reading'; },
+      getNextGuidedSurah: function() { return { surahId: 1 }; },
+      getGuidedReadingProgress: function() { return null; },
+      getSurahPreview: function() { return { surahName: 'Al-Fatihah', estimatedComprehension: 50 }; },
+      getGraduationData: function() { return { icon: 'star', title: 'Foundation complete', message: 'Well done' }; },
+    };
+    try { fn(); } finally { global.window.__phase2 = saved; }
+  }
+
+  test('a premium graduate placed at Intermediate gets that level, not the first guided surah', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = _mockFoundationTotal;
+    raiseTrackLevel('words', 2);
+    withPremium(PREMIUM_ALL, function() {
+      withGraduatePhase2(function() {
+        setupDashboardGrid();
+        renderDashboard();
+      });
+    });
+    var html = getInnerHTML();
+    var first = getWordMeaningsLevels()[2].lessons[0];
+    var card = html.indexOf('id="db-track-next"');
+    assert.ok(card >= 0, 'track Up next card shown');
+    assert.ok(html.indexOf('id="db-guided-reading"') < 0, 'no guided-reading card');
+    assert.ok(html.indexOf(escapeHtml(first.title), card) > card, 'names the first Intermediate lesson');
+    assert.ok(html.indexOf('id="db-graduation"') >= 0, 'graduation card still shown the first time');
+  });
+
+  test('a premium graduate placed at Elementary keeps the guided-reading card', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = _mockFoundationTotal;
+    raiseTrackLevel('words', 1);
+    withPremium(PREMIUM_ALL, function() {
+      withGraduatePhase2(function() {
+        setupDashboardGrid();
+        renderDashboard();
+      });
+    });
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('id="db-guided-reading"') >= 0);
+    assert.ok(html.indexOf('id="db-track-next"') < 0);
+  });
+
+  test('the button says Start under "Start here", and Continue once there is progress', function() {
+    resetState();
+    setupGlobals();
+    _mockSRSStats = { total: 0, mature: 0, dueToday: 0, totalReviews: 0, reviewsToday: 0, newCount: 0, learning: 0, young: 0, overdue: 0 };
+    raiseTrackLevel('words', 1);
+    withPremium(PREMIUM_ALL, function() {
+      setupDashboardGrid();
+      renderDashboard();
+    });
+    var html = getInnerHTML();
+    var card = html.indexOf('id="db-track-next"');
+    assert.ok(html.indexOf('Start here') >= 0, 'Start here header');
+    assert.ok(html.indexOf('>Start</button>', card) > card, 'Start, matching the header');
+
+    _mockFoundationCompleted = 4;
+    withPremium(PREMIUM_ALL, function() {
+      setupDashboardGrid();
+      renderDashboard();
+    });
+    html = getInnerHTML();
+    card = html.indexOf('id="db-track-next"');
+    assert.ok(html.indexOf('Up next') >= 0, 'Up next header');
+    assert.ok(html.indexOf('>Continue</button>', card) > card, 'Continue button');
+  });
+
+  test('the recommendation slot is told when Up next is a track lesson', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    raiseTrackLevel('words', 1);
+    var seen = null;
+    var origGet = global.window.__recommendationSlot.getPrimary;
+    global.window.__recommendationSlot.getPrimary = function(state) { seen = state; return null; };
+    try {
+      withPremium(PREMIUM_ALL, function() {
+        setupDashboardGrid();
+        renderDashboard();
+      });
+    } finally {
+      global.window.__recommendationSlot.getPrimary = origGet;
+    }
+    assert.ok(seen && seen.trackNext === true);
+  });
+
   test('an unplaced premium learner still sees the Foundation card', function() {
     resetState();
     setupGlobals();
