@@ -40,7 +40,6 @@ function renderLearnScreen() {
   var $fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
   var $fCompleted = typeof getCompletedFoundationLessonCount === 'function' ? getCompletedFoundationLessonCount() : 0;
   var $fPct = $fTotal > 0 ? Math.round(($fCompleted / $fTotal) * 100) : 0;
-  var $fNextIdx = typeof getNextIncompleteFoundationLesson === 'function' ? getNextIncompleteFoundationLesson() : 0;
   var $foundationComplete = $fTotal > 0 && $fCompleted >= $fTotal;
 
   // ── Build HTML ──
@@ -227,6 +226,7 @@ function wireLearnScreenEvents() {
 
   // Learning Paths
   $lwire('ls-path-foundation', function() {
+    var $fNextIdx = typeof getNextIncompleteFoundationLesson === 'function' ? getNextIncompleteFoundationLesson() : 0;
     if (typeof goToFoundationLesson === 'function') goToFoundationLesson($fNextIdx || 0);
     else if (typeof switchView === 'function') switchView('learn');
   });

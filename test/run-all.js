@@ -54,6 +54,7 @@ var TESTS = [
   "occurrence-uniqueness.test.js",
   "word-card-occurrence.test.js",
   "vocabulary-access.test.js",
+  "learn-screen.test.js",
   "tracks.test.js",
   "i18n.test.js",
   "word-meanings-track.test.js",
