@@ -123,7 +123,11 @@ function renderDashboard() {
   // Coverage & comprehension
   var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
   var $comprehensionPct = $coverage ? $coverage.estimatedComprehension : 0;
-  var $coveragePct = $coverage ? $coverage.coveragePercent : 0;
+  // Coverage is the Word meanings track's figure, which only ever grows, so
+  // it matches the track row even after a word is forgotten.
+  var $coveragePct = typeof refreshWordMeaningsPercent === 'function'
+    ? refreshWordMeaningsPercent().percent
+    : ($coverage ? $coverage.coveragePercent : 0);
   var $masteredCount = $srsStats.mature || 0;
   var $totalWords = $srsStats.total || (typeof getCanonicalWordCount === 'function' && getCanonicalWordCount() > 0 ? getCanonicalWordCount() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS.length : 0));
 

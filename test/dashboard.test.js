@@ -1209,6 +1209,20 @@ suite('Track rows', function() {
     assert.strictEqual(getTrackPercent('words'), 12.5, 'high-water mark updated');
   });
 
+  test('after a word is forgotten, Coverage shows the same figure as the track row', function() {
+    resetState();
+    setupGlobals();
+    recordTrackPercent('words', 20);
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
+    _mockFoundationCompleted = 4;
+    setupDashboardGrid();
+    renderDashboard();
+    var html = readable(getInnerHTML());
+    assert.ok(html.indexOf("20% of the Quran's words understood") >= 0, 'track row keeps its high-water mark');
+    assert.ok(html.indexOf('20%</div><div class="db-comp-metric-label">Coverage') >= 0, 'Coverage matches the track row');
+    assert.ok(html.indexOf('12.5%') < 0, 'the lower live figure is not shown');
+  });
+
   test('the row is a button with an accessible name that opens the track path', function() {
     resetState();
     setupGlobals();
