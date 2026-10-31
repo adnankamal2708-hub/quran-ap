@@ -647,17 +647,24 @@ async function maybeShowPlanPicker() {
 
 // ── Wire Onboarding Events ───────────────────────────────────
 
+/**
+ * Skip or Escape: close onboarding without answering the rest. A daily goal
+ * stored by an earlier run is kept and not re-applied (applying it would also
+ * reset the adaptive goal); a first run still gets the 10-minute default.
+ */
+function _skipOnboarding() {
+  var keepStoredGoal = !_selectedGoal && getOnboardingGoal() !== null;
+  if (!keepStoredGoal) _selectedGoal = _selectedGoal || '10';
+  _selectedLevel = _selectedLevel || 'beginner';
+  completeOnboarding({ answered: false });
+  hideOnboarding();
+  if (keepStoredGoal) _goToNextFoundationLesson();
+  else navigateToFirstAction();
+}
+
 function wireOnboardingEvents() {
   var skipBtn = document.getElementById('onboarding-skip');
-  if (skipBtn) {
-    skipBtn.onclick = function() {
-      _selectedGoal = _selectedGoal || '10'; // Default to 10 min
-      _selectedLevel = _selectedLevel || 'beginner';
-      completeOnboarding({ answered: false });
-      hideOnboarding();
-      navigateToFirstAction();
-    };
-  }
+  if (skipBtn) skipBtn.onclick = _skipOnboarding;
 
   var prevBtn = document.getElementById('onboarding-prev');
   if (prevBtn) {
@@ -711,11 +718,7 @@ var _onboardingKeyHandler = function(e) {
 
   if (e.key === 'Escape') {
     e.preventDefault();
-    if (!_selectedGoal) _selectedGoal = '10';
-    if (!_selectedLevel) _selectedLevel = 'beginner';
-    completeOnboarding({ answered: false });
-    hideOnboarding();
-    navigateToFirstAction();
+    _skipOnboarding();
   } else if (e.key === 'ArrowRight' || e.key === ' ') {
     e.preventDefault();
     var nextBtn = document.getElementById('onboarding-next');

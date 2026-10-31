@@ -780,6 +780,48 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.strictEqual(ux.getOnboardingLevel(), 'beginner');
   });
 
+  // Skip/Escape with the daily goal: a stored goal is kept and not re-applied
+  // (it would also reset the adaptive goal); a first run gets the default.
+  function skipWithGoal(storedGoal, pickedGoal, leave) {
+    renderTracksScreen();
+    wireOnboardingEvents();
+    if (storedGoal) localStorage.setItem('quran_onboarding_goal', storedGoal);
+    _selectedGoal = pickedGoal;
+    var applied = 0;
+    window.__learnerProfile = { applyOnboarding: function() { applied++; } };
+    global.goToFoundationLesson = function() {};
+    leave();
+    delete global.goToFoundationLesson;
+    delete window.__learnerProfile;
+    return applied;
+  }
+  function clickSkip() { document.getElementById('onboarding-skip').click(); }
+  function pressEscape() { _onboardingKeyHandler({ key: 'Escape', preventDefault: function() {} }); }
+
+  test('Skip on a revisit keeps the stored daily goal and does not re-apply it', function() {
+    var applied = skipWithGoal('20', null, clickSkip);
+    assert.strictEqual(ux.getOnboardingGoal(), '20');
+    assert.strictEqual(applied, 0);
+  });
+
+  test('Escape on a revisit keeps the stored daily goal and does not re-apply it', function() {
+    var applied = skipWithGoal('20', null, pressEscape);
+    assert.strictEqual(ux.getOnboardingGoal(), '20');
+    assert.strictEqual(applied, 0);
+  });
+
+  test('Skip on a first run still saves and applies the 10-minute default', function() {
+    var applied = skipWithGoal(null, null, clickSkip);
+    assert.strictEqual(ux.getOnboardingGoal(), '10');
+    assert.strictEqual(applied, 1);
+  });
+
+  test('a goal picked in this run is saved and applied even if the rest is skipped', function() {
+    var applied = skipWithGoal('20', '5', clickSkip);
+    assert.strictEqual(ux.getOnboardingGoal(), '5');
+    assert.strictEqual(applied, 1);
+  });
+
   test('finishing joins the selected released tracks and ignores unreleased ones', function() {
     renderTracksScreen();
     _selectedTracks = ['qaida', 'words'];
