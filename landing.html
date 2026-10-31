@@ -11,8 +11,25 @@
   <link rel="icon" type="image/png" sizes="16x16" href="assets/logo/favicon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/logo/favicon-32.png" />
   <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon-180.png" />
-  <meta name="description" content="Bayan teaches you the Arabic of the Quran — word by word, root by root — so recitation becomes understanding, not memorization." />
-  <title>Bayan — Understand the words you recite</title>
+  <meta name="description" content="Bayan teaches the Arabic of the Quran word by word and root by root. Find your level, follow a clear path, and see how much of the Quran you understand." />
+  <title>Bayan — Understand the Quran you recite</title>
+  <script>
+    /* Theme before first paint, the same rule as the app: a saved choice
+       (bayan_theme) wins, otherwise follow the device. Block comments
+       only: the build may join this onto one line. */
+    (function () {
+      var root = document.documentElement;
+      var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+      function apply() {
+        var pref = 'system';
+        try { pref = localStorage.getItem('bayan_theme') || 'system'; } catch (e) {}
+        var theme = pref === 'light' || pref === 'dark' ? pref : (mq && mq.matches ? 'light' : 'dark');
+        root.setAttribute('data-theme', theme);
+      }
+      apply();
+      if (mq && mq.addEventListener) mq.addEventListener('change', apply);
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.gstatic.com" />
@@ -20,21 +37,49 @@
   <style>
     /* ── Bayan design tokens (pulled from styles.css — keep in sync) ── */
     :root {
+      color-scheme: dark;
       --bg: #0f0e0c;
       --surface: #1a1915;
       --surface2: #242219;
       --border: #2e2b24;
+      --hairline: rgba(46, 43, 36, 0.6);
       --gold: #c9a84c;
       --gold-light: #e8c97a;
       --gold-dim: #7a6530;
+      --gold-soft: rgba(201, 168, 76, 0.12);
       --text: #e8e2d5;
       --text-muted: #918777;
+      --green: #4caf7d;
+      --red: #e05555;
+      --on-gold: #0f0e0c;
+      --header-bg: rgba(15, 14, 12, 0.82);
+      --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, 0.7);
       --arabic: 'Amiri', serif;
       --serif: 'Lora', serif;
       --body: 'Inter', sans-serif;
       --radius-card: 16px;
       --radius-section: 12px;
       --radius-btn: 10px;
+      --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f6f1e6;
+      --surface: #fffcf5;
+      --surface2: #f2ebdc;
+      --border: #e3d8c3;
+      --hairline: rgba(120, 100, 60, 0.18);
+      --gold: #7f6119;
+      --gold-light: #6b5113;
+      --gold-dim: #97782a;
+      --gold-soft: rgba(127, 97, 25, 0.09);
+      --text: #2a2318;
+      --text-muted: #6c6150;
+      --green: #2a7047;
+      --red: #b03f3f;
+      --on-gold: #fffcf5;
+      --header-bg: rgba(246, 241, 230, 0.86);
+      --shadow-lg: 0 30px 70px -24px rgba(80, 60, 20, 0.28);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -49,10 +94,14 @@
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      overflow-x: clip;
     }
     img { max-width: 100%; display: block; }
     a { color: var(--gold); text-decoration: none; }
     a:hover { color: var(--gold-light); }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+    [lang="ar"] { font-family: var(--arabic); }
+    .lp-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
     /* ── Auth gate ─────────────────────────────────────────────
        Shown while the gate script decides. Never flashes marketing
@@ -72,11 +121,7 @@
       opacity: 1;
       transition: opacity 0.45s ease;
     }
-    .lp-gate-logo {
-      width: 150px;
-      height: 150px;
-      opacity: 0.96;
-    }
+    .lp-gate-logo { width: 150px; height: 150px; opacity: 0.96; }
     .lp-gate-dot {
       width: 6px;
       height: 6px;
@@ -99,47 +144,113 @@
     noscript + .landing-page { opacity: 1; }
 
     /* ── Layout shell ────────────────────────────────────────── */
-    .lp-wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-    .lp-section { padding: 110px 0; }
+    .lp-wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    .lp-section { padding: 120px 0; position: relative; }
+    .lp-section[id] { scroll-margin-top: 72px; }
     .lp-kicker {
-      font-family: var(--body);
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--gold-dim);
-      margin-bottom: 16px;
+      color: var(--gold);
+      margin-bottom: 14px;
     }
     .lp-h2 {
       font-family: var(--serif);
       font-weight: 600;
-      font-size: clamp(28px, 4.2vw, 42px);
-      line-height: 1.2;
+      font-size: clamp(30px, 4.4vw, 46px);
+      line-height: 1.16;
+      letter-spacing: -0.015em;
       color: var(--text);
-      letter-spacing: -0.01em;
     }
     .lp-lede {
       font-family: var(--serif);
       font-size: clamp(17px, 2vw, 19px);
       line-height: 1.75;
       color: var(--text-muted);
-      max-width: 62ch;
+      max-width: 60ch;
+      margin-top: 16px;
     }
+    .lp-head { margin-bottom: 56px; }
+    .lp-head-center { text-align: center; }
+    .lp-head-center .lp-lede { margin-left: auto; margin-right: auto; }
+
+    /* Buttons */
+    .lp-cta, .lp-btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 12px 24px;
+      border-radius: var(--radius-btn);
+      font-family: var(--body);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }
+    .lp-cta {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      color: var(--on-gold);
+      box-shadow: 0 8px 24px -10px rgba(201, 168, 76, 0.55);
+    }
+    .lp-cta:hover { color: var(--on-gold); transform: translateY(-1px); box-shadow: 0 14px 30px -12px rgba(201, 168, 76, 0.65); }
+    .lp-cta:active { transform: translateY(0); }
+    .lp-btn-ghost { border: 1px solid var(--border); color: var(--text); background: transparent; }
+    .lp-btn-ghost:hover { color: var(--text); border-color: var(--gold-dim); background: var(--gold-soft); }
+    .lp-cta svg, .lp-btn-ghost svg { width: 16px; height: 16px; transition: transform 0.25s var(--ease-out); }
+    .lp-cta:hover svg, .lp-btn-ghost:hover svg { transform: translateX(3px); }
+
+    /* Reveal on first view (js/landing/landing-motion.js adds .is-in) */
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+      transition-delay: var(--d, 0s);
+    }
+    [data-reveal].is-in { opacity: 1; transform: none; }
+
+    /* Cards with a soft light that follows the pointer */
+    .lp-glow { position: relative; isolation: isolate; }
+    .lp-glow::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(201, 168, 76, 0.55), transparent 60%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .lp-glow:hover::before { opacity: 1; }
 
     /* ── Header ──────────────────────────────────────────────── */
+    .lp-top-sentinel { position: absolute; top: 0; height: 8px; width: 1px; }
     .lp-header {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 50;
-      background: rgba(15, 14, 12, 0.86);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(46, 43, 36, 0.6);
+      border-bottom: 1px solid transparent;
+      transition: background-color 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
+    }
+    .lp-header.is-scrolled {
+      background: var(--header-bg);
+      border-bottom-color: var(--hairline);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
     }
     .lp-header-inner {
-      max-width: 1080px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 16px 24px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -148,379 +259,532 @@
     .lp-brand {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
       font-family: var(--serif);
-      font-weight: 600;
       font-size: 20px;
-      letter-spacing: 0.02em;
+      font-weight: 600;
       color: var(--text);
     }
-    .lp-brand img { width: 22px; height: 22px; flex-shrink: 0; display: block; }
-    .lp-brand:hover { color: var(--gold-light); }
-    .lp-header-nav { display: flex; align-items: center; gap: 22px; }
-    .lp-signin {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-muted);
-      transition: color 0.2s ease;
-    }
-    .lp-signin:hover { color: var(--gold-light); }
-    .lp-cta {
-      display: inline-block;
-      background: linear-gradient(135deg, #d9b45c, #c9a84c 55%, #b3923f);
-      color: #16130b;
-      font-family: var(--body);
-      font-weight: 600;
-      font-size: 14px;
-      padding: 11px 22px;
-      border-radius: var(--radius-btn);
-      border: 1px solid rgba(255, 230, 170, 0.35);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .lp-cta:hover {
-      color: #16130b;
-      filter: brightness(1.06);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 22px rgba(201, 168, 76, 0.22);
-    }
-    .lp-cta:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+    .lp-brand:hover { color: var(--text); }
+    .lp-brand img { border-radius: 6px; }
+    .lp-nav { display: flex; align-items: center; gap: 26px; }
+    .lp-nav-links { display: flex; gap: 24px; }
+    .lp-nav-links a { color: var(--text-muted); font-size: 14px; font-weight: 500; transition: color 0.2s ease; }
+    .lp-nav-links a:hover { color: var(--text); }
+    .lp-signin { color: var(--text); font-size: 14px; font-weight: 500; }
+    .lp-header .lp-cta { min-height: 38px; padding: 8px 16px; font-size: 14px; }
 
     /* ── Hero ────────────────────────────────────────────────── */
     .lp-hero {
-      padding: clamp(72px, 12vw, 150px) 0 clamp(60px, 8vw, 110px);
-      text-align: center;
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 80px;
+      overflow: hidden;
     }
-    .lp-hero-arabic {
-      font-family: var(--arabic);
-      font-weight: 700;
-      font-size: clamp(72px, 16vw, 150px);
-      line-height: 1.15;
-      background: linear-gradient(180deg, #ecd9a0 0%, #c9a84c 55%, #8f7432 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: clamp(30px, 5vw, 48px);
-      text-shadow: 0 18px 60px rgba(201, 168, 76, 0.12);
+    .lp-paths { position: absolute; inset: 0; pointer-events: none; }
+    .lp-paths svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .lp-paths path {
+      fill: none;
+      stroke: var(--gold);
+      stroke-opacity: var(--o, 0.1);
+      stroke-dasharray: 0.34 0.66;
+      animation: lpDrift var(--dur, 26s) linear infinite;
+      animation-delay: var(--delay, 0s);
     }
+    .lp-paths.is-paused path { animation-play-state: paused; }
+    @keyframes lpDrift { to { stroke-dashoffset: -1; } }
+    /* Keep the headline and copy clear of the lines; fade into the next section. */
+    .lp-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 52% 46% at 50% 44%, color-mix(in srgb, var(--bg) 96%, transparent) 0%, color-mix(in srgb, var(--bg) 82%, transparent) 50%, transparent 100%),
+        linear-gradient(to bottom, transparent 72%, var(--bg) 100%);
+      pointer-events: none;
+    }
+    .lp-hero-inner { position: relative; z-index: 1; text-align: center; width: 100%; }
+    .lp-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+    .lp-hero-badge b { color: var(--gold); font-weight: 600; }
+    .lp-hero-badge i { flex: 0 0 6px; }
+    .lp-hero-badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(76, 175, 125, 0.16); }
     .lp-hero h1 {
       font-family: var(--serif);
       font-weight: 600;
-      font-size: clamp(34px, 5.6vw, 58px);
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--text);
-      max-width: 16ch;
-      margin: 0 auto 22px;
+      font-size: clamp(40px, 7.2vw, 80px);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      max-width: 15ch;
+      margin: 0 auto;
     }
+    .lp-hero h1 .lp-hw {
+      display: inline-block;
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(14px);
+    }
+    html.landing-ready .lp-hero h1 .lp-hw {
+      animation: lpWordIn 0.9s var(--ease-out) forwards;
+      animation-delay: calc(0.25s + var(--i) * 0.07s);
+    }
+    @keyframes lpWordIn { to { opacity: 1; filter: blur(0); transform: none; } }
+    .lp-hero h1 em { font-style: italic; color: var(--gold); }
     .lp-hero-sub {
       font-family: var(--serif);
-      font-size: clamp(17px, 2.2vw, 21px);
+      font-size: clamp(17px, 2.1vw, 20px);
       line-height: 1.7;
       color: var(--text-muted);
-      max-width: 56ch;
-      margin: 0 auto 38px;
+      max-width: 54ch;
+      margin: 26px auto 0;
     }
-    .lp-hero .lp-cta { font-size: 16px; padding: 14px 34px; }
+    .lp-hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 36px; }
+    .lp-fade-up { opacity: 0; transform: translateY(12px); }
+    html.landing-ready .lp-fade-up { animation: lpFadeUp 0.9s var(--ease-out) forwards; animation-delay: var(--d, 0.8s); }
+    @keyframes lpFadeUp { to { opacity: 1; transform: none; } }
 
-    /* ── Problem ─────────────────────────────────────────────── */
-    .lp-problem {
-      border-top: 1px solid rgba(46, 43, 36, 0.7);
-      border-bottom: 1px solid rgba(46, 43, 36, 0.7);
-      background: linear-gradient(180deg, rgba(26, 25, 21, 0.35), rgba(15, 14, 12, 0));
+    /* Hero verse: meanings settle in under each word */
+    .lp-verse {
+      margin: 64px auto 0;
+      max-width: 640px;
+      padding: 26px 22px 20px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: color-mix(in srgb, var(--surface) 82%, transparent);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: var(--shadow-lg);
     }
-    .lp-problem-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: clamp(36px, 6vw, 80px);
+    .lp-verse-line { display: flex; flex-direction: row-reverse; justify-content: center; flex-wrap: wrap; gap: 10px 26px; }
+    .lp-vw { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .lp-vw-ar { font-size: clamp(28px, 4vw, 36px); line-height: 1.5; color: var(--text); transition: color 0.3s ease; }
+    .lp-vw-en {
+      font-size: 13px;
+      color: var(--gold);
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    html.landing-ready .lp-vw-en { animation: lpFadeUp 0.7s var(--ease-out) forwards; animation-delay: calc(1.3s + var(--i) * 0.18s); }
+    .lp-vw:hover .lp-vw-ar { color: var(--gold-light); }
+    .lp-verse-note { margin-top: 16px; font-size: 13px; color: var(--text-muted); text-align: center; }
+
+    /* ── Statement: words light up with scroll ────────────────── */
+    .lp-statement { position: relative; height: 190vh; }
+    .lp-statement-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
       align-items: center;
     }
-    .lp-problem p { font-family: var(--serif); font-size: clamp(17px, 2vw, 20px); line-height: 1.8; color: var(--text); }
-    .lp-problem p strong { color: var(--gold-light); font-weight: 600; }
+    .lp-statement-text {
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.6vw, 42px);
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      max-width: 24ch;
+      max-width: 880px;
+    }
+    .lp-sw { color: var(--text); opacity: 0.16; transition: opacity 0.35s ease; }
+    .lp-sw.is-lit { opacity: 1; }
+    .lp-statement.is-static { height: auto; padding: 120px 0; }
+    .lp-statement.is-static .lp-statement-sticky { position: static; height: auto; }
+    .lp-statement.is-static .lp-sw { opacity: 1; }
 
-    /* Word-by-word verse breakdown */
-    .lp-verse {
-      background: var(--surface);
+    /* ── Tracks ──────────────────────────────────────────────── */
+    .lp-tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .lp-track {
       border: 1px solid var(--border);
       border-radius: var(--radius-card);
-      padding: 28px 24px;
+      background: var(--surface);
+      padding: 28px 26px;
+      transition: transform 0.35s var(--ease-out), border-color 0.35s ease;
     }
-    .lp-verse-line { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; margin-bottom: 22px; }
-    .lp-verse-word { text-align: center; }
-    .lp-verse-arabic {
+    .lp-track:hover { transform: translateY(-3px); }
+    .lp-track-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .lp-track-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--gold-soft);
+      color: var(--gold);
       font-family: var(--arabic);
-      font-size: 26px;
-      color: var(--gold-light);
-      line-height: 1.5;
+      font-size: 22px;
     }
-    .lp-verse-gloss {
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.02em;
-      margin-top: 4px;
-    }
-    .lp-verse-note {
+    .lp-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 11px;
+      border-radius: 999px;
       font-size: 12px;
-      color: var(--text-muted);
-      text-align: center;
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-      font-style: italic;
-    }
-
-    /* ── Root family ─────────────────────────────────────────── */
-    .lp-roots-head { text-align: center; margin-bottom: clamp(48px, 7vw, 72px); }
-    .lp-roots-head .lp-h2 { max-width: 22ch; margin: 0 auto 20px; }
-    .lp-roots-head .lp-lede { margin: 0 auto; }
-    .lp-rootfam {
-      position: relative;
-      max-width: 860px;
-      margin: 0 auto;
-      background: var(--surface);
+      font-weight: 600;
+      letter-spacing: 0.02em;
       border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: clamp(60px, 9vw, 90px) clamp(20px, 4vw, 48px);
+      color: var(--text-muted);
     }
-    .lp-rootfam svg {
+    .lp-pill-live { border-color: rgba(76, 175, 125, 0.4); color: var(--green); }
+    .lp-pill-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .lp-track h3 { font-family: var(--serif); font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .lp-track p { color: var(--text-muted); margin-top: 8px; font-size: 15px; line-height: 1.65; }
+    .lp-levels { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+    .lp-levels span {
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--text-muted);
+    }
+    .lp-track-live { border-color: color-mix(in srgb, var(--gold) 45%, var(--border)); }
+    .lp-track-soon { border-style: dashed; background: transparent; }
+    .lp-plan-note {
+      margin-top: 22px;
+      padding: 18px 22px;
+      border-radius: var(--radius-section);
+      background: var(--gold-soft);
+      color: var(--text);
+      font-size: 15px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .lp-plan-note strong { color: var(--gold); }
+
+    /* ── How it works: sticky phone ──────────────────────────── */
+    .lp-how { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; }
+    .lp-steps { position: relative; padding-left: 28px; }
+    .lp-steps::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 12vh;
+      bottom: 12vh;
+      width: 1px;
+      background: var(--border);
+    }
+    .lp-step {
+      min-height: 72vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      opacity: 0.32;
+      transition: opacity 0.5s ease;
+    }
+    .lp-step.is-active { opacity: 1; }
+    .lp-step::before {
+      content: "";
+      position: absolute;
+      left: -32px;
+      top: 50%;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--border);
+      transform: translateY(-50%);
+      transition: background-color 0.4s ease, box-shadow 0.4s ease;
+    }
+    .lp-step.is-active::before { background: var(--gold); box-shadow: 0 0 0 5px var(--gold-soft); }
+    .lp-step-n { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.08em; }
+    .lp-step h3 { font-family: var(--serif); font-size: clamp(24px, 3vw, 32px); font-weight: 600; line-height: 1.2; margin-top: 10px; }
+    .lp-step p { color: var(--text-muted); margin-top: 14px; font-size: 16px; max-width: 46ch; }
+    .lp-step ul { list-style: none; margin-top: 16px; display: grid; gap: 8px; }
+    .lp-step li { display: flex; gap: 10px; font-size: 15px; color: var(--text); }
+    .lp-step li::before { content: ""; flex: 0 0 6px; height: 6px; margin-top: 10px; border-radius: 50%; background: var(--gold); }
+    .lp-step-shot { display: none; }
+    .lp-phone-col { position: relative; }
+    .lp-phone {
+      position: sticky;
+      top: calc(50vh - min(37vh, 330px));
+      height: min(74vh, 660px);
+      aspect-ratio: 390 / 780;
+      margin: 0 auto;
+      border-radius: 34px;
+      padding: 10px;
+      background: linear-gradient(160deg, #2b2820, #141310);
+      box-shadow: var(--shadow-lg), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+    .lp-phone-screen { position: relative; height: 100%; border-radius: 26px; overflow: hidden; background: #0f0e0c; }
+    .lp-phone-shot {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none;
-    }
-    .lp-rootfam line { stroke: var(--gold-dim); stroke-width: 1.4; stroke-dasharray: 3 5; opacity: 0.55; }
-    .rf-root {
-      position: relative;
-      z-index: 2;
-      width: fit-content;
-      margin: 0 auto clamp(40px, 6vw, 64px);
-      text-align: center;
-    }
-    .rf-root-arabic {
-      display: inline-block;
-      font-family: var(--arabic);
-      font-weight: 700;
-      font-size: clamp(38px, 6vw, 52px);
-      color: var(--gold-light);
-      background: linear-gradient(135deg, rgba(201, 168, 76, 0.14), rgba(201, 168, 76, 0.04));
-      border: 1px solid rgba(201, 168, 76, 0.35);
-      border-radius: 14px;
-      padding: 12px 26px;
-      line-height: 1.3;
-    }
-    .rf-root-label {
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-top: 12px;
-    }
-    .rf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .rf-branch {
-      position: relative;
-      z-index: 2;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-section);
-      padding: 18px 20px;
-      text-align: center;
-      transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-      cursor: default;
-    }
-    .rf-word {
-      font-family: var(--arabic);
-      font-size: 26px;
-      color: var(--text);
-      display: block;
-      transition: color 0.25s ease, text-shadow 0.25s ease;
-      line-height: 1.4;
-    }
-    .rf-meaning {
-      display: block;
-      font-size: 12px;
-      color: var(--gold-light);
-      margin-top: 8px;
-      max-height: 0;
+      object-fit: cover;
+      object-position: top;
       opacity: 0;
-      overflow: hidden;
-      transition: opacity 0.3s ease, max-height 0.3s ease;
-      font-weight: 500;
-      letter-spacing: 0.02em;
+      transform: scale(1.03);
+      transition: opacity 0.6s ease, transform 0.9s var(--ease-out);
     }
-    /* CSS-only hover: the whole branch glows gold and its meaning fades in */
-    @media (hover: hover) and (pointer: fine) {
-      .rf-branch:hover {
-        border-color: rgba(201, 168, 76, 0.55);
-        box-shadow: 0 10px 30px rgba(201, 168, 76, 0.12);
-        transform: translateY(-2px);
-      }
-      .rf-branch:hover .rf-word {
-        color: var(--gold-light);
-        text-shadow: 0 0 18px rgba(232, 201, 122, 0.45);
-      }
-      .rf-branch:hover .rf-meaning {
-        opacity: 1;
-        max-height: 60px;
-      }
-    }
-    /* Touch devices: meanings always visible (no hover available) */
-    @media (hover: none), (pointer: coarse) {
-      .rf-meaning { opacity: 1; max-height: 60px; }
-    }
-    .rf-branch:focus-within { outline: 2px solid var(--gold-dim); outline-offset: 2px; }
+    .lp-phone-shot.is-active { opacity: 1; transform: none; }
 
-    /* ── See it in action ────────────────────────────────────── */
-    .lp-actions-head { text-align: center; margin-bottom: clamp(40px, 6vw, 64px); }
-    .lp-actions-head .lp-h2 { margin-bottom: 14px; }
-    .lp-shots {
-      display: grid;
-      grid-template-columns: 1.55fr 1fr;
-      grid-template-rows: auto auto;
-      gap: clamp(20px, 3vw, 32px);
-      align-items: start;
-    }
-    .lp-shot {
-      background: var(--surface);
+    /* ── Try it ──────────────────────────────────────────────── */
+    .lp-try { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+    .lp-panel {
       border: 1px solid var(--border);
       border-radius: var(--radius-card);
-      overflow: hidden;
-      transition: border-color 0.25s ease, transform 0.25s ease;
-    }
-    .lp-shot:hover { border-color: rgba(201, 168, 76, 0.4); transform: translateY(-2px); }
-    .lp-shot-primary { grid-row: span 2; }
-    .lp-shot img { width: 100%; height: auto; }
-    .lp-shot-caption {
-      padding: 14px 18px 16px;
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.55;
-      border-top: 1px solid var(--border);
-    }
-    .lp-shot-caption strong { color: var(--gold-light); font-weight: 600; }
-
-    /* ── Free vs Premium ─────────────────────────────────────── */
-    .lp-pricing { border-top: 1px solid rgba(46, 43, 36, 0.7); }
-    .lp-pricing-head { text-align: center; margin-bottom: clamp(40px, 6vw, 60px); }
-    .lp-pricing-head .lp-h2 { margin-bottom: 14px; }
-    .lp-tiers {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: clamp(20px, 3vw, 32px);
-      max-width: 1080px;
-      margin: 0 auto;
-      align-items: stretch;
-    }
-    .lp-tier {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 34px 30px;
+      padding: 28px 24px;
       display: flex;
       flex-direction: column;
     }
-    .lp-tier-premium {
-      background: linear-gradient(160deg, rgba(201, 168, 76, 0.09), rgba(201, 168, 76, 0.02));
-      border-color: rgba(201, 168, 76, 0.4);
-    }
-    .lp-tier-name {
-      font-family: var(--serif);
-      font-weight: 600;
-      font-size: 22px;
+    .lp-panel-label { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+    .lp-panel h3 { font-family: var(--serif); font-size: 22px; font-weight: 600; margin-top: 8px; }
+    .lp-panel > p { color: var(--text-muted); font-size: 15px; margin-top: 6px; }
+    .lp-spot-q { margin-top: 26px; font-size: 16px; text-align: center; }
+    .lp-spot-meaning { color: var(--gold); font-weight: 600; }
+    .lp-spot-words { display: flex; flex-direction: row-reverse; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+    .lp-spot-word {
+      font-family: var(--arabic);
+      font-size: 28px;
+      line-height: 1.5;
+      min-height: 56px;
+      padding: 6px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
       color: var(--text);
-      margin-bottom: 6px;
+      cursor: pointer;
+      transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s var(--ease-out), color 0.25s ease;
     }
-    .lp-tier-tagline { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
-    .lp-tier-price {
-      font-family: var(--serif);
-      font-size: 34px;
-      font-weight: 700;
-      color: var(--gold-light);
-      margin-bottom: 6px;
+    .lp-spot-word:hover:not(:disabled) { border-color: var(--gold-dim); transform: translateY(-2px); }
+    .lp-spot-word:disabled { cursor: default; }
+    .lp-spot-word.is-right { border-color: var(--green); color: var(--green); background: rgba(76, 175, 125, 0.1); }
+    .lp-spot-word.is-wrong { border-color: var(--red); animation: lpNudge 0.4s ease; }
+    @keyframes lpNudge {
+      0%, 100% { transform: none; }
+      30% { transform: translateX(-4px); }
+      65% { transform: translateX(3px); }
     }
-    .lp-tier-price span {
-      font-family: var(--body);
-      font-size: 13px;
-      font-weight: 400;
-      color: var(--text-muted);
-      letter-spacing: 0.02em;
-    }
-    .lp-tier-price-note { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
-    .lp-tier ul { list-style: none; flex: 1; margin-bottom: 26px; }
-    .lp-tier li {
-      font-size: 14px;
-      color: var(--text);
-      padding: 7px 0 7px 26px;
-      position: relative;
-    }
-    .lp-tier li::before {
-      content: '';
-      position: absolute;
-      left: 2px;
-      top: 15px;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #d9b45c, #8f7432);
-      opacity: 0.85;
-    }
-    .lp-tier .lp-cta { text-align: center; }
-    .lp-tier-free .lp-cta {
-      background: transparent;
-      color: var(--gold);
-      border: 1px solid rgba(201, 168, 76, 0.45);
-    }
-    .lp-tier-free .lp-cta:hover { background: rgba(201, 168, 76, 0.08); color: var(--gold-light); }
+    .lp-spot-feedback { min-height: 26px; margin-top: 16px; text-align: center; font-size: 14px; color: var(--text-muted); transition: color 0.25s ease; }
+    .lp-spot-feedback.is-right { color: var(--green); }
+    .lp-spot-feedback [lang="ar"] { font-size: 19px; }
+    .lp-spot-ref { margin-top: auto; padding-top: 16px; font-size: 12px; color: var(--text-muted); text-align: center; }
 
-    /* ── Closing CTA ─────────────────────────────────────────── */
-    .lp-closing {
-      text-align: center;
-      padding-bottom: 120px;
-      background: radial-gradient(ellipse 60% 55% at 50% 100%, rgba(201, 168, 76, 0.07), rgba(15, 14, 12, 0) 70%);
+    .lp-family { position: relative; margin-top: 18px; }
+    .lp-family-root { text-align: center; }
+    .lp-family-root span {
+      display: inline-block;
+      font-family: var(--arabic);
+      font-size: 34px;
+      color: var(--gold);
+      padding: 4px 22px;
+      border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--border));
+      background: var(--gold-soft);
     }
-    .lp-closing .lp-h2 { margin-bottom: 30px; }
-    .lp-closing .lp-cta { font-size: 16px; padding: 14px 36px; }
+    .lp-family-lines { display: block; width: 100%; height: 56px; }
+    .lp-family-lines path { fill: none; stroke: var(--border); stroke-width: 1.2; transition: stroke 0.35s ease; }
+    .lp-family-lines path.is-active { stroke: var(--gold); }
+    .lp-branches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .lp-branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 10px 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      transition: border-color 0.3s ease, transform 0.3s var(--ease-out), background-color 0.3s ease;
+    }
+    .lp-branch .ar { font-family: var(--arabic); font-size: 24px; line-height: 1.5; }
+    .lp-branch .en { font-size: 12px; color: var(--text-muted); }
+    .lp-branch.is-active { border-color: var(--gold); background: var(--gold-soft); transform: translateY(-2px); }
+    .lp-family-detail { min-height: 26px; margin-top: 18px; text-align: center; font-size: 14px; color: var(--text-muted); }
+    .lp-family-detail [lang="ar"] { color: var(--gold); font-size: 18px; }
+
+    /* ── Progress ────────────────────────────────────────────── */
+    .lp-progress { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 64px; align-items: center; }
+    .lp-ring { position: relative; width: min(320px, 78vw); aspect-ratio: 1; margin: 0 auto; }
+    .lp-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .lp-ring circle { fill: none; stroke-width: 7; }
+    .lp-ring .track { stroke: var(--surface2); }
+    .lp-ring .fill {
+      stroke: var(--gold);
+      stroke-linecap: round;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.6s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .lp-ring.is-in .fill { stroke-dashoffset: calc(1 - var(--p)); }
+    .lp-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 18%; }
+    .lp-ring-value { font-family: var(--serif); font-size: clamp(44px, 7vw, 60px); font-weight: 600; line-height: 1; }
+    .lp-ring-value small { font-size: 0.5em; color: var(--text-muted); }
+    .lp-ring-label { margin-top: 10px; font-size: 14px; color: var(--text-muted); line-height: 1.45; }
+    .lp-ring-gain { margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--green); }
+    .lp-ring-example { position: absolute; bottom: -34px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--text-muted); }
+    .lp-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 32px; }
+    .lp-fact { border: 1px solid var(--border); border-radius: var(--radius-section); padding: 18px 16px; background: var(--surface); }
+    .lp-fact b { display: block; font-family: var(--serif); font-size: 28px; font-weight: 600; color: var(--gold); line-height: 1.1; }
+    .lp-fact span { display: block; margin-top: 6px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+    .lp-nogame { margin-top: 22px; color: var(--text-muted); font-size: 15px; }
+    .lp-nogame strong { color: var(--text); }
+
+    /* ── Coming soon timeline ────────────────────────────────── */
+    .lp-timeline { position: relative; max-width: 760px; margin: 0 auto; padding-left: 44px; }
+    .lp-tl-rail, .lp-tl-beam { position: absolute; left: 11px; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; }
+    .lp-tl-rail { background: var(--border); }
+    .lp-tl-beam {
+      background: linear-gradient(to bottom, var(--gold-light), var(--gold) 70%, var(--gold-dim));
+      transform-origin: top;
+      transform: scaleY(0);
+      will-change: transform;
+    }
+    .lp-tl-item { position: relative; padding-bottom: 54px; }
+    .lp-tl-item:last-child { padding-bottom: 0; }
+    .lp-tl-dot {
+      position: absolute;
+      left: -40px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--bg);
+      transition: border-color 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease;
+    }
+    .lp-tl-item.is-reached .lp-tl-dot { border-color: var(--gold); background: var(--gold); box-shadow: 0 0 0 6px var(--gold-soft); }
+    .lp-tl-when { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); transition: color 0.4s ease; }
+    .lp-tl-item.is-reached .lp-tl-when { color: var(--gold); }
+    .lp-tl-card {
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      padding: 22px 22px;
+    }
+    .lp-tl-card h3 { font-family: var(--serif); font-size: 22px; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .lp-tl-card p { color: var(--text-muted); margin-top: 8px; font-size: 15px; }
+    .lp-tl-card ul { list-style: none; margin-top: 14px; display: grid; gap: 7px; }
+    .lp-tl-card li { display: flex; gap: 10px; font-size: 14.5px; }
+    .lp-tl-card li::before { content: ""; flex: 0 0 5px; height: 5px; margin-top: 10px; border-radius: 50%; background: var(--gold-dim); }
+    .lp-tl-foot { max-width: 760px; margin: 40px auto 0; padding-left: 44px; font-size: 14px; color: var(--text-muted); }
+
+    /* ── Pricing ─────────────────────────────────────────────── */
+    .lp-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+    .lp-tier {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      padding: 30px 26px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.35s var(--ease-out);
+    }
+    .lp-tier:hover { transform: translateY(-3px); }
+    .lp-tier-best { border-color: color-mix(in srgb, var(--gold) 55%, var(--border)); background: linear-gradient(180deg, var(--gold-soft), var(--surface) 55%); }
+    .lp-tier-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .lp-tier-name { font-family: var(--serif); font-size: 20px; font-weight: 600; }
+    .lp-tier-tag { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+    .lp-tier-price { font-family: var(--serif); font-size: 42px; font-weight: 600; margin-top: 22px; line-height: 1; }
+    .lp-tier-price span { font-family: var(--body); font-size: 14px; font-weight: 400; color: var(--text-muted); }
+    .lp-tier-note { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
+    .lp-tier ul { list-style: none; margin: 24px 0 28px; display: grid; gap: 10px; }
+    .lp-tier li { display: flex; gap: 10px; font-size: 14.5px; line-height: 1.5; }
+    .lp-tier li svg { flex: 0 0 16px; width: 16px; height: 16px; margin-top: 3px; color: var(--gold); }
+    .lp-tier .lp-cta, .lp-tier .lp-btn-ghost { margin-top: auto; width: 100%; }
+
+    /* ── Closing ─────────────────────────────────────────────── */
+    .lp-closing { padding: 130px 0 120px; text-align: center; position: relative; overflow: hidden; }
+    .lp-closing::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: min(900px, 120vw);
+      height: 420px;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse at top, var(--gold-soft), transparent 70%);
+      pointer-events: none;
+    }
+    .lp-closing-ayah { font-family: var(--arabic); font-size: clamp(28px, 4.6vw, 44px); line-height: 1.8; color: var(--gold-light); }
+    .lp-closing-tr { font-family: var(--serif); font-style: italic; color: var(--text-muted); margin-top: 10px; font-size: 17px; }
+    .lp-closing-tr small { font-style: normal; font-size: 13px; }
+    .lp-closing .lp-h2 { margin-top: 44px; }
+    .lp-closing .lp-hero-ctas { margin-top: 28px; }
 
     /* ── Footer ──────────────────────────────────────────────── */
-    .lp-footer {
-      border-top: 1px solid var(--border);
-      padding: 34px 0 44px;
-    }
+    .lp-footer { border-top: 1px solid var(--hairline); }
     .lp-footer-inner {
-      max-width: 1080px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 28px 24px;
       display: flex;
       flex-wrap: wrap;
+      gap: 12px 24px;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
     }
-    .lp-footer-copy { font-size: 12px; color: var(--text-muted); }
-    .lp-footer-links { display: flex; align-items: center; gap: 20px; }
-    .lp-footer-links a { font-size: 12px; color: var(--text-muted); transition: color 0.2s ease; }
-    .lp-footer-links a:hover { color: var(--gold-light); }
+    .lp-footer-links { display: flex; gap: 20px; }
+    .lp-footer-links a { color: var(--text-muted); }
+    .lp-footer-links a:hover { color: var(--text); }
 
     /* ── Responsive ──────────────────────────────────────────── */
-    @media (max-width: 860px) {
-      .lp-section { padding: 80px 0; }
-      .lp-problem-grid { grid-template-columns: 1fr; gap: 40px; }
-      .lp-shots { grid-template-columns: 1fr; }
-      .lp-shot-primary { grid-row: auto; }
-      .lp-tiers { grid-template-columns: 1fr; }
-      .lp-verse-line { gap: 14px; }
+    @media (max-width: 900px) {
+      .lp-nav-links { display: none; }
+      .lp-how { grid-template-columns: 1fr; gap: 0; }
+      .lp-phone-col { display: none; }
+      .lp-steps { padding-left: 0; }
+      .lp-steps::before, .lp-step::before { display: none; }
+      .lp-step { min-height: 0; opacity: 1; padding: 0 0 72px; }
+      .lp-step:last-child { padding-bottom: 0; }
+      .lp-step-shot {
+        display: block;
+        width: min(300px, 78vw);
+        margin: 28px auto 0;
+        border-radius: 24px;
+        border: 8px solid #1f1d17;
+        box-shadow: var(--shadow-lg);
+      }
+      .lp-progress { grid-template-columns: 1fr; gap: 72px; }
+      .lp-tiers { grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; }
+      .lp-try { grid-template-columns: 1fr; }
     }
-    @media (max-width: 520px) {
-      .lp-wrap { padding: 0 20px; }
-      .lp-header-inner { padding: 14px 20px; }
-      .lp-header-nav { gap: 8px; }
-      .lp-signin { font-size: 13px; }
-      .lp-header-nav .lp-cta { padding: 10px 14px; font-size: 13px; }
-      .rf-grid { grid-template-columns: 1fr; }
-      .lp-tier { padding: 28px 22px; }
+    @media (max-width: 640px) {
+      .lp-section { padding: 88px 0; }
+      .lp-wrap, .lp-header-inner, .lp-footer-inner { padding-left: 16px; padding-right: 16px; }
+      .lp-signin { display: none; }
+      .lp-tracks { grid-template-columns: 1fr; }
+      .lp-facts { grid-template-columns: 1fr; }
+      .lp-statement { height: 160vh; }
+      .lp-hero-ctas .lp-cta, .lp-hero-ctas .lp-btn-ghost { width: 100%; }
+      .lp-verse-line { gap: 8px 18px; }
+      .lp-branches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lp-family-lines { display: none; }
+      .lp-family-root { margin-bottom: 14px; }
+      .lp-timeline, .lp-tl-foot { padding-left: 36px; }
+      .lp-tl-dot { left: -32px; }
+      .lp-tl-rail, .lp-tl-beam { left: 7px; }
     }
+
+    /* Reduced motion: final states, no movement. */
     @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      .lp-paths path { animation: none; stroke-dasharray: none; }
+      .lp-hero h1 .lp-hw, .lp-fade-up, .lp-vw-en { opacity: 1; filter: none; transform: none; }
+      [data-reveal] { opacity: 1; transform: none; }
     }
   </style>
 </head>
@@ -532,164 +796,366 @@
   </div>
 
   <div class="landing-page">
-    <!-- 1. Header -->
+    <span class="lp-top-sentinel" aria-hidden="true"></span>
+
+    <!-- Header -->
     <header class="lp-header">
       <div class="lp-header-inner">
         <a class="lp-brand" href="./" aria-label="Bayan home">
-          <img src="assets/logo/bayan-icon-emblem-square.png" alt="" width="22" height="22" />
+          <img src="assets/logo/bayan-icon-emblem-square.png" alt="" width="24" height="24" />
           Bayan
         </a>
-        <nav class="lp-header-nav" aria-label="Site">
+        <nav class="lp-nav" aria-label="Site">
+          <div class="lp-nav-links">
+            <a href="#how">How it works</a>
+            <a href="#soon">Coming soon</a>
+            <a href="#pricing">Pricing</a>
+          </div>
           <a class="lp-signin" href="./?auth=login">Sign in</a>
-          <a class="lp-cta" href="./">Start Learning</a>
+          <a class="lp-cta" href="./">Start learning</a>
         </nav>
       </div>
     </header>
 
     <main>
-      <!-- 2. Hero -->
-      <section class="lp-hero">
-        <div class="lp-wrap">
-          <div class="lp-hero-arabic" lang="ar" dir="rtl">الرَّحْمَٰن</div>
-          <h1>Understand the words you recite</h1>
-          <p class="lp-hero-sub">Bayan teaches you the Arabic of the Quran — word by word, root by root — so recitation becomes understanding, not memorization.</p>
-          <a class="lp-cta" href="./">Start Learning</a>
+      <!-- Hero -->
+      <section class="lp-hero" aria-labelledby="lp-hero-title">
+        <div class="lp-paths" aria-hidden="true">
+          <svg viewBox="0 0 696 316" preserveAspectRatio="xMidYMid slice"></svg>
+          <svg viewBox="0 0 696 316" preserveAspectRatio="xMidYMid slice"></svg>
         </div>
-      </section>
-
-      <!-- 3. The problem -->
-      <section class="lp-section lp-problem">
-        <div class="lp-wrap lp-problem-grid">
-          <div>
-            <p class="lp-kicker">The gap</p>
-            <p>Millions of Muslims read the Quran daily — reciting words whose meaning they've never actually learned. Translation tells you what a verse means. It doesn't teach you the language itself. Over time, the gap between what you say and what you understand doesn't close — it just becomes familiar.</p>
+        <div class="lp-wrap lp-hero-inner">
+          <div class="lp-hero-badge lp-fade-up" style="--d:0.1s"><i></i><span>New: <b>learning tracks</b> and a 5-minute placement test</span></div>
+          <h1 id="lp-hero-title">
+            <span class="lp-hw" style="--i:0">Understand</span>
+            <span class="lp-hw" style="--i:1">the</span>
+            <span class="lp-hw" style="--i:2"><em>Quran</em></span>
+            <span class="lp-hw" style="--i:3">you</span>
+            <span class="lp-hw" style="--i:4">recite</span>
+          </h1>
+          <p class="lp-hero-sub lp-fade-up" style="--d:0.75s">Bayan teaches the Arabic of the Quran word by word and root by root. Find your level, follow a clear path, and watch the share of the Quran you understand grow.</p>
+          <div class="lp-hero-ctas lp-fade-up" style="--d:0.9s">
+            <a class="lp-cta" href="./">Start learning free
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a class="lp-btn-ghost" href="#how">See how it works</a>
           </div>
-          <div class="lp-verse" aria-label="Word-by-word breakdown of Quran 1:5">
+
+          <figure class="lp-verse lp-fade-up" style="--d:1.05s" aria-label="Quran 1:5, word by word">
             <div class="lp-verse-line">
-              <div class="lp-verse-word"><div class="lp-verse-arabic" lang="ar" dir="rtl">إِيَّاكَ</div><div class="lp-verse-gloss">You alone</div></div>
-              <div class="lp-verse-word"><div class="lp-verse-arabic" lang="ar" dir="rtl">نَعْبُدُ</div><div class="lp-verse-gloss">we worship</div></div>
-              <div class="lp-verse-word"><div class="lp-verse-arabic" lang="ar" dir="rtl">وَإِيَّاكَ</div><div class="lp-verse-gloss">and You alone</div></div>
-              <div class="lp-verse-word"><div class="lp-verse-arabic" lang="ar" dir="rtl">نَسْتَعِينُ</div><div class="lp-verse-gloss">we ask for help</div></div>
+              <span class="lp-vw" style="--i:0"><span class="lp-vw-ar" lang="ar" dir="rtl">إِيَّاكَ</span><span class="lp-vw-en">You alone</span></span>
+              <span class="lp-vw" style="--i:1"><span class="lp-vw-ar" lang="ar" dir="rtl">نَعۡبُدُ</span><span class="lp-vw-en">we worship</span></span>
+              <span class="lp-vw" style="--i:2"><span class="lp-vw-ar" lang="ar" dir="rtl">وَإِيَّاكَ</span><span class="lp-vw-en">and You alone</span></span>
+              <span class="lp-vw" style="--i:3"><span class="lp-vw-ar" lang="ar" dir="rtl">نَسۡتَعِينُ</span><span class="lp-vw-en">we ask for help</span></span>
             </div>
-            <div class="lp-verse-note">Quran 1:5 — the same words, seen word by word. This is what Bayan teaches.</div>
+            <figcaption class="lp-verse-note">Al-Fatihah 1:5 — recited in every prayer, now understood word by word.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Statement -->
+      <section class="lp-statement" aria-label="Why Bayan">
+        <div class="lp-statement-sticky">
+          <div class="lp-wrap">
+            <p class="lp-statement-text">Millions recite the Quran every day without knowing what its words mean. A translation tells you what a verse says. Bayan teaches you the words themselves, so the next time you recite, you understand.</p>
           </div>
         </div>
       </section>
 
-      <!-- 4. How it works — root connection -->
-      <section class="lp-section">
+      <!-- Tracks -->
+      <section class="lp-section" id="tracks">
         <div class="lp-wrap">
-          <div class="lp-roots-head">
+          <div class="lp-head" data-reveal>
+            <p class="lp-kicker">Four ways to learn</p>
+            <h2 class="lp-h2">Choose what you want to learn</h2>
+            <p class="lp-lede">Bayan is organised into learning tracks. Join one or several; each has four levels, from Beginner to Advanced, and tracks your progress on its own.</p>
+          </div>
+          <div class="lp-tracks">
+            <article class="lp-track lp-track-live lp-glow" data-reveal>
+              <div class="lp-track-top">
+                <span class="lp-track-icon" lang="ar" aria-hidden="true">كَلِمَة</span>
+                <span class="lp-pill lp-pill-live">Available now</span>
+              </div>
+              <h3>Word meanings</h3>
+              <p>The vocabulary of the Quran, most frequent words first: the Foundation Course, guided reading through short surahs, and lessons by root and by surah.</p>
+              <div class="lp-levels"><span>Beginner</span><span>Elementary</span><span>Intermediate</span><span>Advanced</span></div>
+            </article>
+            <article class="lp-track lp-track-soon lp-glow" data-reveal style="--d:0.08s">
+              <div class="lp-track-top">
+                <span class="lp-track-icon" lang="ar" aria-hidden="true">أ ب</span>
+                <span class="lp-pill">Coming soon</span>
+              </div>
+              <h3>Read Arabic from zero</h3>
+              <p>For complete beginners: the Arabic letters, vowel marks and joining, in the Noorani Qaida order, with listen-and-repeat practice.</p>
+              <div class="lp-levels"><span>Letters</span><span>Vowels</span><span>Sukoon &amp; shaddah</span><span>Fluent reading</span></div>
+            </article>
+            <article class="lp-track lp-track-soon lp-glow" data-reveal style="--d:0.16s">
+              <div class="lp-track-top">
+                <span class="lp-track-icon" lang="ar" aria-hidden="true">تَجۡوِيد</span>
+                <span class="lp-pill">Coming soon</span>
+              </div>
+              <h3>Tajweed</h3>
+              <p>Recite as it was revealed: where each letter is pronounced (makhārij), letter qualities, and the rules of nūn, mīm and madd, for Ḥafṣ ʿan ʿĀṣim.</p>
+              <div class="lp-levels"><span>Makhārij</span><span>Core rules</span><span>Madd &amp; weights</span><span>Waqf</span></div>
+            </article>
+            <article class="lp-track lp-track-soon lp-glow" data-reveal style="--d:0.24s">
+              <div class="lp-track-top">
+                <span class="lp-track-icon" lang="ar" aria-hidden="true">فَهۡم</span>
+                <span class="lp-pill">Coming soon</span>
+              </div>
+              <h3>Understanding</h3>
+              <p>Translation and the grammar behind it: pronouns, verb forms, roots and patterns, built on the words you already know.</p>
+              <div class="lp-levels"><span>Juz ʿAmma</span><span>Verbs &amp; sentences</span><span>Roots &amp; patterns</span><span>Longer passages</span></div>
+            </article>
+          </div>
+          <p class="lp-plan-note" data-reveal>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:0 0 20px;color:var(--gold);margin-top:3px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+            <span><strong>Completely new?</strong> Start from zero: tell Bayan you're new in the welcome tour, and you'll follow one plan, from the letters to understanding your first surahs, as each track arrives.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- How it works -->
+      <section class="lp-section" id="how" style="padding-top:40px">
+        <div class="lp-wrap">
+          <div class="lp-head lp-head-center" data-reveal>
             <p class="lp-kicker">How it works</p>
-            <h2 class="lp-h2">Learn one root, understand a family of words</h2>
-            <p class="lp-lede">Many Quranic words belong to root families. Learn <span lang="ar" dir="rtl" style="font-family:var(--arabic);color:var(--gold-light)">أ-م-ن</span> once, and <span lang="ar" dir="rtl" style="font-family:var(--arabic);color:var(--gold-light)">إِيمَان</span> (faith), <span lang="ar" dir="rtl" style="font-family:var(--arabic);color:var(--gold-light)">مُؤْمِن</span> (believer), <span lang="ar" dir="rtl" style="font-family:var(--arabic);color:var(--gold-light)">أَمَانَة</span> (trust), and <span lang="ar" dir="rtl" style="font-family:var(--arabic);color:var(--gold-light)">أَمْن</span> (security) stop being four words to memorize — they become one idea, seen from four angles.</p>
+            <h2 class="lp-h2">From your first word to reading with meaning</h2>
           </div>
+          <div class="lp-how">
+            <div class="lp-steps">
+              <div class="lp-step">
+                <span class="lp-step-n">01</span>
+                <h3>Choose your tracks</h3>
+                <p>Your tracks live in the Learn tab, with your main track first. Each card shows your level and how much of the Quran it has opened up for you.</p>
+                <img class="lp-step-shot" src="assets/screenshots/app-learn.webp" alt="The Learn tab with the Word meanings track and three tracks marked Coming soon" width="390" height="780" loading="lazy" />
+              </div>
+              <div class="lp-step">
+                <span class="lp-step-n">02</span>
+                <h3>Find your level in about five minutes</h3>
+                <p>An optional placement test adapts to your answers: harder after a right one, easier after a wrong one. It ends as soon as your level is clear.</p>
+                <ul><li>Your level, from Beginner to Advanced</li><li>What you're strong in, and what to work on</li><li>A starting lesson that skips what you know</li></ul>
+                <img class="lp-step-shot" src="assets/screenshots/app-placement.webp" alt="A placement test question asking for the meaning of an Arabic word" width="390" height="780" loading="lazy" />
+              </div>
+              <div class="lp-step">
+                <span class="lp-step-n">03</span>
+                <h3>Follow a clear path</h3>
+                <p>Four levels of numbered lessons, starting with the Foundation Course: the 100 most frequent words in the Quran, which alone make up about 30% of what you read in it.</p>
+                <img class="lp-step-shot" src="assets/screenshots/app-path.webp" alt="The Word meanings path with numbered Beginner lessons" width="390" height="780" loading="lazy" />
+              </div>
+              <div class="lp-step">
+                <span class="lp-step-n">04</span>
+                <h3>Learn by root</h3>
+                <p>Most Quranic words grow from a three-letter root. Each root lesson shows the root, its meaning, how often it appears, and its whole family of words, then practises them. Part of Premium.</p>
+                <img class="lp-step-shot" src="assets/screenshots/app-root.webp" alt="A root lesson showing the letters of the root alif-mim-nun and its meaning" width="390" height="780" loading="lazy" />
+              </div>
+              <div class="lp-step">
+                <span class="lp-step-n">05</span>
+                <h3>Read with meanings</h3>
+                <p>Open any surah and turn on meanings: every word you've met shows its English under it, alongside the verse translation.</p>
+                <img class="lp-step-shot" src="assets/screenshots/app-reader.webp" alt="The Quran reader showing Al-Fatihah with English meanings under each word" width="390" height="780" loading="lazy" />
+              </div>
+            </div>
+            <div class="lp-phone-col" aria-hidden="true">
+              <div class="lp-phone">
+                <div class="lp-phone-screen">
+                  <img class="lp-phone-shot" src="assets/screenshots/app-learn.webp" alt="" width="390" height="780" />
+                  <img class="lp-phone-shot" src="assets/screenshots/app-placement.webp" alt="" width="390" height="780" loading="lazy" />
+                  <img class="lp-phone-shot" src="assets/screenshots/app-path.webp" alt="" width="390" height="780" loading="lazy" />
+                  <img class="lp-phone-shot" src="assets/screenshots/app-root.webp" alt="" width="390" height="780" loading="lazy" />
+                  <img class="lp-phone-shot" src="assets/screenshots/app-reader.webp" alt="" width="390" height="780" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <!-- Root-family diagram: static SVG lines + CSS-only hover -->
-          <div class="lp-rootfam">
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <line x1="50" y1="26" x2="25" y2="72" />
-              <line x1="50" y1="26" x2="75" y2="72" />
-              <line x1="50" y1="26" x2="18" y2="100" />
-              <line x1="50" y1="26" x2="82" y2="100" />
+      <!-- Try it -->
+      <section class="lp-section" id="practice">
+        <div class="lp-wrap">
+          <div class="lp-head" data-reveal>
+            <p class="lp-kicker">Practice that sticks</p>
+            <h2 class="lp-h2">Try it right here</h2>
+            <p class="lp-lede">Every lesson is interactive. In the Practice tab, reviews come back just before you'd forget them, alongside short drills like these two.</p>
+          </div>
+          <div class="lp-try">
+            <div class="lp-panel lp-spot lp-glow" data-reveal>
+              <span class="lp-panel-label">Spot the word</span>
+              <h3>Find it in the verse</h3>
+              <p class="lp-spot-q" aria-live="polite">Tap the word that means “<span class="lp-spot-meaning">Lord</span>”</p>
+              <div class="lp-spot-words">
+                <button type="button" class="lp-spot-word" lang="ar" data-meaning="All praise">ٱلۡحَمۡدُ</button>
+                <button type="button" class="lp-spot-word" lang="ar" data-meaning="to Allah">لِلَّهِ</button>
+                <button type="button" class="lp-spot-word" lang="ar" data-meaning="Lord">رَبِّ</button>
+                <button type="button" class="lp-spot-word" lang="ar" data-meaning="the worlds">ٱلۡعَٰلَمِينَ</button>
+              </div>
+              <p class="lp-spot-feedback" aria-live="polite"></p>
+              <p class="lp-spot-ref">Al-Fatihah 1:2 — “All praise is due to Allah, Lord of the worlds”</p>
+            </div>
+            <div class="lp-panel lp-glow" data-reveal style="--d:0.1s">
+              <span class="lp-panel-label">Root family</span>
+              <h3>One root, many words</h3>
+              <div class="lp-family">
+                <div class="lp-family-root"><span lang="ar" dir="rtl">أ م ن</span></div>
+                <svg class="lp-family-lines" viewBox="0 0 400 56" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M200 0 C200 30 50 26 50 56" />
+                  <path d="M200 0 C200 30 150 26 150 56" />
+                  <path d="M200 0 C200 30 250 26 250 56" />
+                  <path d="M200 0 C200 30 350 26 350 56" />
+                </svg>
+                <div class="lp-branches">
+                  <button type="button" class="lp-branch" data-note="the verbal noun" data-pattern="إِفْعَال"><span class="ar" lang="ar">إِيمَان</span><span class="en">faith</span></button>
+                  <button type="button" class="lp-branch" data-note="the one who believes" data-pattern="مُفْعِل"><span class="ar" lang="ar">مُؤْمِن</span><span class="en">believer</span></button>
+                  <button type="button" class="lp-branch" data-note="what is entrusted" data-pattern="فَعَالَة"><span class="ar" lang="ar">أَمَانَة</span><span class="en">trust</span></button>
+                  <button type="button" class="lp-branch" data-note="safety itself" data-pattern="فَعْل"><span class="ar" lang="ar">أَمْن</span><span class="en">security</span></button>
+                </div>
+                <p class="lp-family-detail" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress -->
+      <section class="lp-section">
+        <div class="lp-wrap lp-progress">
+          <div class="lp-ring" data-value="21.8" style="--p:0.218" data-reveal>
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="track" cx="60" cy="60" r="52" pathLength="1" />
+              <circle class="fill" cx="60" cy="60" r="52" pathLength="1" />
             </svg>
-            <div class="rf-root">
-              <span class="rf-root-arabic" lang="ar" dir="rtl">أمن</span>
-              <div class="rf-root-label">The root</div>
+            <div class="lp-ring-center">
+              <div class="lp-ring-value"><span class="lp-ring-num">21.8</span><small>%</small></div>
+              <div class="lp-ring-label">of the Quran's words understood</div>
+              <div class="lp-ring-gain">+0.4% after today's review</div>
             </div>
-            <div class="rf-grid">
-              <div class="rf-branch" tabindex="0">
-                <span class="rf-word" lang="ar" dir="rtl">إِيمَان</span>
-                <span class="rf-meaning">faith</span>
-              </div>
-              <div class="rf-branch" tabindex="0">
-                <span class="rf-word" lang="ar" dir="rtl">مُؤْمِن</span>
-                <span class="rf-meaning">believer</span>
-              </div>
-              <div class="rf-branch" tabindex="0">
-                <span class="rf-word" lang="ar" dir="rtl">أَمَانَة</span>
-                <span class="rf-meaning">trust</span>
-              </div>
-              <div class="rf-branch" tabindex="0">
-                <span class="rf-word" lang="ar" dir="rtl">أَمْن</span>
-                <span class="rf-meaning">security</span>
-              </div>
+            <p class="lp-ring-example">Example: after the first three Foundation lessons</p>
+          </div>
+          <div data-reveal style="--d:0.1s">
+            <p class="lp-kicker">Progress you can see</p>
+            <h2 class="lp-h2">Measured in the Quran, not in points</h2>
+            <p class="lp-lede">Bayan shows progress as the share of the Quran's words you understand, and how much each review session added. There's one daily goal and one streak across all your tracks.</p>
+            <p class="lp-nogame"><strong>No XP, no leaderboards.</strong> Just the Quran, and how much of it you can understand.</p>
+            <div class="lp-facts">
+              <div class="lp-fact"><b>1,208</b><span>Quranic words to learn, with meanings and context</span></div>
+              <div class="lp-fact"><b>643</b><span>root families connecting them</span></div>
+              <div class="lp-fact"><b>100</b><span>Foundation words, about 30% of the Quran's text</span></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 5. See it in action -->
-      <section class="lp-section lp-actions">
+      <!-- Coming soon -->
+      <section class="lp-section" id="soon">
         <div class="lp-wrap">
-          <div class="lp-actions-head">
-            <p class="lp-kicker">Inside Bayan</p>
-            <h2 class="lp-h2">See what understanding actually looks like</h2>
+          <div class="lp-head lp-head-center" data-reveal>
+            <p class="lp-kicker">Coming soon</p>
+            <h2 class="lp-h2">What's being built next</h2>
+            <p class="lp-lede">Bayan grows one track at a time. Each is released only when it's ready, with every reading and tajweed lesson reviewed by a qualified teacher first.</p>
           </div>
-          <div class="lp-shots">
-            <figure class="lp-shot lp-shot-primary">
-              <img src="assets/screenshots/word-card.png" alt="Bayan word card for a Quranic word showing its root family, derived forms, and morphological relatives" width="1200" height="900" loading="lazy" />
-              <figcaption class="lp-shot-caption"><strong>The word card.</strong> Every word opens a network — similar words, related words, derived forms — anchored on its root.</figcaption>
-            </figure>
-            <figure class="lp-shot">
-              <img src="assets/screenshots/tafsir.png" alt="Ibn Kathir tafsir commentary shown inside Bayan for a verse" width="800" height="500" loading="lazy" />
-              <figcaption class="lp-shot-caption"><strong>Tafsir.</strong> Ibn Kathir commentary, in context, on the same screen as the word.</figcaption>
-            </figure>
-            <figure class="lp-shot">
-              <img src="assets/screenshots/occurrences.png" alt="All occurrences of the word Allah across the Quran" width="800" height="500" loading="lazy" />
-              <figcaption class="lp-shot-caption"><strong>Every context.</strong> <span lang="ar" dir="rtl" style="font-family:var(--arabic);color:var(--gold-light)">اللَّهُ</span> — 1,566 occurrences, every one traced.</figcaption>
-            </figure>
+          <div class="lp-timeline">
+            <div class="lp-tl-rail" aria-hidden="true"></div>
+            <div class="lp-tl-beam" aria-hidden="true"></div>
+            <div class="lp-tl-item">
+              <span class="lp-tl-dot" aria-hidden="true"></span>
+              <span class="lp-tl-when">Available now</span>
+              <div class="lp-tl-card">
+                <h3>Word meanings <span class="lp-pill lp-pill-live">Live</span></h3>
+                <ul>
+                  <li>Foundation Course, guided reading, and lessons by root and by surah</li>
+                  <li>Placement test, Practice drills and spaced-repetition reviews</li>
+                  <li>Quran reader with word meanings, tafsir, and light and dark themes</li>
+                </ul>
+              </div>
+            </div>
+            <div class="lp-tl-item">
+              <span class="lp-tl-dot" aria-hidden="true"></span>
+              <span class="lp-tl-when">Next</span>
+              <div class="lp-tl-card">
+                <h3>Audio &amp; Read Arabic from zero</h3>
+                <p>Learn to read from the very first letter.</p>
+                <ul>
+                  <li>Letters and vowel marks in the Noorani Qaida order</li>
+                  <li>Listen to each sound, repeat it, record yourself and compare</li>
+                  <li>Verse-by-verse recitation by Mahmoud Khalil Al-Husary</li>
+                </ul>
+              </div>
+            </div>
+            <div class="lp-tl-item">
+              <span class="lp-tl-dot" aria-hidden="true"></span>
+              <span class="lp-tl-when">Then</span>
+              <div class="lp-tl-card">
+                <h3>Tajweed</h3>
+                <ul>
+                  <li>Makhārij: where in the mouth and throat each letter is pronounced</li>
+                  <li>The rules of nūn and mīm, qalqalah, madd and where to pause</li>
+                  <li>An optional colour-coded tajweed view in the Quran reader</li>
+                </ul>
+              </div>
+            </div>
+            <div class="lp-tl-item">
+              <span class="lp-tl-dot" aria-hidden="true"></span>
+              <span class="lp-tl-when">Later</span>
+              <div class="lp-tl-card">
+                <h3>Understanding</h3>
+                <ul>
+                  <li>Translation and grammar, from Juz ʿAmma to longer passages</li>
+                  <li>Verb forms, roots and patterns, built on the words you know</li>
+                  <li>Comparing translations to see why they differ</li>
+                </ul>
+              </div>
+            </div>
           </div>
+          <p class="lp-tl-foot" data-reveal>No dates are promised. The Beginner level of every new track will be free.</p>
         </div>
       </section>
 
-      <!-- 6. Free vs Premium -->
-      <section class="lp-section lp-pricing">
+      <!-- Pricing -->
+      <section class="lp-section" id="pricing">
         <div class="lp-wrap">
-          <div class="lp-pricing-head">
+          <div class="lp-head lp-head-center" data-reveal>
             <p class="lp-kicker">Pricing</p>
             <h2 class="lp-h2">Start free. Go deeper when you're ready.</h2>
           </div>
           <div class="lp-tiers">
-            <div class="lp-tier lp-tier-free">
-              <h3 class="lp-tier-name">Free</h3>
-              <p class="lp-tier-tagline">Everything you need to begin</p>
+            <div class="lp-tier lp-glow" data-reveal>
+              <div class="lp-tier-head"><h3 class="lp-tier-name">Free</h3></div>
+              <p class="lp-tier-tag">Everything you need to begin</p>
               <div class="lp-tier-price">$0<span> / forever</span></div>
-              <p class="lp-tier-price-note">No trial, no credit card — just the course.</p>
+              <p class="lp-tier-note">No trial, no card.</p>
               <ul>
-                <li>Foundation Course</li>
-                <li><strong>Top 300 Quranic words</strong> with full detail</li>
-                <li>Basic stats &amp; achievements</li>
-                <li>Root word display</li>
-                <li>Daily reviews &amp; bookmarks (capped)</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The Foundation Course</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The top 300 Quranic words in full detail</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Placement test and Practice drills</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Quran reader with word meanings</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Daily reviews and bookmarks (capped)</li>
               </ul>
-              <a class="lp-cta" href="./">Start free</a>
+              <a class="lp-btn-ghost" href="./">Start free</a>
             </div>
-            <div class="lp-tier lp-tier-premium">
-              <h3 class="lp-tier-name">Premium Monthly</h3>
-              <p class="lp-tier-tagline">For serious, sustained study</p>
+            <div class="lp-tier lp-glow" data-reveal style="--d:0.08s">
+              <div class="lp-tier-head"><h3 class="lp-tier-name">Premium Monthly</h3></div>
+              <p class="lp-tier-tag">For serious, sustained study</p>
               <div class="lp-tier-price">$2.99<span> / month</span></div>
-              <p class="lp-tier-price-note">Billed monthly · cancel anytime</p>
+              <p class="lp-tier-note">Billed monthly · cancel anytime</p>
               <ul>
-                <li><strong>All 1,208 Quranic words</strong> — complete vocabulary</li>
-                <li>Unlimited reviews &amp; bookmarks</li>
-                <li>Full word relationships</li>
-                <li>Guided reading</li>
-                <li>Unlimited tafsir</li>
-                <li>Cloud sync across devices</li>
-                <li>Full occurrence history</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>All 1,208 Quranic words</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Guided reading, root lessons and surah study</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Full word relationships</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Unlimited reviews, bookmarks and tafsir</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Cloud sync across devices</li>
               </ul>
               <a class="lp-cta" href="./?upgrade=monthly">Go Premium</a>
             </div>
-            <div class="lp-tier lp-tier-premium">
-              <h3 class="lp-tier-name">Premium Yearly</h3>
-              <p class="lp-tier-tagline">Best value for committed study</p>
+            <div class="lp-tier lp-tier-best lp-glow" data-reveal style="--d:0.16s">
+              <div class="lp-tier-head"><h3 class="lp-tier-name">Premium Yearly</h3><span class="lp-pill lp-pill-live">Best value</span></div>
+              <p class="lp-tier-tag">For committed study</p>
               <div class="lp-tier-price">$19.99<span> / year</span></div>
-              <p class="lp-tier-price-note">~5 months free vs. monthly</p>
+              <p class="lp-tier-note">About 5 months free compared with monthly</p>
               <ul>
-                <li>Everything in Monthly</li>
-                <li>Full word relationships</li>
-                <li>Priority support</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Everything in Monthly</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Advanced analytics</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Priority support</li>
               </ul>
               <a class="lp-cta" href="./?upgrade=yearly">Go Premium</a>
             </div>
@@ -697,19 +1163,24 @@
         </div>
       </section>
 
-      <!-- 7. Closing CTA -->
+      <!-- Closing -->
       <section class="lp-closing">
-        <div class="lp-wrap">
+        <div class="lp-wrap" data-reveal>
+          <p class="lp-closing-ayah" lang="ar" dir="rtl">وَلَقَدۡ يَسَّرۡنَا ٱلۡقُرۡءَانَ لِلذِّكۡرِ فَهَلۡ مِن مُّدَّكِرٖ</p>
+          <p class="lp-closing-tr">“And We have certainly made the Qur'an easy for remembrance, so is there any who will remember?” <small>— Al-Qamar 54:17</small></p>
           <h2 class="lp-h2">Start understanding today</h2>
-          <a class="lp-cta" href="./">Start Learning</a>
+          <div class="lp-hero-ctas">
+            <a class="lp-cta" href="./">Start learning free
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
         </div>
       </section>
     </main>
 
-    <!-- 8. Footer -->
     <footer class="lp-footer">
       <div class="lp-footer-inner">
-        <span class="lp-footer-copy">© 2026 Bayan · Understand the Quran, one word at a time</span>
+        <span>© 2026 Bayan · Understand the Quran, one word at a time</span>
         <nav class="lp-footer-links" aria-label="Legal">
           <a href="privacy-policy.html">Privacy Policy</a>
           <a href="terms-of-service.html">Terms of Service</a>
@@ -726,10 +1197,15 @@
     <style>
       .lp-gate { display: none; }
       .landing-page { opacity: 1; }
+      [data-reveal], .lp-hero h1 .lp-hw, .lp-fade-up, .lp-vw-en { opacity: 1; filter: none; transform: none; }
+      .lp-statement { height: auto; padding: 120px 0; }
+      .lp-statement-sticky { position: static; height: auto; }
+      .lp-sw, .lp-step { opacity: 1; }
     </style>
   </noscript>
   <script type="module" src="js/services/firebase-core.js"></script>
   <script defer src="js/services/auth-service.js"></script>
+  <script defer src="js/landing/landing-motion.js"></script>
   <script defer src="js/landing/landing-auth-gate.js"></script>
 </body>
 </html>

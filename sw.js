@@ -37,6 +37,7 @@ const PRECACHE_URLS = [
   './js/services/firebase-core.js',
   './js/services/auth-service.js',
   './js/landing/landing-auth-gate.js',
+  './js/landing/landing-motion.js',
   './manifest.json',
   './favicon.ico',
   './assets/logo/bayan-logo-transparent-full.png',
