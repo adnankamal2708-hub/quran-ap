@@ -87,7 +87,14 @@
     html.fonts-failed,
     html.fonts-failed body { font-family: system-ui, -apple-system, sans-serif; }
     body {
-      background: var(--bg);
+      /* Faint warm light at the top and sides, so the page below the hero
+         isn't flat black; fixed, so it stays put while sections scroll. */
+      background:
+        radial-gradient(ellipse 90% 60% at 50% -10%, color-mix(in srgb, var(--gold) 9%, transparent), transparent 70%),
+        radial-gradient(ellipse 45% 55% at 0% 60%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 70%),
+        radial-gradient(ellipse 45% 55% at 100% 85%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 70%),
+        var(--bg);
+      background-attachment: fixed;
       color: var(--text);
       font-family: var(--body);
       font-size: 16px;
@@ -294,7 +301,34 @@
       animation: lpDrift var(--dur, 26s) linear infinite;
       animation-delay: var(--delay, 0s);
     }
-    .lp-paths.is-paused path { animation-play-state: paused; }
+    .lp-paths.is-paused path,
+    .lp-paths.is-paused .lp-rays { animation-play-state: paused; }
+    /* Golden rays fanning down from the top of the hero, turning very
+       slowly. Two repeating sets with different spacing make the streaks
+       uneven; the mask fades them out with distance. */
+    .lp-rays {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 220vmax;
+      height: 220vmax;
+      transform: translate(-50%, -50%);
+      background:
+        repeating-conic-gradient(from 0deg, transparent 0deg 5deg, color-mix(in srgb, var(--gold) 16%, transparent) 7deg, transparent 9deg 17deg),
+        repeating-conic-gradient(from 4deg, transparent 0deg 9deg, color-mix(in srgb, var(--gold-light) 10%, transparent) 11.5deg, transparent 14deg 29deg);
+      -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.75) 18%, transparent 46%);
+      mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.75) 18%, transparent 46%);
+      animation: lpRays 240s linear infinite;
+    }
+    @keyframes lpRays { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    /* A warm glow where the rays begin */
+    .lp-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 70%);
+      pointer-events: none;
+    }
     @keyframes lpDrift { to { stroke-dashoffset: -1; } }
     /* Keep the headline and copy clear of the lines; fade into the next section. */
     .lp-hero::after {
@@ -783,6 +817,7 @@
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
       .lp-paths path { animation: none; stroke-dasharray: none; }
+      .lp-rays { animation: none; }
       .lp-hero h1 .lp-hw, .lp-fade-up, .lp-vw-en { opacity: 1; filter: none; transform: none; }
       [data-reveal] { opacity: 1; transform: none; }
     }
@@ -821,6 +856,7 @@
       <!-- Hero -->
       <section class="lp-hero" aria-labelledby="lp-hero-title">
         <div class="lp-paths" aria-hidden="true">
+          <div class="lp-rays"></div>
           <svg viewBox="0 0 696 316" preserveAspectRatio="xMidYMid slice"></svg>
           <svg viewBox="0 0 696 316" preserveAspectRatio="xMidYMid slice"></svg>
         </div>
