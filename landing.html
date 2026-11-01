@@ -357,20 +357,20 @@
     .lp-flow { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
     .lp-flow svg { position: absolute; left: 0; top: 0; }
     .lp-flow path { fill: none; stroke: var(--gold); stroke-linecap: round; }
-    .lp-flow-base { stroke-opacity: 0.1; stroke-width: 1; }
+    .lp-flow-base { stroke-opacity: 0.09; }
     .lp-flow-drift {
-      stroke-opacity: 0.55;
-      stroke-width: 1.2;
-      stroke-dasharray: 0.07 0.43;
+      stroke-opacity: 0.4;
       animation: lpDrift var(--dur, 9s) linear infinite;
       animation-delay: var(--delay, 0s);
       animation-play-state: paused;
     }
     .lp-flow g.is-live .lp-flow-drift { animation-play-state: running; }
+    /* Behind the scrolling statement and the timeline, which move on their own */
+    .lp-flow g.is-quiet { opacity: 0.5; }
     /* Brightens from the top down to the reader's position */
-    .lp-flow-lit { stroke-opacity: 0.32; stroke-width: 1.1; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+    .lp-flow-lit { stroke-opacity: 0.16; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
     .lp-flow.is-still .lp-flow-drift { display: none; }
-    .lp-flow.is-still .lp-flow-lit { stroke-dashoffset: 0; stroke-opacity: 0.18; }
+    .lp-flow.is-still .lp-flow-lit { stroke-dashoffset: 0; stroke-opacity: 0.1; }
     /* Clip at the page, not per section, so the closing verse's light fades
        out softly instead of being cut along its section's top edge. clip
        (unlike hidden) keeps position: sticky working. */
@@ -522,7 +522,8 @@
       color: var(--text-muted);
     }
     .lp-track-live { border-color: color-mix(in srgb, var(--gold) 45%, var(--border)); }
-    .lp-track-soon { border-style: dashed; background: transparent; }
+    /* Opaque (between page and card) so the golden lines never show through its text */
+    .lp-track-soon { border-style: dashed; background: color-mix(in srgb, var(--surface) 55%, var(--bg)); }
     .lp-plan-note {
       margin-top: 22px;
       padding: 18px 22px;

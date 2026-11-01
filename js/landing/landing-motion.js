@@ -327,43 +327,54 @@
   }
 
   // ── Golden lines through the page ──────────────────────────────
-  // Lines fade in low in the hero, where its own lines fade out, sway down
-  // the side margins past every section, and sweep in to fade into the
-  // light behind the closing verse. Each line is drawn as short pieces
-  // grouped by section, so only pieces beside sections on screen animate
-  // (gold light drifting down them). Each line also brightens from the
-  // top down to the reader's position; when that reaches the verse, the
-  // verse lights up. With reduced motion the lines are drawn, still.
-  var FLOW_PER_SIDE = narrow ? 3 : 6;
-  var FLOW_STEP = narrow ? 600 : 420;   // px between the points each line passes through
-  var FLOW_READ_LINE = 0.55;   // share of the viewport height the light follows
-  var flowState = null;        // { pieces, targetY, groups, sections, main }
+  // A ribbon of curves like the hero's: it enters from the left edge low
+  // in the hero (fading in where the hero's own lines fade out), swings
+  // across the page behind every section, leaving and re-entering at the
+  // edges so no line starts or ends in view, then opens into a fan that
+  // converges on the light behind the closing verse and fades into it.
+  // Each line is one path per section, so only sections on screen animate
+  // (gold light drifting along them), and sections with motion of their
+  // own get a quieter ribbon. Each line also brightens from the top down
+  // to the reader's position; when that reaches the verse, the verse
+  // lights up. With reduced motion the ribbon is drawn, still.
+  var FLOW_LINES = narrow ? 5 : 8;
+  var FLOW_STEP = narrow ? 160 : 120;   // px between the points each line passes through
+  var FLOW_SPREAD = 900;                // px over which the ribbon opens into a fan
+  var FLOW_TUCK = 320;                  // px above the closing section by which the fan is open (behind the pricing cards)
+  var FLOW_PULSE = 70;                  // px of each drifting pulse of light
+  var FLOW_PULSE_GAP = 280;             // px between pulses
+  var FLOW_PULSE_SPEED = 55;            // px per second
+  var FLOW_READ_LINE = 0.55;            // share of the viewport height the light follows
+  var flowState = null;                 // { pieces, targetY, groups, sections, main }
   var flowPlaysVerse = false;
 
-  // Smooth curve through points (Catmull-Rom as cubic Béziers), one 'd' per span.
+  // Smooth curve through points (Catmull-Rom as cubic Béziers): the 'C'
+  // command for each span, with the span's start and end heights.
   function flowSpans(pts) {
     var spans = [];
     for (var i = 0; i < pts.length - 1; i++) {
       var p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
-      var c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
-      var c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
-      spans.push({ y0: p1.y, y1: p2.y, d: 'M' + p1.x.toFixed(1) + ' ' + p1.y.toFixed(1) +
-        'C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1) });
+      spans.push({
+        from: p1, y0: p1.y, y1: p2.y, len: Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y)),
+        c: 'C' + (p1.x + (p2.x - p0.x) / 6).toFixed(1) + ' ' + (p1.y + (p2.y - p0.y) / 6).toFixed(1) + ' ' +
+          (p2.x - (p3.x - p1.x) / 6).toFixed(1) + ' ' + (p2.y - (p3.y - p1.y) / 6).toFixed(1) + ' ' +
+          p2.x.toFixed(1) + ' ' + p2.y.toFixed(1),
+      });
     }
     return spans;
   }
 
-  // A vertical gold gradient in page coordinates: stops are [offset, opacity].
-  function flowFade(id, y1, y2, stops) {
+  // A gold gradient in page coordinates along one axis: stops are [offset, opacity].
+  function flowFade(id, axis, from, to, stops) {
     var grad = document.createElementNS(SVG_NS, 'linearGradient');
     grad.setAttribute('id', id);
     grad.setAttribute('gradientUnits', 'userSpaceOnUse');
-    grad.setAttribute('x1', '0'); grad.setAttribute('x2', '0');
-    grad.setAttribute('y1', String(y1)); grad.setAttribute('y2', String(y2));
-    stops.forEach(function (s) {
+    grad.setAttribute(axis + '1', String(from)); grad.setAttribute(axis + '2', String(to));
+    grad.setAttribute((axis === 'x' ? 'y' : 'x') + '1', '0'); grad.setAttribute((axis === 'x' ? 'y' : 'x') + '2', '0');
+    stops.forEach(function (st) {
       var stop = document.createElementNS(SVG_NS, 'stop');
-      stop.setAttribute('offset', String(s[0]));
-      stop.setAttribute('style', 'stop-color: var(--gold); stop-opacity: ' + s[1]);
+      stop.setAttribute('offset', String(st[0]));
+      stop.setAttribute('style', 'stop-color: var(--gold); stop-opacity: ' + st[1]);
       grad.appendChild(stop);
     });
     return grad;
@@ -378,6 +389,26 @@
     return p;
   }
 
+  function smoothstep(t) { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); }
+
+  // Where line k of the ribbon sits at height y.
+  function ribbonX(k, y, geo) {
+    var share = (k - (FLOW_LINES - 1) / 2) / ((FLOW_LINES - 1) / 2);   // -1 .. 1 across the ribbon
+    // One swing across and back per period; the amplitude carries the
+    // ribbon past both edges, and the phase starts it off the left one.
+    var x = geo.w / 2 + share * geo.gap * (FLOW_LINES - 1) / 2 +
+      geo.w * (0.6 + 0.03 * k) * Math.sin(((y - geo.y0) / geo.period) * Math.PI * 2 - Math.PI / 2 + k * 0.05);
+    // Behind the pricing cards the ribbon opens into a wide fan; from just
+    // above the closing section the fan closes on the verse from both
+    // sides, the way its rays open out.
+    var fanWidth = Math.min(geo.w * 0.42, 620);
+    var fanTop = geo.fanTop;
+    var open = smoothstep((y - (fanTop - FLOW_SPREAD)) / FLOW_SPREAD);
+    var close = clamp((y - fanTop) / (geo.target.y - fanTop), 0, 1);
+    var fan = geo.target.x + share * fanWidth * Math.pow(1 - close, 1.35);
+    return x * (1 - open) + fan * open;
+  }
+
   function buildFlow(svg, main) {
     var mainBox = main.getBoundingClientRect();
     var light = $('.lp-closing-light');
@@ -385,78 +416,84 @@
     if (!light || sections.length < 3) return null;
     var w = main.clientWidth, h = main.clientHeight;
     var lb = light.getBoundingClientRect();
-    var target = { x: lb.left - mainBox.left, y: lb.top - mainBox.top };
-    var tops = sections.map(function (s) { return s.getBoundingClientRect().top - mainBox.top; });
-    var hero = sections[0].getBoundingClientRect().height;
-    var closingTop = tops[tops.length - 1];
-    // The side margin beside the content column; lines sway across it.
-    var gutter = Math.max(24, (w - 1120) / 2 + 24);
-    var lo = gutter < 60 ? 2 : gutter * 0.08;
-    var hi = gutter < 60 ? gutter + 6 : gutter * 0.92;
-    var startY = hero * 0.6;
+    var tops = sections.map(function (sec) { return sec.getBoundingClientRect().top - mainBox.top; });
+    var geo = {
+      w: w,
+      gap: narrow ? 14 : 26,
+      y0: sections[0].getBoundingClientRect().height * 0.55,
+      period: Math.max(1700, window.innerHeight * 2.1),
+      target: { x: lb.left - mainBox.left, y: lb.top - mainBox.top },
+      fanTop: tops[tops.length - 1] - FLOW_TUCK,
+    };
 
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.setAttribute('width', w);
     svg.setAttribute('height', h);
     while (svg.firstChild) svg.removeChild(svg.firstChild);
-    // Lines fade in low in the hero, where its own lines fade out, and fade
-    // into the verse's glow instead of meeting in a point.
     var defs = document.createElementNS(SVG_NS, 'defs');
-    defs.appendChild(flowFade('lp-flow-in', startY, startY + 320, [[0, 0], [1, 1]]));
-    defs.appendChild(flowFade('lp-flow-out', closingTop, target.y, [[0, 1], [0.55, 1], [1, 0]]));
+    // Fade in low in the hero; fade into the verse's light at the end; in
+    // between, full strength in the side margins and faint behind the
+    // content column, so the lines never compete with text.
+    var col = Math.max(24, (w - 1120) / 2 + 24);
+    defs.appendChild(flowFade('lp-flow-in', 'y', geo.y0, geo.y0 + 360, [[0, 0], [1, 1]]));
+    defs.appendChild(flowFade('lp-flow-out', 'y', geo.fanTop, geo.target.y, [[0, 1], [0.6, 1], [1, 0]]));
+    defs.appendChild(flowFade('lp-flow-side', 'x', 0, w, [
+      [0, 1], [clamp((col - 70) / w, 0, 0.5), 1], [clamp((col + 50) / w, 0, 0.5), 0.13],
+      [clamp(1 - (col + 50) / w, 0.5, 1), 0.13], [clamp(1 - (col - 70) / w, 0.5, 1), 1], [1, 1],
+    ]));
     svg.appendChild(defs);
-    var groups = sections.map(function () {
+    var groups = sections.map(function (sec) {
       var g = document.createElementNS(SVG_NS, 'g');
+      // Quieter where the section has motion of its own.
+      if (sec.classList.contains('lp-statement') || sec.id === 'soon') g.setAttribute('class', 'is-quiet');
       svg.appendChild(g);
       return g;
     });
-    function groupFor(y) {
-      for (var i = tops.length - 1; i >= 0; i--) if (y >= tops[i]) return groups[i];
-      return groups[0];
+    // The fan belongs to the closing section from where it opens, behind
+    // the pricing cards, so its change of strength is hidden by them.
+    function sectionIndex(y) {
+      if (y >= geo.fanTop) return tops.length - 1;
+      for (var i = tops.length - 1; i >= 0; i--) if (y >= tops[i]) return i;
+      return 0;
     }
 
     var pieces = [];
-    for (var side = 0; side < 2; side++) {
-      for (var k = 0; k < FLOW_PER_SIDE; k++) {
-        var share = FLOW_PER_SIDE > 1 ? k / (FLOW_PER_SIDE - 1) : 0.5;
-        // Each line sways across the margin at its own rate, so neighbours
-        // cross and braid rather than running in parallel.
-        var period = 1500 + ((k * 7 + side * 3) % 6) * 220;
-        var phase = k * 1.3 + side * 0.7;
-        var pts = [];
-        for (var y = startY; y < closingTop - 60; y += FLOW_STEP) {
-          var sway = 0.5 + 0.44 * Math.sin((y / period) * Math.PI * 2 + phase);
-          // Start spread out (inner lines nearer the content), then sway freely.
-          var settle = clamp((y - startY) / 900, 0, 1);
-          var t = (1 - settle) * (0.15 + 0.7 * share) + settle * sway;
-          pts.push({ x: lo + (hi - lo) * t, y: y });
+    for (var k = 0; k < FLOW_LINES; k++) {
+      var pts = [];
+      for (var y = geo.y0; y < geo.target.y; y += FLOW_STEP) pts.push({ x: ribbonX(k, y, geo), y: y });
+      pts.push({ x: geo.target.x, y: geo.target.y });
+      // One path per section: join the spans whose middle falls in it.
+      var bySection = {};
+      flowSpans(pts).forEach(function (span) {
+        var i = sectionIndex((span.y0 + span.y1) / 2);
+        var run = bySection[i] || (bySection[i] = { d: 'M' + span.from.x.toFixed(1) + ' ' + span.from.y.toFixed(1), y0: span.y0, y1: span.y1, len: 0 });
+        run.d += span.c;
+        run.y1 = span.y1;
+        run.len += span.len;
+      });
+      Object.keys(bySection).forEach(function (key) {
+        var i = Number(key), run = bySection[key];
+        var fade = i === 0 ? 'url(#lp-flow-in)' : i === sections.length - 1 ? 'url(#lp-flow-out)' : 'url(#lp-flow-side)';
+        function styled(p) {
+          if (fade) p.style.stroke = fade;
+          p.setAttribute('stroke-width', ((narrow ? 0.8 : 1) + k * 0.11).toFixed(2));
+          return p;
         }
-        if (pts.length < 2) continue;
-        var spans = flowSpans(pts);
-        // Last span: in from the margin and down towards the light behind the verse.
-        var last = pts[pts.length - 1];
-        spans.push({ y0: last.y, y1: target.y, out: true, d: 'M' + last.x.toFixed(1) + ' ' + last.y.toFixed(1) +
-          'C' + last.x.toFixed(1) + ' ' + (last.y + (target.y - last.y) * 0.5).toFixed(1) + ' ' +
-          (target.x + (last.x - target.x) * 0.45).toFixed(1) + ' ' + (target.y - (target.y - last.y) * 0.35).toFixed(1) + ' ' +
-          target.x.toFixed(1) + ' ' + target.y.toFixed(1) });
-        spans.forEach(function (span, si) {
-          var d = span.d;
-          if (side === 1) d = d.replace(/(-?[\d.]+) (-?[\d.]+)/g, function (_, px, py) { return (w - parseFloat(px)).toFixed(1) + ' ' + py; });
-          var fade = span.out ? 'url(#lp-flow-out)' : si === 0 ? 'url(#lp-flow-in)' : null;
-          function styled(p) { if (fade) p.style.stroke = fade; return p; }
-          var g = groupFor((span.y0 + span.y1) / 2);
-          g.appendChild(styled(flowPath('lp-flow-base', d)));
-          g.appendChild(styled(flowPath('lp-flow-drift', d, function (p) {
-            p.style.setProperty('--dur', (6 + ((k * 5 + si * 3 + side * 2) % 5)) + 's');
-            p.style.setProperty('--delay', '-' + (((k * 2.3 + si * 1.7 + side) % 9)).toFixed(1) + 's');
-          })));
-          var lit = styled(flowPath('lp-flow-lit', d));
-          g.appendChild(lit);
-          pieces.push({ el: lit, y0: span.y0, y1: span.y1, f: -1 });
-        });
-      }
+        groups[i].appendChild(styled(flowPath('lp-flow-base', run.d)));
+        // Pulses sized in pixels, so they look the same on long and short pieces.
+        var len = Math.max(1, run.len);
+        var dur = len / FLOW_PULSE_SPEED;
+        groups[i].appendChild(styled(flowPath('lp-flow-drift', run.d, function (p) {
+          p.style.strokeDasharray = (FLOW_PULSE / len).toFixed(4) + ' ' + (FLOW_PULSE_GAP / len).toFixed(4);
+          p.style.setProperty('--dur', dur.toFixed(1) + 's');
+          p.style.setProperty('--delay', '-' + (((k * 0.37 + i * 0.21) % 1) * dur).toFixed(1) + 's');
+        })));
+        var lit = styled(flowPath('lp-flow-lit', run.d));
+        groups[i].appendChild(lit);
+        pieces.push({ el: lit, y0: run.y0, y1: run.y1, f: -1 });
+      });
     }
-    return { pieces: pieces, targetY: target.y, groups: groups, sections: sections };
+    return { pieces: pieces, targetY: geo.target.y, groups: groups, sections: sections };
   }
 
   function updateFlow() {
