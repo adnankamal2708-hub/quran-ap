@@ -141,6 +141,8 @@
       50% { opacity: 1; transform: scale(1.35); }
     }
     html.landing-ready .lp-gate { opacity: 0; pointer-events: none; }
+    /* Stop the loading pulse once the page is ready (it kept running unseen) */
+    html.landing-ready .lp-gate-dot { animation: none; }
 
     .landing-page { opacity: 0; transition: opacity 0.55s ease 0.12s; }
     html.landing-ready .landing-page { opacity: 1; }
@@ -212,8 +214,8 @@
     /* Reveal on first view (js/landing/landing-motion.js adds .is-in) */
     [data-reveal] {
       opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+      transform: translateY(10px);
+      transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
       transition-delay: var(--d, 0s);
     }
     [data-reveal].is-in { opacity: 1; transform: none; }
@@ -309,11 +311,10 @@
       animation: lpDrift var(--dur, 26s) linear infinite;
       animation-delay: var(--delay, 0s);
     }
-    .lp-paths.is-paused path,
-    .lp-paths.is-paused .lp-rays { animation-play-state: paused; }
-    /* Golden rays fanning down from the top of the hero, turning very
-       slowly. Two repeating sets with different spacing make the streaks
-       uneven; the mask fades them out with distance. */
+    .lp-paths.is-paused path { animation-play-state: paused; }
+    /* Golden rays turning very slowly (behind the closing verse). Two
+       repeating sets with different spacing make the streaks uneven; the
+       mask fades them out with distance. */
     .lp-rays {
       position: absolute;
       left: 50%;
@@ -329,14 +330,6 @@
       animation: lpRays 240s linear infinite;
     }
     @keyframes lpRays { to { transform: translate(-50%, -50%) rotate(360deg); } }
-    /* A warm glow where the rays begin */
-    .lp-hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 70% 55% at 50% 0%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 70%);
-      pointer-events: none;
-    }
     @keyframes lpDrift { to { stroke-dashoffset: -1; } }
     /* Keep the headline and copy clear of the lines; fade into the next section. */
     .lp-hero::after {
@@ -405,14 +398,13 @@
     .lp-hero h1 .lp-hw {
       display: inline-block;
       opacity: 0;
-      filter: blur(8px);
-      transform: translateY(14px);
+      transform: translateY(8px);
     }
     html.landing-ready .lp-hero h1 .lp-hw {
-      animation: lpWordIn 0.9s var(--ease-out) forwards;
-      animation-delay: calc(0.25s + var(--i) * 0.07s);
+      animation: lpWordIn 0.5s var(--ease-out) forwards;
+      animation-delay: calc(0.1s + var(--i) * 0.05s);
     }
-    @keyframes lpWordIn { to { opacity: 1; filter: blur(0); transform: none; } }
+    @keyframes lpWordIn { to { opacity: 1; transform: none; } }
     .lp-hero h1 em { font-style: italic; color: var(--gold); }
     .lp-hero-sub {
       font-family: var(--serif);
@@ -423,8 +415,8 @@
       margin: 26px auto 0;
     }
     .lp-hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 36px; }
-    .lp-fade-up { opacity: 0; transform: translateY(12px); }
-    html.landing-ready .lp-fade-up { animation: lpFadeUp 0.9s var(--ease-out) forwards; animation-delay: var(--d, 0.8s); }
+    .lp-fade-up { opacity: 0; transform: translateY(8px); }
+    html.landing-ready .lp-fade-up { animation: lpFadeUp 0.5s var(--ease-out) forwards; animation-delay: var(--d, 0.4s); }
     @keyframes lpFadeUp { to { opacity: 1; transform: none; } }
 
     /* Hero verse: meanings settle in under each word */
@@ -448,7 +440,7 @@
       opacity: 0;
       transform: translateY(-6px);
     }
-    html.landing-ready .lp-vw-en { animation: lpFadeUp 0.7s var(--ease-out) forwards; animation-delay: calc(1.3s + var(--i) * 0.18s); }
+    html.landing-ready .lp-vw-en { animation: lpFadeUp 0.5s var(--ease-out) forwards; animation-delay: calc(0.7s + var(--i) * 0.06s); }
     .lp-vw:hover .lp-vw-ar { color: var(--gold-light); }
     .lp-verse-note { margin-top: 16px; font-size: 13px; color: var(--text-muted); text-align: center; }
 
@@ -715,11 +707,11 @@
     .lp-timeline { position: relative; max-width: 760px; margin: 0 auto; padding-left: 44px; }
     .lp-tl-rail, .lp-tl-beam { position: absolute; left: 11px; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; }
     .lp-tl-rail { background: var(--border); }
+    /* Still: filled from the top to the stage being built now (set by landing-motion.js) */
     .lp-tl-beam {
       background: linear-gradient(to bottom, var(--gold-light), var(--gold) 70%, var(--gold-dim));
       transform-origin: top;
-      transform: scaleY(0);
-      will-change: transform;
+      transform: scaleY(var(--reach, 0));
     }
     .lp-tl-item { position: relative; padding-bottom: 54px; }
     .lp-tl-item:last-child { padding-bottom: 0; }
@@ -1001,12 +993,11 @@
       <!-- Hero -->
       <section class="lp-hero" aria-labelledby="lp-hero-title">
         <div class="lp-paths" aria-hidden="true">
-          <div class="lp-rays"></div>
           <svg viewBox="0 0 696 316" preserveAspectRatio="xMidYMid slice"></svg>
           <svg viewBox="0 0 696 316" preserveAspectRatio="xMidYMid slice"></svg>
         </div>
         <div class="lp-wrap lp-hero-inner">
-          <div class="lp-hero-badge lp-fade-up" style="--d:0.1s"><i></i><span>New: <b>learning tracks</b> and a 5-minute placement test</span></div>
+          <div class="lp-hero-badge lp-fade-up" style="--d:0.05s"><i></i><span>New: <b>learning tracks</b> and a 5-minute placement test</span></div>
           <h1 id="lp-hero-title">
             <span class="lp-hw" style="--i:0">Understand</span>
             <span class="lp-hw" style="--i:1">the</span>
@@ -1014,15 +1005,15 @@
             <span class="lp-hw" style="--i:3">you</span>
             <span class="lp-hw" style="--i:4">recite</span>
           </h1>
-          <p class="lp-hero-sub lp-fade-up" style="--d:0.75s">Bayan teaches the Arabic of the Quran word by word and root by root. Find your level, follow a clear path, and watch the share of the Quran you understand grow.</p>
-          <div class="lp-hero-ctas lp-fade-up" style="--d:0.9s">
+          <p class="lp-hero-sub lp-fade-up" style="--d:0.35s">Bayan teaches the Arabic of the Quran word by word and root by root. Find your level, follow a clear path, and watch the share of the Quran you understand grow.</p>
+          <div class="lp-hero-ctas lp-fade-up" style="--d:0.45s">
             <a class="lp-cta" href="./">Start learning free
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
             <a class="lp-btn-ghost" href="#how">See how it works</a>
           </div>
 
-          <figure class="lp-verse lp-fade-up" style="--d:1.05s" aria-label="Quran 1:5, word by word">
+          <figure class="lp-verse lp-fade-up" style="--d:0.55s" aria-label="Quran 1:5, word by word">
             <div class="lp-verse-line">
               <span class="lp-vw" style="--i:0"><span class="lp-vw-ar" lang="ar" dir="rtl">إِيَّاكَ</span><span class="lp-vw-en">You alone</span></span>
               <span class="lp-vw" style="--i:1"><span class="lp-vw-ar" lang="ar" dir="rtl">نَعۡبُدُ</span><span class="lp-vw-en">we worship</span></span>

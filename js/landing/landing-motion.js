@@ -12,7 +12,7 @@
 //   • [data-reveal]: fade/rise in on first view
 //   • Statement: words light up with scroll progress
 //   • How it works: sticky phone frame follows the active step
-//   • Timeline: gold beam fills with scroll progress
+//   • Timeline: still, marked up to the stage being built now
 //   • Progress: example ring and counter
 //   • Try it: "Spot the word" demo and the root family
 //   • Golden lines: run down the whole page and meet behind the verse
@@ -110,15 +110,6 @@
     });
   }
 
-  /** 0 → 1 as `el` travels through the viewport between the two anchors. */
-  function progressThrough(el, startAt, endAt) {
-    var rect = el.getBoundingClientRect();
-    var vh = window.innerHeight;
-    var start = vh * startAt;
-    var total = rect.height + vh * (startAt - endAt);
-    return clamp((start - rect.top) / total, 0, 1);
-  }
-
   // Statement: words brighten in reading order, a few at a time so the
   // light moves as a soft gradient. It starts just before the paragraph
   // pins and finishes with a third of the pinned scroll to spare, so the
@@ -161,27 +152,25 @@
     });
   }
 
-  // Timeline: the beam grows with scroll; each stop lights when reached.
+  // Timeline: still. The first TIMELINE_REACHED stages ("Available now"
+  // and "Next") are marked, and the beam runs from the top to the last of
+  // them, so it shows where the roadmap stands rather than moving with
+  // the scroll (the golden lines already do that).
+  var TIMELINE_REACHED = 2;
   function initTimeline() {
     var tl = $('.lp-timeline');
     if (!tl) return;
     var beam = $('.lp-tl-beam', tl);
     var stops = $all('.lp-tl-item', tl);
-    if (reduceMotion) {
-      beam.style.transform = 'scaleY(1)';
-      stops.forEach(function (s) { s.classList.add('is-reached'); });
-      return;
-    }
-    scrollTasks.push(function () {
-      var p = progressThrough(tl, 0.6, 0.6);
-      beam.style.transform = 'scaleY(' + p.toFixed(4) + ')';
+    var last = stops[Math.min(TIMELINE_REACHED, stops.length) - 1];
+    stops.forEach(function (s, i) { s.classList.toggle('is-reached', i < TIMELINE_REACHED); });
+    function place() {
       var line = tl.getBoundingClientRect();
-      stops.forEach(function (s) {
-        var r = s.getBoundingClientRect();
-        var reached = (r.top - line.top + 14) <= p * line.height;
-        s.classList.toggle('is-reached', reached);
-      });
-    });
+      var reach = last ? (last.getBoundingClientRect().top - line.top + 14) / Math.max(1, line.height) : 0;
+      beam.style.setProperty('--reach', clamp(reach, 0, 1).toFixed(4));
+    }
+    place();
+    window.addEventListener('resize', place);
   }
 
   // ── How it works: sticky phone follows the step in view ─────────
@@ -216,7 +205,7 @@
       io.disconnect();
       box.classList.add('is-in');
       var t0 = null;
-      var DURATION = 1600;
+      var DURATION = 900;
       function step(ts) {
         if (t0 === null) t0 = ts;
         var k = clamp((ts - t0) / DURATION, 0, 1);
