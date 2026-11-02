@@ -1183,7 +1183,8 @@ suite('Track rows', function() {
     assert.strictEqual(rowTags(html).length, 1, 'exactly one track row by default');
     var row = html.indexOf('id="db-track-row-words"');
     assert.ok(html.indexOf('Word meanings', row) > row, 'row shows the track name');
-    assert.ok(html.indexOf("% of the Quran's words understood", row) > row, 'row shows the track percentage');
+    assert.ok(html.indexOf('db-track-row-pct', row) < 0, 'a lone track row does not repeat the headline sentence');
+    assert.ok(html.indexOf('db-track-row-bar', row) > row, 'row keeps its progress bar');
     assert.ok(row > html.indexOf('db-goal-card'), 'after the streak and daily goal block');
     assert.ok(row < html.indexOf('db-review-center-prompt'), "before today's due reviews");
   });

@@ -228,7 +228,8 @@ function renderDashboard() {
         ' aria-label="' + $tname + ($ttext ? ', ' + $ttext : '') + '">';
       $rows += '<span class="db-track-row-name">' + $tname + '</span>';
       if ($ttext) {
-        $rows += '<span class="db-track-row-pct">' + $ttext + '</span>';
+        // With one track the headline above already says this sentence
+        if ($trackIds.length > 1) $rows += '<span class="db-track-row-pct">' + $ttext + '</span>';
         $rows += '<span class="db-track-row-bar" aria-hidden="true"><span style="width:' + Math.min(100, $tpct) + '%"></span></span>';
       }
       $rows += '</button>';
