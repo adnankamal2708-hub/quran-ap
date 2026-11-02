@@ -337,10 +337,20 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 52% 46% at 50% 44%, color-mix(in srgb, var(--bg) 96%, transparent) 0%, color-mix(in srgb, var(--bg) 82%, transparent) 50%, transparent 100%);
+        radial-gradient(ellipse 46% 58% at 27% 52%, color-mix(in srgb, var(--bg) 96%, transparent) 0%, color-mix(in srgb, var(--bg) 84%, transparent) 55%, transparent 100%);
       pointer-events: none;
     }
-    .lp-hero-inner { position: relative; z-index: 1; text-align: center; width: 100%; }
+    /* Split hero: the promise on the left, a verse to try on the right */
+    .lp-hero-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1180px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 56px;
+      align-items: center;
+    }
 
     /* ── Golden lines through the page ──────────────────────────
        Drawn by landing-motion.js: they run down the side margins past
@@ -381,7 +391,7 @@
       background: color-mix(in srgb, var(--surface) 70%, transparent);
       font-size: 13px;
       color: var(--text-muted);
-      margin-bottom: 28px;
+      margin-bottom: 22px;
     }
     .lp-hero-badge b { color: var(--gold); font-weight: 600; }
     .lp-hero-badge i { flex: 0 0 6px; }
@@ -389,11 +399,11 @@
     .lp-hero h1 {
       font-family: var(--serif);
       font-weight: 600;
-      font-size: clamp(40px, 7.2vw, 80px);
+      font-size: clamp(42px, 5.4vw, 68px);
       line-height: 1.05;
       letter-spacing: -0.025em;
-      max-width: 15ch;
-      margin: 0 auto;
+      max-width: 13ch;
+      margin: 0;
     }
     .lp-hero h1 .lp-hw {
       display: inline-block;
@@ -411,38 +421,44 @@
       font-size: clamp(17px, 2.1vw, 20px);
       line-height: 1.7;
       color: var(--text-muted);
-      max-width: 54ch;
-      margin: 26px auto 0;
+      max-width: 40ch;
+      margin: 22px 0 0;
     }
     .lp-hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 36px; }
+    .lp-hero .lp-hero-ctas { justify-content: flex-start; margin-top: 30px; }
+    .lp-hero-note { margin-top: 14px; font-size: 13px; color: var(--text-muted); }
     .lp-fade-up { opacity: 0; transform: translateY(8px); }
     html.landing-ready .lp-fade-up { animation: lpFadeUp 0.5s var(--ease-out) forwards; animation-delay: var(--d, 0.4s); }
     @keyframes lpFadeUp { to { opacity: 1; transform: none; } }
 
-    /* Hero verse: meanings settle in under each word */
-    .lp-verse {
-      margin: 64px auto 0;
-      max-width: 640px;
-      padding: 26px 22px 20px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: color-mix(in srgb, var(--surface) 82%, transparent);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow: var(--shadow-lg);
+    /* Hero card: tap a word of 1:5 for its meaning and root */
+    .lp-hc { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 22px 22px 20px; box-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.55); }
+    .lp-hc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; color: var(--text-muted); }
+    .lp-hc-head b { color: var(--text); font-weight: 600; }
+    .lp-hc-words { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 18px 0 16px; }
+    .lp-hc-w { font-family: var(--arabic); font-size: 34px; line-height: 1.5; color: var(--text); background: none; border: 1px solid transparent; border-radius: 12px; padding: 4px 12px 8px; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+    .lp-hc-w:hover { background: var(--gold-soft); }
+    .lp-hc-w:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .lp-hc-w.is-on { border-color: var(--gold-dim); background: var(--gold-soft); color: var(--gold-light); }
+    .lp-hc-detail { border-top: 1px solid var(--hairline); padding-top: 16px; display: grid; gap: 14px; }
+    .lp-hc-detail[hidden] { display: none; }
+    .lp-hc-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .lp-hc-mean { font-family: var(--serif); font-size: 24px; color: var(--text); }
+    .lp-hc-type { font-size: 12px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+    .lp-hc-root { display: flex; align-items: center; gap: 12px; }
+    .lp-hc-letters { display: flex; gap: 4px; }
+    .lp-hc-letters span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: var(--gold-soft); color: var(--gold); font-family: var(--arabic); font-size: 19px; }
+    .lp-hc-muted { margin: 0; font-size: 14px; color: var(--text-muted); }
+    .lp-hc-fam { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .lp-hc-fam div { border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; text-align: center; }
+    .lp-hc-fam span { display: block; font-family: var(--arabic); font-size: 21px; color: var(--text); line-height: 1.5; }
+    .lp-hc-fam small { display: block; font-size: 12px; color: var(--text-muted); }
+    @media (max-width: 860px) {
+      .lp-hero-inner { grid-template-columns: 1fr; gap: 36px; }
+      .lp-hero::after { background: radial-gradient(ellipse 90% 40% at 50% 34%, color-mix(in srgb, var(--bg) 96%, transparent) 0%, color-mix(in srgb, var(--bg) 84%, transparent) 55%, transparent 100%); }
+      .lp-hc-w { font-size: 28px; padding: 4px 8px 8px; }
+      .lp-hc-fam span { font-size: 18px; }
     }
-    .lp-verse-line { display: flex; flex-direction: row-reverse; justify-content: center; flex-wrap: wrap; gap: 10px 26px; }
-    .lp-vw { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .lp-vw-ar { font-size: clamp(28px, 4vw, 36px); line-height: 1.5; color: var(--text); transition: color 0.3s ease; }
-    .lp-vw-en {
-      font-size: 13px;
-      color: var(--gold);
-      opacity: 0;
-      transform: translateY(-6px);
-    }
-    html.landing-ready .lp-vw-en { animation: lpFadeUp 0.5s var(--ease-out) forwards; animation-delay: calc(0.7s + var(--i) * 0.06s); }
-    .lp-vw:hover .lp-vw-ar { color: var(--gold-light); }
-    .lp-verse-note { margin-top: 16px; font-size: 13px; color: var(--text-muted); text-align: center; }
 
     /* ── Statement: words light up with scroll ────────────────── */
     .lp-statement { position: relative; height: 170vh; }
@@ -940,7 +956,6 @@
       .lp-facts { grid-template-columns: 1fr; }
       .lp-statement { height: 150vh; }
       .lp-hero-ctas .lp-cta, .lp-hero-ctas .lp-btn-ghost { width: 100%; }
-      .lp-verse-line { gap: 8px 18px; }
       .lp-branches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .lp-family-lines { display: none; }
       .lp-family-root { margin-bottom: 14px; }
@@ -955,7 +970,7 @@
       *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
       .lp-paths path { animation: none; stroke-dasharray: none; }
       .lp-rays { animation: none; }
-      .lp-hero h1 .lp-hw, .lp-fade-up, .lp-vw-en { opacity: 1; filter: none; transform: none; }
+      .lp-hero h1 .lp-hw, .lp-fade-up { opacity: 1; filter: none; transform: none; }
       [data-reveal] { opacity: 1; transform: none; }
     }
   </style>
@@ -997,6 +1012,7 @@
           <svg viewBox="0 0 696 316" preserveAspectRatio="xMidYMid slice"></svg>
         </div>
         <div class="lp-wrap lp-hero-inner">
+          <div class="lp-hero-text">
           <div class="lp-hero-badge lp-fade-up" style="--d:0.05s"><i></i><span>New: <b>learning tracks</b> and a 5-minute placement test</span></div>
           <h1 id="lp-hero-title">
             <span class="lp-hw" style="--i:0">Understand</span>
@@ -1005,22 +1021,48 @@
             <span class="lp-hw" style="--i:3">you</span>
             <span class="lp-hw" style="--i:4">recite</span>
           </h1>
-          <p class="lp-hero-sub lp-fade-up" style="--d:0.35s">Bayan teaches the Arabic of the Quran word by word and root by root. Find your level, follow a clear path, and watch the share of the Quran you understand grow.</p>
+          <p class="lp-hero-sub lp-fade-up" style="--d:0.35s">Learn the words of the Quran by their meaning and their root. Find your level in five minutes, then follow a clear path.</p>
           <div class="lp-hero-ctas lp-fade-up" style="--d:0.45s">
-            <a class="lp-cta" href="./">Start learning free
+            <a class="lp-cta" href="./">Find my starting point
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </a>
             <a class="lp-btn-ghost" href="#how">See how it works</a>
           </div>
+          <p class="lp-hero-note lp-fade-up" style="--d:0.5s">Free · about 5 minutes · no account needed</p>
+          </div>
 
-          <figure class="lp-verse lp-fade-up" style="--d:0.55s" aria-label="Quran 1:5, word by word">
-            <div class="lp-verse-line">
-              <span class="lp-vw" style="--i:0"><span class="lp-vw-ar" lang="ar" dir="rtl">إِيَّاكَ</span><span class="lp-vw-en">You alone</span></span>
-              <span class="lp-vw" style="--i:1"><span class="lp-vw-ar" lang="ar" dir="rtl">نَعۡبُدُ</span><span class="lp-vw-en">we worship</span></span>
-              <span class="lp-vw" style="--i:2"><span class="lp-vw-ar" lang="ar" dir="rtl">وَإِيَّاكَ</span><span class="lp-vw-en">and You alone</span></span>
-              <span class="lp-vw" style="--i:3"><span class="lp-vw-ar" lang="ar" dir="rtl">نَسۡتَعِينُ</span><span class="lp-vw-en">we ask for help</span></span>
+          <figure class="lp-hc lp-fade-up" style="--d:0.55s" aria-label="Quran 1:5, word by word">
+            <figcaption class="lp-hc-head"><span><b>Al-Fatihah 1:5</b> · recited in every prayer</span><span>Tap a word</span></figcaption>
+            <div class="lp-hc-words" lang="ar" dir="rtl">
+              <button type="button" class="lp-hc-w" aria-pressed="false" aria-controls="lp-hc-d0">إِيَّاكَ</button>
+              <button type="button" class="lp-hc-w is-on" aria-pressed="true" aria-controls="lp-hc-d1">نَعْبُدُ</button>
+              <button type="button" class="lp-hc-w" aria-pressed="false" aria-controls="lp-hc-d2">وَإِيَّاكَ</button>
+              <button type="button" class="lp-hc-w" aria-pressed="false" aria-controls="lp-hc-d3">نَسْتَعِينُ</button>
             </div>
-            <figcaption class="lp-verse-note">Al-Fatihah 1:5 — recited in every prayer, now understood word by word.</figcaption>
+            <div class="lp-hc-detail" id="lp-hc-d0" hidden>
+              <div class="lp-hc-top"><span class="lp-hc-mean">You alone</span><span class="lp-hc-type">Pronoun</span></div>
+              <p class="lp-hc-muted">Placed first for emphasis: You and no one else.</p>
+              <div class="lp-hc-muted">Same form, other persons</div>
+              <div class="lp-hc-fam"><div><span lang="ar" dir="rtl">إِيَّايَ</span><small>me alone</small></div><div><span lang="ar" dir="rtl">إِيَّاهُ</span><small>him alone</small></div><div><span lang="ar" dir="rtl">إِيَّانَا</span><small>us alone</small></div></div>
+            </div>
+            <div class="lp-hc-detail" id="lp-hc-d1">
+              <div class="lp-hc-top"><span class="lp-hc-mean">we worship</span><span class="lp-hc-type">Verb</span></div>
+              <div class="lp-hc-root"><div class="lp-hc-letters" lang="ar" dir="rtl"><span>ع</span><span>ب</span><span>د</span></div><span class="lp-hc-muted">Root · to serve, to worship</span></div>
+              <div class="lp-hc-muted">From the same root</div>
+              <div class="lp-hc-fam"><div><span lang="ar" dir="rtl">عَبْد</span><small>servant</small></div><div><span lang="ar" dir="rtl">عِبَادَة</span><small>worship</small></div><div><span lang="ar" dir="rtl">عَابِد</span><small>worshipper</small></div></div>
+            </div>
+            <div class="lp-hc-detail" id="lp-hc-d2" hidden>
+              <div class="lp-hc-top"><span class="lp-hc-mean">and You alone</span><span class="lp-hc-type">وَ and + pronoun</span></div>
+              <p class="lp-hc-muted">The same word as the first, joined by وَ “and”.</p>
+              <div class="lp-hc-muted">Same form, other persons</div>
+              <div class="lp-hc-fam"><div><span lang="ar" dir="rtl">إِيَّايَ</span><small>me alone</small></div><div><span lang="ar" dir="rtl">إِيَّاهُ</span><small>him alone</small></div><div><span lang="ar" dir="rtl">إِيَّانَا</span><small>us alone</small></div></div>
+            </div>
+            <div class="lp-hc-detail" id="lp-hc-d3" hidden>
+              <div class="lp-hc-top"><span class="lp-hc-mean">we ask for help</span><span class="lp-hc-type">Verb</span></div>
+              <div class="lp-hc-root"><div class="lp-hc-letters" lang="ar" dir="rtl"><span>ع</span><span>و</span><span>ن</span></div><span class="lp-hc-muted">Root · to help</span></div>
+              <div class="lp-hc-muted">From the same root</div>
+              <div class="lp-hc-fam"><div><span lang="ar" dir="rtl">اسْتَعِينُوا</span><small>seek help · 2:45</small></div><div><span lang="ar" dir="rtl">الْمُسْتَعَانُ</span><small>whose help is sought · 12:18</small></div><div><span lang="ar" dir="rtl">تَعَاوَنُوا</span><small>cooperate · 5:2</small></div></div>
+            </div>
           </figure>
         </div>
       </section>
@@ -1386,7 +1428,7 @@
     <style>
       .lp-gate { display: none; }
       .landing-page { opacity: 1; }
-      [data-reveal], .lp-hero h1 .lp-hw, .lp-fade-up, .lp-vw-en { opacity: 1; filter: none; transform: none; }
+      [data-reveal], .lp-hero h1 .lp-hw, .lp-fade-up { opacity: 1; filter: none; transform: none; }
       .lp-statement { height: auto; padding: 120px 0; }
       .lp-statement-sticky { position: static; height: auto; }
       .lp-sw { --a: 1; }

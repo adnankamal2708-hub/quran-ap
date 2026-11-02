@@ -8,6 +8,7 @@
 // while off screen or while the tab is hidden.
 //
 //   • Hero: flowing background paths (drawn here, animated in CSS)
+//   • Hero card: tap a word of Al-Fatihah 1:5 for its meaning and root
 //   • Header: solid background once the page scrolls
 //   • [data-reveal]: fade/rise in on first view
 //   • Statement: words light up with scroll progress
@@ -228,6 +229,23 @@
       span.dir = 'rtl';
       span.textContent = part.ar;
       el.appendChild(span);
+    });
+  }
+
+  // ── Hero card: tap a word of 1:5 to see its meaning and root ───
+  function initHeroCard() {
+    var card = $('.lp-hc');
+    if (!card) return;
+    var words = $all('.lp-hc-w', card);
+    words.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        words.forEach(function (w) {
+          var on = w === btn;
+          w.classList.toggle('is-on', on);
+          w.setAttribute('aria-pressed', on ? 'true' : 'false');
+          document.getElementById(w.getAttribute('aria-controls')).hidden = !on;
+        });
+      });
     });
   }
 
@@ -587,6 +605,7 @@
     initTimeline();
     initSteps();
     initProgress();
+    initHeroCard();
     initSpotDemo();
     initRootFamily();
     initSpotlight();
