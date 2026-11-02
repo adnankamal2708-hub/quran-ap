@@ -882,10 +882,10 @@ function renderProfileProgress() {
 
   // Learning stages breakdown — single segmented bar with color legend
   var stageItems = [
-    { label: 'New', val: srsStats.newCount || 0, fillCls: 'profile-fill-blue', color: 'var(--blue)' },
-    { label: 'Learning', val: srsStats.learning || 0, fillCls: 'profile-fill-purple', color: 'var(--purple)' },
-    { label: 'Young', val: srsStats.young || 0, fillCls: 'profile-fill-gold', color: 'var(--gold-dim)' },
-    { label: 'Mature', val: srsStats.mature || 0, fillCls: 'profile-fill-green', color: 'var(--green)' },
+    { label: 'New', val: srsStats.newCount || 0, fillCls: 'profile-fill-neutral', color: 'var(--text-muted)' },
+    { label: 'Learning', val: srsStats.learning || 0, fillCls: 'profile-fill-gold-dim', color: 'var(--gold-dim)' },
+    { label: 'Young', val: srsStats.young || 0, fillCls: 'profile-fill-gold-muted', color: 'var(--gold-muted)' },
+    { label: 'Mature', val: srsStats.mature || 0, fillCls: 'profile-fill-gold', color: 'var(--gold)' },
   ];
   h += '<div class="profile-subsection">';
   h += '<div class="profile-subsection-title">' + uiIcon('chart') + 'Learning Stages</div>';
@@ -946,8 +946,8 @@ function renderProfileProgress() {
     h += '<div class="profile-subsection-title">' + uiIcon('calendar') + 'Review forecast</div>';
     var intervals = [0, 3, 7, 14, 30];
     var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
-    var forecastColors = ['var(--gold)', 'var(--gold)', 'var(--green)', 'var(--blue)', 'var(--blue)'];
-    var forecastFills = ['profile-fill-gold', 'profile-fill-gold', 'profile-fill-green', 'profile-fill-blue', 'profile-fill-blue'];
+    var forecastColors = ['var(--gold)', 'var(--text-muted)', 'var(--text-muted)', 'var(--text-muted)', 'var(--text-muted)'];
+    var forecastFills = ['profile-fill-gold', 'profile-fill-neutral', 'profile-fill-neutral', 'profile-fill-neutral', 'profile-fill-neutral'];
     // Iterate canonical words (SRS data is keyed by canonical cw_N ids after
     // loadSRS() migration — raw w_N lookups never match, which zeroed the
     // forecast). Same canonical-with-fallback pattern as getSRSStats.

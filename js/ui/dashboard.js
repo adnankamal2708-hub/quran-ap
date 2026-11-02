@@ -36,9 +36,9 @@ function _computeForecast() {
   var $dayMs = 24 * 60 * 60 * 1000;
   var $intervals = [
     { label: 'Today', days: 0, color: 'var(--gold)' },
-    { label: '3 Days', days: 3, color: 'var(--blue)' },
-    { label: '7 Days', days: 7, color: 'var(--green)' },
-    { label: '14 Days', days: 14, color: 'var(--purple)' },
+    { label: '3 Days', days: 3, color: 'var(--text-muted)' },
+    { label: '7 Days', days: 7, color: 'var(--text-muted)' },
+    { label: '14 Days', days: 14, color: 'var(--text-muted)' },
   ];
   // Iterate canonical words — srsData keys are canonical cw_N ids after
   // loadSRS() migration, so raw w_N lookups never match (canonical-vs-raw ID bug).
@@ -669,7 +669,7 @@ function renderDashboard() {
       var $surahName = $surahInfo ? $surahInfo.name : 'Surah ' + $surah.surahId;
       var $surahEnglish = $surahInfo ? $surahInfo.english : '';
       var $surahCompPct = $surah.estimatedComprehension || 0;
-      var $surahCompClass = $surahCompPct >= 50 ? 'db-sc-gold' : ($surahCompPct >= 25 ? 'db-sc-blue' : 'db-sc-red');
+      var $surahCompClass = $surahCompPct >= 50 ? 'db-sc-gold' : 'db-sc-muted';
       $h += '<div class="db-surah-row" data-surah-id="' + $surah.surahId + '" tabindex="0" role="button" aria-label="' + $surahName + ': ' + $surahCompPct + '% comprehension">';
       $h += '<div class="db-surah-row-info">';
       $h += '<span class="db-surah-row-name">' + $surahName + '</span>';
