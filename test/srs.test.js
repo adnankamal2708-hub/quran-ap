@@ -342,6 +342,18 @@ suite('Review Queue', function() {
     assert.strictEqual(getDueReviews().length, 0);
   });
 
+  test('getDueReviews counts due words outside the open lesson', function() {
+    clearStorage();
+    global.ALL_WORDS = [];
+    global.getActiveLessonWords = function() { return [{ id: 'cw_2' }]; };
+    global.getCanonicalWordById = function(id) { return id === 'cw_1' ? { id: 'cw_1' } : null; };
+    saveSRS({ cw_1: { stage: 1, dueDate: _mockNow - 1000, interval: 1, easeFactor: 2.5, leechCount: 0, isLeech: false } });
+    var due = getDueReviews();
+    delete global.getActiveLessonWords;
+    delete global.getCanonicalWordById;
+    assert.deepStrictEqual(due.map(function(w) { return w.id; }), ['cw_1']);
+  });
+
   test('getNewWords returns unstudied words', function() {
     clearStorage();
     global.ALL_WORDS = [{ id: 'w1' }, { id: 'w2' }];

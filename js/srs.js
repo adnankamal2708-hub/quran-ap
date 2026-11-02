@@ -587,27 +587,36 @@ function computeLearningInterval(rating, prevInterval, entry) {
 // ── Review Queue ───────────────────────────────────────────────
 
 /**
- * Get all session words that are due for review, sorted by priority:
+ * Resolve an SRS key to its word. Keys are canonical (cw_N); an old w_N
+ * key stays only when loadSRS found no canonical match for it.
+ */
+function _findStudiedWord(id) {
+  var w = typeof getCanonicalWordById === 'function' && id.indexOf('cw_') === 0 ? getCanonicalWordById(id) : null;
+  if (w) return w;
+  if (typeof findWordById === 'function') return findWordById(id) || null;
+  for (var i = 0; i < ALL_WORDS.length; i++) { if (ALL_WORDS[i].id === id) return ALL_WORDS[i]; }
+  return null;
+}
+
+/**
+ * Get all studied words that are due for review, sorted by priority:
  * 1. Leeched words (due)
  * 2. Most overdue first
  * 3. Due today
  * 4. Due within 3 days
  * Respects daily review limit.
- * Supports both lesson mode and surah mode.
  */
 function getDueReviews() {
   var data = loadSRS();
   var now = Date.now();
   var due = [];
 
-  // Use active words (respects surah mode and lesson mode)
-  var words = (typeof getActiveLessonWords === 'function') ? getActiveLessonWords() : ALL_WORDS;
-  if (!words || words.length === 0) words = ALL_WORDS;
-
-  words.forEach(function (w) {
-    var entry = data[w.id];
-    if (!entry) return;
-    if (now >= entry.dueDate) {
+  // Every studied word, not only the open lesson's: a word learned in an
+  // earlier lesson stays due after another lesson is opened.
+  Object.keys(data).forEach(function (id) {
+    var entry = data[id];
+    var w = entry && now >= entry.dueDate ? _findStudiedWord(id) : null;
+    if (w) {
       due.push({
         word: w,
         entry: entry,
