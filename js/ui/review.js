@@ -203,16 +203,14 @@ function showPreLessonReviewPrompt(checkResult) {
   var banner = document.createElement('div');
   banner.id = 'pre-lesson-review-prompt';
   banner.className = 'pre-lesson-review visible';
-  banner.style.cssText = 'margin:8px 12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--gold);font-size:12px;line-height:1.5';
-  banner.innerHTML = 
-    '<div style="display:flex;align-items:flex-start;gap:8px">' +
-    '<span style="font-size:16px">' + uiIcon('repeat', true) + '</span>' +
-    '<div style="flex:1">' +
-    '<div style="font-weight:500;color:var(--gold);margin-bottom:4px">' + checkResult.message + '</div>' +
-    '<div style="display:flex;gap:8px">' +
-    '<button id="pre-review-now" class="btn btn-sm" style="background:var(--gold);color:var(--on-gold);border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">Review now</button>' +
-    '<button id="pre-review-continue" class="btn btn-sm" style="background:var(--bg-hover);color:var(--text);border:1px solid var(--border-light);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11px">Continue Anyway</button>' +
-    '</div></div></div>';
+  banner.innerHTML =
+    '<span class="pre-lesson-review-icon">' + uiIcon('repeat', true) + '</span>' +
+    '<div class="pre-lesson-review-body">' +
+    '<div class="pre-lesson-review-msg">' + checkResult.message + '</div>' +
+    '<div class="pre-lesson-review-actions">' +
+    '<button id="pre-review-now" class="btn btn-sm" type="button">Review now</button>' +
+    '<button id="pre-review-continue" class="btn btn-sm btn-outline" type="button">Continue anyway</button>' +
+    '</div></div>';
   
   var reviewBanner = document.getElementById('review-banner');
   var learnView = document.getElementById('view-learn');

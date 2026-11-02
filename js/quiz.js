@@ -54,7 +54,7 @@ function initQuiz() {
     var wordEl = DOM.get('quiz-word');
     if (wordEl) wordEl.innerHTML = uiIcon('layers', true);
     var optionsEl = DOM.get('quiz-options');
-    if (optionsEl) optionsEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">No words available for quiz.</div>';
+    if (optionsEl) optionsEl.innerHTML = '<div class="quiz-empty">No words available for quiz.</div>';
     DOM.get('quiz-score-display').textContent = '';
     return;
   }
@@ -127,7 +127,7 @@ function answerQuiz(btn, chosen, correct, wordId) {
       relParts.push('In ' + currentWord.surahCount + ' surah' + (currentWord.surahCount !== 1 ? 's' : ''));
     }
     if (relParts.length > 0) {
-      relContext = '<div class="quiz-rel-context" style="font-size:11px;color:var(--text-muted);margin-top:6px;padding:6px 8px;background:var(--bg-hover);border-radius:6px;line-height:1.5">' + relParts.join(' \u00B7 ') + '</div>';
+      relContext = '<div class="quiz-rel-context">' + relParts.join(' \u00B7 ') + '</div>';
     }
   }
 
@@ -201,17 +201,15 @@ function renderQuizCompletion(score, total) {
   }
   
   if (milestoneMsg && milestoneMsg.message) {
-    milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
-      '<div style="display:flex;align-items:flex-start;gap:8px">' +
-      '<span style="font-size:20px">' + dataIcon(milestoneMsg.icon || 'leaf', true) + '</span>' +
-      '<span style="color:var(--text);flex:1">' + milestoneMsg.message + '</span>' +
-      '</div></div>';
+    milestoneHtml = '<div class="quiz-milestone">' +
+      '<span class="quiz-milestone-icon">' + dataIcon(milestoneMsg.icon || 'leaf', true) + '</span>' +
+      '<span class="quiz-milestone-text">' + milestoneMsg.message + '</span>' +
+      '</div>';
   } else if (celebrationDetails) {
-    milestoneHtml = '<div class="quiz-milestone" style="margin-top:12px;padding:10px 12px;background:var(--bg-card);border-radius:10px;border:1px solid var(--border-light);font-size:12px;line-height:1.5">' +
-      '<div style="display:flex;align-items:flex-start;gap:8px">' +
-      '<span style="font-size:20px">' + uiIcon('chart', true) + '</span>' +
-      '<span style="color:var(--text);flex:1">' + celebrationDetails + '</span>' +
-      '</div></div>';
+    milestoneHtml = '<div class="quiz-milestone">' +
+      '<span class="quiz-milestone-icon">' + uiIcon('chart', true) + '</span>' +
+      '<span class="quiz-milestone-text">' + celebrationDetails + '</span>' +
+      '</div>';
   }
   
   // Educational feedback based on score
@@ -245,7 +243,7 @@ function renderQuizCompletion(score, total) {
     window.__feedback.trackEvent($event, { mode: $mode, pct: pct });
   }
   
-  feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Done · ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
+  feedback.innerHTML = '<div class="quiz-result-line">Done · ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
   feedback.style.color = '';
   DOM.get('btn-next-quiz').style.display = 'none';
 }

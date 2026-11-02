@@ -9817,3 +9817,26 @@ body::before {
 :root[data-theme="light"] .progress-label {
   opacity: 1;
 }
+
+/* ── Quiz result, related-word context and milestone note ── */
+.quiz-empty { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; }
+.quiz-rel-context { font-size: var(--text-xs); color: var(--text-muted); margin-top: 6px; padding: 6px 8px; background: var(--surface2); border-radius: 6px; line-height: 1.5; }
+.quiz-result-line { font-size: 14px; font-weight: 500; color: var(--gold); margin-bottom: 4px; }
+.quiz-milestone { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; line-height: 1.5; }
+.quiz-milestone-icon { color: var(--text-muted); flex-shrink: 0; }
+.quiz-milestone-text { color: var(--text); flex: 1; }
+
+/* ── Pre-lesson review prompt (lesson screen) ── */
+.pre-lesson-review { display: flex; align-items: flex-start; gap: 8px; margin: 8px 12px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; line-height: 1.5; }
+.pre-lesson-review-icon { color: var(--text-muted); flex-shrink: 0; }
+.pre-lesson-review-body { flex: 1; }
+.pre-lesson-review-msg { font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.pre-lesson-review-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Foundation graduation card and first-goal note (Home) ── */
+#db-graduation .db-card-row { padding: 4px 0; }
+.db-graduation-icon { color: var(--gold); flex-shrink: 0; }
+#db-graduation .db-card-title { font-size: 16px; }
+#db-graduation .db-card-sub { line-height: 1.5; margin-top: 4px; }
+.db-goal-new-title { font-size: 13px; color: var(--text); margin-bottom: 4px; }
+.db-goal-new-sub { font-size: var(--text-xs); color: var(--text-muted); }

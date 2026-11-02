@@ -355,12 +355,12 @@ function renderDashboard() {
     // Show graduation celebration card (first time only)
     if (!$_gradSeen && window.__phase2.getGraduationData) {
       var $_gradData = window.__phase2.getGraduationData();
-      $h += '<div class="db-card" id="db-graduation" style="background:linear-gradient(135deg,var(--surface2),rgba(201,168,76,0.06));border:1px solid var(--gold);">';
-      $h += '<div class="db-card-row" style="padding:4px 0">';
-      $h += '<span style="font-size:32px">' + $icon($iconName($_gradData.icon), 32) + '</span>';
+      $h += '<div class="db-card" id="db-graduation">';
+      $h += '<div class="db-card-row">';
+      $h += '<span class="db-graduation-icon">' + $icon($iconName($_gradData.icon), 32) + '</span>';
       $h += '<div class="db-card-body">';
-      $h += '<div class="db-card-title" style="font-size:16px;color:var(--gold)">' + $_gradData.title + '</div>';
-      $h += '<div class="db-card-sub" style="font-size:11px;line-height:1.5;margin-top:4px">' + $_gradData.message + '</div>';
+      $h += '<div class="db-card-title">' + $_gradData.title + '</div>';
+      $h += '<div class="db-card-sub">' + $_gradData.message + '</div>';
       $h += '</div></div></div>';
       // Mark graduation as seen
       try { localStorage.setItem($_gradKey, '1'); } catch (e) {}
@@ -517,8 +517,8 @@ function renderDashboard() {
   // For brand-new users with no progress, show a simple "Complete Lesson 1" goal
   if ($noProgress) {
     $h += '<div class="db-goal-new-user">';
-    $h += '<div style="font-size:13px;color:var(--text);margin-bottom:4px">' + uiIcon('target') + 'Complete your first Foundation lesson</div>';
-    $h += '<div style="font-size:11px;color:var(--text-muted)">Each lesson introduces 10 new Quranic words</div>';
+    $h += '<div class="db-goal-new-title">' + uiIcon('target') + 'Complete your first Foundation lesson</div>';
+    $h += '<div class="db-goal-new-sub">Each lesson introduces 10 new Quranic words</div>';
     $h += '</div>';
     $h += '</div>';
   } else {
