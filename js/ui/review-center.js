@@ -588,10 +588,7 @@ function renderReviewCenter() {
     $h += '<div class="rc-today-grid">';
     $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.reviewsToday + '</div><div class="rc-today-label">Reviews Today</div></div>';
     $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.totalReviews + '</div><div class="rc-today-label">Total Reviews</div></div>';
-    $h += '<div class="rc-today-item"><div class="rc-today-value">' + $data.masteredCount + '</div><div class="rc-today-label">Words Mastered</div></div>';
-    if ($data.showRetention) {
-      $h += '<div class="rc-today-item"><div class="rc-today-value">' + ($data.retention || 0) + '%</div><div class="rc-today-label">Retention</div></div>';
-    }
+    // Mastered and Retention are already in the stats bar at the top
     $h += '</div>';
     $h += '</div>';
   }

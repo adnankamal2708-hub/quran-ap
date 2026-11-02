@@ -569,7 +569,7 @@ suite('renderReviewCenter — Stats Bar', function() {
     assert.ok(html.indexOf('100%') < 0, 'should not show the misleading 100% no-data default');
   });
 
-  test('shows Retention stat at 5+ lifetime reviews in stats bar and Today Progress', function() {
+  test('shows Retention stat at 5+ lifetime reviews in the stats bar only', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -579,9 +579,9 @@ suite('renderReviewCenter — Stats Bar', function() {
     var html = grid._innerHTML;
     assert.ok(html.indexOf('88%') >= 0, 'should show real retention at 5+ reviews');
     assert.ok(html.indexOf('Retention') >= 0, 'should show Retention label');
-    // Retention must appear in BOTH the stats bar and Today\'s Progress card
+    // Retention lives in the stats bar; Today's Progress does not repeat it
     assert.ok(html.indexOf('rc-stat-value">88%</div><div class="rc-stat-label">Retention') >= 0, 'stats bar should show retention');
-    assert.ok(html.indexOf('rc-today-value">88%</div><div class="rc-today-label">Retention') >= 0, 'Today Progress should show retention');
+    assert.ok(html.indexOf('rc-today-label">Retention') < 0, 'Today Progress does not repeat retention');
   });
 });
 
@@ -702,7 +702,7 @@ suite('renderReviewCenter — Sections', function() {
     assert.ok(html.indexOf("Today's Progress") >= 0 || html.indexOf('Today\\s Progress') >= 0, 'should show today progress');
     assert.ok(html.indexOf('Reviews Today') >= 0, 'should have reviews today stat');
     assert.ok(html.indexOf('Total Reviews') >= 0, 'should have total reviews stat');
-    assert.ok(html.indexOf('Words Mastered') >= 0, 'should have words mastered stat');
+    assert.ok(html.indexOf('Words Mastered') < 0, 'Mastered is in the stats bar, not repeated here');
   });
 
   test('hides Today Progress section at zero data', function() {
