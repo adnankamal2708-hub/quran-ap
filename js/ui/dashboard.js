@@ -285,7 +285,6 @@ function renderDashboard() {
     $greetingSub = 'Your journey to understand the Quran begins here.';
   }
   $h += '<div class="db-greeting">';
-  $h += '<div class="db-greeting-icon" aria-hidden="true">' + $icon('book', 28) + '</div>';
   $h += '<div>';
   var $premiumBadge = (window.__premium && window.__premium.isPremium()) ? ' <span class="db-premium-badge">' + uiIcon('star') + 'Premium</span>' : '';
   // The salaam stays as a quiet line; where the learner stands leads

@@ -206,9 +206,9 @@ function _rcGroupTitle(key) {
   return '<h3 class="rc-group-title">' + t(key) + '</h3>';
 }
 
-function _rcModeCard(id, iconName, iconBg, title, sub) {
+function _rcModeCard(id, iconName, title, sub) {
   return '<div class="rc-mode-card" id="' + id + '" tabindex="0" role="button">' +
-    '<div class="rc-mode-icon" style="background:' + iconBg + '">' + uiIcon(iconName, true) + '</div>' +
+    '<div class="rc-mode-icon">' + uiIcon(iconName, true) + '</div>' +
     '<div class="rc-mode-info"><div class="rc-mode-title">' + title + '</div>' +
     '<div class="rc-mode-sub">' + sub + '</div></div>' +
     '<div class="rc-mode-arrow">→</div></div>';
@@ -218,9 +218,9 @@ function _rcModeCard(id, iconName, iconBg, title, sub) {
 function _rcDrillCards() {
   var canSpot = typeof hasLearnedWords === 'function' && hasLearnedWords();
   var h = '<div class="rc-modes-grid">';
-  h += _rcModeCard('rc-drill-spot', 'target', 'rgba(201,168,76,0.15)', t('drill.spot.title'),
+  h += _rcModeCard('rc-drill-spot', 'target', t('drill.spot.title'),
     t(canSpot ? 'drill.spot.desc' : 'drill.needWords'));
-  h += _rcModeCard('rc-drill-build', 'layers', 'rgba(74,126,194,0.15)', t('drill.build.title'), t('drill.build.desc'));
+  h += _rcModeCard('rc-drill-build', 'layers', t('drill.build.title'), t('drill.build.desc'));
   h += '</div>';
   h += '<div id="rc-drill-host" class="rc-drill-host"></div>';
   return h;
@@ -229,7 +229,7 @@ function _rcDrillCards() {
 /** One card per released track's placement test (only Word meanings in Phase 1). */
 function _rcTestCards() {
   return '<div class="rc-modes-grid rc-modes-grid-single">' +
-    _rcModeCard('rc-test-words', 'check-circle', 'rgba(74,158,107,0.15)', t('test.words.title'), t('test.words.desc')) +
+    _rcModeCard('rc-test-words', 'check-circle', t('test.words.title'), t('test.words.desc')) +
     '</div>';
 }
 
@@ -296,7 +296,7 @@ function renderReviewCenter() {
 
   // SRS Review — standard SRS review session
   $h += '<div class="rc-mode-card" id="rc-mode-srs" tabindex="0" role="button" aria-label="Start SRS review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(201,168,76,0.15)">' + uiIcon('refresh-cw', true) + '</div>';
+  $h += '<div class="rc-mode-icon">' + uiIcon('refresh-cw', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">SRS Review</div>';
   $h += '<div class="rc-mode-sub">Standard spaced repetition</div>';
@@ -306,7 +306,7 @@ function renderReviewCenter() {
 
   // Quick Review — flashcard-style quick review
   $h += '<div class="rc-mode-card" id="rc-mode-quick" tabindex="0" role="button" aria-label="Start quick review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(74,158,107,0.15)">' + uiIcon('bolt', true) + '</div>';
+  $h += '<div class="rc-mode-icon">' + uiIcon('bolt', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Quick Review</div>';
   $h += '<div class="rc-mode-sub">Fast flashcard mode</div>';
@@ -316,7 +316,7 @@ function renderReviewCenter() {
 
   // Root Review — review by root family
   $h += '<div class="rc-mode-card" id="rc-mode-root" tabindex="0" role="button" aria-label="Start root review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(138,107,191,0.15)">' + uiIcon('leaf', true) + '</div>';
+  $h += '<div class="rc-mode-icon">' + uiIcon('leaf', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Root Review</div>';
   $h += '<div class="rc-mode-sub">By root families</div>';
@@ -326,7 +326,7 @@ function renderReviewCenter() {
 
   // Reading Review — words from reading mode
   $h += '<div class="rc-mode-card" id="rc-mode-reading" tabindex="0" role="button" aria-label="Start reading review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(74,126,194,0.15)">' + uiIcon('book-open', true) + '</div>';
+  $h += '<div class="rc-mode-icon">' + uiIcon('book-open', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Reading Review</div>';
   $h += '<div class="rc-mode-sub">Words from reading</div>';
@@ -336,7 +336,7 @@ function renderReviewCenter() {
 
   // Mixed Review — mixed easy/hard review
   $h += '<div class="rc-mode-card" id="rc-mode-mixed" tabindex="0" role="button" aria-label="Start mixed review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(201,168,76,0.12)">' + uiIcon('shuffle', true) + '</div>';
+  $h += '<div class="rc-mode-icon">' + uiIcon('shuffle', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Mixed Review</div>';
   $h += '<div class="rc-mode-sub">Balanced difficulty</div>';
@@ -346,7 +346,7 @@ function renderReviewCenter() {
 
   // Weakest Words Review — focus on leeched/difficult
   $h += '<div class="rc-mode-card" id="rc-mode-weakest" tabindex="0" role="button" aria-label="Start weakest words review">';
-  $h += '<div class="rc-mode-icon" style="background:rgba(194,80,80,0.15)">' + uiIcon('alert-triangle', true) + '</div>';
+  $h += '<div class="rc-mode-icon">' + uiIcon('alert-triangle', true) + '</div>';
   $h += '<div class="rc-mode-info">';
   $h += '<div class="rc-mode-title">Weakest Words</div>';
   $h += '<div class="rc-mode-sub">Leeched & difficult</div>';
@@ -432,7 +432,7 @@ function renderReviewCenter() {
     $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('alert-triangle', true) + '</span> Forgotten words <span class="rc-count-badge">' + $data.forgottenWords.length + '</span></div>';
     $h += '<div class="rc-card rc-warning-card" id="rc-forgotten-card">';
     $h += '<div class="rc-card-row">';
-    $h += '<div class="rc-card-icon" style="background:rgba(194,80,80,0.12)">' + uiIcon('alert-triangle', true) + '</div>';
+    $h += '<div class="rc-card-icon">' + uiIcon('alert-triangle', true) + '</div>';
     $h += '<div class="rc-card-body">';
     $h += '<div class="rc-card-title">' + $data.forgottenWords.length + ' word' + ($data.forgottenWords.length !== 1 ? 's' : '') + ' frequently forgotten</div>';
     $h += '<div class="rc-card-sub">';
@@ -498,7 +498,7 @@ function renderReviewCenter() {
 
   // ═══ SECTION 8: DIFFICULT WORDS ═══
   if ($data.difficultWords && $data.difficultWords.length > 0) {
-    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">🤔</span> Difficult words <span class="rc-count-badge">' + $data.difficultWords.length + '</span></div>';
+    $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('help-circle', true) + '</span> Difficult words <span class="rc-count-badge">' + $data.difficultWords.length + '</span></div>';
     $h += '<div class="rc-word-preview-list">';
     for (var $di = 0; $di < Math.min(5, $data.difficultWords.length); $di++) {
       var $dw = $data.difficultWords[$di];

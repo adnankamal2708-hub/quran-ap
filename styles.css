@@ -514,7 +514,7 @@ body::before {
 
 .occurrence-tag {
   font-size: var(--text-xs);
-  color: var(--green);
+  color: var(--text-muted);
   opacity: 0.9;
 }
 
@@ -552,7 +552,8 @@ body::before {
   font-size: var(--text-xs);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: 0.2s;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -721,7 +722,8 @@ body::before {
   padding: 4px 12px;
   margin-bottom: 14px;
   border: 1px solid;
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .sr-new {
@@ -783,7 +785,8 @@ body::before {
   font-size: var(--text-xs);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   letter-spacing: 0.02em;
   min-height: 44px;
@@ -915,7 +918,8 @@ body::before {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   white-space: nowrap;
   flex-shrink: 0;
@@ -942,6 +946,31 @@ body::before {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+/* Locked Premium panel (word relationships): quiet, secondary to the lesson */
+.premium-locked-box {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  text-align: center;
+  margin-top: 12px;
+}
+.premium-locked-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.premium-locked-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 12px;
 }
 
 .btn-outline {
@@ -1000,7 +1029,8 @@ body::before {
   padding: 6px 2px 4px;
   min-height: 48px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   border: none;
   background: transparent;
   color: var(--text-muted);
@@ -1165,7 +1195,8 @@ body::before {
   font-size: var(--text-sm);
   color: var(--text);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   text-align: left;
   font-family: var(--body);
   line-height: 1.4;
@@ -1361,7 +1392,8 @@ body::before {
   border-radius: var(--radius-section);
   margin-bottom: 7px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   contain: layout style;
 }
 
@@ -2024,7 +2056,8 @@ body::before {
   font-size: var(--text-base);
   font-family: var(--body);
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   -webkit-appearance: none;
   appearance: none;
 }
@@ -2073,7 +2106,8 @@ body::before {
   font-size: var(--text-xs);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   white-space: nowrap;
   min-height: 44px;
@@ -2104,7 +2138,6 @@ body::before {
 .notes-box {
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--green);
   border-radius: var(--radius-section);
   padding: 12px 14px;
   margin-bottom: 12px;
@@ -2112,7 +2145,7 @@ body::before {
 
 .notes-header {
   font-size: var(--text-xs);
-  color: var(--green);
+  color: var(--text-muted);
   margin-bottom: 7px;
   font-weight: 500;
 }
@@ -2357,7 +2390,8 @@ body::before {
   font-size: var(--text-base);
   font-family: var(--body);
   outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   box-sizing: border-box;
 }
 
@@ -2710,7 +2744,8 @@ body::before {
   color: var(--text);
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   margin-bottom: 8px;
   font-family: var(--body);
 }
@@ -3267,7 +3302,8 @@ body::before {
   font-size: var(--text-xs);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: 0.15s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   line-height: 1.2;
 }
@@ -3378,7 +3414,8 @@ body::before {
   font-size: var(--text-xs);
   color: var(--gold-muted);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
 }
 
@@ -3431,7 +3468,8 @@ body::before {
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3583,7 +3621,8 @@ body::before {
   color: var(--gold-muted);
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   white-space: nowrap;
 }
 
@@ -3747,7 +3786,8 @@ body::before {
   color: var(--text);
   font-size: var(--text-xs);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .explorer-occ-nav button:hover:not(:disabled) {
@@ -3787,7 +3827,8 @@ body::before {
   color: var(--gold-muted);
   font-size: var(--text-xs);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   width: 100%;
   text-align: center;
 }
@@ -3993,7 +4034,8 @@ body::before {
   cursor: pointer;
   text-align: center;
   min-height: 44px;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 .explorer-action-btn:hover {
   border-color: var(--gold-dim);
@@ -4310,7 +4352,7 @@ body::before {
   background: transparent; border: 1px solid var(--border);
   border-radius: var(--radius-pill); padding: 5px 12px;
   font-size: var(--text-xs); color: var(--text-muted); cursor: pointer;
-  font-family: var(--body); transition: all 0.2s ease;
+  font-family: var(--body); transition: 0.2s ease; transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 .onboarding-skip-btn:hover { border-color: var(--gold-dim); color: var(--text); }
 .onboarding-skip-btn:focus-visible { outline: 2px solid var(--gold-dim); outline-offset: 2px; }
@@ -4366,7 +4408,8 @@ body::before {
   width: 100%; background: var(--surface2); border: 1px solid var(--border);
   border-radius: var(--radius-section); padding: 14px 16px;
   cursor: pointer; text-align: left; font-family: var(--body);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   display: flex; flex-direction: column; align-items: stretch; gap: 8px;
   -webkit-appearance: none; appearance: none;
   min-width: 0;
@@ -4651,18 +4694,6 @@ body::before {
   margin-bottom: 24px;
   padding: 0 4px;
 }
-.db-greeting-icon {
-  font-size: 36px;
-  line-height: 1;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(201,168,76,0.1);
-  border-radius: 14px;
-}
 .db-greeting-title {
   font-family: var(--serif);
   font-size: var(--text-lg);
@@ -4712,7 +4743,8 @@ body::before {
   border-radius: 12px;
   padding: 14px 6px;
   text-align: center;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 .db-hero-stat:hover {
   border-color: rgba(201,168,76,0.2);
@@ -4740,7 +4772,8 @@ body::before {
   border-radius: 16px;
   padding: 18px;
   margin-bottom: var(--spacing-lg);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 .db-card-highlight {
@@ -4806,7 +4839,8 @@ body::before {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: rgba(201,168,76,0.1);
+  background: var(--surface2);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5055,7 +5089,8 @@ body::before {
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--gold-muted);
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 .empty-state-icon svg {
   width: 28px;
@@ -5077,7 +5112,8 @@ body::before {
   background: rgba(201,168,76,0.08);
   border-color: var(--border);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   position: relative;
   overflow: hidden;
 }
@@ -5574,7 +5610,8 @@ body::before {
   border-radius: 12px;
   position: relative;
   overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 .profile-pstat::before {
   content: '';
@@ -5829,7 +5866,8 @@ body::before {
   padding: 8px 4px;
   cursor: pointer;
   border-bottom: 1px solid var(--hairline);
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   border-radius: 8px;
   margin: 0 -4px;
 }
@@ -5941,7 +5979,8 @@ body::before {
   height: 8px;
   border-radius: 50%;
   background: var(--border);
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   cursor: pointer;
 }
 .onboarding-dot-active {
@@ -5969,7 +6008,8 @@ body::before {
   border-radius: 12px;
   padding: 14px 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   text-align: left;
   color: var(--text);
@@ -6112,7 +6152,8 @@ body::before {
   cursor: pointer;
   font-family: var(--body);
   float: right;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 .ux-tooltip-close:hover {
   border-color: var(--gold-dim);
@@ -6259,7 +6300,8 @@ body::before {
   padding: 12px 6px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .rc-stat:hover {
@@ -6404,7 +6446,8 @@ body::before {
   border-radius: var(--radius-section);
   padding: 12px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .rc-mode-card:hover {
@@ -6426,6 +6469,8 @@ body::before {
   width: 36px;
   height: 36px;
   border-radius: 10px;
+  background: var(--surface2);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6496,7 +6541,8 @@ body::before {
   border-radius: var(--radius-btn);
   padding: 14px 16px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   margin-bottom: 10px;
   text-align: left;
 }
@@ -6553,7 +6599,8 @@ body::before {
   color: var(--text);
   cursor: pointer;
   font-family: var(--body);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .rc-quick-btn:hover {
@@ -6587,7 +6634,8 @@ body::before {
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .rc-word-preview-item:hover {
@@ -6663,7 +6711,8 @@ body::before {
 .rc-warning-card {
   border-left: 3px solid var(--red);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .rc-warning-card:hover {
@@ -6681,6 +6730,8 @@ body::before {
   width: 36px;
   height: 36px;
   border-radius: 10px;
+  background: var(--surface2);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6718,7 +6769,8 @@ body::before {
   cursor: pointer;
   font-family: var(--body);
   flex-shrink: 0;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .rc-card-btn:hover {
@@ -6784,7 +6836,8 @@ body::before {
   border-radius: var(--radius-sm);
   padding: 10px 12px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .rc-root-item:hover {
@@ -6844,7 +6897,8 @@ body::before {
   color: var(--gold-muted);
   cursor: pointer;
   font-family: var(--body);
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   display: inline-block;
 }
 
@@ -6870,7 +6924,8 @@ body::before {
   gap: 10px;
   padding: 8px 0;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   border-bottom: 1px solid var(--border);
 }
 
@@ -7164,7 +7219,8 @@ body::before {
   border: 1px solid var(--border);
   border-radius: var(--radius-section);
   padding: 12px 14px;
-  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 .profile-ach-card:hover {
   border-color: var(--gold-dim);
@@ -7677,7 +7733,8 @@ body::before {
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .quran-back-btn:hover,
@@ -8014,7 +8071,8 @@ body::before {
   border: 1px solid var(--border);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .quran-continue-card:hover,
@@ -8087,7 +8145,8 @@ body::before {
   font-size: var(--text-xs);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s var(--ease-default);
+  transition: 0.2s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   letter-spacing: 0.02em;
 }
@@ -8350,7 +8409,8 @@ body::before {
 
 /* Smooth SRS button interaction */
 .srs-btn {
-  transition: all 0.2s var(--ease-default);
+  transition: 0.2s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
 }
 
 .srs-btn:not(:disabled):hover {
@@ -8373,7 +8433,8 @@ body::before {
   border-radius: 50%;
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s var(--ease-default);
+  transition: 0.2s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   flex-shrink: 0;
 }
 
@@ -8403,7 +8464,8 @@ body::before {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.2s var(--ease-default);
+  transition: 0.2s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-size: var(--text-sm);
   color: var(--text-muted);
   min-height: 40px;
@@ -8452,7 +8514,8 @@ body::before {
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: all 0.2s var(--ease-default);
+  transition: 0.2s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   margin-bottom: 8px;
   position: relative;
   overflow: hidden;
@@ -8608,7 +8671,8 @@ body::before {
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s var(--ease-default);
+  transition: 0.2s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   white-space: nowrap;
   min-height: 38px;
@@ -8640,7 +8704,8 @@ body::before {
   font-size: var(--text-xs);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s var(--ease-default);
+  transition: 0.2s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   font-family: var(--body);
   letter-spacing: 0.02em;
   text-align: left;
@@ -8806,7 +8871,8 @@ body::before {
 }
 
 .quran-word-token {
-  transition: all 0.15s var(--ease-default);
+  transition: 0.15s var(--ease-default);
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   cursor: pointer;
   border-radius: 4px;
   padding: 1px 2px;

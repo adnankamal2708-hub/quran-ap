@@ -656,14 +656,13 @@ function _renderRelationshipsLockedPanel() {
   if (!container) return;
   container.style.display = 'block';
   container.innerHTML =
-    '<div class="profile-subsection" style="border:1px solid var(--gold-dim);border-radius:var(--radius-card);padding:16px;text-align:center;margin-top:12px">' +
-      '<div style="font-size:24px;margin-bottom:6px">' + uiIcon('link', true) + '</div>' +
-      '<div style="font-family:var(--serif);font-size:15px;color:var(--gold-light);margin-bottom:6px">Word Relationships</div>' +
-      '<div style="font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:12px">' +
+    '<div class="profile-subsection premium-locked-box">' +
+      '<div class="premium-locked-title">' + uiIcon('link') + 'Word relationships</div>' +
+      '<div class="premium-locked-desc">' +
         'Explore how words connect — similar words, derived forms, semantic groups, ' +
         'morphological relatives, and more with Premium.' +
       '</div>' +
-      '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
+      '<button class="btn btn-sm btn-outline" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
     '</div>';
 }
 

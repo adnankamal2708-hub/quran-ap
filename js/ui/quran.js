@@ -640,7 +640,7 @@ function renderQuran() {
         '<span style="flex:1">You have mastered <strong style="color:var(--gold)">' + $masteredCount2 + ' words</strong> — look for highlighted vocabulary while reading.' +
         ($compPctQuran > 0 ? ' Your estimated comprehension is <strong style="color:var(--gold)">' + $compPctQuran + '%</strong>.' : '') +
         '</span>' +
-        '<button class="quran-encourage-dismiss" id="quran-encourage-dismiss-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px" aria-label="Dismiss">✕</button>' +
+        '<button class="quran-encourage-dismiss" id="quran-encourage-dismiss-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:4px" aria-label="Dismiss">' + uiIcon('x', true) + '</button>' +
         '</div>';
     }
     versesContainer.innerHTML = $quranPreviewHtml + $encouragementCard +

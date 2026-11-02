@@ -1397,7 +1397,7 @@ function showUpdateBanner() {
   banner.innerHTML =
     '<span class="update-banner-text">A new version of Bayan is available.</span>' +
     '<button type="button" class="btn btn-sm update-banner-reload">Reload</button>' +
-    '<button type="button" class="update-banner-dismiss" aria-label="Dismiss">✕</button>';
+    '<button type="button" class="update-banner-dismiss" aria-label="Dismiss">' + uiIcon('x', true) + '</button>';
   banner.querySelector('.update-banner-reload').onclick = function () {
     window.location.reload();
   };

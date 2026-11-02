@@ -178,7 +178,7 @@
     card.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
         '<div style="font-size:16px;font-weight:600;color:var(--text)">' + uiIcon('message-circle') + 'Send Feedback</div>' +
-        '<button id="fb-close" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1" aria-label="Close">✕</button>' +
+        '<button id="fb-close" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;line-height:1" aria-label="Close">' + uiIcon('x', true) + '</button>' +
       '</div>' +
       '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">' +
         'Help improve Bayan. Your feedback helps make the app better for everyone. ' +

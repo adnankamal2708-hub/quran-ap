@@ -1292,7 +1292,7 @@ function showPostLessonSignInPrompt() {
   el.setAttribute('role', 'status');
   el.innerHTML =
     '<span class="signin-prompt-text">Nice work — <a href="#" class="signin-prompt-action" id="signin-prompt-link">sign in</a> to save this progress.</span>' +
-    '<button type="button" class="signin-prompt-dismiss" id="signin-prompt-dismiss" aria-label="Dismiss">\u2715</button>';
+    '<button type="button" class="signin-prompt-dismiss" id="signin-prompt-dismiss" aria-label="Dismiss">' + uiIcon('x', true) + '</button>';
 
   document.body.appendChild(el);
 
