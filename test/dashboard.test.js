@@ -459,8 +459,9 @@ suite('Comprehension Ring', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('65%') >= 0, 'should show 65% comprehension');
-    assert.ok(html.indexOf('Comprehension') >= 0, 'should show Comprehension label');
+    // One Quran figure on Home: the Word meanings percentage, not estimatedComprehension
+    assert.ok(html.indexOf('db-comp-headline-value">42.5% of the Quran') >= 0, 'headline shows the Word meanings figure');
+    assert.ok(html.indexOf('65%') === -1, 'no second, different percentage');
   });
 
   test('ring shows mastered word count', function() {
@@ -939,7 +940,7 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('db-ring-fill') >= 0, 'ring should render with real comprehension');
-    assert.ok(html.indexOf('65% Quran Comprehension') >= 0, 'value shows real percentage');
+    assert.ok(html.indexOf('db-comp-headline-value">42.5% of the Quran') >= 0, 'value shows real percentage');
   });
 
   test('Fix 1: ring hidden for user with progress but 0% comprehension (welcome variant)', function() {
@@ -962,14 +963,14 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     assert.ok(html.indexOf('db-comp-metrics') === -1, 'metrics row not rendered for zero-progress user');
   });
 
-  test('Fix 2: 2-cell metrics row once real data exists', function() {
+  test('Fix 2: Mastered metric once real data exists', function() {
     setupBrandNewUser();
     _mockSRSStats = { total: 100, mature: 5, dueToday: 2, totalReviews: 30, reviewsToday: 1, newCount: 10, learning: 8, young: 3, overdue: 0 };
     _mockCoverage = { coveragePercent: 20, estimatedComprehension: 30, masteredWords: 5, totalWords: 100, masteredOccurrences: 300, totalOccurrences: 1800 };
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('db-comp-metric-label">Coverage') >= 0, 'Coverage metric shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Coverage') === -1, 'Coverage repeats the headline, so it is gone');
     assert.ok(html.indexOf('db-comp-metric-label">Mastered') >= 0, 'Mastered metric shown');
     assert.ok(html.indexOf('db-comp-metric-label">Total Words') === -1, 'Total Words metric removed');
   });
@@ -1110,15 +1111,15 @@ suite('Dashboard Clutter — Returning User (real progress)', function() {
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('db-ring-fill') >= 0, 'ring renders');
-    assert.ok(html.indexOf('55% Quran Comprehension') >= 0, 'real percentage shown');
+    assert.ok(html.indexOf('db-comp-headline-value">35% of the Quran') >= 0, 'real percentage shown');
   });
 
-  test('Fix 2: metrics row renders Coverage + Mastered', function() {
+  test('Fix 2: metrics row renders Mastered only', function() {
     setupReturningUser();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('db-comp-metric-label">Coverage') >= 0, 'Coverage shown');
+    assert.ok(html.indexOf('db-comp-metric-label">Coverage') === -1, 'Coverage removed');
     assert.ok(html.indexOf('db-comp-metric-label">Mastered') >= 0, 'Mastered shown');
     assert.ok(html.indexOf('db-comp-metric-label">Total Words') === -1, 'Total Words removed');
   });
@@ -1209,7 +1210,7 @@ suite('Track rows', function() {
     assert.strictEqual(getTrackPercent('words'), 12.5, 'high-water mark updated');
   });
 
-  test('after a word is forgotten, Coverage shows the same figure as the track row', function() {
+  test('after a word is forgotten, the headline shows the same figure as the track row', function() {
     resetState();
     setupGlobals();
     recordTrackPercent('words', 20);
@@ -1219,7 +1220,7 @@ suite('Track rows', function() {
     renderDashboard();
     var html = readable(getInnerHTML());
     assert.ok(html.indexOf("20% of the Quran's words understood") >= 0, 'track row keeps its high-water mark');
-    assert.ok(html.indexOf('20%</div><div class="db-comp-metric-label">Coverage') >= 0, 'Coverage matches the track row');
+    assert.ok(html.indexOf('db-comp-headline-value">20% of the Quran') >= 0, 'headline matches the track row');
     assert.ok(html.indexOf('12.5%') < 0, 'the lower live figure is not shown');
   });
 
@@ -1520,7 +1521,7 @@ suite('Comprehensive State', function() {
 
     // Verify all expected sections
     assert.ok(html.indexOf('Assalamu Alaikum') >= 0, 'greeting');
-    assert.ok(html.indexOf('62%') >= 0, 'comprehension percent');
+    assert.ok(html.indexOf('db-comp-headline-value">45% of the Quran') >= 0, 'one Quran percentage');
     assert.ok(html.indexOf('Foundation Course') >= 0, 'Foundation card');
     assert.ok(html.indexOf('Progress Overview') >= 0, 'progress overview');
     assert.ok(html.indexOf('Mastered') >= 0, 'words mastered stat');

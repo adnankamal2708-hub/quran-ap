@@ -122,12 +122,13 @@ function renderDashboard() {
 
   // Coverage & comprehension
   var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-  var $comprehensionPct = $coverage ? $coverage.estimatedComprehension : 0;
   // Coverage is the Word meanings track's figure, which only ever grows, so
   // it matches the track row even after a word is forgotten.
   var $coveragePct = typeof refreshWordMeaningsPercent === 'function'
     ? refreshWordMeaningsPercent().percent
     : ($coverage ? $coverage.coveragePercent : 0);
+  // Home shows one Quran percentage: the headline ring uses the same figure.
+  var $comprehensionPct = $coveragePct;
   var $masteredCount = $srsStats.mature || 0;
   var $totalWords = $srsStats.total || (typeof getCanonicalWordCount === 'function' && getCanonicalWordCount() > 0 ? getCanonicalWordCount() : (typeof ALL_WORDS !== 'undefined' ? ALL_WORDS.length : 0));
 
@@ -460,7 +461,7 @@ function renderDashboard() {
   // ═══ 3. QURAN COMPREHENSION HEADLINE ═══
   // Ring + milestone are only meaningful once real comprehension exists — a 0%
   // ring is zero-noise for brand-new users, so render a simple welcome line instead.
-  $h += '<div class="db-card db-comp-headline" id="db-comp-headline"' + ($comprehensionPct > 0 ? ' tabindex="0" role="button" aria-label="Quran comprehension: ' + $comprehensionPct + '%"' : '') + '>';
+  $h += '<div class="db-card db-comp-headline" id="db-comp-headline"' + ($comprehensionPct > 0 ? ' tabindex="0" role="button" aria-label="' + escapeHtml(t('percent.words', { p: $comprehensionPct })) + '"' : '') + '>';
   if ($comprehensionPct > 0) {
   $h += '<div class="db-comp-headline-ring-wrap">';
   $h += '<svg class="db-ring db-comp-headline-ring" viewBox="0 0 36 36" aria-hidden="true">';
@@ -475,7 +476,7 @@ function renderDashboard() {
   }
   $h += '<div class="db-comp-headline-info">';
   if ($comprehensionPct > 0) {
-  $h += '<div class="db-comp-headline-value">' + $comprehensionPct + '% Quran Comprehension</div>';
+  $h += '<div class="db-comp-headline-value">' + escapeHtml(t('percent.words', { p: $comprehensionPct })) + '</div>';
   } else {
   $h += '<div class="db-comp-headline-value">Begin your journey to understand the Quran</div>';
   }
@@ -499,10 +500,9 @@ function renderDashboard() {
     $h += '<div class="db-comp-headline-milestone">' + uiIcon('target') + $compMilestone + '</div>';
   }
   $h += '</div></div>';
-  // ── Comprehension Metrics Row (Coverage + Mastered) ──
-  if ($coveragePct > 0 || $masteredCount > 0) {
+  // ── Comprehension Metrics Row (Mastered; the percentage is the headline) ──
+  if ($masteredCount > 0) {
     $h += '<div class="db-comp-metrics">';
-    $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $coveragePct + '%</div><div class="db-comp-metric-label">Coverage</div></div>';
     $h += '<div class="db-comp-metric"><div class="db-comp-metric-value">' + $masteredCount + '</div><div class="db-comp-metric-label">Mastered</div></div>';
     $h += '</div>';
   }
