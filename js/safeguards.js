@@ -162,7 +162,7 @@
 
   var REQUIRED_FONTS = [
     { family: 'Inter',  fallback: 'sans-serif', usage: 'Body text (--body)' },
-    { family: 'Amiri',  fallback: 'serif',      usage: 'Arabic text (--arabic)' },
+    { family: 'Scheherazade New', fallback: 'serif',      usage: 'Arabic text (--arabic)' },
     { family: 'Lora',   fallback: 'serif',      usage: 'Headings & serif (--serif)' },
   ];
 

@@ -1,7 +1,7 @@
 // One-off headless-browser verification: renders the 48 fixed verses (plus a
-// sample of unaffected verses) with the app's actual font (Amiri) and checks:
+// sample of unaffected verses) with the app's actual font (Scheherazade New) and checks:
 //   1. Every verse's text contains no U+FFFD.
-//   2. document.fonts.check() reports Amiri covers every verse (no tofu/notdef).
+//   2. document.fonts.check() reports Scheherazade New covers every verse (no tofu/notdef).
 //   3. A screenshot is saved for visual confirmation.
 // Run: node scripts/verify-render.js
 
@@ -37,10 +37,10 @@ const html = `<!DOCTYPE html>
 <title>Bayan Quran rendering check (post-fix)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
 <style>
   body { background:#0f0e0c; color:#e8e2d5; font-family:'Inter',sans-serif; padding:24px; }
-  .verse { font-family:'Amiri', serif; font-size:24px; direction:rtl; text-align:right; line-height:2; margin-bottom:14px; padding:10px 14px; border:1px solid #2e2b24; border-radius:10px; background:#1a1915; }
+  .verse { font-family:'Scheherazade New', serif; font-size:24px; direction:rtl; text-align:right; line-height:2; margin-bottom:14px; padding:10px 14px; border:1px solid #2e2b24; border-radius:10px; background:#1a1915; }
   .label { font-size:12px; color:#918777; margin-bottom:2px; direction:ltr; text-align:left; }
 </style>
 </head>
@@ -56,7 +56,7 @@ const html = `<!DOCTYPE html>
   (async function () {
     try { await document.fonts.ready; } catch (e) {}
     verses.forEach(function (v) {
-      var ok = document.fonts.check("24px 'Amiri'", v.text);
+      var ok = document.fonts.check("24px 'Scheherazade New'", v.text);
       var hasFFFD = v.text.indexOf('\uFFFD') >= 0;
       window.__RESULTS[v.key] = { covered: ok, hasFFFD: hasFFFD };
     });

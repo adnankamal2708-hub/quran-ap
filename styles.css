@@ -37,7 +37,7 @@
   --nav-bg: rgba(12, 11, 10, 0.92);
   --nav-border: rgba(46, 43, 36, 0.5);
   color-scheme: dark;
-  --arabic: 'Amiri', serif;
+  --arabic: 'Scheherazade New', serif;
   --body: 'Inter', sans-serif;
   --serif: 'Lora', serif;
 
@@ -7891,7 +7891,7 @@ body::before {
   direction: rtl;
   text-align: right;
   margin-bottom: 12px;
-  font-family: 'Traditional Arabic', 'Amiri', 'Scheherazade New', serif;
+  font-family: var(--arabic);
   word-spacing: 2px;
 }
 

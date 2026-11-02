@@ -165,7 +165,7 @@ suite('Typography System', function() {
   });
 
   test('font-family variables have correct fallbacks', function() {
-    assert.ok(cssContains("--arabic: 'Amiri', serif"), 'Amiri font should have serif fallback');
+    assert.ok(cssContains("--arabic: 'Scheherazade New', serif"), 'Scheherazade New font should have serif fallback');
     assert.ok(cssContains("--body: 'Inter', sans-serif"), 'Inter font should have sans-serif fallback');
     assert.ok(cssContains("--serif: 'Lora', serif"), 'Lora font should have serif fallback');
   });
@@ -183,7 +183,7 @@ suite('Typography System', function() {
     assert.ok(cssContains('font-family: var(--body)'), 'Body should use --body font');
   });
 
-  test('Arabic words use Amiri font', function() {
+  test('Arabic words use Scheherazade New font', function() {
     assert.ok(cssContains('font-family: var(--arabic)'), 'Arabic should use --arabic font');
   });
 
@@ -197,8 +197,8 @@ suite('Typography System', function() {
               cssContains("Inter:wght@300,400,500,600,700") ||
               cssContent.indexOf('Inter') >= 0,
               'Inter font should be imported with weights 300,400,500,600,700');
-    assert.ok(cssContains('Amiri') || cssContent.indexOf('Amiri') >= 0,
-              'Amiri font should be imported');
+    assert.ok(cssContent.indexOf('Scheherazade New') >= 0,
+              'Scheherazade New font should be used');
     assert.ok(cssContains('Lora') || cssContent.indexOf('Lora') >= 0,
               'Lora font should be imported');
   });
@@ -573,7 +573,7 @@ suite('CSS File Integrity', function() {
 
   suite('Typography Consistency', function() {
     test('all font-weight values use weights available in loaded fonts', function() {
-      // Inter: 300,400,500,600,700 | Amiri: 400,700 | Lora: 400,600,400i
+      // Inter: 300,400,500,600,700 | Scheherazade New: 400,700 | Lora: 400,600,400i
       var fontWeights = cssContent.match(/font-weight:\s*(\d+)/g) || [];
       var invalidWeights = [];
       fontWeights.forEach(function(fw) {
@@ -619,9 +619,9 @@ suite('CSS File Integrity', function() {
         assert.ok(html.indexOf('Lora:ital,wght@0,400;0,600;1,400') >= 0 ||
                   html.indexOf('Lora') >= 0,
                   'Lora font import should exist in index.html');
-        assert.ok(html.indexOf('Amiri:ital,wght@0,400;0,700;1,400') >= 0 ||
-                  html.indexOf('Amiri') >= 0,
-                  'Amiri font import should exist in index.html');
+        assert.ok(html.indexOf('Scheherazade+New:wght@400;700') >= 0 ||
+                  html.indexOf('Scheherazade') >= 0,
+                  'Scheherazade New font import should exist in index.html');
       } catch (e) {
         console.log('     ⚠ Could not verify font imports: ' + e.message);
         assert.ok(true);
