@@ -655,15 +655,7 @@ function _renderRelationshipsLockedPanel() {
   }
   if (!container) return;
   container.style.display = 'block';
-  container.innerHTML =
-    '<div class="profile-subsection premium-locked-box">' +
-      '<div class="premium-locked-title">' + uiIcon('link') + 'Word relationships</div>' +
-      '<div class="premium-locked-desc">' +
-        'Explore how words connect — similar words, derived forms, semantic groups, ' +
-        'morphological relatives, and more with Premium.' +
-      '</div>' +
-      '<button class="btn btn-sm btn-outline" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
-    '</div>';
+  container.innerHTML = wordRelationshipsLockedHtml();
 }
 
 /**

@@ -210,6 +210,22 @@ function iconText(name, text) {
 }
 
 /**
+ * The locked Word relationships panel shown to free users, shared by the
+ * lesson word card and the word explorer.
+ * @returns {string} HTML
+ */
+function wordRelationshipsLockedHtml() {
+  return '<div class="profile-subsection premium-locked-box">' +
+      '<div class="premium-locked-title">' + uiIcon('link') + 'Word relationships</div>' +
+      '<div class="premium-locked-desc">' +
+        'Explore how words connect — similar words, derived forms, semantic groups, ' +
+        'morphological relatives, and more with Premium.' +
+      '</div>' +
+      '<button class="btn btn-sm btn-outline" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
+    '</div>';
+}
+
+/**
  * uiIcon() for an icon that comes from data (achievements, milestones,
  * celebrations, empty states): accepts the emoji those records store, or an
  * icon name. Unknown values fall back to a star rather than showing raw text.

@@ -366,15 +366,7 @@ function renderExplorerRelationshipsLocked() {
   }
   if (!lockedContainer) return;
   lockedContainer.style.display = 'block';
-  lockedContainer.innerHTML =
-    '<div class="profile-subsection premium-locked-box">' +
-      '<div class="premium-locked-title">' + uiIcon('link') + 'Word relationships</div>' +
-      '<div class="premium-locked-desc">' +
-        'Explore how words connect — similar words, derived forms, semantic groups, ' +
-        'morphological relatives, and more with Premium.' +
-      '</div>' +
-      '<button class="btn btn-sm btn-outline" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
-    '</div>';
+  lockedContainer.innerHTML = wordRelationshipsLockedHtml();
   // Hide the gated relationship sections (by section id — root family stays).
   var _explorerRelSections = [
     'explorer-derived-forms-section', 'explorer-morph-section',
