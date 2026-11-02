@@ -54,7 +54,7 @@ function renderWordCard(w, currentIndex, total, isReview) {
 
   DOM.get('meaning').textContent = w.meaning;
   var occLabel = occCount > 1 ? ' (' + occCount + ' contexts)' : '';
-  DOM.get('occurrences').textContent = '\u2726 Appears ' + w.occ.toLocaleString() + ' times' + occLabel;
+  DOM.get('occurrences').textContent = 'Appears ' + w.occ.toLocaleString() + ' times' + occLabel;
 
   DOM.get('progress-fill').style.width = Math.round(((currentIndex + 1) / total) * 100) + '%';
   DOM.get('progress-text').textContent = (currentIndex + 1) + ' / ' + total;
@@ -259,7 +259,7 @@ function renderSRSStatusPill(wordId) {
 
   var label = '';
   if (srs.status === 'review') {
-    var overdueText = srs.daysUntilDue < 0 ? ' (overdue!)' : '';
+    var overdueText = srs.daysUntilDue < 0 ? ' (overdue)' : '';
     // A leech (a word that keeps slipping) gets a warning icon instead
     label = iconText(srs.isLeech ? 'alert-triangle' : 'repeat', 'Due for review' + overdueText);
     pill.className = 'sr-pill sr-review';

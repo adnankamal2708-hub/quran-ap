@@ -410,7 +410,7 @@ function updateLessonProgressDisplay() {
         ? getFoundationLessonContextMsg(nextIncomplete) : { title: '' };
       var nextTitle = nextLessonCtx.title ? ' \u2014 ' + nextLessonCtx.title : '';
       if (nextIncomplete === 0 && isFoundationLessonCompleted(0) && fTotal > 0) {
-        continueBtn.innerHTML = iconText('celebration', 'Foundation Complete!');
+        continueBtn.innerHTML = iconText('celebration', 'Foundation complete');
         continueBtn.disabled = true;
       } else if (nextIncomplete === activeLessonIndex) {
         continueBtn.innerHTML = iconText('book-open', 'Foundation ' + (nextIncomplete + 1) + nextTitle);
@@ -467,7 +467,7 @@ function updateLessonProgressDisplay() {
         continueBtn.innerHTML = iconText('leaf', 'Next Root Family');
         continueBtn.disabled = false;
       } else {
-        continueBtn.innerHTML = iconText('celebration', 'All Root Families Complete!');
+        continueBtn.innerHTML = iconText('celebration', 'All root families complete');
         continueBtn.disabled = true;
       }
     }
@@ -504,7 +504,7 @@ function updateLessonProgressDisplay() {
     if (continueBtn) {
       var nextD = typeof getNextIncompleteDifficultyLevel === 'function' ? getNextIncompleteDifficultyLevel() : 1;
       if (dCompleted >= 5) {
-        continueBtn.innerHTML = iconText('celebration', 'All Levels Complete!');
+        continueBtn.innerHTML = iconText('celebration', 'All levels complete');
         continueBtn.disabled = true;
       } else if (nextD !== dLevel) {
         continueBtn.innerHTML = iconText('layers', 'Continue Level ' + nextD);
@@ -622,7 +622,7 @@ function updateLessonProgressDisplay() {
     var continueBtn = DOM.get('continue-learning-btn');
     if (continueBtn) {
       if (completed >= surahIds.length) {
-        continueBtn.innerHTML = iconText('celebration', 'All Surahs Complete!');
+        continueBtn.innerHTML = iconText('celebration', 'All surahs complete');
         continueBtn.disabled = true;
       } else {
         var nextIncomplete = -1;
@@ -756,7 +756,7 @@ function updateLessonProgressDisplay() {
     if (continueBtn) {
     var nextIncomplete = getNextIncompleteLesson();
     if (nextIncomplete === 0 && isLessonCompleted(0) && getLessonCount() > 1) {
-      continueBtn.innerHTML = iconText('celebration', 'All Lessons Complete!');
+      continueBtn.innerHTML = iconText('celebration', 'All lessons complete');
       continueBtn.disabled = true;
     } else if (nextIncomplete === activeLessonIndex) {
       continueBtn.innerHTML = iconText('book-open', 'Continue Lesson ' + (nextIncomplete + 1));
@@ -1747,9 +1747,9 @@ function handleCheckoutParams() {
 
     function showSuccess() {
       if (window.__ux && typeof window.__ux.showToast === 'function') {
-        window.__ux.showToast('You\'re premium now!', 'success', 6000);
+        window.__ux.showToast('Premium is now active', 'success', 6000);
       } else if (typeof showToast === 'function') {
-        showToast('You\'re premium now!', 'success', 6000);
+        showToast('Premium is now active', 'success', 6000);
       }
     }
 

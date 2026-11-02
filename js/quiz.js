@@ -135,7 +135,7 @@ function answerQuiz(btn, chosen, correct, wordId) {
     btn.classList.add('correct');
     quizCorrect++;
     rateSRSWord(wordId, 2);
-    feedback.innerHTML = '\u2713 Correct!' + relContext;
+    feedback.innerHTML = '\u2713 Correct' + relContext;
     feedback.style.color = 'var(--green)';
   } else {
     btn.classList.add('wrong');
@@ -188,12 +188,12 @@ function renderQuizCompletion(score, total) {
     
     if ($fTotal > 0) {
       if ($fCompleted === 1) {
-        celebrationDetails = 'First lesson complete! You now understand some of the Quran\'s most frequent words. ' +
+        celebrationDetails = 'First lesson complete. You now understand some of the Quran\'s most frequent words. ' +
           'Your first review will be ready soon. Returning when it\'s ready will strengthen today\'s learning.';
       } else if ($fPct >= 50) {
-        celebrationDetails = 'Halfway through the Foundation Course! You have learned ' + $fCompleted + ' of ' + $fTotal + ' lessons.';
+        celebrationDetails = 'Halfway through the Foundation Course. You have learned ' + $fCompleted + ' of ' + $fTotal + ' lessons.';
       } else if ($fCompleted >= $fTotal) {
-        celebrationDetails = 'Foundation complete! You now understand ' + $compPct + '% of Quranic vocabulary.';
+        celebrationDetails = 'Foundation complete. You now understand ' + $compPct + '% of Quranic vocabulary.';
       } else {
         celebrationDetails = 'Lesson ' + $fCompleted + ' of ' + $fTotal + ' complete. ' + $compPct + '% Quran comprehension so far.';
       }
@@ -217,13 +217,13 @@ function renderQuizCompletion(score, total) {
   // Educational feedback based on score
   var msg = '';
   if (pct >= 90) {
-    msg = 'Excellent! You have mastered these words well.';
+    msg = 'You have mastered these words well.';
   } else if (pct >= 80) {
-    msg = 'Great work! Most words are solid in your memory.';
+    msg = 'Most words are solid in your memory.';
   } else if (pct >= 60) {
     msg = 'Good effort \u2014 review the words you missed to strengthen your recall.';
   } else {
-    msg = "Keep going! Each attempt builds stronger memory. Review the lesson words and try again.";
+    msg = "Each attempt builds stronger memory. Review the lesson words and try again.";
   }
   
   // Record lesson completion in momentum for all modes (Part 6)
@@ -245,7 +245,7 @@ function renderQuizCompletion(score, total) {
     window.__feedback.trackEvent($event, { mode: $mode, pct: pct });
   }
   
-  feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Done! ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
+  feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Score ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
   feedback.style.color = '';
   DOM.get('btn-next-quiz').style.display = 'none';
 }

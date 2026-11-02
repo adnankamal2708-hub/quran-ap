@@ -596,7 +596,7 @@ function renderExplorerLearningProgress(w, srsStatus, srsEntry) {
     if (srsStatus && srsStatus.status === 'new') {
       srsHtml = '<span class="explorer-srs-badge status-new">' + uiIcon('star') + 'New — Not yet studied</span>';
     } else if (srsStatus && srsStatus.status === 'review') {
-      var overdueText = srsStatus.daysUntilDue < 0 ? ' (overdue!)' : '';
+      var overdueText = srsStatus.daysUntilDue < 0 ? ' (overdue)' : '';
       var overdueClass = srsStatus.daysUntilDue < 0 ? 'due-now' : '';
       srsHtml = '<span class="explorer-srs-badge status-review">' + uiIcon('repeat') + 'Due for review' + overdueText + '</span>';
     } else if (srsStatus) {
@@ -658,7 +658,7 @@ function renderExplorerLearningProgress(w, srsStatus, srsEntry) {
     var diffDays = Math.round((dueDate - now) / (24 * 60 * 60 * 1000));
     var nextText;
     var nextClass = '';
-    if (diffDays < 0) { nextText = 'Due now!'; nextClass = 'due-now'; }
+    if (diffDays < 0) { nextText = 'Due now'; nextClass = 'due-now'; }
     else if (diffDays === 0) { nextText = 'Today'; nextClass = 'today'; }
     else if (diffDays === 1) { nextText = 'Tomorrow'; }
     else { nextText = 'In ' + diffDays + ' days'; }

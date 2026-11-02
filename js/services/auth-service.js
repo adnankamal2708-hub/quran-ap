@@ -404,7 +404,7 @@ async function applyVerificationCode(oobCode) {
     if (auth.currentUser) {
       await auth.currentUser.reload();
     }
-    return 'Email verified successfully!';
+    return 'Email verified';
   } catch (e) {
     throw _translateFirebaseError(e);
   }

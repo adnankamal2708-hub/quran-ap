@@ -12,7 +12,7 @@
 //   • Weak Roots — root families needing reinforcement
 //   • Recently Learned — words from recent lessons
 //   • Difficult Words — leeched/high-lapse words
-//   • Smart Prioritization — what to review first
+//   • What to review first
 //   • Session History — recent session summaries
 //   • One-tap Start Review from Dashboard
 //
@@ -412,10 +412,10 @@ function renderReviewCenter() {
     // No reviews due — show intelligent empty state (Part 3)
     var $noProgress = $data.masteredCount === 0 && $data.totalReviews === 0;
     var $emptyIcon = $noProgress ? 'leaf' : 'check-circle';
-    var $emptyTitle = $noProgress ? 'Your review schedule starts here' : 'All caught up!';
+    var $emptyTitle = $noProgress ? 'Your review schedule starts here' : 'All caught up';
     var $emptySub = $noProgress
       ? 'Complete your first Foundation lesson and your personalized review schedule will begin. Each lesson adds words to your review queue.'
-      : 'No words due for review right now. Your retention is strong! Learn new vocabulary or read the Quran to keep building.';
+      : 'No words due for review right now. Your retention is strong. Learn new vocabulary or read the Quran to keep building.';
     $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('repeat', true) + '</span> Reviews Due</div>';
     $h += '<div class="rc-empty-state">';
     $h += '<div class="rc-empty-icon">' + uiIcon($emptyIcon, true) + '</div>';
@@ -518,7 +518,7 @@ function renderReviewCenter() {
   $h = '';
 
   // ═══ SECTION 9: SMART PRIORITIZATION ═══
-  $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('settings', true) + '</span> Smart Prioritization</div>';
+  $h += '<div class="rc-section-label"><span class="rc-section-icon" aria-hidden="true">' + uiIcon('settings', true) + '</span> What to review first</div>';
   $h += '<div class="rc-card">';
   $h += '<div class="rc-smart-grid">';
 
@@ -570,7 +570,7 @@ function renderReviewCenter() {
   // Fallback: no priorities
   if ($data.overdueCount === 0 && $data.leechCount === 0 && $data.dueCount === 0 && $data.forgottenWords.length === 0) {
     $h += '<div class="rc-empty-state" style="padding:16px 0">';
-    $h += '<div class="rc-empty-title" style="font-size:14px">All clear!</div>';
+    $h += '<div class="rc-empty-title" style="font-size:14px">All clear</div>';
     $h += '<div class="rc-empty-sub">No items need attention. Review new vocabulary to keep building.</div>';
     $h += '</div>';
   }

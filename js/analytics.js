@@ -1300,8 +1300,8 @@ function getRecommendations() {
         priority: 'low',
         category: 'streak',
         icon: '🔥',
-        title: streakData.streak + '-Day Streak!',
-        description: 'You\'re on a ' + streakData.streak + '-day streak! ' + daysTo7 + ' more days to reach a 7-day streak milestone.',
+        title: streakData.streak + '-day streak',
+        description: 'You\'re on a ' + streakData.streak + '-day streak. ' + daysTo7 + ' more days to reach a 7-day streak milestone.',
         action: 'Keep studying daily',
         actionType: 'streak',
       });
@@ -1431,7 +1431,7 @@ function getPersonalizedGoals() {
       goals.push({
         type: 'streak',
         title: 'Streak: ' + currentStreak + ' → ' + nextMilestone + ' days',
-        description: 'You are ' + (nextMilestone - currentStreak) + ' days away from a ' + nextMilestone + '-day learning streak. Study daily to reach it!',
+        description: 'You are ' + (nextMilestone - currentStreak) + ' days away from a ' + nextMilestone + '-day learning streak. Study daily to reach it.',
         target: nextMilestone,
         current: currentStreak,
         unit: 'days',

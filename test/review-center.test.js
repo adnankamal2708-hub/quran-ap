@@ -716,7 +716,7 @@ suite('renderReviewCenter — Sections', function() {
     assert.ok(html.indexOf('Reviews Today') < 0, 'should not show reviews today stat');
   });
 
-  test('shows Smart Prioritization section', function() {
+  test('shows What to review first section', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -725,7 +725,7 @@ suite('renderReviewCenter — Sections', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Smart Prioritization') >= 0, 'should have prioritization section');
+    assert.ok(html.indexOf('What to review first') >= 0, 'should have prioritization section');
   });
 
   test('shows Review Forecast when forecast data available', function() {
@@ -1367,11 +1367,11 @@ suite('renderReviewCenter — Practice groups', function() {
     assert.ok(tests.indexOf('About 5 minutes') >= 0);
   });
 
-  test('Reviews Due, Smart Prioritization and Today\'s Progress sit under Due today', function() {
+  test('Reviews Due, What to review first and Today\'s Progress sit under Due today', function() {
     _mockDueReviews = [{ id: 'w1' }];
     _mockSRSStats = { total: 10, mature: 2, dueToday: 1, totalReviews: 20, reviewsToday: 1, newCount: 3, learning: 1, young: 1, overdue: 0, avgRetention: 85 };
     _mockForecast = [{ count: 3, label: 'Tomorrow' }];
-    inOrder(renderGrid(), ['Due today', 'Reviews Due', 'Smart Prioritization', "Today's Progress", 'Review Forecast', 'Drills']);
+    inOrder(renderGrid(), ['Due today', 'Reviews Due', 'What to review first', "Today's Progress", 'Review Forecast', 'Drills']);
   });
 
   test('Review Modes and the word lists sit under Drills, before the new drills', function() {

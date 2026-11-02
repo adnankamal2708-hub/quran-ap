@@ -404,7 +404,7 @@ function getNextActionRecommendation() {
   var fTotal = typeof getFoundationLessonCount === 'function' ? getFoundationLessonCount() : 0;
   var fPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
   if (fCompleted < fTotal) {
-    if (fPct >= 50) return 'Continue Foundation ' + (fCompleted + 1) + ' of ' + fTotal + ' — more than halfway!';
+    if (fPct >= 50) return 'Continue Foundation ' + (fCompleted + 1) + ' of ' + fTotal + ' — more than halfway';
     return 'Continue Foundation ' + (fCompleted + 1) + ' of ' + fTotal;
   }
   
@@ -434,34 +434,34 @@ function checkForLessonCompletionCelebration(lessonIndex) {
   var celebrations = [];
   
   if (fCompleted === 1) {
-    celebrations.push({ pct: 10, label: 'First Lesson Completed!', icon: '🎉', insight: 'You have taken the first step on an incredible journey. The Quran is opening to you, word by word.' });
+    celebrations.push({ pct: 10, label: 'First lesson complete', icon: '🎉', insight: 'You have taken the first step. The Quran is opening to you, word by word.' });
   }
   if (fCompleted === Math.ceil(fTotal * 0.25)) {
-    celebrations.push({ pct: 25, label: 'Quarter Way Through Foundation!', icon: '🌟', insight: 'One quarter of the Foundation Course complete! You can now recognize approximately ' + compPct.toFixed(1) + '% of all Quranic word occurrences.' });
+    celebrations.push({ pct: 25, label: 'A quarter of the Foundation done', icon: '🌟', insight: 'One quarter of the Foundation Course complete. You can now recognize approximately ' + compPct.toFixed(1) + '% of all Quranic word occurrences.' });
   }
   if (fCompleted === Math.ceil(fTotal * 0.5)) {
-    celebrations.push({ pct: 50, label: 'Halfway Through Foundation!', icon: '⭐', insight: 'You have mastered 50 of the most frequent Quranic words! These words cover a significant portion of every surah you read.' });
+    celebrations.push({ pct: 50, label: 'Halfway through the Foundation', icon: '⭐', insight: 'You have mastered 50 of the most frequent Quranic words. These words cover a significant portion of every surah you read.' });
   }
   if (fCompleted === Math.ceil(fTotal * 0.75)) {
-    celebrations.push({ pct: 75, label: 'Three Quarters Done!', icon: '🔥', insight: 'Most short surahs are now accessible to you. The words of Allah are becoming clearer with every lesson.' });
+    celebrations.push({ pct: 75, label: 'Three quarters of the Foundation done', icon: '🔥', insight: 'Most short surahs are now accessible to you. The words of Allah are becoming clearer with every lesson.' });
   }
   if (fCompleted >= fTotal && fTotal > 0) {
-    celebrations.push({ pct: 90, label: 'Foundation Complete!', icon: '👑', insight: 'You have completed all Foundation Course lessons! You now understand approximately ' + compPct.toFixed(1) + '% of all Quranic word occurrences. SubhanAllah!' });
+    celebrations.push({ pct: 90, label: 'Foundation complete', icon: '👑', insight: 'You have completed all Foundation Course lessons. You now understand approximately ' + compPct.toFixed(1) + '% of all Quranic word occurrences. SubhanAllah.' });
   }
   
   var compMilestones = [10, 20, 30, 40, 50, 60, 70, 80, 90];
   for (var mi = 0; mi < compMilestones.length; mi++) {
     if (compPct >= compMilestones[mi] && (!window.__lastCompMilestone || window.__lastCompMilestone < compMilestones[mi])) {
       var msLabels = {
-        10: { icon: '🌱', label: '10% Comprehension', insight: 'You now understand approximately one out of every ten Quran words. You can begin to spot repeated vocabulary across different surahs.' },
-        20: { icon: '📖', label: '20% Comprehension', insight: 'One in five words is known! Short verses like Al-Ikhlas and Al-Asr are becoming meaningful to you.' },
-        30: { icon: '🏗️', label: '30% Comprehension', insight: 'Nearly one in three words familiar! You can grasp the topic of many verses.' },
-        40: { icon: '🔥', label: '40% Comprehension', insight: 'Two in five words! You can follow the structure of most verses.' },
-        50: { icon: '👑', label: '50% Comprehension — Major Milestone!', insight: 'Half the words recognized! You understand key Quranic concepts directly. This is a tremendous achievement.' },
-        60: { icon: '📚', label: '60% Comprehension', insight: 'Three in five words! With tafsir, you can study most verses meaningfully.' },
-        70: { icon: '🎯', label: '70% Comprehension', insight: 'Seven in ten words! Only specialized vocabulary remains unfamiliar.' },
-        80: { icon: '💎', label: '80% Comprehension', insight: 'Four in five words! Working knowledge of almost the entire Quranic vocabulary.' },
-        90: { icon: '🏆', label: '90% Comprehension', insight: 'Nine in ten words! Deep understanding of Quranic Arabic.' },
+        10: { icon: '🌱', label: '10% comprehension', insight: 'You now understand approximately one out of every ten Quran words. You can begin to spot repeated vocabulary across different surahs.' },
+        20: { icon: '📖', label: '20% comprehension', insight: 'One in five words is known. Short verses like Al-Ikhlas and Al-Asr are becoming meaningful to you.' },
+        30: { icon: '🏗️', label: '30% comprehension', insight: 'Nearly one in three words is familiar. You can grasp the topic of many verses.' },
+        40: { icon: '🔥', label: '40% comprehension', insight: 'Two in five words. You can follow the structure of most verses.' },
+        50: { icon: '👑', label: '50% comprehension', insight: 'Half the words recognized. You understand key Quranic concepts directly.' },
+        60: { icon: '📚', label: '60% comprehension', insight: 'Three in five words. With tafsir, you can study most verses meaningfully.' },
+        70: { icon: '🎯', label: '70% comprehension', insight: 'Seven in ten words. Only specialized vocabulary remains unfamiliar.' },
+        80: { icon: '💎', label: '80% comprehension', insight: 'Four in five words. Working knowledge of almost the entire Quranic vocabulary.' },
+        90: { icon: '🏆', label: '90% comprehension', insight: 'Nine in ten words. Deep understanding of Quranic Arabic.' },
       };
       var ms = msLabels[compMilestones[mi]];
       if (ms) celebrations.push({ pct: compMilestones[mi], label: ms.label, icon: ms.icon, insight: ms.insight });

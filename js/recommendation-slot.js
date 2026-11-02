@@ -203,7 +203,7 @@
         return {
           icon: 'check-circle',
           title: s.masteredCount + ' Words Mastered',
-          message: s.coveragePct + '% Quran coverage — keep building your understanding!',
+          message: s.coveragePct + '% Quran coverage — keep building your understanding',
           action: 'Continue',
           id: 'rec-encouragement',
           actionType: 'foundation',

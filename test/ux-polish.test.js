@@ -1021,10 +1021,10 @@ suite('getContextualEmptyState', function() {
     assert.ok(state.title.indexOf('Bookmarks') >= 0);
   });
 
-  test('returns reviews state with Caught Up title', function() {
+  test('returns reviews state with caught up title', function() {
     var state = ux.getContextualEmptyState('reviews');
     assert.ok(state !== null);
-    assert.ok(state.title.indexOf('Caught Up') >= 0);
+    assert.ok(state.title.indexOf('caught up') >= 0);
   });
 
   test('returns achievements state with action', function() {

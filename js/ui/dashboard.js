@@ -258,9 +258,9 @@ function renderDashboard() {
   if ($fCompleted > 0 && $reviewsToday === 0 && $dueCount === 0 && $masteredCount <= 10) {
     // Returning user who has done lessons but hasn't started today's work yet
     if ($fCompleted === 1) {
-      $returningGreeting = 'Welcome back! You completed Lesson 1. Your review schedule is building.';
+      $returningGreeting = 'You completed Lesson 1. Your review schedule is building.';
     } else if ($fCompleted > 1 && $fCompleted <= 3) {
-      $returningGreeting = 'Welcome back! You\'ve completed ' + $fCompleted + ' lessons. Keep the momentum going.';
+      $returningGreeting = 'You\'ve completed ' + $fCompleted + ' lessons. Keep the momentum going.';
     }
   }
 
@@ -272,7 +272,7 @@ function renderDashboard() {
   } else if ($foundationComplete) {
     $greetingSub = 'Time to strengthen your vocabulary through real Quran reading.';
   } else if ($fTotal > 0 && $fPct >= 50) {
-    $greetingSub = 'You are halfway through the Foundation Course!';
+    $greetingSub = 'You are halfway through the Foundation Course.';
   } else if ($fTotal > 0 && $fPct >= 25) {
     $greetingSub = 'You are building your Quran foundation.';
   } else if ($fTotal > 0 && $fCompleted > 0) {
@@ -280,7 +280,7 @@ function renderDashboard() {
   } else if ($streak > 0) {
     $greetingSub = 'Keep your streak alive — every review strengthens your understanding.';
   } else if ($comprehensionPct > 0) {
-    $greetingSub = 'You understand ' + $comprehensionPct + '% of Quranic vocabulary. Keep going!';
+    $greetingSub = 'You understand ' + $comprehensionPct + '% of Quranic vocabulary.';
   } else {
     $greetingSub = 'Your journey to understand the Quran begins here.';
   }
@@ -373,7 +373,7 @@ function renderDashboard() {
       $h += '<div class="db-card-icon" style="opacity:0.5">' + $icon('lock', 22) + '</div>';
       $h += '<div class="db-card-body">';
       $h += '<div class="db-card-title">Guided Reading</div>';
-      $h += '<div class="db-card-sub">Foundation complete! Unlock structured surah-by-surah reading with Premium.</div>';
+      $h += '<div class="db-card-sub">Foundation complete. Unlock structured surah-by-surah reading with Premium.</div>';
       $h += '</div>';
       $h += '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'guided-reading\');event.stopPropagation()">' + uiIcon('star') + 'Upgrade</button>';
       $h += '</div></div>';
@@ -483,15 +483,15 @@ function renderDashboard() {
   // Encouraging message based on progress level
   var $encouragementMsg = '';
   if ($comprehensionPct >= 80) {
-    $encouragementMsg = 'Exceptional! You understand the vast majority of Quranic vocabulary.';
+    $encouragementMsg = 'You understand the vast majority of Quranic vocabulary.';
   } else if ($comprehensionPct >= 60) {
-    $encouragementMsg = 'Strong progress! Most verses are now accessible to you.';
+    $encouragementMsg = 'Most verses are now accessible to you.';
   } else if ($comprehensionPct >= 40) {
-    $encouragementMsg = 'Building steadily! You can follow the flow of longer passages.';
+    $encouragementMsg = 'You can follow the flow of longer passages.';
   } else if ($comprehensionPct >= 20) {
-    $encouragementMsg = 'Growing familiarity! Short verses are becoming recognizable.';
+    $encouragementMsg = 'Short verses are becoming recognizable.';
   } else if ($comprehensionPct > 0) {
-    $encouragementMsg = 'Every word counts! Keep going — you are building real understanding.';
+    $encouragementMsg = 'Every word counts — you are building real understanding.';
   } else {
     $encouragementMsg = 'Start learning Quranic vocabulary to unlock comprehension.';
   }
@@ -555,7 +555,7 @@ function renderDashboard() {
     $h += '</div>';
   } else if ($dailyGoalProgress > 0) {
     $h += '<div class="db-goal-complete">';
-    $h += '<span>' + $icon('check-circle', 14) + ' Goal complete!</span>';
+    $h += '<span>' + $icon('check-circle', 14) + ' Goal complete</span>';
     $h += '</div>';
   } else {
     $h += '<div class="db-goal-remaining">';
@@ -778,7 +778,7 @@ function renderDashboard() {
   
   // Priority 1: Reviews done today
   if ($reviewsToday > 0) {
-    $motivationMsg = 'You reinforced <strong>' + $reviewsToday + '</strong> word' + ($reviewsToday !== 1 ? 's' : '') + ' today. Every review builds lasting retention!';
+    $motivationMsg = 'You reinforced <strong>' + $reviewsToday + '</strong> word' + ($reviewsToday !== 1 ? 's' : '') + ' today. Every review builds lasting retention.';
     $motivationIcon = 'fire';
   }
   // Priority 1b: Momentum — today's activity from current session
@@ -787,25 +787,25 @@ function renderDashboard() {
     if ($momentum.lessonsCompleted > 0) $momentumParts.push($momentum.lessonsCompleted + ' lesson' + ($momentum.lessonsCompleted > 1 ? 's' : '') + ' completed');
     if ($momentum.wordsLearned > 0) $momentumParts.push($momentum.wordsLearned + ' word' + ($momentum.wordsLearned > 1 ? 's' : '') + ' learned');
     if ($momentum.ayahsRead > 0) $momentumParts.push($momentum.ayahsRead + ' ayahs read');
-    $motivationMsg = 'Today: <strong>' + $momentumParts.join(', ') + '</strong>. Great progress!';
+    $motivationMsg = 'Today: <strong>' + $momentumParts.join(', ') + '</strong>.';
     $motivationIcon = 'chart';
   }
   // Priority 2: Comprehension growth (from analytics deltas)
   else if ($compDeltas && $compDeltas.weekChange && $compDeltas.weekChange > 0) {
-    $motivationMsg = 'Your Quran comprehension increased by <strong>+' + $compDeltas.weekChange.toFixed(1) + '%</strong> this week. Consistent progress!';
+    $motivationMsg = 'Your Quran comprehension increased by <strong>+' + $compDeltas.weekChange.toFixed(1) + '%</strong> this week.';
     $motivationIcon = 'trend';
   }
   // Priority 3: Streak encouragement
   else if ($streak > 0) {
     var $streakMsg = '';
     if ($streak >= 7) {
-      $streakMsg = 'Impressive consistency!';
+      $streakMsg = 'Steady, consistent study.';
     } else if ($streak <= 3) {
-      $streakMsg = 'You\'re building a habit! ' + ($streak === 1 ? 'Day 1 done — the most important step.' : $streak + ' days strong!') + '';
+      $streakMsg = 'You\'re building a habit. ' + ($streak === 1 ? 'Day 1 done — the most important step.' : $streak + ' days in a row.') + '';
     } else {
       $streakMsg = 'Keep it going — ' + (7 - ($streak % 7)) + ' more days to your next milestone.';
     }
-    $motivationMsg = 'You\'re on a <strong>' + $streak + '-day streak</strong>! ' + $streakMsg;
+    $motivationMsg = 'You\'re on a <strong>' + $streak + '-day streak</strong>. ' + $streakMsg;
     $motivationIcon = 'fire';
   }
   // Priority 5b: Reviews due with urgency (returning user with completed lessons)
@@ -815,7 +815,7 @@ function renderDashboard() {
   }
   // Priority 5c: Low reviews due — almost done (non-returning, just few left)
   else if ($dueCount > 0 && $dueCount <= 5) {
-    $motivationMsg = 'Only <strong>' + $dueCount + '</strong> review' + ($dueCount !== 1 ? 's' : '') + ' remaining. Quick session to stay on top!';
+    $motivationMsg = 'Only <strong>' + $dueCount + '</strong> review' + ($dueCount !== 1 ? 's' : '') + ' remaining. A short session clears them.';
     $motivationIcon = 'target';
   }
   // Priority 5d: Reviews due, general case
@@ -825,17 +825,17 @@ function renderDashboard() {
   }
   // Priority 6: Foundation milestone
   else if ($fTotal > 0 && $fCompleted > 0 && !$foundationComplete) {
-    $motivationMsg = 'You\'ve completed <strong>' + $fCompleted + ' of ' + $fTotal + '</strong> foundation lessons. ' + ($fPct >= 50 ? 'More than halfway there!' : 'Keep going — each lesson unlocks more of the Quran.') + '';
+    $motivationMsg = 'You\'ve completed <strong>' + $fCompleted + ' of ' + $fTotal + '</strong> foundation lessons. ' + ($fPct >= 50 ? 'More than halfway there.' : 'Keep going — each lesson unlocks more of the Quran.') + '';
     $motivationIcon = 'star';
   }
   // Priority 7: Comprehension milestone
   else if ($comprehensionPct >= 50) {
-    $motivationMsg = 'You understand <strong>' + $comprehensionPct + '%</strong> of Quranic vocabulary. Remarkable achievement!';
+    $motivationMsg = 'You understand <strong>' + $comprehensionPct + '%</strong> of Quranic vocabulary.';
     $motivationIcon = 'award';
   }
   // Priority 8: Words mastered
   else if ($masteredCount > 0) {
-    $motivationMsg = '<strong>' + $masteredCount + ' words mastered</strong> — ' + $coveragePct + '% of Quran occurrences. Building real understanding!';
+    $motivationMsg = '<strong>' + $masteredCount + ' words mastered</strong> — ' + $coveragePct + '% of Quran occurrences.';
     $motivationIcon = 'fire';
   }
   // Priority 9: Foundation course milestone
@@ -850,9 +850,9 @@ function renderDashboard() {
       ? getFoundationTotalCoveragePercent()
       : 0;
     if ($foundationTotalCoverage > 0) {
-      $motivationMsg = 'Start the Foundation Course to unlock <strong>~' + $foundationTotalCoverage + '%</strong> of Quranic word occurrences in just ' + $fTotal + ' lessons!';
+      $motivationMsg = 'Start the Foundation Course to unlock <strong>~' + $foundationTotalCoverage + '%</strong> of Quranic word occurrences in just ' + $fTotal + ' lessons.';
     } else {
-      $motivationMsg = 'Start the Foundation Course to master the 100 most frequent Quranic words and unlock most of the Quran!';
+      $motivationMsg = 'Start the Foundation Course to master the 100 most frequent Quranic words and unlock most of the Quran.';
     }
     $motivationIcon = 'leaf';
     }

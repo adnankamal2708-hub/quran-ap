@@ -1160,12 +1160,12 @@ function getContextualEmptyState(section) {
     achievements: {
       icon: '🏆',
       title: 'No Achievements Yet',
-      desc: 'Complete the Foundation Course, maintain streaks, and master words to earn achievements. Your first one is just around the corner!',
+      desc: 'Complete the Foundation Course, maintain streaks, and master words to earn achievements.',
       action: '<button class="btn btn-sm" onclick="if(typeof goToFoundationLesson===\'function\')goToFoundationLesson(0)">Start Foundation Course</button>'
     },
     reviews: {
       icon: '✅',
-      title: 'All Caught Up!',
+      title: 'All caught up',
       desc: 'No reviews due right now. Check back later or learn new words to build your review queue.',
       action: '<button class="btn btn-sm" onclick="if(typeof goToFoundationLesson===\'function\')goToFoundationLesson(0)">Learn New Words</button>'
     },
@@ -1364,15 +1364,15 @@ function showMilestoneCelebration(milestone) {
   overlay.className = 'milestone-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
-  overlay.setAttribute('aria-label', milestone.label + ' achieved!');
+  overlay.setAttribute('aria-label', milestone.label + ' achieved');
 
   overlay.innerHTML =
     '<div class="milestone-card">' +
       '<div class="milestone-icon">' + dataIcon(milestone.icon || 'celebration', true) + '</div>' +
-      '<div class="milestone-title">Milestone Reached!</div>' +
+      '<div class="milestone-title">Milestone reached</div>' +
       '<div class="milestone-name">' + escapeHtml(milestone.label) + '</div>' +
       '<div class="milestone-desc">' + (milestone.insight || '') + '</div>' +
-      '<button class="btn btn-sm milestone-btn" id="milestone-close-btn" type="button">' + uiIcon('thumbs-up') + 'Awesome!</button>' +
+      '<button class="btn btn-sm milestone-btn" id="milestone-close-btn" type="button">' + uiIcon('thumbs-up') + 'Continue</button>' +
     '</div>';
 
   document.body.appendChild(overlay);

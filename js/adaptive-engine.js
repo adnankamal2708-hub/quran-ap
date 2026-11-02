@@ -303,7 +303,7 @@ function getSmartRecommendation() {
       return {
         icon: '🔥',
         title: "You haven't reviewed in " + daysSince + ' day' + (daysSince !== 1 ? 's' : ''),
-        message: 'Your streak is at risk! A short review session is all it takes to keep your progress alive.',
+        message: 'Your streak is at risk. A short review session keeps your progress alive.',
         action: 'Start review',
         actionType: 'review',
       };
@@ -633,7 +633,7 @@ function getSessionRating(stats) {
     2: { stars: '★★☆☆☆', label: 'Decent session', color: 'var(--gold-muted)' },
     3: { stars: '★★★☆☆', label: 'Good session', color: 'var(--gold)' },
     4: { stars: '★★★★☆', label: 'Great session', color: 'var(--gold)' },
-    5: { stars: '★★★★★', label: 'Excellent session!', color: 'var(--gold-light)' },
+    5: { stars: '★★★★★', label: 'Excellent session', color: 'var(--gold-light)' },
   };
 
   return ratings[score] || ratings[0];

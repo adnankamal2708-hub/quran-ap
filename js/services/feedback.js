@@ -241,7 +241,7 @@
       if (result && result.ok) {
         statusEl.textContent = result.stored === 'local'
           ? 'Saved on this device. It has not been sent yet.'
-          : '✓ Thank you! Your feedback was received.';
+          : '✓ Thank you. Your feedback was received.';
         statusEl.style.color = result.stored === 'local' ? 'var(--gold-muted)' : 'var(--green)';
         textEl.value = '';
         if (emailEl) emailEl.value = '';

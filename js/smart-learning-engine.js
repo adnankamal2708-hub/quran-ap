@@ -456,7 +456,7 @@ function getScoredRecommendations() {
         ? ctx.overdueCount + ' Overdue Reviews'
         : ctx.dueCount + ' Reviews Due',
       message: ctx.overdueCount > 0
-        ? 'You have ' + ctx.dueCount + ' words due (' + ctx.overdueCount + ' overdue!). Reviews overdue by a week have a 70%+ forgetting risk. Catch up now to protect your progress.'
+        ? 'You have ' + ctx.dueCount + ' words due (' + ctx.overdueCount + ' overdue). Reviews overdue by a week have a 70%+ forgetting risk. Catch up now to protect your progress.'
         : ctx.dueCount + ' word' + (ctx.dueCount !== 1 ? 's need' : ' needs') + ' review. Regular spaced repetition is scientifically proven to build long-term memory.',
       action: 'Start Review',
       icon: 'repeat',
@@ -623,7 +623,7 @@ function getScoredRecommendations() {
           score: 60,
           scoreBreakdown: [{ factor: 'Foundation complete — advance to surahs', weight: '100%', contribution: 60 }],
           title: 'Study Surah ' + (nsInfo ? nsInfo.name : nextSurahId),
-          message: 'Foundation Course complete! Now apply your knowledge by studying vocabulary in Quranic context, surah by surah. Start with ' + (nsInfo ? nsInfo.name : 'Surah ' + nextSurahId) + '.',
+          message: 'Foundation Course complete. Now apply your knowledge by studying vocabulary in Quranic context, surah by surah. Start with ' + (nsInfo ? nsInfo.name : 'Surah ' + nextSurahId) + '.',
           action: 'Study Surah',
           icon: 'book',
           actionType: 'surah',

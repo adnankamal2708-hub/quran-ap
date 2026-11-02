@@ -48,7 +48,7 @@ function renderLearnScreen() {
   // ═══ JOURNEY MESSAGE (Part 2) ═══
   var $journeyMsg = '';
   if ($foundationComplete) {
-    $journeyMsg = 'Foundation complete! Explore the Quran through surah study.';
+    $journeyMsg = 'Foundation complete. Explore the Quran through surah study.';
   } else if ($fCompleted >= 9) {
     $journeyMsg = 'You are completing the foundation of Quran vocabulary.';
   } else if ($fCompleted >= 7) {
@@ -58,7 +58,7 @@ function renderLearnScreen() {
   } else if ($fCompleted >= 1) {
     $journeyMsg = 'Every word you learn unlocks more of the Quran.';
   } else {
-    $journeyMsg = 'Welcome! Your first lesson starts here.';
+    $journeyMsg = 'Your first lesson starts here.';
   }
   h += '<div class="ls-journey-msg" style="font-size:12px;color:var(--gold-muted);margin-bottom:10px;text-align:center;line-height:1.5">' + $journeyMsg + '</div>';
 
@@ -92,7 +92,7 @@ function renderLearnScreen() {
       h += '<div class="ls-card-icon">' + uiIcon('layers', true) + '</div>';
       h += '<div class="ls-card-body">';
       h += '<div class="ls-card-title">Independent Reading</div>';
-      h += '<div class="ls-card-sub">All guided surahs complete! Open the Quran to explore any surah.</div>';
+      h += '<div class="ls-card-sub">All guided surahs complete. Open the Quran to explore any surah.</div>';
       h += '</div>';
       h += '</div>';
     }
