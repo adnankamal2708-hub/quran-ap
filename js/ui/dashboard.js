@@ -288,8 +288,9 @@ function renderDashboard() {
   $h += '<div class="db-greeting-icon" aria-hidden="true">' + $icon('book', 28) + '</div>';
   $h += '<div>';
   var $premiumBadge = (window.__premium && window.__premium.isPremium()) ? ' <span class="db-premium-badge">' + uiIcon('star') + 'Premium</span>' : '';
-  $h += '<h2 class="db-greeting-title">Assalamu Alaikum' + $premiumBadge + '</h2>';
-  $h += '<p class="db-greeting-sub">' + $greetingSub + '</p>';
+  // The salaam stays as a quiet line; where the learner stands leads
+  $h += '<p class="db-greeting-sub">Assalamu Alaikum' + $premiumBadge + '</p>';
+  $h += '<h2 class="db-greeting-title">' + $greetingSub + '</h2>';
   $h += '</div></div>';
 
   // ═══ 2. UP NEXT — the one primary action, first on the page ═══
