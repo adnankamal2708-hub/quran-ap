@@ -245,7 +245,7 @@ function renderQuizCompletion(score, total) {
     window.__feedback.trackEvent($event, { mode: $mode, pct: pct });
   }
   
-  feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Score ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
+  feedback.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--gold);margin-bottom:4px">Done · ' + pct + '% \u2014 ' + msg + '</div>' + milestoneHtml;
   feedback.style.color = '';
   DOM.get('btn-next-quiz').style.display = 'none';
 }
