@@ -635,7 +635,7 @@ function renderDashboard() {
     $h += '<div class="db-card-row">';
     $h += '<div class="db-card-icon db-icon-gold-faint">' + $icon('book-open', 22) + '</div>';
     $h += '<div class="db-card-body">';
-    $h += '<div class="db-card-title">Start Reading</div>';
+    $h += '<div class="db-card-title">Start reading</div>';
     $h += '<div class="db-card-sub">Begin your Quran reading journey with Surah Al-Fatiha</div>';
     $h += '</div>';
     $h += '<button class="btn btn-sm btn-outline" type="button">Begin</button>';

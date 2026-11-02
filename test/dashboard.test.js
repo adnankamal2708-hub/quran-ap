@@ -564,7 +564,7 @@ suite('Continue Reading Section', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Start Reading') >= 0, 'should show Start Reading');
+    assert.ok(html.indexOf('Start reading') >= 0, 'should show Start Reading');
     assert.ok(html.indexOf('Al-Fatiha') >= 0, 'should recommend Al-Fatiha');
     // Nothing to continue yet
     assert.ok(html.indexOf('Read the Quran') >= 0, 'section reads Read the Quran');

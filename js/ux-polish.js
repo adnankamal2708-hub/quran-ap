@@ -1167,7 +1167,7 @@ function getContextualEmptyState(section) {
       icon: '✅',
       title: 'All caught up',
       desc: 'No reviews due right now. Check back later or learn new words to build your review queue.',
-      action: '<button class="btn btn-sm" onclick="if(typeof goToFoundationLesson===\'function\')goToFoundationLesson(0)">Learn New Words</button>'
+      action: '<button class="btn btn-sm" onclick="if(typeof goToFoundationLesson===\'function\')goToFoundationLesson(0)">Learn new words</button>'
     },
     'reading-progress': {
       icon: '📖',

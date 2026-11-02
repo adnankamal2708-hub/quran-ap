@@ -619,7 +619,7 @@ function renderQuran() {
               '<span style="font-size:11px;color:var(--green)">' + uiIcon('trend') + 'Estimated comprehension: ' + $gPreview.estimatedComprehension + '%</span>' +
               '<span style="font-size:11px;color:var(--text-muted)">⏱️ ~' + $gPreview.estMinutes + ' min</span>' +
               '</div>' +
-              '<button class="btn btn-sm" id="quran-guided-start" type="button" style="margin-top:8px;background:var(--gold);color:var(--on-gold);border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:11px">Start Reading →</button>' +
+              '<button class="btn btn-sm" id="quran-guided-start" type="button" style="margin-top:8px;background:var(--gold);color:var(--on-gold);border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:11px">Start reading →</button>' +
               '</div></div></div>';
           }
         }

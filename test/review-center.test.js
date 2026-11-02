@@ -594,12 +594,12 @@ suite('renderReviewCenter — Review Modes', function() {
     renderReviewCenter();
     var html = grid._innerHTML;
     assert.ok(html.indexOf('Review modes') >= 0, 'should label section');
-    assert.ok(html.indexOf('SRS Review') >= 0, 'should have SRS mode');
-    assert.ok(html.indexOf('Quick Review') >= 0, 'should have Quick mode');
-    assert.ok(html.indexOf('Root Review') >= 0, 'should have Root mode');
-    assert.ok(html.indexOf('Reading Review') >= 0, 'should have Reading mode');
-    assert.ok(html.indexOf('Mixed Review') >= 0, 'should have Mixed mode');
-    assert.ok(html.indexOf('Weakest Words') >= 0, 'should have Weakest mode');
+    assert.ok(html.indexOf('SRS review') >= 0, 'should have SRS mode');
+    assert.ok(html.indexOf('Quick review') >= 0, 'should have Quick mode');
+    assert.ok(html.indexOf('Root review') >= 0, 'should have Root mode');
+    assert.ok(html.indexOf('Reading review') >= 0, 'should have Reading mode');
+    assert.ok(html.indexOf('Mixed review') >= 0, 'should have Mixed mode');
+    assert.ok(html.indexOf('Weakest words') >= 0, 'should have Weakest mode');
   });
 });
 
@@ -637,7 +637,7 @@ suite('renderReviewCenter — Reviews Due Section', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Start SRS Review') >= 0, 'should show start button');
+    assert.ok(html.indexOf('Start SRS review') >= 0, 'should show start button');
     assert.ok(html.indexOf('1 word') >= 0, 'should show word count');
   });
 
@@ -685,8 +685,8 @@ suite('renderReviewCenter — Reviews Due Section', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Mixed Review') >= 0, 'should have mixed review button');
-    assert.ok(html.indexOf('Quick Review') >= 0, 'should have quick review button');
+    assert.ok(html.indexOf('Mixed review') >= 0, 'should have mixed review button');
+    assert.ok(html.indexOf('Quick review') >= 0, 'should have quick review button');
   });
 });
 

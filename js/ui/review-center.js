@@ -298,7 +298,7 @@ function renderReviewCenter() {
   $h += '<div class="rc-mode-card" id="rc-mode-srs" tabindex="0" role="button" aria-label="Start SRS review">';
   $h += '<div class="rc-mode-icon">' + uiIcon('refresh-cw', true) + '</div>';
   $h += '<div class="rc-mode-info">';
-  $h += '<div class="rc-mode-title">SRS Review</div>';
+  $h += '<div class="rc-mode-title">SRS review</div>';
   $h += '<div class="rc-mode-sub">Standard spaced repetition</div>';
   $h += '</div>';
   $h += '<div class="rc-mode-arrow">→</div>';
@@ -308,7 +308,7 @@ function renderReviewCenter() {
   $h += '<div class="rc-mode-card" id="rc-mode-quick" tabindex="0" role="button" aria-label="Start quick review">';
   $h += '<div class="rc-mode-icon">' + uiIcon('bolt', true) + '</div>';
   $h += '<div class="rc-mode-info">';
-  $h += '<div class="rc-mode-title">Quick Review</div>';
+  $h += '<div class="rc-mode-title">Quick review</div>';
   $h += '<div class="rc-mode-sub">Fast flashcard mode</div>';
   $h += '</div>';
   $h += '<div class="rc-mode-arrow">→</div>';
@@ -318,7 +318,7 @@ function renderReviewCenter() {
   $h += '<div class="rc-mode-card" id="rc-mode-root" tabindex="0" role="button" aria-label="Start root review">';
   $h += '<div class="rc-mode-icon">' + uiIcon('leaf', true) + '</div>';
   $h += '<div class="rc-mode-info">';
-  $h += '<div class="rc-mode-title">Root Review</div>';
+  $h += '<div class="rc-mode-title">Root review</div>';
   $h += '<div class="rc-mode-sub">By root families</div>';
   $h += '</div>';
   $h += '<div class="rc-mode-arrow">→</div>';
@@ -328,7 +328,7 @@ function renderReviewCenter() {
   $h += '<div class="rc-mode-card" id="rc-mode-reading" tabindex="0" role="button" aria-label="Start reading review">';
   $h += '<div class="rc-mode-icon">' + uiIcon('book-open', true) + '</div>';
   $h += '<div class="rc-mode-info">';
-  $h += '<div class="rc-mode-title">Reading Review</div>';
+  $h += '<div class="rc-mode-title">Reading review</div>';
   $h += '<div class="rc-mode-sub">Words from reading</div>';
   $h += '</div>';
   $h += '<div class="rc-mode-arrow">→</div>';
@@ -338,7 +338,7 @@ function renderReviewCenter() {
   $h += '<div class="rc-mode-card" id="rc-mode-mixed" tabindex="0" role="button" aria-label="Start mixed review">';
   $h += '<div class="rc-mode-icon">' + uiIcon('shuffle', true) + '</div>';
   $h += '<div class="rc-mode-info">';
-  $h += '<div class="rc-mode-title">Mixed Review</div>';
+  $h += '<div class="rc-mode-title">Mixed review</div>';
   $h += '<div class="rc-mode-sub">Balanced difficulty</div>';
   $h += '</div>';
   $h += '<div class="rc-mode-arrow">→</div>';
@@ -348,7 +348,7 @@ function renderReviewCenter() {
   $h += '<div class="rc-mode-card" id="rc-mode-weakest" tabindex="0" role="button" aria-label="Start weakest words review">';
   $h += '<div class="rc-mode-icon">' + uiIcon('alert-triangle', true) + '</div>';
   $h += '<div class="rc-mode-info">';
-  $h += '<div class="rc-mode-title">Weakest Words</div>';
+  $h += '<div class="rc-mode-title">Weakest words</div>';
   $h += '<div class="rc-mode-sub">Leeched & difficult</div>';
   $h += '</div>';
   $h += '<div class="rc-mode-arrow">→</div>';
@@ -381,14 +381,14 @@ function renderReviewCenter() {
     // Start Review button
     $h += '<button class="rc-start-btn" id="rc-start-srs" type="button">';
     $h += '<span class="rc-start-btn-icon">▶</span>';
-    $h += '<span class="rc-start-btn-text">Start SRS Review</span>';
+    $h += '<span class="rc-start-btn-text">Start SRS review</span>';
     $h += '<span class="rc-start-btn-sub">' + $data.dueCount + ' words · ' + estimateReviewTime($data.dueCount).label + '</span>';
     $h += '</button>';
 
     // Quick actions row
     $h += '<div class="rc-quick-actions-row">';
-    $h += '<button class="rc-quick-btn" id="rc-start-mixed" type="button">' + uiIcon('shuffle') + 'Mixed Review</button>';
-    $h += '<button class="rc-quick-btn" id="rc-start-quick" type="button">' + uiIcon('bolt') + 'Quick Review</button>';
+    $h += '<button class="rc-quick-btn" id="rc-start-mixed" type="button">' + uiIcon('shuffle') + 'Mixed review</button>';
+    $h += '<button class="rc-quick-btn" id="rc-start-quick" type="button">' + uiIcon('bolt') + 'Quick review</button>';
     $h += '</div>';
 
     // Show a few due words as preview

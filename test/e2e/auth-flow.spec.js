@@ -41,7 +41,7 @@ test.describe('Authentication Flow', () => {
     await page.locator('#guest-notice-signup').click();
 
     await expect(page.locator('#auth-signup')).toBeVisible();
-    await expect(page.locator('#auth-title')).toHaveText('Create Account');
+    await expect(page.locator('#auth-title')).toHaveText('Create account');
   });
 
   test('login and signup views switch correctly', async ({ page }) => {
@@ -50,12 +50,12 @@ test.describe('Authentication Flow', () => {
     // Signup → login
     await page.locator('#auth-login-link').click();
     await expect(page.locator('#auth-login')).toBeVisible();
-    await expect(page.locator('#auth-title')).toHaveText('Sign In');
+    await expect(page.locator('#auth-title')).toHaveText('Sign in');
 
     // Login → signup
     await page.locator('#auth-signup-link').click();
     await expect(page.locator('#auth-signup')).toBeVisible();
-    await expect(page.locator('#auth-title')).toHaveText('Create Account');
+    await expect(page.locator('#auth-title')).toHaveText('Create account');
   });
 
   test('signup rejects a password shorter than 6 characters', async ({ page }) => {
@@ -136,7 +136,7 @@ test.describe('Authentication Flow', () => {
 
     // Should open the auth view with login form visible
     await expect(page.locator('#auth-login')).toBeVisible();
-    await expect(page.locator('#auth-title')).toHaveText('Sign In');
+    await expect(page.locator('#auth-title')).toHaveText('Sign in');
   });
 
   test('Google sign-in option stays hidden via the header sign-in link (Stage A gate)', async ({ page }) => {
