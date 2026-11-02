@@ -943,7 +943,7 @@ function renderProfileProgress() {
   // account; gate behind the same 5-review minimum used elsewhere.
   if ($totalReviews >= $rcMinReviews) {
     h += '<div class="profile-subsection">';
-    h += '<div class="profile-subsection-title">' + uiIcon('calendar') + 'Review Forecast</div>';
+    h += '<div class="profile-subsection-title">' + uiIcon('calendar') + 'Review forecast</div>';
     var intervals = [0, 3, 7, 14, 30];
     var intervalLabels = ['Today', '3d', '7d', '14d', '30d'];
     var forecastColors = ['var(--gold)', 'var(--gold)', 'var(--green)', 'var(--blue)', 'var(--blue)'];

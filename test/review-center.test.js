@@ -522,7 +522,7 @@ suite('renderReviewCenter — Container', function() {
     _elementsById['review-center-grid'] = grid;
 
     renderReviewCenter();
-    assert.ok(grid._innerHTML.indexOf('Review Center') >= 0, 'should have title');
+    assert.ok(grid._innerHTML.indexOf('Review center') >= 0, 'should have title');
     assert.ok(grid._innerHTML.indexOf('Your central hub') >= 0, 'should have subtitle');
   });
 });
@@ -593,7 +593,7 @@ suite('renderReviewCenter — Review Modes', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Review Modes') >= 0, 'should label section');
+    assert.ok(html.indexOf('Review modes') >= 0, 'should label section');
     assert.ok(html.indexOf('SRS Review') >= 0, 'should have SRS mode');
     assert.ok(html.indexOf('Quick Review') >= 0, 'should have Quick mode');
     assert.ok(html.indexOf('Root Review') >= 0, 'should have Root mode');
@@ -614,7 +614,7 @@ suite('renderReviewCenter — Reviews Due Section', function() {
     renderReviewCenter();
     var html = grid._innerHTML;
     assert.ok(html.indexOf('review schedule starts') >= 0 || html.indexOf('All caught up') >= 0, 'should show contextual empty state');
-    assert.ok(html.indexOf('Reviews Due') >= 0, 'should still have section label');
+    assert.ok(html.indexOf('Reviews due') >= 0, 'should still have section label');
   });
 
   test('shows all-caught-up empty state when user has learning history', function() {
@@ -699,7 +699,7 @@ suite('renderReviewCenter — Sections', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf("Today's Progress") >= 0 || html.indexOf('Today\\s Progress') >= 0, 'should show today progress');
+    assert.ok(html.indexOf("Today's progress") >= 0 || html.indexOf('Today\\s Progress') >= 0, 'should show today progress');
     assert.ok(html.indexOf('Reviews Today') >= 0, 'should have reviews today stat');
     assert.ok(html.indexOf('Total Reviews') >= 0, 'should have total reviews stat');
     assert.ok(html.indexOf('Words Mastered') < 0, 'Mastered is in the stats bar, not repeated here');
@@ -712,7 +712,7 @@ suite('renderReviewCenter — Sections', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf("Today's Progress") < 0, 'should not show today progress with no reviews');
+    assert.ok(html.indexOf("Today's progress") < 0, 'should not show today progress with no reviews');
     assert.ok(html.indexOf('Reviews Today') < 0, 'should not show reviews today stat');
   });
 
@@ -740,7 +740,7 @@ suite('renderReviewCenter — Sections', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Review Forecast') >= 0, 'should show forecast section');
+    assert.ok(html.indexOf('Review forecast') >= 0, 'should show forecast section');
     assert.ok(html.indexOf('5') >= 0, 'should show forecast count 5');
   });
 });
@@ -757,7 +757,7 @@ suite('renderReviewCenter — Forgotten Words Section', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Forgotten Words') >= 0, 'should show forgotten section');
+    assert.ok(html.indexOf('Forgotten words') >= 0, 'should show forgotten section');
     assert.ok(html.indexOf('2 words') >= 0, 'should show count');
     assert.ok(html.indexOf('كتاب') >= 0, 'should show word preview');
   });
@@ -787,7 +787,7 @@ suite('renderReviewCenter — Weak Roots Section', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Weak Roots') >= 0, 'should show weak roots section');
+    assert.ok(html.indexOf('Weak roots') >= 0, 'should show weak roots section');
     assert.ok(html.indexOf('كتب') >= 0, 'should show root text');
     assert.ok(html.indexOf('40%') >= 0, 'should show mastery %');
   });
@@ -815,7 +815,7 @@ suite('renderReviewCenter — Bookmarked Words Section', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Bookmarked Words') >= 0, 'should show bookmarked section');
+    assert.ok(html.indexOf('Bookmarked words') >= 0, 'should show bookmarked section');
   });
 });
 
@@ -831,7 +831,7 @@ suite('renderReviewCenter — Difficult Words Section', function() {
 
     renderReviewCenter();
     var html = grid._innerHTML;
-    assert.ok(html.indexOf('Difficult Words') >= 0, 'should show difficult words section');
+    assert.ok(html.indexOf('Difficult words') >= 0, 'should show difficult words section');
     // Should show lapses count
     assert.ok(html.indexOf('5') >= 0 || html.indexOf('lapse') >= 0, 'should show lapse count');
   });
@@ -1267,10 +1267,10 @@ suite('Edge Cases — Empty and Zero States', function() {
     renderReviewCenter();
     var html = grid._innerHTML;
     // These sections should simply not appear when data is empty
-    assert.ok(html.indexOf('Forgotten Words') < 0, 'should not show forgotten section');
-    assert.ok(html.indexOf('Weak Roots') < 0, 'should not show weak roots section');
-    assert.ok(html.indexOf('Bookmarked Words') < 0, 'should not show bookmarked section');
-    assert.ok(html.indexOf('Difficult Words') < 0, 'should not show difficult section');
+    assert.ok(html.indexOf('Forgotten words') < 0, 'should not show forgotten section');
+    assert.ok(html.indexOf('Weak roots') < 0, 'should not show weak roots section');
+    assert.ok(html.indexOf('Bookmarked words') < 0, 'should not show bookmarked section');
+    assert.ok(html.indexOf('Difficult words') < 0, 'should not show difficult section');
   });
 
   test('shows all-clear in smart prioritization when nothing needs attention', function() {
@@ -1371,14 +1371,14 @@ suite('renderReviewCenter — Practice groups', function() {
     _mockDueReviews = [{ id: 'w1' }];
     _mockSRSStats = { total: 10, mature: 2, dueToday: 1, totalReviews: 20, reviewsToday: 1, newCount: 3, learning: 1, young: 1, overdue: 0, avgRetention: 85 };
     _mockForecast = [{ count: 3, label: 'Tomorrow' }];
-    inOrder(renderGrid(), ['Due today', 'Reviews Due', 'What to review first', "Today's Progress", 'Review Forecast', 'Drills']);
+    inOrder(renderGrid(), ['Due today', 'Reviews due', 'What to review first', "Today's progress", 'Review forecast', 'Drills']);
   });
 
-  test('Review Modes and the word lists sit under Drills, before the new drills', function() {
+  test('Review modes and the word lists sit under Drills, before the new drills', function() {
     _mockForgottenWords = [{ arabic: 'نور', english: 'light' }];
     _mockProfile = { weakRoots: [{ root: 'ك ت ب', rootMeaning: 'write', mastered: 1, total: 4, masteryScore: 25 }] };
     _mockFavorites = { w1: true };
-    inOrder(renderGrid(), ['Drills', 'Review Modes', 'Forgotten Words', 'Weak Roots', 'Bookmarked Words', 'rc-drill-spot', 'rc-drill-build', 'Tests']);
+    inOrder(renderGrid(), ['Drills', 'Review modes', 'Forgotten words', 'Weak roots', 'Bookmarked words', 'rc-drill-spot', 'rc-drill-build', 'Tests']);
   });
 
   test('has the two new drill cards, titled from the strings', function() {

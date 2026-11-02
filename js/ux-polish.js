@@ -809,7 +809,7 @@ var _tooltips = {
   'review-center': {
     selector: '#db-review-center-prompt',
     icon: 'list',
-    title: 'Review Center',
+    title: 'Review center',
     message: 'Your hub for all review modes — flashcards, quizzes, and focused practice sessions.',
     position: 'top'
   },

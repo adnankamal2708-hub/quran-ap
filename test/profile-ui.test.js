@@ -629,11 +629,11 @@ ts('Profile — Progress: zero-data gating (new user)', function() {
     assert.ok(html.indexOf('Review Ease') < 0, 'Review Ease hidden for new user');
   });
 
-  t('Review Forecast hidden at zero reviews', function() {
+  t('Review forecast hidden at zero reviews', function() {
     createEl('profile-progress');
     renderProfileProgress();
     var html = document.getElementById('profile-progress').innerHTML;
-    assert.ok(html.indexOf('Review Forecast') < 0, 'forecast hidden for new user');
+    assert.ok(html.indexOf('Review forecast') < 0, 'forecast hidden for new user');
     assert.ok(html.indexOf('profile-forecast-dot') < 0, 'no forecast dots for new user');
   });
 
@@ -650,7 +650,7 @@ ts('Profile — Progress: zero-data gating (new user)', function() {
     assert.ok(html.indexOf('Review Ease') >= 0, 'Review Ease label shown with 5+ reviews');
     assert.ok(html.indexOf('Avg Ease') < 0, 'raw Avg Ease label removed');
     assert.ok(html.indexOf('higher = more stable') >= 0, 'ease direction hint shown');
-    assert.ok(html.indexOf('Review Forecast') >= 0, 'forecast shown with 5+ reviews');
+    assert.ok(html.indexOf('Review forecast') >= 0, 'forecast shown with 5+ reviews');
   });
 
   global.getSRSStats = _origStats;

@@ -511,7 +511,7 @@ function renderDashboard() {
 
   // ═══ 4. TODAY'S GOAL ═══
   $h += '<div class="db-card db-goal-card" id="db-goal-card">';
-  $h += '<div class="db-section-label db-section-label-compact"><span class="db-section-icon" aria-hidden="true">' + $icon('target', 14) + '</span> Today\'s Goal</div>';
+  $h += '<div class="db-section-label db-section-label-compact"><span class="db-section-icon" aria-hidden="true">' + $icon('target', 14) + '</span> Today\'s goal</div>';
   
   // Compute goal: daily review target (default 25) or from goal progress
   // For brand-new users with no progress, show a simple "Complete Lesson 1" goal
@@ -582,7 +582,7 @@ function renderDashboard() {
   $h += '<div class="db-card-row">';
   $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('list', 22) + '</div>';
   $h += '<div class="db-card-body">';
-  $h += '<div class="db-card-title">Review Center</div>';
+  $h += '<div class="db-card-title">Review center</div>';
   $h += '<div class="db-card-sub">';
   if ($rcDue > 0) {
     var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));
@@ -659,7 +659,7 @@ function renderDashboard() {
   }
   if ($compSurahs.length >= $lowestCompHideThreshold) {
     $h += '<div class="db-card db-surah-progress" id="db-surah-progress">';
-    $h += '<div class="db-section-label db-section-label-spacious"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> Surah Comprehension</div>';
+    $h += '<div class="db-section-label db-section-label-spacious"><span class="db-section-icon" aria-hidden="true">' + $icon('book', 14) + '</span> Surah comprehension</div>';
     // Sort by comprehension ascending and take bottom 5
     var $sortedSurahs = $compSurahs.slice().sort(function($a, $b) { return $a.estimatedComprehension - $b.estimatedComprehension; });
     var $bottomSurahs = $sortedSurahs.slice(0, Math.min(5, $sortedSurahs.length));
@@ -739,7 +739,7 @@ function renderDashboard() {
   var $hasAnyProgress = ($fCompleted || 0) + ($masteredCount || 0) + ($srsStats.totalReviews || 0) > 0;
   if ($hasAnyProgress) {
   $h += '<div class="db-card db-progress-overview" id="db-progress-overview">';
-  $h += '<div class="db-section-label db-section-label-spacious"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress Overview</div>';
+  $h += '<div class="db-section-label db-section-label-spacious"><span class="db-section-icon" aria-hidden="true">' + $icon('chart', 14) + '</span> Progress overview</div>';
   // Foundation course
   if ($fTotal > 0) {
     var $fPctVal = Math.round(($fCompleted / $fTotal) * 100);

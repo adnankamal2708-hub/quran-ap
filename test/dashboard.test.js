@@ -581,7 +581,7 @@ suite('Continue Reading Section', function() {
   });
 });
 
-suite('Progress Overview Section', function() {
+suite('Progress overview Section', function() {
   test('shows Mastered stat', function() {
     resetState();
     setupGlobals();
@@ -672,7 +672,7 @@ suite('Secondary Sections Render Inline (no toggle)', function() {
     assert.ok(html.indexOf('db-collapsible') === -1, 'collapsible wrapper removed');
   });
 
-  test('Review Center prompt renders inline after greeting', function() {
+  test('Review center prompt renders inline after greeting', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
@@ -683,7 +683,7 @@ suite('Secondary Sections Render Inline (no toggle)', function() {
     assert.ok(html.indexOf('db-greeting') < reviewCenterIdx, 'review center appears after greeting');
   });
 
-  test('Progress Overview renders inline after greeting', function() {
+  test('Progress overview renders inline after greeting', function() {
     resetState();
     setupGlobals();
     setupDashboardGrid();
@@ -775,8 +775,8 @@ suite('Secondary Sections Render Inline (no toggle)', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Review Center') >= 0, 'Review Center still rendered');
-    assert.ok(html.indexOf('Progress Overview') >= 0, 'Progress Overview still rendered');
+    assert.ok(html.indexOf('Review center') >= 0, 'Review center still rendered');
+    assert.ok(html.indexOf('Progress overview') >= 0, 'Progress overview still rendered');
     assert.ok(html.indexOf('Streak') >= 0, 'Streak stat still rendered');
   });
 });
@@ -1523,7 +1523,7 @@ suite('Comprehensive State', function() {
     assert.ok(html.indexOf('Assalamu Alaikum') >= 0, 'greeting');
     assert.ok(html.indexOf('db-comp-headline-value">45% of the Quran') >= 0, 'one Quran percentage');
     assert.ok(html.indexOf('Foundation Course') >= 0, 'Foundation card');
-    assert.ok(html.indexOf('Progress Overview') >= 0, 'progress overview');
+    assert.ok(html.indexOf('Progress overview') >= 0, 'progress overview');
     assert.ok(html.indexOf('Mastered') >= 0, 'words mastered stat');
     assert.ok(html.indexOf('due') >= 0, 'review due text should appear in Review Center prompt');
     assert.ok(html.indexOf('Daily Motivation') >= 0 || html.indexOf('reinforced') >= 0, 'motivation message');
