@@ -120,6 +120,11 @@ function renderLearnScreen() {
   var $rfDone = typeof getCompletedRootFamilyCount === 'function' ? getCompletedRootFamilyCount() : 0;
   var $diffDone = typeof getCompletedDifficultyLevelCount === 'function' ? getCompletedDifficultyLevelCount() : 0;
 
+  // Read Arabic from zero (Qaida) first: the start of the Start from zero plan
+  if (typeof isTrackReleased === 'function' && isTrackReleased('qaida') && typeof getQaidaPercent === 'function') {
+    h += '<div class="ls-path-item" id="ls-path-qaida" tabindex="0" role="button" aria-label="Read Arabic from zero">' + _lsIcon('book-open', 14) +
+      ' <span>Read Arabic</span> <span class="ls-path-pct">' + Math.round(getQaidaPercent()) + '%</span></div>';
+  }
   h += '<div class="ls-path-item" id="ls-path-foundation" tabindex="0" role="button" aria-label="Foundation course">' + _lsIcon('layers', 14) + ' <span>Foundation</span> <span class="ls-path-pct">' + $fPct + '%</span></div>';
   if ($hasVocabExpansion) {
     h += '<div class="ls-path-item" id="ls-path-surah" tabindex="0" role="button" aria-label="Learn by surah">' + _lsIcon('book', 14) + ' <span>Surahs</span> <span class="ls-path-pct">' + ($surahTotal > 0 ? Math.round(($surahDone / $surahTotal) * 100) : 0) + '%</span></div>';
@@ -160,16 +165,6 @@ function _hasVocabularyExpansion() {
 function openSurahStudy() {
   if (_hasVocabularyExpansion()) {
     if (typeof switchView === 'function') switchView('learn');
-  } else if (window.__premium) {
-    window.__premium.requestUpgrade('vocabulary-expansion');
-  }
-}
-
-/** Root families (premium): the first root family, or the upgrade prompt. */
-function openRootFamilies() {
-  if (_hasVocabularyExpansion()) {
-    if (typeof goToRootFamily === 'function') goToRootFamily();
-    else if (typeof switchView === 'function') switchView('learn');
   } else if (window.__premium) {
     window.__premium.requestUpgrade('vocabulary-expansion');
   }
@@ -231,7 +226,11 @@ function wireLearnScreenEvents() {
     else if (typeof switchView === 'function') switchView('learn');
   });
   $lwire('ls-path-surah', openSurahStudy);
-  $lwire('ls-path-roots', openRootFamilies);
+  $lwire('ls-path-roots', openRootList);
+  $lwire('ls-path-qaida', function() {
+    if (typeof joinTrack === 'function') joinTrack('qaida');
+    if (typeof switchView === 'function') switchView('track', { trackId: 'qaida' });
+  });
   $lwire('ls-path-difficulty', openNextDifficultyLevel);
   // Quiz — launch from Paths
   $lwire('ls-path-quiz', function() {
@@ -275,6 +274,30 @@ function initLearnMore() {
 function updateLearnMoreNoteDot(hasNote) {
   var btn = document.getElementById('learn-more-toggle');
   if (btn) btn.classList.toggle('has-note', !!hasNote);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WIDE SCREENS — the word column stays in view beside a long details
+// column. It sticks with its top 16px down when it fits the window, and
+// with its bottom 16px up when it is taller, so its buttons stay reachable
+// (styles.css reads --learn-main-top).
+// ═══════════════════════════════════════════════════════════════
+
+function _watchLearnColumn() {
+  var main = document.querySelector && document.querySelector('.learn-main');
+  if (!main || typeof ResizeObserver === 'undefined') return;
+  function fit() {
+    main.style.setProperty('--learn-main-top', Math.min(16, window.innerHeight - main.offsetHeight - 16) + 'px');
+  }
+  new ResizeObserver(fit).observe(main);
+  window.addEventListener('resize', fit);
+  fit();
+}
+
+if (typeof document !== 'undefined' && document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _watchLearnColumn);
+} else if (typeof document !== 'undefined') {
+  _watchLearnColumn();
 }
 
 // ═══════════════════════════════════════════════════════════════

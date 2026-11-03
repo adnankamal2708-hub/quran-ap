@@ -822,10 +822,10 @@ var _tooltips = {
     position: 'bottom'
   },
   'word-details': {
-    selector: '#qa-show-more',
+    selector: '#qa-show-ayah',
     icon: 'search',
     title: 'Word Details',
-    message: 'Tap to see the full word profile — including root family, similar words, and Ibn Kathir tafsir.',
+    message: 'Tap to see the verse this word comes from, with Ibn Kathir\'s tafsir a tap away below it.',
     position: 'top'
   },
   'review-center': {

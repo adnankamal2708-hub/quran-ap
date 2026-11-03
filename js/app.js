@@ -283,9 +283,9 @@ function updateLessonProgressDisplay() {
       unlocksEl.innerHTML = '<div class="foundation-unlock-section">' +
         '<h3 class="foundation-unlock-title">' + uiIcon('unlock') + 'After this lesson you will:</h3>' +
         '<div class="foundation-unlock-items">' +
-        '<span class="db-inline-green ai-unlock-item">✓ Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
-        '<span class="db-inline-green ai-unlock-item">✓ Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
-        '<span class="db-inline-green ai-unlock-item">✓ Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
+        '<span class="ai-unlock-item">' + uiIcon('check') + 'Recognize ' + $nounCount + ' noun' + ($nounCount !== 1 ? 's' : '') + ' and ' + $verbCount + ' verb' + ($verbCount !== 1 ? 's' : '') + ' common in the Quran</span>' +
+        '<span class="ai-unlock-item">' + uiIcon('check') + 'Understand words from ' + $rootCount + ' root famil' + ($rootCount !== 1 ? 'ies' : 'y') + '</span>' +
+        '<span class="ai-unlock-item">' + uiIcon('check') + 'Improve understanding of ' + $sentenceTypes.join(', ') + '</span>' +
         (fLesson && fLesson.comprehensionGain > 0 ? '<span class="ai-unlock-gold-dim">' + uiIcon('trend') + 'Estimated comprehension gain: +' + fLesson.comprehensionGain + '%</span>' : '') +
         '</div></div>';
       unlocksEl.style.display = 'block';
@@ -310,9 +310,9 @@ function updateLessonProgressDisplay() {
         '<span class="db-progress-text">Foundation: ' + fCompleted + ' / ' + fTotal + ' lessons</span>' +
         '</div>' +
         _buildJourneyGrid([
-          { show: ($currentComp || 0) > 0, value: ($currentComp || 0).toFixed(1) + '%', label: 'Comprehension' },
-          { show: $masteredWords > 0, value: $masteredWords, label: 'Words', cls: 'ai-c-green' },
-          { show: $surahsWith50Plus > 0, value: $surahsWith50Plus + '/' + $surahsTotal, label: 'Surahs (50%+)', cls: 'ai-c-blue' },
+          { show: ($currentComp || 0) > 0, value: ($currentComp || 0).toFixed(1) + '%', label: 'Comprehension', cls: 'ai-journey-accent' },
+          { show: $masteredWords > 0, value: $masteredWords, label: 'Words' },
+          { show: $surahsWith50Plus > 0, value: $surahsWith50Plus + '/' + $surahsTotal, label: 'Surahs (50%+)' },
         ]) +
         '</div>';
       journeyEl.style.display = 'block';
@@ -352,7 +352,7 @@ function updateLessonProgressDisplay() {
           ctxHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
           for (var rfi = 0; rfi < fRelCtxData.rootFamilies.length; rfi++) {
             var rf = fRelCtxData.rootFamilies[rfi];
-            ctxHtml += '<span class="ai-chip-root">' + rf.root + ' <span class="ai-chip-sub">(' + rf.rootMeaning + ')</span></span>';
+            ctxHtml += '<span class="ai-chip-root"><span class="ai-chip-ar" lang="ar" dir="rtl">' + rf.root + '</span> <span class="ai-chip-sub">' + rf.rootMeaning + '</span></span>';
           }
           ctxHtml += '</div>';
           // Already learned related
@@ -360,7 +360,7 @@ function updateLessonProgressDisplay() {
             ctxHtml += '<div class="ai-chip-al-title">✓ Already learned:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
             for (var ali = 0; ali < fRelCtxData.alreadyLearnedRelated.length; ali++) {
               var al = fRelCtxData.alreadyLearnedRelated[ali];
-              ctxHtml += '<span class="ai-chip-al">' + al.arabic + ' <span class="ai-chip-sub">(' + al.english + ')</span></span>';
+              ctxHtml += '<span class="ai-chip-al"><span class="ai-chip-ar" lang="ar" dir="rtl">' + al.arabic + '</span> <span class="ai-chip-sub">' + al.english + '</span></span>';
             }
             ctxHtml += '</div>';
           }
@@ -369,7 +369,7 @@ function updateLessonProgressDisplay() {
             ctxHtml += '<div class="ai-chip-up-title">Related words coming in future lessons:</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
             for (var upi = 0; upi < fRelCtxData.upcomingRelated.length; upi++) {
               var up = fRelCtxData.upcomingRelated[upi];
-              ctxHtml += '<span class="ai-chip-up">' + up.arabic + ' <span class="ai-chip-sub">(' + up.english + ') - Lesson ' + (up.lessonId + 1) + '</span></span>';
+              ctxHtml += '<span class="ai-chip-up"><span class="ai-chip-ar" lang="ar" dir="rtl">' + up.arabic + '</span> <span class="ai-chip-sub">' + up.english + ' · Lesson ' + (up.lessonId + 1) + '</span></span>';
             }
             ctxHtml += '</div>';
           }
@@ -832,9 +832,10 @@ function wireEvents() {
     var w = getCurrentWord();
     if (w) showAyah(w);
   });
-  safeOnClick('qa-show-more', function () {
+  // The tafsir opens and closes under the verse it explains
+  safeOnClick('ayah-tafsir-btn', function () {
     var w = getCurrentWord();
-    if (w) showWordContent(w);
+    if (w) toggleTafsir(w);
   });
   safeOnClick('qa-root-family', function() {
     var w = getCurrentWord();

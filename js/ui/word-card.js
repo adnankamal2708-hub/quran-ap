@@ -151,6 +151,7 @@ function renderWordCard(w, currentIndex, total, isReview) {
   }
   if (tafsirBox) tafsirBox.classList.remove('visible');
   if (tafsirBtn) tafsirBtn.style.display = 'block';
+  _setTafsirToggle(false);
 
   // SRS buttons only show if word has been seen or not first word
   var srs = getSRSStatus(w.id);
@@ -799,6 +800,25 @@ function showAyah(w) {
   document.getElementById('ayah-box').classList.add('visible');
 }
 
+/** Show the tafsir toggle under the verse as open or closed. */
+function _setTafsirToggle(open) {
+  var btn = document.getElementById('ayah-tafsir-btn');
+  if (!btn) return;
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  btn.textContent = open ? 'Hide tafsir' : 'Show tafsir (Ibn Kathir)';
+}
+
+/** Open the tafsir under the verse, or close it when it is open. */
+function toggleTafsir(w) {
+  var box = document.getElementById('tafsir-box');
+  if (box && box.classList.contains('visible')) {
+    box.classList.remove('visible');
+    _setTafsirToggle(false);
+    return;
+  }
+  loadTafsir(w);
+}
+
 /**
  * Load and display Ibn Kathir tafsir for the current word.
  * Uses the current occurrence's tafsir if available.
@@ -813,6 +833,7 @@ async function loadTafsir(w) {
   
   var occ = window.__currentOccurrence || null;
   document.getElementById('tafsir-box').classList.add('visible');
+  _setTafsirToggle(true);
   document.getElementById('tafsir-text').innerHTML = '<span class="tafsir-loading">Loading Ibn Kathir commentary\u2026</span>';
   // tafsir-btn was removed as a duplicate action — guard in case of stale refs
   var _tafsirBtnEl = document.getElementById('tafsir-btn');
