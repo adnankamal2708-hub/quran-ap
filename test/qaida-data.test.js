@@ -117,6 +117,12 @@ test('a superscript alif is a long vowel (ٱلرَّحۡمَٰنِ)', function (
   assert.ok(qaidaWordSkills('ٱلرَّحۡمَٰنِ').indexOf('long-vowels') >= 0);
 });
 
+test('open tanwin maps to the right tanwin (بَشَرٞ un, حَسَنَةٗ an, أَجَلٖ in)', function () {
+  assert.ok(qaidaWordSkills('بَشَرٞ').indexOf('dammatan') >= 0);
+  assert.ok(qaidaWordSkills('حَسَنَةٗ').indexOf('fathatan') >= 0);
+  assert.ok(qaidaWordSkills('أَجَلٖ').indexOf('kasratan') >= 0);
+});
+
 test('pause signs need no skill', function () {
   assert.deepStrictEqual(qaidaWordSkills('ۖ'), []);
 });

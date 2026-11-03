@@ -156,6 +156,29 @@ function getLearnedQaidaSkills() {
 }
 
 /**
+ * Share of the Quran's words the learner can read (0..100): the
+ * precomputed figure (js/qaida/qaida-readability.js) for the furthest
+ * lesson whose skills, and every earlier lesson's, are all learned.
+ */
+function getQaidaPercent() {
+  if (typeof QAIDA_READABLE_PERCENT === 'undefined') return 0;
+  var learned = {};
+  getLearnedQaidaSkills().forEach(function (s) { learned[s] = true; });
+  var reached = null;
+  for (var i = 0; i < QAIDA_LESSONS.length; i++) {
+    var all = QAIDA_LESSONS[i].teaches.every(function (s) { return learned[s]; });
+    if (!all) break;
+    reached = QAIDA_LESSONS[i].id;
+  }
+  return reached ? QAIDA_READABLE_PERCENT[reached] || 0 : 0;
+}
+
+/** Record the current percentage into the track's high-water mark. */
+function refreshQaidaPercent() {
+  return recordTrackPercent(QAIDA_TRACK_ID, getQaidaPercent());
+}
+
+/**
  * Merge local and cloud Qaida progress: the union of finished lessons,
  * each keeping its earliest finish time and best score.
  */

@@ -56,10 +56,12 @@ var _QAIDA_EXTRA_CHARS = {
   'َ': ['fatha'],
   'ِ': ['kasra'],
   'ُ': ['damma'],
-  // Open tanwin is written with these in this edition of the text
-  'ً': ['fathatan'], 'ٞ': ['fathatan'],
+  // This edition writes open tanwin (tanwin before a letter it merges into)
+  // with three other code points: U+0657 for fathatan (حَسَنَةٗ), U+0656 for
+  // kasratan (أَجَلٖ) and U+065E for dammatan (بَشَرٞ).
+  'ً': ['fathatan'], 'ٗ': ['fathatan'],
   'ٍ': ['kasratan'], 'ٖ': ['kasratan'],
-  'ٌ': ['dammatan'], 'ٗ': ['dammatan'],
+  'ٌ': ['dammatan'], 'ٞ': ['dammatan'],
   'ْ': ['sukun'], 'ۡ': ['sukun'],
   'ّ': ['shadda'],
   'ٓ': ['maddah'], 'ۤ': ['maddah'],

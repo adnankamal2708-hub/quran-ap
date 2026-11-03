@@ -70,6 +70,7 @@ var TESTS = [
   "qaida-data.test.js",
   "qaida-lessons.test.js",
   "qaida-track.test.js",
+  "qaida-readability.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;

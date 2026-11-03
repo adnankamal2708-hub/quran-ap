@@ -27,6 +27,8 @@ var STRINGS = {
     // ── Quran progress ──
     'percent.words': "{p}% of the Quran's words understood",
     'percent.words.gained': "+{p}% of the Quran's words",
+    'percent.qaida': "{p}% of the Quran's words you can read",
+    'percent.qaida.gained': "+{p}% of the Quran's words you can read",
 
     // ── Learn and track menus ──
     'tracks.comingSoon': 'Coming soon',
