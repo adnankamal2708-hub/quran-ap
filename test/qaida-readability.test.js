@@ -71,9 +71,10 @@ test('letters alone read nothing: the Quran text is fully vowelled', function ()
 
 test('the generated file is current (rerun scripts/build-qaida-readability.js)', function () {
   var file = path.join(__dirname, '..', 'js', 'qaida', 'qaida-readability.js');
-  var before = fs.readFileSync(file, 'utf8');
+  // Compared without line endings, which git may rewrite on checkout
+  var before = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
   require('child_process').execFileSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'build-qaida-readability.js')]);
-  var after = fs.readFileSync(file, 'utf8');
+  var after = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
   assert.ok(before === after, 'qaida-readability.js was out of date and has been regenerated; commit it');
 });
 
