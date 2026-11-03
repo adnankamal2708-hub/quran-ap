@@ -1131,6 +1131,11 @@ function renderProfileAbout() {
   h += '<div class="pf-about-attrib-line">Arabic text from <a href="' + $tanzilUrl + '" target="_blank" rel="noopener noreferrer">Tanzil Project</a> and The Noble Qur\'an Encyclopedia.</div>';
   h += '<div class="pf-about-attrib-line">English translation by <strong>Saheeh International</strong> (from Tanzil.net).</div>';
   h += '<div class="pf-about-attrib-line" style="font-size:11px;color:var(--text-muted);margin-top:4px">Licensed under <a href="' + $ccUrl + '" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);text-decoration:underline">CC-BY-SA 4.0</a>.</div>';
+  // Recitation and the Arabic font (Read Arabic from zero)
+  var $everyayahUrl = 'https:' + '/' + '/everyayah.com';
+  var $sheherazadeUrl = 'https:' + '/' + '/software.sil.org/scheherazade/';
+  h += '<div class="pf-about-attrib-line">Recitation by <strong>Mahmoud Khalil Al-Husary</strong>, from <a href="' + $everyayahUrl + '" target="_blank" rel="noopener noreferrer">everyayah.com</a>.</div>';
+  h += '<div class="pf-about-attrib-line">Arabic set in Scheherazade New by <a href="' + $sheherazadeUrl + '" target="_blank" rel="noopener noreferrer">SIL International</a>, under the SIL Open Font License.</div>';
   h += '</div></div>';
 
   // Links

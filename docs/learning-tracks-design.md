@@ -1,6 +1,7 @@
 # Learning tracks: design
 
 Status: agreed design, 2026-10-31. Phase 1 built 2026-10-31. Phase 2 (Qaida)
+built and released 2026-11-03, pending teacher review and letter recordings;
 planned 2026-11-03 in [plans/phase-2-qaida.md](plans/phase-2-qaida.md);
 Phases 3–4 not started. Phase 1 was planned in
 [plans/phase-1-tracks.md](plans/phase-1-tracks.md).
