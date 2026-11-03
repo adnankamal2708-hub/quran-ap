@@ -69,6 +69,7 @@ var TESTS = [
   "drill-ui.test.js",
   "qaida-data.test.js",
   "qaida-lessons.test.js",
+  "qaida-track.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;

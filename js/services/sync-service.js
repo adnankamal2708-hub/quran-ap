@@ -104,6 +104,7 @@ var SYNC_KEY_MAP = {
   analyticsAchievements: 'quran_analytics_achievements',
   analyticsSessions: 'quran_analytics_sessions',
   tracks: 'quran_tracks',
+  qaidaProgress: 'quran_qaida_progress',
   syncMeta: 'quran_sync_meta',
 };
 
@@ -635,6 +636,14 @@ function mergeData(localData, cloudData) {
     merged.tracks = typeof mergeTrackState === 'function'
       ? mergeTrackState(localData.tracks, cloudData.tracks)
       : (localData.tracks || cloudData.tracks);
+  }
+
+  // Qaida lessons: the union of finished lessons, earliest finish time and
+  // best score each (mergeQaidaProgress, data-core/qaida-track.js)
+  if (localData.qaidaProgress || cloudData.qaidaProgress) {
+    merged.qaidaProgress = typeof mergeQaidaProgress === 'function'
+      ? mergeQaidaProgress(localData.qaidaProgress, cloudData.qaidaProgress)
+      : (localData.qaidaProgress || cloudData.qaidaProgress);
   }
 
   return merged;
