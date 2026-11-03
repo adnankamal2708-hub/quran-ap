@@ -826,32 +826,20 @@ function getDistractors(correctWord, count) {
     eligibleLessonIds.push(currentLessonId);
   }
   
-  // First, collect words from eligible lessons
-  var lessonWords = [];
-  var otherWords = [];
-  for (var pi = 0; pi < ALL_WORDS.length; pi++) {
-    if (ALL_WORDS[pi] === correctWord) continue;
-    var wLessonId = (ALL_WORDS[pi].foundationLessonId !== undefined) ? ALL_WORDS[pi].foundationLessonId : -1;
-    if (wLessonId >= 0) {
-      if (eligibleLessonIds.indexOf(wLessonId) >= 0) {
-        lessonWords.push(ALL_WORDS[pi]);
-      } else {
-        otherWords.push(ALL_WORDS[pi]);
-      }
-    } else {
-      otherWords.push(ALL_WORDS[pi]);
-    }
-  }
+  // Words from eligible lessons first, then the rest. The pool is cached
+  // per lesson state and still holds the correct word, which addCandidate
+  // and the filters below skip.
+  var split = _distractorPool(eligibleLessonIds);
+  var lessonWords = split.lessonWords;
   
-  // Prioritize: lesson words first, then other words
-  pool = lessonWords.concat(otherWords);
+  pool = split.pool;
   
   var distractors = [];
   var used = {};
 
   function addCandidate(candidate) {
     if (distractors.length >= count) return;
-    if (!candidate) return;
+    if (!candidate || candidate === correctWord) return;
     var key = candidate.arabic + '|' + candidate.english;
     if (used[key]) return;
     if (candidate.english === correctWord.english) return;
@@ -879,23 +867,26 @@ function getDistractors(correctWord, count) {
   }
   
   // Priority 2: Same grammatical category + similar meaning
-  var sameCat = [];
-  for (var sti = 0; sti < pool.length; sti++) {
-    if (pool[sti].typeCategory === correctWord.typeCategory) sameCat.push(pool[sti]);
+  var sameCat = split.byCategory[correctWord.typeCategory];
+  if (!sameCat) {
+    sameCat = split.byCategory[correctWord.typeCategory] = pool.filter(function(w) { return w.typeCategory === correctWord.typeCategory; });
   }
-  shuffleArray(sameCat).forEach(addCandidate);
-  
-  // Priority 3: Same root (different meaning)
-  if (correctWord.root && correctWord.root !== '—') {
+  function full() { return distractors.length >= count; }
+  _eachShuffled(sameCat, addCandidate, full);
+
+  // Priority 3: Same root (different meaning). Each later priority only
+  // runs while there is still room: past that point every candidate would
+  // be turned away anyway.
+  if (!full() && correctWord.root && correctWord.root !== '—') {
     var sameRoot = [];
     for (var sri = 0; sri < pool.length; sri++) {
-      if (pool[sri].root === correctWord.root && pool[sri].typeCategory !== correctWord.typeCategory) sameRoot.push(pool[sri]);
+      if (pool[sri] !== correctWord && pool[sri].root === correctWord.root && pool[sri].typeCategory !== correctWord.typeCategory) sameRoot.push(pool[sri]);
     }
-    shuffleArray(sameRoot).forEach(addCandidate);
+    _eachShuffled(sameRoot, addCandidate, full);
   }
-  
+
   // Priority 4: Visually similar Arabic (same first 2-3 letters)
-  if (correctWord.arabic && correctWord.arabic.length >= 2) {
+  if (!full() && correctWord.arabic && correctWord.arabic.length >= 2) {
     var visSimilar = [];
     var arPrefix = correctWord.arabic.substring(0, Math.min(2, correctWord.arabic.length));
     for (var vi = 0; vi < pool.length; vi++) {
@@ -903,19 +894,54 @@ function getDistractors(correctWord, count) {
         visSimilar.push(pool[vi]);
       }
     }
-    shuffleArray(visSimilar).forEach(addCandidate);
+    _eachShuffled(visSimilar, addCandidate, full);
   }
-  
+
   // Priority 5: Another word from same lesson (educational connection)
-  shuffleArray(lessonWords).forEach(addCandidate);
-  
+  _eachShuffled(lessonWords, addCandidate, full);
+
   // Fallback: any word from pool
-  if (distractors.length < count) {
-    shuffleArray(pool).forEach(addCandidate);
-  }
+  _eachShuffled(pool, addCandidate, full);
 
   return distractors.slice(0, count);
 }
+/**
+ * The distractor pool for a set of eligible lesson ids: their words first,
+ * then every other word, plus per-category lists filled on demand. Cached
+ * until the eligible lessons or the word list change, so a placement test
+ * building ~100 questions scans the vocabulary once instead of per question.
+ */
+var _distractorPoolCache = null;
+function _distractorPool(eligibleLessonIds) {
+  var key = eligibleLessonIds.slice().sort(function(a, b) { return a - b; }).join(',') + '|' + ALL_WORDS.length;
+  if (_distractorPoolCache && _distractorPoolCache.key === key) return _distractorPoolCache;
+  var lessonWords = [];
+  var otherWords = [];
+  for (var pi = 0; pi < ALL_WORDS.length; pi++) {
+    var wLessonId = (ALL_WORDS[pi].foundationLessonId !== undefined) ? ALL_WORDS[pi].foundationLessonId : -1;
+    if (wLessonId >= 0 && eligibleLessonIds.indexOf(wLessonId) >= 0) lessonWords.push(ALL_WORDS[pi]);
+    else otherWords.push(ALL_WORDS[pi]);
+  }
+  _distractorPoolCache = { key: key, lessonWords: lessonWords, pool: lessonWords.concat(otherWords), byCategory: {} };
+  return _distractorPoolCache;
+}
+
+/**
+ * Visit a list's items in uniformly random order, as shuffleArray then
+ * forEach would, but stop as soon as done() is true, so filling a few
+ * slots from a long list doesn't shuffle all of it.
+ */
+function _eachShuffled(arr, fn, done) {
+  var a = arr.slice();
+  for (var i = 0; i < a.length && !done(); i++) {
+    var j = i + Math.floor(Math.random() * (a.length - i));
+    var tmp = a[i];
+    a[i] = a[j];
+    a[j] = tmp;
+    fn(a[i]);
+  }
+}
+
 // ── Utility ────────────────────────────────────────────────────
 
 function shuffleArray(arr) {

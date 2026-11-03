@@ -320,6 +320,25 @@ suite('Distractors', function() {
     var dist = getDistractors(TEST_WORDS[0], 999);
     assert.ok(dist.length < 999);
   });
+
+  test('the cached pool never offers the correct word, for every word in a row', function() {
+    TEST_WORDS.forEach(function(w) {
+      getDistractors(w, 5).forEach(function(d) { assert.notStrictEqual(d, w, w.english); });
+    });
+  });
+
+  test('the pool is rebuilt when the word list grows', function() {
+    var before = getDistractors(TEST_WORDS[0], 999).length;
+    var extra = { id: 'w_extra', arabic: 'زَيْتُون', english: 'olive tree, extra', typeCategory: TEST_WORDS[0].typeCategory, root: 'ز-ي-ت' };
+    ALL_WORDS.push(extra);
+    try {
+      var after = getDistractors(TEST_WORDS[0], 999);
+      assert.ok(after.indexOf(extra) >= 0, 'the new word can be a distractor');
+      assert.strictEqual(after.length, before + 1);
+    } finally {
+      ALL_WORDS.pop();
+    }
+  });
 });
 
 suite('Advanced Search', function() {
