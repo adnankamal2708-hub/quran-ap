@@ -7806,6 +7806,11 @@ body::before {
   border-radius: 12px;
   border: 1px solid var(--border, #333);
   transition: border-color 0.2s ease;
+  /* Long surahs: lay out and paint only the verses near the screen
+     (Al-Baqarah has ~6,000 word tokens); "auto" keeps each verse's real
+     height once it has been shown, so scrolling stays steady */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
 }
 
 .quran-ayah:hover {
@@ -9527,6 +9532,11 @@ body::before {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+/* 600+ roots: rows far from the screen skip layout and paint until scrolled to */
+.root-list > li {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 62px;
 }
 .root-row {
   display: flex;
