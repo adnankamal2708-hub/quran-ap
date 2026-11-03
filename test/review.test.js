@@ -128,9 +128,7 @@ function setupMockElements() {
 
   // Session summary gated card wrappers (hidden below 5 words reviewed)
   var cardIds = [
-    'session-card-mastered-new', 'session-card-comp-gain', 'session-card-review-cards',
-    'session-card-accuracy', 'session-card-retention', 'session-card-needs-improvement',
-    'session-card-coverage-gained', 'session-card-rating'
+    'session-card-hero', 'session-card-mastered-new', 'session-card-needs-improvement'
   ];
   cardIds.forEach(function(id) {
     var el = makeEl('div');
@@ -478,9 +476,7 @@ suite('Session Summary Modal', function() {
     };
     showSessionSummary(stats);
 
-    ['session-card-mastered-new', 'session-card-comp-gain', 'session-card-review-cards',
-     'session-card-accuracy', 'session-card-retention', 'session-card-needs-improvement',
-     'session-card-coverage-gained', 'session-card-rating'].forEach(function(id) {
+    ['session-card-hero', 'session-card-mastered-new', 'session-card-needs-improvement'].forEach(function(id) {
       assert.strictEqual(mockElements[id].style.display, 'none', id + ' should be hidden');
     });
 
@@ -514,16 +510,14 @@ suite('Session Summary Modal', function() {
     };
     showSessionSummary(stats);
 
-    ['session-card-mastered-new', 'session-card-comp-gain', 'session-card-review-cards',
-     'session-card-accuracy', 'session-card-retention', 'session-card-needs-improvement',
-     'session-card-coverage-gained', 'session-card-rating'].forEach(function(id) {
+    ['session-card-hero', 'session-card-mastered-new', 'session-card-needs-improvement'].forEach(function(id) {
       assert.strictEqual(mockElements[id].style.display, '', id + ' should be visible');
     });
 
     global.document.getElementById = origGetElementById;
   });
 
-  test('needs-improvement shows None (not \'None — great session!\')', function() {
+  test('"to review again" shows 0 when every word was recalled', function() {
     var origGetElementById = global.document.getElementById;
     global.document.getElementById = function(id) {
       return mockElements[id] || null;
@@ -535,7 +529,7 @@ suite('Session Summary Modal', function() {
       sessionTotal: 5,
     };
     showSessionSummary(stats);
-    assert.strictEqual(mockElements['session-needs-improvement'].textContent, 'None');
+    assert.strictEqual(mockElements['session-needs-improvement'].textContent, 0);
 
     global.document.getElementById = origGetElementById;
   });

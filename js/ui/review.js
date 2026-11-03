@@ -256,14 +256,9 @@ function showSessionSummary(stats) {
   // (Words Reviewed, New Roots, Time Spent, Streak Days) + the Next banner.
   var $showDetailedStats = $wordsReviewed >= 5;
   var $gatedStatIds = [
-    'session-card-mastered-new',   // Now Mastered
-    'session-card-comp-gain',      // Comprehension
-    'session-card-review-cards',   // Review Cards
-    'session-card-accuracy',       // Accuracy
-    'session-card-retention',      // Retention
-    'session-card-needs-improvement', // Needs Improvement
-    'session-card-coverage-gained',   // Coverage Gained
-    'session-card-rating',         // Rating stars
+    'session-card-hero',              // Quran's words gained + recalled
+    'session-card-mastered-new',      // Now mastered
+    'session-card-needs-improvement', // To review again
   ];
   for (var $gsi = 0; $gsi < $gatedStatIds.length; $gsi++) {
     var $gatedCard = document.getElementById($gatedStatIds[$gsi]);
@@ -319,17 +314,13 @@ function showSessionSummary(stats) {
   var $retentionEl = document.getElementById('session-retention');
   if ($retentionEl) $retentionEl.textContent = $recallRate + '%';
   var $needsImprovementEl = document.getElementById('session-needs-improvement');
-  if ($needsImprovementEl) {
-    $needsImprovementEl.textContent = $forgottenCount > 0 
-      ? $forgottenCount + ' word' + ($forgottenCount !== 1 ? 's' : '') 
-      : 'None';
-  }
+  if ($needsImprovementEl) $needsImprovementEl.textContent = $forgottenCount;
 
   var encouragement = document.getElementById('session-encouragement');
   var $msgs = [
-    '\"And We have certainly made the Quran easy to remember, but is there any who will remember?\" (54:17) — every word you learn brings you closer.',
-    'Every word of the Quran you understand is a light added to your heart. Keep going — Allah is guiding you through His words.',
-    'The Prophet (peace be upon him) said: \"The best among you are those who learn the Quran and teach it.\" — you are walking this blessed path.',
+    '“And We have certainly made the Quran easy to remember” (54:17)',
+    'Every word of the Quran you understand opens more of its meaning to you.',
+    '“The best among you are those who learn the Quran and teach it” (Bukhari)',
     'Understanding the Quran is a journey of a lifetime. Each lesson is a step toward deeper connection with Allah\'s message.',
     'The more you learn, the more the Quran comes alive. What was once unfamiliar becomes a conversation with your Creator.',
   ];

@@ -1319,63 +1319,48 @@ getResults: function () { return _safeguardResults; },
       <!-- ── SESSION REVIEW SUMMARY MODAL ── -->
       <div class="modal-overlay" id="session-summary-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="session-summary-title">
         <div class="modal-content session-summary">
-          <div class="modal-title" id="session-summary-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Session Complete</div>
+          <div class="modal-title" id="session-summary-title"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Session complete</div>
+          <!-- The two figures that matter most, side by side (shown from 5 words) -->
+          <div class="session-hero" id="session-card-hero">
+            <div class="session-hero-cell" id="session-card-coverage-gained">
+              <div class="session-hero-value" id="session-coverage-gained">—</div>
+              <div class="session-stat-label">of the Quran's words</div>
+            </div>
+            <div class="session-hero-cell" id="session-card-accuracy">
+              <div class="session-hero-value" id="session-accuracy">0%</div>
+              <div class="session-stat-label">recalled</div>
+            </div>
+          </div>
+          <!-- One compact row on wide screens, two rows of three on phones -->
           <div class="session-summary-stats">
             <div class="session-stat">
               <div class="session-stat-value" id="session-words-reviewed">0</div>
-              <div class="session-stat-label">Words Reviewed</div>
+              <div class="session-stat-label">Words reviewed</div>
             </div>
             <div class="session-stat" id="session-card-mastered-new">
               <div class="session-stat-value" id="session-mastered-new">0</div>
-              <div class="session-stat-label">Now Mastered</div>
-            </div>
-            <div class="session-stat" id="session-card-comp-gain">
-              <div class="session-stat-value" id="session-comp-gain">—</div>
-              <div class="session-stat-label">Comprehension</div>
+              <div class="session-stat-label">Now mastered</div>
             </div>
             <div class="session-stat">
               <div class="session-stat-value" id="session-roots-learned">0</div>
-              <div class="session-stat-label">New Roots</div>
-            </div>
-            <div class="session-stat" id="session-card-review-cards">
-              <div class="session-stat-value" id="session-review-cards">0</div>
-              <div class="session-stat-label">Review Cards</div>
+              <div class="session-stat-label">New roots</div>
             </div>
             <div class="session-stat">
-              <div class="session-stat-value" id="session-time-spent">< 1 min</div>
-              <div class="session-stat-label">Time Spent</div>
+              <div class="session-stat-value" id="session-time-spent">&lt; 1 min</div>
+              <div class="session-stat-label">Time</div>
             </div>
-            <div class="session-stat" style="grid-column:1/-1;padding:6px 0;border-bottom:none">
-              <div class="session-stat-next" style="font-size:11px;color:var(--text-muted)">Next: <span id="session-next-recommendation">Continue learning</span></div>
-            </div>
-            <div class="session-stat" style="grid-column:1/-1;border-bottom:none">
-              <div class="session-stat-value" id="session-streak-earned" style="font-size:14px">0</div>
-              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>Streak Days</div>
-            </div>
-            <!-- Adaptive session fields (gated: only shown when 5+ words reviewed) -->
-            <div class="session-stat" id="session-card-accuracy">
-              <div class="session-stat-value" id="session-accuracy">0%</div>
-              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Accuracy</div>
-            </div>
-            <div class="session-stat" id="session-card-retention">
-              <div class="session-stat-value" id="session-retention">0%</div>
-              <div class="session-stat-label" title="% of previously learned words still remembered"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><path d="M12 2a7 7 0 0 0-7 7c0 2.1 1 4 2.5 5.2V19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-1m3-1a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3.8C20 13 21 11.1 21 9a7 7 0 0 0-7-7z"/></svg>Retention</div>
+            <div class="session-stat">
+              <div class="session-stat-value" id="session-streak-earned">0</div>
+              <div class="session-stat-label">Day streak</div>
             </div>
             <div class="session-stat" id="session-card-needs-improvement">
               <div class="session-stat-value" id="session-needs-improvement">—</div>
-              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Needs Improvement</div>
-            </div>
-            <div class="session-stat" id="session-card-coverage-gained">
-              <div class="session-stat-value" id="session-coverage-gained">—</div>
-              <div class="session-stat-label"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="ui-icon"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>of the Quran's words</div>
-            </div>
-            <div class="session-stat" id="session-card-rating" style="grid-column:1/-1;border-bottom:none">
-              <div class="session-stat-value" id="session-rating-stars" style="font-size:18px;letter-spacing:2px"></div>
-              <div class="session-stat-label" id="session-rating-label" style="font-size:11px"></div>
+              <div class="session-stat-label">To review again</div>
             </div>
           </div>
-          <div class="session-summary-encouragement" id="session-encouragement">Every review strengthens what you learned</div>
-          <button class="btn w-full mt-16" id="session-summary-close" type="button">Continue Learning</button>
+          <p class="session-summary-next">Next: <span id="session-next-recommendation">Continue learning</span></p>
+          <p class="session-summary-encouragement" id="session-encouragement">Every review strengthens what you learned</p>
+          <button class="btn w-full" id="session-summary-close" type="button">Continue learning</button>
         </div>
       </div>
 
