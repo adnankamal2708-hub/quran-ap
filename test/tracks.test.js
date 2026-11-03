@@ -74,9 +74,9 @@ suite('Track constants', function() {
     assert.strictEqual(TRACKS_KEY, 'quran_tracks');
   });
 
-  test('only words is released in Phase 1', function() {
+  test('Word meanings and Read Arabic from zero are released; the others are not yet', function() {
     TRACK_IDS.forEach(function(id) {
-      assert.strictEqual(isTrackReleased(id), id === 'words', id);
+      assert.strictEqual(isTrackReleased(id), id === 'words' || id === 'qaida', id);
     });
     assert.strictEqual(isTrackReleased('nope'), false);
   });
@@ -106,7 +106,7 @@ suite('Default state', function() {
 
 suite('Joining and leaving', function() {
   test('joinTrack refuses unreleased tracks', function() {
-    assert.strictEqual(joinTrack('qaida'), false);
+    assert.strictEqual(joinTrack('tajweed'), false);
     assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
   });
 

@@ -69,6 +69,10 @@ function _switchViewCore(viewName, options) {
     if (typeof renderRootLesson === 'function') renderRootLesson();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderRootLesson() not found');
   }
+  if (viewName === 'qaida-lesson') {
+    if (typeof renderQaidaLesson === 'function') renderQaidaLesson();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderQaidaLesson() not found');
+  }
   if (viewName === 'test') {
     if (typeof renderPlacementTest === 'function') renderPlacementTest();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderPlacementTest() not found');
@@ -156,6 +160,7 @@ function _updateActiveTab(viewName, navContext) {
     tracks: 'tab-learn',
     track: 'tab-learn',
     'root-lesson': 'tab-learn',
+    'qaida-lesson': 'tab-learn',
     learn: 'tab-learn',
     quiz: 'tab-learn',
     list: 'tab-learn',

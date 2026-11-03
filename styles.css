@@ -9844,3 +9844,47 @@ body::before {
 /* ── Recitation credit under every verse player ── */
 .audio-credit { margin: 6px 0 0; font-size: var(--text-xs); color: var(--text-muted); }
 .audio-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── Exercise prompts: a question line and a play button ── */
+.ex-prompt-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-sm); margin: 0 0 16px; }
+.ex-prompt-wrap .ex-prompt, .ex-prompt-wrap .ex-prompt-arabic { margin: 0; }
+.ex-ask { margin: 0; font-size: var(--text-base); color: var(--text-muted); text-align: center; }
+.ex-play { display: inline-flex; align-items: center; gap: var(--spacing-sm); }
+
+/* ── Learn: track path note and Join ── */
+.track-path-note { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
+.track-card-join { align-self: flex-start; margin-top: var(--spacing-sm); }
+
+/* ── Qaida lesson (js/ui/qaida-ui.js) ── */
+.qaida-screen { display: flex; flex-direction: column; gap: var(--spacing-lg); min-width: 0; }
+.qaida-back { display: inline-flex; align-items: center; gap: var(--spacing-xs); min-height: 44px; padding: 0 var(--spacing-sm) 0 0; border: none; background: none; color: var(--text-muted); font-family: var(--body); font-size: var(--text-sm); cursor: pointer; }
+.qaida-back:hover { color: var(--text); }
+.qaida-kicker { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
+.qaida-title { margin: -8px 0 0; font-family: var(--serif); font-size: var(--heading-xl); font-weight: 500; color: var(--text); overflow-wrap: anywhere; }
+.qaida-title:focus { outline: none; }
+.qaida-note, .qaida-progress, .qaida-score { margin: 0; font-size: var(--text-base); line-height: 1.6; color: var(--text-muted); }
+.qaida-letters, .qaida-marks { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--spacing-sm); margin: 0; padding: 0; list-style: none; }
+.qaida-marks { grid-template-columns: 1fr; }
+.qaida-letter, .qaida-mark { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-section); text-align: center; }
+.qaida-mark { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; text-align: left; column-gap: 16px; }
+.qaida-letter-char, .qaida-mark-sample { font-family: var(--arabic); font-size: 44px; line-height: 1.6; color: var(--text); }
+.qaida-letter-name, .qaida-mark-name { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-base); font-weight: 500; color: var(--text); }
+.qaida-mark-desc { flex-basis: 100%; font-size: var(--text-sm); line-height: 1.6; color: var(--text-muted); }
+.qaida-forms { display: flex; gap: 12px; font-family: var(--arabic); font-size: 24px; line-height: 1.6; color: var(--text-muted); }
+.qaida-words-label { margin: 0 0 -8px; font-size: var(--text-sm); color: var(--text-muted); }
+.qaida-words { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.qaida-words li { padding: 4px 12px 8px; font-family: var(--arabic); font-size: 26px; line-height: 1.6; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn); }
+.qaida-verses { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.qaida-verse { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-section); }
+.qaida-verse-text { flex: 1; font-family: var(--arabic); font-size: 26px; line-height: 2; color: var(--text); text-align: right; }
+.qaida-play { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: none; color: var(--text-muted); cursor: pointer; }
+.qaida-play:hover { color: var(--text); border-color: var(--gold-dim); }
+.qaida-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.qaida-listen { display: flex; align-items: center; gap: var(--spacing-sm); font-size: var(--text-sm); color: var(--text-muted); }
+.qaida-actions:empty { display: none; }
+.qaida-gain { margin: 0; font-family: var(--serif); font-size: var(--heading-xl); color: var(--gold); overflow-wrap: anywhere; }
+.qaida-gain.is-none { font-family: var(--body); font-size: var(--text-base); line-height: 1.6; color: var(--text-muted); }
+.qaida-finish { padding-top: var(--spacing-md); }
+.qaida-finish-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+.qaida-continue, .qaida-next, .qaida-finish-actions .btn { min-height: 44px; white-space: normal; }
+.qaida-continue, .qaida-next { width: 100%; }

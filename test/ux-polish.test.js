@@ -306,6 +306,10 @@ require('./load-components')(); // uiIcon, iconText, dataIcon
 // Track state and English strings, which the onboarding "What do you want to learn?" screen uses
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'tracks.js'), 'utf8'));
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'i18n', 'strings-en.js'), 'utf8'));
+// The Qaida track, which "completely new" starts in
+['js/qaida/qaida-letters.js', 'js/qaida/qaida-marks.js', 'js/qaida/qaida-lessons.js', 'js/data-core/qaida-track.js'].forEach(function(f) {
+  (0, eval)(fs.readFileSync(path.join(__dirname, '..', f), 'utf8'));
+});
 eval(uxCode);
 
 var ux = global.window.__ux;
@@ -722,11 +726,11 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     });
   });
 
-  test('three unreleased tracks are disabled and marked "Coming soon"', function() {
+  test('the two unreleased tracks are disabled and marked "Coming soon"', function() {
     var html = renderTracksScreen();
-    assert.strictEqual(html.match(/aria-disabled="true"/g).length, 3);
-    assert.strictEqual(html.match(/ disabled[ >]/g).length, 3);
-    assert.strictEqual(html.match(/Coming soon/g).length, 3);
+    assert.strictEqual(html.match(/aria-disabled="true"/g).length, 2);
+    assert.strictEqual(html.match(/ disabled[ >]/g).length, 2);
+    assert.strictEqual(html.match(/Coming soon/g).length, 2);
   });
 
   test('Word meanings is preselected and nothing else is', function() {
@@ -749,11 +753,11 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.strictEqual(_startFromZero, false);
   });
 
-  test('"Completely new" also picks Word meanings, which it starts in', function() {
+  test('"Completely new" also picks Read Arabic from zero, which it starts in', function() {
     renderTracksScreen();
     _toggleChoice('words');
     _toggleChoice('new');
-    assert.deepStrictEqual(_selectedTracks, ['words']);
+    assert.deepStrictEqual(_selectedTracks, ['qaida']);
   });
 
   test('"Take a short test" also picks Word meanings, the track it tests', function() {
@@ -763,13 +767,15 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.deepStrictEqual(_selectedTracks, ['words']);
   });
 
-  test('unticking Word meanings also unticks the options that need it', function() {
+  test('unticking the tracks the options need also unticks the options', function() {
     renderTracksScreen();
     _toggleChoice('new');
     _toggleChoice('test');
+    _toggleChoice('qaida');
+    assert.strictEqual(_startFromZero, false, '"completely new" needs Read Arabic from zero');
+    assert.strictEqual(_wantsPlacementTest, true, 'the test still has Word meanings');
     _toggleChoice('words');
     assert.deepStrictEqual(_selectedTracks, []);
-    assert.strictEqual(_startFromZero, false);
     assert.strictEqual(_wantsPlacementTest, false);
   });
 
@@ -795,12 +801,12 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
   });
 
   test('with no track picked, the message names what to pick', function() {
-    assert.strictEqual(t('onboarding.tracks.required'), 'Choose at least one track. Word meanings is available now.');
+    assert.strictEqual(t('onboarding.tracks.required'), 'Choose at least one track. Read Arabic from zero and Word meanings are available now.');
   });
 
   test('an unreleased track cannot be toggled on', function() {
     renderTracksScreen();
-    _toggleChoice('qaida');
+    _toggleChoice('tajweed');
     assert.deepStrictEqual(_selectedTracks, ['words']);
   });
 
@@ -924,16 +930,32 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
 
   test('finishing joins the selected released tracks and ignores unreleased ones', function() {
     renderTracksScreen();
-    _selectedTracks = ['qaida', 'words'];
+    _selectedTracks = ['tajweed', 'qaida', 'words'];
     ux.completeOnboarding();
-    assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
+    assert.deepStrictEqual(getJoinedTrackIds(), ['words', 'qaida']);
   });
 
   test('the learner is never left with zero tracks', function() {
     renderTracksScreen();
-    _selectedTracks = ['qaida'];
+    _selectedTracks = ['tajweed'];
     ux.completeOnboarding();
     assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
+  });
+
+  test('choosing only Read Arabic from zero makes it the main track and leaves Word meanings', function() {
+    renderTracksScreen();
+    _selectedTracks = ['qaida'];
+    ux.completeOnboarding();
+    assert.deepStrictEqual(getJoinedTrackIds(), ['qaida']);
+  });
+
+  test('"Completely new" picks Read Arabic from zero and makes it the main track', function() {
+    renderTracksScreen();
+    _toggleChoice('new');
+    assert.ok(_selectedTracks.indexOf('qaida') >= 0);
+    ux.completeOnboarding();
+    assert.strictEqual(getMainTrackId(), 'qaida');
+    assert.strictEqual(isStartFromZero(), true);
   });
 
   test('"Take a short test" opens the Word meanings test instead of the first lesson', function() {

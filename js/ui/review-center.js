@@ -226,9 +226,11 @@ function _rcDrillCards() {
   return h;
 }
 
-/** One card per released track's placement test (only Word meanings in Phase 1). */
+/** One card per released track's placement test. */
 function _rcTestCards() {
-  return '<div class="rc-modes-grid rc-modes-grid-single">' +
+  var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
+  return '<div class="rc-modes-grid' + (qaida ? '' : ' rc-modes-grid-single') + '">' +
+    (qaida ? _rcModeCard('rc-test-qaida', 'book-open', t('test.qaida.title'), t('test.qaida.desc')) : '') +
     _rcModeCard('rc-test-words', 'check-circle', t('test.words.title'), t('test.words.desc')) +
     '</div>';
 }
@@ -704,6 +706,9 @@ function wireReviewCenterEvents($data) {
   });
   $wire('rc-test-words', function() {
     if (typeof startPlacementTest === 'function') startPlacementTest(WORDS_TRACK_ID);
+  });
+  $wire('rc-test-qaida', function() {
+    if (typeof startPlacementTest === 'function') startPlacementTest('qaida');
   });
 
   // ── Start review buttons ──

@@ -1,5 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// placement-ui.js — the Word meanings placement test (#view-test)
+// placement-ui.js — the placement tests (#view-test): Word meanings and
+// Read Arabic from zero, one per track in PLACEMENT_TRACKS
 //
 // One question at a time, rendered by the shared exercise UI
 // (renderExercise); the adaptive logic lives in js/exercises/placement.js.
@@ -22,12 +23,54 @@ var PLACEMENT_TAG_LABELS = {
 };
 var PLACEMENT_OTHER_TAG_LABEL = 'test.tag.other';
 
+/** Label key for each Qaida skill group the result names */
+var QAIDA_PLACEMENT_TAG_LABELS = {
+  letters: 'test.tag.qaida.letters',
+  shapes: 'test.tag.qaida.shapes',
+  vowels: 'test.tag.qaida.vowels',
+  tanwin: 'test.tag.qaida.tanwin',
+  long: 'test.tag.qaida.long',
+  sukun: 'test.tag.qaida.sukun',
+  shadda: 'test.tag.qaida.shadda',
+  joining: 'test.tag.qaida.joining',
+  reading: 'test.tag.qaida.reading',
+};
+
+/**
+ * Everything the test screen needs from a track: its question bank, the
+ * learner's effective level, the next lesson and level lock (as the Learn
+ * path has them), its title and description, and how its tags read.
+ */
+var PLACEMENT_TRACKS = {
+  words: {
+    bank: function(attempt) { return buildWordMeaningsBank(attempt); },
+    level: function() { return getWordMeaningsLevel(); },
+    next: function(level) { return getWordMeaningsNextLesson(level); },
+    lock: function(level) { return getWordMeaningsLevelLock(level); },
+    titleKey: 'test.words.title',
+    descKey: 'test.words.desc',
+    tags: PLACEMENT_TAG_LABELS,
+  },
+  qaida: {
+    bank: function(attempt) { return buildQaidaBank(attempt); },
+    level: function() { return getQaidaLevel(); },
+    next: function(level) { return getQaidaNextLesson(level); },
+    lock: function(level) { return getQaidaLevelLock(level); },
+    titleKey: 'test.qaida.title',
+    descKey: 'test.qaida.desc',
+    tags: QAIDA_PLACEMENT_TAG_LABELS,
+  },
+};
+
+/** Track whose test the intro screen offers when no test is running */
+var _placementIntroTrack = WORDS_TRACK_ID;
+
 /** View the learner returns to when the test is left without a known origin */
 var PLACEMENT_DEFAULT_RETURN_VIEW = 'tracks';
 
 /**
  * The test in progress, or null:
- * { state, returnView, result } — result stays null until the last answer.
+ * { trackId, state, returnView, result } — result stays null until the last answer.
  */
 var _placement = null;
 
@@ -42,13 +85,17 @@ function _placementOriginView() {
 }
 
 /**
- * Start the placement test for a track and open it. Only 'words' has one in
- * Phase 1. The attempt count moves here, so quitting still counts the try.
+ * Start the placement test for a track and open it (a track without one in
+ * PLACEMENT_TRACKS is ignored). The attempt count moves here, so quitting
+ * still counts the try.
  */
 function startPlacementTest(trackId) {
-  if (trackId !== WORDS_TRACK_ID) return;
-  var bank = buildWordMeaningsBank(nextPlacementAttempt(trackId));
+  var track = PLACEMENT_TRACKS[trackId];
+  if (!track) return;
+  _placementIntroTrack = trackId;
+  var bank = track.bank(nextPlacementAttempt(trackId));
   _placement = {
+    trackId: trackId,
     state: createPlacementTest(bank),
     returnView: _placementOriginView(),
     result: null,
@@ -64,14 +111,15 @@ function startPlacementTest(trackId) {
  * graduate is never told they are a Beginner.
  */
 function _finishPlacement() {
+  var track = PLACEMENT_TRACKS[_placement.trackId];
   var placed = getPlacementResult(_placement.state);
-  var earned = getWordMeaningsLevel();
-  raiseTrackLevel(WORDS_TRACK_ID, placed.level);
+  var earned = track.level();
+  raiseTrackLevel(_placement.trackId, placed.level);
   _placement.result = {
     // Only a lower result is a "level stays"; an equal one is simply the level (R9).
     kept: placed.level < earned,
     // After a lower result the learner keeps the level already earned.
-    level: getWordMeaningsLevel(),
+    level: track.level(),
     strengths: placed.strengths,
     gaps: placed.gaps,
   };
@@ -81,11 +129,12 @@ function _lessonLabel(lesson) {
   return lesson.kind === 'foundation' ? t('test.start.foundation', { n: lesson.number }) : lesson.title;
 }
 
-/** Chip labels for part-of-speech tags, each label once. */
+/** Chip labels for the track's tags (parts of speech, Qaida skills), each label once. */
 function _tagLabels(tags) {
+  var labelKeys = PLACEMENT_TRACKS[_placement.trackId].tags;
   var labels = [];
   tags.forEach(function(tag) {
-    var label = t(PLACEMENT_TAG_LABELS[tag] || PLACEMENT_OTHER_TAG_LABEL);
+    var label = t(labelKeys[tag] || PLACEMENT_OTHER_TAG_LABEL);
     if (labels.indexOf(label) < 0) labels.push(label);
   });
   return labels;
@@ -105,11 +154,12 @@ function _chipGroup(titleKey, tags, kind) {
 
 function _resultMarkup() {
   var result = _placement.result;
+  var track = PLACEMENT_TRACKS[_placement.trackId];
   var levelName = t('level.' + result.level);
-  var lesson = getWordMeaningsNextLesson(result.level);
+  var lesson = track.next(result.level);
 
   var h = '<div class="placement placement-result">';
-  h += _headMarkup(t('test.words.title'), 'test.close');
+  h += _headMarkup(t(track.titleKey), 'test.close');
   h += '<p class="placement-level" role="status">' +
     _plEsc(t(result.kept ? 'test.result.kept' : 'test.result.level', { level: levelName })) + '</p>';
   h += _chipGroup('test.result.strengths', result.strengths, 'strength');
@@ -128,9 +178,10 @@ function _headMarkup(title, quitKey) {
 }
 
 function _introMarkup() {
+  var track = PLACEMENT_TRACKS[_placementIntroTrack];
   var h = '<div class="placement">';
-  h += '<h2 class="placement-title">' + _plEsc(t('test.words.title')) + '</h2>';
-  h += '<p class="placement-desc">' + _plEsc(t('test.words.desc')) + '</p>';
+  h += '<h2 class="placement-title">' + _plEsc(t(track.titleKey)) + '</h2>';
+  h += '<p class="placement-desc">' + _plEsc(t(track.descKey)) + '</p>';
   h += '<button type="button" class="btn placement-start" data-action="begin">' + _plEsc(t('test.begin')) + '</button>';
   h += '</div>';
   return h;
@@ -200,10 +251,12 @@ function _leavePlacement() {
  * track path instead, so the learner sees the lock and the upgrade prompt.
  */
 function _startPlacedLesson() {
+  var trackId = _placement.trackId;
+  var track = PLACEMENT_TRACKS[trackId];
   var level = _placement.result.level;
-  var lesson = getWordMeaningsNextLesson(level);
+  var lesson = track.next(level);
   _endPlacement();
-  if (!lesson || getWordMeaningsLevelLock(level) === 'premium') switchView('track', { trackId: WORDS_TRACK_ID });
+  if (!lesson || track.lock(level) === 'premium') switchView('track', { trackId: trackId });
   else _openPathLesson(lesson.kind, lesson.ref);
 }
 
@@ -212,7 +265,7 @@ function _onPlacementClick(e) {
   if (!el) return;
   var action = el.getAttribute('data-action');
 
-  if (action === 'begin') startPlacementTest(WORDS_TRACK_ID);
+  if (action === 'begin') startPlacementTest(_placementIntroTrack);
   else if (action === 'next') renderPlacementTest();
   else if (action === 'quit') _leavePlacement();
   else if (action === 'start-lesson') _startPlacedLesson();

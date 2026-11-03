@@ -23,13 +23,36 @@ function _trEsc(text) {
 }
 
 /**
- * The track's share of the Quran (refreshing the stored high-water mark),
- * or null when the track has no percentage yet (only Word meanings has one
- * in Phase 1).
+ * What the Learn screens need from each released track: its levels and
+ * lessons, the lock on a level, the learner's level, its share of the
+ * Quran (refreshing the stored high-water mark) and how that share reads.
  */
+var TRACK_PATHS = {
+  words: {
+    levels: function() { return getWordMeaningsLevels(); },
+    lock: function(level) { return getWordMeaningsLevelLock(level); },
+    level: function() { return getWordMeaningsLevel(); },
+    percent: function() { return refreshWordMeaningsPercent().percent; },
+    percentKey: 'percent.words',
+  },
+  qaida: {
+    levels: function() { return getQaidaLevels(); },
+    lock: function(level) { return getQaidaLevelLock(level); },
+    level: function() { return getQaidaLevel(); },
+    percent: function() { return refreshQaidaPercent().percent; },
+    percentKey: 'percent.qaida',
+    note: 'qaida.reviewNote',
+  },
+};
+
+/** The track's share of the Quran, or null for a track without a path yet. */
 function _trackPercent(trackId) {
-  if (trackId !== 'words') return null;
-  return refreshWordMeaningsPercent().percent;
+  return TRACK_PATHS[trackId] ? TRACK_PATHS[trackId].percent() : null;
+}
+
+/** How the track's share reads, e.g. "12% of the Quran's words you can read". */
+function _trackPercentText(trackId, percent) {
+  return t(TRACK_PATHS[trackId].percentKey, { p: percent });
 }
 
 // ── Track cards ─────────────────────────────────────────────────
@@ -37,8 +60,8 @@ function _trackPercent(trackId) {
 function _joinedTrackCard(trackId, isMain, canLeave) {
   var name = t('track.' + trackId + '.name');
   var percent = _trackPercent(trackId);
-  var meta = t('level.' + (trackId === WORDS_TRACK_ID ? getWordMeaningsLevel() : getTrackLevel(trackId)));
-  if (percent !== null) meta += ' · ' + t('percent.words', { p: percent });
+  var meta = t('level.' + (TRACK_PATHS[trackId] ? TRACK_PATHS[trackId].level() : getTrackLevel(trackId)));
+  if (percent !== null) meta += ' · ' + _trackPercentText(trackId, percent);
 
   var h = '<article class="track-card is-joined' + (isMain ? ' is-main' : '') + '">';
   h += '<button type="button" class="track-card-open" data-action="open" data-track="' + trackId + '">';
@@ -62,14 +85,17 @@ function _joinedTrackCard(trackId, isMain, canLeave) {
   return h;
 }
 
-// A released track that isn't joined can't occur in Phase 1 (only Word
-// meanings is released, and the last joined track can't be left), so
-// unjoined cards have no join action yet.
+// A released track the learner hasn't joined offers Join; the others say
+// "Coming soon".
 function _unjoinedTrackCard(trackId) {
-  var h = '<article class="track-card is-soon">';
+  var released = isTrackReleased(trackId);
+  var h = '<article class="track-card' + (released ? ' is-open' : ' is-soon') + '">';
   h += '<span class="track-card-name">' + _trEsc(t('track.' + trackId + '.name')) + '</span>';
   h += '<span class="track-card-desc">' + _trEsc(t('track.' + trackId + '.desc')) + '</span>';
-  if (!isTrackReleased(trackId)) {
+  if (released) {
+    h += '<button type="button" class="btn btn-sm btn-outline track-card-join" data-action="join" data-track="' + trackId + '">' +
+      _trEsc(t('tracks.join')) + '</button>';
+  } else {
     h += '<span class="track-card-soon">' + _trEsc(t('tracks.comingSoon')) + '</span>';
   }
   h += '</article>';
@@ -107,7 +133,8 @@ function _lessonButton(lesson, level, levelLock) {
   // Level 3 entries are open-ended: their `completed` means "started" (R8).
   var done = lesson.completed && level !== 3;
   var locked = levelLock === 'progress' ||
-    (lesson.kind === 'foundation' && !isFoundationLessonUnlocked(lesson.ref));
+    (lesson.kind === 'foundation' && !isFoundationLessonUnlocked(lesson.ref)) ||
+    (lesson.kind === 'qaida' && !lesson.completed && !isQaidaLessonUnlocked(lesson.ref));
   var attrs = levelLock === 'premium'
     ? ' data-action="upgrade" data-level="' + level + '"'
     : ' data-action="lesson" data-kind="' + lesson.kind + '"' + (lesson.ref == null ? '' : ' data-ref="' + lesson.ref + '"');
@@ -122,9 +149,9 @@ function _lessonButton(lesson, level, levelLock) {
   return h;
 }
 
-function _levelSection(levelData) {
+function _levelSection(levelData, path) {
   var level = levelData.level;
-  var lock = getWordMeaningsLevelLock(level);
+  var lock = path.lock(level);
   var h = '<section class="track-level' + (lock ? ' is-locked' : '') + '" aria-labelledby="track-level-' + level + '">';
   h += '<div class="track-level-head">';
   h += '<h3 class="track-level-name" id="track-level-' + level + '">' + _trEsc(t('level.' + level)) + '</h3>';
@@ -164,18 +191,20 @@ function renderTrackPath(trackId) {
   h += '<button type="button" class="track-path-back" data-action="back">' + uiIcon('chevron-left', true) +
     '<span>' + _trEsc(t('tracks.back')) + '</span></button>';
   h += '<h2 class="track-path-title">' + _trEsc(t('track.' + id + '.name')) + '</h2>';
-  if (percent !== null) h += '<p class="track-path-percent">' + _trEsc(t('percent.words', { p: percent })) + '</p>';
+  if (percent !== null) h += '<p class="track-path-percent">' + _trEsc(_trackPercentText(id, percent)) + '</p>';
+  var path = TRACK_PATHS[id];
+  if (path && path.note) h += '<p class="track-path-note">' + _trEsc(t(path.note)) + '</p>';
   h += '</div>';
 
+  if (path) path.levels().forEach(function(levelData) { h += _levelSection(levelData, path); });
   if (id === 'words') {
-    getWordMeaningsLevels().forEach(function(levelData) { h += _levelSection(levelData); });
     h += '<nav class="track-path-footer" aria-label="' + _trEsc(t('tracks.more')) + '">';
     h += _pathFooterItem('all-words', 'list', 'tracks.allWords');
     h += _pathFooterItem('roots', 'leaf', 'tracks.roots');
     h += _pathFooterItem('difficulty', 'target', 'tracks.difficulty');
     h += _pathFooterItem('quiz', 'bolt', 'tracks.quiz');
     h += '</nav>';
-  } else {
+  } else if (!path) {
     h += '<p class="track-path-soon">' + _trEsc(t('tracks.comingSoon')) + '</p>';
   }
   h += '</div>';
@@ -192,6 +221,7 @@ function _openPathLesson(kind, ref) {
   else if (kind === 'guided-surah') openGuidedSurah(Number(ref));
   else if (kind === 'surah-study') openSurahStudy();
   else if (kind === 'root-families') openRootList();
+  else if (kind === 'qaida') startQaidaLesson(ref);
 }
 
 function _closeTrackMenus(view) {
@@ -226,6 +256,7 @@ function _runLearnAction(el, view) {
   else if (action === 'open') switchView('track', { trackId: trackId });
   else if (action === 'make-main') { setMainTrack(trackId); renderTracks(); }
   else if (action === 'leave') { leaveTrack(trackId); renderTracks(); }
+  else if (action === 'join') { joinTrack(trackId); switchView('track', { trackId: trackId }); }
   else if (action === 'back') switchView('tracks');
   else if (action === 'lesson') _openPathLesson(el.getAttribute('data-kind'), el.getAttribute('data-ref'));
   else if (action === 'upgrade') {

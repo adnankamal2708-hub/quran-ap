@@ -146,13 +146,13 @@ test.describe('Onboarding Tour', () => {
     await page.waitForTimeout(300);
     await expect(slide).toContainText('Set Your Daily Goal');
 
-    // Forward to step 3 again: Word meanings is preselected, the other three
-    // tracks are disabled; verify Start Learning CTA
+    // Forward to step 3 again: Word meanings is preselected, the two tracks
+    // not released yet are disabled; verify Start Learning CTA
     await nextBtn.click();
     await page.waitForTimeout(300);
     await expect(slide).toContainText('What do you want to learn?');
     await expect(slide.locator('.onboarding-choice[data-value="words"]')).toHaveAttribute('aria-checked', 'true');
-    await expect(slide.locator('.onboarding-choice:disabled')).toHaveCount(3);
+    await expect(slide.locator('.onboarding-choice:disabled')).toHaveCount(2);
     await expect(nextBtn).toContainText('Start Learning');
   });
 
@@ -565,12 +565,13 @@ test.describe('Learn tab', () => {
     await skipOnboarding(page);
   });
 
-  test('shows Word meanings as the main track and the other tracks as coming soon', async ({ page }) => {
+  test('shows Word meanings as the main track, Qaida to join and the others as coming soon', async ({ page }) => {
     await page.locator('#tab-learn').click();
     await expect(page.locator('#view-tracks')).toBeVisible();
     await expect(page.locator('#view-tracks .track-card.is-joined')).toHaveCount(1);
     await expect(page.locator('#view-tracks .track-card.is-main')).toContainText('Word meanings');
-    await expect(page.locator('#view-tracks .track-card-soon')).toHaveCount(3);
+    await expect(page.locator('#view-tracks .track-card-join[data-track="qaida"]')).toHaveCount(1);
+    await expect(page.locator('#view-tracks .track-card-soon')).toHaveCount(2);
   });
 
   test('the track menu offers Make main and a disabled Leave', async ({ page }) => {

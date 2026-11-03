@@ -53,8 +53,9 @@ var _selectedGoal = null;     // '5', '10', '15', '20'
 var _selectedLevel = null;    // 'beginner' (kept for older callers; no longer asked)
 
 // Screen 3 choices: Word meanings is preselected; the other two options are
-// not tracks. They combine freely: "completely new" turns on start-from-zero,
-// "take a test" opens the placement test once onboarding closes.
+// not tracks. They combine freely: "completely new" turns on start-from-zero
+// and picks the track it starts in (Read Arabic from zero once released),
+// "take a test" opens a placement test once onboarding closes.
 var _selectedTracks = [DEFAULT_TRACK_ID];
 var _startFromZero = false;
 var _wantsPlacementTest = false;
@@ -114,6 +115,21 @@ function completeOnboarding(options) {
 function _applyTrackChoices() {
   _selectedTracks.forEach(joinTrack);
   setStartFromZero(_startFromZero);
+  // Starting from zero, or choosing only Qaida, makes Qaida the main track;
+  // Word meanings (joined by default) is left if it wasn't chosen.
+  var qaida = typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0;
+  if (qaida && (_startFromZero || _selectedTracks.indexOf(DEFAULT_TRACK_ID) < 0)) setMainTrack(QAIDA_TRACK_ID);
+  if (qaida && _selectedTracks.indexOf(DEFAULT_TRACK_ID) < 0) leaveTrack(DEFAULT_TRACK_ID);
+}
+
+/** The track "completely new" starts in: Read Arabic from zero once it is released. */
+function _startTrackId() {
+  return typeof QAIDA_TRACK_ID !== 'undefined' && isTrackReleased(QAIDA_TRACK_ID) ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID;
+}
+
+/** The track "take a short test" tests: Qaida when chosen, otherwise Word meanings. */
+function _testTrackId() {
+  return typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0 ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID;
 }
 
 /** Reset onboarding (for revisiting from Profile → Settings) */
@@ -350,23 +366,23 @@ function _isChoiceSelected(value) {
 
 /**
  * Flip a screen-3 option; returns its new state. Unreleased tracks stay off.
- * "Completely new" and the placement test both use Word meanings (it is the
- * track a new learner starts in and the one the test places), so picking
- * either picks Word meanings too, and dropping Word meanings drops them.
+ * "Completely new" needs the track it starts in (_startTrackId), and the
+ * placement test needs a track to test, so picking either picks its track
+ * too; dropping that track drops the option.
  */
 function _toggleChoice(value) {
   var on = !_isChoiceSelected(value);
-  if (value === _CHOICE_NEW || value === _CHOICE_TEST) {
-    if (value === _CHOICE_NEW) _startFromZero = on;
-    else _wantsPlacementTest = on;
-    if (on && _selectedTracks.indexOf(DEFAULT_TRACK_ID) === -1) _selectedTracks.push(DEFAULT_TRACK_ID);
+  if (value === _CHOICE_NEW) {
+    _startFromZero = on;
+    if (on && _selectedTracks.indexOf(_startTrackId()) === -1) _selectedTracks.push(_startTrackId());
+  } else if (value === _CHOICE_TEST) {
+    _wantsPlacementTest = on;
+    if (on && _selectedTracks.length === 0) _selectedTracks.push(DEFAULT_TRACK_ID);
   } else if (isTrackReleased(value)) {
     _selectedTracks = _selectedTracks.filter(function(id) { return id !== value; });
     if (on) _selectedTracks.push(value);
-    if (!on && value === DEFAULT_TRACK_ID) {
-      _startFromZero = false;
-      _wantsPlacementTest = false;
-    }
+    if (!on && value === _startTrackId()) _startFromZero = false;
+    if (_selectedTracks.length === 0) _wantsPlacementTest = false;
   } else {
     return false;
   }
@@ -602,9 +618,15 @@ function _applyOnboardingPreferences() {
   }
 }
 
-/** Navigate to the Foundation Course after onboarding */
+/** Navigate to the first lesson after onboarding: the main track's (Qaida or the Foundation Course) */
 function navigateToFirstAction() {
   _applyOnboardingPreferences();
+  if (typeof QAIDA_TRACK_ID !== 'undefined' && getMainTrackId() === QAIDA_TRACK_ID && typeof startQaidaLesson === 'function') {
+    var next = getQaidaNextLesson(0);
+    if (next) startQaidaLesson(next.ref);
+    else switchView('track', { trackId: QAIDA_TRACK_ID });
+    return;
+  }
   _goToNextFoundationLesson();
 }
 
@@ -615,7 +637,7 @@ function _leaveOnboarding() {
     return;
   }
   _applyOnboardingPreferences();
-  startPlacementTest(DEFAULT_TRACK_ID);
+  startPlacementTest(_testTrackId());
 }
 
 /**

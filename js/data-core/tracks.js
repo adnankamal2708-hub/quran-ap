@@ -23,9 +23,9 @@ var TRACKS_KEY = 'quran_tracks';
 var TRACKS_STATE_VERSION = 1;
 var DEFAULT_TRACK_ID = 'words';
 
-/** Tracks a learner may join. Phase 1 ships only the words track. */
+/** Tracks a learner may join: Word meanings, and Read Arabic from zero from Phase 2. */
 function isTrackReleased(id) {
-  return id === 'words';
+  return id === 'words' || id === 'qaida';
 }
 
 function isKnownTrack(id) {

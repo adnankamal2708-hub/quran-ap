@@ -184,6 +184,11 @@ function renderDashboard() {
   // Determine recommendation state
   var $foundationComplete = $fTotal > 0 && $fCompleted >= $fTotal;
   var $noProgress = $fCompleted === 0 && $masteredCount === 0;
+  // With Read Arabic from zero as the main track, Up next and the first-day
+  // texts follow its lessons instead of the vocabulary course
+  var $qaidaMain = typeof getQaidaNextLesson === 'function' && getMainTrackId() === QAIDA_TRACK_ID;
+  var $qaidaStarted = $qaidaMain && Object.keys(loadQaidaProgress().completed).length > 0;
+  var $startHere = $qaidaMain ? !$qaidaStarted : $noProgress;
   var $continueLabel = $noProgress ? 'Start Foundation Course' : ($foundationComplete ? 'Learn by Surah' : 'Continue Foundation Course');
 
   // SVG helper — uses the comprehensive icon system in components.js
@@ -214,16 +219,21 @@ function renderDashboard() {
   }
 
   // One row per joined track: name, its own % of the Quran and a hairline bar.
-  // Only Word meanings has a percentage in Phase 1; refreshing it first keeps
-  // the stored high-water mark (and so Home) from showing a stale 0%.
+  // Each track's figure comes from its TRACK_PATHS entry (tracks-ui.js);
+  // refreshing it first keeps the stored high-water mark (and so Home) from
+  // showing a stale 0%.
   var $trackIds = getJoinedTrackIds();
   function $buildTrackRows() {
     var $rows = '';
     for (var $ti = 0; $ti < $trackIds.length; $ti++) {
       var $tid = $trackIds[$ti];
       var $tname = escapeHtml(t('track.' + $tid + '.name'));
-      var $tpct = $tid === 'words' ? refreshWordMeaningsPercent().percent : null;
-      var $ttext = $tpct === null ? '' : escapeHtml(t('percent.words', { p: $tpct }));
+      var $tpath = typeof TRACK_PATHS !== 'undefined' ? TRACK_PATHS[$tid] : null;
+      if (!$tpath && $tid === 'words') {
+        $tpath = { percent: function() { return refreshWordMeaningsPercent().percent; }, percentKey: 'percent.words' };
+      }
+      var $tpct = $tpath ? $tpath.percent() : null;
+      var $ttext = $tpct === null ? '' : escapeHtml(t($tpath.percentKey, { p: $tpct }));
       $rows += '<button type="button" class="db-track-row" id="db-track-row-' + $tid + '" data-track="' + $tid + '"' +
         ' aria-label="' + $tname + ($ttext ? ', ' + $ttext : '') + '">';
       $rows += '<span class="db-track-row-name">' + $tname + '</span>';
@@ -285,6 +295,7 @@ function renderDashboard() {
   } else {
     $greetingSub = 'Your journey to understand the Quran begins here.';
   }
+  if ($qaidaMain) $greetingSub = escapeHtml(t($qaidaStarted ? 'qaida.home.going' : 'qaida.home.welcome'));
   $h += '<div class="db-greeting">';
   $h += '<div>';
   var $premiumBadge = (window.__premium && window.__premium.isPremium()) ? ' <span class="db-premium-badge">' + uiIcon('star') + 'Premium</span>' : '';
@@ -295,14 +306,18 @@ function renderDashboard() {
 
   // ═══ 2. UP NEXT — the one primary action, first on the page ═══
   // Every other card below is secondary (outline buttons, smaller titles).
-  $h += '<div class="db-section-label db-up-next-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> ' + ($noProgress ? 'Start here' : 'Up next') + '</div>';
+  $h += '<div class="db-section-label db-up-next-label"><span class="db-section-icon" aria-hidden="true">' + $icon('layers', 14) + '</span> ' + ($startHere ? 'Start here' : 'Up next') + '</div>';
   
   // A learner placed above Beginner (not yet a graduate) whose level is open
   // to them continues from that level, not from Foundation lesson 1. A
   // graduate placed at Intermediate or above likewise skips guided reading's
   // Elementary surahs.
   var $trackNext = null;
-  if (typeof getWordMeaningsLevel === 'function' && getTrackLevel(WORDS_TRACK_ID) >= ($foundationComplete ? 2 : 1)) {
+  var $trackNextId = WORDS_TRACK_ID;
+  if ($qaidaMain) {
+    $trackNext = getQaidaNextLesson(getQaidaLevel());
+    $trackNextId = QAIDA_TRACK_ID;
+  } else if (typeof getWordMeaningsLevel === 'function' && getTrackLevel(WORDS_TRACK_ID) >= ($foundationComplete ? 2 : 1)) {
     var $wmLevel = getWordMeaningsLevel();
     if (getWordMeaningsLevelLock($wmLevel) === null) $trackNext = getWordMeaningsNextLesson($wmLevel);
   }
@@ -311,7 +326,7 @@ function renderDashboard() {
     var $tnLabel = $trackNext.kind === 'foundation'
       ? t('test.start.foundation', { n: $trackNext.number })
       : $trackNext.title;
-    var $tnTrack = t('track.words.name');
+    var $tnTrack = t('track.' + $trackNextId + '.name');
     var $c = '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-track-next" tabindex="0" role="button" aria-label="' +
       escapeHtml($tnTrack + ': ' + $tnLabel) + '">';
     $c += '<div class="db-card-row">';
@@ -320,13 +335,13 @@ function renderDashboard() {
     $c += '<div class="db-card-title">' + escapeHtml($tnTrack) + '</div>';
     $c += '<div class="db-card-sub">' + escapeHtml(t('level.' + $trackNext.level) + ' · ' + $tnLabel) + '</div>';
     $c += '</div>';
-    $c += '<button class="btn btn-sm" type="button">' + escapeHtml(t($noProgress ? 'upnext.start' : 'upnext.continue')) + '</button>';
+    $c += '<button class="btn btn-sm" type="button">' + escapeHtml(t($startHere ? 'upnext.start' : 'upnext.continue')) + '</button>';
     $c += '</div></div>';
     return $c;
   }
 
   // Determine next learning step
-  if ($trackNext && !$foundationComplete) {
+  if ($trackNext && ($qaidaMain || !$foundationComplete)) {
     $h += $trackNextCard();
   } else if ($fTotal > 0 && !$foundationComplete) {
     $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="' + ($noProgress ? 'Start' : 'Continue') + ' Foundation Course">';
@@ -517,8 +532,8 @@ function renderDashboard() {
   // For brand-new users with no progress, show a simple "Complete Lesson 1" goal
   if ($noProgress) {
     $h += '<div class="db-goal-new-user">';
-    $h += '<div class="db-goal-new-title">' + uiIcon('target') + 'Complete your first Foundation lesson</div>';
-    $h += '<div class="db-goal-new-sub">Each lesson introduces 10 new Quranic words</div>';
+    $h += '<div class="db-goal-new-title">' + uiIcon('target') + ($qaidaMain ? escapeHtml(t($qaidaStarted ? 'qaida.home.goalNext' : 'qaida.home.goal')) : 'Complete your first Foundation lesson') + '</div>';
+    $h += '<div class="db-goal-new-sub">' + ($qaidaMain ? escapeHtml(t('qaida.home.goalSub')) : 'Each lesson introduces 10 new Quranic words') + '</div>';
     $h += '</div>';
     $h += '</div>';
   } else {
@@ -982,10 +997,10 @@ function renderDashboard() {
     else if (typeof switchView === 'function') switchView('learn');
   });
 
-  // Continue Learning — the placed learner's next Word meanings lesson
+  // Continue Learning — the next lesson of the main track (Qaida, or a placed Word meanings learner)
   $wire('db-track-next', function() {
     if ($trackNext && typeof _openPathLesson === 'function') _openPathLesson($trackNext.kind, $trackNext.ref);
-    else if (typeof switchView === 'function') switchView('track', { trackId: WORDS_TRACK_ID });
+    else if (typeof switchView === 'function') switchView('track', { trackId: $trackNextId });
   });
 
   // Continue Learning — Reviews due

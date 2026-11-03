@@ -167,14 +167,17 @@ function finishFoundation() {
 
 console.log('\nTrack cards');
 
-test('default state: one joined "Word meanings" card and three "Coming soon" cards', function() {
+test('default state: one joined "Word meanings" card, Qaida to join and two "Coming soon" cards', function() {
   renderTracks();
   var all = cards();
   var joined = all.filter(function(c) { return c.indexOf('is-joined') >= 0; });
   var soon = all.filter(function(c) { return c.indexOf('Coming soon') >= 0; });
+  var open = all.filter(function(c) { return c.indexOf('data-action="join"') >= 0; });
   assert.strictEqual(joined.length, 1);
   assert.ok(joined[0].indexOf('Word meanings') >= 0, 'joined card is Word meanings');
-  assert.strictEqual(soon.length, 3);
+  assert.strictEqual(open.length, 1);
+  assert.ok(open[0].indexOf('Read Arabic from zero') >= 0, 'Qaida offers Join');
+  assert.strictEqual(soon.length, 2);
   assert.strictEqual(all.length, 4);
 });
 

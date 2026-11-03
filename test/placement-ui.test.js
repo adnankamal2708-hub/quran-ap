@@ -236,11 +236,23 @@ test('building the bank happens once per test, not per question', function() {
   assert.strictEqual(bankBuilds.length, 1);
 });
 
-test('tracks other than Word meanings are ignored', function() {
-  startPlacementTest('qaida');
+test('a track without a placement test is ignored', function() {
+  startPlacementTest('tajweed');
   assert.deepStrictEqual(bankBuilds, []);
   assert.deepStrictEqual(calls, []);
-  assert.strictEqual(nextPlacementAttempt('words'), 0, 'no attempt was counted');
+  assert.strictEqual(nextPlacementAttempt('tajweed'), 0, 'no attempt was counted');
+});
+
+test('the Qaida test builds the Qaida bank and is titled for Qaida', function() {
+  var qaidaBuilds = [];
+  global.buildQaidaBank = function(attempt) { qaidaBuilds.push(attempt); return global.buildWordMeaningsBank(attempt); };
+  startPlacementTest('qaida');
+  assert.deepStrictEqual(qaidaBuilds, [0]);
+  _leavePlacement();
+  renderPlacementTest();
+  assert.ok(html().indexOf('Read Arabic from zero placement test') >= 0, 'the intro offers the Qaida test');
+  _placementIntroTrack = 'words';
+  delete global.buildQaidaBank;
 });
 
 test('with no test running the view offers to start one', function() {
