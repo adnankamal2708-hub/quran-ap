@@ -77,6 +77,7 @@ const APP_FILES = [
   'js/exercises/exercise-engine.js',
   'js/exercises/placement.js',
   'js/exercises/word-drills.js',
+  'js/qaida/qaida-exercises.js',
   'js/exercises/root-lesson.js',
 ].concat(UI_FILES).concat([
   'js/quiz.js',

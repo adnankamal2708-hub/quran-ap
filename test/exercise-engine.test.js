@@ -158,7 +158,16 @@ suite('validateExercise', function() {
   test('read-choose without prompt.arabic is invalid', function() {
     assert.ok(typeof validateExercise(readChoose({ prompt: {} })) === 'string');
     assert.ok(typeof validateExercise(readChoose({ prompt: { arabic: '' } })) === 'string');
-    assert.ok(typeof validateExercise(readChoose({ prompt: { text: 'x' } })) === 'string');
+  });
+  test('read-choose may prompt with text instead of Arabic (which letter is Bā?)', function() {
+    assert.strictEqual(validateExercise(readChoose({ prompt: { text: 'Which letter is Bā?' } })), null);
+  });
+  test('listen-choose needs a sound, and checks like read-choose', function() {
+    var item = { type: 'listen-choose', prompt: { audio: 'a.mp3' }, options: ['a', 'b'], answer: 1 };
+    assert.strictEqual(validateExercise(item), null);
+    assert.ok(typeof validateExercise({ type: 'listen-choose', prompt: {}, options: ['a', 'b'], answer: 0 }) === 'string');
+    assert.strictEqual(checkExercise(item, 1), true);
+    assert.strictEqual(checkExercise(item, 0), false);
   });
   test('build and spot without prompt.text are invalid', function() {
     assert.ok(typeof validateExercise(build({ prompt: {} })) === 'string');

@@ -183,16 +183,34 @@ function buildSpotView(item, onChange) {
 
 var EXERCISE_VIEW_BUILDERS = {
   'read-choose': buildReadChooseView,
+  'listen-choose': buildReadChooseView,
   'build': buildBuildView,
   'spot': buildSpotView,
 };
 
-function buildExercisePrompt(item) {
-  if (item.type !== 'read-choose') return exerciseEl('p', 'ex-prompt', item.prompt.text);
+function buildPromptBody(item) {
+  if (item.type === 'listen-choose') {
+    var play = exerciseEl('button', 'btn btn-outline ex-play');
+    play.type = 'button';
+    play.innerHTML = uiIcon('play') + escapeHtml(t('audio.play'));
+    play.addEventListener('click', function() { playAudio(item.prompt.audio); });
+    return play;
+  }
+  if (item.type !== 'read-choose' || !item.prompt.arabic) return exerciseEl('p', 'ex-prompt', item.prompt.text);
   var prompt = exerciseEl('div', 'quiz-arabic ex-prompt-arabic', item.prompt.arabic);
   prompt.setAttribute('lang', 'ar');
   prompt.setAttribute('dir', 'rtl');
   return prompt;
+}
+
+// The prompt, under its question when the item has one.
+function buildExercisePrompt(item) {
+  var body = buildPromptBody(item);
+  if (!item.prompt.ask) return body;
+  var wrap = exerciseEl('div', 'ex-prompt-wrap');
+  wrap.appendChild(exerciseEl('p', 'ex-ask', item.prompt.ask));
+  wrap.appendChild(body);
+  return wrap;
 }
 
 function renderExercise(container, item, onAnswer) {

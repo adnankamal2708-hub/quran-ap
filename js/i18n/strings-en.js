@@ -149,6 +149,21 @@ var STRINGS = {
     'qaida.lesson.q3-9.title': 'Read Al-Kawthar',
     'qaida.lesson.q3-10.title': 'Reading check: verses',
 
+    // ── Qaida: exercises ──
+    'qaida.ex.whichName': 'What is this called?',
+    'qaida.ex.whichLetter': 'Which letter is {name}?',
+    'qaida.ex.tapEvery': 'Tap every {name}',
+    'qaida.ex.whichForm': 'Which is {name} at the {position} of a word?',
+    'qaida.ex.position.initial': 'start',
+    'qaida.ex.position.medial': 'middle',
+    'qaida.ex.position.final': 'end',
+    'qaida.ex.whichNoJoin': 'Which letter never joins the letter after it?',
+    'qaida.ex.whichLetters': 'Which letters are these, in reading order?',
+    'qaida.ex.howRead': 'How is this read?',
+    'qaida.ex.whichMark': 'What is this mark called?',
+    'qaida.ex.tapWith': 'Tap the words with {mark}',
+    'qaida.ex.orderVerse': 'Put the words of verse {n} in order',
+
     // ── Audio ──
     'audio.credit.husary': 'Recitation: Al-Husary',
     'audio.play': 'Play',

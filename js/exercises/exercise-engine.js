@@ -1,14 +1,16 @@
 /**
  * exercise-engine.js — pure checking and validation for shared exercises.
  *
- * Item shapes (plain data, no DOM, no audio):
- *   read-choose { prompt:{arabic}, options:string[], answer:index, tag }
- *   build       { prompt:{text}, pieces:string[], answer:string[], tag }
- *   spot        { prompt:{text}, tokens:string[], answer:index[], tag }
+ * Item shapes (plain data, no DOM):
+ *   read-choose   { prompt:{arabic | text}, options:string[], answer:index, tag }
+ *   listen-choose { prompt:{audio}, options:string[], answer:index, tag }
+ *   build         { prompt:{text}, pieces:string[], answer:string[], tag }
+ *   spot          { prompt:{text}, tokens:string[], answer:index[], tag }
+ * Any prompt may also carry `ask`, a question shown above it.
  * Rendering lives in js/ui/exercise-ui.js.
  */
 
-var EXERCISE_TYPES = ['read-choose', 'build', 'spot'];
+var EXERCISE_TYPES = ['read-choose', 'listen-choose', 'build', 'spot'];
 
 function isIndexInRange(value, length) {
   return typeof value === 'number' && value % 1 === 0 && value >= 0 && value < length;
@@ -41,7 +43,7 @@ function checkSpotResponse(item, response) {
  */
 function checkExercise(item, response) {
   if (!item) return false;
-  if (item.type === 'read-choose') return response === item.answer;
+  if (item.type === 'read-choose' || item.type === 'listen-choose') return response === item.answer;
   if (item.type === 'build') return Array.isArray(response) && sameOrderedList(response, item.answer);
   if (item.type === 'spot') return checkSpotResponse(item, response);
   return false;
@@ -51,16 +53,25 @@ function hasText(value) {
   return typeof value === 'string' && value.length > 0;
 }
 
-function validateReadChoose(item) {
-  if (!item.prompt || !hasText(item.prompt.arabic)) return 'read-choose needs prompt.arabic';
-  if (!Array.isArray(item.options)) return 'read-choose options must be an array';
-  if (item.options.length < 2) return 'read-choose needs at least 2 options';
-  if (!isIndexInRange(item.answer, item.options.length)) return 'read-choose answer is out of range';
+function validateOptions(item) {
+  if (!Array.isArray(item.options)) return item.type + ' options must be an array';
+  if (item.options.length < 2) return item.type + ' needs at least 2 options';
+  if (!isIndexInRange(item.answer, item.options.length)) return item.type + ' answer is out of range';
   var distinct = item.options.filter(function(option, i) {
     return item.options.indexOf(option) === i;
   });
-  if (distinct.length !== item.options.length) return 'read-choose options are duplicated';
+  if (distinct.length !== item.options.length) return item.type + ' options are duplicated';
   return null;
+}
+
+function validateReadChoose(item) {
+  if (!item.prompt || !(hasText(item.prompt.arabic) || hasText(item.prompt.text))) return 'read-choose needs prompt.arabic or prompt.text';
+  return validateOptions(item);
+}
+
+function validateListenChoose(item) {
+  if (!item.prompt || !hasText(item.prompt.audio)) return 'listen-choose needs prompt.audio';
+  return validateOptions(item);
 }
 
 function validateBuild(item) {
@@ -90,6 +101,7 @@ function validateExercise(item) {
   if (!item || typeof item !== 'object') return 'exercise item is missing';
   if (EXERCISE_TYPES.indexOf(item.type) === -1) return 'unknown exercise type: ' + item.type;
   if (item.type === 'read-choose') return validateReadChoose(item);
+  if (item.type === 'listen-choose') return validateListenChoose(item);
   if (item.type === 'build') return validateBuild(item);
   return validateSpot(item);
 }
