@@ -1,7 +1,8 @@
 # Learning tracks: design
 
-Status: agreed design, 2026-10-31. Phase 1 built 2026-10-31; Phases 2–4 not
-started. Phase 1 was planned step by step in
+Status: agreed design, 2026-10-31. Phase 1 built 2026-10-31. Phase 2 (Qaida)
+planned 2026-11-03 in [plans/phase-2-qaida.md](plans/phase-2-qaida.md);
+Phases 3–4 not started. Phase 1 was planned in
 [plans/phase-1-tracks.md](plans/phase-1-tracks.md).
 
 Bayan grows from one vocabulary course into four learning tracks, so a
@@ -228,8 +229,9 @@ Audio is a prerequisite for Qaida and Tajweed.
 
 | Item | Status | Needed by |
 |---|---|---|
-| everyayah.com / quran.com permission for Al-Husary and Al-Minshawi audio | Request sent 2026-10-30, awaiting reply | Phase 2 |
-| Quran In Depth permission for letter recordings | Request sent 2026-10-30, awaiting reply | Phase 2 |
+| everyayah.com / quran.com permission for Al-Husary and Al-Minshawi audio | Request sent 2026-10-30, no reply by 2026-11-03. Used from Phase 2 under everyayah's stated terms (credit and link back) | Phase 2 |
+| Quran In Depth permission for letter recordings | Request sent 2026-10-30, no reply by 2026-11-03. Not used without permission (all rights reserved); letters ship with empty audio slots | Phase 2 |
+| Letter recordings to fill the Qaida audio slots | Not yet sourced | Phase 2 audio |
 | Qualified teacher to review Qaida and Tajweed lessons | Not yet found | Phase 2 release |
 | Saheeh International translation licence | To verify; find a clearly licensed translation if needed | Phase 4 |
 | Tajweed-annotated Quran text and its licence | To find and verify | Phase 3 |
