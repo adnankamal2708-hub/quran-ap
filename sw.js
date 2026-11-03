@@ -20,6 +20,15 @@ const FONTS_CACHE = 'bayan-fonts-v1';
 const DYNAMIC_CACHE = CACHE_NAME + '-dynamic';
 // Firebase SDK URLs embed the SDK version, so entries never go stale.
 const FIREBASE_CACHE = 'bayan-firebase-v1';
+// Recitation (everyayah.com) and Qaida recordings (assets/audio/): files
+// never change at a given URL, so they outlive releases.
+const AUDIO_CACHE = 'bayan-audio-v1';
+
+/** True for a sound the audio cache keeps (see js/services/audio.js). */
+function isAudioRequest(url) {
+  if (url.hostname === 'everyayah.com') return true;
+  return url.origin === self.location.origin && url.pathname.indexOf('/assets/audio/') >= 0;
+}
 
 // Production assets only — individual dev files are NOT cached.
 // The build script (build.js) generates these bundles from all source files,
@@ -63,7 +72,7 @@ self.addEventListener('install', function (event) {
 
 // Activate: clean up old caches and take control of all open clients immediately
 self.addEventListener('activate', function (event) {
-  var cacheWhitelist = [CACHE_NAME, FONTS_CACHE, DYNAMIC_CACHE, FIREBASE_CACHE];
+  var cacheWhitelist = [CACHE_NAME, FONTS_CACHE, DYNAMIC_CACHE, FIREBASE_CACHE, AUDIO_CACHE];
   event.waitUntil(
     caches.keys().then(function (cacheNames) {
       return Promise.all(
@@ -160,6 +169,26 @@ self.addEventListener('fetch', function (event) {
           return fetch(event.request).then(function (networkResponse) {
             if (networkResponse && networkResponse.status === 200) {
               cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // Audio: cache-first, keyed by URL. The player asks for byte ranges
+  // (206), which can't be cached, so the whole file is fetched once and
+  // served from the cache from then on (a 200 answers a range request).
+  if (isAudioRequest(url)) {
+    event.respondWith(
+      caches.open(AUDIO_CACHE).then(function (cache) {
+        return cache.match(url.href).then(function (cachedResponse) {
+          if (cachedResponse) return cachedResponse;
+          return fetch(url.href, { mode: 'cors' }).then(function (networkResponse) {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(url.href, networkResponse.clone());
             }
             return networkResponse;
           });

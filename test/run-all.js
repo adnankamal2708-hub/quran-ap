@@ -71,6 +71,7 @@ var TESTS = [
   "qaida-lessons.test.js",
   "qaida-track.test.js",
   "qaida-readability.test.js",
+  "audio.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;

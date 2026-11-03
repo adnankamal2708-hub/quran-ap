@@ -9840,3 +9840,7 @@ body::before {
 #db-graduation .db-card-sub { line-height: 1.5; margin-top: 4px; }
 .db-goal-new-title { font-size: 13px; color: var(--text); margin-bottom: 4px; }
 .db-goal-new-sub { font-size: var(--text-xs); color: var(--text-muted); }
+
+/* ── Recitation credit under every verse player ── */
+.audio-credit { margin: 6px 0 0; font-size: var(--text-xs); color: var(--text-muted); }
+.audio-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }

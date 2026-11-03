@@ -35,6 +35,7 @@ const DATA_CORE_FILES = [
   'js/qaida/qaida-marks.js',
   'js/qaida/qaida-lessons.js',
   'js/qaida/qaida-readability.js',
+  'js/qaida/qaida-audio-manifest.js',
   'js/data-core/qaida-track.js',
 ];
 
@@ -70,6 +71,7 @@ const APP_FILES = [
   'js/services/user-service.js',
   'js/services/feedback.js',
   'js/services/premium.js',
+  'js/services/audio.js',
   'js/vocabulary.js',
   'js/srs.js',
   'js/exercises/exercise-engine.js',

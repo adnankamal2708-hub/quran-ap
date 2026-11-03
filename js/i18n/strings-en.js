@@ -149,6 +149,10 @@ var STRINGS = {
     'qaida.lesson.q3-9.title': 'Read Al-Kawthar',
     'qaida.lesson.q3-10.title': 'Reading check: verses',
 
+    // ── Audio ──
+    'audio.credit.husary': 'Recitation: Al-Husary',
+    'audio.play': 'Play',
+
     // ── Practice tab ──
     'practice.due': 'Due today',
     'practice.drills': 'Drills',
