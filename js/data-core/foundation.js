@@ -796,13 +796,16 @@ function getFoundationCoverage() {
 /**
  * Surah Comprehension: Calculate estimated comprehension for every surah
  * based on which vocabulary words appearing in that surah are mastered.
+ * @param {number} surahId
+ * @param {Object} [mastered] - getMasteredWordIds(), when the caller already
+ *   has it (getAllSurahComprehension passes it so it is built once, not per surah)
  */
-function getSurahComprehension(surahId) {
+function getSurahComprehension(surahId, mastered) {
   if (!surahId) return null;
   var words = getSurahWords(surahId);
   if (!words || words.length === 0) return null;
   
-  var mastered = getMasteredWordIds();
+  mastered = mastered || getMasteredWordIds();
   var totalWords = words.length;
   var masteredInSurah = 0;
   var totalOccInSurah = 0;
@@ -843,9 +846,10 @@ function getSurahComprehension(surahId) {
  */
 function getAllSurahComprehension() {
   var surahIds = getSurahsWithVocabulary();
+  var mastered = getMasteredWordIds();
   var results = [];
   for (var si = 0; si < surahIds.length; si++) {
-    var comp = getSurahComprehension(surahIds[si]);
+    var comp = getSurahComprehension(surahIds[si], mastered);
     if (comp) results.push(comp);
   }
   return results;

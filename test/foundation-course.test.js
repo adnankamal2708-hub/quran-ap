@@ -926,6 +926,13 @@ suite('Surah Comprehension', function() {
     }
   });
 
+  test('getAllSurahComprehension (one mastered-word pass) matches surah-by-surah results', function() {
+    var all = getAllSurahComprehension();
+    all.forEach(function(r) {
+      assert.deepStrictEqual(r, getSurahComprehension(r.surahId), 'surah ' + r.surahId);
+    });
+  });
+
   test('getAllSurahComprehension returns array of results', function() {
     var results = getAllSurahComprehension();
     assert.ok(Array.isArray(results));
