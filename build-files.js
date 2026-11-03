@@ -33,6 +33,7 @@ const DATA_CORE_FILES = [
   // js/data/ word files whose load order fixes word ids)
   'js/qaida/qaida-letters.js',
   'js/qaida/qaida-marks.js',
+  'js/qaida/qaida-lessons.js',
 ];
 
 // UI modules in dependency order
