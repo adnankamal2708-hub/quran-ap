@@ -195,6 +195,18 @@ suite('Vocabulary data (js/data/words-*.js)', function () {
   });
 });
 
+suite('Qaida data (js/qaida/*.js)', function () {
+  test('No unrenderable characters in any Qaida data file', function () {
+    var dir = path.join(__dirname, '..', 'js', 'qaida');
+    var problems = [];
+    fs.readdirSync(dir).filter(function (f) { return /\.js$/.test(f); }).forEach(function (f) {
+      var issues = suspiciousCodePoints(fs.readFileSync(path.join(dir, f), 'utf8'));
+      if (issues.length > 0) problems.push(f + ' → ' + describe(issues));
+    });
+    assert.strictEqual(problems.length, 0, problems.join('\n  '));
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════

@@ -29,6 +29,10 @@ const DATA_CORE_FILES = [
   'js/data-core/surah-progress.js',
   'js/data-core/tracks.js',
   'js/data-core/word-meanings-track.js',
+  // Qaida letter and mark data (own directory, so it never enters the
+  // js/data/ word files whose load order fixes word ids)
+  'js/qaida/qaida-letters.js',
+  'js/qaida/qaida-marks.js',
 ];
 
 // UI modules in dependency order

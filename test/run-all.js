@@ -67,6 +67,7 @@ var TESTS = [
   "word-drills.test.js",
   "root-lesson.test.js",
   "drill-ui.test.js",
+  "qaida-data.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
