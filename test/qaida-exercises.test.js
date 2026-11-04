@@ -170,6 +170,27 @@ test('the same seed gives the same question', function () {
   assert.deepStrictEqual(buildConfusedLettersDrill(7), buildConfusedLettersDrill(7));
 });
 
+console.log('\n📋 Review questions');
+
+test('every skill gets a valid review question about that skill', function () {
+  QAIDA_SKILL_IDS.forEach(function (skill) {
+    [1, 2, 3].forEach(function (seed) {
+      var item = buildQaidaSkillItem(skill, seed);
+      assert.ok(item, skill + ' has no question');
+      assert.strictEqual(validateExercise(item), null, skill + ': ' + validateExercise(item));
+      assert.strictEqual(item.skill, skill);
+    });
+  });
+});
+
+test('a review question is the same for the same seed', function () {
+  assert.deepStrictEqual(buildQaidaSkillItem('kasra', 4), buildQaidaSkillItem('kasra', 4));
+});
+
+test('an unknown skill has no question', function () {
+  assert.strictEqual(buildQaidaSkillItem('nope', 1), null);
+});
+
 console.log('\n📋 Qaida placement bank');
 
 test('every level has valid items, and retakes differ', function () {

@@ -214,6 +214,16 @@ function _rcModeCard(id, iconName, title, sub) {
     '<div class="rc-mode-arrow">→</div></div>';
 }
 
+/** Missed Qaida letters and marks that are due, as a card with its own question host; empty when none. */
+function _rcQaidaDue() {
+  var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
+  var due = qaida && typeof getDueQaidaSkills === 'function' ? getDueQaidaSkills() : [];
+  if (!due.length) return '';
+  return '<div class="rc-modes-grid rc-modes-grid-single">' +
+    _rcModeCard('rc-qaida-review', 'repeat', t('qaida.review.title'), t('qaida.review.due', { n: due.length })) +
+    '</div><div id="rc-qaida-host" class="rc-drill-host"></div>';
+}
+
 /** The Quran drills, plus Confused letters once Qaida is out; the question appears in #rc-drill-host (drill-ui.js). */
 function _rcDrillCards() {
   var canSpot = typeof hasLearnedWords === 'function' && hasLearnedWords();
@@ -614,7 +624,7 @@ function renderReviewCenter() {
 
   // ── Group: Due today, Drills, Tests ──
   $h = $headH +
-    _rcGroupTitle('practice.due') + $dueH + $h +
+    _rcGroupTitle('practice.due') + _rcQaidaDue() + $dueH + $h +
     _rcGroupTitle('practice.drills') + $modesH + $listsH + _rcDrillCards() +
     _rcGroupTitle('practice.tests') + _rcTestCards();
 
@@ -705,6 +715,9 @@ function wireReviewCenterEvents($data) {
   });
   $wire('rc-drill-build', function() {
     if (typeof startWordDrill === 'function') startWordDrill('build', document.getElementById('rc-drill-host'));
+  });
+  $wire('rc-qaida-review', function() {
+    if (typeof startWordDrill === 'function') startWordDrill('qaida-review', document.getElementById('rc-qaida-host'));
   });
   $wire('rc-drill-letters', function() {
     if (typeof startWordDrill === 'function') startWordDrill('letters', document.getElementById('rc-drill-host'));

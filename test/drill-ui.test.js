@@ -228,6 +228,56 @@ async function run() {
     assert.strictEqual(messageOf(host), null);
   });
 
+  await test('Confused letters answers feed the Qaida review queue', async function() {
+    var host = makeEl('div');
+    var LETTER = { type: 'read-choose', prompt: { text: 'Which letter is Bā?' }, options: ['ب', 'ت'], answer: 0, skill: 'ba', tag: 'shapes' };
+    var recorded = [];
+    global.buildConfusedLettersDrill = function() { return LETTER; };
+    global.recordQaidaAnswer = function(skill, correct) { recorded.push([skill, correct]); };
+    try {
+      await startWordDrill('letters', host);
+      _rendered[0].onAnswer(false, []);
+    } finally {
+      delete global.buildConfusedLettersDrill;
+      delete global.recordQaidaAnswer;
+    }
+    assert.deepStrictEqual(recorded, [['ba', false]]);
+  });
+
+  await test('Qaida review asks about the most overdue skill and records the answer', async function() {
+    var host = makeEl('div');
+    var asked = [];
+    var recorded = [];
+    global.getDueQaidaSkills = function() { return ['fatha', 'ba']; };
+    global.buildQaidaSkillItem = function(skill) { asked.push(skill); return { type: 'read-choose', skill: skill }; };
+    global.recordQaidaAnswer = function(skill, correct) { recorded.push([skill, correct]); };
+    try {
+      await startWordDrill('qaida-review', host);
+      _rendered[0].onAnswer(true, []);
+    } finally {
+      delete global.getDueQaidaSkills;
+      delete global.buildQaidaSkillItem;
+      delete global.recordQaidaAnswer;
+    }
+    assert.deepStrictEqual(asked, ['fatha']);
+    assert.strictEqual(_loads.length, 0, 'no Quran text is loaded');
+    assert.deepStrictEqual(recorded, [['fatha', true]]);
+    var next = host.children.filter(function(c) { return c.className.indexOf('drill-again') >= 0; })[0];
+    assert.strictEqual(next.textContent, t('root.next'));
+  });
+
+  await test('Qaida review with nothing due says it is all caught up', async function() {
+    var host = makeEl('div');
+    global.getDueQaidaSkills = function() { return []; };
+    try {
+      await startWordDrill('qaida-review', host);
+    } finally {
+      delete global.getDueQaidaSkills;
+    }
+    assert.strictEqual(messageOf(host), t('qaida.review.done'));
+    assert.strictEqual(_rendered.length, 0);
+  });
+
   await test('ignores an unknown kind and a missing host', async function() {
     await startWordDrill('nope', makeEl('div'));
     await startWordDrill('spot', null);

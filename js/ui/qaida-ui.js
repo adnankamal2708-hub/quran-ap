@@ -185,6 +185,7 @@ function renderQaidaLesson() {
 function _onQaidaAnswer(correct) {
   var run = _qaidaRun;
   if (!run || run.step !== 'practice' || run.answered) return;
+  if (typeof recordQaidaAnswer === 'function') recordQaidaAnswer(run.items[run.index].skill, correct);
   if (correct) run.correct += 1;
   run.answered = true;
   var slot = document.getElementById('qaida-next');

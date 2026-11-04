@@ -7,7 +7,10 @@
 //
 // Progress is its own key, QAIDA_PROGRESS_KEY, synced as `qaidaProgress`
 // alongside the existing fields (nothing existing changes):
-//   { completed: { <lessonId>: { at, score } }, updatedAt }
+//   { completed: { <lessonId>: { at, score } },
+//     review: { <skillId>: { due, step } }, updatedAt }
+// review is the Qaida review queue: skills missed in a lesson or drill,
+// scheduled apart from word reviews so word stats stay words only.
 // Lessons open in order; a level opens once the previous level's reading
 // check is passed, or when placement put the learner at that level.
 
@@ -16,6 +19,27 @@ var QAIDA_PROGRESS_KEY = 'quran_qaida_progress';
 
 /** Share of a reading check's questions needed to pass it */
 var QAIDA_CHECK_PASS = 0.8;
+
+/** A missed skill comes back this long after the miss (as SRS "again") */
+var QAIDA_REVIEW_RETRY_MS = 10 * 60 * 1000;
+
+/** Days until the next review after each right answer; after the last, the skill leaves the queue */
+var QAIDA_REVIEW_DAYS = [1, 3, 7, 21];
+
+var _QAIDA_DAY_MS = 24 * 60 * 60 * 1000;
+
+function _normalizeQaidaReview(src) {
+  var out = {};
+  src = src && typeof src === 'object' ? src : {};
+  Object.keys(src).forEach(function (skill) {
+    var rec = src[skill] || {};
+    if (QAIDA_SKILL_IDS.indexOf(skill) < 0) return;
+    if (typeof rec.due !== 'number' || !isFinite(rec.due)) return;
+    if (!(rec.step >= 0 && rec.step <= QAIDA_REVIEW_DAYS.length && rec.step % 1 === 0)) return;
+    out[skill] = { due: rec.due, step: rec.step };
+  });
+  return out;
+}
 
 function normalizeQaidaProgress(raw) {
   raw = raw && typeof raw === 'object' ? raw : {};
@@ -29,7 +53,8 @@ function normalizeQaidaProgress(raw) {
       score: typeof rec.score === 'number' && isFinite(rec.score) ? Math.max(0, Math.min(1, rec.score)) : 1,
     };
   });
-  return { completed: completed, updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : 0 };
+  return { completed: completed, review: _normalizeQaidaReview(raw.review),
+    updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : 0 };
 }
 
 function loadQaidaProgress() {
@@ -180,12 +205,13 @@ function refreshQaidaPercent() {
 
 /**
  * Merge local and cloud Qaida progress: the union of finished lessons,
- * each keeping its earliest finish time and best score.
+ * each keeping its earliest finish time and best score, and the union of
+ * the review queue, each skill keeping its less advanced copy.
  */
 function mergeQaidaProgress(local, cloud) {
   var a = normalizeQaidaProgress(local);
   var b = normalizeQaidaProgress(cloud);
-  var out = { completed: {}, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+  var out = { completed: {}, review: {}, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
   [a.completed, b.completed].forEach(function (src) {
     Object.keys(src).forEach(function (id) {
       var prev = out.completed[id];
@@ -195,5 +221,54 @@ function mergeQaidaProgress(local, cloud) {
         : { at: rec.at, score: rec.score };
     });
   });
+  [a.review, b.review].forEach(function (src) {
+    Object.keys(src).forEach(function (skill) {
+      var prev = out.review[skill];
+      var rec = src[skill];
+      if (!prev || rec.step < prev.step || (rec.step === prev.step && rec.due < prev.due)) {
+        out.review[skill] = { due: rec.due, step: rec.step };
+      }
+    });
+  });
   return out;
+}
+
+// ── Review queue ────────────────────────────────────────────────
+
+/**
+ * Record an answer about one skill. A miss puts the skill in the queue
+ * (or back at its start); a right answer when it is due spaces it out by
+ * the next QAIDA_REVIEW_DAYS step, and after the last step it leaves.
+ * @param {string} skill - a QAIDA_SKILL_IDS id
+ * @param {boolean} correct
+ * @param {number} [now]
+ */
+function recordQaidaAnswer(skill, correct, now) {
+  if (QAIDA_SKILL_IDS.indexOf(skill) < 0) return;
+  now = typeof now === 'number' ? now : Date.now();
+  var progress = loadQaidaProgress();
+  var rec = progress.review[skill];
+  if (!correct) {
+    progress.review[skill] = { due: now + QAIDA_REVIEW_RETRY_MS, step: 0 };
+  } else if (rec && rec.due <= now) {
+    if (rec.step >= QAIDA_REVIEW_DAYS.length) delete progress.review[skill];
+    else progress.review[skill] = { due: now + QAIDA_REVIEW_DAYS[rec.step] * _QAIDA_DAY_MS, step: rec.step + 1 };
+  } else {
+    return;
+  }
+  saveQaidaProgress(progress);
+  queueTracksSync();
+}
+
+/**
+ * Skills due for review, most overdue first.
+ * @param {number} [now]
+ * @returns {string[]}
+ */
+function getDueQaidaSkills(now) {
+  now = typeof now === 'number' ? now : Date.now();
+  var review = loadQaidaProgress().review;
+  return Object.keys(review)
+    .filter(function (skill) { return review[skill].due <= now; })
+    .sort(function (x, y) { return review[x].due - review[y].due; });
 }

@@ -5,6 +5,7 @@
 // buildQaidaLessonItems(lesson, seed, verses) → exercise items
 // buildQaidaBank(attempt)                     → placement bank {0..3: items}
 // buildConfusedLettersDrill(seed)             → one Practice drill question
+// buildQaidaSkillItem(skill, seed)             → one review question on a skill
 //
 // Everything is deterministic for a given seed. Wrong options come from
 // lookalike letters (same shape group) first, so a question tests the dots
@@ -112,6 +113,12 @@ function _qaidaSpotLetterItem(letter, pool, rnd) {
     tokens: tokens, answer: answer, skill: letter.id, tag: 'shapes' };
 }
 
+function _qaidaHamzaItem(rnd) {
+  return _qaidaChoice({ ask: t('qaida.ex.whichName'), arabic: 'ء' }, _qaidaMarkName('hamza'),
+    [_qaidaLetterName(getQaidaLetter('alif')), _qaidaLetterName(getQaidaLetter('ain')), _qaidaLetterName(getQaidaLetter('ha'))], rnd,
+    { skill: 'hamza', tag: 'letters' });
+}
+
 function _qaidaLetterItems(lesson, rnd) {
   var letters = _qaidaLettersOf(lesson.teaches);
   var items = [];
@@ -119,11 +126,7 @@ function _qaidaLetterItems(lesson, rnd) {
     items.push(i % 2 === 0 ? _qaidaNameItem(letter, letters, rnd) : _qaidaPickLetterItem(letter, letters, rnd));
   });
   // Hamzah is taught with the last letters: name it like a letter
-  if (lesson.teaches.indexOf('hamza') >= 0) {
-    items.push(_qaidaChoice({ ask: t('qaida.ex.whichName'), arabic: 'ء' }, _qaidaMarkName('hamza'),
-      [_qaidaLetterName(getQaidaLetter('alif')), _qaidaLetterName(getQaidaLetter('ain')), _qaidaLetterName(getQaidaLetter('ha'))], rnd,
-      { skill: 'hamza', tag: 'letters' }));
-  }
+  if (lesson.teaches.indexOf('hamza') >= 0) items.push(_qaidaHamzaItem(rnd));
   qaidaShuffle(letters, rnd).slice(0, 2).forEach(function (letter) {
     items.push(_qaidaSpotLetterItem(letter, letters, rnd));
   });
@@ -435,4 +438,28 @@ function buildConfusedLettersDrill(seed) {
   });
   var letter = confusable[Math.floor(rnd() * confusable.length)];
   return rnd() < 0.5 ? _qaidaPickLetterItem(letter, QAIDA_LETTERS, rnd) : _qaidaSpotLetterItem(letter, QAIDA_LETTERS, rnd);
+}
+
+/**
+ * One review question on a skill, for the Qaida review queue: letters are
+ * named or picked among lookalikes, vowels and marks read on a syllable,
+ * and the other marks named. Null for an unknown skill.
+ * @param {string} skill - a QAIDA_SKILL_IDS id
+ * @param {number} seed
+ * @returns {Object|null} exercise item
+ */
+function buildQaidaSkillItem(skill, seed) {
+  var rnd = qaidaRandom(seed);
+  var letter = getQaidaLetter(skill);
+  if (letter) {
+    return rnd() < 0.5 ? _qaidaNameItem(letter, QAIDA_LETTERS, rnd) : _qaidaPickLetterItem(letter, QAIDA_LETTERS, rnd);
+  }
+  if (QAIDA_SKILL_IDS.indexOf(skill) < 0) return null;
+  var vowel = null;
+  QAIDA_SHORT_VOWELS.concat(QAIDA_TANWIN).forEach(function (v) { if (v.id === skill) vowel = v; });
+  if (vowel) return _qaidaSyllableItem(vowel, QAIDA_SKILL_IDS, rnd);
+  if (skill === 'hamza') return _qaidaHamzaItem(rnd);
+  if (skill === 'long-vowels') return _qaidaLongVowelItem(rnd);
+  if (skill === 'sukun' || skill === 'shadda') return _qaidaClusterItem(skill, rnd);
+  return _qaidaWhichMarkItem(skill, QAIDA_SKILL_IDS, rnd);
 }

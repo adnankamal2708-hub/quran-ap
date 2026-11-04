@@ -130,6 +130,75 @@ test('corrupt storage and unknown lesson ids are ignored', function () {
   assert.strictEqual(completeQaidaLesson('nope', 1), false);
 });
 
+console.log('\n📋 Qaida review queue');
+
+var T0 = 1700000000000;
+var DAY = 24 * 60 * 60 * 1000;
+
+test('a missed skill is due again a little later, not straight away', function () {
+  recordQaidaAnswer('ba', false, T0);
+  assert.deepStrictEqual(getDueQaidaSkills(T0), []);
+  assert.deepStrictEqual(getDueQaidaSkills(T0 + QAIDA_REVIEW_RETRY_MS), ['ba']);
+});
+
+test('right answers when due space a skill out, then it leaves the queue', function () {
+  recordQaidaAnswer('ba', false, T0);
+  var now = T0 + QAIDA_REVIEW_RETRY_MS;
+  QAIDA_REVIEW_DAYS.forEach(function (days) {
+    recordQaidaAnswer('ba', true, now);
+    assert.deepStrictEqual(getDueQaidaSkills(now + days * DAY - 1), [], 'not due before ' + days + ' days');
+    now += days * DAY;
+    assert.deepStrictEqual(getDueQaidaSkills(now), ['ba'], 'due after ' + days + ' days');
+  });
+  recordQaidaAnswer('ba', true, now);
+  assert.deepStrictEqual(getDueQaidaSkills(now + 365 * DAY), []);
+  assert.strictEqual(loadQaidaProgress().review.ba, undefined);
+});
+
+test('a miss sends a spaced-out skill back to the start', function () {
+  recordQaidaAnswer('fatha', false, T0);
+  recordQaidaAnswer('fatha', true, T0 + QAIDA_REVIEW_RETRY_MS);
+  recordQaidaAnswer('fatha', false, T0 + 2 * DAY);
+  assert.deepStrictEqual(getDueQaidaSkills(T0 + 2 * DAY + QAIDA_REVIEW_RETRY_MS), ['fatha']);
+  assert.strictEqual(loadQaidaProgress().review.fatha.step, 0);
+});
+
+test('a right answer on a skill not in the queue, or not yet due, changes nothing', function () {
+  recordQaidaAnswer('ta', true, T0);
+  assert.deepStrictEqual(loadQaidaProgress().review, {});
+  recordQaidaAnswer('ba', false, T0);
+  recordQaidaAnswer('ba', true, T0 + 1);
+  assert.strictEqual(loadQaidaProgress().review.ba.step, 0);
+});
+
+test('unknown skills are ignored', function () {
+  recordQaidaAnswer('nope', false, T0);
+  recordQaidaAnswer(undefined, false, T0);
+  assert.deepStrictEqual(loadQaidaProgress().review, {});
+});
+
+test('the most overdue skill comes first', function () {
+  recordQaidaAnswer('jim', false, T0 + 1000);
+  recordQaidaAnswer('ba', false, T0);
+  recordQaidaAnswer('sukun', false, T0 + 2000);
+  assert.deepStrictEqual(getDueQaidaSkills(T0 + DAY), ['ba', 'jim', 'sukun']);
+});
+
+test('the queue survives older progress with no review field, and bad entries are dropped', function () {
+  _storage[QAIDA_PROGRESS_KEY] = JSON.stringify({ completed: { 'q0-1': { at: 1, score: 1 } } });
+  assert.deepStrictEqual(loadQaidaProgress().review, {});
+  _storage[QAIDA_PROGRESS_KEY] = JSON.stringify({ review: { ba: { due: 5, step: 1 }, nope: { due: 5, step: 0 }, ta: { due: 'x', step: 0 }, jim: { due: 5, step: 99 } } });
+  assert.deepStrictEqual(Object.keys(loadQaidaProgress().review), ['ba']);
+});
+
+test('merge keeps every queued skill, the less advanced copy when both have one', function () {
+  var local = { review: { ba: { due: T0 + 3 * DAY, step: 2 }, ta: { due: T0, step: 0 } } };
+  var cloud = { review: { ba: { due: T0 + DAY, step: 1 }, jim: { due: T0, step: 0 } } };
+  var m = mergeQaidaProgress(local, cloud);
+  assert.deepStrictEqual(m.review.ba, { due: T0 + DAY, step: 1 });
+  assert.ok(m.review.ta && m.review.jim);
+});
+
 console.log('\n' + '='.repeat(50));
 console.log('  qaida-track.test.js');
 console.log('  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');

@@ -70,6 +70,7 @@ var TESTS = [
   "qaida-data.test.js",
   "qaida-lessons.test.js",
   "qaida-track.test.js",
+  "qaida-ui.test.js",
   "qaida-readability.test.js",
   "audio.test.js",
   "qaida-exercises.test.js",

@@ -5,12 +5,17 @@
  * The question comes from js/exercises/word-drills.js and is drawn by the
  * shared exercise UI (renderExercise). The Quran text is fetched on demand
  * and never blocks the rest of Practice: the host shows a loading line first.
- * Confused letters needs no Quran text, so its question shows at once.
+ * Confused letters and the Qaida review ("Letters and marks" under Due
+ * today) need no Quran text, so their question shows at once; their
+ * answers feed the Qaida review queue (recordQaidaAnswer).
  * Practice drills do not touch SRS data.
  */
 
 /** Juz Amma surahs fetched before the first question; the rest only if none of them fits */
 var DRILL_FIRST_LOAD_SURAH_COUNT = 5;
+
+/** Drills about Qaida skills rather than Quran words */
+var DRILL_QAIDA_KINDS = ['letters', 'qaida-review'];
 
 /** Bumped on every start, so a slow load cannot overwrite a newer drill. */
 var _drillRun = 0;
@@ -19,7 +24,14 @@ function _drillBuilder(kind) {
   if (kind === 'spot') return buildSpotDrill;
   if (kind === 'build') return buildVerseBuildDrill;
   if (kind === 'letters') return function() { return buildConfusedLettersDrill(Date.now()); };
+  if (kind === 'qaida-review') return _drillNextQaidaReview;
   return null;
+}
+
+/** A question on the most overdue Qaida skill, or null when none is due. */
+function _drillNextQaidaReview() {
+  var due = getDueQaidaSkills();
+  return due.length ? buildQaidaSkillItem(due[0], Date.now()) : null;
 }
 
 function _drillShowMessage(host, key) {
@@ -56,8 +68,10 @@ function _drillShowItem(host, kind, item) {
   if (kind === 'build') host.appendChild(exerciseEl('p', 'drill-hint', t('drill.build.prompt')));
   var body = exerciseEl('div', 'drill-body');
   host.appendChild(body);
-  renderExercise(body, item, function() {
-    var again = exerciseEl('button', 'btn drill-again', t('drill.again'));
+  var qaida = DRILL_QAIDA_KINDS.indexOf(kind) >= 0;
+  renderExercise(body, item, function(correct) {
+    if (qaida) recordQaidaAnswer(item.skill, correct);
+    var again = exerciseEl('button', 'btn drill-again', t(kind === 'qaida-review' ? 'root.next' : 'drill.again'));
     again.type = 'button';
     again.addEventListener('click', function() { startWordDrill(kind, host); });
     host.appendChild(again);
@@ -65,13 +79,15 @@ function _drillShowItem(host, kind, item) {
   });
 }
 
-/** Starts a drill of the given kind ('spot', 'build' or 'letters') in the host element. */
+/** Starts a drill of the given kind ('spot', 'build', 'letters' or 'qaida-review') in the host element. */
 async function startWordDrill(kind, host) {
   var buildItem = _drillBuilder(kind);
   if (!host || !buildItem) return;
   var run = ++_drillRun;
-  if (kind === 'letters') {
-    _drillShowItem(host, kind, buildItem());
+  if (DRILL_QAIDA_KINDS.indexOf(kind) >= 0) {
+    var qaidaItem = buildItem();
+    if (qaidaItem) _drillShowItem(host, kind, qaidaItem);
+    else _drillShowMessage(host, 'qaida.review.done');
     return;
   }
   if (kind === 'spot' && !hasLearnedWords()) {

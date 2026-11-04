@@ -1430,6 +1430,53 @@ suite('renderReviewCenter — Practice groups', function() {
     assert.deepStrictEqual(started, [['letters', host]]);
   });
 
+  test('Due today shows a Letters and marks card with the count when Qaida skills are due', function() {
+    global.isTrackReleased = function(id) { return id === 'qaida'; };
+    global.getDueQaidaSkills = function() { return ['ba', 'fatha', 'sukun']; };
+    try {
+      var html = renderGrid();
+      assert.ok(html.indexOf('id="rc-qaida-review"') >= 0);
+      assert.ok(html.indexOf('3 to review') >= 0);
+      inOrder(html, ['Due today', 'rc-qaida-review', 'rc-qaida-host', 'Drills']);
+    } finally {
+      delete global.isTrackReleased;
+      delete global.getDueQaidaSkills;
+    }
+  });
+
+  test('no Letters and marks card when nothing is due', function() {
+    global.isTrackReleased = function(id) { return id === 'qaida'; };
+    global.getDueQaidaSkills = function() { return []; };
+    try {
+      assert.ok(renderGrid().indexOf('id="rc-qaida-review"') < 0);
+    } finally {
+      delete global.isTrackReleased;
+      delete global.getDueQaidaSkills;
+    }
+  });
+
+  test('clicking Letters and marks starts the Qaida review under it', function() {
+    var host = makeEl('div');
+    host.id = 'rc-qaida-host';
+    _elementsById['rc-qaida-host'] = host;
+    var card = makeEl('div');
+    card.id = 'rc-qaida-review';
+    _elementsById['rc-qaida-review'] = card;
+    var started = [];
+    global.startWordDrill = function(kind, container) { started.push([kind, container]); };
+    global.isTrackReleased = function(id) { return id === 'qaida'; };
+    global.getDueQaidaSkills = function() { return ['ba']; };
+    try {
+      renderGrid();
+      card.click();
+    } finally {
+      delete global.startWordDrill;
+      delete global.isTrackReleased;
+      delete global.getDueQaidaSkills;
+    }
+    assert.deepStrictEqual(started, [['qaida-review', host]]);
+  });
+
   test('a drill host sits under the drill cards', function() {
     assert.ok(renderGrid().indexOf('id="rc-drill-host"') >= 0);
   });
