@@ -21,10 +21,16 @@ function exerciseEl(tag, className, text) {
   return el;
 }
 
-// Arabic text gets the Arabic font class plus language and direction.
+// Vowel marks, Quranic marks and the joiner, which don't count as letters
+var EXERCISE_ARABIC_MARKS = /[\u064B-\u0670\u06D6-\u06ED\u200D]/g;
+var EXERCISE_GLYPH_MAX_LETTERS = 2;
+
+// Arabic text gets the Arabic font class plus language and direction; a lone
+// letter or syllable is drawn larger, so its dots and marks are easy to see.
 function exerciseMarkArabic(el, text) {
   if (!exerciseIsArabic(text)) return;
   el.classList.add('ex-ar');
+  if (text.replace(EXERCISE_ARABIC_MARKS, '').trim().length <= EXERCISE_GLYPH_MAX_LETTERS) el.classList.add('ex-ar-glyph');
   el.setAttribute('lang', 'ar');
   el.setAttribute('dir', 'rtl');
 }

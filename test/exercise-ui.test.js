@@ -102,6 +102,31 @@ function press(key, target) {
   return event;
 }
 
+console.log('\nArabic text');
+
+function marked(text) {
+  var el = makeEl('span');
+  exerciseMarkArabic(el, text);
+  return el.className.trim().split(/\s+/);
+}
+
+test('a single letter or syllable gets the large letter size', function() {
+  ['ب', 'بَ', 'بَا', '‍ب‍', 'رَبّ'].forEach(function(text) {
+    var classes = marked(text);
+    assert.ok(classes.indexOf('ex-ar') >= 0 && classes.indexOf('ex-ar-glyph') >= 0, text + ': ' + classes);
+  });
+});
+
+test('a word stays at the usual Arabic size', function() {
+  var classes = marked('كِتَٰب');
+  assert.ok(classes.indexOf('ex-ar') >= 0);
+  assert.ok(classes.indexOf('ex-ar-glyph') < 0);
+});
+
+test('Latin text is not marked as Arabic', function() {
+  assert.deepStrictEqual(marked('Bā'), ['']);
+});
+
 console.log('\nKeyboard');
 
 test('a visible exercise takes a digit and Enter, and checks', function() {
