@@ -6438,6 +6438,20 @@ body::before {
   grid-template-columns: 1fr;
 }
 
+/* Three drills: the first spans the row on phones, all three side by side when there's room */
+.rc-modes-grid.rc-modes-grid-three > :first-child {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 900px) {
+  .rc-modes-grid.rc-modes-grid-three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .rc-modes-grid.rc-modes-grid-three > :first-child {
+    grid-column: auto;
+  }
+}
+
 /* ── Practice drills (js/ui/drill-ui.js) ───────────────────── */
 .rc-drill-host:empty {
   display: none;

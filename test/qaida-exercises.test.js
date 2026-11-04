@@ -127,6 +127,49 @@ test('the muqattaat question accepts the names in reading order', function () {
   assert.strictEqual(item.options[item.answer], 'Alif · Lām · Mīm');
 });
 
+console.log('\n📋 Confused letters drill');
+
+var SEEDS = Array.from({ length: 60 }, function (_, i) { return i + 1; });
+
+function drillLetter(item) { return getQaidaLetter(item.skill); }
+function lookalikesOf(letter) {
+  return QAIDA_LETTERS.filter(function (l) { return l.group === letter.group && l !== letter; });
+}
+
+test('every drill question is valid and names a letter and the shapes tag', function () {
+  checkItems(SEEDS.map(buildConfusedLettersDrill), 'drill');
+  SEEDS.forEach(function (seed) {
+    var item = buildConfusedLettersDrill(seed);
+    assert.ok(drillLetter(item), 'skill ' + item.skill + ' is a letter');
+    assert.strictEqual(item.tag, 'shapes');
+  });
+});
+
+test('only asks about letters that have a lookalike', function () {
+  SEEDS.forEach(function (seed) {
+    var letter = drillLetter(buildConfusedLettersDrill(seed));
+    assert.ok(lookalikesOf(letter).length > 0, letter.id + ' has no lookalike');
+  });
+});
+
+test('the wrong choices include the letter\'s lookalikes', function () {
+  SEEDS.forEach(function (seed) {
+    var item = buildConfusedLettersDrill(seed);
+    var shown = item.type === 'spot' ? item.tokens : item.options;
+    var twins = lookalikesOf(drillLetter(item)).map(function (l) { return l.char; });
+    assert.ok(twins.some(function (c) { return shown.indexOf(c) >= 0; }), 'seed ' + seed + ' shows no lookalike');
+  });
+});
+
+test('mixes picking the letter and tapping every copy of it', function () {
+  var types = SEEDS.map(function (seed) { return buildConfusedLettersDrill(seed).type; });
+  assert.ok(types.indexOf('read-choose') >= 0 && types.indexOf('spot') >= 0, types.join(','));
+});
+
+test('the same seed gives the same question', function () {
+  assert.deepStrictEqual(buildConfusedLettersDrill(7), buildConfusedLettersDrill(7));
+});
+
 console.log('\n📋 Qaida placement bank');
 
 test('every level has valid items, and retakes differ', function () {

@@ -1398,6 +1398,38 @@ suite('renderReviewCenter — Practice groups', function() {
     assert.ok(renderGrid().indexOf('Learn a few words first') < 0);
   });
 
+  test('the Confused letters card shows once the Qaida track is released', function() {
+    assert.ok(renderGrid().indexOf('id="rc-drill-letters"') < 0, 'hidden while Qaida is unreleased');
+    global.isTrackReleased = function(id) { return id === 'qaida'; };
+    try {
+      var html = renderGrid();
+      assert.ok(html.indexOf('id="rc-drill-letters"') >= 0);
+      assert.ok(html.indexOf('Confused letters') >= 0);
+    } finally {
+      delete global.isTrackReleased;
+    }
+  });
+
+  test('clicking the Confused letters card starts the letters drill in the host', function() {
+    var host = makeEl('div');
+    host.id = 'rc-drill-host';
+    _elementsById['rc-drill-host'] = host;
+    var card = makeEl('div');
+    card.id = 'rc-drill-letters';
+    _elementsById['rc-drill-letters'] = card;
+    var started = [];
+    global.startWordDrill = function(kind, container) { started.push([kind, container]); };
+    global.isTrackReleased = function(id) { return id === 'qaida'; };
+    try {
+      renderGrid();
+      card.click();
+    } finally {
+      delete global.startWordDrill;
+      delete global.isTrackReleased;
+    }
+    assert.deepStrictEqual(started, [['letters', host]]);
+  });
+
   test('a drill host sits under the drill cards', function() {
     assert.ok(renderGrid().indexOf('id="rc-drill-host"') >= 0);
   });

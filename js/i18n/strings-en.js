@@ -254,6 +254,8 @@ var STRINGS = {
     'drill.build.prompt': 'Put the words in order',
     'drill.spot.desc': 'Find a word you know in an ayah',
     'drill.build.desc': 'Put an ayah back in order',
+    'drill.letters.title': 'Confused letters',
+    'drill.letters.desc': 'Tell lookalike letters apart',
     'drill.needWords': 'Learn a few words first',
     'drill.noMatch': 'None of your words are in these ayahs yet. Learn a few more.',
     'drill.loading': 'Loading the ayahs…',

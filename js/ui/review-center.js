@@ -214,10 +214,12 @@ function _rcModeCard(id, iconName, title, sub) {
     '<div class="rc-mode-arrow">→</div></div>';
 }
 
-/** The two Quran drills; the question appears in #rc-drill-host (drill-ui.js). */
+/** The Quran drills, plus Confused letters once Qaida is out; the question appears in #rc-drill-host (drill-ui.js). */
 function _rcDrillCards() {
   var canSpot = typeof hasLearnedWords === 'function' && hasLearnedWords();
-  var h = '<div class="rc-modes-grid">';
+  var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
+  var h = '<div class="rc-modes-grid' + (qaida ? ' rc-modes-grid-three' : '') + '">';
+  if (qaida) h += _rcModeCard('rc-drill-letters', 'search', t('drill.letters.title'), t('drill.letters.desc'));
   h += _rcModeCard('rc-drill-spot', 'target', t('drill.spot.title'),
     t(canSpot ? 'drill.spot.desc' : 'drill.needWords'));
   h += _rcModeCard('rc-drill-build', 'layers', t('drill.build.title'), t('drill.build.desc'));
@@ -703,6 +705,9 @@ function wireReviewCenterEvents($data) {
   });
   $wire('rc-drill-build', function() {
     if (typeof startWordDrill === 'function') startWordDrill('build', document.getElementById('rc-drill-host'));
+  });
+  $wire('rc-drill-letters', function() {
+    if (typeof startWordDrill === 'function') startWordDrill('letters', document.getElementById('rc-drill-host'));
   });
   $wire('rc-test-words', function() {
     if (typeof startPlacementTest === 'function') startPlacementTest(WORDS_TRACK_ID);

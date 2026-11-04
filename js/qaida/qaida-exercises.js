@@ -4,6 +4,7 @@
 //
 // buildQaidaLessonItems(lesson, seed, verses) → exercise items
 // buildQaidaBank(attempt)                     → placement bank {0..3: items}
+// buildConfusedLettersDrill(seed)             → one Practice drill question
 //
 // Everything is deterministic for a given seed. Wrong options come from
 // lookalike letters (same shape group) first, so a question tests the dots
@@ -417,4 +418,21 @@ function buildQaidaBank(attempt) {
     if (spot) bank[3].push(spot);
   });
   return bank;
+}
+
+// ── Practice drill ──────────────────────────────────────────────
+
+/**
+ * One "Confused letters" question for Practice: a letter that shares its
+ * shape with others, asked among them (pick it, or tap every copy of it).
+ * @param {number} seed
+ * @returns {Object} exercise item
+ */
+function buildConfusedLettersDrill(seed) {
+  var rnd = qaidaRandom(seed);
+  var confusable = QAIDA_LETTERS.filter(function (l) {
+    return QAIDA_LETTERS.some(function (o) { return o !== l && o.group === l.group; });
+  });
+  var letter = confusable[Math.floor(rnd() * confusable.length)];
+  return rnd() < 0.5 ? _qaidaPickLetterItem(letter, QAIDA_LETTERS, rnd) : _qaidaSpotLetterItem(letter, QAIDA_LETTERS, rnd);
 }

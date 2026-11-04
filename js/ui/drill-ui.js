@@ -1,10 +1,11 @@
 /**
- * drill-ui.js — runs one Practice drill ("Spot the word" or "Build the verse")
- * inside #rc-drill-host on the Practice tab.
+ * drill-ui.js — runs one Practice drill ("Spot the word", "Build the verse"
+ * or "Confused letters") inside #rc-drill-host on the Practice tab.
  *
  * The question comes from js/exercises/word-drills.js and is drawn by the
  * shared exercise UI (renderExercise). The Quran text is fetched on demand
  * and never blocks the rest of Practice: the host shows a loading line first.
+ * Confused letters needs no Quran text, so its question shows at once.
  * Practice drills do not touch SRS data.
  */
 
@@ -17,6 +18,7 @@ var _drillRun = 0;
 function _drillBuilder(kind) {
   if (kind === 'spot') return buildSpotDrill;
   if (kind === 'build') return buildVerseBuildDrill;
+  if (kind === 'letters') return function() { return buildConfusedLettersDrill(Date.now()); };
   return null;
 }
 
@@ -63,11 +65,15 @@ function _drillShowItem(host, kind, item) {
   });
 }
 
-/** Starts a drill of the given kind ('spot' or 'build') in the host element. */
+/** Starts a drill of the given kind ('spot', 'build' or 'letters') in the host element. */
 async function startWordDrill(kind, host) {
   var buildItem = _drillBuilder(kind);
   if (!host || !buildItem) return;
   var run = ++_drillRun;
+  if (kind === 'letters') {
+    _drillShowItem(host, kind, buildItem());
+    return;
+  }
   if (kind === 'spot' && !hasLearnedWords()) {
     _drillShowMessage(host, 'drill.needWords');
     return;

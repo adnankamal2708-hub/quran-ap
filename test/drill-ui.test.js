@@ -212,6 +212,22 @@ async function run() {
     assert.strictEqual(_rendered[0].item.type, 'spot');
   });
 
+  await test('Confused letters draws its question at once, without loading the Quran text', async function() {
+    var host = makeEl('div');
+    var LETTER = { type: 'read-choose', prompt: { text: 'Which letter is Bā?' }, options: ['ب', 'ت'], answer: 0, skill: 'ba', tag: 'shapes' };
+    global.buildConfusedLettersDrill = function() { return LETTER; };
+    _learned = false;
+    try {
+      await startWordDrill('letters', host);
+    } finally {
+      delete global.buildConfusedLettersDrill;
+    }
+    assert.strictEqual(_loads.length, 0, 'no Quran text is loaded');
+    assert.strictEqual(_rendered.length, 1);
+    assert.strictEqual(_rendered[0].item, LETTER);
+    assert.strictEqual(messageOf(host), null);
+  });
+
   await test('ignores an unknown kind and a missing host', async function() {
     await startWordDrill('nope', makeEl('div'));
     await startWordDrill('spot', null);
