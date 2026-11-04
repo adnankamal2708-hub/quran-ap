@@ -531,22 +531,25 @@ function checkActionCodeOnLoad() {
   }
 
   if (action.mode === 'verifyEmail' && action.oobCode) {
-    // Apply the verification code
-    applyVerificationCode(action.oobCode)
-      .then(function (msg) {
-        var user = getCurrentUser();
-        if (user) {
-          // Data was verified — redirect to app
-          switchView('learn');
-        } else {
+    // Apply the verification code once Firebase has arrived (the app
+    // starts without waiting for it)
+    whenAuthReady(function () {
+      applyVerificationCode(action.oobCode)
+        .then(function (msg) {
+          var user = getCurrentUser();
+          if (user) {
+            // Data was verified — redirect to app
+            switchView('learn');
+          } else {
+            showAuthView('login');
+            switchView('auth');
+          }
+        })
+        .catch(function (e) {
           showAuthView('login');
           switchView('auth');
-        }
-      })
-      .catch(function (e) {
-        showAuthView('login');
-        switchView('auth');
-      });
+        });
+    });
     return true;
   }
 

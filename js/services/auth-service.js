@@ -12,26 +12,33 @@
 // ── Import Firebase functions from the core bridge ─────────────
 // Use `var` (not `const`) so that when build.js concatenates multiple
 // service files, the same variable names can be safely re-declared.
-var {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  sendPasswordResetEmail: _sendPasswordResetEmail,
-  confirmPasswordReset: _confirmPasswordReset,
-  applyActionCode: _applyActionCode,
-  updateProfile,
-  updateEmail: _updateEmail,
-  updatePassword: _updatePassword,
-  sendEmailVerification,
-  reauthenticateWithCredential,
-  reauthenticateWithPopup,
-  EmailAuthProvider,
-  GoogleAuthProvider,
-  signInWithPopup,
-  setPersistence,
-  browserLocalPersistence,
-  browserSessionPersistence,
-} = window.__firebaseCore || {};
+// The app loads firebase-core.js without waiting for it (index.html), so
+// the core may arrive after this script: initAuth() binds them again.
+var createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, _sendPasswordResetEmail, _confirmPasswordReset, _applyActionCode, updateProfile, _updateEmail, _updatePassword, sendEmailVerification, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, browserSessionPersistence;
+
+function _bindFirebaseCore() {
+  ({
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    sendPasswordResetEmail: _sendPasswordResetEmail,
+    confirmPasswordReset: _confirmPasswordReset,
+    applyActionCode: _applyActionCode,
+    updateProfile,
+    updateEmail: _updateEmail,
+    updatePassword: _updatePassword,
+    sendEmailVerification,
+    reauthenticateWithCredential,
+    reauthenticateWithPopup,
+    EmailAuthProvider,
+    GoogleAuthProvider,
+    signInWithPopup,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
+  } = window.__firebaseCore || {});
+}
+_bindFirebaseCore();
 
 
 /** @type {boolean} Whether Firebase Auth is available */
@@ -49,6 +56,9 @@ let _unsubscribeAuth = null;
 /** @type {boolean} Tracks previous auth state to detect session expiry */
 let _wasPreviouslySignedIn = false;
 
+/** @type {Function[]} Callbacks waiting for initAuth to succeed (whenAuthReady) */
+const _readyCallbacks = [];
+
 // ── Initialization ────────────────────────────────────────────
 
 /**
@@ -62,6 +72,7 @@ function initAuth() {
     _authReady = false;
     return false;
   }
+  _bindFirebaseCore();
 
   try {
     // Subscribe to auth state changes using modular SDK
@@ -105,6 +116,9 @@ function initAuth() {
 
     _authReady = true;
     console.log('[startup] [auth] initAuth: auth subscription active, _authReady = true');
+    _readyCallbacks.splice(0).forEach(function (fn) {
+      try { fn(); } catch (e) { console.warn('[auth] ready callback error:', e); }
+    });
     return true;
   } catch (e) {
     console.warn('[auth] Init failed:', e.message);
@@ -118,6 +132,16 @@ function initAuth() {
  */
 function isAuthReady() {
   return _authReady;
+}
+
+/**
+ * Run fn once Firebase Auth is ready: now if it already is, otherwise
+ * when initAuth() next succeeds (Firebase can arrive after the app starts).
+ * @param {Function} fn
+ */
+function whenAuthReady(fn) {
+  if (_authReady) fn();
+  else _readyCallbacks.push(fn);
 }
 
 // ── Auth State ────────────────────────────────────────────────
@@ -618,6 +642,7 @@ function _translateFirebaseError(error) {
 // Attach all public functions to window for non-module scripts
 window.getCurrentUser = getCurrentUser;
 window.initAuth = initAuth;
+window.whenAuthReady = whenAuthReady;
 window.fetchCurrentUser = fetchCurrentUser;
 window.onAuthChange = onAuthChange;
 window.signUpWithEmail = signUpWithEmail;

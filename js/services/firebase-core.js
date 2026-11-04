@@ -189,3 +189,7 @@ window.__firebaseCore = {
 };
 
 console.log('[firebase] Core module loaded. Firebase v12 APIs attached to window.__firebaseCore.');
+
+// The app may already be running (index.html imports this module in the
+// background): tell it Firebase is here.
+window.dispatchEvent(new Event('firebase-core-ready'));

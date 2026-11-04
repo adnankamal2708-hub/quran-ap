@@ -266,6 +266,57 @@ async function run() {
     assert.strictEqual(threw.message, 'Please choose the Google account you signed in with.');
   });
 
+  console.log('\n📋 Auth Service — Firebase arriving after the app starts\n');
+
+  function lateCore(log) {
+    return {
+      initCore: function () { return true; },
+      getAuth: function () { return { _mockAuth: true }; },
+      subscribeToAuth: function (fn) { log.push('subscribed'); fn(null); return function () {}; },
+      setPersistence: function () { log.push('persistence'); return Promise.resolve(); },
+      browserLocalPersistence: 'local',
+      browserSessionPersistence: 'session',
+      signInWithEmailAndPassword: function (auth, email) {
+        log.push('signIn ' + email);
+        return Promise.resolve({ user: { uid: 'u1', email: email, metadata: {} } });
+      },
+    };
+  }
+
+  function loadWithoutCore() {
+    var windowObj = {};
+    vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'js/services/auth-service.js'), 'utf8'), {
+      window: windowObj,
+      console: { log: function () {}, warn: function () {}, error: function () {} },
+      URLSearchParams: require('url').URLSearchParams,
+    });
+    return windowObj;
+  }
+
+  await t('initAuth works when Firebase core arrives after the script loaded', async function () {
+    var log = [];
+    var win = loadWithoutCore();
+    assert.strictEqual(win.__auth.init(), false, 'no core yet: auth stays off');
+    win.__firebaseCore = lateCore(log);
+    assert.strictEqual(win.__auth.init(), true);
+    assert.strictEqual(win.__auth.isReady(), true);
+    await win.__auth.login('a@example.com', 'secret1', true);
+    assert.deepStrictEqual(log, ['subscribed', 'persistence', 'signIn a@example.com']);
+  });
+
+  await t('whenAuthReady waits for initAuth, then runs straight away once ready', async function () {
+    var log = [];
+    var win = loadWithoutCore();
+    var ran = [];
+    win.whenAuthReady(function () { ran.push('early'); });
+    assert.deepStrictEqual(ran, [], 'not run before auth is ready');
+    win.__firebaseCore = lateCore(log);
+    win.__auth.init();
+    assert.deepStrictEqual(ran, ['early']);
+    win.whenAuthReady(function () { ran.push('late'); });
+    assert.deepStrictEqual(ran, ['early', 'late']);
+  });
+
   var total = passed + failed;
   console.log('\n' + '='.repeat(50));
   console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + total + ' total');

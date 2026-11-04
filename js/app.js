@@ -1444,6 +1444,23 @@ function checkDataVersion() {
   }
 }
 
+/** Start auth, sync and the user service; needs window.__firebaseCore. */
+function startFirebaseServices() {
+  window.__DEV__ && console.log('[startup] [3] Initializing Firebase...');
+  try {
+    var firebaseReady = initAuth();
+    window.__DEV__ && console.log('[startup] [3a] initAuth returned:', firebaseReady);
+    if (firebaseReady) {
+      initSync();
+      window.__DEV__ && console.log('[startup] [3b] initSync completed');
+      initUserService();
+      window.__DEV__ && console.log('[startup] [3c] initUserService completed');
+    }
+  } catch (e) {
+    console.warn('[app] Firebase init failed (non-blocking):', e.message);
+  }
+}
+
 function init() {
   window.__DEV__ && console.log('[startup] [1] init() called');
 
@@ -1521,20 +1538,11 @@ function init() {
       }
     }
 
-    // 1. Initialize Firebase services (auth, sync, user)
-    window.__DEV__ && console.log('[startup] [3] Initializing Firebase...');
-    try {
-      var firebaseReady = initAuth();
-      window.__DEV__ && console.log('[startup] [3a] initAuth returned:', firebaseReady);
-      if (firebaseReady) {
-        initSync();
-        window.__DEV__ && console.log('[startup] [3b] initSync completed');
-        initUserService();
-        window.__DEV__ && console.log('[startup] [3c] initUserService completed');
-      }
-    } catch (e) {
-      console.warn('[app] Firebase init failed (non-blocking):', e.message);
-    }
+    // 1. Initialize Firebase services (auth, sync, user). Firebase loads in
+    // the background (index.html), so if it hasn't arrived yet they start
+    // when it does; until then the app runs as a guest.
+    if (window.__firebaseCore) startFirebaseServices();
+    else window.addEventListener('firebase-core-ready', startFirebaseServices, { once: true });
 
     // 2. Initialize auth and profile UI
     window.__DEV__ && console.log('[startup] [4] Initializing auth UI...');
@@ -1649,8 +1657,12 @@ function init() {
           // but not on a visit that is a checkout return (the webhook may
           // not have marked them premium yet) or already heading to checkout.
           // Read here, before handleCheckoutParams() cleans the URL.
+          // It needs the session settled, so it also waits for Firebase,
+          // which can arrive after the app starts.
           setTimeout(function() {
-            window.__ux.maybeShowPlanPicker().catch(function (e) { console.warn('[app] Plan picker check failed:', e.message); });
+            whenAuthReady(function() {
+              window.__ux.maybeShowPlanPicker().catch(function (e) { console.warn('[app] Plan picker check failed:', e.message); });
+            });
           }, 3000);
         }
       } catch (e) { console.warn('[app] UX init failed:', e.message); }

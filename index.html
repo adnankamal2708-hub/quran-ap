@@ -1450,8 +1450,12 @@ getResults: function () { return _safeguardResults; },
     </nav>
   </div>
 
-  <!-- ── SCRIPTS ── -->
-  <script type="module" src="js/services/firebase-core.js"></script>
+  <!-- ── SCRIPTS ──
+       Firebase comes from Google's CDN, so it is imported in the background:
+       a slow or blocked CDN must not hold up the app (a module script here
+       would, since deferred scripts run in order). firebase-core.js fires
+       'firebase-core-ready' when it arrives; app.js starts sign-in then. -->
+  <script type="module">import('./js/services/firebase-core.js');</script>
   <script defer src="js/data.bundle.min.js"></script>
   <script defer src="js/app.bundle.min.js"></script>
 

@@ -644,6 +644,25 @@ ts('Auth — Header Sign-In Link', function() {
   });
 });
 
+console.log('\n📋 Email links while Firebase is still loading');
+
+t('a verification link waits for sign-in to be ready before applying the code', function() {
+  var waiting = [];
+  var applied = [];
+  global.checkActionCode = function() { return { mode: 'verifyEmail', oobCode: 'code-1', continueUrl: null }; };
+  global.whenAuthReady = function(fn) { waiting.push(fn); };
+  global.applyVerificationCode = function(code) { applied.push(code); return new Promise(function() {}); };
+  try {
+    assert.strictEqual(checkActionCodeOnLoad(), true);
+    assert.deepStrictEqual(applied, [], 'not applied before auth is ready');
+    waiting.forEach(function(fn) { fn(); });
+    assert.deepStrictEqual(applied, ['code-1']);
+  } finally {
+    global.checkActionCode = function() { return { mode: null, oobCode: null, continueUrl: null }; };
+    delete global.whenAuthReady;
+  }
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
