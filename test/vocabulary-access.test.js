@@ -63,7 +63,8 @@ function setMockPremium(active) {
   _mockPremiumListeners.slice().forEach(function (cb) { try { cb({ isPremium: active }); } catch (e) {} });
 }
 
-global.showToast = function () {};
+var _toasts = [];
+global.showToast = function (msg) { _toasts.push(msg); };
 
 // ═══════════════════════════════════════════════════════════════
 // LOAD REAL MODULES (same chain as the bundled app)
@@ -194,12 +195,14 @@ suite('Bookmarks — gate new additions only', function () {
     assert.strictEqual(toggleFavorite(_freeId), false); // toggle removes
   });
 
-  test('premium word cannot be newly bookmarked by a free user (requests upgrade)', function () {
+  test('premium word cannot be newly bookmarked by a free user (explains, never opens checkout)', function () {
     mock.clearStorage();
     _upgradeRequests.length = 0;
+    _toasts.length = 0;
     assert.strictEqual(toggleFavorite(_lockedId), false);
     assert.strictEqual(isFavorite(_lockedId), false);
-    assert.ok(_upgradeRequests.indexOf('vocabulary-expansion') >= 0);
+    assert.strictEqual(_toasts.length, 1);
+    assert.deepStrictEqual(_upgradeRequests, []);
   });
 
   test('existing premium bookmark stays and can be removed', function () {
@@ -232,13 +235,15 @@ suite('SRS — gate new entries only', function () {
     assert.ok(loadSRS()[_freeId], 'free word should have an SRS entry');
   });
 
-  test('premium word cannot be added by a free user (requests upgrade)', function () {
+  test('premium word cannot be added by a free user (explains, never opens checkout)', function () {
     mock.clearStorage();
     _upgradeRequests.length = 0;
+    _toasts.length = 0;
     var result = rateSRSWord(_lockedId, 2);
     assert.strictEqual(result, false);
     assert.ok(!loadSRS()[_lockedId], 'premium word must not enter SRS');
-    assert.ok(_upgradeRequests.indexOf('vocabulary-expansion') >= 0);
+    assert.strictEqual(_toasts.length, 1);
+    assert.deepStrictEqual(_upgradeRequests, []);
   });
 
   test('existing premium SRS entry stays reviewable (gate new additions only)', function () {

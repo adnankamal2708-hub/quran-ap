@@ -413,9 +413,11 @@ function rateSRSWord(wordId, rating) {
   // Free-tier vocabulary gate: premium-tier words cannot be ADDED to the
   // review queue by free users (rating an already-existing entry — e.g.
   // from before the gate — stays allowed so existing progress is reviewable).
+  // Explained with a toast only: this also runs when a quiz or lesson answer
+  // is checked, and requestUpgrade() sends a signed-in user to checkout.
   if (!entry && typeof isFreeAccessible === 'function' && !isFreeAccessible(wordId)) {
-    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-      window.__premium.requestUpgrade('vocabulary-expansion');
+    if (typeof showToast === 'function') {
+      showToast('This word is beyond the free 300 — upgrade to Premium to unlock the full vocabulary.', 'warning', 4000);
     }
     return false;
   }
@@ -638,7 +640,9 @@ function getDueReviews() {
   var _isUnlimited = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_REVIEWS);
   var limit = _isUnlimited ? due.length : Math.min(DAILY_REVIEW_LIMIT, due.length);
 
-  // Frequency-guarded toast for free users hitting the cap (at most once per calendar day)
+  // Frequency-guarded toast for free users hitting the cap (at most once per
+  // calendar day). Only a toast: this runs whenever the queue is read, and
+  // requestUpgrade() sends a signed-in user straight to checkout.
   if (!_isUnlimited && due.length > DAILY_REVIEW_LIMIT) {
     try {
       var _toastKey = 'quran_review_limit_toast_date';
@@ -649,7 +653,6 @@ function getDueReviews() {
         if (typeof showToast === 'function') {
           showToast('Daily review limit reached. Upgrade to Premium for unlimited reviews.', 'info', 4000);
         }
-        if (window.__premium) window.__premium.requestUpgrade('unlimited-reviews');
       }
     } catch (e) { /* frequency guard — non-critical */ }
   }

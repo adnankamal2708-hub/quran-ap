@@ -825,7 +825,7 @@ async function _explorerTafsirCheckDailyLimit() {
     : _explorerTafsirLegacyLocalCheck();
 
   if (!allowed) {
-    // Cap reached — disable button + show toast + upgrade prompt
+    // Cap reached — disable button + show toast
     var tafsirBtn = document.getElementById('explorer-tafsir-btn');
     if (tafsirBtn) {
       tafsirBtn.disabled = true;
@@ -833,11 +833,10 @@ async function _explorerTafsirCheckDailyLimit() {
       tafsirBtn.innerHTML = iconText('alert-triangle', 'Daily limit reached');
     }
     var msg = 'Daily tafsir limit reached. Resets tomorrow, or upgrade for unlimited access.';
+    // A toast only: pressing Tafsir is not asking to pay, and
+    // requestUpgrade() sends a signed-in user straight to checkout.
     if (window.__ux && typeof window.__ux.showToast === 'function') {
       window.__ux.showToast(msg, 'warning', 4000);
-    }
-    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-      window.__premium.requestUpgrade('unlimited-tafsir');
     }
   }
   return allowed;

@@ -1035,9 +1035,6 @@ function toggleFavorite(wordId) {
       if (typeof showToast === 'function') {
         showToast('This word is beyond the free 300 — upgrade to Premium to unlock the full vocabulary.', 'warning', 4000);
       }
-      if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-        window.__premium.requestUpgrade('vocabulary-expansion');
-      }
       return false;
     }
     // Free bookmark cap: 20 words max (premium users get unlimited)
@@ -1048,7 +1045,6 @@ function toggleFavorite(wordId) {
         if (typeof showToast === 'function') {
           showToast("You've reached the free bookmark limit (20). Upgrade to Premium for unlimited bookmarks.", 'warning', 4000);
         }
-        if (window.__premium) window.__premium.requestUpgrade('unlimited-bookmarks');
         return false;
       }
     }

@@ -342,6 +342,33 @@ suite('Review Queue', function() {
     assert.strictEqual(getDueReviews().length, 0);
   });
 
+  test('reaching the daily limit tells a free user, but never opens checkout', function() {
+    clearStorage();
+    var upgrades = [];
+    var toasts = [];
+    global.ALL_WORDS = [];
+    var srs = {};
+    for (var i = 0; i < DAILY_REVIEW_LIMIT + 5; i++) {
+      global.ALL_WORDS.push({ id: 'w' + i });
+      srs['w' + i] = { stage: 1, dueDate: _mockNow - 1000, interval: 1, easeFactor: 2.5, leechCount: 0, isLeech: false };
+    }
+    saveSRS(srs);
+    global.window.__premium = {
+      FEATURES: { UNLIMITED_REVIEWS: 'unlimited_reviews' },
+      hasFeature: function() { return false; },
+      requestUpgrade: function(reason) { upgrades.push(reason); },
+    };
+    global.showToast = function(msg) { toasts.push(msg); };
+    try {
+      assert.strictEqual(getDueReviews().length, DAILY_REVIEW_LIMIT);
+      assert.strictEqual(toasts.length, 1, 'the limit is explained once');
+      assert.deepStrictEqual(upgrades, [], 'checkout is only opened by the learner');
+    } finally {
+      delete global.window.__premium;
+      delete global.showToast;
+    }
+  });
+
   test('getDueReviews counts due words outside the open lesson', function() {
     clearStorage();
     global.ALL_WORDS = [];

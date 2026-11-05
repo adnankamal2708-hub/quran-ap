@@ -830,6 +830,31 @@ suite('User Service — computeLearningSummary', function() {
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
 
-console.log('\n' + '='.repeat(50));
-console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
-process.exitCode = failed > 0 ? 1 : 0;
+async function asyncTest(name, fn) {
+  clearStorage();
+  try { await fn(); passed++; console.log('  ✅ ' + name); }
+  catch (e) { failed++; console.log('  ❌ ' + name); console.log('     ' + e.message.split('\n')[0]); }
+}
+
+(async function () {
+  console.log('\n📋 Sync — free accounts');
+
+  await asyncTest('a background upload for a free account skips quietly and never opens checkout', async function() {
+    var upgrades = [];
+    global.window.__premium = {
+      FEATURES: { CLOUD_SYNC: 'cloud_sync' },
+      hasFeature: function() { return false; },
+      requestUpgrade: function(reason) { upgrades.push(reason); },
+    };
+    try {
+      assert.strictEqual(await uploadToCloud('u1'), false);
+      assert.deepStrictEqual(upgrades, []);
+    } finally {
+      delete global.window.__premium;
+    }
+  });
+
+  console.log('\n' + '='.repeat(50));
+  console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
+  process.exitCode = failed > 0 ? 1 : 0;
+})();

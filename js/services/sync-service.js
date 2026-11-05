@@ -200,11 +200,10 @@ async function uploadToCloud(userId, retryCount) {
   // Premium gate enforced inside the function itself (not just at UI call
   // sites) so a free user cannot self-grant sync by calling
   // window.__sync.uploadToCloud() directly from the console.
+  // Uploads run in the background, so a free account is skipped quietly:
+  // requestUpgrade() would send a signed-in user straight to checkout.
   if (!(await _isSyncAllowed())) {
     console.log('[sync] Cloud sync is a premium feature. Skipping upload for free user.');
-    if (window.__premium && typeof window.__premium.requestUpgrade === 'function') {
-      window.__premium.requestUpgrade('cloud-sync');
-    }
     return false;
   }
 

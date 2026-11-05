@@ -824,14 +824,22 @@ ts('Explorer — Tafsir (async)', function() {
       global.window.__user = {
         checkTafsirLimit: function () { return Promise.resolve(false); },
       };
+      var upgrades2 = [];
+      var savedUpgrade = window.__premium.requestUpgrade;
+      window.__premium.requestUpgrade = function (reason) { upgrades2.push(reason); };
       wireExplorerEvents(TEST_WORDS[0]);
       var btn2 = document.getElementById('explorer-tafsir-btn');
       var box2 = document.getElementById('explorer-tafsir-box');
-      await btn2.onclick();
+      try {
+        await btn2.onclick();
+      } finally {
+        window.__premium.requestUpgrade = savedUpgrade;
+      }
       // The blocked handler returns before touching the box, so display stays
       // unset — verify the box did NOT open (not 'block').
       assert.notStrictEqual(box2.style.display, 'block');
       assert.ok(btn2.disabled, 'tafsir button should be disabled at the cap');
+      assert.deepStrictEqual(upgrades2, [], 'the cap explains itself; checkout is not opened');
       passed++;
       console.log('  ✅ free user at 5/day tafsir cap is blocked');
     } catch (e) {
