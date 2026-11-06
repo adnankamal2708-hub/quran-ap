@@ -23,9 +23,14 @@ var TRACKS_KEY = 'quran_tracks';
 var TRACKS_STATE_VERSION = 1;
 var DEFAULT_TRACK_ID = 'words';
 
-/** Tracks a learner may join: Word meanings, and Read Arabic from zero from Phase 2. */
+/**
+ * Tracks a learner may join: Word meanings, Read Arabic from zero from
+ * Phase 2, and Tajweed once its 28 letter recordings are in
+ * (areLetterRecordingsComplete, data-core/tajweed-track.js).
+ */
 function isTrackReleased(id) {
-  return id === 'words' || id === 'qaida';
+  return id === 'words' || id === 'qaida' ||
+    (id === 'tajweed' && typeof areLetterRecordingsComplete === 'function' && areLetterRecordingsComplete());
 }
 
 function isKnownTrack(id) {

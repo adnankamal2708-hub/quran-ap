@@ -105,6 +105,7 @@ var SYNC_KEY_MAP = {
   analyticsSessions: 'quran_analytics_sessions',
   tracks: 'quran_tracks',
   qaidaProgress: 'quran_qaida_progress',
+  tajweedProgress: 'quran_tajweed_progress',
   syncMeta: 'quran_sync_meta',
 };
 
@@ -643,6 +644,14 @@ function mergeData(localData, cloudData) {
     merged.qaidaProgress = typeof mergeQaidaProgress === 'function'
       ? mergeQaidaProgress(localData.qaidaProgress, cloudData.qaidaProgress)
       : (localData.qaidaProgress || cloudData.qaidaProgress);
+  }
+
+  // Tajweed lessons and verses: the union of finished lessons and smooth
+  // verses, earliest time each (mergeTajweedProgress, data-core/tajweed-track.js)
+  if (localData.tajweedProgress || cloudData.tajweedProgress) {
+    merged.tajweedProgress = typeof mergeTajweedProgress === 'function'
+      ? mergeTajweedProgress(localData.tajweedProgress, cloudData.tajweedProgress)
+      : (localData.tajweedProgress || cloudData.tajweedProgress);
   }
 
   return merged;

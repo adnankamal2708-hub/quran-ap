@@ -560,6 +560,24 @@ suite('Sync — no progress loss across devices', function() {
     assert.strictEqual(JSON.parse(localStorage.getItem('quran_tracks')).tracks.words.level, 2, 'tracks are imported');
   });
 
+  test('tajweed progress merges lessons, smooth verses and review from both devices', function() {
+    // tajweed-track.js and its data, so mergeData uses the real merge
+    ['js/qaida/qaida-letters.js', 'js/tajweed/tajweed-makharij.js', 'js/tajweed/tajweed-lessons.js',
+      'js/tajweed/verse-word-counts.js', 'js/data-core/review-schedule.js', 'js/data-core/tajweed-track.js'].forEach(function(f) {
+      var full = path.join(__dirname, '..', f);
+      vm.runInThisContext(fs.readFileSync(full, 'utf8'), { filename: full });
+    });
+    var local = { tajweedProgress: { completed: { 'tj0-1': { at: 200, score: 1 } }, smooth: { '1:1': 300 } } };
+    var cloud = { tajweedProgress: {
+      completed: { 'tj0-2': { at: 100, score: 1 } }, smooth: { '1:1': 250, '1:2': 400 },
+      review: { 'tj-letter:ba': { due: 5, step: 0 } },
+    } };
+    var tp = mergeData(local, cloud).tajweedProgress;
+    assert.deepStrictEqual(Object.keys(tp.completed).sort(), ['tj0-1', 'tj0-2']);
+    assert.deepStrictEqual(tp.smooth, { '1:1': 250, '1:2': 400 });
+    assert.deepStrictEqual(tp.review, { 'tj-letter:ba': { due: 5, step: 0 } });
+  });
+
   test('lessonProgress from the cloud reaches a new device', function() {
     var merged = mergeData({ srsData: {} }, {
       lessonProgress: { currentLesson: 3, completedLessons: [0, 1, 2], quizPassed: { 0: true, 1: true, 2: true } },
