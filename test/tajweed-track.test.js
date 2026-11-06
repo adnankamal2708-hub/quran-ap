@@ -178,6 +178,27 @@ test('the verse order starts at 1:1, goes to 114:1 after Al-Fatihah, and ends', 
   assert.ok(Math.abs(getTajweedPercent() - 100) < 1e-9);
 });
 
+test('a start verse searches after it, across surahs in the verse order', function () {
+  assert.deepStrictEqual(getNextTajweedVerse({ surah: 1, ayah: 3 }), { surah: 1, ayah: 4 });
+  assert.deepStrictEqual(getNextTajweedVerse({ surah: 1, ayah: 7 }), { surah: 114, ayah: 1 });
+  assert.deepStrictEqual(getNextTajweedVerse({ surah: 78, ayah: 40 }), { surah: 2, ayah: 1 });
+});
+
+test('a start verse skips smooth verses after it, but not before it', function () {
+  markTajweedVerse(114, 1, true, T0);
+  markTajweedVerse(114, 2, true, T0);
+  assert.deepStrictEqual(getNextTajweedVerse({ surah: 1, ayah: 7 }), { surah: 114, ayah: 3 });
+  assert.deepStrictEqual(getNextTajweedVerse(), { surah: 1, ayah: 1 });
+});
+
+test('a start verse at the end of the order, or one that does not exist, gives null', function () {
+  var last = VERSE_WORD_COUNTS[77].length;
+  assert.strictEqual(getNextTajweedVerse({ surah: 77, ayah: last }), null);
+  assert.strictEqual(getNextTajweedVerse({ surah: 200, ayah: 1 }), null);
+  assert.strictEqual(getNextTajweedVerse({ surah: 1, ayah: 99 }), null);
+  assert.strictEqual(getNextTajweedVerse({ surah: 1, ayah: 0 }), null);
+});
+
 console.log('\n📋 Tajweed track: review queue');
 
 test('letter and verse ids are scheduled like the Qaida queue', function () {

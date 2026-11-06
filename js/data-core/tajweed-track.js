@@ -256,12 +256,25 @@ function markTajweedVerse(surah, ayah, smooth, now) {
   queueTracksSync();
 }
 
-/** The first verse in TAJWEED_VERSE_ORDER not yet marked smooth, or null when all are. */
-function getNextTajweedVerse() {
+/**
+ * The first verse in TAJWEED_VERSE_ORDER not yet marked smooth, or null
+ * when all are. With `after`, the search starts at the verse after it (so
+ * verse practice can move past a verse marked Not yet); null past the end
+ * of the order or for a verse that doesn't exist.
+ * @param {{surah: number, ayah: number}} [after]
+ */
+function getNextTajweedVerse(after) {
   var smooth = loadTajweedProgress().smooth;
-  for (var i = 0; i < TAJWEED_VERSE_ORDER.length; i++) {
+  var i = 0;
+  var ayah = 1;
+  if (after) {
+    if (!(verseWordCount(+after.surah, +after.ayah) > 0)) return null;
+    i = TAJWEED_VERSE_ORDER.indexOf(+after.surah);
+    ayah = +after.ayah + 1;
+  }
+  for (; i < TAJWEED_VERSE_ORDER.length; i++, ayah = 1) {
     var surah = TAJWEED_VERSE_ORDER[i];
-    for (var ayah = 1; ayah <= VERSE_WORD_COUNTS[surah].length; ayah++) {
+    for (; ayah <= VERSE_WORD_COUNTS[surah].length; ayah++) {
       if (smooth[surah + ':' + ayah] === undefined) return { surah: surah, ayah: ayah };
     }
   }

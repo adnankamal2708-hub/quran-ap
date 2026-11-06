@@ -238,6 +238,7 @@ test('leaving the lesson discards the recording and stops audio', function () {
   click(view(), 'back');
   assert.ok(_recorder.discards > discards && _calls.stopAudio > stops);
   assert.deepStrictEqual(_views[_views.length - 1], ['track', { trackId: 'tajweed' }]);
+  assert.strictEqual(_tajweedCards.length, 0, 'the cards are let go');
 });
 
 section('Tajweed lesson practice and finish');
@@ -299,11 +300,16 @@ test('Not yet queues the verse and still moves on to the next one', async functi
   assert.ok(verseCard().innerHTML.indexOf(VERSES['1:2']) >= 0, 'moves on to 1:2');
 });
 
-test('the gain shows 2 decimals under 0.1%, else 1, and nothing at 0', function () {
-  assert.strictEqual(_tajweedGainText(0.0052), t('percent.tajweed.gained', { p: '0.01' }));
-  assert.strictEqual(_tajweedGainText(0.054), t('percent.tajweed.gained', { p: '0.05' }));
-  assert.strictEqual(_tajweedGainText(0.34), t('percent.tajweed.gained', { p: '0.3' }));
+test('the gain is rounded first: nothing below 0.005, 2 decimals under 0.1%, else 1', function () {
+  function gained(p) { return t('percent.tajweed.gained', { p: p }); }
   assert.strictEqual(_tajweedGainText(0), '');
+  assert.strictEqual(_tajweedGainText(0.004), '', 'rounds to 0.00: no line');
+  assert.strictEqual(_tajweedGainText(0.0052), gained('0.01'));
+  assert.strictEqual(_tajweedGainText(0.012), gained('0.01'));
+  assert.strictEqual(_tajweedGainText(0.054), gained('0.05'));
+  assert.strictEqual(_tajweedGainText(0.096), gained('0.1'), 'rounds to 0.10, so 1 decimal');
+  assert.strictEqual(_tajweedGainText(0.25), gained('0.3'));
+  assert.strictEqual(_tajweedGainText(0.34), gained('0.3'));
 });
 
 test('when every verse is smooth it shows the done message', function () {
@@ -312,7 +318,7 @@ test('when every verse is smooth it shows the done message', function () {
   assert.ok(view().innerHTML.indexOf(escapeHtml(t('tajweed.verses.done'))) >= 0);
 });
 
-test('a verse that fails to load shows drill.unavailable', async function () {
+test('a verse that fails to load shows drill.unavailable and a Next verse button', async function () {
   window.__quranLoader = {
     load: function() { return Promise.reject(new Error('offline')); },
     loadSurahs: function() { return Promise.reject(new Error('offline')); },
@@ -322,6 +328,10 @@ test('a verse that fails to load shows drill.unavailable', async function () {
   await settle();
   assert.ok(verseCard().innerHTML.indexOf(escapeHtml(t('drill.unavailable'))) >= 0, verseCard().innerHTML);
   assert.ok(verseCard().innerHTML.indexOf('data-action="tj-ok"') < 0, 'nothing to mark');
+  click(nextSlot(), 'verse-next', view());
+  await settle();
+  assert.ok(verseCard().innerHTML.indexOf('Al-Fatihah · 1:2') >= 0, 'moves on to 1:2: ' + verseCard().innerHTML);
+  assert.deepStrictEqual(_calls.verse, [], 'the skipped verse is not marked');
 });
 
 (async function run() {

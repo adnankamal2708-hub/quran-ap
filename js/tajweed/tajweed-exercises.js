@@ -37,7 +37,12 @@ function _tajweedAllLetters() {
   return TAJWEED_MAKHARIJ.map(function (m) { return m.letter; });
 }
 
-function _tajweedMakhraj(id) {
+/**
+ * Where a letter is pronounced: its TAJWEED_MAKHARIJ entry.
+ * @param {string} id - a QAIDA_LETTERS id, or hamza
+ * @returns {{letter: string, area: string, point: string}|null}
+ */
+function getTajweedMakhraj(id) {
   for (var i = 0; i < TAJWEED_MAKHARIJ.length; i++) {
     if (TAJWEED_MAKHARIJ[i].letter === id) return TAJWEED_MAKHARIJ[i];
   }
@@ -60,11 +65,11 @@ function _tajweedPartners(id) {
 
 /** Letters easiest to mix up with this one: its pairs, then its area, then the rest. */
 function _tajweedNeighbours(id, rnd) {
-  var area = _tajweedMakhraj(id).area;
+  var area = getTajweedMakhraj(id).area;
   var others = _tajweedAllLetters().filter(function (l) { return l !== id; });
   var partners = _tajweedPartners(id);
-  var sameArea = qaidaShuffle(others.filter(function (l) { return partners.indexOf(l) < 0 && _tajweedMakhraj(l).area === area; }), rnd);
-  var rest = qaidaShuffle(others.filter(function (l) { return partners.indexOf(l) < 0 && _tajweedMakhraj(l).area !== area; }), rnd);
+  var sameArea = qaidaShuffle(others.filter(function (l) { return partners.indexOf(l) < 0 && getTajweedMakhraj(l).area === area; }), rnd);
+  var rest = qaidaShuffle(others.filter(function (l) { return partners.indexOf(l) < 0 && getTajweedMakhraj(l).area !== area; }), rnd);
   return partners.concat(sameArea, rest);
 }
 
@@ -83,7 +88,7 @@ function _tajweedPointOk(point, id) {
 
 /** Where does this letter come from? Options are the areas. */
 function _tajweedAreaItem(id, rnd) {
-  var area = _tajweedMakhraj(id).area;
+  var area = getTajweedMakhraj(id).area;
   var others = qaidaShuffle(_tajweedAreasFor(id).filter(function (a) { return a !== area; }), rnd);
   var names = others.map(function (a) { return t('tajweed.area.' + a + '.name'); });
   return _qaidaChoice({ ask: t('tajweed.ex.whichArea'), arabic: _tajweedChar(id) }, t('tajweed.area.' + area + '.name'), names, rnd,
@@ -92,7 +97,7 @@ function _tajweedAreaItem(id, rnd) {
 
 /** Which point does this letter come from? Points of its own area come first among the wrong options. */
 function _tajweedPointItem(id, rnd) {
-  var mk = _tajweedMakhraj(id);
+  var mk = getTajweedMakhraj(id);
   var others = TAJWEED_POINTS.filter(function (p) { return p.id !== mk.point && _tajweedPointOk(p, id); });
   var sameArea = qaidaShuffle(others.filter(function (p) { return p.area === mk.area; }), rnd);
   var rest = qaidaShuffle(others.filter(function (p) { return p.area !== mk.area; }), rnd);
@@ -103,13 +108,13 @@ function _tajweedPointItem(id, rnd) {
 
 /** Which letter comes from this point? The wrong options come from other points, the same area first. */
 function _tajweedFromPointItem(id, rnd) {
-  var mk = _tajweedMakhraj(id);
+  var mk = getTajweedMakhraj(id);
   var others = _tajweedAllLetters().filter(function (l) {
-    var m = _tajweedMakhraj(l);
+    var m = getTajweedMakhraj(l);
     return m.point !== mk.point && !(mk.point === 'cavity' && TAJWEED_MADD_LETTERS.indexOf(l) >= 0);
   });
-  var sameArea = qaidaShuffle(others.filter(function (l) { return _tajweedMakhraj(l).area === mk.area; }), rnd);
-  var rest = qaidaShuffle(others.filter(function (l) { return _tajweedMakhraj(l).area !== mk.area; }), rnd);
+  var sameArea = qaidaShuffle(others.filter(function (l) { return getTajweedMakhraj(l).area === mk.area; }), rnd);
+  var rest = qaidaShuffle(others.filter(function (l) { return getTajweedMakhraj(l).area !== mk.area; }), rnd);
   return _qaidaChoice({ text: t('tajweed.ex.whichFrom', { point: t('tajweed.point.' + mk.point) }) }, _tajweedChar(id),
     sameArea.concat(rest).map(_tajweedChar), rnd, { skill: _tajweedSkill(id), tag: 'points' });
 }
@@ -155,11 +160,11 @@ function _tajweedRandomItem(list, rnd) {
 function _tajweedAreaItems(letters, rnd) {
   var picked = [];
   TAJWEED_AREAS.forEach(function (area) {
-    var inArea = letters.filter(function (l) { return _tajweedMakhraj(l).area === area; });
+    var inArea = letters.filter(function (l) { return getTajweedMakhraj(l).area === area; });
     if (inArea.length > 0) picked.push(_tajweedRandomItem(inArea, rnd));
   });
   qaidaShuffle(letters.filter(function (l) { return picked.indexOf(l) < 0; }), rnd).forEach(function (l) {
-    var sameArea = picked.filter(function (p) { return _tajweedMakhraj(p).area === _tajweedMakhraj(l).area; }).length;
+    var sameArea = picked.filter(function (p) { return getTajweedMakhraj(p).area === getTajweedMakhraj(l).area; }).length;
     if (picked.length < TAJWEED_AREA_ITEMS && sameArea < TAJWEED_MAX_PER_AREA) picked.push(l);
   });
   return qaidaShuffle(picked, rnd).map(function (l) { return _tajweedAreaItem(l, rnd); });
@@ -278,7 +283,7 @@ function buildTajweedBank(attempt) {
   var bank = { 0: [], 1: [], 2: [], 3: [] };
 
   TAJWEED_AREAS.filter(function (a) { return a !== 'nose'; }).forEach(function (area) {
-    var inArea = letters.filter(function (l) { return _tajweedMakhraj(l).area === area; });
+    var inArea = letters.filter(function (l) { return getTajweedMakhraj(l).area === area; });
     bank[0].push(_tajweedAreaItem(_tajweedRandomItem(inArea, rnd), rnd));
   });
   TAJWEED_BANK_QUALITIES.forEach(function (quality) {

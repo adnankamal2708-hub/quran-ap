@@ -63,19 +63,19 @@ function _tjNote(text) {
 }
 
 /**
- * "+x%" for a verse marked smooth, or '' when the figure didn't grow. One
- * verse is often a few thousandths of a percent, so under 0.1 it shows 2
- * decimals (and never less than 0.01); above, 1.
+ * "+x%" for a verse marked smooth. One verse is often a few thousandths of
+ * a percent, so the gain is rounded to 2 decimals first: '' when that is
+ * 0.00, 2 decimals while it is under 0.1, else 1.
  */
 function _tajweedGainText(gain) {
-  if (!(gain > 0)) return '';
-  var p = gain < 0.1 ? Math.max(gain, 0.01).toFixed(2) : gain.toFixed(1);
-  return t('percent.tajweed.gained', { p: p });
+  var rounded = Math.round(gain * 100) / 100;
+  if (!(rounded > 0)) return '';
+  return t('percent.tajweed.gained', { p: rounded < 0.1 ? rounded.toFixed(2) : gain.toFixed(1) });
 }
 
 // ── Recording ───────────────────────────────────────────────────
 
-/** Drop any recording or take and stop playback: on leaving a screen or moving to the next card. */
+/** Drop any recording or take and stop playback: on moving to the next card. */
 function _tjStopRecorder() {
   _tajweedRec.gen++;
   _tajweedRec.card = null;
@@ -83,6 +83,12 @@ function _tjStopRecorder() {
   _tajweedRec.take = null;
   discardRecording();
   stopAudio();
+}
+
+/** On leaving a screen (or redrawing it whole): stop as above and let go of its cards. */
+function _tjLeaveScreen() {
+  _tjStopRecorder();
+  _tajweedCards = [];
 }
 
 function _tjRenderAll() {
@@ -148,7 +154,7 @@ function _tjStop(card) {
 // ── The practice card ───────────────────────────────────────────
 
 function _tjLetterHead(letter) {
-  var m = _tajweedMakhraj(letter.id);
+  var m = getTajweedMakhraj(letter.id);
   var h = '<div class="tajweed-card-head">' + _tjAr(letter.char, 'tajweed-char') +
     '<span class="tajweed-name">' + _tjEsc(t(letter.nameKey)) + '</span></div>';
   if (m) {
@@ -244,6 +250,7 @@ async function _tjLoadVerseText(card) {
   if (_tajweedCards.indexOf(card) < 0) return;
   card.text = verse && verse.text ? verse.text : null;
   _tjRenderCard(card);
+  if (card.text === null && card.onMarked) card.onMarked(null);
 }
 
 function _tjMark(card, ok) {
@@ -283,7 +290,8 @@ function _onTajweedCardClick(card, e) {
  * Record, Compare and Smooth / Not yet (markTajweedVerse).
  * @param {Element} host
  * @param {string} id - tj-letter:<letterId> or tj-verse:<surah>:<ayah>
- * @param {Function} [onMarked] - called with true or false once a mark is recorded
+ * @param {Function} [onMarked] - called with true or false once a mark is
+ *   recorded, or null when a verse's text can't load (nothing to mark)
  */
 function renderTajweedPracticeCard(host, id, onMarked) {
   if (!host) return;
@@ -400,7 +408,7 @@ function _finishTajweed(run) {
 }
 
 function _startTajweedPractice(run) {
-  _tjStopRecorder();
+  _tjLeaveScreen();
   if (run.items.length === 0) { _finishTajweed(run); return; }
   run.step = 'practice';
   run.index = 0;
@@ -418,23 +426,6 @@ function _nextTajweedItem() {
 }
 
 // ── Verse practice ──────────────────────────────────────────────
-
-/**
- * The first verse after this one, in TAJWEED_VERSE_ORDER, not yet marked
- * smooth; null past the end. Lets Not yet move on instead of showing the
- * same verse again.
- */
-function _tajweedVerseAfter(verse) {
-  var smooth = loadTajweedProgress().smooth;
-  var start = TAJWEED_VERSE_ORDER.indexOf(verse.surah);
-  for (var i = start; i >= 0 && i < TAJWEED_VERSE_ORDER.length; i++) {
-    var surah = TAJWEED_VERSE_ORDER[i];
-    for (var ayah = i === start ? verse.ayah + 1 : 1; ayah <= VERSE_WORD_COUNTS[surah].length; ayah++) {
-      if (smooth[surah + ':' + ayah] === undefined) return { surah: surah, ayah: ayah };
-    }
-  }
-  return null;
-}
 
 function _tjVersesMarkup(run) {
   var h = '<div class="qaida-screen">' + _tjHead() + _tjTitle(t('tajweed.verses.title'));
@@ -456,8 +447,8 @@ function _onTajweedVerseMarked() {
 function _nextTajweedVerse() {
   var run = _tajweedRun;
   if (!run || run.mode !== 'verses' || !run.verse) return;
-  _tjStopRecorder();
-  run.verse = _tajweedVerseAfter(run.verse) || getNextTajweedVerse();
+  _tjLeaveScreen();
+  run.verse = getNextTajweedVerse(run.verse) || getNextTajweedVerse();
   renderTajweedLesson();
 }
 
@@ -500,7 +491,7 @@ function renderTajweedLesson() {
 function startTajweedLesson(lessonId, seed) {
   var lesson = getTajweedLesson(lessonId);
   if (!lesson) return;
-  _tjStopRecorder();
+  _tjLeaveScreen();
   var s = typeof seed === 'number' ? seed : Math.floor(Math.random() * 1e9);
   _tajweedRun = { mode: 'lesson', lesson: lesson, step: 'intro', items: buildTajweedLessonItems(lesson, s), index: 0,
     answered: false, correct: 0, passed: false, seed: s };
@@ -510,18 +501,18 @@ function startTajweedLesson(lessonId, seed) {
 
 /** Open verse practice at the first verse not yet marked smooth. */
 function startTajweedVersePractice() {
-  _tjStopRecorder();
+  _tjLeaveScreen();
   _tajweedRun = { mode: 'verses', verse: getNextTajweedVerse() };
   switchView('tajweed-lesson');
 }
 
 /** Stop recording and playback when the learner leaves the view by other means (navigation.js). */
 function stopTajweedPractice() {
-  _tjStopRecorder();
+  _tjLeaveScreen();
 }
 
 function _leaveTajweed() {
-  _tjStopRecorder();
+  _tjLeaveScreen();
   _tajweedRun = null;
   switchView('track', { trackId: TAJWEED_TRACK_ID });
 }
