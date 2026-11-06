@@ -26,11 +26,11 @@
 
 ## Review Focus
 
-1. **No microphone, or access refused:** Record shows a short message, and Play, Compare-free practice and self-marking still work. Pinned in Task 6 (recorder unit tests) and Task 8 (UI test with the recorder reporting unsupported).
-2. **A letter without its recording:** the intro card shows the letter and makhraj with no Play or Compare, and audio exercises are left out. Pinned in Task 7 (`buildTajweedLessonItems` with an empty manifest) and Task 8.
-3. **Recording twice:** the previous recording's object URL is revoked and Compare plays only the newest. Pinned in Task 6.
-4. **Verse practice past the last verse, or a verse the loader can't fetch offline:** a finished message or the existing "text could not be loaded" message, never a blank screen. Pinned in Task 8.
-5. **Progress on two devices:** merge keeps every completed lesson, every "Smooth" verse (earliest time) and the less advanced review copy; the percent never drops after a merge. Pinned in Task 5.
+1. **No microphone, or access refused:** Record shows a short message, and Play, Compare-free practice and self-marking still work. Pinned in Task 5 (recorder unit tests) and Task 7 (UI test with the recorder reporting unsupported).
+2. **A letter without its recording:** the intro card shows the letter and makhraj with no Play or Compare, and audio exercises are left out. Pinned in Task 6 (`buildTajweedLessonItems` with an empty manifest) and Task 7.
+3. **Recording twice:** the previous recording's object URL is revoked and Compare plays only the newest. Pinned in Task 5.
+4. **Verse practice past the last verse, or a verse the loader can't fetch offline:** a finished message or the existing "text could not be loaded" message, never a blank screen. Pinned in Task 7.
+5. **Progress on two devices:** merge keeps every completed lesson, every "Smooth" verse (earliest time) and the less advanced review copy; the percent never drops after a merge. Pinned in Task 4.
 
 ---
 
@@ -224,7 +224,7 @@
   - `startTajweedVersePractice()`
   - `renderTajweedPracticeCard(host, id)`, where `id` is `tj-letter:x` or `tj-verse:s:a`. It's the shared card used by lesson intros, verse practice and review.
 - Screens:
-  - **Lesson intro:** one card per letter with the letter, name, makhraj line, Play (only with audio), Record and Compare (Compare only after a recording), and Got it / Not yet.
+  - **Lesson intro:** opening a lesson caches its letters' recordings (`cacheAudio`). One card per letter with the letter, name, makhraj line, Play (only with audio), Record and Compare (Compare only after a recording), and Got it / Not yet.
   - **Exercises:** the Task 6 items through `renderExercise`.
   - **Finish:** "<lesson title> done · N of 28 letters covered" (`tajweed.done`), then Next lesson. The check needs 0.8 and offers a retry below it.
   - **Verse practice:** the verse text, Listen (teaching recitation) with the credit line, Record, Compare, then Smooth / Not yet. Smooth shows "+x%" when the figure grew. When none is left, `tajweed.verses.done`. When the text can't load, the existing `drill.unavailable` string.
