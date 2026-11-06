@@ -161,6 +161,17 @@ suite('placement algorithm', function() {
     assert.strictEqual(nextPlacementItem(run.state), null);
   });
 
+  test('a track with no items above a band stays in the top band instead of ending the test', function() {
+    var bank = syntheticBank(8);
+    bank[2] = [];
+    bank[3] = [];
+    var right = runTest(bank, function() { return true; });
+    assert.strictEqual(right.asked.length, 8);
+    assert.strictEqual(right.result.level, 1);
+    var wrong = runTest(bank, function() { return false; });
+    assert.strictEqual(wrong.result.level, 0);
+  });
+
   test('answerPlacementItem returns a new state and does not mutate the input', function() {
     var state = createPlacementTest(syntheticBank(30));
     var snapshot = JSON.stringify(state);

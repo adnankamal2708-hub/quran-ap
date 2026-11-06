@@ -92,6 +92,13 @@ function addAnswer(entry, correct) {
   return { asked: entry.asked + 1, correct: entry.correct + (correct ? 1 : 0) };
 }
 
+// A band with no items (a track that has no higher level yet) is not moved up into.
+function levelAfterAnswer(state, correct) {
+  var up = state.level + 1;
+  if (!correct) return Math.max(0, state.level - 1);
+  return up < PLACEMENT_LEVELS && (state.bank[up] || []).length > 0 ? up : state.level;
+}
+
 /** Records the answer to the current item and returns a new state. */
 function answerPlacementItem(state, correct) {
   var item = nextPlacementItem(state);
@@ -109,7 +116,7 @@ function answerPlacementItem(state, correct) {
 
   return {
     bank: state.bank,
-    level: correct ? Math.min(PLACEMENT_LEVELS - 1, level + 1) : Math.max(0, level - 1),
+    level: levelAfterAnswer(state, correct),
     cursor: cursor,
     perLevel: perLevel,
     tags: tags,

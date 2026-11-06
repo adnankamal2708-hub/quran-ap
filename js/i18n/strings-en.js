@@ -248,6 +248,17 @@ var STRINGS = {
     'tajweed.lesson.tj0-11.title': 'Letters people confuse',
     'tajweed.lesson.tj0-12.title': 'Reading check',
 
+    // ── Tajweed: exercises ──
+    'tajweed.ex.whichArea': 'Where does this letter come from?',
+    'tajweed.ex.whichPoint': 'Which point does this letter come from?',
+    'tajweed.ex.whichFrom': 'Which letter comes from this point? {point}',
+    'tajweed.ex.whichHeard': 'Which letter do you hear?',
+    'tajweed.ex.which.heavy': 'Which of these letters is heavy?',
+    'tajweed.ex.which.whispered': 'Which of these letters is whispered?',
+    'tajweed.ex.which.qalqalah': 'Which of these letters has qalqalah?',
+    'tajweed.ex.which.whistling': 'Which of these letters is a whistling letter?',
+    'tajweed.ex.which.nasal': 'Which of these letters has ghunnah?',
+
     // ── Audio ──
     'audio.credit.husary': 'Recitation: Al-Husary',
     'audio.play': 'Play',
@@ -291,6 +302,10 @@ var STRINGS = {
     'test.tag.qaida.shadda': 'Shaddah',
     'test.tag.qaida.joining': 'Joining words',
     'test.tag.qaida.reading': 'Reading verses',
+    'test.tag.tajweed.areas': 'Areas of articulation',
+    'test.tag.tajweed.points': 'Points of articulation',
+    'test.tag.tajweed.qualities': 'Letter qualities',
+    'test.tag.tajweed.confused': 'Letters people confuse',
 
     // ── Onboarding ──
     'onboarding.tracks.title': 'What do you want to learn?',
