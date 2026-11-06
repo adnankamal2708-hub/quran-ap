@@ -10003,6 +10003,7 @@ body::before {
    are the practice cards (a letter or a verse, with Record and the marks). */
 .tajweed-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--spacing-sm); margin: 0; padding: 0; list-style: none; }
 .tajweed-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-section); }
+.rc-tajweed-card { display: flex; flex-direction: column; gap: var(--spacing-sm); }
 .tajweed-card-head { display: flex; align-items: center; gap: 12px; }
 .tajweed-char { font-family: var(--arabic); font-size: 44px; line-height: 1.6; color: var(--text); }
 .tajweed-name { font-size: var(--text-base); font-weight: 500; color: var(--text); }

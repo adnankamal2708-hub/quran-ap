@@ -38,6 +38,8 @@ Say each letter in the form hamza + fatha, the letter, then sukun (for example b
 | ya | أَيْ | ya.mp3 |
 | hamza (optional) | أَءْ | hamza.mp3 |
 
+For alif, say a held "aa": alif is heard as a long vowel, not as a consonant.
+
 ## Format
 
 - Mono MP3 or M4A, one letter per file, about 1 second each.
@@ -46,11 +48,14 @@ Say each letter in the form hamza + fatha, the letter, then sukun (for example b
 
 ## Adding the files
 
-1. Put the files in `assets/audio/qaida/`. If you use M4A, name them `ba.m4a` and so on.
-2. Add one line per letter to `QAIDA_AUDIO_MANIFEST` in `js/qaida/qaida-audio-manifest.js`, for example:
+1. Put the files in `assets/audio/qaida/`.
+2. Add one line per letter inside the braces of `var QAIDA_AUDIO_MANIFEST = { ... }` in `js/qaida/qaida-audio-manifest.js`, for example:
 
 ```js
-ba: 'ba.mp3',
+var QAIDA_AUDIO_MANIFEST = {
+  ba: 'ba.mp3',
+};
 ```
 
+   The name must be the file's real name: an M4A file needs `ba: 'ba.m4a',`.
 3. Run `npm run build`. Once all 28 letters are listed, the Tajweed track appears.

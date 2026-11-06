@@ -237,6 +237,6 @@ Audio is a prerequisite for Qaida and Tajweed.
 | everyayah.com / quran.com permission for Al-Husary and Al-Minshawi audio | Request sent 2026-10-30, no reply by 2026-11-03. Used from Phase 2 under everyayah's stated terms (credit and link back) | Phase 2 |
 | Quran In Depth permission for letter recordings | Request sent 2026-10-30, no reply by 2026-11-03. Not used without permission (all rights reserved); letters ship with empty audio slots | Phase 2 |
 | Letter recordings to fill the Qaida audio slots | The owner's own recordings; guide in docs/recording-letters.md. The Tajweed track stays hidden until all 28 exist | Phase 3 release |
-| Qualified teacher to review Qaida and Tajweed lessons | Not yet found | Phase 2 release |
+| Qualified teacher to review Qaida lessons | Not yet found | Phase 2 release |
 | Saheeh International translation licence | To verify; find a clearly licensed translation if needed | Phase 4 |
 | Tajweed-annotated Quran text and its licence | To find and verify (only for the reader's tajweed view; the first Tajweed version does not need it) | Reader view |
