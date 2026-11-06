@@ -6,12 +6,14 @@
 //   • Verses: Mahmoud Khalil Al-Husary's murattal from everyayah.com,
 //     used under its stated terms (credit with a link back), shown under
 //     every player by audioCreditHtml().
+//   • Teaching: Al-Husary's slow Muallim recitation of a verse, same site.
 //   • Letters and marks: files listed in QAIDA_AUDIO_MANIFEST, served from
 //     assets/audio/qaida/ (none yet).
 // sw.js keeps both in a long-lived cache once played, so they work offline.
 // ═══════════════════════════════════════════════════════════════
 
 var AUDIO_VERSE_BASE = 'https://everyayah.com/data/Husary_128kbps/';
+var AUDIO_TEACHING_BASE = 'https://everyayah.com/data/Husary_Muallim_128kbps/';
 var AUDIO_QAIDA_BASE = 'assets/audio/qaida/';
 
 var _audioEl = null;
@@ -23,6 +25,11 @@ function _pad3(n) {
 /** Al-Husary's recitation of one verse, e.g. 1:1 → .../001001.mp3 */
 function verseAudioUrl(surah, ayah) {
   return AUDIO_VERSE_BASE + _pad3(surah) + _pad3(ayah) + '.mp3';
+}
+
+/** Al-Husary's slow teaching recitation of one verse, e.g. 1:1 → .../001001.mp3 */
+function teachingVerseAudioUrl(surah, ayah) {
+  return AUDIO_TEACHING_BASE + _pad3(surah) + _pad3(ayah) + '.mp3';
 }
 
 /** The recording for a Qaida skill, or null while it has none. */

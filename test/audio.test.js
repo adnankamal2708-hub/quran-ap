@@ -42,6 +42,10 @@ test('verse URLs point at Al-Husary on everyayah with 3-digit parts', function (
   assert.strictEqual(verseAudioUrl(114, 6), 'https://everyayah.com/data/Husary_128kbps/114006.mp3');
 });
 
+test('teaching recitation URLs point at Al-Husary Muallim', function () {
+  assert.ok(teachingVerseAudioUrl(1, 1).endsWith('Husary_Muallim_128kbps/001001.mp3'));
+});
+
 test('a Qaida skill without a recording has no URL', function () {
   assert.strictEqual(qaidaAudioUrl('ba'), null);
 });

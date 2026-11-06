@@ -79,6 +79,7 @@ const APP_FILES = [
   'js/services/feedback.js',
   'js/services/premium.js',
   'js/services/audio.js',
+  'js/services/recorder.js',
   'js/vocabulary.js',
   'js/srs.js',
   'js/exercises/exercise-engine.js',
