@@ -165,21 +165,34 @@ function _tajweedAreaItems(letters, rnd) {
   return qaidaShuffle(picked, rnd).map(function (l) { return _tajweedAreaItem(l, rnd); });
 }
 
-/** Point, picked-from-point (or heard) and area questions, one kind after another in turn. */
+/**
+ * Every letter first, once, with the kind of question rotating from letter to
+ * letter (point, picked or heard from its point, area); then the other kinds
+ * for each letter. Cut at the lesson cap, every letter has still been asked.
+ */
 function _tajweedPointItems(letters, rnd) {
-  var kinds = [
-    qaidaShuffle(letters, rnd).map(function (l) { return _tajweedPointItem(l, rnd); }),
-    qaidaShuffle(letters, rnd).map(function (l) { return _tajweedListenItem(l, rnd, 'points') || _tajweedFromPointItem(l, rnd); }),
-    qaidaShuffle(letters, rnd).map(function (l) { return _tajweedAreaItem(l, rnd); }),
+  var builders = [
+    _tajweedPointItem,
+    function (l, r) { return _tajweedListenItem(l, r, 'points') || _tajweedFromPointItem(l, r); },
+    _tajweedAreaItem,
   ];
-  var items = [];
-  for (var i = 0; i < letters.length; i++) {
-    kinds.forEach(function (list) { items.push(list[i]); });
-  }
-  return items;
+  var order = qaidaShuffle(letters, rnd);
+  var offset = Math.floor(rnd() * builders.length);
+  var first = order.map(function (l, i) { return builders[(i + offset) % builders.length](l, rnd); });
+  var more = [];
+  order.forEach(function (l, i) {
+    builders.forEach(function (build, k) {
+      if (k !== (i + offset) % builders.length) more.push(build(l, rnd));
+    });
+  });
+  return first.concat(qaidaShuffle(more, rnd));
 }
 
-/** Reorders items so that no two in a row have the same correct answer, placing the commonest answer first. */
+/**
+ * Reorders items so that no two in a row have the same correct answer, placing
+ * the commonest answer first. When only items with the last answer remain, the
+ * next one is taken as it comes.
+ */
 function _tajweedSpreadAnswers(items) {
   var rest = items.slice();
   var out = [];
@@ -247,8 +260,8 @@ function _tajweedItemsFor(lesson, seed) {
  */
 function buildTajweedLessonItems(lesson, seed) {
   if (!lesson) return [];
-  var items = _tajweedSpreadAnswers(_tajweedItemsFor(lesson, seed));
-  return items.slice(0, lesson.kind === 'check' ? TAJWEED_CHECK_ITEMS : TAJWEED_ITEMS_PER_LESSON);
+  var items = _tajweedItemsFor(lesson, seed).slice(0, lesson.kind === 'check' ? TAJWEED_CHECK_ITEMS : TAJWEED_ITEMS_PER_LESSON);
+  return _tajweedSpreadAnswers(items);
 }
 
 // ── Placement test bank ─────────────────────────────────────────

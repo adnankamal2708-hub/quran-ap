@@ -260,6 +260,27 @@ test('a heavy question never offers ra, lam or alif as a wrong option', function
   assert.ok(checked >= 10);
 });
 
+test('every letter a points lesson teaches is asked at least once, for seeds 1-20', function () {
+  TAJWEED_LESSONS.filter(function (l) { return l.topic === 'points'; }).forEach(function (lesson) {
+    for (var seed = 1; seed <= 20; seed++) {
+      var skills = buildTajweedLessonItems(lesson, seed).map(function (it) { return it.skill; });
+      lesson.letters.forEach(function (id) {
+        assert.ok(skills.indexOf('tj-letter:' + id) >= 0, lesson.id + '/' + seed + ' never asks ' + id);
+      });
+    }
+  });
+});
+
+test('spreading answers keeps every item when only one answer is left to place', function () {
+  var same = [0, 1, 2].map(function (i) { return { options: ['x', 'y'], answer: 0, id: i }; });
+  var out = _tajweedSpreadAnswers(same);
+  assert.deepStrictEqual(out.map(function (it) { return it.id; }), [0, 1, 2]);
+  var mixed = [same[0], same[1], { options: ['x', 'y'], answer: 1, id: 3 }];
+  var spread = _tajweedSpreadAnswers(mixed);
+  assert.strictEqual(spread.length, 3);
+  assert.notStrictEqual(spread[0].options[spread[0].answer], spread[1].options[spread[1].answer]);
+});
+
 test('a confused-pair question offers the partner of its answer', function () {
   var checked = 0;
   var lesson = getTajweedLesson('tj0-11');
