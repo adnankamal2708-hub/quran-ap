@@ -39,6 +39,7 @@ const DATA_CORE_FILES = [
   // Tajweed makharij and lesson data (letter ids are the Qaida ones)
   'js/tajweed/tajweed-makharij.js',
   'js/tajweed/tajweed-lessons.js',
+  'js/tajweed/verse-word-counts.js',
   'js/data-core/review-schedule.js',
   'js/data-core/qaida-track.js',
 ];

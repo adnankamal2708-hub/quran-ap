@@ -76,6 +76,7 @@ var TESTS = [
   "audio.test.js",
   "qaida-exercises.test.js",
   "tajweed-data.test.js",
+  "verse-word-counts.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
