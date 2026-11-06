@@ -13,6 +13,8 @@ var _recorder = null;
 var _micStream = null;
 var _chunks = [];
 var _recordingUrl = null;
+// Bumped whenever a take is abandoned, so a microphone grant that arrives late is ignored.
+var _generation = 0;
 
 function isRecordingSupported() {
   return typeof navigator !== 'undefined' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) &&
@@ -34,6 +36,7 @@ function _releaseMic() {
 
 /** Abandon a running take without keeping it. */
 function _abandonRecorder() {
+  _generation++;
   if (_recorder) {
     _recorder.ondataavailable = null;
     _recorder.onstop = null;
@@ -51,7 +54,12 @@ function _abandonRecorder() {
 function startRecording() {
   if (!isRecordingSupported()) return Promise.resolve('unsupported');
   _abandonRecorder();
+  var generation = _generation;
   return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+    if (generation !== _generation) {
+      stream.getTracks().forEach(function (track) { track.stop(); });
+      return 'denied';
+    }
     _micStream = stream;
     _chunks = [];
     var options = _recorderOptions();
@@ -68,7 +76,10 @@ function startRecording() {
  */
 function stopRecording() {
   var recorder = _recorder;
-  if (!recorder || recorder.state === 'inactive') return Promise.resolve(null);
+  if (!recorder || recorder.state === 'inactive') {
+    _generation++; // also cancels a microphone request still waiting on the prompt
+    return Promise.resolve(null);
+  }
   return new Promise(function (resolve) {
     recorder.onstop = function () {
       var blob = new Blob(_chunks, { type: recorder.mimeType });

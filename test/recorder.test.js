@@ -126,6 +126,63 @@ test('starting while recording stops the old recording and its mic first', async
   discardRecording();
 });
 
+// A getUserMedia stub the test resolves by hand, to model an open permission prompt.
+function deferMic() {
+  var pending = [];
+  navigator.mediaDevices.getUserMedia = function () {
+    getUserMediaCalls++;
+    return new Promise(function (resolve) {
+      pending.push(function () {
+        var stream = { stopped: 0, getTracks: function () {
+          var s = this;
+          return [{ stop: function () { s.stopped++; } }, { stop: function () { s.stopped++; } }];
+        } };
+        streams.push(stream);
+        resolve(stream);
+      });
+    });
+  };
+  return pending;
+}
+
+test('discarding while the permission prompt is open leaves no recorder and no live mic', async function () {
+  resetStubs();
+  var pending = deferMic();
+  var started = startRecording();
+  discardRecording();
+  pending[0]();
+  assert.strictEqual(await started, 'denied');
+  assert.strictEqual(recorders.length, 0);
+  assert.strictEqual(streams[0].stopped, 2, 'late stream released');
+});
+
+test('stopping while the permission prompt is open also cancels the late grant', async function () {
+  resetStubs();
+  var pending = deferMic();
+  var started = startRecording();
+  assert.strictEqual(await stopRecording(), null);
+  pending[0]();
+  assert.strictEqual(await started, 'denied');
+  assert.strictEqual(recorders.length, 0);
+  assert.strictEqual(streams[0].stopped, 2);
+});
+
+test('two starts during the prompt keep only the latest and release the other stream', async function () {
+  resetStubs();
+  var pending = deferMic();
+  var first = startRecording();
+  var second = startRecording();
+  pending[0](); pending[1]();
+  assert.strictEqual(await first, 'denied');
+  assert.strictEqual(await second, 'recording');
+  assert.strictEqual(recorders.length, 1);
+  assert.strictEqual(streams[0].stopped, 2, 'first stream released');
+  assert.strictEqual(streams[1].stopped, 0, 'second stream still live');
+  await stopRecording();
+  assert.strictEqual(streams[1].stopped, 2);
+  discardRecording();
+});
+
 test('stopping with nothing recording gives null', async function () {
   resetStubs();
   assert.strictEqual(await stopRecording(), null);
