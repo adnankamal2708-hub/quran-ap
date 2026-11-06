@@ -1,7 +1,7 @@
 # Tajweed track, first version: makhārij and fluent recitation
 
 Date: 2026-11-06
-Status: draft for approval
+Status: approved by the owner 2026-11-06
 Builds on: `docs/learning-tracks-design.md` (Phase 3), the Qaida track (Phase 2)
 
 ## Why
@@ -139,9 +139,11 @@ As in every track: a percentage of the Quran that only grows. The design
 doc's intended Tajweed measure needs tajweed-annotated text, which this
 version doesn't have. This version uses **the share of the Quran's words
 (77,429) in verses the learner has marked "Smooth"** in verse practice,
-weighted by each verse's word count. A verse practice turn ends with "+x%";
-a makhārij lesson ends with "Lesson complete" and no percentage (my call;
-see the decisions to check).
+weighted by each verse's word count. A verse practice turn ends with "+x%".
+A makhārij lesson adds no percentage; it ends with how many of the 28
+letters the learner has now covered, e.g. "Throat letters done · 6 of 28
+letters covered", then Next lesson (agreed with the owner: counting words
+whose letters' makhārij are learned would claim near 100% after one level).
 
 ### Storage, review and levels
 
@@ -212,10 +214,7 @@ recordings exist.
 
 ## Decisions to check (my calls)
 
-1. **Progress measure:** share of the Quran's words in verses marked
-   "Smooth"; makhārij lessons add no percentage. The alternative, counting
-   letters whose makhraj is learned, would jump to 100% after one level and
-   say little.
+1. **Progress measure:** agreed with the owner (see Progress).
 2. **Recording form:** أَ + letter + sukūn as the reference for each makhraj.
 3. **Verse practice uses Al-Husary's muʿallim recitation** (the design doc
    already says this), with the murattal recitation unchanged elsewhere.
