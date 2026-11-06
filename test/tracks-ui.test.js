@@ -96,6 +96,15 @@ load('js/phase2-surahs.js');
 load('js/ui/learn-screen.js');
 load('js/ui/tracks-ui.js');
 load('js/ui/root-lesson-ui.js');
+// The real Tajweed track (unreleased here: no letter recordings are loaded)
+load('js/qaida/qaida-letters.js');
+load('js/tajweed/tajweed-makharij.js');
+load('js/tajweed/tajweed-lessons.js');
+load('js/tajweed/verse-word-counts.js');
+load('js/data-core/review-schedule.js');
+load('js/data-core/tajweed-track.js');
+global.startTajweedLesson = function(id) { calls.push('startTajweedLesson:' + id); };
+global.startTajweedVersePractice = function() { calls.push('startTajweedVersePractice'); };
 
 // ═══════════════════════════════════════════════════════════════
 // TEST HELPERS
@@ -398,6 +407,90 @@ test('renderTrackPath() without an id keeps the last opened track', function() {
   _views = {};
   renderTrackPath();
   assert.ok(html('view-track').indexOf('Word meanings') >= 0);
+});
+
+console.log('\nTajweed path');
+
+/** Run fn with the Tajweed track released, as once its 28 letter recordings exist. */
+function withTajweed(fn) {
+  var real = global.isTrackReleased;
+  global.isTrackReleased = function(id) { return id !== 'understanding'; };
+  try { fn(); } finally { global.isTrackReleased = real; }
+}
+
+test('unreleased, Tajweed is a "Coming soon" card with no Join', function() {
+  renderTracks();
+  var tajweed = cards().filter(function(c) { return c.indexOf('>Tajweed<') >= 0; })[0];
+  assert.ok(tajweed.indexOf('Coming soon') >= 0);
+  assert.ok(tajweed.indexOf('data-action="join"') < 0);
+});
+
+test('released, Tajweed offers Join', function() {
+  withTajweed(function() {
+    renderTracks();
+    var tajweed = cards().filter(function(c) { return c.indexOf('>Tajweed<') >= 0; })[0];
+    assert.ok(tajweed.indexOf('data-action="join"') >= 0);
+  });
+});
+
+test('the path shows Beginner\'s 12 lessons and "Coming later" on levels 1–3, with no upgrade button', function() {
+  withTajweed(function() {
+    joinTrack('tajweed');
+    renderTrackPath('tajweed');
+  });
+  var all = levels();
+  var nums = (all[0].match(/<span class="track-lesson-num">(\d+)<\/span>/g) || []).map(function(s) {
+    return Number(s.replace(/\D/g, ''));
+  });
+  assert.deepStrictEqual(nums, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+  assert.ok(all[0].indexOf('The five areas') >= 0, 'lesson titles from the strings');
+  assert.ok(all[0].indexOf('Coming later') < 0);
+  [1, 2, 3].forEach(function(level) {
+    assert.ok(all[level].indexOf('Coming later') >= 0, 'level ' + level);
+    var lock = tagsWithClass(all[level], 'track-level-lock');
+    assert.strictEqual(lock.length, 1);
+    assert.ok(/^<span/.test(lock[0]), 'a plain label, not a button: ' + lock[0]);
+  });
+  assert.ok(html('view-track').indexOf('data-action="upgrade"') < 0);
+  assert.ok(html('view-track').indexOf('Premium') < 0);
+});
+
+test('the Tajweed path shows its share of the Quran and no teacher-review note', function() {
+  withTajweed(function() { renderTrackPath('tajweed'); });
+  var markup = html('view-track');
+  assert.ok(markup.indexOf('0% of the Quran&#39;s words recited smoothly') >= 0, markup);
+  assert.ok(markup.indexOf('track-path-note') < 0);
+});
+
+test('only the first Tajweed lesson is open until it is finished', function() {
+  withTajweed(function() { renderTrackPath('tajweed'); });
+  var lessons = tagsWithClass(levels()[0], 'track-lesson');
+  assert.ok(!/\sdisabled\b/.test(lessons[0]), 'lesson 1 open');
+  assert.ok(/\sdisabled\b/.test(lessons[1]), 'lesson 2 locked');
+  completeTajweedLesson('tj0-1', 1);
+  withTajweed(function() { renderTrackPath('tajweed'); });
+  lessons = tagsWithClass(levels()[0], 'track-lesson');
+  assert.ok(lessons[0].indexOf('is-done') >= 0, 'lesson 1 finished');
+  assert.ok(!/\sdisabled\b/.test(lessons[1]), 'lesson 2 open');
+});
+
+test('a Tajweed lesson button opens startTajweedLesson', function() {
+  withTajweed(function() {
+    renderTrackPath('tajweed');
+    assert.ok(html('view-track').indexOf('data-kind="tajweed" data-ref="tj0-1"') >= 0);
+    clickAction('view-track', { 'data-action': 'lesson', 'data-kind': 'tajweed', 'data-ref': 'tj0-1' });
+  });
+  assert.deepStrictEqual(calls, ['startTajweedLesson:tj0-1']);
+});
+
+test('the Tajweed path footer opens verse practice', function() {
+  withTajweed(function() {
+    renderTrackPath('tajweed');
+    var footer = html('view-track').split('track-path-footer')[1] || '';
+    assert.ok(footer.indexOf('>Verse practice<') >= 0, footer);
+    clickAction('view-track', { 'data-action': 'verses' });
+  });
+  assert.deepStrictEqual(calls, ['startTajweedVersePractice']);
 });
 
 // ═══════════════════════════════════════════════════════════════

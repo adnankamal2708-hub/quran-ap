@@ -227,6 +227,23 @@ suite('switchView Dispatching', function() {
     switchView('dashboard');
     assert.ok(called);
   });
+
+  test('leaving the Tajweed screen or Practice releases the microphone', function() {
+    var stops = 0;
+    global.stopTajweedPractice = function() { stops++; };
+    try {
+      switchView('tajweed-lesson');
+      switchView('dashboard');
+      assert.strictEqual(stops, 1, 'left the Tajweed screen');
+      switchView('review-center');
+      switchView('profile');
+      assert.strictEqual(stops, 2, 'left Practice');
+      switchView('dashboard');
+      assert.strictEqual(stops, 2, 'no other view stops it');
+    } finally {
+      delete global.stopTajweedPractice;
+    }
+  });
 });
 
 suite('Five-tab active state', function() {

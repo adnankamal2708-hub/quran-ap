@@ -237,10 +237,29 @@ test('building the bank happens once per test, not per question', function() {
 });
 
 test('a track without a placement test is ignored', function() {
-  startPlacementTest('tajweed');
+  startPlacementTest('understanding');
   assert.deepStrictEqual(bankBuilds, []);
   assert.deepStrictEqual(calls, []);
-  assert.strictEqual(nextPlacementAttempt('tajweed'), 0, 'no attempt was counted');
+  assert.strictEqual(nextPlacementAttempt('understanding'), 0, 'no attempt was counted');
+});
+
+test('the Tajweed test builds the Tajweed bank, is titled for Tajweed and names its tags', function() {
+  var tajweedBuilds = [];
+  global.buildTajweedBank = function(attempt) { tajweedBuilds.push(attempt); return global.buildWordMeaningsBank(attempt); };
+  try {
+    startPlacementTest('tajweed');
+    assert.deepStrictEqual(tajweedBuilds, [0]);
+    assert.deepStrictEqual(calls, ['switchView:test']);
+    _leavePlacement();
+    renderPlacementTest();
+    assert.ok(html().indexOf('Tajweed placement test') >= 0, 'the intro offers the Tajweed test');
+    var tags = PLACEMENT_TRACKS.tajweed.tags;
+    assert.deepStrictEqual(Object.keys(tags).map(function(tag) { return t(tags[tag]); }),
+      ['Areas of articulation', 'Points of articulation', 'Letter qualities', 'Letters people confuse']);
+  } finally {
+    _placementIntroTrack = 'words';
+    delete global.buildTajweedBank;
+  }
 });
 
 test('the Qaida test builds the Qaida bank and is titled for Qaida', function() {

@@ -32,6 +32,7 @@ var STRINGS = {
 
     // ── Learn and track menus ──
     'tracks.comingSoon': 'Coming soon',
+    'tracks.comingLater': 'Coming later',
     'tracks.add': 'Add a track',
     'tracks.makeMain': 'Make main track',
     'tracks.leave': 'Leave track',
@@ -279,11 +280,16 @@ var STRINGS = {
     'tajweed.marked.notYet': 'It will come back in Due today.',
     'tajweed.done': '{title} done · {n} of {total} letters covered',
     'tajweed.verses.title': 'Verse practice',
+    'tajweed.verses.desc': 'Listen, record and compare, one verse at a time',
     'tajweed.verses.intro': "Listen to Al-Husary's teaching recitation, record yourself and compare, then mark the verse.",
     'tajweed.verses.next': 'Next verse',
     'tajweed.verses.done': 'You have marked every verse of the Quran smooth.',
     'tajweed.verse.ref': '{surah} · {ref}',
+    'percent.tajweed': "{p}% of the Quran's words recited smoothly",
     'percent.tajweed.gained': "+{p}% of the Quran's words recited smoothly",
+    'tajweed.review.title': 'Tajweed practice',
+    'tajweed.review.due': '{n} to review',
+    'tajweed.review.done': 'All caught up. Letters and verses you mark Not yet come back here.',
 
     // ── Audio ──
     'audio.credit.husary': 'Recitation: Al-Husary',
@@ -299,6 +305,8 @@ var STRINGS = {
     'test.words.desc': 'About 5 minutes · finds your level',
     'test.qaida.title': 'Read Arabic from zero placement test',
     'test.qaida.desc': 'About 5 minutes · finds where to start reading',
+    'test.tajweed.title': 'Tajweed placement test',
+    'test.tajweed.desc': 'About 5 minutes · finds where to start reciting',
     'test.result.level': 'Your level: {level}',
     'test.result.kept': "You're already at {level}; your level stays.",
     'test.result.strengths': 'Strengths',

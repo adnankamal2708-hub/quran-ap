@@ -1406,6 +1406,65 @@ suite('Up next after the placement test', function() {
     assert.ok(seen && seen.trackNext === true);
   });
 
+  /**
+   * Run fn with Tajweed joined as the main track and its next lesson stubbed;
+   * `released` decides isTrackReleased('tajweed').
+   */
+  function withTajweedMain(released, fn) {
+    var realReleased = global.isTrackReleased;
+    global.isTrackReleased = function(id) { return id === 'tajweed' ? released : realReleased(id); };
+    global.TAJWEED_TRACK_ID = 'tajweed';
+    global.getTajweedLevel = function() { return 0; };
+    global.getTajweedNextLesson = function(level) {
+      return { kind: 'tajweed', number: 2, title: 'Throat letters', completed: false, ref: 'tj0-2', level: level };
+    };
+    global.loadTajweedProgress = function() { return { completed: { 'tj0-1': { at: 1, score: 1 } }, review: {}, smooth: {} }; };
+    localStorage.setItem(TRACKS_KEY, JSON.stringify({ main: 'tajweed', tracks: { words: { joined: true }, tajweed: { joined: true } } }));
+    try { fn(); } finally {
+      global.isTrackReleased = realReleased;
+      ['TAJWEED_TRACK_ID', 'getTajweedLevel', 'getTajweedNextLesson', 'loadTajweedProgress'].forEach(function(name) {
+        delete global[name];
+      });
+    }
+  }
+
+  test('with Tajweed as the main track, Up next names its next lesson and opens it', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    var opened = [];
+    global._openPathLesson = function(kind, ref) { opened.push(kind + ':' + ref); };
+    try {
+      withTajweedMain(true, function() {
+        setupDashboardGrid();
+        renderDashboard();
+        document.getElementById('db-track-next')._onclick();
+      });
+    } finally {
+      delete global._openPathLesson;
+    }
+    var html = getInnerHTML();
+    var card = html.indexOf('id="db-track-next"');
+    assert.ok(card >= 0, 'track Up next card shown');
+    assert.ok(html.indexOf('id="db-continue-learning"') < 0, 'no Foundation card');
+    assert.ok(html.indexOf('Tajweed', card) > card, 'names the track');
+    assert.ok(html.indexOf('Beginner · Throat letters', card) > card, 'names the next lesson');
+    assert.deepStrictEqual(opened, ['tajweed:tj0-2']);
+  });
+
+  test('with Tajweed unreleased, Up next ignores it', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    withTajweedMain(false, function() {
+      setupDashboardGrid();
+      renderDashboard();
+    });
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('id="db-track-next"') < 0);
+    assert.ok(html.indexOf('id="db-continue-learning"') >= 0, 'the Foundation card as before');
+  });
+
   test('an unplaced premium learner still sees the Foundation card', function() {
     resetState();
     setupGlobals();

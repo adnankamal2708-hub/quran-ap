@@ -39,8 +39,10 @@ function _switchViewCore(viewName, options) {
     window.__autoNavTimer = null;
   }
 
-  // Leaving the Tajweed screen some other way than its back button: release the microphone.
-  if (currentView === 'tajweed-lesson' && viewName !== 'tajweed-lesson' && typeof stopTajweedPractice === 'function') {
+  // Leaving the Tajweed screen some other way than its back button, or Practice
+  // (its Due today Tajweed card): release the microphone.
+  var holdsMic = currentView === 'tajweed-lesson' || currentView === 'review-center';
+  if (holdsMic && viewName !== currentView && typeof stopTajweedPractice === 'function') {
     stopTajweedPractice();
   }
 

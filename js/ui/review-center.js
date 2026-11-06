@@ -224,15 +224,56 @@ function _rcQaidaDue() {
     '</div><div id="rc-qaida-host" class="rc-drill-host"></div>';
 }
 
-/** The Quran drills, plus Confused letters once Qaida is out; the question appears in #rc-drill-host (drill-ui.js). */
+function _rcTajweedReleased() {
+  return typeof isTrackReleased === 'function' && isTrackReleased('tajweed');
+}
+
+/** Tajweed letters and verses that are due, as a card with its own practice host; empty when none. */
+function _rcTajweedDue() {
+  var due = _rcTajweedReleased() && typeof getDueTajweedItems === 'function' ? getDueTajweedItems() : [];
+  if (!due.length) return '';
+  return '<div class="rc-modes-grid rc-modes-grid-single">' +
+    _rcModeCard('rc-tajweed-review', 'repeat', t('tajweed.review.title'), t('tajweed.review.due', { n: due.length })) +
+    '</div><div id="rc-tajweed-host" class="rc-drill-host"></div>';
+}
+
+/**
+ * Practise the due Tajweed items one at a time in the host (tajweed-ui.js
+ * draws each card and records its mark), then say when none are left. A
+ * verse whose text can't load is skipped for this run, not recorded.
+ */
+function _rcStartTajweedReview(host) {
+  if (!host || typeof renderTajweedPracticeCard !== 'function') return;
+  var skipped = [];
+  function next() {
+    var id = getDueTajweedItems().filter(function(d) { return skipped.indexOf(d) < 0; })[0];
+    if (!id) {
+      host.innerHTML = '<p class="drill-message" role="status">' + t('tajweed.review.done') + '</p>';
+      return;
+    }
+    renderTajweedPracticeCard(host, id, function(marked) {
+      if (marked === null) skipped.push(id);
+      next();
+    });
+  }
+  next();
+}
+
+/**
+ * The Quran drills, plus Confused letters once Qaida is out and Verse
+ * practice once Tajweed is; the question appears in #rc-drill-host
+ * (drill-ui.js), while Verse practice opens its own screen.
+ */
 function _rcDrillCards() {
   var canSpot = typeof hasLearnedWords === 'function' && hasLearnedWords();
   var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
-  var h = '<div class="rc-modes-grid' + (qaida ? ' rc-modes-grid-three' : '') + '">';
+  var tajweed = _rcTajweedReleased();
+  var h = '<div class="rc-modes-grid' + (qaida && !tajweed ? ' rc-modes-grid-three' : '') + '">';
   if (qaida) h += _rcModeCard('rc-drill-letters', 'search', t('drill.letters.title'), t('drill.letters.desc'));
   h += _rcModeCard('rc-drill-spot', 'target', t('drill.spot.title'),
     t(canSpot ? 'drill.spot.desc' : 'drill.needWords'));
   h += _rcModeCard('rc-drill-build', 'layers', t('drill.build.title'), t('drill.build.desc'));
+  if (tajweed) h += _rcModeCard('rc-drill-verses', 'volume-2', t('tajweed.verses.title'), t('tajweed.verses.desc'));
   h += '</div>';
   h += '<div id="rc-drill-host" class="rc-drill-host"></div>';
   return h;
@@ -241,8 +282,12 @@ function _rcDrillCards() {
 /** One card per released track's placement test. */
 function _rcTestCards() {
   var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
-  return '<div class="rc-modes-grid' + (qaida ? '' : ' rc-modes-grid-single') + '">' +
+  var tajweed = _rcTajweedReleased();
+  var count = 1 + (qaida ? 1 : 0) + (tajweed ? 1 : 0);
+  var grid = count === 1 ? ' rc-modes-grid-single' : count === 3 ? ' rc-modes-grid-three' : '';
+  return '<div class="rc-modes-grid' + grid + '">' +
     (qaida ? _rcModeCard('rc-test-qaida', 'book-open', t('test.qaida.title'), t('test.qaida.desc')) : '') +
+    (tajweed ? _rcModeCard('rc-test-tajweed', 'volume-2', t('test.tajweed.title'), t('test.tajweed.desc')) : '') +
     _rcModeCard('rc-test-words', 'check-circle', t('test.words.title'), t('test.words.desc')) +
     '</div>';
 }
@@ -258,6 +303,8 @@ function _rcTestCards() {
 function renderReviewCenter() {
   // Invalidate cache to ensure fresh data
   invalidateReviewCenterCache();
+  // Redrawing replaces any Tajweed practice card: release its microphone and audio
+  if (typeof stopTajweedPractice === 'function') stopTajweedPractice();
 
   var $data = gatherReviewCenterData();
   var $h = '';
@@ -624,7 +671,7 @@ function renderReviewCenter() {
 
   // ── Group: Due today, Drills, Tests ──
   $h = $headH +
-    _rcGroupTitle('practice.due') + _rcQaidaDue() + $dueH + $h +
+    _rcGroupTitle('practice.due') + _rcQaidaDue() + _rcTajweedDue() + $dueH + $h +
     _rcGroupTitle('practice.drills') + $modesH + $listsH + _rcDrillCards() +
     _rcGroupTitle('practice.tests') + _rcTestCards();
 
@@ -722,11 +769,20 @@ function wireReviewCenterEvents($data) {
   $wire('rc-drill-letters', function() {
     if (typeof startWordDrill === 'function') startWordDrill('letters', document.getElementById('rc-drill-host'));
   });
+  $wire('rc-tajweed-review', function() {
+    _rcStartTajweedReview(document.getElementById('rc-tajweed-host'));
+  });
+  $wire('rc-drill-verses', function() {
+    if (typeof startTajweedVersePractice === 'function') startTajweedVersePractice();
+  });
   $wire('rc-test-words', function() {
     if (typeof startPlacementTest === 'function') startPlacementTest(WORDS_TRACK_ID);
   });
   $wire('rc-test-qaida', function() {
     if (typeof startPlacementTest === 'function') startPlacementTest('qaida');
+  });
+  $wire('rc-test-tajweed', function() {
+    if (typeof startPlacementTest === 'function') startPlacementTest('tajweed');
   });
 
   // ── Start review buttons ──

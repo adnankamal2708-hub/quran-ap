@@ -43,7 +43,22 @@ var TRACK_PATHS = {
     percentKey: 'percent.qaida',
     note: 'qaida.reviewNote',
   },
+  tajweed: {
+    levels: function() { return getTajweedLevels(); },
+    lock: function(level) { return getTajweedLevelLock(level); },
+    level: function() { return getTajweedLevel(); },
+    percent: function() { return _roundTajweedPercent(refreshTajweedPercent().percent); },
+    percentKey: 'percent.tajweed',
+  },
 };
+
+/**
+ * One smooth verse is often a few thousandths of a percent, so the Tajweed
+ * share keeps 2 decimals while it is under 0.1, then 1 like the others.
+ */
+function _roundTajweedPercent(percent) {
+  return percent < 0.1 ? Math.round(percent * 100) / 100 : Math.round(percent * 10) / 10;
+}
 
 /** The track's share of the Quran, or null for a track without a path yet. */
 function _trackPercent(trackId) {
@@ -134,7 +149,8 @@ function _lessonButton(lesson, level, levelLock) {
   var done = lesson.completed && level !== 3;
   var locked = levelLock === 'progress' ||
     (lesson.kind === 'foundation' && !isFoundationLessonUnlocked(lesson.ref)) ||
-    (lesson.kind === 'qaida' && !lesson.completed && !isQaidaLessonUnlocked(lesson.ref));
+    (lesson.kind === 'qaida' && !lesson.completed && !isQaidaLessonUnlocked(lesson.ref)) ||
+    (lesson.kind === 'tajweed' && !lesson.completed && !isTajweedLessonUnlocked(lesson.ref));
   var attrs = levelLock === 'premium'
     ? ' data-action="upgrade" data-level="' + level + '"'
     : ' data-action="lesson" data-kind="' + lesson.kind + '"' + (lesson.ref == null ? '' : ' data-ref="' + lesson.ref + '"');
@@ -161,6 +177,8 @@ function _levelSection(levelData, path) {
   } else if (lock === 'progress') {
     h += '<span class="track-level-lock">' + uiIcon('lock', true) +
       '<span>' + _trEsc(t('tracks.locked', { level: t('level.' + (level - 1)) })) + '</span></span>';
+  } else if (lock === 'coming') {
+    h += '<span class="track-level-lock">' + _trEsc(t('tracks.comingLater')) + '</span>';
   }
   h += '</div>';
   h += '<ol class="track-lessons">';
@@ -204,6 +222,10 @@ function renderTrackPath(trackId) {
     h += _pathFooterItem('difficulty', 'target', 'tracks.difficulty');
     h += _pathFooterItem('quiz', 'bolt', 'tracks.quiz');
     h += '</nav>';
+  } else if (id === 'tajweed') {
+    h += '<nav class="track-path-footer" aria-label="' + _trEsc(t('tracks.more')) + '">';
+    h += _pathFooterItem('verses', 'volume-2', 'tajweed.verses.title');
+    h += '</nav>';
   } else if (!path) {
     h += '<p class="track-path-soon">' + _trEsc(t('tracks.comingSoon')) + '</p>';
   }
@@ -222,6 +244,7 @@ function _openPathLesson(kind, ref) {
   else if (kind === 'surah-study') openSurahStudy();
   else if (kind === 'root-families') openRootList();
   else if (kind === 'qaida') startQaidaLesson(ref);
+  else if (kind === 'tajweed') startTajweedLesson(ref);
 }
 
 function _closeTrackMenus(view) {
@@ -266,6 +289,7 @@ function _runLearnAction(el, view) {
   else if (action === 'roots') openRootList();
   else if (action === 'difficulty') openNextDifficultyLevel();
   else if (action === 'quiz') switchView('quiz');
+  else if (action === 'verses') startTajweedVersePractice();
 }
 
 function _onLearnViewClick(e) {

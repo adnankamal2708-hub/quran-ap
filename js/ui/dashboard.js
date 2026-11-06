@@ -188,7 +188,11 @@ function renderDashboard() {
   // texts follow its lessons instead of the vocabulary course
   var $qaidaMain = typeof getQaidaNextLesson === 'function' && getMainTrackId() === QAIDA_TRACK_ID;
   var $qaidaStarted = $qaidaMain && Object.keys(loadQaidaProgress().completed).length > 0;
-  var $startHere = $qaidaMain ? !$qaidaStarted : $noProgress;
+  // Likewise Up next follows Tajweed's lessons when it is the (released) main track
+  var $tajweedMain = typeof getTajweedNextLesson === 'function' && isTrackReleased('tajweed') &&
+    getMainTrackId() === TAJWEED_TRACK_ID;
+  var $tajweedStarted = $tajweedMain && Object.keys(loadTajweedProgress().completed).length > 0;
+  var $startHere = $qaidaMain ? !$qaidaStarted : ($tajweedMain ? !$tajweedStarted : $noProgress);
   var $continueLabel = $noProgress ? 'Start Foundation Course' : ($foundationComplete ? 'Learn by Surah' : 'Continue Foundation Course');
 
   // SVG helper — uses the comprehensive icon system in components.js
@@ -317,6 +321,9 @@ function renderDashboard() {
   if ($qaidaMain) {
     $trackNext = getQaidaNextLesson(getQaidaLevel());
     $trackNextId = QAIDA_TRACK_ID;
+  } else if ($tajweedMain) {
+    $trackNext = getTajweedNextLesson(getTajweedLevel());
+    $trackNextId = TAJWEED_TRACK_ID;
   } else if (typeof getWordMeaningsLevel === 'function' && getTrackLevel(WORDS_TRACK_ID) >= ($foundationComplete ? 2 : 1)) {
     var $wmLevel = getWordMeaningsLevel();
     if (getWordMeaningsLevelLock($wmLevel) === null) $trackNext = getWordMeaningsNextLesson($wmLevel);
@@ -341,7 +348,7 @@ function renderDashboard() {
   }
 
   // Determine next learning step
-  if ($trackNext && ($qaidaMain || !$foundationComplete)) {
+  if ($trackNext && ($qaidaMain || $tajweedMain || !$foundationComplete)) {
     $h += $trackNextCard();
   } else if ($fTotal > 0 && !$foundationComplete) {
     $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="' + ($noProgress ? 'Start' : 'Continue') + ' Foundation Course">';
@@ -997,7 +1004,7 @@ function renderDashboard() {
     else if (typeof switchView === 'function') switchView('learn');
   });
 
-  // Continue Learning — the next lesson of the main track (Qaida, or a placed Word meanings learner)
+  // Continue Learning — the next lesson of the main track (Qaida, Tajweed, or a placed Word meanings learner)
   $wire('db-track-next', function() {
     if ($trackNext && typeof _openPathLesson === 'function') _openPathLesson($trackNext.kind, $trackNext.ref);
     else if (typeof switchView === 'function') switchView('track', { trackId: $trackNextId });

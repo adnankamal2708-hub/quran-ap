@@ -1477,6 +1477,131 @@ suite('renderReviewCenter — Practice groups', function() {
     assert.deepStrictEqual(started, [['qaida-review', host]]);
   });
 
+  /** Run fn with Qaida and Tajweed released and these Tajweed items due (restored after). */
+  function withTajweed(due, fn) {
+    global.isTrackReleased = function(id) { return id === 'qaida' || id === 'tajweed'; };
+    global.getDueTajweedItems = function() { return due.slice(); };
+    try { fn(); } finally {
+      delete global.isTrackReleased;
+      delete global.getDueTajweedItems;
+    }
+  }
+
+  test('Due today shows a Tajweed practice card with the count when Tajweed items are due', function() {
+    withTajweed(['tj-letter:ba', 'tj-verse:1:1', 'tj-letter:ta'], function() {
+      var html = renderGrid();
+      assert.ok(html.indexOf('id="rc-tajweed-review"') >= 0);
+      assert.ok(html.indexOf('Tajweed practice') >= 0);
+      assert.ok(html.indexOf('3 to review') >= 0);
+      inOrder(html, ['Due today', 'rc-tajweed-review', 'rc-tajweed-host', 'Drills']);
+    });
+  });
+
+  test('no Tajweed practice card when nothing is due', function() {
+    withTajweed([], function() {
+      assert.ok(renderGrid().indexOf('id="rc-tajweed-review"') < 0);
+    });
+  });
+
+  test('clicking Tajweed practice runs the due items one at a time, skipping a verse that cannot load', function() {
+    var host = makeEl('div');
+    host.id = 'rc-tajweed-host';
+    _elementsById['rc-tajweed-host'] = host;
+    var card = makeEl('div');
+    card.id = 'rc-tajweed-review';
+    _elementsById['rc-tajweed-review'] = card;
+    var due = ['tj-letter:ba', 'tj-verse:1:1', 'tj-letter:ta'];
+    var shown = [];
+    global.renderTajweedPracticeCard = function(container, id, onMarked) {
+      assert.strictEqual(container, host, 'drawn in the card\'s own host');
+      shown.push({ id: id, onMarked: onMarked });
+    };
+    try {
+      withTajweed(due, function() {
+        renderGrid();
+        card.click();
+        assert.deepStrictEqual(shown.map(function(s) { return s.id; }), ['tj-letter:ba']);
+        // Got it: the letter leaves the queue and the next one is drawn
+        global.getDueTajweedItems = function() { return ['tj-verse:1:1', 'tj-letter:ta']; };
+        shown[0].onMarked(true);
+        assert.strictEqual(shown[1].id, 'tj-verse:1:1');
+        // The verse's text can't load: skipped though still due, nothing recorded
+        shown[1].onMarked(null);
+        assert.strictEqual(shown[2].id, 'tj-letter:ta');
+        global.getDueTajweedItems = function() { return ['tj-verse:1:1']; };
+        shown[2].onMarked(false);
+        assert.strictEqual(shown.length, 3, 'no more items to draw');
+        assert.ok(host.innerHTML.indexOf('All caught up') >= 0, host.innerHTML);
+      });
+    } finally {
+      delete global.renderTajweedPracticeCard;
+    }
+  });
+
+  test('Drills has a Verse practice card once Tajweed is released, which starts verse practice', function() {
+    var card = makeEl('div');
+    card.id = 'rc-drill-verses';
+    _elementsById['rc-drill-verses'] = card;
+    var started = 0;
+    global.startTajweedVersePractice = function() { started++; };
+    try {
+      withTajweed([], function() {
+        var html = renderGrid();
+        inOrder(html, ['Drills', 'id="rc-drill-verses"', 'Tests']);
+        assert.ok(html.indexOf('Verse practice') >= 0);
+        card.click();
+      });
+    } finally {
+      delete global.startTajweedVersePractice;
+    }
+    assert.strictEqual(started, 1);
+  });
+
+  test('Tests has a Tajweed card that starts the Tajweed placement test', function() {
+    var card = makeEl('div');
+    card.id = 'rc-test-tajweed';
+    _elementsById['rc-test-tajweed'] = card;
+    var started = [];
+    global.startPlacementTest = function(track) { started.push(track); };
+    try {
+      withTajweed([], function() {
+        var html = renderGrid();
+        var tests = html.slice(html.indexOf('Tests'));
+        assert.ok(tests.indexOf('id="rc-test-tajweed"') >= 0);
+        assert.ok(tests.indexOf('Tajweed placement test') >= 0);
+        card.click();
+      });
+    } finally {
+      delete global.startPlacementTest;
+    }
+    assert.deepStrictEqual(started, ['tajweed']);
+  });
+
+  test('with Tajweed unreleased, none of its cards appear', function() {
+    global.isTrackReleased = function(id) { return id === 'qaida'; };
+    global.getDueTajweedItems = function() { return ['tj-letter:ba']; };
+    try {
+      var html = renderGrid();
+      ['rc-tajweed-review', 'rc-drill-verses', 'rc-test-tajweed'].forEach(function(id) {
+        assert.ok(html.indexOf('id="' + id + '"') < 0, id);
+      });
+    } finally {
+      delete global.isTrackReleased;
+      delete global.getDueTajweedItems;
+    }
+  });
+
+  test('rendering Practice releases the microphone of any Tajweed card', function() {
+    var stops = 0;
+    global.stopTajweedPractice = function() { stops++; };
+    try {
+      renderGrid();
+    } finally {
+      delete global.stopTajweedPractice;
+    }
+    assert.strictEqual(stops, 1);
+  });
+
   test('a drill host sits under the drill cards', function() {
     assert.ok(renderGrid().indexOf('id="rc-drill-host"') >= 0);
   });

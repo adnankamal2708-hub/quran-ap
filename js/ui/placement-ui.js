@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// placement-ui.js — the placement tests (#view-test): Word meanings and
-// Read Arabic from zero, one per track in PLACEMENT_TRACKS
+// placement-ui.js — the placement tests (#view-test): Word meanings,
+// Read Arabic from zero and Tajweed, one per track in PLACEMENT_TRACKS
 //
 // One question at a time, rendered by the shared exercise UI
 // (renderExercise); the adaptive logic lives in js/exercises/placement.js.
@@ -36,6 +36,14 @@ var QAIDA_PLACEMENT_TAG_LABELS = {
   reading: 'test.tag.qaida.reading',
 };
 
+/** Label key for each Tajweed question kind the result names */
+var TAJWEED_PLACEMENT_TAG_LABELS = {
+  areas: 'test.tag.tajweed.areas',
+  points: 'test.tag.tajweed.points',
+  qualities: 'test.tag.tajweed.qualities',
+  confused: 'test.tag.tajweed.confused',
+};
+
 /**
  * Everything the test screen needs from a track: its question bank, the
  * learner's effective level, the next lesson and level lock (as the Learn
@@ -59,6 +67,15 @@ var PLACEMENT_TRACKS = {
     titleKey: 'test.qaida.title',
     descKey: 'test.qaida.desc',
     tags: QAIDA_PLACEMENT_TAG_LABELS,
+  },
+  tajweed: {
+    bank: function(attempt) { return buildTajweedBank(attempt); },
+    level: function() { return getTajweedLevel(); },
+    next: function(level) { return getTajweedNextLesson(level); },
+    lock: function(level) { return getTajweedLevelLock(level); },
+    titleKey: 'test.tajweed.title',
+    descKey: 'test.tajweed.desc',
+    tags: TAJWEED_PLACEMENT_TAG_LABELS,
   },
 };
 
@@ -129,7 +146,7 @@ function _lessonLabel(lesson) {
   return lesson.kind === 'foundation' ? t('test.start.foundation', { n: lesson.number }) : lesson.title;
 }
 
-/** Chip labels for the track's tags (parts of speech, Qaida skills), each label once. */
+/** Chip labels for the track's tags (parts of speech, Qaida skills, Tajweed kinds), each label once. */
 function _tagLabels(tags) {
   var labelKeys = PLACEMENT_TRACKS[_placement.trackId].tags;
   var labels = [];
