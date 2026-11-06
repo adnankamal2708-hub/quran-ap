@@ -246,17 +246,45 @@ test('corrupt storage and unknown entries fall back to empty', function () {
 console.log('\n📋 Tajweed track: release switch');
 
 test('the track is released only once all 28 letter recordings are in', function () {
-  assert.strictEqual(areLetterRecordingsComplete(), false);
-  assert.strictEqual(isTrackReleased('tajweed'), false);
+  var original = Object.assign({}, QAIDA_AUDIO_MANIFEST);
+  function setManifest(ids) {
+    Object.keys(QAIDA_AUDIO_MANIFEST).forEach(function (k) { delete QAIDA_AUDIO_MANIFEST[k]; });
+    ids.forEach(function (id) { QAIDA_AUDIO_MANIFEST[id] = id + '.mp3'; });
+  }
   try {
-    QAIDA_LETTERS.slice(1).forEach(function (l) { QAIDA_AUDIO_MANIFEST[l.id] = l.id + '.mp3'; });
+    setManifest([]);
+    assert.strictEqual(areLetterRecordingsComplete(), false);
+    assert.strictEqual(isTrackReleased('tajweed'), false);
+    setManifest(QAIDA_LETTERS.slice(1).map(function (l) { return l.id; }));
     assert.strictEqual(isTrackReleased('tajweed'), false, 'one letter missing');
-    QAIDA_AUDIO_MANIFEST.alif = 'alif.mp3';
+    setManifest(QAIDA_LETTERS.map(function (l) { return l.id; }));
     assert.strictEqual(areLetterRecordingsComplete(), true);
     assert.strictEqual(isTrackReleased('tajweed'), true);
   } finally {
-    QAIDA_LETTERS.forEach(function (l) { delete QAIDA_AUDIO_MANIFEST[l.id]; });
+    setManifest([]);
+    Object.assign(QAIDA_AUDIO_MANIFEST, original);
   }
+  assert.deepStrictEqual(QAIDA_AUDIO_MANIFEST, original, 'manifest restored exactly');
+});
+
+console.log('\n📋 Tajweed track: canonical verse keys');
+
+test('1:1, 01:1 and 001:01 in stored data count once', function () {
+  _storage[TAJWEED_PROGRESS_KEY] = JSON.stringify({
+    smooth: { '1:1': 9, '01:1': 4, '001:01': 6 },
+    review: { 'tj-verse:1:2': { due: 9, step: 2 }, 'tj-verse:01:02': { due: 5, step: 1 } },
+  });
+  var p = loadTajweedProgress();
+  assert.deepStrictEqual(p.smooth, { '1:1': 4 });
+  assert.deepStrictEqual(p.review, { 'tj-verse:1:2': { due: 5, step: 1 } });
+  assert.strictEqual(getTajweedPercent(), 4 / QURAN_WORD_TOTAL * 100);
+});
+
+test('markTajweedVerse with numeric strings uses the canonical key', function () {
+  _storage = {};
+  markTajweedVerse('01', '1', true, 5);
+  markTajweedVerse(1, 1, true, 9);
+  assert.deepStrictEqual(loadTajweedProgress().smooth, { '1:1': 5 });
 });
 
 console.log('\n' + '='.repeat(50));

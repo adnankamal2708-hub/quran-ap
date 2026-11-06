@@ -41,21 +41,39 @@ function getTajweedLetter(id) {
   return letter ? { id: letter.id, char: letter.char, nameKey: 'qaida.letter.' + letter.id + '.name' } : null;
 }
 
-function _parseVerseKey(key) {
+function _tajweedParseVerseKey(key) {
   var m = /^(\d+):(\d+)$/.exec(key);
   return m && verseWordCount(+m[1], +m[2]) > 0 ? { surah: +m[1], ayah: +m[2] } : null;
+}
+
+/** The one spelling of a verse key ("1:1", never "01:1"), or null for a verse that doesn't exist */
+function _tajweedVerseKey(key) {
+  var v = _tajweedParseVerseKey(key);
+  return v ? v.surah + ':' + v.ayah : null;
 }
 
 /** A review id this track schedules: tj-letter:<letter or hamza> or tj-verse:<surah>:<ayah> */
 function _isTajweedReviewId(id) {
   if (typeof id !== 'string') return false;
   if (id.indexOf('tj-letter:') === 0) return !!getTajweedLetter(id.slice('tj-letter:'.length));
-  if (id.indexOf('tj-verse:') === 0) return !!_parseVerseKey(id.slice('tj-verse:'.length));
+  if (id.indexOf('tj-verse:') === 0) return !!_tajweedParseVerseKey(id.slice('tj-verse:'.length));
   return false;
 }
 
-function _validTime(at) {
+function _tajweedValidTime(at) {
   return typeof at === 'number' && isFinite(at) ? at : 0;
+}
+
+/** Rewrite tj-verse ids to canonical form; when two collapse, keep the less advanced copy. */
+function _canonicalTajweedReview(review) {
+  var out = {};
+  Object.keys(review).forEach(function (id) {
+    var canon = id.indexOf('tj-verse:') === 0 ? 'tj-verse:' + _tajweedVerseKey(id.slice('tj-verse:'.length)) : id;
+    var prev = out[canon];
+    var rec = review[id];
+    if (!prev || rec.step < prev.step || (rec.step === prev.step && rec.due < prev.due)) out[canon] = rec;
+  });
+  return out;
 }
 
 function normalizeTajweedProgress(raw) {
@@ -66,16 +84,20 @@ function normalizeTajweedProgress(raw) {
     if (!getTajweedLesson(id)) return;
     var rec = src[id] || {};
     completed[id] = {
-      at: _validTime(rec.at),
+      at: _tajweedValidTime(rec.at),
       score: typeof rec.score === 'number' && isFinite(rec.score) ? Math.max(0, Math.min(1, rec.score)) : 1,
     };
   });
   var smooth = {};
   var verses = raw.smooth && typeof raw.smooth === 'object' ? raw.smooth : {};
   Object.keys(verses).forEach(function (key) {
-    if (_parseVerseKey(key)) smooth[key] = _validTime(verses[key]);
+    var canon = _tajweedVerseKey(key);
+    if (!canon) return;
+    var at = _tajweedValidTime(verses[key]);
+    smooth[canon] = smooth[canon] === undefined ? at : Math.min(smooth[canon] || at, at || smooth[canon]);
   });
-  return { completed: completed, review: normalizeReviewMap(raw.review, _isTajweedReviewId), smooth: smooth,
+  return { completed: completed, review: _canonicalTajweedReview(normalizeReviewMap(raw.review, _isTajweedReviewId)),
+    smooth: smooth,
     updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : 0 };
 }
 
@@ -218,6 +240,8 @@ function getTajweedLettersCovered() {
  * @param {number} [now]
  */
 function markTajweedVerse(surah, ayah, smooth, now) {
+  surah = +surah;
+  ayah = +ayah;
   if (!(verseWordCount(surah, ayah) > 0)) return;
   now = typeof now === 'number' ? now : Date.now();
   var key = surah + ':' + ayah;
@@ -251,7 +275,7 @@ function getNextTajweedVerse() {
 function getTajweedPercent() {
   var words = 0;
   Object.keys(loadTajweedProgress().smooth).forEach(function (key) {
-    var v = _parseVerseKey(key);
+    var v = _tajweedParseVerseKey(key);
     words += verseWordCount(v.surah, v.ayah);
   });
   return words / QURAN_WORD_TOTAL * 100;

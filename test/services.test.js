@@ -567,13 +567,15 @@ suite('Sync — no progress loss across devices', function() {
       var full = path.join(__dirname, '..', f);
       vm.runInThisContext(fs.readFileSync(full, 'utf8'), { filename: full });
     });
-    var local = { tajweedProgress: { completed: { 'tj0-1': { at: 200, score: 1 } }, smooth: { '1:1': 300 } } };
+    var local = { tajweedProgress: { completed: { 'tj0-1': { at: 200, score: 0.9 }, 'tj0-3': { at: 50, score: 0.7 } }, smooth: { '1:1': 300 } } };
     var cloud = { tajweedProgress: {
-      completed: { 'tj0-2': { at: 100, score: 1 } }, smooth: { '1:1': 250, '1:2': 400 },
+      completed: { 'tj0-2': { at: 100, score: 1 }, 'tj0-1': { at: 120, score: 0.85 }, 'tj0-3': { at: 80, score: 0.95 } }, smooth: { '1:1': 250, '1:2': 400 },
       review: { 'tj-letter:ba': { due: 5, step: 0 } },
     } };
     var tp = mergeData(local, cloud).tajweedProgress;
-    assert.deepStrictEqual(Object.keys(tp.completed).sort(), ['tj0-1', 'tj0-2']);
+    assert.deepStrictEqual(Object.keys(tp.completed).sort(), ['tj0-1', 'tj0-2', 'tj0-3']);
+    assert.deepStrictEqual(tp.completed['tj0-1'], { at: 120, score: 0.9 }, 'earliest time, best score');
+    assert.deepStrictEqual(tp.completed['tj0-3'], { at: 50, score: 0.95 }, 'earliest time, best score');
     assert.deepStrictEqual(tp.smooth, { '1:1': 250, '1:2': 400 });
     assert.deepStrictEqual(tp.review, { 'tj-letter:ba': { due: 5, step: 0 } });
   });
