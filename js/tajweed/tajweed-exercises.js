@@ -21,10 +21,14 @@ var TAJWEED_ITEMS_PER_LESSON = 12;
 var TAJWEED_CHECK_ITEMS = 16;
 var TAJWEED_CHECK_ITEMS_PER_LESSON = 2;
 var TAJWEED_AREA_ITEMS = 8;
+var TAJWEED_MAX_PER_AREA = 3;    // keeps one answer from dominating, so no two in a row can match
 var TAJWEED_QUALITY_ITEMS_PER_QUALITY = 3;
 var TAJWEED_BANK_ITEMS_PER_KIND = 4;
 var TAJWEED_BANK_SEED_STEP = 6151;
 var TAJWEED_MADD_LETTERS = ['waw', 'ya'];
+// Heavy or light depending on context (ر in رَبّ, the lām of Allah, alif after a heavy letter),
+// so never offered as a wrong option for a heavy question.
+var TAJWEED_CONTEXT_HEAVY_LETTERS = ['ra', 'lam', 'alif'];
 var TAJWEED_BANK_QUALITIES = ['heavy', 'whispered', 'qalqalah', 'whistling'];
 
 // ── Letters and where they come from ────────────────────────────
@@ -134,7 +138,9 @@ function _tajweedConfusedItem(id, listen, rnd) {
 /** Which of these letters has the quality? The wrong options are letters without it, its pairs first. */
 function _tajweedQualityItem(quality, id, rnd) {
   var having = TAJWEED_QUALITIES[quality];
-  var without = _tajweedNeighbours(id, rnd).filter(function (l) { return having.indexOf(l) < 0; });
+  var without = _tajweedNeighbours(id, rnd).filter(function (l) {
+    return having.indexOf(l) < 0 && !(quality === 'heavy' && TAJWEED_CONTEXT_HEAVY_LETTERS.indexOf(l) >= 0);
+  });
   return _qaidaChoice({ text: t('tajweed.ex.which.' + quality) }, _tajweedChar(id), without.map(_tajweedChar), rnd,
     { skill: _tajweedSkill(id), tag: 'qualities' });
 }
@@ -153,19 +159,44 @@ function _tajweedAreaItems(letters, rnd) {
     if (inArea.length > 0) picked.push(_tajweedRandomItem(inArea, rnd));
   });
   qaidaShuffle(letters.filter(function (l) { return picked.indexOf(l) < 0; }), rnd).forEach(function (l) {
-    if (picked.length < TAJWEED_AREA_ITEMS) picked.push(l);
+    var sameArea = picked.filter(function (p) { return _tajweedMakhraj(p).area === _tajweedMakhraj(l).area; }).length;
+    if (picked.length < TAJWEED_AREA_ITEMS && sameArea < TAJWEED_MAX_PER_AREA) picked.push(l);
   });
   return qaidaShuffle(picked, rnd).map(function (l) { return _tajweedAreaItem(l, rnd); });
 }
 
-/** Each letter's point, then each letter picked (or heard) from its point, then its area. */
+/** Point, picked-from-point (or heard) and area questions, one kind after another in turn. */
 function _tajweedPointItems(letters, rnd) {
-  var items = letters.map(function (l) { return _tajweedPointItem(l, rnd); });
-  qaidaShuffle(letters, rnd).forEach(function (l) {
-    items.push(_tajweedListenItem(l, rnd, 'points') || _tajweedFromPointItem(l, rnd));
-  });
-  qaidaShuffle(letters, rnd).forEach(function (l) { items.push(_tajweedAreaItem(l, rnd)); });
+  var kinds = [
+    qaidaShuffle(letters, rnd).map(function (l) { return _tajweedPointItem(l, rnd); }),
+    qaidaShuffle(letters, rnd).map(function (l) { return _tajweedListenItem(l, rnd, 'points') || _tajweedFromPointItem(l, rnd); }),
+    qaidaShuffle(letters, rnd).map(function (l) { return _tajweedAreaItem(l, rnd); }),
+  ];
+  var items = [];
+  for (var i = 0; i < letters.length; i++) {
+    kinds.forEach(function (list) { items.push(list[i]); });
+  }
   return items;
+}
+
+/** Reorders items so that no two in a row have the same correct answer, placing the commonest answer first. */
+function _tajweedSpreadAnswers(items) {
+  var rest = items.slice();
+  var out = [];
+  var answerOf = function (item) { return item.options[item.answer]; };
+  while (rest.length > 0) {
+    var last = out.length > 0 ? answerOf(out[out.length - 1]) : null;
+    var next = 0;
+    var bestCount = 0;
+    for (var i = 0; i < rest.length; i++) {
+      var answer = answerOf(rest[i]);
+      if (answer === last) continue;
+      var count = rest.filter(function (r) { return answerOf(r) === answer; }).length;
+      if (count > bestCount) { next = i; bestCount = count; }
+    }
+    out.push(rest.splice(next, 1)[0]);
+  }
+  return out;
 }
 
 function _tajweedQualityItems(lesson, rnd) {
@@ -216,7 +247,7 @@ function _tajweedItemsFor(lesson, seed) {
  */
 function buildTajweedLessonItems(lesson, seed) {
   if (!lesson) return [];
-  var items = _tajweedItemsFor(lesson, seed);
+  var items = _tajweedSpreadAnswers(_tajweedItemsFor(lesson, seed));
   return items.slice(0, lesson.kind === 'check' ? TAJWEED_CHECK_ITEMS : TAJWEED_ITEMS_PER_LESSON);
 }
 
@@ -249,7 +280,7 @@ function buildTajweedBank(attempt) {
     bank[1].push(_tajweedConfusedItem(pair[rnd() < 0.5 ? 0 : 1], true, rnd));
   });
 
-  bank[0] = qaidaShuffle(bank[0], rnd);
-  bank[1] = qaidaShuffle(bank[1], rnd);
+  bank[0] = _tajweedSpreadAnswers(qaidaShuffle(bank[0], rnd));
+  bank[1] = _tajweedSpreadAnswers(qaidaShuffle(bank[1], rnd));
   return bank;
 }

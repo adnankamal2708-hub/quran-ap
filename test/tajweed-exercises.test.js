@@ -222,6 +222,44 @@ test('a "pick the letter" question offers one letter from its point', function (
   assert.ok(checked > 10);
 });
 
+test('no two consecutive items share the correct option, for every lesson and seeds 1-5', function () {
+  TAJWEED_LESSONS.forEach(function (lesson) {
+    [1, 2, 3, 4, 5].forEach(function (seed) {
+      var items = buildTajweedLessonItems(lesson, seed);
+      for (var i = 1; i < items.length; i++) {
+        assert.notStrictEqual(items[i].options[items[i].answer], items[i - 1].options[items[i - 1].answer],
+          lesson.id + '/' + seed + ' items ' + (i - 1) + ' and ' + i);
+      }
+    });
+  });
+});
+
+test('a points lesson with 4 or more letters mixes at least two item kinds', function () {
+  var checked = 0;
+  TAJWEED_LESSONS.filter(function (l) { return l.topic === 'points' && l.letters.length >= 4; }).forEach(function (lesson) {
+    [1, 2, 3, 4, 5].forEach(function (seed) {
+      checked++;
+      var kinds = {};
+      buildTajweedLessonItems(lesson, seed).forEach(function (it) { kinds[it.type + it.tag + (it.prompt.arabic ? 'a' : 't')] = true; });
+      assert.ok(Object.keys(kinds).length >= 2, lesson.id + '/' + seed + ': ' + Object.keys(kinds));
+    });
+  });
+  assert.ok(checked >= 10);
+});
+
+test('a heavy question never offers ra, lam or alif as a wrong option', function () {
+  var checked = 0;
+  var heavyText = t('tajweed.ex.which.heavy');
+  var items = allLessonItems().map(function (e) { return e.item; });
+  [0, 1, 2, 3, 4, 5].forEach(function (a) { var b = buildTajweedBank(a); items = items.concat(b[0], b[1]); });
+  items.forEach(function (item) {
+    if (item.prompt.text !== heavyText) return;
+    checked++;
+    item.options.forEach(function (o) { assert.ok(['ra', 'lam', 'alif'].indexOf(letterOfOption(o)) < 0, 'offered ' + letterOfOption(o)); });
+  });
+  assert.ok(checked >= 10);
+});
+
 test('a confused-pair question offers the partner of its answer', function () {
   var checked = 0;
   var lesson = getTajweedLesson('tj0-11');
