@@ -307,7 +307,7 @@ require('./load-components')(); // uiIcon, iconText, dataIcon
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'tracks.js'), 'utf8'));
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'i18n', 'strings-en.js'), 'utf8'));
 // The Qaida track, which "completely new" starts in
-['js/qaida/qaida-letters.js', 'js/qaida/qaida-marks.js', 'js/qaida/qaida-lessons.js', 'js/data-core/qaida-track.js'].forEach(function(f) {
+['js/qaida/qaida-letters.js', 'js/qaida/qaida-marks.js', 'js/qaida/qaida-lessons.js', 'js/data-core/review-schedule.js', 'js/data-core/qaida-track.js'].forEach(function(f) {
   (0, eval)(fs.readFileSync(path.join(__dirname, '..', f), 'utf8'));
 });
 eval(uxCode);

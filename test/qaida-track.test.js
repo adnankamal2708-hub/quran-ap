@@ -27,6 +27,7 @@ load('js/data-core/tracks.js');
 load('js/qaida/qaida-letters.js');
 load('js/qaida/qaida-marks.js');
 load('js/qaida/qaida-lessons.js');
+load('js/data-core/review-schedule.js');
 load('js/data-core/qaida-track.js');
 
 var passed = 0;

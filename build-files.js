@@ -36,6 +36,7 @@ const DATA_CORE_FILES = [
   'js/qaida/qaida-lessons.js',
   'js/qaida/qaida-readability.js',
   'js/qaida/qaida-audio-manifest.js',
+  'js/data-core/review-schedule.js',
   'js/data-core/qaida-track.js',
 ];
 

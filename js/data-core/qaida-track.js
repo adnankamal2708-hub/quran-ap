@@ -20,26 +20,9 @@ var QAIDA_PROGRESS_KEY = 'quran_qaida_progress';
 /** Share of a reading check's questions needed to pass it */
 var QAIDA_CHECK_PASS = 0.8;
 
-/** A missed skill comes back this long after the miss (as SRS "again") */
-var QAIDA_REVIEW_RETRY_MS = 10 * 60 * 1000;
-
-/** Days until the next review after each right answer; after the last, the skill leaves the queue */
-var QAIDA_REVIEW_DAYS = [1, 3, 7, 21];
-
-var _QAIDA_DAY_MS = 24 * 60 * 60 * 1000;
-
-function _normalizeQaidaReview(src) {
-  var out = {};
-  src = src && typeof src === 'object' ? src : {};
-  Object.keys(src).forEach(function (skill) {
-    var rec = src[skill] || {};
-    if (QAIDA_SKILL_IDS.indexOf(skill) < 0) return;
-    if (typeof rec.due !== 'number' || !isFinite(rec.due)) return;
-    if (!(rec.step >= 0 && rec.step <= QAIDA_REVIEW_DAYS.length && rec.step % 1 === 0)) return;
-    out[skill] = { due: rec.due, step: rec.step };
-  });
-  return out;
-}
+/** Aliases of the shared schedule (js/data-core/review-schedule.js) */
+var QAIDA_REVIEW_RETRY_MS = REVIEW_RETRY_MS;
+var QAIDA_REVIEW_DAYS = REVIEW_DAYS;
 
 function normalizeQaidaProgress(raw) {
   raw = raw && typeof raw === 'object' ? raw : {};
@@ -53,7 +36,7 @@ function normalizeQaidaProgress(raw) {
       score: typeof rec.score === 'number' && isFinite(rec.score) ? Math.max(0, Math.min(1, rec.score)) : 1,
     };
   });
-  return { completed: completed, review: _normalizeQaidaReview(raw.review),
+  return { completed: completed, review: normalizeReviewMap(raw.review, function (skill) { return QAIDA_SKILL_IDS.indexOf(skill) >= 0; }),
     updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : 0 };
 }
 
@@ -211,7 +194,7 @@ function refreshQaidaPercent() {
 function mergeQaidaProgress(local, cloud) {
   var a = normalizeQaidaProgress(local);
   var b = normalizeQaidaProgress(cloud);
-  var out = { completed: {}, review: {}, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+  var out = { completed: {}, review: mergeReviewMaps(a.review, b.review), updatedAt: Math.max(a.updatedAt, b.updatedAt) };
   [a.completed, b.completed].forEach(function (src) {
     Object.keys(src).forEach(function (id) {
       var prev = out.completed[id];
@@ -219,15 +202,6 @@ function mergeQaidaProgress(local, cloud) {
       out.completed[id] = prev
         ? { at: Math.min(prev.at || rec.at, rec.at || prev.at), score: Math.max(prev.score, rec.score) }
         : { at: rec.at, score: rec.score };
-    });
-  });
-  [a.review, b.review].forEach(function (src) {
-    Object.keys(src).forEach(function (skill) {
-      var prev = out.review[skill];
-      var rec = src[skill];
-      if (!prev || rec.step < prev.step || (rec.step === prev.step && rec.due < prev.due)) {
-        out.review[skill] = { due: rec.due, step: rec.step };
-      }
     });
   });
   return out;
@@ -238,7 +212,7 @@ function mergeQaidaProgress(local, cloud) {
 /**
  * Record an answer about one skill. A miss puts the skill in the queue
  * (or back at its start); a right answer when it is due spaces it out by
- * the next QAIDA_REVIEW_DAYS step, and after the last step it leaves.
+ * the next REVIEW_DAYS step, and after the last step it leaves.
  * @param {string} skill - a QAIDA_SKILL_IDS id
  * @param {boolean} correct
  * @param {number} [now]
@@ -247,15 +221,10 @@ function recordQaidaAnswer(skill, correct, now) {
   if (QAIDA_SKILL_IDS.indexOf(skill) < 0) return;
   now = typeof now === 'number' ? now : Date.now();
   var progress = loadQaidaProgress();
-  var rec = progress.review[skill];
-  if (!correct) {
-    progress.review[skill] = { due: now + QAIDA_REVIEW_RETRY_MS, step: 0 };
-  } else if (rec && rec.due <= now) {
-    if (rec.step >= QAIDA_REVIEW_DAYS.length) delete progress.review[skill];
-    else progress.review[skill] = { due: now + QAIDA_REVIEW_DAYS[rec.step] * _QAIDA_DAY_MS, step: rec.step + 1 };
-  } else {
-    return;
-  }
+  var next = scheduleReviewAnswer(progress.review[skill], correct, now);
+  if (next === undefined) return;
+  if (next === null) delete progress.review[skill];
+  else progress.review[skill] = next;
   saveQaidaProgress(progress);
   queueTracksSync();
 }
@@ -267,8 +236,5 @@ function recordQaidaAnswer(skill, correct, now) {
  */
 function getDueQaidaSkills(now) {
   now = typeof now === 'number' ? now : Date.now();
-  var review = loadQaidaProgress().review;
-  return Object.keys(review)
-    .filter(function (skill) { return review[skill].due <= now; })
-    .sort(function (x, y) { return review[x].due - review[y].due; });
+  return dueReviewIds(loadQaidaProgress().review, now);
 }

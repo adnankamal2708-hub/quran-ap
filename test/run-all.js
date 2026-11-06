@@ -69,6 +69,7 @@ var TESTS = [
   "drill-ui.test.js",
   "qaida-data.test.js",
   "qaida-lessons.test.js",
+  "review-schedule.test.js",
   "qaida-track.test.js",
   "qaida-ui.test.js",
   "qaida-readability.test.js",
