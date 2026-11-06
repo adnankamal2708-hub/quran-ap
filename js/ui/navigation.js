@@ -39,6 +39,11 @@ function _switchViewCore(viewName, options) {
     window.__autoNavTimer = null;
   }
 
+  // Leaving the Tajweed screen some other way than its back button: release the microphone.
+  if (currentView === 'tajweed-lesson' && viewName !== 'tajweed-lesson' && typeof stopTajweedPractice === 'function') {
+    stopTajweedPractice();
+  }
+
   currentView = viewName;
   setView(viewName);
   
@@ -72,6 +77,10 @@ function _switchViewCore(viewName, options) {
   if (viewName === 'qaida-lesson') {
     if (typeof renderQaidaLesson === 'function') renderQaidaLesson();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderQaidaLesson() not found');
+  }
+  if (viewName === 'tajweed-lesson') {
+    if (typeof renderTajweedLesson === 'function') renderTajweedLesson();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderTajweedLesson() not found');
   }
   if (viewName === 'test') {
     if (typeof renderPlacementTest === 'function') renderPlacementTest();
@@ -161,6 +170,7 @@ function _updateActiveTab(viewName, navContext) {
     track: 'tab-learn',
     'root-lesson': 'tab-learn',
     'qaida-lesson': 'tab-learn',
+    'tajweed-lesson': 'tab-learn',
     learn: 'tab-learn',
     quiz: 'tab-learn',
     list: 'tab-learn',

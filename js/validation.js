@@ -18,6 +18,7 @@ window.__validation = (function() {
   var VALID_ROUTES = [
     'dashboard', 'tracks', 'track', 'learn', 'quiz', 'list',
     'explorer', 'auth', 'profile', 'settings', 'test', 'root-lesson', 'qaida-lesson',
+    'tajweed-lesson',
   ];
 
   /** Map of route → required DOM element ID */
@@ -28,6 +29,7 @@ window.__validation = (function() {
     test: 'view-test',
     'root-lesson': 'view-root-lesson',
     'qaida-lesson': 'view-qaida-lesson',
+    'tajweed-lesson': 'view-tajweed-lesson',
     learn: 'view-learn',
     quiz: 'view-quiz',
     list: 'view-list',

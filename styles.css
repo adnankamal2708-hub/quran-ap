@@ -9998,6 +9998,23 @@ body::before {
 .qaida-continue, .qaida-next, .qaida-finish-actions .btn { min-height: 44px; white-space: normal; }
 .qaida-continue, .qaida-next { width: 100%; }
 
+/* ── Tajweed (js/ui/tajweed-ui.js) ──
+   The lesson and verse-practice screens reuse the qaida-* layout; these
+   are the practice cards (a letter or a verse, with Record and the marks). */
+.tajweed-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--spacing-sm); margin: 0; padding: 0; list-style: none; }
+.tajweed-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-section); }
+.tajweed-card-head { display: flex; align-items: center; gap: 12px; }
+.tajweed-char { font-family: var(--arabic); font-size: 44px; line-height: 1.6; color: var(--text); }
+.tajweed-name { font-size: var(--text-base); font-weight: 500; color: var(--text); }
+.tajweed-makhraj, .tajweed-verse-ref, .tajweed-note, .tajweed-marked { margin: 0; font-size: var(--text-sm); line-height: 1.6; color: var(--text-muted); }
+.tajweed-area { display: block; font-weight: 500; color: var(--text); }
+.tajweed-verse-text { margin: 0; font-family: var(--arabic); font-size: 28px; line-height: 2.1; color: var(--text); text-align: right; overflow-wrap: anywhere; }
+.tajweed-tools, .tajweed-marks { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+.tajweed-tools:empty { display: none; }
+.tajweed-tools .btn { display: inline-flex; align-items: center; gap: 6px; }
+.tajweed-card .audio-credit { margin: 0; }
+.tajweed-gain { margin: 0; font-family: var(--serif); font-size: var(--heading-lg); color: var(--gold); overflow-wrap: anywhere; }
+
 /* ── Dialogs fit one screen ──
    Wide screens: the three plans side by side instead of stacked. */
 @media (min-width: 760px) {

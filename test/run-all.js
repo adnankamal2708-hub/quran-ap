@@ -80,6 +80,7 @@ var TESTS = [
   "verse-word-counts.test.js",
   "tajweed-track.test.js",
   "tajweed-exercises.test.js",
+  "tajweed-ui.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
