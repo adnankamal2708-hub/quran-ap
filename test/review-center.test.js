@@ -1503,39 +1503,154 @@ suite('renderReviewCenter — Practice groups', function() {
     });
   });
 
-  test('clicking Tajweed practice runs the due items one at a time, skipping a verse that cannot load', function() {
-    var host = makeEl('div');
-    host.id = 'rc-tajweed-host';
+  /** The Tajweed host (emptied by innerHTML, as in a browser) and the Due today card. */
+  function tajweedHost() {
+    var markup = '';
+    var host = {
+      id: 'rc-tajweed-host',
+      children: [],
+      appendChild: function(child) { child.parentNode = this; this.children.push(child); },
+    };
+    Object.defineProperty(host, 'innerHTML', {
+      get: function() { return markup; },
+      set: function(v) { markup = v || ''; host.children = []; },
+    });
     _elementsById['rc-tajweed-host'] = host;
     var card = makeEl('div');
     card.id = 'rc-tajweed-review';
     _elementsById['rc-tajweed-review'] = card;
-    var due = ['tj-letter:ba', 'tj-verse:1:1', 'tj-letter:ta'];
-    var shown = [];
-    global.renderTajweedPracticeCard = function(container, id, onMarked) {
-      assert.strictEqual(container, host, 'drawn in the card\'s own host');
-      shown.push({ id: id, onMarked: onMarked });
+    return { host: host, card: card };
+  }
+
+  /** Run fn with document.createElement recording which created element was focused last. */
+  function trackingFocus(fn) {
+    var realCreate = document.createElement;
+    var state = { focused: null };
+    document.createElement = function(tag) {
+      var el = realCreate(tag);
+      el.focus = function() { state.focused = el; };
+      return el;
     };
+    try { fn(state); } finally { document.createElement = realCreate; }
+  }
+
+  /** The Next button under the marked card, or null. */
+  function nextButton(host) {
+    var actions = host.children[1];
+    return actions && actions.children[0] ? actions.children[0] : null;
+  }
+
+  /** Stub renderTajweedPracticeCard, recording each card drawn: { container, id, onMarked }. */
+  function stubPracticeCard(shown) {
+    global.renderTajweedPracticeCard = function(container, id, onMarked) {
+      shown.push({ container: container, id: id, onMarked: onMarked });
+    };
+  }
+
+  test('clicking Tajweed practice draws the first due item in a card inside its host', function() {
+    var els = tajweedHost();
+    var shown = [];
+    stubPracticeCard(shown);
     try {
-      withTajweed(due, function() {
+      withTajweed(['tj-letter:ba', 'tj-verse:1:1'], function() {
         renderGrid();
-        card.click();
-        assert.deepStrictEqual(shown.map(function(s) { return s.id; }), ['tj-letter:ba']);
-        // Got it: the letter leaves the queue and the next one is drawn
-        global.getDueTajweedItems = function() { return ['tj-verse:1:1', 'tj-letter:ta']; };
-        shown[0].onMarked(true);
-        assert.strictEqual(shown[1].id, 'tj-verse:1:1');
-        // The verse's text can't load: skipped though still due, nothing recorded
-        shown[1].onMarked(null);
-        assert.strictEqual(shown[2].id, 'tj-letter:ta');
-        global.getDueTajweedItems = function() { return ['tj-verse:1:1']; };
-        shown[2].onMarked(false);
-        assert.strictEqual(shown.length, 3, 'no more items to draw');
-        assert.ok(host.innerHTML.indexOf('All caught up') >= 0, host.innerHTML);
+        els.card.click();
       });
     } finally {
       delete global.renderTajweedPracticeCard;
     }
+    assert.deepStrictEqual(shown.map(function(s) { return s.id; }), ['tj-letter:ba']);
+    assert.strictEqual(shown[0].container, els.host.children[0]);
+  });
+
+  test('after a mark the card stays with a focused Next, which shows the following item', function() {
+    var els = tajweedHost();
+    var shown = [];
+    stubPracticeCard(shown);
+    try {
+      trackingFocus(function(focus) {
+        withTajweed(['tj-letter:ba', 'tj-letter:ta'], function() {
+          renderGrid();
+          els.card.click();
+          global.getDueTajweedItems = function() { return ['tj-letter:ta']; };
+          shown[0].onMarked(true);
+          assert.strictEqual(shown.length, 1, 'the marked card stays');
+          assert.strictEqual(els.host.children[0], shown[0].container, 'its message is not replaced');
+          var next = nextButton(els.host);
+          assert.ok(next, 'a Next button under the card');
+          assert.strictEqual(next.textContent, 'Next');
+          assert.strictEqual(focus.focused, next, 'Next has focus');
+          next.onclick();
+          assert.deepStrictEqual(shown.map(function(s) { return s.id; }), ['tj-letter:ba', 'tj-letter:ta']);
+          assert.strictEqual(nextButton(els.host), null, 'no Next until the new card is marked');
+          assert.strictEqual(focus.focused, shown[1].container, 'focus moves to the new card');
+        });
+      });
+    } finally {
+      delete global.renderTajweedPracticeCard;
+    }
+  });
+
+  test('a verse that cannot load is skipped without a mark, and the end says it will come back', function() {
+    var els = tajweedHost();
+    var shown = [];
+    stubPracticeCard(shown);
+    try {
+      withTajweed(['tj-verse:1:1', 'tj-letter:ta'], function() {
+        renderGrid();
+        els.card.click();
+        shown[0].onMarked(null);
+        assert.strictEqual(shown[1].id, 'tj-letter:ta', 'skipped straight on, though still due');
+        global.getDueTajweedItems = function() { return ['tj-verse:1:1']; };
+        shown[1].onMarked(false);
+        nextButton(els.host).onclick();
+      });
+    } finally {
+      delete global.renderTajweedPracticeCard;
+    }
+    assert.strictEqual(shown.length, 2, 'the skipped verse is not drawn again');
+    assert.strictEqual(els.host.children.length, 1);
+    assert.strictEqual(els.host.children[0].textContent, "Done for now. Verses that couldn't load will come back.");
+    assert.strictEqual(els.host.children[0].getAttribute('role'), 'status');
+  });
+
+  test('with nothing skipped the end says all caught up', function() {
+    var els = tajweedHost();
+    var shown = [];
+    stubPracticeCard(shown);
+    try {
+      withTajweed(['tj-letter:ba'], function() {
+        renderGrid();
+        els.card.click();
+        global.getDueTajweedItems = function() { return []; };
+        shown[0].onMarked(true);
+        nextButton(els.host).onclick();
+      });
+    } finally {
+      delete global.renderTajweedPracticeCard;
+    }
+    assert.strictEqual(els.host.children[0].textContent.indexOf('All caught up'), 0, els.host.children[0].textContent);
+  });
+
+  /** The class attribute of the grid holding the drill cards. */
+  function drillGridClass(html) {
+    var drills = html.slice(html.indexOf('rc-group-title">Drills'));
+    var spot = drills.indexOf('id="rc-drill-spot"');
+    var open = drills.lastIndexOf('<div class="rc-modes-grid', spot);
+    return drills.slice(open, drills.indexOf('">', open));
+  }
+
+  test('the drill grid is sized by its cards', function() {
+    assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid', 'two cards');
+    global.isTrackReleased = function(id) { return id === 'tajweed'; };
+    try {
+      assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid rc-modes-grid-three', 'Tajweed without Qaida: three');
+    } finally {
+      delete global.isTrackReleased;
+    }
+    withTajweed([], function() {
+      assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid', 'four cards, two by two');
+    });
   });
 
   test('Drills has a Verse practice card once Tajweed is released, which starts verse practice', function() {
@@ -1591,11 +1706,13 @@ suite('renderReviewCenter — Practice groups', function() {
     }
   });
 
-  test('rendering Practice releases the microphone of any Tajweed card', function() {
+  test('rendering Practice releases the microphone of any Tajweed card, only once Tajweed is out', function() {
     var stops = 0;
     global.stopTajweedPractice = function() { stops++; };
     try {
       renderGrid();
+      assert.strictEqual(stops, 0, 'unreleased: other audio is left alone');
+      withTajweed([], function() { renderGrid(); });
     } finally {
       delete global.stopTajweedPractice;
     }

@@ -48,6 +48,7 @@ var TAJWEED_PLACEMENT_TAG_LABELS = {
  * Everything the test screen needs from a track: its question bank, the
  * learner's effective level, the next lesson and level lock (as the Learn
  * path has them), its title and description, and how its tags read.
+ * Optional noLesson: what the result offers when no lesson is left.
  */
 var PLACEMENT_TRACKS = {
   words: {
@@ -76,6 +77,13 @@ var PLACEMENT_TRACKS = {
     titleKey: 'test.tajweed.title',
     descKey: 'test.tajweed.desc',
     tags: TAJWEED_PLACEMENT_TAG_LABELS,
+    // The levels above Beginner are coming later: with no lesson left, the
+    // result offers verse practice instead
+    noLesson: {
+      noteKey: 'test.tajweed.beginnerDone',
+      startKey: 'test.tajweed.startVerses',
+      open: function() { startTajweedVersePractice(); },
+    },
   },
 };
 
@@ -174,6 +182,7 @@ function _resultMarkup() {
   var track = PLACEMENT_TRACKS[_placement.trackId];
   var levelName = t('level.' + result.level);
   var lesson = track.next(result.level);
+  var onward = lesson ? null : track.noLesson;
 
   var h = '<div class="placement placement-result">';
   h += _headMarkup(t(track.titleKey), 'test.close');
@@ -181,8 +190,9 @@ function _resultMarkup() {
     _plEsc(t(result.kept ? 'test.result.kept' : 'test.result.level', { level: levelName })) + '</p>';
   h += _chipGroup('test.result.strengths', result.strengths, 'strength');
   h += _chipGroup('test.result.gaps', result.gaps, 'gap');
+  if (onward) h += '<p class="placement-desc">' + _plEsc(t(onward.noteKey)) + '</p>';
   h += '<button type="button" class="btn placement-start" data-action="start-lesson">' +
-    _plEsc(t('test.result.start', { lesson: lesson ? _lessonLabel(lesson) : levelName })) + '</button>';
+    _plEsc(onward ? t(onward.startKey) : t('test.result.start', { lesson: lesson ? _lessonLabel(lesson) : levelName })) + '</button>';
   h += '</div>';
   return h;
 }
@@ -265,7 +275,8 @@ function _leavePlacement() {
 /**
  * Open the learner's next lesson (the first unfinished one at or above their
  * level) through the Learn path's opener. A premium-locked level opens the
- * track path instead, so the learner sees the lock and the upgrade prompt.
+ * track path instead, so the learner sees the lock and the upgrade prompt;
+ * with no lesson left, the track's noLesson step (or its path) opens.
  */
 function _startPlacedLesson() {
   var trackId = _placement.trackId;
@@ -273,7 +284,8 @@ function _startPlacedLesson() {
   var level = _placement.result.level;
   var lesson = track.next(level);
   _endPlacement();
-  if (!lesson || track.lock(level) === 'premium') switchView('track', { trackId: trackId });
+  if (!lesson && track.noLesson) track.noLesson.open();
+  else if (!lesson || track.lock(level) === 'premium') switchView('track', { trackId: trackId });
   else _openPathLesson(lesson.kind, lesson.ref);
 }
 

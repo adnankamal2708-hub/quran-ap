@@ -489,6 +489,52 @@ test('placed at Beginner: "Start at Foundation lesson 1" opens that lesson', fun
   assert.deepStrictEqual(calls, ['goToFoundationLesson:0']);
 });
 
+/**
+ * Run fn with the Tajweed track stubbed as it is today: Beginner lessons,
+ * every level above it coming later. `nextAtBeginner` is the next lesson at
+ * level 0 (null once Beginner is done).
+ */
+function withTajweedTrack(nextAtBeginner, fn) {
+  global.buildTajweedBank = function(attempt) { return global.buildWordMeaningsBank(attempt); };
+  global.getTajweedLevel = function() { return getTrackLevel('tajweed'); };
+  global.getTajweedNextLesson = function(level) { return level === 0 ? nextAtBeginner : null; };
+  global.getTajweedLevelLock = function(level) { return level > 0 ? 'coming' : null; };
+  global.startTajweedVersePractice = function() { calls.push('startTajweedVersePractice'); };
+  global.startTajweedLesson = function(id) { calls.push('startTajweedLesson:' + id); };
+  try { fn(); } finally {
+    ['buildTajweedBank', 'getTajweedLevel', 'getTajweedNextLesson', 'getTajweedLevelLock',
+      'startTajweedVersePractice', 'startTajweedLesson'].forEach(function(name) { delete global[name]; });
+  }
+}
+
+test('Tajweed placed above Beginner: Beginner counts as done and the button opens verse practice', function() {
+  withTajweedTrack(null, function() {
+    startPlacementTest('tajweed');
+    renderPlacementTest();
+    takeTest(function(item) { return itemLevel(item) <= 1; });
+    assert.strictEqual(getTrackLevel('tajweed'), 1);
+    assert.ok(html().indexOf('Beginner done — continue with verse practice') >= 0, html());
+    assert.ok(html().indexOf('>Start verse practice</button>') >= 0, html());
+    assert.ok(html().indexOf('Start at') < 0, 'no "Start at Elementary"');
+    calls = [];
+    clickAction('start-lesson');
+  });
+  assert.deepStrictEqual(calls, ['startTajweedVersePractice']);
+});
+
+test('Tajweed placed at Beginner: the button opens the next Tajweed lesson', function() {
+  withTajweedTrack({ kind: 'tajweed', number: 1, title: 'The five areas', completed: false, ref: 'tj0-1', level: 0 }, function() {
+    startPlacementTest('tajweed');
+    renderPlacementTest();
+    takeTest(allWrong);
+    assert.ok(html().indexOf('Start at The five areas') >= 0, html());
+    assert.ok(html().indexOf('verse practice') < 0);
+    calls = [];
+    clickAction('start-lesson');
+  });
+  assert.deepStrictEqual(calls, ['startTajweedLesson:tj0-1']);
+});
+
 test('placed at Elementary with guided reading: the button opens the first guided surah', function() {
   premiumGuided = true;
   startPlacementTest('words');

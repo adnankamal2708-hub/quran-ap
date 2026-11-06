@@ -40,8 +40,9 @@ function _switchViewCore(viewName, options) {
   }
 
   // Leaving the Tajweed screen some other way than its back button, or Practice
-  // (its Due today Tajweed card): release the microphone.
-  var holdsMic = currentView === 'tajweed-lesson' || currentView === 'review-center';
+  // once Tajweed is out (its Due today card): release the microphone.
+  var holdsMic = currentView === 'tajweed-lesson' || (currentView === 'review-center' &&
+    typeof isTrackReleased === 'function' && isTrackReleased('tajweed'));
   if (holdsMic && viewName !== currentView && typeof stopTajweedPractice === 'function') {
     stopTajweedPractice();
   }

@@ -237,26 +237,55 @@ function _rcTajweedDue() {
     '</div><div id="rc-tajweed-host" class="rc-drill-host"></div>';
 }
 
+function _rcEl(tag, className, text) {
+  var el = document.createElement(tag);
+  el.className = className;
+  if (text) el.textContent = text;
+  return el;
+}
+
 /**
- * Practise the due Tajweed items one at a time in the host (tajweed-ui.js
- * draws each card and records its mark), then say when none are left. A
- * verse whose text can't load is skipped for this run, not recorded.
+ * Practise the due Tajweed items one at a time in the host: tajweed-ui.js
+ * draws each card and records its mark, which stays on screen with a Next
+ * button under it. A verse whose text can't load is skipped for this run,
+ * not recorded. When none are left, a line says so.
  */
 function _rcStartTajweedReview(host) {
   if (!host || typeof renderTajweedPracticeCard !== 'function') return;
   var skipped = [];
   function next() {
     var id = getDueTajweedItems().filter(function(d) { return skipped.indexOf(d) < 0; })[0];
+    host.innerHTML = '';
     if (!id) {
-      host.innerHTML = '<p class="drill-message" role="status">' + t('tajweed.review.done') + '</p>';
+      var done = _rcEl('p', 'drill-message', t(skipped.length ? 'tajweed.review.doneSkipped' : 'tajweed.review.done'));
+      done.setAttribute('role', 'status');
+      host.appendChild(done);
       return;
     }
-    renderTajweedPracticeCard(host, id, function(marked) {
-      if (marked === null) skipped.push(id);
-      next();
+    var card = _rcEl('div', 'rc-tajweed-card');
+    var actions = _rcEl('div', 'rc-tajweed-next');
+    card.tabIndex = -1;
+    host.appendChild(card);
+    host.appendChild(actions);
+    renderTajweedPracticeCard(card, id, function(marked) {
+      if (marked === null) { skipped.push(id); next(); return; }
+      // As the Qaida review's Next in drill-ui.js
+      var button = _rcEl('button', 'btn drill-again', t('root.next'));
+      button.type = 'button';
+      button.onclick = next;
+      actions.appendChild(button);
+      button.focus();
     });
+    // A verse's controls appear once its text loads; until then the card takes focus
+    var first = card.querySelector ? card.querySelector('button') : null;
+    (first || card).focus();
   }
   next();
+}
+
+/** Grid class for a row of mode cards: one card fills it; three put the first on its own row on phones. */
+function _rcGridClass(count) {
+  return count === 1 ? ' rc-modes-grid-single' : count === 3 ? ' rc-modes-grid-three' : '';
 }
 
 /**
@@ -268,7 +297,7 @@ function _rcDrillCards() {
   var canSpot = typeof hasLearnedWords === 'function' && hasLearnedWords();
   var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
   var tajweed = _rcTajweedReleased();
-  var h = '<div class="rc-modes-grid' + (qaida && !tajweed ? ' rc-modes-grid-three' : '') + '">';
+  var h = '<div class="rc-modes-grid' + _rcGridClass(2 + (qaida ? 1 : 0) + (tajweed ? 1 : 0)) + '">';
   if (qaida) h += _rcModeCard('rc-drill-letters', 'search', t('drill.letters.title'), t('drill.letters.desc'));
   h += _rcModeCard('rc-drill-spot', 'target', t('drill.spot.title'),
     t(canSpot ? 'drill.spot.desc' : 'drill.needWords'));
@@ -283,9 +312,7 @@ function _rcDrillCards() {
 function _rcTestCards() {
   var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
   var tajweed = _rcTajweedReleased();
-  var count = 1 + (qaida ? 1 : 0) + (tajweed ? 1 : 0);
-  var grid = count === 1 ? ' rc-modes-grid-single' : count === 3 ? ' rc-modes-grid-three' : '';
-  return '<div class="rc-modes-grid' + grid + '">' +
+  return '<div class="rc-modes-grid' + _rcGridClass(1 + (qaida ? 1 : 0) + (tajweed ? 1 : 0)) + '">' +
     (qaida ? _rcModeCard('rc-test-qaida', 'book-open', t('test.qaida.title'), t('test.qaida.desc')) : '') +
     (tajweed ? _rcModeCard('rc-test-tajweed', 'volume-2', t('test.tajweed.title'), t('test.tajweed.desc')) : '') +
     _rcModeCard('rc-test-words', 'check-circle', t('test.words.title'), t('test.words.desc')) +
@@ -304,7 +331,7 @@ function renderReviewCenter() {
   // Invalidate cache to ensure fresh data
   invalidateReviewCenterCache();
   // Redrawing replaces any Tajweed practice card: release its microphone and audio
-  if (typeof stopTajweedPractice === 'function') stopTajweedPractice();
+  if (_rcTajweedReleased() && typeof stopTajweedPractice === 'function') stopTajweedPractice();
 
   var $data = gatherReviewCenterData();
   var $h = '';

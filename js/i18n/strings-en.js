@@ -290,6 +290,7 @@ var STRINGS = {
     'tajweed.review.title': 'Tajweed practice',
     'tajweed.review.due': '{n} to review',
     'tajweed.review.done': 'All caught up. Letters and verses you mark Not yet come back here.',
+    'tajweed.review.doneSkipped': "Done for now. Verses that couldn't load will come back.",
 
     // ── Audio ──
     'audio.credit.husary': 'Recitation: Al-Husary',
@@ -307,6 +308,8 @@ var STRINGS = {
     'test.qaida.desc': 'About 5 minutes · finds where to start reading',
     'test.tajweed.title': 'Tajweed placement test',
     'test.tajweed.desc': 'About 5 minutes · finds where to start reciting',
+    'test.tajweed.beginnerDone': 'Beginner done — continue with verse practice',
+    'test.tajweed.startVerses': 'Start verse practice',
     'test.result.level': 'Your level: {level}',
     'test.result.kept': "You're already at {level}; your level stays.",
     'test.result.strengths': 'Strengths',

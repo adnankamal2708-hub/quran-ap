@@ -228,13 +228,19 @@ suite('switchView Dispatching', function() {
     assert.ok(called);
   });
 
-  test('leaving the Tajweed screen or Practice releases the microphone', function() {
+  test('leaving the Tajweed screen, or Practice once Tajweed is out, releases the microphone', function() {
     var stops = 0;
+    var released = false;
     global.stopTajweedPractice = function() { stops++; };
+    global.isTrackReleased = function(id) { return id === 'tajweed' && released; };
     try {
       switchView('tajweed-lesson');
       switchView('dashboard');
       assert.strictEqual(stops, 1, 'left the Tajweed screen');
+      switchView('review-center');
+      switchView('profile');
+      assert.strictEqual(stops, 1, 'Tajweed unreleased: leaving Practice leaves audio alone');
+      released = true;
       switchView('review-center');
       switchView('profile');
       assert.strictEqual(stops, 2, 'left Practice');
@@ -242,6 +248,7 @@ suite('switchView Dispatching', function() {
       assert.strictEqual(stops, 2, 'no other view stops it');
     } finally {
       delete global.stopTajweedPractice;
+      delete global.isTrackReleased;
     }
   });
 });
