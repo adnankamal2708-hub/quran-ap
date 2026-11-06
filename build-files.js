@@ -36,6 +36,9 @@ const DATA_CORE_FILES = [
   'js/qaida/qaida-lessons.js',
   'js/qaida/qaida-readability.js',
   'js/qaida/qaida-audio-manifest.js',
+  // Tajweed makharij and lesson data (letter ids are the Qaida ones)
+  'js/tajweed/tajweed-makharij.js',
+  'js/tajweed/tajweed-lessons.js',
   'js/data-core/review-schedule.js',
   'js/data-core/qaida-track.js',
 ];

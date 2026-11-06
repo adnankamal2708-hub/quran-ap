@@ -75,6 +75,7 @@ var TESTS = [
   "qaida-readability.test.js",
   "audio.test.js",
   "qaida-exercises.test.js",
+  "tajweed-data.test.js",
 ];
 var totalPassed = 0;
 var totalFailed = 0;
