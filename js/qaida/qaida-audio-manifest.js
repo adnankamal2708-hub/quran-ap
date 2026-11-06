@@ -6,6 +6,8 @@
 // teacher are added: each skill without an entry simply has no play
 // button and no listening exercises, so adding a file plus a line here is
 // all it takes to switch one on. Never add synthetic or AI voices.
+// The Tajweed track appears once all 28 letters are listed. How to record
+// them and name the files: docs/recording-letters.md.
 //
 //   ba: 'ba.mp3',
 // ═══════════════════════════════════════════════════════════════

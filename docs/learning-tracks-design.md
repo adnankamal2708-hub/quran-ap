@@ -17,7 +17,8 @@ look, feel and calm tone.
   the share of the Quran a learner has opened up (see [Progress](#progress)).
 - **Accuracy before release.** Every Qaida, Tajweed and Understanding lesson
   is reviewed and approved by a qualified teacher. A track without that
-  review stays unreleased.
+  review stays unreleased. Owner decision, 2026-11-06: Tajweed ships without
+  the teacher-review note; the Qaida and Understanding rule is unchanged.
 - **One recitation.** Ḥafṣ ʿan ʿĀṣim only.
 - **Interactive, not read-and-memorise.** Every lesson is built from
   exercises.
@@ -120,7 +121,7 @@ grows, and every lesson ends by showing what it added, for example "+0.4%".
 |---|---|
 | Word meanings, Understanding | Words of the Quran the learner understands. This is the existing Quran coverage figure. |
 | Qaida | Words of the Quran the learner can read, because they have learned all of the word's letters and marks |
-| Tajweed | Places in the Quran where a tajweed rule applies and the learner has learned that rule. Needs tajweed-annotated text; arrives with Phase 3. |
+| Tajweed | Words in verses the learner has marked Smooth in verse practice |
 
 - One streak and one daily goal across all tracks; each track keeps its own
   progress and level.
@@ -224,6 +225,9 @@ Audio is a prerequisite for Qaida and Tajweed.
    content.
 2. **Audio and Qaida**, with the Qaida placement test.
 3. **Tajweed**, with its placement test and the reader's tajweed view.
+   Status: first version built (makhārij lessons and verse practice with
+   Al-Husary's teaching recitation); hidden until the 28 letter recordings
+   exist. The reader's tajweed view is still to do.
 4. **Understanding**, with its placement test.
 
 ## Open items
@@ -232,7 +236,7 @@ Audio is a prerequisite for Qaida and Tajweed.
 |---|---|---|
 | everyayah.com / quran.com permission for Al-Husary and Al-Minshawi audio | Request sent 2026-10-30, no reply by 2026-11-03. Used from Phase 2 under everyayah's stated terms (credit and link back) | Phase 2 |
 | Quran In Depth permission for letter recordings | Request sent 2026-10-30, no reply by 2026-11-03. Not used without permission (all rights reserved); letters ship with empty audio slots | Phase 2 |
-| Letter recordings to fill the Qaida audio slots | Not yet sourced | Phase 2 audio |
+| Letter recordings to fill the Qaida audio slots | The owner's own recordings; guide in docs/recording-letters.md. The Tajweed track stays hidden until all 28 exist | Phase 3 release |
 | Qualified teacher to review Qaida and Tajweed lessons | Not yet found | Phase 2 release |
 | Saheeh International translation licence | To verify; find a clearly licensed translation if needed | Phase 4 |
-| Tajweed-annotated Quran text and its licence | To find and verify | Phase 3 |
+| Tajweed-annotated Quran text and its licence | To find and verify (only for the reader's tajweed view; the first Tajweed version does not need it) | Reader view |
