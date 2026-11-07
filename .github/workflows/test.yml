@@ -71,10 +71,26 @@ jobs:
           done
           echo "::endgroup::"
 
+      - name: Cache Playwright browsers
+        if: matrix.node-version == '20.x'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install Chromium for end-to-end tests
         if: matrix.node-version == '20.x'
-        run: npx playwright install --with-deps chromium
-        timeout-minutes: 10
+        # Usually takes ~20 s, but the browser download or the apt step
+        # sometimes hangs until the step times out. Give each attempt 4
+        # minutes and try three times before failing the run.
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 240 npx playwright install --with-deps chromium; then exit 0; fi
+            echo "::warning::Chromium install attempt $attempt failed or hung; retrying"
+            sleep 15
+          done
+          exit 1
+        timeout-minutes: 14
 
       - name: Run end-to-end tests
         if: matrix.node-version == '20.x'
