@@ -192,16 +192,16 @@ function refreshQaidaPercent() {
 
 /**
  * Merge local and cloud Qaida progress: the union of finished lessons,
- * each keeping its earliest finish time and best score, and the union of
- * the review queue, each skill keeping its less advanced copy, less the
- * records scheduled before the skill last left the queue on either side.
+ * each keeping its earliest finish time and best score, and the review
+ * queues merged by mergeReviewQueues (the union, each skill keeping its
+ * later-scheduled copy, less the records scheduled before the skill last
+ * left the queue on either side).
  */
 function mergeQaidaProgress(local, cloud) {
   var a = normalizeQaidaProgress(local);
   var b = normalizeQaidaProgress(cloud);
-  var cleared = mergeClearedMaps(a.cleared, b.cleared);
-  var out = { completed: {}, review: mergeReviewMaps(dropClearedReviews(a.review, cleared), dropClearedReviews(b.review, cleared)),
-    cleared: cleared, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+  var queue = mergeReviewQueues(a, b);
+  var out = { completed: {}, review: queue.review, cleared: queue.cleared, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
   [a.completed, b.completed].forEach(function (src) {
     Object.keys(src).forEach(function (id) {
       var prev = out.completed[id];

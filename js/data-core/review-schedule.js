@@ -47,16 +47,28 @@ function normalizeReviewMap(src, isValidId) {
   return out;
 }
 
-/** The union of two review maps, each id keeping its less advanced copy (lower step, then earlier due). */
+/**
+ * The copy of a record a merge keeps: the one scheduled later (its last
+ * miss or step, reviewScheduledAt), or when both were scheduled at the
+ * same time, the less advanced (lower step, then earlier due). Taking the
+ * newer copy whole is what lets a tombstone apply in any merge order: a
+ * mix of an old copy's due and a newer copy's time could not be undone.
+ */
+function pickReviewRecord(x, y) {
+  var ax = reviewScheduledAt(x);
+  var ay = reviewScheduledAt(y);
+  if (ax !== ay) return ax > ay ? x : y;
+  if (x.step !== y.step) return x.step < y.step ? x : y;
+  return x.due <= y.due ? x : y;
+}
+
+/** The union of two review maps, each id keeping the copy pickReviewRecord picks. */
 function mergeReviewMaps(a, b) {
   var out = {};
   [a, b].forEach(function (src) {
     Object.keys(src).forEach(function (id) {
-      var prev = out[id];
-      var rec = src[id];
-      if (!prev || rec.step < prev.step || (rec.step === prev.step && rec.due < prev.due)) {
-        out[id] = { due: rec.due, step: rec.step };
-      }
+      var rec = out[id] ? pickReviewRecord(out[id], src[id]) : src[id];
+      out[id] = { due: rec.due, step: rec.step };
     });
   });
   return out;
@@ -67,7 +79,9 @@ function mergeReviewMaps(a, b) {
 // key, so a deleted review entry would come back from the cloud's older
 // copy. Each track keeps a `cleared` map { <id>: <time it left> } instead,
 // and a record scheduled at or before that time is dropped; a later miss
-// schedules a newer record, which stays.
+// schedules a newer record, which stays. A record's scheduled time (its
+// last miss or step) is derived from due and step, not stored, so records
+// from older versions need no migration.
 
 /** When a record was scheduled: its due time less the wait its step was given. */
 function reviewScheduledAt(rec) {
@@ -102,6 +116,18 @@ function dropClearedReviews(review, cleared) {
     if (!(cleared[id] >= reviewScheduledAt(review[id]))) out[id] = review[id];
   });
   return out;
+}
+
+/**
+ * Merge two review queues { review, cleared }: the union of both review
+ * maps first (mergeReviewMaps), then the records scheduled at or before
+ * their id was cleared on either side are dropped. Commutative,
+ * associative and idempotent, so devices that sync in any order agree,
+ * and a tombstone that arrives late still spares a miss made after it.
+ */
+function mergeReviewQueues(a, b) {
+  var cleared = mergeClearedMaps(a.cleared, b.cleared);
+  return { review: dropClearedReviews(mergeReviewMaps(a.review, b.review), cleared), cleared: cleared };
 }
 
 /** Ids due at `now`, most overdue first. */

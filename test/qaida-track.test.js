@@ -247,6 +247,86 @@ test('progress without a cleared field loads, with none', function () {
   assert.deepStrictEqual(Object.keys(loadQaidaProgress().review), ['ba']);
 });
 
+/** The cloud write, setDoc(..., {merge: true}): nested maps merge key by key and nothing is deleted. */
+function cloudWrite(cloud, data) {
+  Object.keys(data).forEach(function (k) {
+    var v = data[k];
+    if (v && typeof v === 'object' && cloud[k] && typeof cloud[k] === 'object') cloudWrite(cloud[k], v);
+    else cloud[k] = JSON.parse(JSON.stringify(v));
+  });
+}
+
+/**
+ * A misses ba and uploads, then graduates it offline (cleared at X); B
+ * misses ba a day after X. The devices then full-sync in `order`.
+ * Returns ba's record on each device and the miss B made.
+ */
+function twoDeviceRace(order) {
+  var devices = { A: {}, B: {} };
+  var cloud = {};
+  _storage = devices.A;
+  recordQaidaAnswer('ba', false, T0);
+  cloudWrite(cloud, loadQaidaProgress());
+  var x = graduate('ba');
+  _storage = devices.B;
+  recordQaidaAnswer('ba', false, x + DAY);
+  var miss = loadQaidaProgress().review.ba;
+  order.forEach(function (d) {
+    _storage = devices[d];
+    saveQaidaProgress(mergeQaidaProgress(loadQaidaProgress(), JSON.parse(JSON.stringify(cloud))));
+    cloudWrite(cloud, loadQaidaProgress());
+  });
+  var out = { miss: miss };
+  ['A', 'B'].forEach(function (d) { _storage = devices[d]; out[d] = loadQaidaProgress().review.ba; });
+  return out;
+}
+
+test('a later miss on another device survives a graduation that syncs after it, in either order', function () {
+  [['B', 'A', 'B'], ['A', 'B', 'A']].forEach(function (order) {
+    var r = twoDeviceRace(order);
+    assert.deepStrictEqual(r.A, r.miss, order.join('') + ': A keeps B\'s miss');
+    assert.deepStrictEqual(r.B, r.miss, order.join('') + ': B keeps its miss');
+  });
+});
+
+var _seed = 11;
+function rnd() { _seed = (_seed * 1103515245 + 12345) % 2147483648; return _seed / 2147483648; }
+/** A random stored record on a coarse time grid, so copies and tombstones often tie. */
+function randQaidaProgress() {
+  var p = { completed: {}, review: {}, updatedAt: Math.floor(rnd() * 10) };
+  ['q0-1', 'q0-2', 'q1-1'].forEach(function (id) {
+    if (rnd() < 0.5) p.completed[id] = { at: Math.floor(rnd() * 3) * 1000, score: Math.floor(rnd() * 5) / 4 };
+  });
+  if (rnd() < 0.7) p.cleared = {};
+  ['ba', 'ta', 'jim', 'fatha'].forEach(function (id) {
+    if (rnd() < 0.6) p.review[id] = { due: T0 + Math.floor(rnd() * 40) * DAY / 4, step: Math.floor(rnd() * 5) };
+    if (p.cleared && rnd() < 0.5) p.cleared[id] = T0 + Math.floor(rnd() * 40) * DAY / 4;
+  });
+  return p;
+}
+
+test('merge is commutative, associative and idempotent, and loses no lesson nor any record newer than its tombstone', function () {
+  for (var i = 0; i < 2000; i++) {
+    var a = randQaidaProgress();
+    var b = randQaidaProgress();
+    var c = randQaidaProgress();
+    var ab = mergeQaidaProgress(a, b);
+    assert.deepStrictEqual(mergeQaidaProgress(b, a), ab, 'commutative');
+    assert.deepStrictEqual(mergeQaidaProgress(ab, c), mergeQaidaProgress(a, mergeQaidaProgress(b, c)), 'associative');
+    assert.deepStrictEqual(mergeQaidaProgress(ab, ab), ab, 'idempotent');
+    assert.deepStrictEqual(mergeQaidaProgress(ab, a), ab, 'a stale side brings nothing back');
+    [normalizeQaidaProgress(a), normalizeQaidaProgress(b)].forEach(function (side) {
+      Object.keys(side.completed).forEach(function (id) { assert.ok(ab.completed[id], 'kept lesson ' + id); });
+      Object.keys(side.review).forEach(function (id) {
+        if (!(ab.cleared[id] >= reviewScheduledAt(side.review[id]))) assert.ok(ab.review[id], 'kept ' + id);
+      });
+    });
+    Object.keys(ab.review).forEach(function (id) {
+      assert.ok(!(ab.cleared[id] >= reviewScheduledAt(ab.review[id])), 'dropped cleared ' + id);
+    });
+  }
+});
+
 console.log('\n' + '='.repeat(50));
 console.log('  qaida-track.test.js');
 console.log('  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');

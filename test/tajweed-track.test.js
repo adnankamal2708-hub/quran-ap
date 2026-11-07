@@ -315,6 +315,108 @@ test('cleared entries load from progress without the field, canonical and the la
   assert.deepStrictEqual(p.review, {}, 'scheduled before it was cleared');
 });
 
+test('Smooth leaves a tombstone only for a verse that was in the queue', function () {
+  markTajweedVerse(1, 3, true, T0);
+  assert.deepStrictEqual(loadTajweedProgress().cleared, {}, 'never queued');
+  markTajweedVerse(1, 2, false, T0);
+  markTajweedVerse(1, 2, true, T0 + DAY);
+  assert.deepStrictEqual(loadTajweedProgress().cleared, { 'tj-verse:1:2': T0 + DAY });
+});
+
+/** The cloud write, setDoc(..., {merge: true}): nested maps merge key by key and nothing is deleted. */
+function cloudWrite(cloud, data) {
+  Object.keys(data).forEach(function (k) {
+    var v = data[k];
+    if (v && typeof v === 'object' && cloud[k] && typeof cloud[k] === 'object') cloudWrite(cloud[k], v);
+    else cloud[k] = JSON.parse(JSON.stringify(v));
+  });
+}
+
+/**
+ * A misses `id` and uploads, then `leave` takes it out of the queue
+ * offline (returning when); B misses it a day later. The devices then
+ * full-sync in `order`. Returns the record on each device and B's miss.
+ */
+function twoDeviceRace(id, miss, leave, order) {
+  var devices = { A: {}, B: {} };
+  var cloud = {};
+  _storage = devices.A;
+  miss(T0);
+  cloudWrite(cloud, loadTajweedProgress());
+  var x = leave();
+  assert.strictEqual(loadTajweedProgress().review[id], undefined, 'left the queue');
+  _storage = devices.B;
+  miss(x + DAY);
+  var out = { miss: loadTajweedProgress().review[id] };
+  order.forEach(function (d) {
+    _storage = devices[d];
+    saveTajweedProgress(mergeTajweedProgress(loadTajweedProgress(), JSON.parse(JSON.stringify(cloud))));
+    cloudWrite(cloud, loadTajweedProgress());
+  });
+  ['A', 'B'].forEach(function (d) { _storage = devices[d]; out[d] = loadTajweedProgress().review[id]; });
+  return out;
+}
+
+test('a later miss on another device survives a graduation or Smooth that syncs after it, in either order', function () {
+  var letter = function (now) { recordTajweedReview('tj-letter:ba', false, now); };
+  var graduate = function () {
+    var now = T0 + REVIEW_RETRY_MS;
+    recordTajweedReview('tj-letter:ba', true, now);
+    REVIEW_DAYS.forEach(function (days) { now += days * DAY; recordTajweedReview('tj-letter:ba', true, now); });
+    return now;
+  };
+  var verse = function (now) { markTajweedVerse(1, 2, false, now); };
+  var smooth = function () { markTajweedVerse(1, 2, true, T0 + DAY); return T0 + DAY; };
+  [['B', 'A', 'B'], ['A', 'B', 'A']].forEach(function (order) {
+    var r = twoDeviceRace('tj-letter:ba', letter, graduate, order);
+    assert.deepStrictEqual(r.A, r.miss, 'letter ' + order.join('') + ': A keeps B\'s miss');
+    assert.deepStrictEqual(r.B, r.miss, 'letter ' + order.join('') + ': B keeps its miss');
+    r = twoDeviceRace('tj-verse:1:2', verse, smooth, order);
+    assert.deepStrictEqual(r.A, r.miss, 'verse ' + order.join('') + ': A keeps B\'s miss');
+    assert.deepStrictEqual(r.B, r.miss, 'verse ' + order.join('') + ': B keeps its miss');
+  });
+});
+
+var _seed = 13;
+function rnd() { _seed = (_seed * 1103515245 + 12345) % 2147483648; return _seed / 2147483648; }
+/** A random stored record on a coarse time grid, with a non-canonical verse key, so copies and tombstones often tie. */
+function randTajweedProgress() {
+  var p = { completed: {}, review: {}, smooth: {}, updatedAt: Math.floor(rnd() * 10) };
+  ['tj0-1', 'tj0-2'].forEach(function (id) {
+    if (rnd() < 0.5) p.completed[id] = { at: Math.floor(rnd() * 3) * 1000, score: Math.floor(rnd() * 5) / 4 };
+  });
+  ['1:1', '1:2', '2:255'].forEach(function (key) { if (rnd() < 0.5) p.smooth[key] = Math.floor(rnd() * 3); });
+  if (rnd() < 0.7) p.cleared = {};
+  ['tj-letter:ba', 'tj-letter:hamza', 'tj-verse:1:2', 'tj-verse:01:02', 'tj-verse:2:255'].forEach(function (id) {
+    if (rnd() < 0.6) p.review[id] = { due: T0 + Math.floor(rnd() * 40) * DAY / 4, step: Math.floor(rnd() * 5) };
+    if (p.cleared && rnd() < 0.5) p.cleared[id] = T0 + Math.floor(rnd() * 40) * DAY / 4;
+  });
+  return p;
+}
+
+test('merge is commutative, associative and idempotent, and loses no lesson, smooth verse nor record newer than its tombstone', function () {
+  for (var i = 0; i < 2000; i++) {
+    var a = randTajweedProgress();
+    var b = randTajweedProgress();
+    var c = randTajweedProgress();
+    var ab = mergeTajweedProgress(a, b);
+    assert.deepStrictEqual(mergeTajweedProgress(b, a), ab, 'commutative');
+    assert.deepStrictEqual(mergeTajweedProgress(ab, c), mergeTajweedProgress(a, mergeTajweedProgress(b, c)), 'associative');
+    assert.deepStrictEqual(mergeTajweedProgress(ab, ab), ab, 'idempotent');
+    assert.deepStrictEqual(mergeTajweedProgress(ab, a), ab, 'a stale side brings nothing back');
+    [normalizeTajweedProgress(a), normalizeTajweedProgress(b)].forEach(function (side) {
+      Object.keys(side.completed).forEach(function (id) { assert.ok(ab.completed[id], 'kept lesson ' + id); });
+      Object.keys(side.smooth).forEach(function (key) { assert.ok(ab.smooth[key] !== undefined, 'kept smooth ' + key); });
+      Object.keys(side.review).forEach(function (id) {
+        if (!(ab.cleared[id] >= reviewScheduledAt(side.review[id]))) assert.ok(ab.review[id], 'kept ' + id);
+      });
+    });
+    Object.keys(ab.review).forEach(function (id) {
+      assert.ok(!(ab.cleared[id] >= reviewScheduledAt(ab.review[id])), 'dropped cleared ' + id);
+    });
+  }
+});
+
 console.log('\n📋 Tajweed track: release switch');
 
 test('the track is released only once all 28 letter recordings are in', function () {

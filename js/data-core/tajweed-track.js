@@ -70,14 +70,12 @@ function _canonicalTajweedId(id) {
   return id.indexOf('tj-verse:') === 0 ? 'tj-verse:' + _tajweedVerseKey(id.slice('tj-verse:'.length)) : id;
 }
 
-/** Rewrite tj-verse ids to canonical form; when two collapse, keep the less advanced copy. */
+/** Rewrite tj-verse ids to canonical form; when two collapse, keep the copy a merge would (pickReviewRecord). */
 function _canonicalTajweedReview(review) {
   var out = {};
   Object.keys(review).forEach(function (id) {
     var canon = _canonicalTajweedId(id);
-    var prev = out[canon];
-    var rec = review[id];
-    if (!prev || rec.step < prev.step || (rec.step === prev.step && rec.due < prev.due)) out[canon] = rec;
+    out[canon] = out[canon] ? pickReviewRecord(out[canon], review[id]) : review[id];
   });
   return out;
 }
@@ -245,8 +243,9 @@ function getTajweedLettersCovered() {
 
 /**
  * Record a verse-practice mark. "Smooth" adds the verse to the smooth
- * set (keeping its first time) and takes it out of the review queue;
- * "Not yet" schedules it as a miss. Verses that don't exist are ignored.
+ * set (keeping its first time) and takes it out of the review queue,
+ * leaving a tombstone only when it was queued; "Not yet" schedules it as
+ * a miss. Verses that don't exist are ignored.
  * @param {number} surah
  * @param {number} ayah
  * @param {boolean} smooth
@@ -261,8 +260,10 @@ function markTajweedVerse(surah, ayah, smooth, now) {
   var progress = loadTajweedProgress();
   if (smooth) {
     if (progress.smooth[key] === undefined) progress.smooth[key] = now;
-    delete progress.review['tj-verse:' + key];
-    progress.cleared['tj-verse:' + key] = now;
+    if (progress.review['tj-verse:' + key]) {
+      delete progress.review['tj-verse:' + key];
+      progress.cleared['tj-verse:' + key] = now;
+    }
   } else {
     progress.review['tj-verse:' + key] = scheduleReviewAnswer(progress.review['tj-verse:' + key], false, now);
   }
@@ -316,15 +317,16 @@ function refreshTajweedPercent() {
 /**
  * Merge local and cloud Tajweed progress: the union of finished lessons
  * (earliest finish time and best score each), of smooth verses (earliest
- * time each) and of the review queue (the less advanced copy of each, less
- * the records scheduled before the id last left the queue on either side).
+ * time each) and the review queues by mergeReviewQueues (the
+ * later-scheduled copy of each, less the records scheduled before the id
+ * last left the queue on either side).
  */
 function mergeTajweedProgress(local, cloud) {
   var a = normalizeTajweedProgress(local);
   var b = normalizeTajweedProgress(cloud);
-  var cleared = mergeClearedMaps(a.cleared, b.cleared);
-  var out = { completed: {}, review: mergeReviewMaps(dropClearedReviews(a.review, cleared), dropClearedReviews(b.review, cleared)),
-    cleared: cleared, smooth: {}, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+  var queue = mergeReviewQueues(a, b);
+  var out = { completed: {}, review: queue.review, cleared: queue.cleared, smooth: {},
+    updatedAt: Math.max(a.updatedAt, b.updatedAt) };
   [a, b].forEach(function (src) {
     Object.keys(src.completed).forEach(function (id) {
       var prev = out.completed[id];

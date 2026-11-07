@@ -72,13 +72,20 @@ test('normalizeReviewMap drops bad due, bad step and rejected ids', function () 
   assert.deepStrictEqual(normalizeReviewMap(null, ok), {});
 });
 
-test('mergeReviewMaps keeps the lower step, then the earlier due, and the union', function () {
+test('mergeReviewMaps keeps the later-scheduled copy, the less advanced one when scheduled together, and the union', function () {
   var a = { ba: { due: T0 + 3 * DAY, step: 2 }, ta: { due: T0, step: 0 }, sa: { due: T0 + 5, step: 1 } };
   var b = { ba: { due: T0 + DAY, step: 1 }, jim: { due: T0, step: 0 }, sa: { due: T0 + 2, step: 1 } };
   var m = mergeReviewMaps(a, b);
-  assert.deepStrictEqual(m.ba, { due: T0 + DAY, step: 1 });
-  assert.deepStrictEqual(m.sa, { due: T0 + 2, step: 1 });
+  assert.deepStrictEqual(m.ba, { due: T0 + DAY, step: 1 }, 'both scheduled at T0: the less advanced');
+  assert.deepStrictEqual(m.sa, { due: T0 + 5, step: 1 }, 'scheduled later');
   assert.ok(m.ta && m.jim);
+});
+
+test('a newer miss beats an older one, though the older is due first', function () {
+  var old = { ba: scheduleReviewAnswer(undefined, false, T0) };
+  var newer = { ba: scheduleReviewAnswer(undefined, false, T0 + DAY) };
+  assert.deepStrictEqual(mergeReviewMaps(old, newer).ba, newer.ba);
+  assert.deepStrictEqual(mergeReviewMaps(newer, old).ba, newer.ba);
 });
 
 test('a record was scheduled at its due time less its step\'s wait', function () {
@@ -108,6 +115,52 @@ test('dropClearedReviews drops records scheduled at or before their id was clear
   var out = dropClearedReviews(review, { ba: T0, ta: T0, jim: T0 });
   assert.deepStrictEqual(Object.keys(out).sort(), ['jim', 'kha']);
   assert.strictEqual(Object.keys(review).length, 4, 'the input is not changed');
+});
+
+test('mergeReviewQueues unions first, then drops what was cleared, so a tombstone that arrives late spares a newer miss', function () {
+  var oldMiss = { review: { ba: scheduleReviewAnswer(undefined, false, T0) }, cleared: {} };
+  var graduated = { review: {}, cleared: { ba: T0 + 30 * DAY } };
+  var newMiss = { review: { ba: scheduleReviewAnswer(undefined, false, T0 + 31 * DAY) }, cleared: {} };
+  var left = mergeReviewQueues(mergeReviewQueues(newMiss, oldMiss), graduated);
+  var right = mergeReviewQueues(newMiss, mergeReviewQueues(oldMiss, graduated));
+  assert.deepStrictEqual(left.review.ba, newMiss.review.ba);
+  assert.deepStrictEqual(right, left);
+  assert.strictEqual(mergeReviewQueues(oldMiss, graduated).review.ba, undefined, 'the stale copy stays gone');
+});
+
+// Random queues on a coarse time grid, so copies often tie and tombstones
+// often land on a record's scheduled time.
+var _seed = 7;
+function rnd() { _seed = (_seed * 1103515245 + 12345) % 2147483648; return _seed / 2147483648; }
+function randQueue() {
+  var q = { review: {}, cleared: {} };
+  ['ba', 'ta', 'jim'].forEach(function (id) {
+    if (rnd() < 0.6) q.review[id] = { due: T0 + Math.floor(rnd() * 40) * DAY / 4, step: Math.floor(rnd() * 5) };
+    if (rnd() < 0.4) q.cleared[id] = T0 + Math.floor(rnd() * 40) * DAY / 4;
+  });
+  q.review = dropClearedReviews(q.review, q.cleared);
+  return q;
+}
+
+test('mergeReviewQueues is commutative, associative and idempotent, and never drops a record scheduled after its tombstone', function () {
+  for (var i = 0; i < 3000; i++) {
+    var a = randQueue();
+    var b = randQueue();
+    var c = randQueue();
+    var ab = mergeReviewQueues(a, b);
+    assert.deepStrictEqual(mergeReviewQueues(b, a), ab, 'commutative');
+    assert.deepStrictEqual(mergeReviewQueues(ab, c), mergeReviewQueues(a, mergeReviewQueues(b, c)), 'associative');
+    assert.deepStrictEqual(mergeReviewQueues(ab, ab), ab, 'idempotent');
+    assert.deepStrictEqual(mergeReviewQueues(ab, a), ab, 'a stale side brings nothing back');
+    [a, b].forEach(function (side) {
+      Object.keys(side.review).forEach(function (id) {
+        if (!(ab.cleared[id] >= reviewScheduledAt(side.review[id]))) assert.ok(ab.review[id], 'kept ' + id);
+      });
+    });
+    Object.keys(ab.review).forEach(function (id) {
+      assert.ok(!(ab.cleared[id] >= reviewScheduledAt(ab.review[id])), 'dropped cleared ' + id);
+    });
+  }
 });
 
 test('dueReviewIds lists due ids, most overdue first', function () {
