@@ -255,6 +255,9 @@ async function _tjLoadVerseText(card) {
 
 function _tjMark(card, ok) {
   if (card.marked !== null) return;
+  // A take still running on this card is dropped, so the microphone never outlives its card
+  var recording = _tajweedRec.card === card;
+  if (recording) _tjStopRecorder();
   if (card.verse) {
     var before = getTajweedPercent();
     markTajweedVerse(card.verse.surah, card.verse.ayah, ok);
@@ -266,7 +269,8 @@ function _tjMark(card, ok) {
     recordTajweedReview(card.id, ok);
   }
   card.marked = ok;
-  _tjRenderCard(card);
+  if (recording) _tjRenderAll();
+  else _tjRenderCard(card);
   if (card.onMarked) card.onMarked(ok);
 }
 

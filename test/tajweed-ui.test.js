@@ -201,6 +201,29 @@ test('Record is disabled while a stop is pending', async function () {
   assert.ok(/<button[^>]*data-action="tj-record"(?![^>]*disabled)[^>]*>/.test(host.innerHTML), 'Record enabled again');
 });
 
+test('marking a card while it records drops the recording and frees Record on the other cards', async function () {
+  startTajweedLesson('tj0-2', 1);
+  var host = card('ha');
+  click(host, 'tj-record');
+  await settle();
+  var discards = _recorder.discards;
+  click(host, 'tj-ok');
+  assert.ok(_recorder.discards > discards, 'the recording is discarded');
+  assert.ok(host.innerHTML.indexOf('data-action="tj-stop"') < 0, 'no Stop left');
+  assert.ok(/<button[^>]*data-action="tj-record"(?![^>]*disabled)[^>]*>/.test(card('kha').innerHTML), 'Record enabled on another card');
+  assert.strictEqual(_tajweedRec.state, 'idle');
+});
+
+test('marking a card while another card records leaves that recording alone', async function () {
+  startTajweedLesson('tj0-2', 1);
+  click(card('ha'), 'tj-record');
+  await settle();
+  var discards = _recorder.discards;
+  click(card('kha'), 'tj-miss');
+  assert.strictEqual(_recorder.discards, discards);
+  assert.ok(card('ha').innerHTML.indexOf('data-action="tj-stop"') >= 0, 'still recording');
+});
+
 test('with the recorder unsupported, the card says so and Got it / Not yet still work', function () {
   _recorder.supported = false;
   startTajweedLesson('tj0-2', 1);

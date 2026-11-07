@@ -254,6 +254,8 @@ function _rcStartTajweedReview(host) {
   if (!host || typeof renderTajweedPracticeCard !== 'function') return;
   var skipped = [];
   function next() {
+    // The old card goes: release its microphone and audio first
+    if (typeof stopTajweedPractice === 'function') stopTajweedPractice();
     var id = getDueTajweedItems().filter(function(d) { return skipped.indexOf(d) < 0; })[0];
     host.innerHTML = '';
     if (!id) {

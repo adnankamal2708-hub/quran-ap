@@ -1632,6 +1632,29 @@ suite('renderReviewCenter — Practice groups', function() {
     assert.strictEqual(els.host.children[0].textContent.indexOf('All caught up'), 0, els.host.children[0].textContent);
   });
 
+  test('Next releases the marked card\'s microphone first, also when nothing is left', function() {
+    var els = tajweedHost();
+    var shown = [];
+    var stops = [];
+    stubPracticeCard(shown);
+    global.stopTajweedPractice = function() { stops.push(els.host.children.length); };
+    try {
+      withTajweed(['tj-letter:ba'], function() {
+        renderGrid();
+        els.card.click();
+        stops = [];
+        global.getDueTajweedItems = function() { return []; };
+        shown[0].onMarked(true);
+        nextButton(els.host).onclick();
+      });
+    } finally {
+      delete global.renderTajweedPracticeCard;
+      delete global.stopTajweedPractice;
+    }
+    assert.deepStrictEqual(stops, [2], 'stopped once, while the old card was still on screen');
+    assert.strictEqual(els.host.children[0].textContent.indexOf('All caught up'), 0);
+  });
+
   /** The class attribute of the grid holding the drill cards. */
   function drillGridClass(html) {
     var drills = html.slice(html.indexOf('rc-group-title">Drills'));
