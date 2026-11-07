@@ -23,7 +23,7 @@ var TAJWEED_CHECK_ITEMS_PER_LESSON = 2;
 var TAJWEED_AREA_ITEMS = 8;
 var TAJWEED_MAX_PER_AREA = 3;    // keeps one answer from dominating, so no two in a row can match
 var TAJWEED_QUALITY_ITEMS_PER_QUALITY = 3;
-var TAJWEED_BANK_ITEMS_PER_KIND = 4;
+var TAJWEED_BANK_ITEMS_PER_KIND = 6;
 var TAJWEED_BANK_SEED_STEP = 6151;
 var TAJWEED_MADD_LETTERS = ['waw', 'ya'];
 // Heavy or light depending on context (ر in رَبّ, the lām of Allah, alif after a heavy letter),
@@ -275,7 +275,9 @@ function buildTajweedLessonItems(lesson, seed) {
  * The Tajweed placement bank, one list per level:
  *   0 areas and qualities · 1 points and confused letters ·
  *   2 and 3 empty (the track has only the Beginner level so far).
- * The attempt number seeds it, so a retake asks different questions.
+ * One area question per area, and TAJWEED_BANK_ITEMS_PER_KIND each of
+ * qualities, points and confused letters, so every run asks 10 to 20
+ * questions. The attempt number seeds it, so a retake asks different questions.
  */
 function buildTajweedBank(attempt) {
   var rnd = qaidaRandom(TAJWEED_BANK_SEED_STEP * (attempt + 1));
@@ -286,16 +288,25 @@ function buildTajweedBank(attempt) {
     var inArea = letters.filter(function (l) { return getTajweedMakhraj(l).area === area; });
     bank[0].push(_tajweedAreaItem(_tajweedRandomItem(inArea, rnd), rnd));
   });
-  TAJWEED_BANK_QUALITIES.forEach(function (quality) {
-    bank[0].push(_tajweedQualityItem(quality, _tajweedRandomItem(TAJWEED_QUALITIES[quality], rnd), rnd));
-  });
+  // The qualities in turn, each question about a letter not asked yet
+  var qualityLetters = [];
+  for (var q = 0; q < TAJWEED_BANK_ITEMS_PER_KIND; q++) {
+    var quality = TAJWEED_BANK_QUALITIES[q % TAJWEED_BANK_QUALITIES.length];
+    var fresh = TAJWEED_QUALITIES[quality].filter(function (l) { return qualityLetters.indexOf(l) < 0; });
+    qualityLetters.push(_tajweedRandomItem(fresh, rnd));
+    bank[0].push(_tajweedQualityItem(quality, qualityLetters[q], rnd));
+  }
 
   qaidaShuffle(TAJWEED_POINTS.filter(function (p) { return p.letters.length > 0; }), rnd)
     .slice(0, TAJWEED_BANK_ITEMS_PER_KIND).forEach(function (point) {
       bank[1].push(_tajweedPointItem(_tajweedRandomItem(point.letters, rnd), rnd));
     });
+  var confused = [];
   qaidaShuffle(TAJWEED_CONFUSED_PAIRS, rnd).slice(0, TAJWEED_BANK_ITEMS_PER_KIND).forEach(function (pair) {
-    bank[1].push(_tajweedConfusedItem(pair[rnd() < 0.5 ? 0 : 1], true, rnd));
+    var id = pair[rnd() < 0.5 ? 0 : 1];
+    if (confused.indexOf(id) >= 0) id = pair[0] === id ? pair[1] : pair[0]; // a letter in two pairs is asked once
+    confused.push(id);
+    bank[1].push(_tajweedConfusedItem(id, true, rnd));
   });
 
   bank[0] = _tajweedSpreadAnswers(qaidaShuffle(bank[0], rnd));

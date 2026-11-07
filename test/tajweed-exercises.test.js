@@ -382,6 +382,37 @@ test('a placement run answering everything wrong ends at level 0', function () {
   });
 });
 
+test('every placement run asks 10 to 20 questions, as the spec says', function () {
+  var patterns = {
+    right: function () { return true; },
+    wrong: function () { return false; },
+    alternating: function (i) { return i % 2 === 0; },
+    'wrong first': function (i) { return i % 2 === 1; },
+  };
+  for (var attempt = 0; attempt < 6; attempt++) {
+    Object.keys(patterns).forEach(function (name) {
+      var state = createPlacementTest(buildTajweedBank(attempt));
+      var asked = 0;
+      while (nextPlacementItem(state) && asked < 100) state = answerPlacementItem(state, patterns[name](asked++));
+      assert.ok(asked >= PLACEMENT_MIN && asked <= PLACEMENT_MAX, name + ' run of attempt ' + attempt + ' asked ' + asked);
+    });
+  }
+});
+
+test('the bank never repeats a question in a level, nor puts the same answer twice in a row', function () {
+  for (var attempt = 0; attempt < 20; attempt++) {
+    var bank = buildTajweedBank(attempt);
+    [0, 1].forEach(function (l) {
+      var skills = bank[l].map(function (it) { return it.skill + '|' + it.prompt.text + '|' + it.prompt.ask; });
+      assert.strictEqual(new Set(skills).size, skills.length, 'attempt ' + attempt + ' level ' + l + ' repeats a question');
+      for (var i = 1; i < bank[l].length; i++) {
+        assert.notStrictEqual(bank[l][i].options[bank[l][i].answer], bank[l][i - 1].options[bank[l][i - 1].answer],
+          'attempt ' + attempt + ' level ' + l + ' items ' + (i - 1) + ' and ' + i);
+      }
+    });
+  }
+});
+
 test('every tag has a placement label string', function () {
   ['areas', 'points', 'qualities', 'confused'].forEach(function (tag) {
     assert.notStrictEqual(t('test.tag.tajweed.' + tag), 'test.tag.tajweed.' + tag);
