@@ -31,7 +31,10 @@ global.localStorage = {
 
 // A document whose elements exist for any id; the screens write innerHTML strings.
 var _els = {};
+var _listeners = {};
 global.document = {
+  visibilityState: 'visible',
+  addEventListener: function(type, fn) { (_listeners[type] = _listeners[type] || []).push(fn); },
   getElementById: function(id) {
     if (!_els[id]) _els[id] = { id: id, innerHTML: '', onclick: null, focus: function() {}, querySelector: function() { return null; } };
     return _els[id];
@@ -151,6 +154,7 @@ function reset() {
   global.getNextTajweedVerse = _realNextVerse;
   window.__quranLoader = loaderThatWorks();
   _tajweedRun = null;
+  document.visibilityState = 'visible';
 }
 
 section('Tajweed lesson intro');
@@ -262,6 +266,53 @@ test('leaving the lesson discards the recording and stops audio', function () {
   assert.ok(_recorder.discards > discards && _calls.stopAudio > stops);
   assert.deepStrictEqual(_views[_views.length - 1], ['track', { trackId: 'tajweed' }]);
   assert.strictEqual(_tajweedCards.length, 0, 'the cards are let go');
+});
+
+/** Set the page's visibility and fire visibilitychange. */
+function setVisibility(state) {
+  document.visibilityState = state;
+  (_listeners.visibilitychange || []).forEach(function (fn) { fn(); });
+}
+
+/** Give every letter a recording, which releases the track. */
+function releaseTajweed() {
+  QAIDA_LETTERS.forEach(function (l) { _audioUrls[l.id] = 'assets/audio/qaida/' + l.id + '.mp3'; });
+  assert.ok(isTrackReleased('tajweed'));
+}
+
+test('one visibilitychange listener is registered', function () {
+  assert.strictEqual((_listeners.visibilitychange || []).length, 1);
+});
+
+test('hiding the page drops a recording in progress, and the card can record again', async function () {
+  releaseTajweed();
+  startTajweedLesson('tj0-2', 1);
+  var host = card('ha');
+  click(host, 'tj-record');
+  await settle();
+  var discards = _recorder.discards;
+  setVisibility('hidden');
+  assert.ok(_recorder.discards > discards, 'the recording is discarded');
+  assert.strictEqual(_tajweedRec.state, 'idle');
+  assert.ok(host.innerHTML.indexOf('data-action="tj-stop"') < 0, 'no Stop left');
+  setVisibility('visible');
+  click(host, 'tj-record');
+  await settle();
+  assert.ok(host.innerHTML.indexOf('data-action="tj-stop"') >= 0, 'the card still redraws: Stop while recording again');
+});
+
+test('hiding the page does nothing while Tajweed is unreleased, or when the page becomes visible', async function () {
+  startTajweedLesson('tj0-2', 1);
+  click(card('ha'), 'tj-record');
+  await settle();
+  var discards = _recorder.discards;
+  setVisibility('hidden');
+  setVisibility('visible');
+  assert.strictEqual(_recorder.discards, discards);
+  releaseTajweed();
+  setVisibility('visible');
+  assert.strictEqual(_recorder.discards, discards);
+  assert.strictEqual(_tajweedRec.state, 'recording');
 });
 
 section('Tajweed lesson practice and finish');

@@ -14,7 +14,8 @@
 // renderTajweedPracticeCard draws the card both screens share (and the
 // Practice tab's review): Play or Listen, Record, Compare and the marks.
 // Recordings stay in memory (recorder.js), and the microphone is asked for
-// only when Record is tapped.
+// only when Record is tapped; a take still running is dropped when its card
+// is marked or the page is hidden.
 //
 // Clicks are handled by delegation, as in qaida-ui.js: the view handles
 // the screen's buttons, each card its own (their actions start with "tj-").
@@ -518,6 +519,20 @@ function startTajweedVersePractice() {
 function stopTajweedPractice() {
   _tjLeaveScreen();
 }
+
+/**
+ * When the page is hidden (another app, a locked phone), drop a recording
+ * in progress so the microphone is never left on. The cards stay on screen,
+ * redrawn with Record (stopTajweedPractice would let go of them, and they
+ * would stop redrawing). Registered once, below, when this file loads.
+ */
+function _onTajweedPageHidden() {
+  if (document.visibilityState !== 'hidden' || typeof isTrackReleased !== 'function' || !isTrackReleased('tajweed')) return;
+  if (_tajweedRec.state === 'idle') return;
+  _tjStopRecorder();
+  _tjRenderAll();
+}
+if (typeof document !== 'undefined' && document.addEventListener) document.addEventListener('visibilitychange', _onTajweedPageHidden);
 
 function _leaveTajweed() {
   _tjLeaveScreen();
