@@ -382,6 +382,10 @@ function _tjFinishMarkup(run) {
     var next = getTajweedNextLesson(lesson.level);
     h += '<div class="qaida-finish-actions">';
     if (next) h += '<button type="button" class="btn" data-action="next-lesson" data-ref="' + _tjEsc(next.ref) + '">' + _tjEsc(t('qaida.nextLesson')) + '</button>';
+    // A passed reading check ends the lessons so far: verse practice is what comes next
+    if (lesson.kind === 'check') {
+      h += '<button type="button" class="btn' + (next ? ' btn-outline' : '') + '" data-action="verses">' + _tjEsc(t('test.tajweed.startVerses')) + '</button>';
+    }
   }
   h += '<button type="button" class="btn btn-outline" data-action="back">' + _tjEsc(t('qaida.toPath')) + '</button></div>';
   return h + '</div>';
@@ -533,4 +537,5 @@ function _onTajweedClick(e) {
   else if (action === 'retry' && run && run.lesson) startTajweedLesson(run.lesson.id, run.seed + 1);
   else if (action === 'next-lesson') startTajweedLesson(el.getAttribute('data-ref'));
   else if (action === 'verse-next') _nextTajweedVerse();
+  else if (action === 'verses') startTajweedVersePractice();
 }

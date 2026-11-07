@@ -350,6 +350,19 @@ function renderDashboard() {
   // Determine next learning step
   if ($trackNext && ($qaidaMain || $tajweedMain || !$foundationComplete)) {
     $h += $trackNextCard();
+  } else if ($tajweedMain) {
+    // No Tajweed lesson left (or the next level is locked): verse practice is next
+    var $tvTrack = t('track.tajweed.name');
+    $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-tajweed-verses" tabindex="0" role="button" aria-label="' +
+      escapeHtml($tvTrack + ': ' + t('tajweed.verses.title')) + '">';
+    $h += '<div class="db-card-row">';
+    $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('volume-2', 22) + '</div>';
+    $h += '<div class="db-card-body">';
+    $h += '<div class="db-card-title">' + escapeHtml($tvTrack) + '</div>';
+    $h += '<div class="db-card-sub">' + escapeHtml(t('tajweed.verses.title') + ' · ' + t('tajweed.verses.desc')) + '</div>';
+    $h += '</div>';
+    $h += '<button class="btn btn-sm" type="button">' + escapeHtml(t('test.tajweed.startVerses')) + '</button>';
+    $h += '</div></div>';
   } else if ($fTotal > 0 && !$foundationComplete) {
     $h += '<div class="db-card db-up-next db-action-card db-card-highlight" id="db-continue-learning" tabindex="0" role="button" aria-label="' + ($noProgress ? 'Start' : 'Continue') + ' Foundation Course">';
     $h += '<div class="db-card-row">';
@@ -1008,6 +1021,11 @@ function renderDashboard() {
   $wire('db-track-next', function() {
     if ($trackNext && typeof _openPathLesson === 'function') _openPathLesson($trackNext.kind, $trackNext.ref);
     else if (typeof switchView === 'function') switchView('track', { trackId: $trackNextId });
+  });
+
+  // Up next — Tajweed verse practice, once its lessons are done
+  $wire('db-tajweed-verses', function() {
+    if (typeof startTajweedVersePractice === 'function') startTajweedVersePractice();
   });
 
   // Continue Learning — Reviews due

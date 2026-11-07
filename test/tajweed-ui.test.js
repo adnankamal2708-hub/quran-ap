@@ -292,6 +292,25 @@ test('a reading check below 0.8 is not recorded and offers a retry', function ()
   assert.ok(view().innerHTML.indexOf('letters covered') < 0);
 });
 
+test('a passed reading check offers verse practice next to Back to path', function () {
+  startTajweedLesson('tj0-12', 1);
+  answerAll(true);
+  assert.ok(isTajweedLessonCompleted('tj0-12'));
+  var h = view().innerHTML;
+  assert.ok(h.indexOf('data-action="verses"') >= 0, 'verse practice offered');
+  assert.ok(h.indexOf(escapeHtml(t('test.tajweed.startVerses'))) >= 0);
+  assert.ok(h.indexOf(escapeHtml(t('qaida.toPath'))) >= 0, 'Back to path still there');
+  click(view(), 'verses');
+  assert.strictEqual(_tajweedRun.mode, 'verses');
+  assert.deepStrictEqual(_views[_views.length - 1], ['tajweed-lesson', undefined]);
+});
+
+test('a finished letters lesson does not offer verse practice', function () {
+  startTajweedLesson('tj0-2', 1);
+  answerAll(true);
+  assert.ok(view().innerHTML.indexOf('data-action="verses"') < 0);
+});
+
 section('Tajweed verse practice');
 
 test('verse practice shows the verse, Listen with the credit, and Smooth marks it and shows the gain', async function () {

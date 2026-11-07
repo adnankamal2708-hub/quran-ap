@@ -1452,6 +1452,32 @@ suite('Up next after the placement test', function() {
     assert.deepStrictEqual(opened, ['tajweed:tj0-2']);
   });
 
+  test('with Tajweed as the main track and no lesson left, Up next opens verse practice', function() {
+    resetState();
+    setupGlobals();
+    _mockFoundationCompleted = 4;
+    var started = 0;
+    global.startTajweedVersePractice = function() { started++; };
+    try {
+      withTajweedMain(true, function() {
+        global.getTajweedNextLesson = function() { return null; };
+        setupDashboardGrid();
+        renderDashboard();
+        document.getElementById('db-tajweed-verses')._onclick();
+      });
+    } finally {
+      delete global.startTajweedVersePractice;
+    }
+    var html = getInnerHTML();
+    var card = html.indexOf('id="db-tajweed-verses"');
+    assert.ok(card >= 0, 'verse practice Up next card shown');
+    assert.ok(html.indexOf('id="db-continue-learning"') < 0, 'no Foundation card');
+    assert.ok(html.indexOf('id="db-track-next"') < 0);
+    assert.ok(html.indexOf('Verse practice', card) > card, 'names verse practice');
+    assert.ok(html.indexOf('>Start verse practice</button>', card) > card, 'its button');
+    assert.strictEqual(started, 1, 'opens verse practice');
+  });
+
   test('with Tajweed unreleased, Up next ignores it', function() {
     resetState();
     setupGlobals();
