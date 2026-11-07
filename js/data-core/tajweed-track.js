@@ -8,10 +8,11 @@
 // Progress is its own key, TAJWEED_PROGRESS_KEY, synced as
 // `tajweedProgress` alongside the existing fields (nothing existing changes):
 //   { completed: { <lessonId>: { at, score } },
-//     review: { <id>: { due, step } },
+//     review: { <id>: { due, step } }, cleared: { <id>: at },
 //     smooth: { "<surah>:<ayah>": at }, updatedAt }
 // review ids are tj-letter:<letterId> and tj-verse:<surah>:<ayah>, on the
-// shared schedule (js/data-core/review-schedule.js). smooth holds the
+// shared schedule (js/data-core/review-schedule.js); cleared holds when
+// each id last left the queue, so a sync can't bring it back. smooth holds the
 // verses marked "Smooth" in verse practice; the track's percent is the
 // share of the Quran's words in them. Only Beginner has lessons so far;
 // the levels above it show as coming later.
@@ -64,11 +65,16 @@ function _tajweedValidTime(at) {
   return typeof at === 'number' && isFinite(at) ? at : 0;
 }
 
+/** A valid review id with its verse key in canonical form */
+function _canonicalTajweedId(id) {
+  return id.indexOf('tj-verse:') === 0 ? 'tj-verse:' + _tajweedVerseKey(id.slice('tj-verse:'.length)) : id;
+}
+
 /** Rewrite tj-verse ids to canonical form; when two collapse, keep the less advanced copy. */
 function _canonicalTajweedReview(review) {
   var out = {};
   Object.keys(review).forEach(function (id) {
-    var canon = id.indexOf('tj-verse:') === 0 ? 'tj-verse:' + _tajweedVerseKey(id.slice('tj-verse:'.length)) : id;
+    var canon = _canonicalTajweedId(id);
     var prev = out[canon];
     var rec = review[id];
     if (!prev || rec.step < prev.step || (rec.step === prev.step && rec.due < prev.due)) out[canon] = rec;
@@ -96,8 +102,15 @@ function normalizeTajweedProgress(raw) {
     var at = _tajweedValidTime(verses[key]);
     smooth[canon] = smooth[canon] === undefined ? at : Math.min(smooth[canon] || at, at || smooth[canon]);
   });
-  return { completed: completed, review: _canonicalTajweedReview(normalizeReviewMap(raw.review, _isTajweedReviewId)),
-    smooth: smooth,
+  var stored = normalizeClearedMap(raw.cleared, _isTajweedReviewId);
+  var cleared = {};
+  Object.keys(stored).forEach(function (id) {
+    var canon = _canonicalTajweedId(id);
+    if (!(cleared[canon] >= stored[id])) cleared[canon] = stored[id];
+  });
+  return { completed: completed,
+    review: dropClearedReviews(_canonicalTajweedReview(normalizeReviewMap(raw.review, _isTajweedReviewId)), cleared),
+    cleared: cleared, smooth: smooth,
     updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : 0 };
 }
 
@@ -249,6 +262,7 @@ function markTajweedVerse(surah, ayah, smooth, now) {
   if (smooth) {
     if (progress.smooth[key] === undefined) progress.smooth[key] = now;
     delete progress.review['tj-verse:' + key];
+    progress.cleared['tj-verse:' + key] = now;
   } else {
     progress.review['tj-verse:' + key] = scheduleReviewAnswer(progress.review['tj-verse:' + key], false, now);
   }
@@ -302,13 +316,15 @@ function refreshTajweedPercent() {
 /**
  * Merge local and cloud Tajweed progress: the union of finished lessons
  * (earliest finish time and best score each), of smooth verses (earliest
- * time each) and of the review queue (the less advanced copy of each).
+ * time each) and of the review queue (the less advanced copy of each, less
+ * the records scheduled before the id last left the queue on either side).
  */
 function mergeTajweedProgress(local, cloud) {
   var a = normalizeTajweedProgress(local);
   var b = normalizeTajweedProgress(cloud);
-  var out = { completed: {}, review: mergeReviewMaps(a.review, b.review), smooth: {},
-    updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+  var cleared = mergeClearedMaps(a.cleared, b.cleared);
+  var out = { completed: {}, review: mergeReviewMaps(dropClearedReviews(a.review, cleared), dropClearedReviews(b.review, cleared)),
+    cleared: cleared, smooth: {}, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
   [a, b].forEach(function (src) {
     Object.keys(src.completed).forEach(function (id) {
       var prev = out.completed[id];
@@ -342,8 +358,12 @@ function recordTajweedReview(id, ok, now) {
   var progress = loadTajweedProgress();
   var next = scheduleReviewAnswer(progress.review[id], ok, now);
   if (next === undefined) return;
-  if (next === null) delete progress.review[id];
-  else progress.review[id] = next;
+  if (next === null) {
+    delete progress.review[id];
+    progress.cleared[id] = now;
+  } else {
+    progress.review[id] = next;
+  }
   saveTajweedProgress(progress);
   queueTracksSync();
 }

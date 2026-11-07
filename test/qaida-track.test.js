@@ -200,6 +200,53 @@ test('merge keeps every queued skill, the less advanced copy when both have one'
   assert.ok(m.review.ta && m.review.jim);
 });
 
+/** Bring `skill` through every review step until it leaves the queue; returns the time it left. */
+function graduate(skill) {
+  var now = T0;
+  recordQaidaAnswer(skill, false, now);
+  now += QAIDA_REVIEW_RETRY_MS;
+  recordQaidaAnswer(skill, true, now);
+  QAIDA_REVIEW_DAYS.forEach(function (days) {
+    now += days * DAY;
+    recordQaidaAnswer(skill, true, now);
+  });
+  assert.strictEqual(loadQaidaProgress().review[skill], undefined, 'left the queue');
+  return now;
+}
+
+test('a skill that left the queue stays gone after a merge with a stale copy that still has it', function () {
+  var stale = JSON.parse(JSON.stringify(loadQaidaProgress()));
+  stale.review.ba = { due: T0 + DAY, step: 1 };
+  var left = graduate('ba');
+  var m = mergeQaidaProgress(loadQaidaProgress(), stale);
+  assert.strictEqual(m.review.ba, undefined, 'not brought back');
+  assert.strictEqual(m.cleared.ba, left);
+  assert.strictEqual(mergeQaidaProgress(stale, m).review.ba, undefined, 'either order');
+});
+
+test('a miss after the skill left the queue brings it back through a merge', function () {
+  var left = graduate('ba');
+  var cleared = loadQaidaProgress();
+  _storage = {};
+  recordQaidaAnswer('ba', false, left + 1000);
+  var m = mergeQaidaProgress(cleared, loadQaidaProgress());
+  assert.deepStrictEqual(m.review.ba, { due: left + 1000 + QAIDA_REVIEW_RETRY_MS, step: 0 });
+});
+
+test('a later entry is kept even when the stale copy holds a less advanced one', function () {
+  var left = graduate('ba');
+  recordQaidaAnswer('ba', false, left + 1000);
+  recordQaidaAnswer('ba', true, left + 1000 + QAIDA_REVIEW_RETRY_MS);
+  var m = mergeQaidaProgress(loadQaidaProgress(), { review: { ba: { due: T0 + QAIDA_REVIEW_RETRY_MS, step: 0 } } });
+  assert.strictEqual(m.review.ba.step, 1);
+});
+
+test('progress without a cleared field loads, with none', function () {
+  _storage[QAIDA_PROGRESS_KEY] = JSON.stringify({ review: { ba: { due: 5, step: 1 } } });
+  assert.deepStrictEqual(loadQaidaProgress().cleared, {});
+  assert.deepStrictEqual(Object.keys(loadQaidaProgress().review), ['ba']);
+});
+
 console.log('\n' + '='.repeat(50));
 console.log('  qaida-track.test.js');
 console.log('  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');

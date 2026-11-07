@@ -81,6 +81,35 @@ test('mergeReviewMaps keeps the lower step, then the earlier due, and the union'
   assert.ok(m.ta && m.jim);
 });
 
+test('a record was scheduled at its due time less its step\'s wait', function () {
+  assert.strictEqual(reviewScheduledAt(scheduleReviewAnswer(undefined, false, T0)), T0);
+  for (var k = 0; k < REVIEW_DAYS.length; k++) {
+    assert.strictEqual(reviewScheduledAt(scheduleReviewAnswer({ due: T0, step: k }, true, T0)), T0, 'step ' + (k + 1));
+  }
+});
+
+test('normalizeClearedMap keeps finite times under accepted ids', function () {
+  var ok = function (id) { return id !== 'nope'; };
+  assert.deepStrictEqual(normalizeClearedMap({ ba: T0, nope: T0, ta: 'x', jim: Infinity, kha: null }, ok), { ba: T0 });
+  assert.deepStrictEqual(normalizeClearedMap(undefined, ok), {});
+});
+
+test('mergeClearedMaps keeps the later time of each id, and the union', function () {
+  assert.deepStrictEqual(mergeClearedMaps({ ba: 5, ta: 9 }, { ba: 7, jim: 1 }), { ba: 7, ta: 9, jim: 1 });
+});
+
+test('dropClearedReviews drops records scheduled at or before their id was cleared, and keeps later ones', function () {
+  var review = {
+    ba: { due: T0 - DAY + 3 * DAY, step: 2 },          // scheduled T0 - DAY
+    ta: { due: T0 + REVIEW_RETRY_MS, step: 0 },        // scheduled T0
+    jim: { due: T0 + 1 + REVIEW_RETRY_MS, step: 0 },   // scheduled just after
+    kha: { due: T0, step: 0 },
+  };
+  var out = dropClearedReviews(review, { ba: T0, ta: T0, jim: T0 });
+  assert.deepStrictEqual(Object.keys(out).sort(), ['jim', 'kha']);
+  assert.strictEqual(Object.keys(review).length, 4, 'the input is not changed');
+});
+
 test('dueReviewIds lists due ids, most overdue first', function () {
   var map = { a: { due: T0 - 5, step: 0 }, b: { due: T0 - 50, step: 1 }, c: { due: T0 + 1, step: 0 } };
   assert.deepStrictEqual(dueReviewIds(map, T0), ['b', 'a']);

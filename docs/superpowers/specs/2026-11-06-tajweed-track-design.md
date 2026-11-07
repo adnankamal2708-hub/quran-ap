@@ -150,7 +150,10 @@ whose letters' makhārij are learned would claim near 100% after one level).
 - **Own record:** Tajweed progress is its own localStorage key (like
   `quran_qaida_progress`), synced as its own field with the same merge
   rules: `{ completed: { lessonId: { at, score } }, review: { id: { due,
-  step } }, smooth: { "<surah>:<ayah>": at } }`.
+  step } }, cleared: { id: at }, smooth: { "<surah>:<ayah>": at } }`.
+  `cleared` (also in the Qaida record) holds when each id last left the
+  review queue, so a sync can't bring a removed entry back; a later miss
+  schedules a newer entry, which stays.
 - **Review ids are namespaced** so they never collide with Qaida's:
   `tj-letter:<letterId>` and `tj-verse:<surah>:<ayah>`. They use the
   same schedule as the Qaida queue (10 minutes, then 1, 3, 7, 21 days).

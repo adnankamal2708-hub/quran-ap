@@ -8,9 +8,11 @@
 // Progress is its own key, QAIDA_PROGRESS_KEY, synced as `qaidaProgress`
 // alongside the existing fields (nothing existing changes):
 //   { completed: { <lessonId>: { at, score } },
-//     review: { <skillId>: { due, step } }, updatedAt }
+//     review: { <skillId>: { due, step } }, cleared: { <skillId>: at }, updatedAt }
 // review is the Qaida review queue: skills missed in a lesson or drill,
 // scheduled apart from word reviews so word stats stay words only.
+// cleared holds when each skill last left the queue, so a sync can't bring
+// it back (review-schedule.js); older records without it load as {}.
 // Lessons open in order; a level opens once the previous level's reading
 // check is passed, or when placement put the learner at that level.
 
@@ -36,7 +38,9 @@ function normalizeQaidaProgress(raw) {
       score: typeof rec.score === 'number' && isFinite(rec.score) ? Math.max(0, Math.min(1, rec.score)) : 1,
     };
   });
-  return { completed: completed, review: normalizeReviewMap(raw.review, function (skill) { return QAIDA_SKILL_IDS.indexOf(skill) >= 0; }),
+  var isSkill = function (skill) { return QAIDA_SKILL_IDS.indexOf(skill) >= 0; };
+  var cleared = normalizeClearedMap(raw.cleared, isSkill);
+  return { completed: completed, review: dropClearedReviews(normalizeReviewMap(raw.review, isSkill), cleared), cleared: cleared,
     updatedAt: typeof raw.updatedAt === 'number' ? raw.updatedAt : 0 };
 }
 
@@ -189,12 +193,15 @@ function refreshQaidaPercent() {
 /**
  * Merge local and cloud Qaida progress: the union of finished lessons,
  * each keeping its earliest finish time and best score, and the union of
- * the review queue, each skill keeping its less advanced copy.
+ * the review queue, each skill keeping its less advanced copy, less the
+ * records scheduled before the skill last left the queue on either side.
  */
 function mergeQaidaProgress(local, cloud) {
   var a = normalizeQaidaProgress(local);
   var b = normalizeQaidaProgress(cloud);
-  var out = { completed: {}, review: mergeReviewMaps(a.review, b.review), updatedAt: Math.max(a.updatedAt, b.updatedAt) };
+  var cleared = mergeClearedMaps(a.cleared, b.cleared);
+  var out = { completed: {}, review: mergeReviewMaps(dropClearedReviews(a.review, cleared), dropClearedReviews(b.review, cleared)),
+    cleared: cleared, updatedAt: Math.max(a.updatedAt, b.updatedAt) };
   [a.completed, b.completed].forEach(function (src) {
     Object.keys(src).forEach(function (id) {
       var prev = out.completed[id];
@@ -223,8 +230,12 @@ function recordQaidaAnswer(skill, correct, now) {
   var progress = loadQaidaProgress();
   var next = scheduleReviewAnswer(progress.review[skill], correct, now);
   if (next === undefined) return;
-  if (next === null) delete progress.review[skill];
-  else progress.review[skill] = next;
+  if (next === null) {
+    delete progress.review[skill];
+    progress.cleared[skill] = now;
+  } else {
+    progress.review[skill] = next;
+  }
   saveQaidaProgress(progress);
   queueTracksSync();
 }

@@ -252,7 +252,7 @@ test('merge keeps every finished lesson and smooth verse, the earliest time each
 
 test('corrupt storage and unknown entries fall back to empty', function () {
   _storage[TAJWEED_PROGRESS_KEY] = '{not json';
-  assert.deepStrictEqual(loadTajweedProgress(), { completed: {}, review: {}, smooth: {}, updatedAt: 0 });
+  assert.deepStrictEqual(loadTajweedProgress(), { completed: {}, review: {}, cleared: {}, smooth: {}, updatedAt: 0 });
   _storage[TAJWEED_PROGRESS_KEY] = JSON.stringify({
     completed: { 'zz-9': { at: 1 }, 'tj0-1': { at: 1, score: 7 } },
     smooth: { '1:1': 3, '1:99': 3, 'x': 3, '1:2': 'y' },
@@ -262,6 +262,57 @@ test('corrupt storage and unknown entries fall back to empty', function () {
   assert.deepStrictEqual(p.completed, { 'tj0-1': { at: 1, score: 1 } });
   assert.deepStrictEqual(p.smooth, { '1:1': 3, '1:2': 0 });
   assert.deepStrictEqual(Object.keys(p.review), ['tj-letter:ba']);
+});
+
+console.log('\n📋 Tajweed track: entries that left the queue');
+
+test('a verse marked Smooth stays out of the queue after a merge with a stale copy that still has it', function () {
+  markTajweedVerse(1, 2, false, T0);
+  var stale = JSON.parse(JSON.stringify(loadTajweedProgress()));
+  markTajweedVerse(1, 2, true, T0 + DAY);
+  var m = mergeTajweedProgress(loadTajweedProgress(), stale);
+  assert.strictEqual(m.review['tj-verse:1:2'], undefined, 'not brought back');
+  assert.strictEqual(m.cleared['tj-verse:1:2'], T0 + DAY);
+  assert.strictEqual(mergeTajweedProgress(stale, m).review['tj-verse:1:2'], undefined, 'either order');
+});
+
+test('Not yet after Smooth brings the verse back, through a merge too', function () {
+  markTajweedVerse(1, 2, false, T0);
+  var stale = JSON.parse(JSON.stringify(loadTajweedProgress()));
+  markTajweedVerse(1, 2, true, T0 + DAY);
+  markTajweedVerse(1, 2, false, T0 + 2 * DAY);
+  var m = mergeTajweedProgress(loadTajweedProgress(), stale);
+  assert.deepStrictEqual(m.review['tj-verse:1:2'], { due: T0 + 2 * DAY + REVIEW_RETRY_MS, step: 0 });
+});
+
+test('a letter that graduated stays gone after a merge, and a later miss brings it back', function () {
+  var now = T0;
+  recordTajweedReview('tj-letter:ba', false, now);
+  var stale = JSON.parse(JSON.stringify(loadTajweedProgress()));
+  now += REVIEW_RETRY_MS;
+  recordTajweedReview('tj-letter:ba', true, now);
+  REVIEW_DAYS.forEach(function (days) {
+    now += days * DAY;
+    recordTajweedReview('tj-letter:ba', true, now);
+  });
+  assert.strictEqual(loadTajweedProgress().review['tj-letter:ba'], undefined, 'graduated');
+  var m = mergeTajweedProgress(loadTajweedProgress(), stale);
+  assert.strictEqual(m.review['tj-letter:ba'], undefined, 'not brought back');
+  assert.strictEqual(m.cleared['tj-letter:ba'], now);
+  recordTajweedReview('tj-letter:ba', false, now + 1000);
+  assert.ok(mergeTajweedProgress(loadTajweedProgress(), stale).review['tj-letter:ba'], 'the later miss wins');
+});
+
+test('cleared entries load from progress without the field, canonical and the latest time each', function () {
+  _storage[TAJWEED_PROGRESS_KEY] = JSON.stringify({ review: { 'tj-letter:ba': { due: 5, step: 1 } } });
+  assert.deepStrictEqual(loadTajweedProgress().cleared, {});
+  _storage[TAJWEED_PROGRESS_KEY] = JSON.stringify({
+    cleared: { 'tj-verse:1:2': 4, 'tj-verse:01:02': 9, 'tj-letter:nope': 5, 'tj-letter:ba': 'x' },
+    review: { 'tj-verse:1:2': { due: 8 + REVIEW_RETRY_MS, step: 0 } },
+  });
+  var p = loadTajweedProgress();
+  assert.deepStrictEqual(p.cleared, { 'tj-verse:1:2': 9 });
+  assert.deepStrictEqual(p.review, {}, 'scheduled before it was cleared');
 });
 
 console.log('\n📋 Tajweed track: release switch');
