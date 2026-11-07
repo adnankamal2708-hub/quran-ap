@@ -59,3 +59,5 @@ var QAIDA_AUDIO_MANIFEST = {
 
    The name must be the file's real name: an M4A file needs `ba: 'ba.m4a',`.
 3. Run `npm run build`. Once all 28 letters are listed, the Tajweed track appears.
+
+Before adding the 28th recording, read js/tajweed/tajweed-makharij.js, js/tajweed/tajweed-lessons.js and the tajweed.* strings in js/i18n/strings-en.js (point descriptions, qualities, lesson titles): the 28th file releases the track.
