@@ -20,6 +20,9 @@ module.exports = defineConfig({
   reporter: [
     ['list'],
     ['json', { outputFile: 'test-results/e2e-results.json' }],
+    // In CI, each failing test also becomes a run annotation, which the
+    // public GitHub API shows without a login (the logs need one).
+    ...(process.env.CI ? [['github']] : []),
   ],
   webServer: {
     command: 'node serve-e2e.js',
