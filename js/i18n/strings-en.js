@@ -351,7 +351,7 @@ var STRINGS = {
     'onboarding.new.desc': 'Start from the very beginning',
     'onboarding.test': 'Take a short test',
     'onboarding.test.desc': 'Find your level in about 5 minutes',
-    'onboarding.tracks.required': 'Choose at least one track. Read Arabic from zero and Word meanings are available now.',
+    'onboarding.tracks.required': 'Choose at least one track.',
     'onboarding.group.tracks': 'Tracks',
     'onboarding.group.extras': 'Also',
 

@@ -116,10 +116,20 @@ function _applyTrackChoices() {
   _selectedTracks.forEach(joinTrack);
   setStartFromZero(_startFromZero);
   // Starting from zero, or choosing only Qaida, makes Qaida the main track;
+  // otherwise choosing Tajweed without Word meanings makes Tajweed main.
   // Word meanings (joined by default) is left if it wasn't chosen.
   var qaida = typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0;
-  if (qaida && (_startFromZero || _selectedTracks.indexOf(DEFAULT_TRACK_ID) < 0)) setMainTrack(QAIDA_TRACK_ID);
-  if (qaida && _selectedTracks.indexOf(DEFAULT_TRACK_ID) < 0) leaveTrack(DEFAULT_TRACK_ID);
+  var tajweed = _isTajweedChosen();
+  var words = _selectedTracks.indexOf(DEFAULT_TRACK_ID) >= 0;
+  if (qaida && (_startFromZero || !words)) setMainTrack(QAIDA_TRACK_ID);
+  else if (tajweed && !words) setMainTrack(TAJWEED_TRACK_ID);
+  if ((qaida || tajweed) && !words) leaveTrack(DEFAULT_TRACK_ID);
+}
+
+/** True when Tajweed is released and chosen on the tracks screen. */
+function _isTajweedChosen() {
+  return typeof TAJWEED_TRACK_ID !== 'undefined' && isTrackReleased(TAJWEED_TRACK_ID) &&
+    _selectedTracks.indexOf(TAJWEED_TRACK_ID) >= 0;
 }
 
 /** The track "completely new" starts in: Read Arabic from zero once it is released. */
@@ -127,9 +137,10 @@ function _startTrackId() {
   return typeof QAIDA_TRACK_ID !== 'undefined' && isTrackReleased(QAIDA_TRACK_ID) ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID;
 }
 
-/** The track "take a short test" tests: Qaida when chosen, otherwise Word meanings. */
+/** The track "take a short test" tests: Qaida when chosen, then Tajweed when chosen, otherwise Word meanings. */
 function _testTrackId() {
-  return typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0 ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID;
+  if (typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0) return QAIDA_TRACK_ID;
+  return _isTajweedChosen() ? TAJWEED_TRACK_ID : DEFAULT_TRACK_ID;
 }
 
 /** Reset onboarding (for revisiting from Profile → Settings) */
@@ -618,13 +629,20 @@ function _applyOnboardingPreferences() {
   }
 }
 
-/** Navigate to the first lesson after onboarding: the main track's (Qaida or the Foundation Course) */
+/** Navigate to the first lesson after onboarding: the main track's (Qaida, Tajweed or the Foundation Course) */
 function navigateToFirstAction() {
   _applyOnboardingPreferences();
   if (typeof QAIDA_TRACK_ID !== 'undefined' && getMainTrackId() === QAIDA_TRACK_ID && typeof startQaidaLesson === 'function') {
     var next = getQaidaNextLesson(0);
     if (next) startQaidaLesson(next.ref);
     else switchView('track', { trackId: QAIDA_TRACK_ID });
+    return;
+  }
+  if (typeof TAJWEED_TRACK_ID !== 'undefined' && isTrackReleased(TAJWEED_TRACK_ID) &&
+      getMainTrackId() === TAJWEED_TRACK_ID && typeof startTajweedLesson === 'function') {
+    var nextTajweed = getTajweedNextLesson(0);
+    if (nextTajweed) startTajweedLesson(nextTajweed.ref);
+    else switchView('track', { trackId: TAJWEED_TRACK_ID });
     return;
   }
   _goToNextFoundationLesson();

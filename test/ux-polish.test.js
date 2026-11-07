@@ -800,8 +800,8 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.ok(html.indexOf('data-value="new"') > alsoAt);
   });
 
-  test('with no track picked, the message names what to pick', function() {
-    assert.strictEqual(t('onboarding.tracks.required'), 'Choose at least one track. Read Arabic from zero and Word meanings are available now.');
+  test('with no track picked, the message asks for one without naming which tracks are out', function() {
+    assert.strictEqual(t('onboarding.tracks.required'), 'Choose at least one track.');
   });
 
   test('an unreleased track cannot be toggled on', function() {
@@ -989,6 +989,84 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.strictEqual(opened.length, 1);
     delete global.startPlacementTest;
     delete global.goToFoundationLesson;
+  });
+
+  /** Run fn with the Tajweed track released (its 28 recordings in). */
+  function withTajweedReleased(fn) {
+    global.TAJWEED_TRACK_ID = 'tajweed';
+    global.areLetterRecordingsComplete = function() { return true; };
+    try { fn(); } finally {
+      delete global.TAJWEED_TRACK_ID;
+      delete global.areLetterRecordingsComplete;
+    }
+  }
+
+  test('once Tajweed is released, choosing only Tajweed makes it the main track and leaves Word meanings', function() {
+    withTajweedReleased(function() {
+      renderTracksScreen();
+      _selectedTracks = ['tajweed'];
+      ux.completeOnboarding();
+      assert.deepStrictEqual(getJoinedTrackIds(), ['tajweed']);
+      assert.strictEqual(getMainTrackId(), 'tajweed');
+    });
+  });
+
+  test('choosing Tajweed with Word meanings keeps Word meanings main; with Read Arabic from zero, that one is main', function() {
+    withTajweedReleased(function() {
+      renderTracksScreen();
+      _selectedTracks = ['words', 'tajweed'];
+      ux.completeOnboarding();
+      assert.strictEqual(getMainTrackId(), 'words');
+      renderTracksScreen();
+      _selectedTracks = ['tajweed', 'qaida'];
+      ux.completeOnboarding();
+      assert.strictEqual(getMainTrackId(), 'qaida');
+      assert.deepStrictEqual(getJoinedTrackIds().sort(), ['qaida', 'tajweed']);
+    });
+  });
+
+  test('"Take a short test" with Tajweed (and not Read Arabic from zero) opens the Tajweed test', function() {
+    withTajweedReleased(function() {
+      renderTracksScreen();
+      wireOnboardingEvents();
+      var started = [];
+      global.startPlacementTest = function(id) { started.push(id); };
+      _selectedTracks = ['tajweed'];
+      _wantsPlacementTest = true;
+      document.getElementById('onboarding-next').click();
+      flushTimeouts();
+      delete global.startPlacementTest;
+      assert.deepStrictEqual(started, ['tajweed']);
+    });
+  });
+
+  test('a learner whose main track is Tajweed starts at its first open lesson, or its path when none is left', function() {
+    withTajweedReleased(function() {
+      renderTracksScreen();
+      _selectedTracks = ['tajweed'];
+      ux.completeOnboarding();
+      var started = [];
+      var views = [];
+      var opened = [];
+      var next = { ref: 'tj0-1' };
+      global.getTajweedNextLesson = function() { return next; };
+      global.startTajweedLesson = function(ref) { started.push(ref); };
+      global.switchView = function(name, options) { views.push([name, options]); };
+      global.goToFoundationLesson = function(i) { opened.push(i); };
+      try {
+        navigateToFirstAction();
+        next = null;
+        navigateToFirstAction();
+      } finally {
+        delete global.getTajweedNextLesson;
+        delete global.startTajweedLesson;
+        delete global.switchView;
+        delete global.goToFoundationLesson;
+      }
+      assert.deepStrictEqual(started, ['tj0-1']);
+      assert.deepStrictEqual(views, [['track', { trackId: 'tajweed' }]]);
+      assert.deepStrictEqual(opened, [], 'never the Foundation Course');
+    });
   });
 
   test('step is still saved for interruption recovery', function() {
