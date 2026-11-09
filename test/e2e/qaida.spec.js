@@ -76,11 +76,13 @@ test.describe('Read Arabic from zero', () => {
     await expect(page.locator('#view-track .track-lesson[data-ref="q0-1"]')).toHaveClass(/is-done/);
     await expect(page.locator('#view-track .track-lesson[data-ref="q0-2"]')).not.toHaveClass(/is-locked/);
 
-    // Home: Up next is the next Qaida lesson, with a Qaida row
+    // Home: Up next is the next Qaida lesson. Letters alone read no whole
+    // word yet, so Qaida is still at 0% and Home shows no 0% row for it.
     await page.locator('#tab-home').click();
     await expect(page.locator('#db-track-next')).toContainText('Read Arabic from zero');
     await expect(page.locator('#db-track-next')).toContainText('Letters dāl to ṣād');
-    await expect(page.locator('#db-track-row-qaida')).toBeVisible();
+    expect(await page.evaluate(() => getQaidaPercent())).toBe(0);
+    await expect(page.locator('#db-track-row-qaida')).toHaveCount(0);
   });
 
   test('the Qaida placement test runs from Practice', async ({ page }) => {
