@@ -61,6 +61,24 @@ test('a second answer to the same question is ignored', function () {
   assert.deepStrictEqual(_recorded, [['ba', false]]);
 });
 
+console.log('\n📋 Lesson intro');
+
+load('js/qaida/qaida-letters.js');
+global.escapeHtml = global.escapeHtml || function(s) { return String(s).replace(/[&<>"']/g, function(c) { return '&#' + c.charCodeAt(0) + ';'; }); };
+global.uiIcon = global.uiIcon || function() { return ''; };
+global.qaidaAudioUrl = function() { return null; };
+
+test('a letters lesson says what to do and what the small shapes are', function () {
+  var html = _qIntroMarkup({ lesson: { id: 'q0-1', kind: 'letters', level: 0, number: 1, teaches: ['alif', 'ba'] },
+    items: [{ type: 'read-choose', skill: 'ba' }] }).replace(/&#39;/g, "'");
+  var note = html.indexOf('qaida-note');
+  assert.ok(note >= 0 && note < html.indexOf('qaida-letters'), 'an instruction line comes before the letters');
+  var text = html.slice(note, html.indexOf('</p>', note)).toLowerCase();
+  ['start', 'middle', 'end', 'practice'].forEach(function (word) {
+    assert.ok(text.indexOf(word) >= 0, 'instruction mentions "' + word + '"');
+  });
+});
+
 console.log('\n' + '='.repeat(50));
 console.log('  qaida-ui.test.js');
 console.log('  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');

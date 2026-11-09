@@ -87,7 +87,8 @@ function _qIntroBody(run) {
   var lesson = run.lesson;
   var letters = lesson.teaches.map(getQaidaLetter).filter(Boolean);
   if (lesson.kind === 'letters') {
-    var h = '<ul class="qaida-letters">' + letters.map(_qLetterCard).join('');
+    var h = '<p class="qaida-note">' + _qEsc(t('qaida.intro.letters')) + '</p>' +
+      '<ul class="qaida-letters">' + letters.map(_qLetterCard).join('');
     if (lesson.teaches.indexOf('hamza') >= 0) h += _qMarkCard('hamza', 'ء');
     return h + '</ul>';
   }

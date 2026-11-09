@@ -175,6 +175,7 @@ var STRINGS = {
     'qaida.home.goalNext': 'Complete your next lesson',
     'qaida.home.goalSub': 'Each lesson teaches a few letters or one mark',
     'qaida.intro.verseN': 'verse {n}',
+    'qaida.intro.letters': 'Look at each letter and say its name. The small row shows how it looks at the start, middle and end of a word, read from right to left. When you are ready, tap Practice.',
     'qaida.intro.shapes': 'These letters share one shape and differ only in their dots. Look at how many dots, and whether they sit above or below.',
     'qaida.intro.nonjoining': "These six letters join the letter before them but never the one after, so a word breaks after them.",
     'qaida.intro.forms': 'Most letters change shape to join their neighbours: one form at the start of a word, one in the middle and one at the end.',
