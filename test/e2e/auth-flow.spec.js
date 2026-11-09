@@ -33,6 +33,10 @@ async function skipOnboarding(page) {
 
 test.describe('Authentication Flow', () => {
   test.beforeEach(async ({ page }) => {
+    // The guest notice appears once a first lesson is finished
+    await page.addInitScript(() => {
+      localStorage.setItem('quran_qaida_progress', JSON.stringify({ completed: { 'q0-1': { at: 1, score: 1 } } }));
+    });
     await page.goto('/');
     await skipOnboarding(page);
   });

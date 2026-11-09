@@ -423,12 +423,34 @@ ts('Auth — Escape HTML', function() {
 });
 
 ts('Auth — Guest Notice', function() {
-  t('shows for signed-out users who have not dismissed', function() {
+  t('shows for signed-out users who have finished a lesson and not dismissed', function() {
+    _storage = {};
+    global.__mockUser = null;
+    global.getCompletedFoundationLessonCount = function() { return 1; };
+    var el = createEl('guest-notice');
+    el.hidden = true;
+    updateGuestNotice(null);
+    delete global.getCompletedFoundationLessonCount;
+    assert.strictEqual(el.hidden, false);
+  });
+
+  t('stays hidden for a first-time guest who has not finished a lesson', function() {
     _storage = {};
     global.__mockUser = null;
     var el = createEl('guest-notice');
     el.hidden = true;
     updateGuestNotice(null);
+    assert.strictEqual(el.hidden, true);
+  });
+
+  t('a finished letters lesson counts too', function() {
+    _storage = {};
+    global.__mockUser = null;
+    global.loadQaidaProgress = function() { return { completed: { 'q0-1': { at: 1, score: 1 } } }; };
+    var el = createEl('guest-notice');
+    el.hidden = true;
+    updateGuestNotice(null);
+    delete global.loadQaidaProgress;
     assert.strictEqual(el.hidden, false);
   });
 

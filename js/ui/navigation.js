@@ -148,6 +148,11 @@ function _switchViewCore(viewName, options) {
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderReviewCenter() not found');
   }
   
+  // The guest sign-up notice appears once a first lesson is finished
+  if (typeof updateGuestNotice === 'function' && typeof getCurrentUser === 'function') {
+    updateGuestNotice(getCurrentUser());
+  }
+
   // Show contextual tooltips for first-time users after view renders
   // (showContextualTooltips decides whether this learner should get them)
   if (window.__ux && typeof window.__ux.showContextualTooltips === 'function') {

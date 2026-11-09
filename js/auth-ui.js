@@ -598,14 +598,26 @@ function wireGuestNoticeEvents() {
   updateGuestNotice(getCurrentUser ? getCurrentUser() : null);
 }
 
+/** True once the learner has finished a lesson on any course. */
+function hasFinishedALesson() {
+  if (typeof getCompletedFoundationLessonCount === 'function' && getCompletedFoundationLessonCount() > 0) return true;
+  if (typeof hasLearnedWords === 'function' && hasLearnedWords()) return true;
+  return [typeof loadQaidaProgress === 'function' ? loadQaidaProgress : null,
+    typeof loadTajweedProgress === 'function' ? loadTajweedProgress : null].some(function (load) {
+    return load && Object.keys(load().completed || {}).length > 0;
+  });
+}
+
 /**
- * Show the guest notice only for signed-out users who haven't dismissed it.
+ * Show the guest notice only for signed-out users who have finished a
+ * lesson and haven't dismissed it: on the first visit there is nothing
+ * to save yet, and it was one more thing to read.
  * Informational only — never blocks or interrupts usage.
  */
 function updateGuestNotice(user) {
   var notice = document.getElementById('guest-notice');
   if (!notice) return;
-  notice.hidden = !!(user || isGuestNoticeDismissed());
+  notice.hidden = !!(user || isGuestNoticeDismissed() || !hasFinishedALesson());
 }
 
 // ── UI Update ─────────────────────────────────────────────────
