@@ -163,7 +163,7 @@ test.describe('Authentication Flow', () => {
     // For a guest, the link should be visible
     const signinLink = page.locator('#header-signin-link');
     await expect(signinLink).toBeVisible();
-    // Verify guest badge is also visible
-    await expect(page.locator('#guest-badge')).toBeVisible();
+    // No separate "Guest" label: the Sign in link says it
+    await expect(page.locator('#guest-badge')).toHaveCount(0);
   });
 });

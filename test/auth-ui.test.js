@@ -499,7 +499,6 @@ ts('Auth — Guest Notice', function() {
     var el = createEl('guest-notice');
     el.hidden = false;
     createEl('user-avatar-display');
-    createEl('guest-badge');
     updateAuthUI({ uid: 'u1', email: 'test@example.com', displayName: 'Test', emailVerified: true });
     assert.strictEqual(el.hidden, true);
   });
@@ -614,11 +613,10 @@ ts('Auth — Sign In with Google', function() {
 });
 
 ts('Auth — Header Sign-In Link', function() {
-  t('shows for guest users (alongside guest badge)', function() {
+  t('shows for guest users', function() {
     _storage = {};
     global.__mockUser = null;
     createEl('user-avatar-display');
-    createEl('guest-badge');
     createEl('header-signin-link');
     updateAuthUI(null);
     assert.strictEqual(document.getElementById('header-signin-link').style.display, 'inline');
@@ -628,7 +626,6 @@ ts('Auth — Header Sign-In Link', function() {
     _storage = {};
     global.__mockUser = null;
     createEl('user-avatar-display');
-    createEl('guest-badge');
     createEl('header-signin-link');
     updateAuthUI(null);
     var avatar = document.getElementById('user-avatar-display');
@@ -640,7 +637,6 @@ ts('Auth — Header Sign-In Link', function() {
     _storage = {};
     global.__mockUser = { uid: 'u1', email: 'zara@b.com', displayName: '', emailVerified: true };
     createEl('user-avatar-display');
-    createEl('guest-badge');
     createEl('header-signin-link');
     updateAuthUI(global.__mockUser);
     assert.strictEqual(document.getElementById('user-avatar-display').textContent, 'Z');
@@ -650,7 +646,6 @@ ts('Auth — Header Sign-In Link', function() {
     _storage = {};
     global.__mockUser = { uid: 'u1', email: 'a@b.com', displayName: 'A', emailVerified: true };
     createEl('user-avatar-display');
-    createEl('guest-badge');
     createEl('header-signin-link');
     updateAuthUI(global.__mockUser);
     assert.strictEqual(document.getElementById('header-signin-link').style.display, 'none');

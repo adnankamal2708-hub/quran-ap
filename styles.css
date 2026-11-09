@@ -2357,13 +2357,9 @@ body::before {
   outline-offset: 2px;
 }
 
-.guest-badge {
-  font-size: var(--text-xs);
-  color: var(--gold-muted);
-}
-
+/* The header's one account link for guests; no separate "Guest" label */
 .header-signin-link {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--gold);
   text-decoration: underline;
   text-underline-offset: 2px;

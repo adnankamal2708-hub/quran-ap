@@ -629,7 +629,6 @@ var GUEST_AVATAR_ICON = '<svg viewBox="0 0 24 24" stroke="currentColor" stroke-w
  */
 function updateAuthUI(user) {
   var avatarDisplay = document.getElementById('user-avatar-display');
-  var guestBadge = document.getElementById('guest-badge');
   var headerSignin = document.getElementById('header-signin-link');
   var authViews = ['view-auth', 'view-profile', 'view-settings'];
 
@@ -642,7 +641,6 @@ function updateAuthUI(user) {
       avatarDisplay.textContent = initial;
       avatarDisplay.title = user.displayName || user.email || 'Account';
     }
-    if (guestBadge) guestBadge.style.display = 'none';
     if (headerSignin) headerSignin.style.display = 'none';
 
     // Update profile view if it's visible, but ONLY if a full profile
@@ -659,7 +657,6 @@ function updateAuthUI(user) {
       avatarDisplay.innerHTML = GUEST_AVATAR_ICON;
       avatarDisplay.title = 'Sign in';
     }
-    if (guestBadge) guestBadge.style.display = 'inline';
     if (headerSignin) headerSignin.style.display = 'inline';
   }
 }
