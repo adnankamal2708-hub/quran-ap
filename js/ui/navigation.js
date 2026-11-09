@@ -151,6 +151,8 @@ function _switchViewCore(viewName, options) {
   // Show contextual tooltips for first-time users after view renders
   // (showContextualTooltips decides whether this learner should get them)
   if (window.__ux && typeof window.__ux.showContextualTooltips === 'function') {
+    // A tip belongs to one screen: close the last screen's tips now
+    if (typeof window.__ux.closeTooltips === 'function') window.__ux.closeTooltips();
     // Delay slightly to let the view render first
     setTimeout(function() {
       window.__ux.showContextualTooltips(viewName);

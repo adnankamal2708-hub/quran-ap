@@ -833,38 +833,43 @@ function releaseOnboardingFocus() {
 
 var _tooltips = {
   'quran-mode': {
+    view: 'quran',
     selector: '#view-quran',
     icon: 'book-open',
-    title: 'Interactive Reading',
-    message: 'Tap any highlighted word to see its meaning, root, and tafsir. Mastered words appear in gold; words not studied yet are underlined.',
+    title: 'Reading the Quran',
+    message: 'Tap any word to see what it means. Words you have learned turn gold.',
     position: 'bottom'
   },
   'word-details': {
+    view: 'learn',
     selector: '#qa-show-ayah',
     icon: 'search',
-    title: 'Word Details',
-    message: 'Tap to see the verse this word comes from, with Ibn Kathir\'s tafsir a tap away below it.',
+    title: 'See the verse',
+    message: 'Tap here to see the verse this word comes from.',
     position: 'top'
   },
   'review-center': {
+    view: 'dashboard',
     selector: '#db-review-center-prompt',
     icon: 'list',
-    title: 'Review center',
-    message: 'Your hub for all review modes — flashcards, quizzes, and focused practice sessions.',
+    title: 'Review',
+    message: 'What you learn comes back here for a quick review, so you remember it.',
     position: 'top'
   },
   'paths': {
+    view: 'learn',
     selector: '#tab-learn',
     icon: 'layers',
-    title: 'Learning Paths',
-    message: 'Switch between Foundation Course, surah-by-surah study, root families, or difficulty-based learning.',
+    title: 'Your courses',
+    message: 'Your courses and their lessons are here. Tap a course to see its lessons.',
     position: 'top'
   },
   'dashboard': {
+    view: 'dashboard',
     selector: '#tab-home',
     icon: 'chart',
-    title: 'Dashboard',
-    message: 'Your learning overview — track comprehension, review progress, and discover personalized recommendations.',
+    title: 'Home',
+    message: 'Home always shows your next lesson. Tap Start to carry on.',
     position: 'top'
   }
 };
@@ -926,6 +931,23 @@ function _isOnScreen(el) {
 /** Tips waiting for their target to scroll into view, by id */
 var _tooltipWatchers = {};
 
+/** Close functions of the tips on screen now */
+var _openTooltips = [];
+
+/** True while the learner is on the screen the tip belongs to. */
+function _tipScreenIsOpen(tip) {
+  return typeof currentView === 'undefined' || currentView === tip.view;
+}
+
+/** Close every open tip and stop waiting for others (the screen changed). */
+function closeTooltips() {
+  Object.keys(_tooltipWatchers).forEach(function(id) {
+    _tooltipWatchers[id].disconnect();
+    delete _tooltipWatchers[id];
+  });
+  _openTooltips.slice().forEach(function(close) { close(); });
+}
+
 /** Show the tip once its target is in view (fully, or half the screen of a tall one). */
 function _showTooltipWhenVisible(tipId, targetEl) {
   if (_tooltipWatchers[tipId] || typeof IntersectionObserver !== 'function') return;
@@ -953,6 +975,7 @@ function showTooltip(tipId) {
   } catch (e) {}
 
   var tip = _tooltips[tipId];
+  if (!_tipScreenIsOpen(tip)) return;
   var targetEl = document.querySelector(tip.selector);
   if (!targetEl) return;
   if (!_isOnScreen(targetEl)) {
@@ -989,6 +1012,8 @@ function showTooltip(tipId) {
   }
 
   function dismiss() {
+    var i = _openTooltips.indexOf(dismiss);
+    if (i >= 0) _openTooltips.splice(i, 1);
     document.removeEventListener('scroll', onScroll, true);
     if (window.removeEventListener) window.removeEventListener('resize', onScroll);
     tooltip.classList.remove('ux-tooltip-visible');
@@ -1015,11 +1040,9 @@ function showTooltip(tipId) {
   // Close handler
   var closeBtn = tooltip.querySelector('.ux-tooltip-close');
   if (closeBtn) closeBtn.onclick = dismiss;
-
-  // Auto-dismiss after 6 seconds
-  setTimeout(function() {
-    if (tooltip.parentNode) dismiss();
-  }, 6000);
+  // Stays until Got it, the screen changes, or its target scrolls away:
+  // slow readers need the time.
+  _openTooltips.push(dismiss);
 }
 
 /**
@@ -1449,6 +1472,7 @@ window.__ux = {
   getOnboardingLevel: getOnboardingLevel,
   showTooltip: showTooltip,
   showContextualTooltips: showContextualTooltips,
+  closeTooltips: closeTooltips,
   resetTooltips: resetTooltips,
   getProgressiveVisibility: getProgressiveVisibility,
   applyProgressiveDisclosure: applyProgressiveDisclosure,

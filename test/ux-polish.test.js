@@ -551,6 +551,43 @@ suite('Contextual Tooltips Timing', function() {
     ux.showContextualTooltips('quran');
     assert.strictEqual(tooltipCount(), 0);
   });
+
+  test('a tip whose screen the learner already left is not shown (it covered Profile)', function() {
+    setupQuranTarget();
+    _onboardedThisSession = true;
+    global.currentView = 'profile';
+    ux.showContextualTooltips('quran');
+    delete global.currentView;
+    assert.strictEqual(tooltipCount(), 0);
+    assert.notStrictEqual(localStorage.getItem('quran_tooltip_seen_quran-mode'), 'true', 'still unseen, so it can show later');
+  });
+
+  test('a tip stays open until Got it (no auto-close for slow readers)', function() {
+    setupQuranTarget();
+    _onboardedThisSession = true;
+    ux.showContextualTooltips('quran');
+    flushTimeouts();
+    flushTimeouts(); // also runs the removal a dismiss would schedule
+    assert.strictEqual(tooltipCount(), 1);
+  });
+
+  test('closeTooltips removes open tips when the screen changes', function() {
+    setupQuranTarget();
+    _onboardedThisSession = true;
+    ux.showContextualTooltips('quran');
+    ux.closeTooltips();
+    flushTimeouts();
+    assert.strictEqual(tooltipCount(), 0);
+  });
+
+  test('tip text uses plain words, no jargon', function() {
+    Object.keys(_tooltips).forEach(function(id) {
+      var text = (_tooltips[id].title + ' ' + _tooltips[id].message).toLowerCase();
+      ['tafsir', 'root', 'dashboard', 'foundation', 'hub'].forEach(function(word) {
+        assert.ok(text.indexOf(word) < 0, id + ' mentions "' + word + '"');
+      });
+    });
+  });
 });
 
 suite('Tooltip placement stays on screen', function() {
