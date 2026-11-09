@@ -529,7 +529,7 @@ function renderDashboard() {
   } else if ($comprehensionPct > 0) {
     $encouragementMsg = 'Every word counts — you are building real understanding.';
   } else {
-    $encouragementMsg = 'Start learning Quranic vocabulary to unlock comprehension.';
+    $encouragementMsg = ($qaidaMain || $tajweedMain) ? t('home.journey.lessons') : 'Start learning Quranic vocabulary to unlock comprehension.';
   }
   $h += '<div class="db-comp-headline-msg">' + $encouragementMsg + '</div>';
   if ($compMilestone && $comprehensionPct > 0) {
@@ -552,7 +552,7 @@ function renderDashboard() {
   // For brand-new users with no progress, show a simple "Complete Lesson 1" goal
   if ($noProgress) {
     $h += '<div class="db-goal-new-user">';
-    $h += '<div class="db-goal-new-title">' + uiIcon('target') + ($qaidaMain ? escapeHtml(t($qaidaStarted ? 'qaida.home.goalNext' : 'qaida.home.goal')) : 'Complete your first Foundation lesson') + '</div>';
+    $h += '<div class="db-goal-new-title">' + uiIcon('target') + ($qaidaMain ? escapeHtml(t($qaidaStarted ? 'qaida.home.goalNext' : 'qaida.home.goal')) : escapeHtml(t('qaida.home.goal'))) + '</div>';
     $h += '<div class="db-goal-new-sub">' + ($qaidaMain ? escapeHtml(t('qaida.home.goalSub')) : 'Each lesson introduces 10 new Quranic words') + '</div>';
     $h += '</div>';
     $h += '</div>';

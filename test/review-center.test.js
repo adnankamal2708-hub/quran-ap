@@ -1257,6 +1257,8 @@ suite('Edge Cases — Empty and Zero States', function() {
     renderReviewCenter();
     var html = grid._innerHTML;
     assert.ok(html.indexOf('review schedule starts') >= 0 || html.indexOf('All caught up') >= 0, 'should show contextual empty state');
+    assert.ok(html.indexOf('Foundation') < 0, 'does not name a course the learner may not be on');
+    assert.ok(html.indexOf('vocabulary') < 0, 'no vocabulary wording for a letters learner');
   });
 
   test('renders with no forgotten, weak roots, bookmarks, or difficulties', function() {

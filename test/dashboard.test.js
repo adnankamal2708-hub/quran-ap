@@ -955,6 +955,37 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     assert.ok(html.indexOf('Begin your journey to understand the Quran') >= 0, 'welcome variant shown');
   });
 
+  test('the first goal does not name a course the learner has not met', function() {
+    setupBrandNewUser();
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('Complete your first lesson') >= 0, 'plain first goal');
+    assert.ok(html.indexOf('Foundation lesson') < 0, 'no "Foundation lesson"');
+  });
+
+  test('a letters learner is not told to learn vocabulary', function() {
+    setupBrandNewUser();
+    global.QAIDA_TRACK_ID = 'qaida';
+    global.getQaidaLevel = function() { return 0; };
+    global.getQaidaNextLesson = function(level) {
+      return { kind: 'qaida', number: 1, title: 'Letters alif to khā', completed: false, ref: 'qa0-1', level: level };
+    };
+    global.loadQaidaProgress = function() { return { completed: {} }; };
+    localStorage.setItem(TRACKS_KEY, JSON.stringify({ main: 'qaida', tracks: { words: { joined: true }, qaida: { joined: true } } }));
+    try {
+      setupDashboardGrid();
+      renderDashboard();
+      var html = getInnerHTML();
+      var start = html.indexOf('db-comp-headline-msg');
+      assert.ok(start >= 0, 'headline message shown');
+      var msg = html.slice(start, html.indexOf('</div>', start));
+      assert.ok(msg.indexOf('vocabulary') < 0, 'headline message is not about vocabulary: ' + msg);
+    } finally {
+      ['QAIDA_TRACK_ID', 'getQaidaLevel', 'getQaidaNextLesson', 'loadQaidaProgress'].forEach(function(name) { delete global[name]; });
+    }
+  });
+
   test('Fix 2: metrics row hidden at zero data', function() {
     setupBrandNewUser();
     setupDashboardGrid();

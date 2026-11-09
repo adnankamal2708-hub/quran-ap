@@ -171,6 +171,7 @@ var STRINGS = {
     'qaida.home.welcome': 'Today we begin with the letters of the Quran.',
     'qaida.home.going': 'Every letter and mark you learn opens more of the Quran.',
     'qaida.home.goal': 'Complete your first lesson',
+    'home.journey.lessons': 'Take it one lesson at a time. Each one opens more of the Quran.',
     'qaida.home.goalNext': 'Complete your next lesson',
     'qaida.home.goalSub': 'Each lesson teaches a few letters or one mark',
     'qaida.intro.verseN': 'verse {n}',
