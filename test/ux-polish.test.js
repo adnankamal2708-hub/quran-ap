@@ -303,7 +303,7 @@ var fs = require('fs');
 var path = require('path');
 var uxCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ux-polish.js'), 'utf8');
 require('./load-components')(); // uiIcon, iconText, dataIcon
-// Track state and English strings, which the onboarding "What do you want to learn?" screen uses
+// Track state and English strings, which the onboarding question uses
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'tracks.js'), 'utf8'));
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'i18n', 'strings-en.js'), 'utf8'));
 // The Qaida track, which "completely new" starts in
@@ -656,16 +656,21 @@ suite('Welcome Slides Data', function() {
     }
   });
 
-  test('bullets cover the four key benefits', function() {
+  test('bullets are plain words a beginner understands', function() {
     var text = _welcomeSlides[0].bullets.join(' ');
-    assert.ok(/frequent/i.test(text), 'frequency-based learning order');
-    assert.ok(/comprehension/i.test(text), 'comprehension tracking');
-    assert.ok(/word/i.test(text) && /tafsir|meaning|root/i.test(text), 'interactive word tapping');
-    assert.ok(/spaced repetition/i.test(text), 'smart reviews / spaced repetition');
+    assert.ok(/can't read Arabic/i.test(text), 'says no Arabic is needed to start');
+    assert.ok(/tap any word/i.test(text), 'interactive word tapping');
+    assert.ok(/remember/i.test(text), 'reviews');
+    assert.ok(!/spaced repetition|comprehension|tafsir/i.test(text), 'no jargon');
   });
 });
 
 suite('Onboarding Screen Navigation', function() {
+  test('onboarding has two screens: welcome and the reading question', function() {
+    assert.strictEqual(_TOTAL_SCREENS, 2);
+    assert.strictEqual(_SCREEN_READING, 1);
+  });
+
   test('renderOnboardingScreen sets index and renders content', function() {
     _resetDOM();
     setupOnboardingDOM();
@@ -683,18 +688,18 @@ suite('Onboarding Screen Navigation', function() {
     assert.notStrictEqual(document.getElementById('onboarding-prev').style.display, 'none');
   });
 
-  test('next button shows Start Learning on last screen', function() {
+  test('next button shows Start Learning on the question screen', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(2); // last screen (level)
-    assert.strictEqual(document.getElementById('onboarding-next').textContent, '\u2713 Start Learning');
+    renderOnboardingScreen(1);
+    assert.strictEqual(document.getElementById('onboarding-next').textContent, '✓ Start Learning');
   });
 
-  test('next button shows Personalize on the consolidated intro screen', function() {
+  test('next button says Next on the welcome screen', function() {
     _resetDOM();
     setupOnboardingDOM();
-    renderOnboardingScreen(0); // the single welcome screen
-    assert.strictEqual(document.getElementById('onboarding-next').textContent, 'Personalize \u2192');
+    renderOnboardingScreen(0);
+    assert.strictEqual(document.getElementById('onboarding-next').textContent, 'Next →');
   });
 
   test('renderOnboardingScreen saves step to localStorage', function() {
@@ -711,172 +716,144 @@ suite('Onboarding Screen Navigation', function() {
   });
 });
 
-suite('Onboarding Goal Selection Screen', function() {
-  test('goal screen renders 4 choices', function() {
-    _resetDOM();
-    setupOnboardingDOM();
-    renderOnboardingScreen(1); // goal screen
-    var slide = document.getElementById('onboarding-slide');
-    assert.ok(slide.innerHTML.indexOf('4)') >= 0 || slide.innerHTML.match(/onboarding-choice/g).length >= 4);
-  });
-
-  test('goal screen shows Set Your Daily Goal title', function() {
-    _resetDOM();
-    setupOnboardingDOM();
-    renderOnboardingScreen(1);
-    var slide = document.getElementById('onboarding-slide');
-    assert.ok(slide.innerHTML.indexOf('Daily Goal') >= 0);
-  });
-});
-
-suite('Onboarding "What do you want to learn?" Screen', function() {
-  function renderTracksScreen() {
+suite('Onboarding "Can you read Arabic letters?" Screen', function() {
+  function renderReadingScreen() {
     _resetDOM();
     clearStorage();
     setupOnboardingDOM();
+    _readingAnswer = null;
     _selectedTracks = [DEFAULT_TRACK_ID];
     _startFromZero = false;
     _wantsPlacementTest = false;
-    renderOnboardingScreen(2);
+    _selectedGoal = null;
+    renderOnboardingScreen(1);
     return document.getElementById('onboarding-slide').innerHTML;
   }
 
-  test('screen 3 is titled "What do you want to learn?"', function() {
-    var html = renderTracksScreen();
-    assert.ok(html.indexOf('What do you want to learn?') >= 0);
-    assert.ok(html.indexOf('Experience') < 0, 'the old level question is gone');
-  });
+  /** Pick an answer (the test DOM cannot match attribute selectors, so no tap). */
+  function tapAnswer(answer) { _chooseReading(answer); }
 
-  test('screen 3 is a checkbox group, not a radio group', function() {
-    var html = renderTracksScreen();
-    assert.ok(html.indexOf('role="checkbox"') >= 0);
-    assert.ok(html.indexOf('role="radio"') < 0);
-    assert.ok(html.indexOf('radiogroup') < 0);
-  });
-
-  test('screen 3 offers the four tracks, "completely new" and "take a test"', function() {
-    var html = renderTracksScreen();
-    assert.strictEqual(html.match(/class="onboarding-choice[ "]/g).length, 6);
-    ['Read Arabic from zero', 'Tajweed', 'Word meanings', 'Understanding',
-     'completely new', 'Take a short test'].forEach(function(label) {
+  test('asks "Can you read Arabic letters?" with Yes, A little and No', function() {
+    var html = renderReadingScreen();
+    assert.ok(html.indexOf('Can you read Arabic letters?') >= 0);
+    assert.strictEqual(html.match(/class="onboarding-choice[ "]/g).length, 3);
+    ['>Yes<', '>A little<', '>No<'].forEach(function(label) {
       assert.ok(html.indexOf(label) >= 0, label + ' is shown');
     });
   });
 
-  test('the two unreleased tracks are disabled and marked "Coming soon"', function() {
-    var html = renderTracksScreen();
-    assert.strictEqual(html.match(/aria-disabled="true"/g).length, 2);
-    assert.strictEqual(html.match(/ disabled[ >]/g).length, 2);
-    assert.strictEqual(html.match(/Coming soon/g).length, 2);
+  test('the answers are a radio group with nothing picked', function() {
+    var html = renderReadingScreen();
+    assert.ok(html.indexOf('role="radiogroup"') >= 0);
+    assert.strictEqual(html.match(/role="radio"/g).length, 3);
+    assert.ok(html.indexOf('aria-checked="true"') < 0);
   });
 
-  test('Word meanings is preselected and nothing else is', function() {
-    var html = renderTracksScreen();
-    assert.strictEqual(html.match(/aria-checked="true"/g).length, 1);
-    assert.ok(/data-value="words"[^>]*aria-checked="true"/.test(html));
+  test('no track list, daily goal or "Coming soon" is shown', function() {
+    var html = renderReadingScreen();
+    assert.ok(html.indexOf('Coming soon') < 0);
+    assert.ok(html.indexOf('Daily Goal') < 0);
+    assert.ok(html.indexOf('role="checkbox"') < 0);
   });
 
-  test('toggling a track or option flips it', function() {
-    renderTracksScreen();
-    _toggleChoice('words');
-    assert.deepStrictEqual(_selectedTracks, []);
-    _toggleChoice('words');
-    assert.deepStrictEqual(_selectedTracks, ['words']);
-    _toggleChoice('new');
-    assert.strictEqual(_startFromZero, true);
-    _toggleChoice('test');
-    assert.strictEqual(_wantsPlacementTest, true);
-    _toggleChoice('new');
-    assert.strictEqual(_startFromZero, false);
-  });
-
-  test('"Completely new" also picks Read Arabic from zero, which it starts in', function() {
-    renderTracksScreen();
-    _toggleChoice('words');
-    _toggleChoice('new');
-    assert.deepStrictEqual(_selectedTracks, ['qaida']);
-  });
-
-  test('"Take a short test" also picks Word meanings, the track it tests', function() {
-    renderTracksScreen();
-    _toggleChoice('words');
-    _toggleChoice('test');
-    assert.deepStrictEqual(_selectedTracks, ['words']);
-  });
-
-  test('unticking the tracks the options need also unticks the options', function() {
-    renderTracksScreen();
-    _toggleChoice('new');
-    _toggleChoice('test');
-    _toggleChoice('qaida');
-    assert.strictEqual(_startFromZero, false, '"completely new" needs Read Arabic from zero');
-    assert.strictEqual(_wantsPlacementTest, true, 'the test still has Word meanings');
-    _toggleChoice('words');
-    assert.deepStrictEqual(_selectedTracks, []);
+  test('a later answer replaces an earlier one', function() {
+    renderReadingScreen();
+    tapAnswer('little');
+    tapAnswer('no');
+    assert.strictEqual(_readingAnswer, 'no');
     assert.strictEqual(_wantsPlacementTest, false);
+    assert.strictEqual(_startFromZero, true);
   });
 
-  test('picking both options after unticking Word meanings lets Next through', function() {
-    renderTracksScreen();
+  test('a picked answer shows as selected when the screen is drawn again', function() {
+    renderReadingScreen();
+    tapAnswer('little');
+    renderOnboardingScreen(1);
+    var html = document.getElementById('onboarding-slide').innerHTML;
+    assert.strictEqual(html.match(/aria-checked="true"/g).length, 1);
+    assert.ok(/data-value="little"[^>]*aria-checked="true"/.test(html));
+  });
+
+  test('Next without an answer stays on the screen', function() {
+    renderReadingScreen();
     wireOnboardingEvents();
-    _toggleChoice('words');
-    _toggleChoice('new');
-    _toggleChoice('test');
-    global.startPlacementTest = function() {};
     document.getElementById('onboarding-next').click();
-    delete global.startPlacementTest;
-    assert.strictEqual(ux.hasCompletedOnboarding(), true);
-  });
-
-  test('tracks and the extra options are labelled as separate groups', function() {
-    var html = renderTracksScreen();
-    var tracksAt = html.indexOf('>Tracks<');
-    var alsoAt = html.indexOf('>Also<');
-    assert.ok(tracksAt >= 0 && alsoAt > tracksAt, 'Tracks label, then Also label');
-    assert.ok(html.indexOf('data-value="words"') > tracksAt && html.indexOf('data-value="words"') < alsoAt);
-    assert.ok(html.indexOf('data-value="new"') > alsoAt);
-  });
-
-  test('with no track picked, the message asks for one without naming which tracks are out', function() {
-    assert.strictEqual(t('onboarding.tracks.required'), 'Choose at least one track.');
-  });
-
-  test('an unreleased track cannot be toggled on', function() {
-    renderTracksScreen();
-    _toggleChoice('tajweed');
-    assert.deepStrictEqual(_selectedTracks, ['words']);
-  });
-
-  test('Next needs at least one track and stays on the screen', function() {
-    renderTracksScreen();
-    wireOnboardingEvents();
-    _selectedTracks = [];
-    document.getElementById('onboarding-next').click();
-    assert.strictEqual(_onboardingIdx, 2);
+    assert.strictEqual(_onboardingIdx, 1);
     assert.strictEqual(ux.hasCompletedOnboarding(), false);
   });
 
-  test('"Completely new" turns on start-from-zero and keeps Word meanings at Beginner', function() {
-    renderTracksScreen();
-    _startFromZero = true;
-    ux.completeOnboarding();
-    assert.strictEqual(isStartFromZero(), true);
-    assert.strictEqual(getTrackLevel('words'), 0);
-    assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
+  test('the message for no answer asks for one', function() {
+    assert.strictEqual(t('onboarding.reading.required'), 'Choose an answer to continue.');
   });
 
-  test('Next-finish without "completely new" writes start-from-zero as off', function() {
-    renderTracksScreen();
+  test('an unknown answer changes nothing', function() {
+    renderReadingScreen();
+    _chooseReading('maybe');
+    assert.strictEqual(_readingAnswer, null);
+    assert.deepStrictEqual(_selectedTracks, ['words']);
+  });
+
+  test('"Yes" keeps Word meanings as the main course and opens its first lesson', function() {
+    renderReadingScreen();
     wireOnboardingEvents();
-    setStartFromZero(true); // left over from an earlier run
-    global.goToFoundationLesson = function() {};
+    var opened = [];
+    var started = [];
+    global.goToFoundationLesson = function(i) { opened.push(i); };
+    global.startPlacementTest = function(id) { started.push(id); };
+    tapAnswer('yes');
     document.getElementById('onboarding-next').click();
+    flushTimeouts();
     delete global.goToFoundationLesson;
+    delete global.startPlacementTest;
+    assert.strictEqual(getMainTrackId(), 'words');
+    assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
+    assert.strictEqual(isStartFromZero(), false);
+    assert.strictEqual(opened.length, 1);
+    assert.deepStrictEqual(started, []);
+  });
+
+  test('"No" starts Read Arabic from zero from the beginning and keeps Word meanings for later', function() {
+    renderReadingScreen();
+    tapAnswer('no');
+    ux.completeOnboarding();
+    assert.strictEqual(getMainTrackId(), 'qaida');
+    assert.strictEqual(isStartFromZero(), true);
+    assert.deepStrictEqual(getJoinedTrackIds().sort(), ['qaida', 'words']);
+    assert.strictEqual(getTrackLevel('words'), 0);
+  });
+
+  test('"A little" makes Read Arabic from zero main and opens its placement test', function() {
+    renderReadingScreen();
+    wireOnboardingEvents();
+    var started = [];
+    var opened = [];
+    global.startPlacementTest = function(id) { started.push(id); };
+    global.goToFoundationLesson = function(i) { opened.push(i); };
+    tapAnswer('little');
+    document.getElementById('onboarding-next').click();
+    flushTimeouts();
+    delete global.startPlacementTest;
+    delete global.goToFoundationLesson;
+    assert.strictEqual(getMainTrackId(), 'qaida');
+    assert.strictEqual(isStartFromZero(), false);
+    assert.deepStrictEqual(started, ['qaida']);
+    assert.deepStrictEqual(opened, [], 'no first lesson');
+    assert.strictEqual(document.getElementById('onboarding-overlay').style.display, 'none', 'overlay closed first');
+  });
+
+  test('re-running onboarding and answering "Yes" makes Word meanings main again', function() {
+    renderReadingScreen();
+    tapAnswer('no');
+    ux.completeOnboarding();
+    renderReadingScreen();
+    tapAnswer('yes');
+    ux.completeOnboarding();
+    assert.strictEqual(getMainTrackId(), 'words');
     assert.strictEqual(isStartFromZero(), false);
   });
 
   test('Skip leaves a stored start-from-zero alone', function() {
-    renderTracksScreen();
+    renderReadingScreen();
     wireOnboardingEvents();
     setStartFromZero(true);
     var before = loadTracks().updatedAt;
@@ -889,7 +866,7 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
   });
 
   test('Escape leaves a stored start-from-zero alone', function() {
-    renderTracksScreen();
+    renderReadingScreen();
     wireOnboardingEvents();
     setStartFromZero(true);
     global.goToFoundationLesson = function() {};
@@ -900,13 +877,14 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
   });
 
   test('re-running onboarding never overwrites a stored level', function() {
-    renderTracksScreen();
+    renderReadingScreen();
     wireOnboardingEvents();
     localStorage.setItem('quran_onboarding_level', 'advanced');
     global.goToFoundationLesson = function() {};
+    tapAnswer('yes');
     document.getElementById('onboarding-next').click();
     assert.strictEqual(ux.getOnboardingLevel(), 'advanced');
-    renderTracksScreen();
+    renderReadingScreen();
     localStorage.setItem('quran_onboarding_level', 'advanced');
     wireOnboardingEvents();
     document.getElementById('onboarding-skip').click();
@@ -914,22 +892,23 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     assert.strictEqual(ux.getOnboardingLevel(), 'advanced');
   });
 
-  test('first-time onboarding still stores the beginner level', function() {
-    renderTracksScreen();
+  test('first-time onboarding still stores the beginner level and the 10-minute goal', function() {
+    renderReadingScreen();
     wireOnboardingEvents();
     global.goToFoundationLesson = function() {};
+    tapAnswer('yes');
     document.getElementById('onboarding-next').click();
     delete global.goToFoundationLesson;
     assert.strictEqual(ux.getOnboardingLevel(), 'beginner');
+    assert.strictEqual(ux.getOnboardingGoal(), '10');
   });
 
   // Skip/Escape with the daily goal: a stored goal is kept and not re-applied
   // (it would also reset the adaptive goal); a first run gets the default.
-  function skipWithGoal(storedGoal, pickedGoal, leave) {
-    renderTracksScreen();
+  function skipWithGoal(storedGoal, leave) {
+    renderReadingScreen();
     wireOnboardingEvents();
     if (storedGoal) localStorage.setItem('quran_onboarding_goal', storedGoal);
-    _selectedGoal = pickedGoal;
     var applied = 0;
     window.__learnerProfile = { applyOnboarding: function() { applied++; } };
     global.goToFoundationLesson = function() {};
@@ -942,90 +921,21 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
   function pressEscape() { _onboardingKeyHandler({ key: 'Escape', preventDefault: function() {} }); }
 
   test('Skip on a revisit keeps the stored daily goal and does not re-apply it', function() {
-    var applied = skipWithGoal('20', null, clickSkip);
+    var applied = skipWithGoal('20', clickSkip);
     assert.strictEqual(ux.getOnboardingGoal(), '20');
     assert.strictEqual(applied, 0);
   });
 
   test('Escape on a revisit keeps the stored daily goal and does not re-apply it', function() {
-    var applied = skipWithGoal('20', null, pressEscape);
+    var applied = skipWithGoal('20', pressEscape);
     assert.strictEqual(ux.getOnboardingGoal(), '20');
     assert.strictEqual(applied, 0);
   });
 
   test('Skip on a first run still saves and applies the 10-minute default', function() {
-    var applied = skipWithGoal(null, null, clickSkip);
+    var applied = skipWithGoal(null, clickSkip);
     assert.strictEqual(ux.getOnboardingGoal(), '10');
     assert.strictEqual(applied, 1);
-  });
-
-  test('a goal picked in this run is saved and applied even if the rest is skipped', function() {
-    var applied = skipWithGoal('20', '5', clickSkip);
-    assert.strictEqual(ux.getOnboardingGoal(), '5');
-    assert.strictEqual(applied, 1);
-  });
-
-  test('finishing joins the selected released tracks and ignores unreleased ones', function() {
-    renderTracksScreen();
-    _selectedTracks = ['tajweed', 'qaida', 'words'];
-    ux.completeOnboarding();
-    assert.deepStrictEqual(getJoinedTrackIds(), ['words', 'qaida']);
-  });
-
-  test('the learner is never left with zero tracks', function() {
-    renderTracksScreen();
-    _selectedTracks = ['tajweed'];
-    ux.completeOnboarding();
-    assert.deepStrictEqual(getJoinedTrackIds(), ['words']);
-  });
-
-  test('choosing only Read Arabic from zero makes it the main track and leaves Word meanings', function() {
-    renderTracksScreen();
-    _selectedTracks = ['qaida'];
-    ux.completeOnboarding();
-    assert.deepStrictEqual(getJoinedTrackIds(), ['qaida']);
-  });
-
-  test('"Completely new" picks Read Arabic from zero and makes it the main track', function() {
-    renderTracksScreen();
-    _toggleChoice('new');
-    assert.ok(_selectedTracks.indexOf('qaida') >= 0);
-    ux.completeOnboarding();
-    assert.strictEqual(getMainTrackId(), 'qaida');
-    assert.strictEqual(isStartFromZero(), true);
-  });
-
-  test('"Take a short test" opens the Word meanings test instead of the first lesson', function() {
-    renderTracksScreen();
-    wireOnboardingEvents();
-    var started = [];
-    var opened = [];
-    global.startPlacementTest = function(id) { started.push(id); };
-    global.goToFoundationLesson = function(i) { opened.push(i); };
-    _wantsPlacementTest = true;
-    document.getElementById('onboarding-next').click();
-    flushTimeouts();
-    assert.deepStrictEqual(started, ['words']);
-    assert.deepStrictEqual(opened, [], 'no first lesson');
-    assert.strictEqual(ux.hasCompletedOnboarding(), true);
-    assert.strictEqual(document.getElementById('onboarding-overlay').style.display, 'none', 'overlay closed first');
-    delete global.startPlacementTest;
-    delete global.goToFoundationLesson;
-  });
-
-  test('without the test option, finishing goes to the first lesson', function() {
-    renderTracksScreen();
-    wireOnboardingEvents();
-    var started = [];
-    var opened = [];
-    global.startPlacementTest = function(id) { started.push(id); };
-    global.goToFoundationLesson = function(i) { opened.push(i); };
-    document.getElementById('onboarding-next').click();
-    flushTimeouts();
-    assert.deepStrictEqual(started, []);
-    assert.strictEqual(opened.length, 1);
-    delete global.startPlacementTest;
-    delete global.goToFoundationLesson;
   });
 
   /** Run fn with the Tajweed track released (its 28 recordings in). */
@@ -1038,50 +948,11 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
     }
   }
 
-  test('once Tajweed is released, choosing only Tajweed makes it the main track and leaves Word meanings', function() {
-    withTajweedReleased(function() {
-      renderTracksScreen();
-      _selectedTracks = ['tajweed'];
-      ux.completeOnboarding();
-      assert.deepStrictEqual(getJoinedTrackIds(), ['tajweed']);
-      assert.strictEqual(getMainTrackId(), 'tajweed');
-    });
-  });
-
-  test('choosing Tajweed with Word meanings keeps Word meanings main; with Read Arabic from zero, that one is main', function() {
-    withTajweedReleased(function() {
-      renderTracksScreen();
-      _selectedTracks = ['words', 'tajweed'];
-      ux.completeOnboarding();
-      assert.strictEqual(getMainTrackId(), 'words');
-      renderTracksScreen();
-      _selectedTracks = ['tajweed', 'qaida'];
-      ux.completeOnboarding();
-      assert.strictEqual(getMainTrackId(), 'qaida');
-      assert.deepStrictEqual(getJoinedTrackIds().sort(), ['qaida', 'tajweed']);
-    });
-  });
-
-  test('"Take a short test" with Tajweed (and not Read Arabic from zero) opens the Tajweed test', function() {
-    withTajweedReleased(function() {
-      renderTracksScreen();
-      wireOnboardingEvents();
-      var started = [];
-      global.startPlacementTest = function(id) { started.push(id); };
-      _selectedTracks = ['tajweed'];
-      _wantsPlacementTest = true;
-      document.getElementById('onboarding-next').click();
-      flushTimeouts();
-      delete global.startPlacementTest;
-      assert.deepStrictEqual(started, ['tajweed']);
-    });
-  });
-
   test('a learner whose main track is Tajweed starts at its first open lesson, or its path when none is left', function() {
     withTajweedReleased(function() {
-      renderTracksScreen();
-      _selectedTracks = ['tajweed'];
-      ux.completeOnboarding();
+      renderReadingScreen();
+      joinTrack('tajweed');
+      setMainTrack('tajweed');
       var started = [];
       var views = [];
       var opened = [];
@@ -1107,8 +978,8 @@ suite('Onboarding "What do you want to learn?" Screen', function() {
   });
 
   test('step is still saved for interruption recovery', function() {
-    renderTracksScreen();
-    assert.strictEqual(localStorage.getItem('quran_onboarding_step'), '2');
+    renderReadingScreen();
+    assert.strictEqual(localStorage.getItem('quran_onboarding_step'), '1');
   });
 });
 

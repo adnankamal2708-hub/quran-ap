@@ -50,16 +50,14 @@ async function answerLesson(page) {
 }
 
 test.describe('Read Arabic from zero', () => {
-  test('"completely new" starts Qaida, and a lesson can be finished', async ({ page }) => {
+  test('answering "No" to reading Arabic starts Qaida, and a lesson can be finished', async ({ page }) => {
     await freshApp(page);
     const next = page.locator('#onboarding-next');
     const slide = page.locator('#onboarding-slide');
     await next.click();
-    await slide.locator('.onboarding-choice').first().click();
-    await next.click();
-    await expect(slide).toContainText('What do you want to learn?');
-    await slide.locator('.onboarding-choice[data-value="new"]').click();
-    await expect(slide.locator('.onboarding-choice[data-value="qaida"]')).toHaveAttribute('aria-checked', 'true');
+    await expect(slide).toContainText('Can you read Arabic letters?');
+    await slide.locator('.onboarding-choice[data-value="no"]').click();
+    await expect(slide.locator('.onboarding-choice[data-value="no"]')).toHaveAttribute('aria-checked', 'true');
     await next.click();
     await dismissPlanPicker(page);
 

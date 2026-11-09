@@ -2,9 +2,8 @@
 // ux-polish.js — Premium Onboarding, Tooltips, Empty States, UX
 //
 // Features:
-//   • Premium 3-screen onboarding flow (intro + goal + what to learn)
-//   • Learning goal selection (5/10/15/20+ min/day)
-//   • Learning track selection (multi-select; Word meanings preselected)
+//   • 2-screen onboarding: a welcome, then one question
+//     ("Can you read Arabic letters?") that picks where the learner starts
 //   • Contextual tooltips for first-time users
 //   • Progressive disclosure for advanced features
 //   • Enhanced empty states across all views
@@ -28,39 +27,36 @@ var _onboardedThisSession = false;
 // The five former intro slides (app, foundation, comprehension, quran,
 // srs) were condensed into a single value-prop screen with four short
 // bullets — one per key benefit. The old "Your Journey Begins" transition
-// slide was deleted; its "Personalize →" CTA now lives on this screen.
+// slide was deleted.
 var _welcomeSlides = [
   {
     title: 'Understand the Quran, One Word at a Time',
     bullets: [
-      'Learn the most frequent Quranic words first — the fastest path to comprehension',
-      'Track your comprehension grow as you master each word',
-      'Tap any word while reading for meaning, root, and tafsir',
-      'Smart reviews use spaced repetition to make words stick'
+      "Start where you are, even if you can't read Arabic yet",
+      'Learn the words the Quran uses most, one short lesson at a time',
+      'Tap any word while reading to see what it means',
+      'Quick reviews bring back what you learned, so you remember it'
     ]
   }
 ];
 
 // ── Onboarding Screen IDs ────────────────────────────────────
 var _SCREEN_WELCOME_END = 0; // Consolidated intro slide (only welcome screen)
-var _SCREEN_GOAL = 1;        // Learning goal selection
-var _SCREEN_LEVEL = 2;       // What do you want to learn? (learning tracks)
-var _TOTAL_SCREENS = 3;
+var _SCREEN_READING = 1;     // "Can you read Arabic letters?"
+var _TOTAL_SCREENS = 2;
 
 // ── Onboarding State ─────────────────────────────────────────
 var _onboardingIdx = 0;
-var _selectedGoal = null;     // '5', '10', '15', '20'
+var _selectedGoal = null;     // daily minutes; no longer asked, so the 10-minute default
 var _selectedLevel = null;    // 'beginner' (kept for older callers; no longer asked)
 
-// Screen 3 choices: Word meanings is preselected; the other two options are
-// not tracks. They combine freely: "completely new" turns on start-from-zero
-// and picks the track it starts in (Read Arabic from zero once released),
-// "take a test" opens a placement test once onboarding closes.
+// The one question's answers. Each sets the three choices below
+// (see _chooseReading); other courses are added later from Learn.
+var _READING_ANSWERS = ['yes', 'little', 'no'];
+var _readingAnswer = null;
 var _selectedTracks = [DEFAULT_TRACK_ID];
 var _startFromZero = false;
 var _wantsPlacementTest = false;
-var _CHOICE_NEW = 'new';
-var _CHOICE_TEST = 'test';
 
 // ── Progress persistence ─────────────────────────────────────
 
@@ -108,39 +104,40 @@ function completeOnboarding(options) {
 }
 
 /**
- * Join every selected track the app has released and record "completely new".
- * Joining is idempotent and tracks.js always keeps at least Word meanings
- * joined, so the learner is never left with zero tracks.
+ * Join the answer's tracks and record start-from-zero. Joining is idempotent
+ * and Word meanings is always among them, so the learner is never left with
+ * zero tracks. A learner who reads a little or not at all starts with the
+ * letters, so Read Arabic from zero becomes their main track.
  */
 function _applyTrackChoices() {
   _selectedTracks.forEach(joinTrack);
   setStartFromZero(_startFromZero);
-  // Starting from zero, or choosing only Qaida, makes Qaida the main track;
-  // otherwise choosing Tajweed without Word meanings makes Tajweed main.
-  // Word meanings (joined by default) is left if it wasn't chosen.
-  var qaida = typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0;
-  var tajweed = _isTajweedChosen();
-  var words = _selectedTracks.indexOf(DEFAULT_TRACK_ID) >= 0;
-  if (qaida && (_startFromZero || !words)) setMainTrack(QAIDA_TRACK_ID);
-  else if (tajweed && !words) setMainTrack(TAJWEED_TRACK_ID);
-  if ((qaida || tajweed) && !words) leaveTrack(DEFAULT_TRACK_ID);
+  setMainTrack(_qaidaChosen() ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID);
 }
 
-/** True when Tajweed is released and chosen on the tracks screen. */
-function _isTajweedChosen() {
-  return typeof TAJWEED_TRACK_ID !== 'undefined' && isTrackReleased(TAJWEED_TRACK_ID) &&
-    _selectedTracks.indexOf(TAJWEED_TRACK_ID) >= 0;
+function _qaidaChosen() {
+  return typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0;
 }
 
-/** The track "completely new" starts in: Read Arabic from zero once it is released. */
-function _startTrackId() {
-  return typeof QAIDA_TRACK_ID !== 'undefined' && isTrackReleased(QAIDA_TRACK_ID) ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID;
+/**
+ * Record an answer to "Can you read Arabic letters?". Yes: Word meanings.
+ * A little: Read Arabic from zero, after a short placement test. No: Read
+ * Arabic from zero from its first lesson. Word meanings stays joined for later.
+ */
+function _chooseReading(answer) {
+  if (_READING_ANSWERS.indexOf(answer) < 0) return;
+  _readingAnswer = answer;
+  _selectedTracks = [DEFAULT_TRACK_ID];
+  if (answer !== 'yes' && typeof QAIDA_TRACK_ID !== 'undefined' && isTrackReleased(QAIDA_TRACK_ID)) {
+    _selectedTracks.push(QAIDA_TRACK_ID);
+  }
+  _startFromZero = answer === 'no';
+  _wantsPlacementTest = answer === 'little';
 }
 
-/** The track "take a short test" tests: Qaida when chosen, then Tajweed when chosen, otherwise Word meanings. */
+/** The track the placement test tests: Read Arabic from zero when chosen, otherwise Word meanings. */
 function _testTrackId() {
-  if (typeof QAIDA_TRACK_ID !== 'undefined' && _selectedTracks.indexOf(QAIDA_TRACK_ID) >= 0) return QAIDA_TRACK_ID;
-  return _isTajweedChosen() ? TAJWEED_TRACK_ID : DEFAULT_TRACK_ID;
+  return _qaidaChosen() ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID;
 }
 
 /** Reset onboarding (for revisiting from Profile → Settings) */
@@ -173,6 +170,7 @@ function showOnboarding() {
   _onboardingIdx = 0;
   _selectedGoal = null;
   _selectedLevel = null;
+  _readingAnswer = null;
   _selectedTracks = [DEFAULT_TRACK_ID];
   _startFromZero = false;
   _wantsPlacementTest = false;
@@ -183,15 +181,6 @@ function showOnboarding() {
       var savedStep = parseInt(localStorage.getItem(_ONBOARDING_STEP_KEY), 10);
       if (!isNaN(savedStep) && savedStep >= 0 && savedStep < _TOTAL_SCREENS) {
         _onboardingIdx = savedStep;
-        // Restore any already-saved preferences
-        if (savedStep > _SCREEN_GOAL) {
-          var savedGoal = localStorage.getItem(_ONBOARDING_GOAL_KEY);
-          if (savedGoal) _selectedGoal = savedGoal;
-        }
-        if (savedStep > _SCREEN_LEVEL) {
-          var savedLevel = localStorage.getItem(_ONBOARDING_LEVEL_KEY);
-          if (savedLevel) _selectedLevel = savedLevel;
-        }
       }
     } catch (e) {}
   }
@@ -272,47 +261,19 @@ function renderOnboardingScreen(idx) {
     }
     html += '</ul>';
 
-  } else if (idx === _SCREEN_GOAL) {
-    // ── Learning Goal Selection ──
-    html += '<div class="onboarding-icon">' + uiIcon('target', true) + '</div>';
-    html += '<h2 class="onboarding-title">Set Your Daily Goal</h2>';
-    html += '<p class="onboarding-desc">How much time can you dedicate to learning each day? We\'ll use this to personalize your review schedule.</p>';
-    html += '<div class="onboarding-choices" role="radiogroup" aria-label="Daily learning goal">';
-
-    var goals = [
-      { value: '5', label: '5 min', desc: 'Casual — just a few words daily' },
-      { value: '10', label: '10 min', desc: 'Light — steady and sustainable' },
-      { value: '15', label: '15 min', desc: 'Balanced — our recommendation' },
-      { value: '20', label: '20+ min', desc: 'Intensive — fastest progress' }
-    ];
-    for (var gi = 0; gi < goals.length; gi++) {
-      var g = goals[gi];
-      var gSelected = (_selectedGoal === g.value);
-      html += '<button class="onboarding-choice' + (gSelected ? ' onboarding-choice-selected' : '') + '" data-value="' + g.value + '" type="button" role="radio" aria-checked="' + (gSelected ? 'true' : 'false') + '">';
-      html += '<span class="onboarding-choice-value">' + g.label + '</span>';
-      html += '<span class="onboarding-choice-desc">' + g.desc + '</span>';
+  } else if (idx === _SCREEN_READING) {
+    // ── The one question: can the learner read Arabic letters? ──
+    var question = escapeHtml(t('onboarding.reading.title'));
+    html += '<h2 class="onboarding-title">' + question + '</h2>';
+    html += '<p class="onboarding-desc">' + escapeHtml(t('onboarding.reading.desc')) + '</p>';
+    html += '<div class="onboarding-choices" role="radiogroup" aria-label="' + question + '">';
+    _READING_ANSWERS.forEach(function(answer) {
+      var on = _readingAnswer === answer;
+      html += '<button class="onboarding-choice' + (on ? ' onboarding-choice-selected' : '') + '" data-value="' + answer + '" type="button" role="radio" aria-checked="' + on + '">';
+      html += '<span class="onboarding-choice-value">' + escapeHtml(t('onboarding.reading.' + answer)) + '</span>';
+      html += '<span class="onboarding-choice-desc">' + escapeHtml(t('onboarding.reading.' + answer + '.desc')) + '</span>';
       html += '</button>';
-    }
-    html += '</div>';
-
-  } else if (idx === _SCREEN_LEVEL) {
-    // ── What do you want to learn? (multi-select) ──
-    html += '<div class="onboarding-icon">' + uiIcon('brain', true) + '</div>';
-    html += '<h2 class="onboarding-title">' + escapeHtml(t('onboarding.tracks.title')) + '</h2>';
-    html += '<p class="onboarding-desc">' + escapeHtml(t('onboarding.tracks.desc')) + '</p>';
-    // Tracks and the two extra options are separate groups: the extras are
-    // not tracks, and both need Word meanings (see _toggleChoice).
-    html += '<div class="onboarding-choices" role="group" aria-label="' + escapeHtml(t('onboarding.group.tracks')) + '">';
-    html += '<p class="onboarding-group-label">' + escapeHtml(t('onboarding.group.tracks')) + '</p>';
-    for (var ti = 0; ti < TRACK_IDS.length; ti++) {
-      var trackId = TRACK_IDS[ti];
-      html += _renderLearnChoice(trackId, t('track.' + trackId + '.name'), t('track.' + trackId + '.desc'), !isTrackReleased(trackId));
-    }
-    html += '</div>';
-    html += '<div class="onboarding-choices" role="group" aria-label="' + escapeHtml(t('onboarding.group.extras')) + '">';
-    html += '<p class="onboarding-group-label">' + escapeHtml(t('onboarding.group.extras')) + '</p>';
-    html += _renderLearnChoice(_CHOICE_NEW, t('onboarding.new'), t('onboarding.new.desc'), false);
-    html += _renderLearnChoice(_CHOICE_TEST, t('onboarding.test'), t('onboarding.test.desc'), false);
+    });
     html += '</div>';
   }
 
@@ -327,7 +288,7 @@ function renderOnboardingScreen(idx) {
     stepLabel.className = 'onboarding-step-label';
     stepLabel.textContent = 'Step ' + (idx + 1) + ' of ' + _TOTAL_SCREENS;
     dotsEl.appendChild(stepLabel);
-    var dotTypeClasses = ['onboarding-dot-welcome', 'onboarding-dot-goal', 'onboarding-dot-level'];
+    var dotTypeClasses = ['onboarding-dot-welcome', 'onboarding-dot-level'];
     for (var di = 0; di < _TOTAL_SCREENS; di++) {
       var dot = document.createElement('span');
       dot.className = 'onboarding-dot' + (di === idx ? ' onboarding-dot-active' : '');
@@ -345,9 +306,6 @@ function renderOnboardingScreen(idx) {
     if (isLastScreen) {
       nextBtn.textContent = '✓ Start Learning';
       nextBtn.className = 'btn btn-sm onboarding-start-btn';
-    } else if (idx === _SCREEN_WELCOME_END) {
-      nextBtn.textContent = 'Personalize →';
-      nextBtn.className = 'btn btn-sm';
     } else {
       nextBtn.textContent = 'Next →';
       nextBtn.className = 'btn btn-sm';
@@ -358,72 +316,13 @@ function renderOnboardingScreen(idx) {
   wireChoiceButtons();
 }
 
-/** One checkbox option of the "What do you want to learn?" screen */
-function _renderLearnChoice(value, label, desc, comingSoon) {
-  var checked = !comingSoon && _isChoiceSelected(value);
-  var html = '<button class="onboarding-choice' + (checked ? ' onboarding-choice-selected' : '') + (comingSoon ? ' onboarding-choice-disabled' : '') + '" data-value="' + value + '" type="button" role="checkbox" aria-checked="' + (checked ? 'true' : 'false') + '"' + (comingSoon ? ' disabled aria-disabled="true"' : '') + '>';
-  html += '<span class="onboarding-choice-value">' + escapeHtml(label) + '</span>';
-  html += '<span class="onboarding-choice-desc">' + escapeHtml(desc) + '</span>';
-  if (comingSoon) html += '<span class="onboarding-choice-badge">' + escapeHtml(t('tracks.comingSoon')) + '</span>';
-  html += '</button>';
-  return html;
-}
-
-function _isChoiceSelected(value) {
-  if (value === _CHOICE_NEW) return _startFromZero;
-  if (value === _CHOICE_TEST) return _wantsPlacementTest;
-  return _selectedTracks.indexOf(value) >= 0;
-}
-
-/**
- * Flip a screen-3 option; returns its new state. Unreleased tracks stay off.
- * "Completely new" needs the track it starts in (_startTrackId), and the
- * placement test needs a track to test, so picking either picks its track
- * too; dropping that track drops the option.
- */
-function _toggleChoice(value) {
-  var on = !_isChoiceSelected(value);
-  if (value === _CHOICE_NEW) {
-    _startFromZero = on;
-    if (on && _selectedTracks.indexOf(_startTrackId()) === -1) _selectedTracks.push(_startTrackId());
-  } else if (value === _CHOICE_TEST) {
-    _wantsPlacementTest = on;
-    if (on && _selectedTracks.length === 0) _selectedTracks.push(DEFAULT_TRACK_ID);
-  } else if (isTrackReleased(value)) {
-    _selectedTracks = _selectedTracks.filter(function(id) { return id !== value; });
-    if (on) _selectedTracks.push(value);
-    if (!on && value === _startTrackId()) _startFromZero = false;
-    if (_selectedTracks.length === 0) _wantsPlacementTest = false;
-  } else {
-    return false;
-  }
-  return on;
-}
-
-/** Show every screen-3 option's current state (one tap can change several). */
-function _syncLearnChoices() {
-  var btns = document.querySelectorAll('.onboarding-choice');
-  for (var i = 0; i < btns.length; i++) {
-    if (btns[i].disabled) continue;
-    var on = _isChoiceSelected(btns[i].getAttribute('data-value'));
-    btns[i].classList.toggle('onboarding-choice-selected', on);
-    btns[i].setAttribute('aria-checked', on ? 'true' : 'false');
-  }
-}
-
-/** Wire choice button clicks for the goal and learn screens */
+/** Wire the answers of the reading question */
 function wireChoiceButtons() {
   var choiceBtns = document.querySelectorAll('.onboarding-choice');
   for (var ci = 0; ci < choiceBtns.length; ci++) {
     (function(btn) {
       btn.onclick = function() {
-        var value = btn.getAttribute('data-value');
-        // Multi-select screen: each option toggles on its own
-        if (_onboardingIdx === _SCREEN_LEVEL) {
-          _toggleChoice(value);
-          _syncLearnChoices();
-          return;
-        }
+        _chooseReading(btn.getAttribute('data-value'));
         // Deselect all siblings
         var parent = btn.parentNode;
         var siblings = parent.querySelectorAll('.onboarding-choice');
@@ -434,17 +333,12 @@ function wireChoiceButtons() {
         // Select this one
         btn.classList.add('onboarding-choice-selected');
         btn.setAttribute('aria-checked', 'true');
-
-        // Store value based on which screen we're on
-        if (_onboardingIdx === _SCREEN_GOAL) {
-          _selectedGoal = value;
-        }
       };
       btn.onkeydown = function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          // Space toggles a checkbox; it must not also trigger Next
-          if (_onboardingIdx === _SCREEN_LEVEL) e.stopPropagation();
+          // Picking an answer must not also trigger Next
+          e.stopPropagation();
           btn.click();
         }
       };
@@ -744,12 +638,8 @@ function wireOnboardingEvents() {
   if (nextBtn) {
     nextBtn.onclick = function() {
       // Validate selection screens require a choice
-      if (_onboardingIdx === _SCREEN_GOAL && !_selectedGoal) {
-        showToast('Please select a daily learning goal.', 'info', 2000);
-        return;
-      }
-      if (_onboardingIdx === _SCREEN_LEVEL && _selectedTracks.length === 0) {
-        showToast(t('onboarding.tracks.required'), 'info', 2000);
+      if (_onboardingIdx === _SCREEN_READING && !_readingAnswer) {
+        showToast(t('onboarding.reading.required'), 'info', 2000);
         return;
       }
 

@@ -117,43 +117,34 @@ test.describe('Onboarding Tour', () => {
     expect(isPrevHidden || isPrevDisabled).toBeTruthy();
   });
 
-  test('navigation through all 3 steps', async ({ page }) => {
+  test('navigation through both steps', async ({ page }) => {
     await waitAndSee(page, '#onboarding-overlay');
 
     const nextBtn = page.locator('#onboarding-next');
     const prevBtn = page.locator('#onboarding-prev');
     const slide = page.locator('#onboarding-slide');
 
-    // Step 1: consolidated intro — headline + bullets, "Personalize →" CTA
+    // Step 1: welcome — headline + bullets, then Next
     await expect(slide).toContainText('Understand the Quran, One Word at a Time');
-    const nextBtnText = await nextBtn.textContent();
-    expect(nextBtnText).toMatch(/Personalize/i);
+    await expect(nextBtn).toContainText('Next');
 
-    // Step 1 → 2 (daily goal): must pick a choice before advancing
+    // Step 2: the one question, with three answers
     await nextBtn.click();
-    await page.waitForTimeout(300);
-    await expect(slide).toContainText('Set Your Daily Goal');
-    await slide.locator('.onboarding-choice').first().click();
-    await page.waitForTimeout(300);
-
-    // Step 2 → 3 (what to learn)
-    await nextBtn.click();
-    await page.waitForTimeout(300);
-    await expect(slide).toContainText('What do you want to learn?');
-
-    // Back to step 2 still works
-    await prevBtn.click();
-    await page.waitForTimeout(300);
-    await expect(slide).toContainText('Set Your Daily Goal');
-
-    // Forward to step 3 again: Word meanings is preselected, the two tracks
-    // not released yet are disabled; verify Start Learning CTA
-    await nextBtn.click();
-    await page.waitForTimeout(300);
-    await expect(slide).toContainText('What do you want to learn?');
-    await expect(slide.locator('.onboarding-choice[data-value="words"]')).toHaveAttribute('aria-checked', 'true');
-    await expect(slide.locator('.onboarding-choice:disabled')).toHaveCount(2);
+    await expect(slide).toContainText('Can you read Arabic letters?');
+    await expect(slide.locator('.onboarding-choice')).toHaveCount(3);
     await expect(nextBtn).toContainText('Start Learning');
+
+    // Back to the welcome screen still works
+    await prevBtn.click();
+    await expect(slide).toContainText('Understand the Quran');
+    await nextBtn.click();
+
+    // Picking an answer with the keyboard selects it without finishing
+    const no = slide.locator('.onboarding-choice[data-value="no"]');
+    await no.focus();
+    await page.keyboard.press('Space');
+    await expect(no).toHaveAttribute('aria-checked', 'true');
+    await expect(page.locator('#onboarding-overlay')).toBeVisible();
   });
 
   test('skip button dismisses the tour', async ({ page }) => {

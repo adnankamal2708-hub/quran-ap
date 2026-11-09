@@ -237,7 +237,7 @@ Code is split into focused modules (the old `data.js` / `ui.js` monoliths are go
 - `drill-ui.js` — Practice drills on the Practice tab
 - `root-lesson-ui.js` — Root list and root lessons (`root-lesson` view)
 
-The bottom navigation has five tabs: Home (dashboard), Learn (tracks), Practice (the Review Center plus drills), Quran and Profile. Onboarding asks "What do you want to learn?" (`ux-polish.js`), Home shows a row per joined track (`dashboard.js`), and the session summary shows the Quran percentage gained (`review.js`).
+The bottom navigation has five tabs: Home (dashboard), Learn (tracks), Practice (the Review Center plus drills), Quran and Profile. Onboarding asks one question, "Can you read Arabic letters?" (`ux-polish.js`), Home shows a row per joined track (`dashboard.js`), and the session summary shows the Quran percentage gained (`review.js`).
 
 ## Tech Stack
 

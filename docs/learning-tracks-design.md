@@ -174,10 +174,12 @@ tajweed view switched on from the reader's toolbar. That view uses
 tajweed-annotated Quran text whose licence is verified first, and it feeds
 the "Spot the rule" exercise.
 
-**Onboarding** keeps the daily-time question. The level question becomes
-**"What do you want to learn?"**, which allows several tracks, offers a
-"completely new" option that starts the Start from zero plan, and offers
-"take a short test". Tracks not released yet show as "Coming soon".
+**Onboarding** asks one question, **"Can you read Arabic letters?"**
+(changed in November 2026 to make the first run simpler). "Yes" starts
+Word meanings; "A little" makes Read Arabic from zero the main track and
+opens its placement test; "No" starts Read Arabic from zero from its first
+lesson. Word meanings stays joined either way, other tracks are added from
+Learn, and the daily goal uses the 10-minute default.
 
 **Credits:** a short line under every audio player (e.g. "Recitation:
 Al-Husary · everyayah.com") and a full **Sources & credits** page in

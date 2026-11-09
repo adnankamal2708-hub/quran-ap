@@ -347,15 +347,15 @@ var STRINGS = {
     'test.tag.tajweed.confused': 'Letters people confuse',
 
     // ── Onboarding ──
-    'onboarding.tracks.title': 'What do you want to learn?',
-    'onboarding.tracks.desc': 'Pick one or more. You can change this any time.',
-    'onboarding.new': "I'm completely new",
-    'onboarding.new.desc': 'Start from the very beginning',
-    'onboarding.test': 'Take a short test',
-    'onboarding.test.desc': 'Find your level in about 5 minutes',
-    'onboarding.tracks.required': 'Choose at least one track.',
-    'onboarding.group.tracks': 'Tracks',
-    'onboarding.group.extras': 'Also',
+    'onboarding.reading.title': 'Can you read Arabic letters?',
+    'onboarding.reading.desc': 'This picks where you start. You can add other courses later in Learn.',
+    'onboarding.reading.yes': 'Yes',
+    'onboarding.reading.yes.desc': 'Start learning what the words of the Quran mean',
+    'onboarding.reading.little': 'A little',
+    'onboarding.reading.little.desc': 'A short test finds the right lesson to start with',
+    'onboarding.reading.no': 'No',
+    'onboarding.reading.no.desc': 'Start with the letters, from the very beginning',
+    'onboarding.reading.required': 'Choose an answer to continue.',
 
     // ── Drills ──
     'drill.spot.title': 'Spot the word',
