@@ -197,9 +197,9 @@ test('joined cards come first, then the "Add a track" heading', function() {
   assert.ok(markup.indexOf('Add a track') < markup.indexOf('Coming soon'));
 });
 
-test('the main track card is marked "Main track"', function() {
+test('the main track card is marked "Your course"', function() {
   renderTracks();
-  assert.ok(cards()[0].indexOf('Main track') >= 0);
+  assert.ok(cards()[0].indexOf('Your course') >= 0);
 });
 
 test('the Word meanings card shows its level and percentage and records the high-water mark', function() {

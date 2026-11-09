@@ -37,7 +37,7 @@ var STRINGS = {
     'tracks.makeMain': 'Make main track',
     'tracks.leave': 'Leave track',
     'tracks.join': 'Join',
-    'tracks.main': 'Main track',
+    'tracks.main': 'Your course',
     'tracks.allWords': 'All words',
     'tracks.roots': 'Roots',
     'tracks.difficulty': 'Difficulty',

@@ -617,7 +617,7 @@ function renderDashboard() {
   $h += '<div class="db-card-row">';
   $h += '<div class="db-card-icon db-icon-gold-dim">' + $icon('list', 22) + '</div>';
   $h += '<div class="db-card-body">';
-  $h += '<div class="db-card-title">Review center</div>';
+  $h += '<div class="db-card-title">Review</div>';
   $h += '<div class="db-card-sub">';
   if ($rcDue > 0) {
     var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));

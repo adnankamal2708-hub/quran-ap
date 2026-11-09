@@ -344,8 +344,8 @@ function renderReviewCenter() {
   $h += '<div class="rc-header-row">';
   $h += '<div class="rc-header-icon" aria-hidden="true">' + uiIcon('list', true) + '</div>';
   $h += '<div>';
-  $h += '<h2 class="rc-header-title">Review center</h2>';
-  $h += '<p class="rc-header-sub">Your central hub for revision</p>';
+  $h += '<h2 class="rc-header-title">Review</h2>';
+  $h += '<p class="rc-header-sub">Go over what you learned, so you remember it</p>';
   $h += '</div>';
   $h += '</div>';
   $h += '</div>';
@@ -355,7 +355,7 @@ function renderReviewCenter() {
 
   $h += '<div class="rc-stat" id="rc-stat-due" tabindex="0" role="button" aria-label="' + $data.dueCount + ' reviews due">';
   $h += '<div class="rc-stat-value rc-stat-value-warn">' + $data.dueCount + '</div>';
-  $h += '<div class="rc-stat-label">Due' + ($data.overdueCount > 0 ? ' <span class="rc-overdue-badge">' + $data.overdueCount + ' overdue</span>' : '') + '</div>';
+  $h += '<div class="rc-stat-label">To review' + ($data.overdueCount > 0 ? ' <span class="rc-overdue-badge">' + $data.overdueCount + ' overdue</span>' : '') + '</div>';
   $h += '</div>';
 
   $h += '<div class="rc-stat" id="rc-stat-mastered" tabindex="0" role="button" aria-label="' + $data.masteredCount + ' words mastered">';
@@ -366,13 +366,13 @@ function renderReviewCenter() {
   if ($data.showRetention) {
     $h += '<div class="rc-stat">';
     $h += '<div class="rc-stat-value">' + ($data.retention || 0) + '%</div>';
-    $h += '<div class="rc-stat-label">Retention</div>';
+    $h += '<div class="rc-stat-label">Remembered</div>';
     $h += '</div>';
   }
 
   $h += '<div class="rc-stat">';
   $h += '<div class="rc-stat-value">' + $data.streak + '</div>';
-  $h += '<div class="rc-stat-label">Streak</div>';
+  $h += '<div class="rc-stat-label">Days in a row</div>';
   $h += '</div>';
 
   $h += '</div>';

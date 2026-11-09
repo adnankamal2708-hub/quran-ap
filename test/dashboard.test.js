@@ -775,7 +775,7 @@ suite('Secondary Sections Render Inline (no toggle)', function() {
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Review center') >= 0, 'Review center still rendered');
+    assert.ok(html.indexOf('db-card-title">Review<') >= 0, 'Review card still rendered');
     assert.ok(html.indexOf('Progress overview') >= 0, 'Progress overview still rendered');
     assert.ok(html.indexOf('Streak') >= 0, 'Streak stat still rendered');
   });

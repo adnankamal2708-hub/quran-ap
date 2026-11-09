@@ -522,8 +522,8 @@ suite('renderReviewCenter — Container', function() {
     _elementsById['review-center-grid'] = grid;
 
     renderReviewCenter();
-    assert.ok(grid._innerHTML.indexOf('Review center') >= 0, 'should have title');
-    assert.ok(grid._innerHTML.indexOf('Your central hub') >= 0, 'should have subtitle');
+    assert.ok(grid._innerHTML.indexOf('rc-header-title">Review<') >= 0, 'should have title');
+    assert.ok(grid._innerHTML.indexOf('so you remember it') >= 0, 'should have subtitle');
   });
 });
 
@@ -536,9 +536,9 @@ suite('renderReviewCenter — Stats Bar', function() {
     renderReviewCenter();
     assert.ok(grid._innerHTML.indexOf('rc-stats-bar') >= 0, 'should have stats bar');
     assert.ok(grid._innerHTML.indexOf('Mastered') >= 0, 'should show Mastered');
-    assert.ok(grid._innerHTML.indexOf('Streak') >= 0, 'should show Streak');
+    assert.ok(grid._innerHTML.indexOf('Days in a row') >= 0, 'should show the streak');
     // New user (0 lifetime reviews) must NOT see a misleading Retention stat
-    assert.ok(grid._innerHTML.indexOf('Retention') < 0, 'should hide Retention below 5 reviews');
+    assert.ok(grid._innerHTML.indexOf('Remembered') < 0, 'should hide Retention below 5 reviews');
   });
 
   test('stats bar reflects current data', function() {
@@ -578,9 +578,9 @@ suite('renderReviewCenter — Stats Bar', function() {
     renderReviewCenter();
     var html = grid._innerHTML;
     assert.ok(html.indexOf('88%') >= 0, 'should show real retention at 5+ reviews');
-    assert.ok(html.indexOf('Retention') >= 0, 'should show Retention label');
+    assert.ok(html.indexOf('Remembered') >= 0, 'should show the Remembered label');
     // Retention lives in the stats bar; Today's Progress does not repeat it
-    assert.ok(html.indexOf('rc-stat-value">88%</div><div class="rc-stat-label">Retention') >= 0, 'stats bar should show retention');
+    assert.ok(html.indexOf('rc-stat-value">88%</div><div class="rc-stat-label">Remembered') >= 0, 'stats bar should show retention');
     assert.ok(html.indexOf('rc-today-label">Retention') < 0, 'Today Progress does not repeat retention');
   });
 });

@@ -111,7 +111,7 @@ suite('STRINGS table', function() {
     'tracks.add': 'Add a track',
     'tracks.makeMain': 'Make main track',
     'tracks.leave': 'Leave track',
-    'tracks.main': 'Main track',
+    'tracks.main': 'Your course',
     'tracks.allWords': 'All words',
     'tracks.roots': 'Roots',
     'tracks.difficulty': 'Difficulty',
