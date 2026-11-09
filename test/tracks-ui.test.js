@@ -176,7 +176,7 @@ function finishFoundation() {
 
 console.log('\nTrack cards');
 
-test('default state: one joined "Word meanings" card, Qaida to join and two "Coming soon" cards', function() {
+test('default state: one joined "Word meanings" card and Qaida to join; unreleased tracks are not shown', function() {
   renderTracks();
   var all = cards();
   var joined = all.filter(function(c) { return c.indexOf('is-joined') >= 0; });
@@ -186,15 +186,16 @@ test('default state: one joined "Word meanings" card, Qaida to join and two "Com
   assert.ok(joined[0].indexOf('Word meanings') >= 0, 'joined card is Word meanings');
   assert.strictEqual(open.length, 1);
   assert.ok(open[0].indexOf('Read Arabic from zero') >= 0, 'Qaida offers Join');
-  assert.strictEqual(soon.length, 2);
-  assert.strictEqual(all.length, 4);
+  assert.strictEqual(soon.length, 0);
+  assert.strictEqual(all.length, 2);
+  assert.ok(html('view-tracks').indexOf('>Tajweed<') < 0, 'no Tajweed card yet');
 });
 
 test('joined cards come first, then the "Add a track" heading', function() {
   renderTracks();
   var markup = html('view-tracks');
   assert.ok(markup.indexOf('Word meanings') < markup.indexOf('Add a track'));
-  assert.ok(markup.indexOf('Add a track') < markup.indexOf('Coming soon'));
+  assert.ok(markup.indexOf('Add a track') < markup.indexOf('Read Arabic from zero'));
 });
 
 test('the main track card is marked "Your course"', function() {
@@ -418,11 +419,9 @@ function withTajweed(fn) {
   try { fn(); } finally { global.isTrackReleased = real; }
 }
 
-test('unreleased, Tajweed is a "Coming soon" card with no Join', function() {
+test('unreleased, Tajweed has no card at all', function() {
   renderTracks();
-  var tajweed = cards().filter(function(c) { return c.indexOf('>Tajweed<') >= 0; })[0];
-  assert.ok(tajweed.indexOf('Coming soon') >= 0);
-  assert.ok(tajweed.indexOf('data-action="join"') < 0);
+  assert.strictEqual(cards().filter(function(c) { return c.indexOf('>Tajweed<') >= 0; }).length, 0);
 });
 
 test('released, Tajweed offers Join', function() {

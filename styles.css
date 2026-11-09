@@ -9108,6 +9108,18 @@ body::before {
 .track-card.is-main {
   border-color: var(--gold-dim);
 }
+/* A track to join: name, description, then its Join button, stacked */
+.track-card.is-open {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-lg);
+}
+.track-card.is-open .track-card-join {
+  margin-top: var(--spacing-xs);
+  min-height: 44px;
+}
 .track-card-open {
   display: flex;
   flex-direction: column;
@@ -9212,26 +9224,6 @@ body::before {
 .track-menu-item:disabled {
   color: var(--text-muted);
   cursor: default;
-}
-.track-card.is-soon {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-lg);
-  background: none;
-  border-style: dashed;
-}
-.track-card.is-soon .track-card-name {
-  font-size: var(--text-base);
-}
-.track-card-soon {
-  margin-top: var(--spacing-xs);
-  padding: 2px var(--spacing-sm);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  color: var(--gold-muted);
 }
 
 .track-path-head {

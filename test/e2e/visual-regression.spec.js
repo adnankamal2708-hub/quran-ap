@@ -98,7 +98,7 @@ const VIEWS = [
   {
     id: 'view-tracks',
     tab: '#tab-learn',
-    selectors: ['.track-list', '.track-card-name', '.track-card-soon'],
+    selectors: ['.track-list', '.track-card-name', '.track-card-join'],
     label: 'Learn',
   },
   {

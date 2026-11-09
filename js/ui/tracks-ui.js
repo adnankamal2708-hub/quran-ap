@@ -100,19 +100,13 @@ function _joinedTrackCard(trackId, isMain, canLeave) {
   return h;
 }
 
-// A released track the learner hasn't joined offers Join; the others say
-// "Coming soon".
+// A released track the learner hasn't joined offers Join
 function _unjoinedTrackCard(trackId) {
-  var released = isTrackReleased(trackId);
-  var h = '<article class="track-card' + (released ? ' is-open' : ' is-soon') + '">';
+  var h = '<article class="track-card is-open">';
   h += '<span class="track-card-name">' + _trEsc(t('track.' + trackId + '.name')) + '</span>';
   h += '<span class="track-card-desc">' + _trEsc(t('track.' + trackId + '.desc')) + '</span>';
-  if (released) {
-    h += '<button type="button" class="btn btn-sm btn-outline track-card-join" data-action="join" data-track="' + trackId + '">' +
-      _trEsc(t('tracks.join')) + '</button>';
-  } else {
-    h += '<span class="track-card-soon">' + _trEsc(t('tracks.comingSoon')) + '</span>';
-  }
+  h += '<button type="button" class="btn btn-sm btn-outline track-card-join" data-action="join" data-track="' + trackId + '">' +
+    _trEsc(t('tracks.join')) + '</button>';
   h += '</article>';
   return h;
 }
@@ -124,7 +118,9 @@ function renderTracks() {
 
   var joined = getJoinedTrackIds();
   var mainId = joined[0];
-  var unjoined = TRACK_IDS.filter(function(id) { return joined.indexOf(id) < 0; });
+  // Tracks not released yet are left out: a "Coming soon" card is one more
+  // thing to read that a beginner can't use
+  var unjoined = TRACK_IDS.filter(function(id) { return joined.indexOf(id) < 0 && isTrackReleased(id); });
 
   var h = '<div class="track-list">';
   h += '<h2 class="track-section-title">' + _trEsc(t('tracks.yours')) + '</h2>';
