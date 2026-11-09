@@ -225,25 +225,32 @@ function renderDashboard() {
   // One row per joined track: name, its own % of the Quran and a hairline bar.
   // Each track's figure comes from its TRACK_PATHS entry (tracks-ui.js);
   // refreshing it first keeps the stored high-water mark (and so Home) from
-  // showing a stale 0%.
-  var $trackIds = getJoinedTrackIds();
+  // showing a stale 0%. A track still at 0% gets no row: a row of zeros
+  // means nothing to a beginner, and Up next already opens their course.
+  var $trackPercents = {};
+  var $trackIds = getJoinedTrackIds().filter(function($tid) {
+    var $tpath = typeof TRACK_PATHS !== 'undefined' ? TRACK_PATHS[$tid] : null;
+    if (!$tpath && $tid === 'words') {
+      $tpath = { percent: function() { return refreshWordMeaningsPercent().percent; }, percentKey: 'percent.words' };
+    }
+    var $tpct = $tpath ? $tpath.percent() : null;
+    $trackPercents[$tid] = { path: $tpath, pct: $tpct };
+    return $tpct !== 0;
+  });
   function $buildTrackRows() {
     var $rows = '';
     for (var $ti = 0; $ti < $trackIds.length; $ti++) {
       var $tid = $trackIds[$ti];
       var $tname = escapeHtml(t('track.' + $tid + '.name'));
-      var $tpath = typeof TRACK_PATHS !== 'undefined' ? TRACK_PATHS[$tid] : null;
-      if (!$tpath && $tid === 'words') {
-        $tpath = { percent: function() { return refreshWordMeaningsPercent().percent; }, percentKey: 'percent.words' };
-      }
-      var $tpct = $tpath ? $tpath.percent() : null;
+      var $tpath = $trackPercents[$tid].path;
+      var $tpct = $trackPercents[$tid].pct;
       var $ttext = $tpct === null ? '' : escapeHtml(t($tpath.percentKey, { p: $tpct }));
       $rows += '<button type="button" class="db-track-row" id="db-track-row-' + $tid + '" data-track="' + $tid + '"' +
         ' aria-label="' + $tname + ($ttext ? ', ' + $ttext : '') + '">';
       $rows += '<span class="db-track-row-name">' + $tname + '</span>';
       if ($ttext) {
-        // With one track the headline above already says this sentence
-        if ($trackIds.length > 1) $rows += '<span class="db-track-row-pct">' + $ttext + '</span>';
+        // A lone Word meanings row: the headline above already says this sentence
+        if ($trackIds.length > 1 || $tid !== 'words') $rows += '<span class="db-track-row-pct">' + $ttext + '</span>';
         $rows += '<span class="db-track-row-bar" aria-hidden="true"><span style="width:' + Math.min(100, $tpct) + '%"></span></span>';
       }
       $rows += '</button>';
@@ -373,7 +380,7 @@ function renderDashboard() {
     if ($nextLessonTitle) $h += $nextLessonTitle + ' · ';
     $h += 'Lesson ' + $nextLessonNum + ' of ' + $fTotal + '</div>';
     $h += '</div>';
-    $h += '<button class="btn btn-sm" type="button">' + ($noProgress ? 'Start' : 'Resume') + '</button>';
+    $h += '<button class="btn btn-sm" type="button">' + ($noProgress ? 'Start' : 'Continue') + '</button>';
     $h += '</div>';
     // Foundation progress bar
     $h += '<div class="db-progress db-progress-tight">';
@@ -495,10 +502,10 @@ function renderDashboard() {
 
 
   // ═══ 3. QURAN COMPREHENSION HEADLINE ═══
-  // Ring + milestone are only meaningful once real comprehension exists — a 0%
-  // ring is zero-noise for brand-new users, so render a simple welcome line instead.
-  $h += '<div class="db-card db-comp-headline" id="db-comp-headline"' + ($comprehensionPct > 0 ? ' tabindex="0" role="button" aria-label="' + escapeHtml(t('percent.words', { p: $comprehensionPct })) + '"' : '') + '>';
+  // Only once real comprehension exists: at 0% the card had nothing to show
+  // a brand-new learner that the greeting and Up next don't already say.
   if ($comprehensionPct > 0) {
+  $h += '<div class="db-card db-comp-headline" id="db-comp-headline" tabindex="0" role="button" aria-label="' + escapeHtml(t('percent.words', { p: $comprehensionPct })) + '">';
   $h += '<div class="db-comp-headline-ring-wrap">';
   $h += '<svg class="db-ring db-comp-headline-ring" viewBox="0 0 36 36" aria-hidden="true">';
   $h += '<defs><linearGradient id="compGrad" x1="0%" y1="0%" x2="100%" y2="100%">';
@@ -509,13 +516,8 @@ function renderDashboard() {
   $h += '<path class="db-ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="' + $compRing + ', 100" stroke="url(#compGrad)"/>';
   $h += '<text class="db-ring-text" x="18" y="20.5" font-weight="700" font-size="9">' + $comprehensionPct + '%</text>';
   $h += '</svg></div>';
-  }
   $h += '<div class="db-comp-headline-info">';
-  if ($comprehensionPct > 0) {
   $h += '<div class="db-comp-headline-value">' + escapeHtml(t('percent.words', { p: $comprehensionPct })) + '</div>';
-  } else {
-  $h += '<div class="db-comp-headline-value">Begin your journey to understand the Quran</div>';
-  }
   // Encouraging message based on progress level
   var $encouragementMsg = '';
   if ($comprehensionPct >= 80) {
@@ -526,13 +528,11 @@ function renderDashboard() {
     $encouragementMsg = 'You can follow the flow of longer passages.';
   } else if ($comprehensionPct >= 20) {
     $encouragementMsg = 'Short verses are becoming recognizable.';
-  } else if ($comprehensionPct > 0) {
-    $encouragementMsg = 'Every word counts — you are building real understanding.';
   } else {
-    $encouragementMsg = ($qaidaMain || $tajweedMain) ? t('home.journey.lessons') : 'Start learning Quranic vocabulary to unlock comprehension.';
+    $encouragementMsg = 'Every word counts — you are building real understanding.';
   }
   $h += '<div class="db-comp-headline-msg">' + $encouragementMsg + '</div>';
-  if ($compMilestone && $comprehensionPct > 0) {
+  if ($compMilestone) {
     $h += '<div class="db-comp-headline-milestone">' + uiIcon('target') + $compMilestone + '</div>';
   }
   $h += '</div></div>';
@@ -543,8 +543,12 @@ function renderDashboard() {
     $h += '</div>';
   }
   $h += '</div>';
+  } // end comprehension headline gate
 
   // ═══ 4. TODAY'S GOAL ═══
+  // Hidden until the learner has started their course: before that its
+  // "Complete your first lesson" only repeated the Up next card.
+  if (!$startHere) {
   $h += '<div class="db-card db-goal-card" id="db-goal-card">';
   $h += '<div class="db-section-label db-section-label-compact"><span class="db-section-icon" aria-hidden="true">' + $icon('target', 14) + '</span> Today\'s goal</div>';
   
@@ -602,6 +606,7 @@ function renderDashboard() {
   $h += '</div>';
   $h += '</div>';
   } // end else (daily goal for non-new users)
+  } // end today's goal gate
 
   // ═══ TRACK ROWS — one slim progress row per joined learning track ═══
   $h += $buildTrackRows();
@@ -899,11 +904,14 @@ function renderDashboard() {
     $motivationIcon = 'star';
   }
   
+  // Not before the learner starts: the welcome line only repeated the greeting
+  if (!$startHere) {
   $h += '<div class="db-card db-motivation-card" id="db-motivation-card">';
   $h += '<div class="db-motivation-row">';
   $h += '<span class="db-motivation-icon" aria-hidden="true">' + $icon($motivationIcon, 20) + '</span>';
   $h += '<p class="db-motivation-text">' + $motivationMsg + '</p>';
   $h += '</div></div>';
+  }
 
   // ═══ COMPACT HERO STATS BAR (after all sections) ═══
   // Hidden until real progress exists — the all-zero 4-stat wall (0 Mastered ·

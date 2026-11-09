@@ -4858,6 +4858,15 @@ body::before {
   width: 48px;
   height: 48px;
 }
+/* Its button is one large Start / Continue under the text, easy to find and tap */
+.db-up-next .db-card-row {
+  flex-wrap: wrap;
+}
+.db-up-next .db-card-row > .btn {
+  flex: 1 0 100%;
+  min-height: 48px;
+  font-size: var(--text-base);
+}
 .db-up-next-label {
   color: var(--gold-muted);
 }

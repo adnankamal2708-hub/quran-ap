@@ -498,7 +498,7 @@ suite('Continue Learning Section', function() {
     assert.ok(html.indexOf('Foundation Course') >= 0, 'should show Foundation Course prompt');
     // Nothing to resume yet: the learner hasn't started
     assert.ok(html.indexOf('>Start</button>') >= 0, 'should show Start button');
-    assert.ok(html.indexOf('>Resume</button>') < 0, 'no Resume before any progress');
+    assert.ok(html.indexOf('>Continue</button>') < 0, 'nothing to continue before any progress');
     assert.ok(html.indexOf('Start here') >= 0, 'section reads Start here');
   });
 
@@ -512,7 +512,7 @@ suite('Continue Learning Section', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('Foundation Course') >= 0, 'should show Foundation Course');
     assert.ok(html.indexOf('4/') >= 0, 'should show progress count');
-    assert.ok(html.indexOf('>Resume</button>') >= 0, 'in-progress learner can Resume');
+    assert.ok(html.indexOf('>Continue</button>') >= 0, 'in-progress learner can Continue');
     assert.ok(html.indexOf('Up next') >= 0, 'section reads Up next');
   });
 
@@ -520,6 +520,7 @@ suite('Continue Learning Section', function() {
     resetState();
     setupGlobals();
     _mockFoundationCompleted = 4;
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
     _mockFoundationTotal = 10;
     setupDashboardGrid();
     renderDashboard();
@@ -921,15 +922,14 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     _mockCoverage = null;
   }
 
-  test('Fix 1: headline shows welcome line with NO ring at 0% comprehension', function() {
+  test('Fix 1: no comprehension headline at 0% comprehension', function() {
     setupBrandNewUser();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('db-ring-fill') === -1, 'ring should be hidden at 0%');
-    assert.ok(html.indexOf('db-comp-headline-value') >= 0, 'headline value still present');
-    assert.ok(html.indexOf('Begin your journey to understand the Quran') >= 0, 'welcome line shown instead of ring');
-    assert.ok(html.indexOf('% Quran Comprehension') === -1, 'no "0% Quran Comprehension" value for new user');
+    assert.ok(html.indexOf('db-comp-headline') === -1, 'no headline card with nothing to show');
+    assert.ok(html.indexOf('Begin your journey') === -1, 'no welcome line repeating the greeting');
   });
 
   test('Fix 1: ring renders when comprehensionPct > 0', function() {
@@ -943,7 +943,7 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     assert.ok(html.indexOf('db-comp-headline-value">42.5% of the Quran') >= 0, 'value shows real percentage');
   });
 
-  test('Fix 1: ring hidden for user with progress but 0% comprehension (welcome variant)', function() {
+  test('Fix 1: no headline for a user with progress but 0% comprehension', function() {
     resetState();
     setupGlobals();
     // Default stats: mastered 10, but coverage null -> comprehension 0%
@@ -952,16 +952,41 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     renderDashboard();
     var html = getInnerHTML();
     assert.ok(html.indexOf('db-ring-fill') === -1, 'ring should be hidden when comprehension is 0');
-    assert.ok(html.indexOf('Begin your journey to understand the Quran') >= 0, 'welcome variant shown');
+    assert.ok(html.indexOf('db-comp-headline') === -1, 'headline hidden');
   });
 
-  test('the first goal does not name a course the learner has not met', function() {
+  test('a brand-new learner sees Up next and reading, without empty cards', function() {
     setupBrandNewUser();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Complete your first lesson') >= 0, 'plain first goal');
+    assert.ok(html.indexOf('id="db-continue-learning"') >= 0, 'Up next shown');
+    assert.ok(html.indexOf('id="db-continue-reading-start"') >= 0, 'reading shown');
+    assert.ok(html.indexOf('db-goal-card') < 0, 'no goal card repeating Up next');
+    assert.ok(html.indexOf('db-motivation-card') < 0, 'no motivation card repeating the greeting');
+    assert.ok(html.indexOf('db-track-row') < 0, 'no 0% track row');
     assert.ok(html.indexOf('Foundation lesson') < 0, 'no "Foundation lesson"');
+  });
+
+  test('once started, the first goal does not name a course the learner has not met', function() {
+    setupBrandNewUser();
+    global.TAJWEED_TRACK_ID = 'tajweed';
+    global.areLetterRecordingsComplete = function() { return true; };
+    global.getTajweedLevel = function() { return 0; };
+    global.getTajweedNextLesson = function(level) {
+      return { kind: 'tajweed', number: 2, title: 'Throat letters', completed: false, ref: 'tj0-2', level: level };
+    };
+    global.loadTajweedProgress = function() { return { completed: { 'tj0-1': { at: 1 } } }; };
+    localStorage.setItem(TRACKS_KEY, JSON.stringify({ main: 'tajweed', tracks: { words: { joined: true }, tajweed: { joined: true } } }));
+    try {
+      setupDashboardGrid();
+      renderDashboard();
+      var html = getInnerHTML();
+      assert.ok(html.indexOf('Complete your first lesson') >= 0, 'plain first goal');
+      assert.ok(html.indexOf('Foundation lesson') < 0, 'no "Foundation lesson"');
+    } finally {
+      ['TAJWEED_TRACK_ID', 'areLetterRecordingsComplete', 'getTajweedLevel', 'getTajweedNextLesson', 'loadTajweedProgress'].forEach(function(name) { delete global[name]; });
+    }
   });
 
   test('a letters learner is not told to learn vocabulary', function() {
@@ -977,10 +1002,8 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
       setupDashboardGrid();
       renderDashboard();
       var html = getInnerHTML();
-      var start = html.indexOf('db-comp-headline-msg');
-      assert.ok(start >= 0, 'headline message shown');
-      var msg = html.slice(start, html.indexOf('</div>', start));
-      assert.ok(msg.indexOf('vocabulary') < 0, 'headline message is not about vocabulary: ' + msg);
+      assert.ok(html.indexOf('id="db-track-next"') >= 0, 'Up next is the letters lesson');
+      assert.ok(html.indexOf('vocabulary') < 0, 'Home never mentions vocabulary');
     } finally {
       ['QAIDA_TRACK_ID', 'getQaidaLevel', 'getQaidaNextLesson', 'loadQaidaProgress'].forEach(function(name) { delete global[name]; });
     }
@@ -1083,12 +1106,12 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     assert.ok(document.getElementById('db-progress-overview') !== null, 'progress overview shown with reviews history');
   });
 
-  test('Fix 7: motivation shows welcome copy, not the repeated Foundation CTA', function() {
+  test('Fix 7: no motivation card before the learner starts', function() {
     setupBrandNewUser();
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
-    assert.ok(html.indexOf('Your journey to understand the Quran begins here. Take it one word at a time') >= 0, 'welcome copy shown');
+    assert.ok(html.indexOf('db-motivation-card') === -1, 'no card repeating the greeting');
     assert.ok(html.indexOf('Start the Foundation Course to master') === -1, 'no duplicated Foundation CTA in motivation');
   });
 
@@ -1208,6 +1231,7 @@ suite('Track rows', function() {
   test('one row per joined track, after the daily goal and before due reviews', function() {
     resetState();
     setupGlobals();
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
     setupDashboardGrid();
     renderDashboard();
     var html = readable(getInnerHTML());
@@ -1220,10 +1244,38 @@ suite('Track rows', function() {
     assert.ok(row < html.indexOf('db-review-center-prompt'), "before today's due reviews");
   });
 
+  test('a track still at 0% gets no row', function() {
+    resetState();
+    setupGlobals();
+    _mockCoverage = null;
+    setupDashboardGrid();
+    renderDashboard();
+    assert.strictEqual(rowTags(getInnerHTML()).length, 0);
+  });
+
+  test('a lone row for another track keeps its sentence, since the headline is about word meanings', function() {
+    resetState();
+    setupGlobals();
+    _mockCoverage = null;
+    var saved = global.TRACK_PATHS;
+    global.TRACK_PATHS = { qaida: { percent: function() { return 3; }, percentKey: 'percent.qaida' } };
+    localStorage.setItem(TRACKS_KEY, JSON.stringify({ main: 'words', tracks: { words: { joined: true }, qaida: { joined: true } } }));
+    try {
+      setupDashboardGrid();
+      renderDashboard();
+      var html = readable(getInnerHTML());
+      assert.strictEqual(rowTags(html).length, 1);
+      assert.ok(html.indexOf('db-track-row-pct', html.indexOf('id="db-track-row-qaida"')) > 0, 'says its percentage');
+    } finally {
+      if (saved === undefined) delete global.TRACK_PATHS; else global.TRACK_PATHS = saved;
+    }
+  });
+
   test('the Up next card still comes before the track rows', function() {
     resetState();
     setupGlobals();
     _mockFoundationCompleted = 4;
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
     setupDashboardGrid();
     renderDashboard();
     var html = getInnerHTML();
@@ -1259,6 +1311,7 @@ suite('Track rows', function() {
   test('the row is a button with an accessible name that opens the track path', function() {
     resetState();
     setupGlobals();
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
     setupDashboardGrid();
     renderDashboard();
     var tag = rowTags(getInnerHTML())[0];
@@ -1301,6 +1354,7 @@ suite('Up next after the placement test', function() {
     resetState();
     setupGlobals();
     raiseTrackLevel('words', 1);
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
     withPremium(PREMIUM_ALL, function() {
       setupDashboardGrid();
       renderDashboard();
@@ -1563,6 +1617,7 @@ suite('Edge Cases', function() {
   test('creates cards with correct IDs for wiring', function() {
     resetState();
     setupGlobals();
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
     setupDashboardGrid();
     renderDashboard();
     assert.ok(document.getElementById('db-comp-headline') !== null, 'Comprehension headline should exist');
