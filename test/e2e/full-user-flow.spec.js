@@ -162,24 +162,30 @@ test.describe('Onboarding Tour', () => {
     await expect(page.locator('#plan-picker-overlay')).toHaveCount(0);
   });
 
-  test('revisit onboarding from settings', async ({ page }) => {
+  test('How to use Bayan sets the text size and shows the welcome again', async ({ page }) => {
     // Dismiss first onboarding + plan picker
     await waitAndSee(page, '#onboarding-overlay');
     await page.locator('#onboarding-skip').click();
     await page.waitForTimeout(500);
     await dismissPlanPicker(page);
 
-    // Go to profile/settings
-    await page.evaluate(() => { if (typeof switchView === 'function') switchView('profile'); });
-    await page.waitForTimeout(800);
+    // Home ends with How to use Bayan
+    await page.locator('#tab-home').click();
+    await page.locator('#db-help').click();
+    const help = page.locator('#help-overlay');
+    await expect(help).toBeVisible();
+    await expect(help).toContainText('How to use Bayan');
 
-    // Look for revisit onboarding button
-    const revisitBtn = page.locator('#btn-revisit-onboarding');
-    if (await revisitBtn.isVisible()) {
-      await revisitBtn.click();
-      await page.waitForTimeout(500);
-      await expect(page.locator('#onboarding-overlay')).toBeVisible();
-    }
+    // Larger text applies at once and is remembered
+    await help.locator('.help-size[data-size="larger"]').click();
+    await expect(page.locator('html')).toHaveAttribute('data-text-size', 'larger');
+    await expect(help.locator('.help-size[data-size="larger"]')).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => localStorage.getItem('bayan_text_size'))).toBe('larger');
+
+    // The welcome comes back
+    await help.locator('#help-welcome').click();
+    await expect(help).toBeHidden();
+    await expect(page.locator('#onboarding-overlay')).toBeVisible();
   });
 
   test('Escape key dismisses the tour', async ({ page }) => {

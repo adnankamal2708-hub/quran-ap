@@ -935,6 +935,9 @@ function renderDashboard() {
   $h += '</div>';
   }
 
+  // How to use Bayan, always at the end
+  $h += '<button class="btn btn-outline db-help-btn" id="db-help" type="button">' + uiIcon('help-circle') + t('home.help') + '</button>';
+
   // ── Inject HTML ──
   $d.innerHTML = $h;
 
@@ -1012,6 +1015,10 @@ function renderDashboard() {
     if (window.__quran && typeof window.__quran.resumeReading === 'function') {
       setTimeout(function() { window.__quran.resumeReading(); }, 0);
     }
+  });
+
+  $wire('db-help', function() {
+    if (typeof showHelp === 'function') showHelp();
   });
 
   // Continue Reading — start new (no history)

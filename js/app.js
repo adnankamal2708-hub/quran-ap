@@ -920,11 +920,6 @@ function wireEvents() {
   // Quick mode toggle
   safeOnClick('qa-quick-mode', toggleQuickMode);
 
-  // Onboarding revisit button
-  safeOnClick('btn-revisit-onboarding', function() {
-    if (window.__ux && window.__ux.showOnboarding) window.__ux.showOnboarding();
-  });
-
   // Session summary close
   safeOnClick('session-summary-close', function () {
     closeSessionSummary();

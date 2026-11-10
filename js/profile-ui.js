@@ -1141,7 +1141,7 @@ function renderProfileAbout() {
 
   // Links
   h += '<div class="pf-about-links">';
-  h += '<button class="pf-about-link" id="btn-revisit-onboarding" type="button">' + uiIcon('refresh-cw') + 'Replay Tour</button>';
+  h += '<button class="pf-about-link" id="btn-help" type="button">' + uiIcon('help-circle') + 'How to use Bayan</button>';
   // URLs are split to avoid damage from build.js comment stripper which strips // as line comments
   var $ghUrl = 'https:' + '/' + '/github.com/adnankamal2708-hub/quran-ap';
   h += '<a class="pf-about-link pf-about-link-ext" href="' + $ghUrl + '" target="_blank" rel="noopener noreferrer">🌐 GitHub</a>';
@@ -1156,15 +1156,9 @@ function renderProfileAbout() {
 
   container.innerHTML = h;
 
-  // Wire the replay tour button
-  var tourBtn = document.getElementById('btn-revisit-onboarding');
-  if (tourBtn) {
-    tourBtn.onclick = function() {
-      if (window.__ux && typeof window.__ux.restartOnboarding === 'function') {
-        window.__ux.restartOnboarding();
-      }
-    };
-  }
+  // How to use Bayan (it can also show the welcome again)
+  var helpBtn = document.getElementById('btn-help');
+  if (helpBtn && typeof showHelp === 'function') helpBtn.onclick = showHelp;
 
   // Wire the Send Feedback button
   var fbBtn = document.getElementById('btn-send-feedback');

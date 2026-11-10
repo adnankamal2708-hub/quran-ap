@@ -8929,6 +8929,22 @@ body::before {
   min-height: 48px;
 }
 
+/* How to use Bayan (js/ui/help.js) */
+.help-dialog { max-width: 440px; width: 100%; }
+.help-intro { color: var(--text); line-height: 1.6; margin-bottom: 12px; }
+.help-tabs { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; line-height: 1.5; color: var(--text); }
+.help-tabs strong { color: var(--gold-light); font-weight: 600; }
+.help-heading { font-family: var(--serif); font-size: var(--text-lg); color: var(--text); margin-bottom: 10px; }
+.help-sizes { display: flex; gap: 8px; margin-bottom: 8px; }
+.help-size { flex: 1; color: var(--text); }
+.help-size-large { font-size: 1rem; }
+.help-size-larger { font-size: 1.125rem; }
+.help-size[aria-pressed="true"] { border-color: var(--gold); background: rgba(201, 168, 76, 0.12); }
+.help-note { font-size: var(--text-sm); color: var(--text-muted); line-height: 1.5; margin-bottom: 6px; }
+.help-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.help-actions .btn { flex: 1 1 160px; }
+.db-help-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--text-base); }
+
 /* ── Smooth page transitions ─────────────────────────────── */
 .mode-view.active {
   animation: fadeIn 0.25s var(--ease-default) forwards;

@@ -15,6 +15,26 @@ var STRINGS = {
     'textSize.current': 'Text size: {size}',
     'textSize.change': 'Change text size',
 
+    // ── How to use Bayan (js/ui/help.js) ──
+    'help.title': 'How to use Bayan',
+    'help.intro': 'Use the buttons at the bottom of the screen to move around.',
+    'help.tab.home': 'Home:',
+    'help.tab.home.desc': 'press Start to do your next lesson.',
+    'help.tab.learn': 'Learn:',
+    'help.tab.learn.desc': 'your courses, with every lesson in order.',
+    'help.tab.practice': 'Practice:',
+    'help.tab.practice.desc': 'go over what you learned, so you remember it.',
+    'help.tab.quran': 'Quran:',
+    'help.tab.quran.desc': 'read the Quran. Tap any word to see what it means.',
+    'help.tab.profile': 'Profile:',
+    'help.tab.profile.desc': 'sign in to keep your progress on all your devices.',
+    'help.textSize': 'Text size',
+    'help.textSize.note': 'You can also change it with the Aa button at the top.',
+    'help.theme': 'For a light or dark screen, tap the button next to Aa.',
+    'help.welcome': 'Show the welcome again',
+    'help.close': 'Close',
+    'home.help': 'How to use Bayan',
+
     // ── Learning tracks ──
     'track.qaida.name': 'Read Arabic from zero',
     'track.tajweed.name': 'Tajweed',

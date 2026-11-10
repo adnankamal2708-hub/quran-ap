@@ -962,6 +962,7 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     var html = getInnerHTML();
     assert.ok(html.indexOf('id="db-continue-learning"') >= 0, 'Up next shown');
     assert.ok(html.indexOf('id="db-continue-reading-start"') >= 0, 'reading shown');
+    assert.ok(html.indexOf('id="db-help"') >= 0, 'How to use Bayan shown');
     assert.ok(html.indexOf('db-goal-card') < 0, 'no goal card repeating Up next');
     assert.ok(html.indexOf('db-motivation-card') < 0, 'no motivation card repeating the greeting');
     assert.ok(html.indexOf('db-track-row') < 0, 'no 0% track row');
