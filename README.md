@@ -11,6 +11,7 @@
 - **Adaptive Spaced Repetition (SRS)** — SM-2 algorithm with automatic review scheduling
 - **Interactive Quiz System** — Multiple-choice quizzes with intelligent distractors
 - **Vocabulary Explorer** — Comprehensive word reference with root families, derived forms, semantic groups, and morphological relationships
+- **Word-by-word Quran reader** — The meaning of every word in every verse, under the word (Meanings button in the Quran tab)
 - **Quran Reading Coverage** — Track what percentage of Quranic vocabulary you've mastered
 - **Offline-First PWA** — Study offline, sync when connected via Firebase
 - **User Accounts** — Cloud sync across devices via Firebase Auth + Firestore
@@ -40,6 +41,8 @@
 │   ├── profile-ui.js       — Profile & settings UI
 │   ├── data/               — Quranic vocabulary word files (auto-discovered)
 │   └── services/           — Firebase auth, sync, and user services
+├── data-sources/           — Word-by-word meanings source (quran-wbw-en.json) and how it is checked
+├── scripts/word-meanings.js — Lines every word's meaning up with the Quran text; build.js stops on any mismatch
 ├── test/                   — Unit tests, dry-load, Playwright E2E
 ├── .github/workflows/      — CI/CD pipelines (test + deploy)
 └── dist/                   — Production build output

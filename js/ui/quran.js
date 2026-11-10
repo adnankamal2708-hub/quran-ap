@@ -150,6 +150,7 @@ function _buildVerseData(surahId, quranSurah, vocabWords) {
       words: matchedWords,
       ayahA: verse.text,
       ayahT: verse.translation || '',
+      glosses: verse.w || null,   // each word's meaning in this verse (build.js)
     };
     verseKeys.push(verseKey);
   }
@@ -478,44 +479,52 @@ function renderAyahs() {
 
     // Arabic verse (immutable Quran text with vocabulary highlighting)
     html += '<div class="quran-ayah-arabic" lang="ar" dir="rtl">';
-    var verseTokens = group.ayahA.split(/\s+/);
+    var verseTokens = group.ayahA.split(/\s+/).filter(Boolean);
     var vocabNormForVerse = {};
     for (var vtwi = 0; vtwi < group.words.length; vtwi++) {
       var vtn = _normArabicForMatch(group.words[vtwi].arabic);
       if (vtn) vocabNormForVerse[vtn] = group.words[vtwi];
     }
-    var renderedWordIds = {};
+    var glosses = group.glosses || [];
 
     for (var vti = 0; vti < verseTokens.length; vti++) {
       var token = verseTokens[vti];
       if (!token) continue;
+      // A word the source counts as one with the next (e.g. بَعۡدَ مَا) is
+      // drawn as one word, so its meaning sits under both parts.
+      var span = 1;
+      while (vti + span < verseTokens.length && glosses[vti + span] === 0) span++;
+      var wordText = verseTokens.slice(vti, vti + span).join(' ');
+      var escapedToken = wordText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      // The meaning of this word in this verse; the lesson meaning only if
+      // the verse data has none.
       var normToken = _normArabicForMatch(token);
-      var matchedWord = normToken ? vocabNormForVerse[normToken] : null;
-      var isDuplicate = matchedWord && renderedWordIds[matchedWord.id];
+      var matchedWord = (span === 1 && normToken) ? vocabNormForVerse[normToken] : null;
+      var meaning = typeof glosses[vti] === 'string' ? glosses[vti] : (matchedWord ? matchedWord.english || '' : '');
+      // The gloss is drawn by CSS (::after) when "Meanings" is on, so the
+      // token's text stays exactly the verse text.
+      var gloss = String(meaning).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
-      if (matchedWord && !isDuplicate) {
-        renderedWordIds[matchedWord.id] = true;
+      if (matchedWord) {
         var colorClass = _quranGetMasteryColor(matchedWord.id);
         var escapedArabic = matchedWord.arabic.replace(/"/g, '&quot;');
         // R2 (text accuracy): always display the ORIGINAL corpus token — the
         // exact Uthmani-script text as it appears in the real verse — never
         // substitute the dictionary/canonical form. The dictionary form is
         // used only for matching and for accessible labels (aria/title).
-        var escapedToken = token.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        // The gloss is drawn by CSS (::after) when "Meanings" is on, so the
-        // token's text stays exactly the verse text.
-        var gloss = String(matchedWord.english || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         html += '<span class="quran-word-token quran-token-' + colorClass + '" ' +
           'data-word-id="' + matchedWord.id + '" ' +
           'data-gloss="' + gloss + '" ' +
           'tabindex="0" role="button" ' +
-          'aria-label="' + escapedArabic + ' — ' + (matchedWord.meaning || matchedWord.english || '') + '" ' +
-          'title="' + escapedArabic + ' — ' + (matchedWord.english || '') + '">' +
+          'aria-label="' + escapedArabic + ' — ' + gloss + '" ' +
+          'title="' + escapedArabic + ' — ' + gloss + '">' +
           escapedToken + '</span>';
       } else {
-        html += '<span class="quran-plain-arabic">' +
-          token.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+        html += '<span class="quran-plain-arabic' + (meaning ? ' has-gloss' : '') + '"' +
+          (meaning ? ' data-gloss="' + gloss + '" title="' + gloss + '"' : '') + '>' +
+          escapedToken + '</span>';
       }
+      vti += span - 1;
       if (vti < verseTokens.length - 1) html += ' ';
     }
     html += '</div>'; // end ayah arabic

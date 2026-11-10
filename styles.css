@@ -8005,9 +8005,8 @@ body::before {
   white-space: normal;
   color: var(--text-muted);
 }
-/* A word not in Bayan's word list has no meaning to show yet: a faint
-   dash marks the gap (see .reader-gloss-note) instead of a blank space */
-.show-glosses .quran-plain-arabic::after {
+/* A word with no meaning to show: a faint dash instead of a blank space */
+.show-glosses .quran-plain-arabic:not(.has-gloss)::after {
   content: "\2013";
   content: "\2013" / "";
   opacity: 0.5;

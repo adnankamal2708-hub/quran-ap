@@ -78,6 +78,7 @@ var TESTS = [
   "qaida-exercises.test.js",
   "tajweed-data.test.js",
   "verse-word-counts.test.js",
+  "word-meanings.test.js",
   "tajweed-track.test.js",
   "tajweed-exercises.test.js",
   "tajweed-ui.test.js",

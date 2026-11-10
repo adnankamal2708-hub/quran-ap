@@ -421,6 +421,22 @@ async function build() {
       }
 
       if (quranSplitOk) {
+        // 4b-0. Attach each word's meaning to its verse as `w` (see
+        //       scripts/word-meanings.js). Any word that can't be matched
+        //       with certainty stops the build: no meaning is ever guessed.
+        var wordMeanings = require('./scripts/word-meanings.js');
+        new Function(readFile('js/data/occurrence-index.js')).call(global);
+        var wmResult = wordMeanings.alignWordMeanings(QURAN_TEXT, wordMeanings.loadSource(), global.window.OCCURRENCE_INDEX_NORM);
+        if (wmResult.errors.length) {
+          console.error('  ✗ Word meanings do not line up with the Quran text:');
+          wmResult.errors.slice(0, 20).forEach(function (e) { console.error('    • ' + e); });
+          process.exit(1);
+        }
+        for (var wmS = 1; wmS <= 114; wmS++) {
+          QURAN_TEXT[wmS].verses.forEach(function (v, i) { v.w = wmResult.bySurah[wmS][i]; });
+        }
+        console.log('     Word meanings: ' + wmResult.words + ' words matched');
+
         // 4b-i. Write surah-index.min.js (metadata only)
         if (fs.existsSync(surahIndexPath)) {
           var indexSrc = readFile('js/quran/surah-index.js');
