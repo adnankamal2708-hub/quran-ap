@@ -10052,3 +10052,12 @@ body::before {
   .plan-card { padding: 8px 12px; gap: 4px; }
   .plan-card-features li { font-size: var(--text-xs); line-height: 1.4; }
 }
+
+/* Tap a word in the Quran reader (js/ui/quran-word-panel.js) */
+#word-panel-overlay { z-index: calc(var(--z-tooltip) + 1); }
+.quran-ayah-arabic [data-n] { cursor: pointer; }
+.word-panel { max-width: 360px; width: 100%; text-align: center; }
+.word-panel-word { font-family: var(--arabic, serif); font-size: 2.25rem; line-height: 1.8; color: var(--text); }
+.word-panel-meaning { font-size: var(--text-lg); color: var(--text); margin-top: 4px; }
+.word-panel-ref { font-size: var(--text-sm); color: var(--text-muted); margin-top: 6px; }
+.word-panel-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }

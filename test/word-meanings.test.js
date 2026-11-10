@@ -144,5 +144,18 @@ ts('W3 — the reader shows every meaning', function () {
   });
 });
 
+ts('W4 — Report a mistake', function () {
+  vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js/i18n/strings-en.js'), 'utf8'));
+  vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js/ui/quran-word-panel.js'), 'utf8'));
+  t('the report names the verse, the word and the meaning shown', function () {
+    var text = global.quranWordReportText({ verseKey: '2:3', wordNum: 2, arabic: 'يُؤۡمِنُونَ', meaning: 'believe' });
+    assert.strictEqual(text, 'Mistake in a word meaning. Verse 2:3, word 2: يُؤۡمِنُونَ, shown as "believe". What is wrong:\n');
+  });
+  t('the report stays under the feedback limit for a long meaning', function () {
+    var text = global.quranWordReportText({ verseKey: '286:286', wordNum: 99, arabic: 'وَٱلَّـٰٓئِي', meaning: new Array(60).join('x') });
+    assert.ok(text.length < 1700);
+  });
+});
+
 console.log('\nResults: ' + passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

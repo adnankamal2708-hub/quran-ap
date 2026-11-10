@@ -151,13 +151,14 @@
   // ── Feedback Modal ──────────────────────────────────────────
   /**
    * Show the feedback submission modal. Creates DOM on first call.
+   * @param {string} [prefill] text to start the message with (e.g. a
+   *   reported Quran word, js/ui/quran-word-panel.js)
    */
-  function showModal() {
+  function showModal(prefill) {
     var existing = document.getElementById('fb-modal');
     if (existing) {
       existing.style.display = 'flex';
-      var textarea = document.getElementById('fb-text');
-      if (textarea) textarea.focus();
+      _focusText(prefill);
       return;
     }
 
@@ -211,8 +212,17 @@
     modal.onclick = function (e) {
       if (e.target === modal) modal.style.display = 'none';
     };
+    _focusText(prefill);
+  }
+
+  function _focusText(prefill) {
     var fbText = document.getElementById('fb-text');
-    if (fbText) fbText.focus();
+    if (!fbText) return;
+    if (typeof prefill === 'string' && prefill) {
+      fbText.value = prefill;
+      fbText.setSelectionRange(prefill.length, prefill.length);
+    }
+    fbText.focus();
   }
 
   // ── Submit Handler ──────────────────────────────────────────

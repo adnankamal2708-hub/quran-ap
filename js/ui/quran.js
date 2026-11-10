@@ -446,6 +446,27 @@ function openSurahForReading(surahId) {
   }
 }
 
+// ── Word tap ───────────────────────────────────────────────────
+
+function _openQuranWord(el) {
+  var ayah = el.closest('.quran-ayah');
+  var verseKey = ayah ? ayah.id.replace('quran-ayah-', '').replace('-', ':') : '';
+  var wordId = el.getAttribute('data-word-id');
+  var word = null;
+  for (var wi = 0; wordId && wi < _quranSurahWords.length; wi++) {
+    if (_quranSurahWords[wi].id === wordId) { word = _quranSurahWords[wi]; break; }
+  }
+  var info = {
+    verseKey: verseKey,
+    wordNum: parseInt(el.getAttribute('data-n'), 10),
+    arabic: el.textContent,
+    meaning: el.getAttribute('data-gloss') || '',
+    onOpenLesson: (word && typeof openExplorer === 'function') ? function () { openExplorer(word); } : null,
+  };
+  if (typeof showQuranWordPanel === 'function') showQuranWordPanel(info);
+  else if (info.onOpenLesson) info.onOpenLesson();
+}
+
 // ── Render Ayahs ───────────────────────────────────────────────
 
 function renderAyahs() {
@@ -513,15 +534,15 @@ function renderAyahs() {
         // substitute the dictionary/canonical form. The dictionary form is
         // used only for matching and for accessible labels (aria/title).
         html += '<span class="quran-word-token quran-token-' + colorClass + '" ' +
-          'data-word-id="' + matchedWord.id + '" ' +
+          'data-word-id="' + matchedWord.id + '" data-n="' + (vti + 1) + '" ' +
           'data-gloss="' + gloss + '" ' +
           'tabindex="0" role="button" ' +
           'aria-label="' + escapedArabic + ' — ' + gloss + '" ' +
           'title="' + escapedArabic + ' — ' + gloss + '">' +
           escapedToken + '</span>';
       } else {
-        html += '<span class="quran-plain-arabic' + (meaning ? ' has-gloss' : '') + '"' +
-          (meaning ? ' data-gloss="' + gloss + '" title="' + gloss + '"' : '') + '>' +
+        html += '<span class="quran-plain-arabic' + (meaning ? ' has-gloss' : '') + '" data-n="' + (vti + 1) + '" tabindex="0" role="button"' +
+          (meaning ? ' data-gloss="' + gloss + '" aria-label="' + gloss + '" title="' + gloss + '"' : '') + '>' +
           escapedToken + '</span>';
       }
       vti += span - 1;
@@ -540,26 +561,17 @@ function renderAyahs() {
 
   container.innerHTML = html;
 
-  // Wire word token clicks → open Explorer
-  var tokens = container.querySelectorAll('.quran-word-token');
-  for (var ti = 0; ti < tokens.length; ti++) {
-    (function(el) {
-      el.onclick = function() {
-        var wordId = el.getAttribute('data-word-id');
-        if (wordId && typeof openExplorer === 'function') {
-          for (var wi = 0; wi < _quranSurahWords.length; wi++) {
-            if (_quranSurahWords[wi].id === wordId) {
-              openExplorer(_quranSurahWords[wi]);
-              break;
-            }
-          }
-        }
-      };
-      el.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.onclick(); }
-      };
-    })(tokens[ti]);
-  }
+  // Tap any word → its meaning, Open lesson and Report a mistake
+  // (js/ui/quran-word-panel.js). One handler for the whole surah.
+  container.onclick = function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('.quran-ayah-arabic [data-n]') : null;
+    if (el) _openQuranWord(el);
+  };
+  container.onkeydown = function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var el = e.target && e.target.closest ? e.target.closest('.quran-ayah-arabic [data-n]') : null;
+    if (el) { e.preventDefault(); _openQuranWord(el); }
+  };
 
   // Scroll to target verse
   if (_quranScrollVerse) {

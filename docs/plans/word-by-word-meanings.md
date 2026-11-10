@@ -11,12 +11,12 @@ English (data-sources/README.md). Done:
   are handled by spelling-checked joins, plus one listed exception, 2:72).
   `build.js` attaches each verse's meanings to the per-surah files, so
   they load with the surah and work offline.
-- Task 6 (part): a meaning under every word, the repeated-word bug fixed,
+- Task 6: a meaning under every word, the repeated-word bug fixed, a word panel with Report a mistake (js/ui/quran-word-panel.js),
   and a credit line under the reader.
 - Task 8: `test/word-meanings.test.js` and `test/e2e/word-meanings.spec.js`.
 
 Still open: Task 4 (audit list against the lesson meanings), Task 5 (lesson
-links by dictionary form), the tap panel with Report a mistake, and Task 7
+links by dictionary form) and Task 7
 (teacher review).
 
 ## The problem

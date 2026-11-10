@@ -33,6 +33,10 @@ var STRINGS = {
     'help.theme': 'For a light or dark screen, tap the button next to Aa.',
     'help.welcome': 'Show the welcome again',
     'help.close': 'Close',
+    'wordPanel.ref': 'Verse {ref}, word {n}',
+    'wordPanel.openLesson': 'Open lesson',
+    'wordPanel.report': 'Report a mistake',
+    'wordPanel.reportText': 'Mistake in a word meaning. Verse {ref}, word {n}: {arabic}, shown as "{meaning}". What is wrong:',
     'home.help': 'How to use Bayan',
 
     // ── Learning tracks ──

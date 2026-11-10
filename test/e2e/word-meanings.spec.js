@@ -22,7 +22,8 @@ async function openBaqarah(page) {
   await page.evaluate(() => openSurahForReading(2));
   await page.waitForSelector('#quran-ayah-2-3', { state: 'attached', timeout: 15000 });
   await page.evaluate(() => window.__ux && window.__ux.closeTooltips && window.__ux.closeTooltips());
-  await page.locator('#reader-meanings').click({ force: true });
+  // A tip bubble can sit over the button, so click it directly
+  await page.evaluate(() => document.getElementById('reader-meanings').click());
   await expect(page.locator('#reader-meanings')).toHaveAttribute('aria-pressed', 'true');
 }
 
@@ -43,4 +44,16 @@ test('a word written in two parts keeps one meaning (2:181)', async ({ page }) =
   await openBaqarah(page);
   const word = page.locator('#quran-ayah-2-181 [data-gloss="after what"]');
   await expect(word).toHaveText('بَعۡدَ مَا');
+});
+
+test('tapping a word opens its panel, and Report a mistake fills in the feedback form', async ({ page }) => {
+  await openBaqarah(page);
+  await page.locator('#quran-ayah-2-3 [data-n="2"]').click();
+  const panel = page.locator('#word-panel-overlay');
+  await expect(panel).toBeVisible();
+  await expect(panel.locator('.word-panel-word')).toHaveText('يُؤۡمِنُونَ');
+  await expect(panel.locator('.word-panel-meaning')).toHaveText('believe');
+  await panel.locator('#word-panel-report').click();
+  await expect(panel).toBeHidden();
+  await expect(page.locator('#fb-text')).toHaveValue('Mistake in a word meaning. Verse 2:3, word 2: يُؤۡمِنُونَ, shown as "believe". What is wrong:\n');
 });

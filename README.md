@@ -234,6 +234,7 @@ Code is split into focused modules (the old `data.js` / `ui.js` monoliths are go
 - `analytics-ui.js` — Analytics rendering
 - `dashboard.js` — Dashboard rendering
 - `theme.js` — Light / dark theme choice (System, Light, Dark)
+- `quran-word-panel.js` — Tap a word in the Quran reader: its meaning, Open lesson, and Report a mistake (opens the feedback form filled in with the verse and word)
 - `text-size.js` — Text size choice (Normal, Large, Larger), the top bar Aa button
 - `help.js` — How to use Bayan: what each tab is for, text size, the welcome again
 - `tracks-ui.js` — Learn tab: track list (`tracks` view) and a track's path (`track` view)
