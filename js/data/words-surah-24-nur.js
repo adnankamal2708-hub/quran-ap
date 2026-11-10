@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 256,
     arabic:'النُّورِ',
     translit:'An-Nūr',
     type:'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَمَاء', 'هُدًى'],
   },
   {
+    cid: 1003,
     arabic:'مِشْكَاةِ',
     translit:'Mishkāh',
     type:'Noun',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نُور', 'مِصْبَاح'],
   },
   {
+    cid: 1004,
     arabic:'مِصْبَاحٌ',
     translit:'Miṣbāḥ',
     type:'Noun',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نُور', 'زُجَاجَة'],
   },
   {
+    cid: 176,
     arabic:'الزِّنَا',
     translit:'Az-Zinā',
     type:'Noun',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَدّ', 'نِكَاح'],
   },
   {
+    cid: 319,
     arabic:'الْجِلْدَة',
     translit:'Al-Jildah',
     type:'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'زِنَا', 'حَدّ'],
   },
   {
+    cid: 390,
     arabic:'الْغَيْبِ',
     translit:'Al-Ghayb',
     type:'Noun',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِلْم', 'سَمَاء'],
   },
   {
+    cid: 394,
     arabic:'الْفَاحِشَةِ',
     translit:'Al-Fāḥishah',
     type:'Noun',
@@ -221,6 +228,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِفْك', 'عَذَاب'],
   },
   {
+    cid: 289,
     arabic:'الْإِفْكِ',
     translit:'Al-Ifk',
     type:'Noun',
@@ -252,6 +260,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صِدْق', 'عَائِشَة'],
   },
   {
+    cid: 458,
     arabic:'الْمُبْتَغِينَ',
     translit:'Al-Mubtaghīn',
     type:'Noun (plural)',

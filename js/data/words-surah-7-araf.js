@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 274,
     arabic: 'الْأَعْرَافِ',
     translit: "Al-A'rāf",
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَار'],
   },
   {
+    cid: 119,
     arabic: 'اتَّقُوا',
     translit: 'Ittaqū',
     type: 'Verb (command)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['تَقْوَى', 'اللَّهُ', 'إِيمَان'],
   },
   {
+    cid: 992,
     arabic: 'مُوسَىٰ',
     translit: 'Mūsā',
     type: 'Proper Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فِرْعَوْن', 'آيَة'],
   },
   {
+    cid: 860,
     arabic: 'فِرْعَوْنَ',
     translit: 'Fir\'awn',
     type: 'Proper Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['مُوسَىٰ', 'اللَّهُ', 'آيَة'],
   },
   {
+    cid: 346,
     arabic: 'الْحِجَابُ',
     translit: 'Al-Hijāb',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَعْرَاف', 'نَار'],
   },
   {
+    cid: 260,
     arabic: 'الَّذِينَ',
     translit: 'Alladhīna',
     type: 'Pronoun (relative)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 471,
     arabic: 'الْمُرْسَلَاتِ',
     translit: 'Al-Mursalāt',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'مَلَائِكَة'],
   },
   {
+    cid: 805,
     arabic: 'عُرْفًا',
     translit: "'Urfan",
     type: 'Noun (adverbial)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِيح', 'مَلَائِكَة'],
   },
   {
+    cid: 781,
     arabic: 'عَاصِفَاتِ',
     translit: "'Āṣifāt",
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِيح', 'عَاصِفَة'],
   },
   {
+    cid: 1015,
     arabic: 'نَاشِرَاتِ',
     translit: 'Nāshirāt',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِيح', 'غَيْث'],
   },
   {
+    cid: 826,
     arabic: 'فَارِقَاتِ',
     translit: 'Fāriqāt',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فُرْقَان', 'قُرْآن'],
   },
   {
+    cid: 990,
     arabic: 'مُلْقِيَاتِ',
     translit: 'Mulqiyāt',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَحْي', 'ذِكْر'],
   },
   {
+    cid: 804,
     arabic: 'عُذْرًا أَوْ نُذْرًا',
     translit: "'Udhran aw Nudhran",
     type: 'Noun phrase',

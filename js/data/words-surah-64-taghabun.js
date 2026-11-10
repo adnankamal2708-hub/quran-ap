@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 131,
     arabic: 'التَّغَابُنِ',
     translit: 'At-Taghābun',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'جَزَاء'],
   },
   {
+    cid: 313,
     arabic: 'الْجَمْعِ',
     translit: "Al-Jam'i",
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'حِسَاب'],
   },
   {
+    cid: 457,
     arabic: 'الْمُؤْمِنُونَ',
     translit: "Al-Mu\'minūn",
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'تَوَكُّل'],
   },
   {
+    cid: 852,
     arabic: 'فَلْيَتَوَكَّلِ',
     translit: 'Falyatawakkal',
     type: 'Verb (command)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوَكُّل', 'إِيمَان'],
   },
   {
+    cid: 825,
     arabic: 'فَاتَّقُوا',
     translit: 'Fattaqū',
     type: 'Verb (command)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَقْوَىٰ', 'طَاعَة'],
   },
   {
+    cid: 121,
     arabic: 'اسْتَطَعْتُمْ',
     translit: "Istaṭa'tum",
     type: 'Verb',

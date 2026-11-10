@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 412,
     arabic: 'الْقَلَمِ',
     translit: 'Al-Qalam',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'كِتَاب', 'عِلْم'],
   },
   {
+    cid: 1118,
     arabic: 'يَسْطُرُونَ',
     translit: 'Yasṭurūn',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قَلَم', 'كِتَاب'],
   },
   {
+    cid: 545,
     arabic: 'بِمَا',
     translit: 'Bimā',
     type: 'Particle + Pronoun',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قَلَم', 'كِتَاب'],
   },
   {
+    cid: 960,
     arabic: 'مَجْنُونٍ',
     translit: 'Majnūn',
     type: 'Adjective',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'قُرْآن'],
   },
   {
+    cid: 21,
     arabic: 'أَجْرًا',
     translit: 'Ajran',
     type: 'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ثَوَاب', 'جَنَّة'],
   },
   {
+    cid: 972,
     arabic: 'مَمْنُونٍ',
     translit: 'Mamnūn',
     type: 'Adjective',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَجْر', 'خُلُود'],
   },
   {
+    cid: 647,
     arabic: 'خُلُقٍ',
     translit: 'Khuluq',
     type: 'Noun',

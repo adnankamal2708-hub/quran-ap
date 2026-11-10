@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 129,
     arabic: 'التَّحْرِيمِ',
     translit: 'At-Taḥrīm',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَلَال', 'حَرَام'],
   },
   {
+    cid: 28,
     arabic: 'أَحَلَّ',
     translit: 'Aḥalla',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَلَال', 'شَرِيعَة'],
   },
   {
+    cid: 580,
     arabic: 'تُحَرِّمُ',
     translit: 'Tuḥarrimu',
     type: 'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَرَام', 'نَبِيّ'],
   },
   {
+    cid: 554,
     arabic: 'تَحِلَّةَ',
     translit: 'Taḥillah',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَمِين', 'كَفَّارَة'],
   },
   {
+    cid: 87,
     arabic: 'أَيْمَانِكُمْ',
     translit: 'Aymānukum',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَمِين', 'كَفَّارَة'],
   },
   {
+    cid: 750,
     arabic: 'صَالِحِينَ',
     translit: 'Ṣāliḥīn',
     type: 'Adjective (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاح', 'تَقْوَىٰ'],
   },
   {
+    cid: 1073,
     arabic: 'وَقُودُهَا',
     translit: 'Waqūduhā',
     type: 'Noun',

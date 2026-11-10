@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 135,
     arabic: 'التَّوْبَةِ',
     translit: 'At-Tawbah',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['غَفُورٌ', 'اللَّهُ', 'تَوْبَة'],
   },
   {
+    cid: 605,
     arabic: 'جِهَادِ',
     translit: 'Jihād',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَبِيلِ', 'قِتَال'],
   },
   {
+    cid: 171,
     arabic: 'الزَّكَاةَ',
     translit: 'Az-Zakāh',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَدَقَة', 'صَلَاة'],
   },
   {
+    cid: 496,
     arabic: 'الْمُهَاجِرِينَ',
     translit: 'Al-Muhājirīn',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَنْصَار', 'هِجْرَة'],
   },
   {
+    cid: 279,
     arabic: 'الْأَنْصَارِ',
     translit: 'Al-Ansār',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَصْر', 'مُهَاجِر'],
   },
   {
+    cid: 468,
     arabic: 'الْمُخَلَّفُونَ',
     translit: 'Al-Mukhallafūn',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جِهَادِ', 'هُدًى'],
   },
   {
+    cid: 752,
     arabic: 'صَدَقَةٍ',
     translit: 'Sadaqah',
     type: 'Noun',

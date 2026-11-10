@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 738,
     arabic: 'شَرَحَ',
     translit: 'Sharaḥa',
     type: 'Verb (perfect, masculine singular)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الصَّدْر', 'الْإِيمَان'],
   },
   {
+    cid: 1071,
     arabic: 'وَضَعْنَا',
     translit: 'Waḍaʿnā',
     type: 'Verb (perfect, plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْوِزْر', 'الرَّحْمَة'],
   },
   {
+    cid: 1087,
     arabic: 'وِزْرَكَ',
     translit: 'Wizraka',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّخْفِيف', 'الرَّحْمَة'],
   },
   {
+    cid: 824,
     arabic: 'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا',
     translit: 'Fa Inna Maʿa al-ʿUsri Yusran',
     type: 'Particle + Noun + Noun phrase',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْفَرَج', 'الصَّبْر'],
   },
   {
+    cid: 823,
     arabic: 'فَإِذَا فَرَغْتَ',
     translit: 'Fa Idhā Faraghta',
     type: 'Particle + Conjunction + Verb',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِبَادَة', 'الْعَمَل'],
   },
   {
+    cid: 834,
     arabic: 'فَانصَبْ',
     translit: 'Fānṣab',
     type: 'Verb (command, masculine singular)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِبَادَة', 'الِاجْتِهَاد'],
   },
   {
+    cid: 828,
     arabic: 'فَارْغَب',
     translit: 'Fārghab',
     type: 'Verb (command, masculine singular)',

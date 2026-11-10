@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 246,
     arabic: 'النَّحْلِ',
     translit: 'An-Naḥl',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَسَل', 'آيَة'],
   },
   {
+    cid: 793,
     arabic: 'عَسَلٍ',
     translit: '\'Asal',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شِفَاء', 'رِزْق'],
   },
   {
+    cid: 258,
     arabic: 'النِّعَمِ',
     translit: 'An-Ni\'am',
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شُكْر', 'فَضْل'],
   },
   {
+    cid: 847,
     arabic: 'فَضْلِهِ',
     translit: 'Faḍlihī',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِزْق', 'شُكْر'],
   },
   {
+    cid: 433,
     arabic: 'الْكُفَّارُ',
     translit: 'Al-Kuffār',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'شِرْك'],
   },
   {
+    cid: 448,
     arabic: 'الْمَعْرُوفِ',
     translit: 'Al-Ma\'rūf',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَدْل', 'إِحْسَان'],
   },
   {
+    cid: 491,
     arabic: 'الْمُنكَرِ',
     translit: 'Al-Munkar',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَعْرُوف', 'عَدْل'],
   },
   {
+    cid: 139,
     arabic: 'الدَّيْنَ',
     translit: 'Ad-Dayn',
     type: 'Noun',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَدْل', 'مَال'],
   },
   {
+    cid: 194,
     arabic: 'الشَّيْطَانِ',
     translit: 'Ash-Shayṭān',
     type: 'Proper Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'عُذُو'],
   },
   {
+    cid: 132,
     arabic: 'التَّقْوَىٰ',
     translit: 'At-Taqwā',
     type: 'Noun',

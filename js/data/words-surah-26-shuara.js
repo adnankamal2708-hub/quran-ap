@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 195,
     arabic:'الشُّعَرَاءِ',
     translit:"Ash-Shu'arā'",
     type:'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْغَاوُونَ', 'أَعْمَال'],
   },
   {
+    cid: 385,
     arabic:'الْغَاوُونَ',
     translit:'Al-Ghāwūn',
     type:'Noun (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ضَلَال', 'هُدًى'],
   },
   {
+    cid: 286,
     arabic:'الْأُمِّيِّينَ',
     translit:'Al-Ummiyyīn',
     type:'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'قُرْآن'],
   },
   {
+    cid: 273,
     arabic:'الْأَعْجَمِينَ',
     translit:"Al-A'jamīn",
     type:'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'عَرَبِيّ'],
   },
   {
+    cid: 860,
     arabic:'فِرْعَوْنَ',
     translit:"Fir'awn",
     type:'Proper Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'آيَات'],
   },
   {
+    cid: 767,
     arabic:'طَغَىٰ',
     translit:'Ṭaghā',
     type:'Verb',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فِرْعَوْن', 'طَاغُوت'],
   },
   {
+    cid: 1136,
     arabic:'يَهْدِينِ',
     translit:'Yahdīn',
     type:'Verb',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'ضَلَال'],
   },
   {
+    cid: 274,
     arabic:'الْأَعْرَافِ',
     translit:"Al-A'rāf",
     type:'Noun (plural)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَار'],
   },
   {
+    cid: 367,
     arabic:'الْعَذَابُ',
     translit:"Al-'Adhāb",
     type:'Noun',

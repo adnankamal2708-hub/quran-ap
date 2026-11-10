@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 831,
     arabic:'فَاطِرَ',
     translit:'Fāṭir',
     type:'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَلَقَ', 'سَمَاء'],
   },
   {
+    cid: 591,
     arabic:'جَاعِلِ',
     translit:"Jā'il",
     type:'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'خَلَقَ'],
   },
   {
+    cid: 23,
     arabic:'أَجْنِحَةٍ',
     translit:'Ajniḥah',
     type:'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'رَسُول'],
   },
   {
+    cid: 1081,
     arabic:'وَهَنُوا',
     translit:'Wahanū',
     type:'Verb',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُوَّة', 'عَجْز'],
   },
   {
+    cid: 227,
     arabic:'الظُّلُمَاتِ',
     translit:'Aẓ-Ẓulumāt',
     type:'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نُور', 'هُدًى'],
   },
   {
+    cid: 228,
     arabic:'الظِّلُّ',
     translit:'Aẓ-Ẓill',
     type:'Noun',

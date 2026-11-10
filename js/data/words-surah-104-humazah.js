@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1056,
     arabic: 'هُمَزَةٍ',
     translit: 'Humazah',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْغِيبَة', 'النَّمِيمَة'],
   },
   {
+    cid: 942,
     arabic: 'لُمَزَةٍ',
     translit: 'Lumazah',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْغِيبَة', 'الْهَمْز وَاللَّمْز'],
   },
   {
+    cid: 597,
     arabic: 'جَمَعَ مَالًا',
     translit: 'Jamaʿa Mālan',
     type: 'Verb + Noun (phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَال', 'الْبُخْل'],
   },
   {
+    cid: 1083,
     arabic: 'وَيْلٌ',
     translit: 'Waylun',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَهَنَّم', 'الْعَذَاب'],
   },
   {
+    cid: 345,
     arabic: 'الْحُطَمَةِ',
     translit: 'Al-Ḥuṭamah',
     type: 'Noun (feminine)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّار', 'الْعَذَاب الْأَلِيم'],
   },
   {
+    cid: 981,
     arabic: 'مُؤْصَدَةٌ',
     translit: 'Muʿṣadah',
     type: 'Noun (passive participle, feminine)',

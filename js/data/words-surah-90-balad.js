@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 302,
     arabic: 'الْبَلَدِ',
     translit: 'Al-Balad',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَيْت', 'الْحَرَم'],
   },
   {
+    cid: 628,
     arabic: 'حِلٌّ',
     translit: 'Ḥillun',
     type: 'Adjective/Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّبِيّ', 'الْبَلَد'],
   },
   {
+    cid: 889,
     arabic: 'كَبَدٍ',
     translit: 'Kabad',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'الِابْتِلَاء'],
   },
   {
+    cid: 927,
     arabic: 'لَمْ يَرَهُ',
     translit: 'Lam Yarahu',
     type: 'Negation + Verb',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَصِير', 'الْعِلْم'],
   },
   {
+    cid: 1020,
     arabic: 'نَجْدَيْنِ',
     translit: 'Najdayn',
     type: 'Noun (dual)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْهُدَىٰ', 'الضَّلَال'],
   },
   {
+    cid: 851,
     arabic: 'فَكُّ رَقَبَةٍ',
     translit: 'Fakku Raqabah',
     type: 'Verb + Noun (phrase)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِحْسَان', 'الزَّكَاة'],
   },
   {
+    cid: 488,
     arabic: 'الْمُلْحِدِينَ',
     translit: 'Al-Mulḥidīn',
     type: 'Noun (plural, active participle)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 219,
     arabic: 'الطَّارِقِ',
     translit: 'Aṭ-Ṭāriq',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'السَّمَاء', 'النُّجُوم'],
   },
   {
+    cid: 137,
     arabic: 'الثَّاقِبُ',
     translit: 'Ath-Thāqib',
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['النَّجْم', 'الضَّوْء', 'السَّمَاء'],
   },
   {
+    cid: 609,
     arabic: 'حَافِظٌ',
     translit: 'Ḥāfiẓ',
     type: 'Noun (active participle)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَلَائِكَة', 'الْحِفْظ'],
   },
   {
+    cid: 853,
     arabic: 'فَلْيَنظُرِ',
     translit: 'Falyanẓur',
     type: 'Verb (command, masculine singular)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'الْخَلْق'],
   },
   {
+    cid: 152,
     arabic: 'الرَّجْعِ',
     translit: 'Ar-Rajʿ',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'السَّمَاء', 'الْمَطَر'],
   },
   {
+    cid: 205,
     arabic: 'الصَّدْعِ',
     translit: 'Aṣ-Ṣadʿ',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَرْض', 'النَّبَات'],
   },
   {
+    cid: 947,
     arabic: 'لِلْكَيَدِ',
     translit: 'Lilkayad',
     type: 'Noun',

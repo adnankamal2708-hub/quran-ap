@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 266,
     arabic: 'الْأَحْقَافِ',
     translit: 'Al-Aḥqāf',
     type: 'Noun (plural)',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَاد', 'هُود'],
   },
   {
+    cid: 1103,
     arabic: 'يَدَعُ',
     translit: 'Yada\'u',
     type: 'Verb',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'ضَلَال'],
   },
   {
+    cid: 618,
     arabic: 'حَقَّ',
     translit: 'Ḥaqqa',
     type: 'Verb',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَقّ', 'يَقِين'],
   },
   {
+    cid: 998,
     arabic: 'مُّسْتَكْبِرِينَ',
     translit: 'Mustakbirīn',
     type: 'Adjective (plural)',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'كِبْر', 'إِيمَان'],
   },
   {
+    cid: 120,
     arabic: 'ازْدَجَرَ',
     translit: 'Izdajara',
     type: 'Verb',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَذِير', 'عَذَاب'],
   },
   {
+    cid: 321,
     arabic: 'الْجِنِّ',
     translit: 'Al-Jinn',
     type: 'Noun (collective)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 364,
     arabic: 'الْعَادِيَاتِ',
     translit: 'Al-ʿĀdiyāt',
     type: 'Noun (plural, active participle)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَيْل', 'الْجِهَاد'],
   },
   {
+    cid: 760,
     arabic: 'ضَبْحًا',
     translit: 'Ḍabḥan',
     type: 'Noun (adverbial accusative)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَيْل', 'الْغَزْو'],
   },
   {
+    cid: 498,
     arabic: 'الْمُورِيَاتِ',
     translit: 'Al-Mūriyāt',
     type: 'Noun (plural, active participle)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّار', 'الْحَافِر'],
   },
   {
+    cid: 481,
     arabic: 'الْمُغِيرَاتِ',
     translit: 'Al-Mughīrāt',
     type: 'Noun (plural, active participle)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجِهَاد', 'الْفَجْر'],
   },
   {
+    cid: 599,
     arabic: 'جَمْعًا',
     translit: 'Jamʿan',
     type: 'Noun (adverbial accusative)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَرْب', 'الْعَدُوّ'],
   },
   {
+    cid: 736,
     arabic: 'شَدِيدُ الْحُبِّ',
     translit: 'Shadīdu al-Ḥubbi',
     type: 'Adjective + Noun (phrase)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَال', 'الْحُبّ'],
   },
   {
+    cid: 923,
     arabic: 'لَخَبِيرٌ',
     translit: 'Lakhabīr',
     type: 'Adjective',

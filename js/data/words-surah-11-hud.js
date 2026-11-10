@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1035,
     arabic: 'نُوحًا',
     translit: 'Nūḥan',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'قَوْم'],
   },
   {
+    cid: 402,
     arabic: 'الْفُجَّارِ',
     translit: 'Al-Fujjār',
     type: 'Noun (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذَنْب', 'عَذَاب'],
   },
   {
+    cid: 1058,
     arabic: 'هُودٍ',
     translit: 'Hūd',
     type: 'Proper Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَاد', 'قَوْم'],
   },
   {
+    cid: 203,
     arabic: 'الصَّالِحِينَ',
     translit: 'As-Ṣāliḥīn',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاح', 'عَمَل'],
   },
   {
+    cid: 780,
     arabic: 'عَادٍ',
     translit: '\'Ād',
     type: 'Proper Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['هُود', 'اللَّهُ', 'عَذَاب'],
   },
   {
+    cid: 224,
     arabic: 'الظَّالِمِينَ',
     translit: 'Aẓ-Ẓālimīn',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ظُلْم', 'عَدْل'],
   },
   {
+    cid: 333,
     arabic: 'الْحَقِّ',
     translit: 'Al-Ḥaqq',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صِدْق', 'كِتَاب'],
   },
   {
+    cid: 8,
     arabic: 'آنَاءَ',
     translit: 'Ānā\'a',
     type: 'Noun (plural)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['صَلَاة', 'اللَّهُ', 'لَيْل'],
   },
   {
+    cid: 109,
     arabic: 'إِلَٰهٍ',
     translit: 'Ilāhin',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَحْدَهُ', 'عِبَادَة'],
   },
   {
+    cid: 465,
     arabic: 'الْمُحْسِنِينَ',
     translit: 'Al-Muḥsinīn',
     type: 'Noun (plural)',

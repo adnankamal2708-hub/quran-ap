@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 164,
     arabic:'الرُّومِ',
     translit:'Ar-Rūm',
     type:'Proper Noun',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'غَلَب', 'نَصْر'],
   },
   {
+    cid: 818,
     arabic:'غُلِبَتْ',
     translit:'Ghulibat',
     type:'Verb (passive)',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَصْر', 'فَتْح'],
   },
   {
+    cid: 35,
     arabic:'أَدْنَى',
     translit:'Adnā',
     type:'Adjective',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'غَلَب', 'أَرْض'],
   },
   {
+    cid: 360,
     arabic:'الْخَيْرِ',
     translit:'Al-Khayr',
     type:'Noun',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَيْر', 'رِزْق'],
   },
   {
+    cid: 849,
     arabic:'فَطَرَ',
     translit:'Faṭara',
     type:'Verb',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فِطْرَة', 'خَلْق'],
   },
   {
+    cid: 862,
     arabic:'فِطْرَةَ',
     translit:'Fiṭrah',
     type:'Noun',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فَطَرَ', 'دِين'],
   },
   {
+    cid: 550,
     arabic:'تَبْدِيلَ',
     translit:'Tabdīl',
     type:'Noun',
@@ -221,6 +228,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فِطْرَة', 'خَلْق'],
   },
   {
+    cid: 300,
     arabic:'الْبَسْطَ',
     translit:'Al-Basṭ',
     type:'Noun',

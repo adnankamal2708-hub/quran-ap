@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 324,
     arabic:'الْحَجِّ',
     translit:'Al-Ḥajj',
     type:'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'كَعْبَة'],
   },
   {
+    cid: 429,
     arabic:'الْكَعْبَةِ',
     translit:"Al-Ka'bah",
     type:'Proper Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'مَكَّة'],
   },
   {
+    cid: 163,
     arabic:'الرُّكَّعِ',
     translit:"Ar-Rukka'",
     type:'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'سُجُود'],
   },
   {
+    cid: 218,
     arabic:'الطَّائِفِينَ',
     translit:"Aṭ-Ṭā'ifīn",
     type:'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'كَعْبَة', 'طَوَاف'],
   },
   {
+    cid: 167,
     arabic:'الزَّبَانِيَةَ',
     translit:'Az-Zabāniyah',
     type:'Noun (plural)',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَهَنَّم', 'عَذَاب'],
   },
   {
+    cid: 187,
     arabic:'السُّجُودِ',
     translit:'As-Sujūd',
     type:'Noun',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'رُكُوع'],
   },
   {
+    cid: 287,
     arabic:'الْإِذْنِ',
     translit:'Al-Idhn',
     type:'Noun',
@@ -221,6 +228,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَشِيئَة', 'قُدْرَة'],
   },
   {
+    cid: 422,
     arabic:'الْقُرْبَانِ',
     translit:'Al-Qurbān',
     type:'Noun',
@@ -252,6 +260,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذِبْح', 'نُسُك'],
   },
   {
+    cid: 476,
     arabic:'الْمُسْلِمِينَ',
     translit:'Al-Muslimīn',
     type:'Noun (plural)',
@@ -283,6 +292,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِسْلَام', 'إِيمَان'],
   },
   {
+    cid: 191,
     arabic:'الشَّهَادَةَ',
     translit:'Ash-Shahādah',
     type:'Noun',

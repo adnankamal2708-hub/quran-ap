@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 288,
     arabic: 'الْإِسْرَاءَ',
     translit: 'Al-Isrā\'',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَسْجِد', 'نَبِيّ'],
   },
   {
+    cid: 130,
     arabic: 'التَّسْبِيحَ',
     translit: 'At-Tasbīḥ',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَمْد', 'عَظَمَة'],
   },
   {
+    cid: 445,
     arabic: 'الْمَسْجِدِ',
     translit: 'Al-Masjid',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سُجُود', 'صَلَاة'],
   },
   {
+    cid: 420,
     arabic: 'الْقُرْآنَ',
     translit: 'Al-Qur\'ān',
     type: 'Proper Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَحْي', 'هُدًى'],
   },
   {
+    cid: 208,
     arabic: 'الصَّلَاةَ',
     translit: 'Aṣ-Ṣalāh',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رُكُوع', 'سُجُود'],
   },
   {
+    cid: 508,
     arabic: 'الْوَالِدَيْنِ',
     translit: 'Al-Wālidayn',
     type: 'Noun (dual)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أُمّ', 'رَحْمَة'],
   },
   {
+    cid: 318,
     arabic: 'الْجِبَالُ',
     translit: 'Al-Jibāl',
     type: 'Noun (plural)',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَرْض', 'خَلْق'],
   },
   {
+    cid: 166,
     arabic: 'الرِّزْقَ',
     translit: 'Ar-Rizq',
     type: 'Noun',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَيْر', 'مَال'],
   },
   {
+    cid: 516,
     arabic: 'الْيَتِيمَ',
     translit: 'Al-Yatīm',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَال', 'عَدْل'],
   },
   {
+    cid: 58,
     arabic: 'أَقْوَمُ',
     translit: 'Aqwamu',
     type: 'Adjective',

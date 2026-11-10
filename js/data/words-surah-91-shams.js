@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 190,
     arabic: 'الشَّمْسِ',
     translit: 'Ash-Shams',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَلْق', 'النُّور'],
   },
   {
+    cid: 764,
     arabic: 'ضُحَاهَا',
     translit: 'Ḍuḥāhā',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الشَّمْس', 'النُّور'],
   },
   {
+    cid: 414,
     arabic: 'الْقَمَرِ',
     translit: 'Al-Qamar',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'اللَّيْل', 'النُّجُوم'],
   },
   {
+    cid: 570,
     arabic: 'تَلَاهَا',
     translit: 'Talāhā',
     type: 'Verb (perfect, masculine singular)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقَمَر', 'السَّمَاء'],
   },
   {
+    cid: 692,
     arabic: 'زَكَّاهَا',
     translit: 'Zakkāhā',
     type: 'Verb (perfect, masculine singular)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّفْس', 'الزَّكَاة'],
   },
   {
+    cid: 652,
     arabic: 'دَسَّاهَا',
     translit: 'Dassāhā',
     type: 'Verb (perfect, masculine singular)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّفْس', 'الْإِثْم'],
   },
   {
+    cid: 821,
     arabic: 'فَأَلْهَمَهَا',
     translit: 'Falhamahā',
     type: 'Verb (perfect, masculine singular)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 478,
     arabic: 'الْمُطَفِّفِينَ',
     translit: 'Al-Muṭaffifīn',
     type: 'Noun (plural, active participle)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَدْل', 'وَيْل'],
   },
   {
+    cid: 1083,
     arabic: 'وَيْلٌ',
     translit: 'Waylun',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَهَنَّم', 'الْعَذَاب'],
   },
   {
+    cid: 730,
     arabic: 'سِجِّينٍ',
     translit: 'Sijjīn',
     type: 'Proper Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْكِتَاب', 'الْفُجَّار'],
   },
   {
+    cid: 809,
     arabic: 'عِلِّيِّينَ',
     translit: 'ʿIlliyyīn',
     type: 'Proper Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَبْرَار', 'الْجَنَّة'],
   },
   {
+    cid: 677,
     arabic: 'رَحِيقٍ مَّخْتُومٍ',
     translit: 'Raḥīqin Makhtūm',
     type: 'Noun + Adjective',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجَنَّة', 'الْأَبْرَار'],
   },
   {
+    cid: 1100,
     arabic: 'يَخْسَرُ',
     translit: 'Yakhsaru',
     type: 'Verb (imperfect, masculine singular)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخُسْرَان', 'الْيَوْم الْآخِر'],
   },
   {
+    cid: 1117,
     arabic: 'يَسْخَرُونَ',
     translit: 'Yaskharūna',
     type: 'Verb (imperfect, masculine plural)',

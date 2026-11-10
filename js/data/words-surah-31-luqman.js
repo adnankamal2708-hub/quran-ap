@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 941,
     arabic:'لُقْمَانَ',
     translit:'Luqmān',
     type:'Proper Noun',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حِكْمَة', 'ابْن'],
   },
   {
+    cid: 350,
     arabic:'الْحِكْمَةَ',
     translit:'Al-Ḥikmah',
     type:'Noun',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَكِيم', 'عِلْم'],
   },
   {
+    cid: 125,
     arabic:'اشْكُرْ',
     translit:'Ushkur',
     type:'Verb (command)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شُكْر', 'حَمْد'],
   },
   {
+    cid: 1070,
     arabic:'وَصَّيْنَا',
     translit:'Waṣṣaynā',
     type:'Verb',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَالِد', 'أُمّ'],
   },
   {
+    cid: 861,
     arabic:'فِصَالُهُ',
     translit:'Fiṣāluhu',
     type:'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أُمّ', 'وَالِد'],
   },
   {
+    cid: 482,
     arabic:'الْمُغِيرَةِ',
     translit:'Al-Mughīrah',
     type:'Noun',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَحْر', 'آيَة'],
   },
   {
+    cid: 391,
     arabic:'الْغُرُورِ',
     translit:'Al-Ghurūr',
     type:'Noun',

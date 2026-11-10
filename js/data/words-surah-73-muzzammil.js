@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 473,
     arabic: 'الْمُزَّمِّلُ',
     translit: 'Al-Muzzammil',
     type: 'Noun/Adjective',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'قُرْآن'],
   },
   {
+    cid: 886,
     arabic: 'قُمِ',
     translit: 'Qumi',
     type: 'Verb (command)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'لَيْل'],
   },
   {
+    cid: 561,
     arabic: 'تَرْتِيلًا',
     translit: 'Tartīlan',
     type: 'Noun (adverbial)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'تِلَاوَة'],
   },
   {
+    cid: 878,
     arabic: 'قَوْلًا ثَقِيلًا',
     translit: 'Qawlan Thaqīlan',
     type: 'Noun phrase',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'وَحْي'],
   },
   {
+    cid: 937,
     arabic: 'لَيْلَ',
     translit: 'Layl',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'نَهَار'],
   },
   {
+    cid: 875,
     arabic: 'قَلِيلًا',
     translit: 'Qalīlan',
     type: 'Adjective/Adverb',

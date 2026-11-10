@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1145,
     arabic: 'يُجَادِلُكَ',
     translit: 'Yujādiluka',
     type: 'Verb',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نِكَاح', 'شَكْوَىٰ'],
   },
   {
+    cid: 563,
     arabic: 'تَشْتَكِي',
     translit: 'Tashtakī',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَكْوَىٰ', 'دُعَاء'],
   },
   {
+    cid: 776,
     arabic: 'ظِهَارِ',
     translit: 'Ẓihār',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'طَلَاق', 'كَفَّارَة'],
   },
   {
+    cid: 1032,
     arabic: 'نَّجْوَىٰ',
     translit: 'Najwā',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِلْم', 'غَيْب'],
   },
   {
+    cid: 672,
     arabic: 'رَابِعُهُمْ',
     translit: 'Rābi\'uhum',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِلْمُ الْغَيْب', 'نَجْوَىٰ'],
   },
   {
+    cid: 900,
     arabic: 'كَفَّارَةٌ',
     translit: 'Kaffārah',
     type: 'Noun',

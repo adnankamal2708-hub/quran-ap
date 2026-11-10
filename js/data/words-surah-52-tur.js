@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 223,
     arabic: 'الطُّورِ',
     translit: 'Aṭ-Ṭūr',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'كِتَاب'],
   },
   {
+    cid: 444,
     arabic: 'الْمَسْجُورِ',
     translit: 'Al-Masjūr',
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَحْر', 'يَوْمَ'],
   },
   {
+    cid: 1139,
     arabic: 'يَوْمَ تَمُورُ',
     translit: 'Yawma Tamūr',
     type: 'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'سَمَاء'],
   },
   {
+    cid: 854,
     arabic: 'فَوَاكِهَ',
     translit: 'Fawākiha',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَعِيم'],
   },
   {
+    cid: 922,
     arabic: 'لَحْمٍ',
     translit: 'Laḥmin',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَعِيم'],
   },
   {
+    cid: 59,
     arabic: 'أَكْوَابٍ',
     translit: 'Akwāb',
     type: 'Noun (plural)',

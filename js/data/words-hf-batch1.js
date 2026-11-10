@@ -7,6 +7,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 116,
     arabic: 'إِنَّا',
     translit: 'Innā',
     type: 'Particle',
@@ -37,6 +38,7 @@ ALL_WORDS.push(
     relatedWords: ["إِنَّ", "نَحْنُ"],
   },
   {
+    cid: 655,
     arabic: 'دُونِ',
     translit: 'Dūni',
     type: 'Preposition',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ["غَيْرَ", "مَعَ"],
   },
   {
+    cid: 62,
     arabic: 'أَلَمۡ',
     translit: 'A-lam',
     type: 'Particle (interrogative negation)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ["لَمْ", "هَلْ"],
   },
   {
+    cid: 237,
     arabic: 'الم',
     translit: 'Alif-Lām-Mīm',
     type: 'Proper Noun',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَهُ', 'كِتَاب', 'هَدًى'],
   },
   {
+    cid: 1011,
     arabic: 'مُّبِينٞ',
     translit: 'Mubīn',
     type: 'Adjective',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ["بَيِّنَة", "آيَات"],
   },
   {
+    cid: 567,
     arabic: 'تَعۡمَلُونَ',
     translit: 'Taʿmalūn',
     type: 'Verb',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ["عَمَل", "أَعْمَال"],
   },
   {
+    cid: 540,
     arabic: 'بَيۡنَ',
     translit: 'Bayna',
     type: 'Preposition',
@@ -220,6 +227,7 @@ ALL_WORDS.push(
     relatedWords: ["مَعَ", "دُونِ"],
   },
   {
+    cid: 879,
     arabic: 'قَوۡمٞ',
     translit: 'Qawm',
     type: 'Noun',
@@ -251,6 +259,7 @@ ALL_WORDS.push(
     relatedWords: ["أُمَّة", "نَاس"],
   },
   {
+    cid: 934,
     arabic: 'لَوۡ',
     translit: 'Law',
     type: 'Particle (conditional)',
@@ -281,6 +290,7 @@ ALL_WORDS.push(
     relatedWords: ["لَنْ", "لَمْ"],
   },
   {
+    cid: 76,
     arabic: 'أَنفُسَهُمۡ',
     translit: 'Anfusahum',
     type: 'Noun',
@@ -311,6 +321,7 @@ ALL_WORDS.push(
     relatedWords: ["قَلْب", "رُوح"],
   },
   {
+    cid: 602,
     arabic: 'جَهَنَّمَ',
     translit: 'Jahannam',
     type: 'Proper noun',
@@ -340,6 +351,7 @@ ALL_WORDS.push(
     relatedWords: ["نَار", "جَنَّة"],
   },
   {
+    cid: 1183,
     arabic: 'ٱلۡأٓخِرَةِ',
     translit: 'al-Ākhirah',
     type: 'Noun',
@@ -370,6 +382,7 @@ ALL_WORDS.push(
     relatedWords: ["يَوْم", "حَيَاة"],
   },
   {
+    cid: 816,
     arabic: 'غَيۡرَ',
     translit: 'Ghayr',
     type: 'Noun',
@@ -400,6 +413,7 @@ ALL_WORDS.push(
     relatedWords: ["دُونِ"],
   },
   {
+    cid: 1048,
     arabic: 'هَلۡ',
     translit: 'Hal',
     type: 'Particle (interrogative)',
@@ -430,6 +444,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1022,
     arabic: 'نَحۡنُ',
     translit: 'Naḥnu',
     type: 'Pronoun',
@@ -459,6 +474,7 @@ ALL_WORDS.push(
     relatedWords: ["أَنَا", "هُوَ"],
   },
   {
+    cid: 1141,
     arabic: 'يَوۡمَئِذٖ',
     translit: 'Yawma-idhin',
     type: 'Adverb',
@@ -489,6 +505,7 @@ ALL_WORDS.push(
     relatedWords: ["يَوْم", "الآخِرَة"],
   },
   {
+    cid: 1189,
     arabic: 'ٱلۡحَيَوٰةِ',
     translit: 'al-Ḥayāh',
     type: 'Noun',
@@ -520,6 +537,7 @@ ALL_WORDS.push(
     relatedWords: ["مَوْت", "يُحْيِي"],
   },
   {
+    cid: 601,
     arabic: 'جَنَّـٰتٖ',
     translit: 'Jannāt',
     type: 'Noun',
@@ -550,6 +568,7 @@ ALL_WORDS.push(
     relatedWords: ["نَار", "خَالِدِينَ"],
   },
   {
+    cid: 904,
     arabic: 'كَيۡفَ',
     translit: 'Kayfa',
     type: 'Particle (interrogative)',
@@ -579,6 +598,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 533,
     arabic: 'بَعۡضٖ',
     translit: 'Baʿḍ',
     type: 'Noun',
@@ -609,6 +629,7 @@ ALL_WORDS.push(
     relatedWords: ["كُلّ", "جَمِيع"],
   },
   {
+    cid: 689,
     arabic: 'رَّحِيمٞ',
     translit: 'Raḥīm',
     type: 'Adjective',
@@ -639,6 +660,7 @@ ALL_WORDS.push(
     relatedWords: ["رَحْمَة", "الرَّحْمَن"],
   },
   {
+    cid: 924,
     arabic: 'لَعَلَّكُمۡ',
     translit: 'Laʿallakum',
     type: 'Particle',
@@ -669,6 +691,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 931,
     arabic: 'لَن',
     translit: 'Lan',
     type: 'Particle (negation)',
@@ -698,6 +721,7 @@ ALL_WORDS.push(
     relatedWords: ["لَمْ", "لَا"],
   },
   {
+    cid: 1181,
     arabic: 'ٱلَّيۡلِ',
     translit: 'al-Layl',
     type: 'Noun',
@@ -728,6 +752,7 @@ ALL_WORDS.push(
     relatedWords: ["نَهَار", "شَمْس", "قَمَر"],
   },
   {
+    cid: 968,
     arabic: 'مَعَ',
     translit: 'Maʿa',
     type: 'Preposition',
@@ -758,6 +783,7 @@ ALL_WORDS.push(
     relatedWords: ["بَيْنَ", "عِنْدَ"],
   },
   {
+    cid: 1180,
     arabic: 'ٱلَّتِي',
     translit: 'allatī',
     type: 'Pronoun (relative)',
@@ -788,6 +814,7 @@ ALL_WORDS.push(
     relatedWords: ["الَّذِي", "هَٰذِهِ"],
   },
   {
+    cid: 72,
     arabic: 'أَنتَ',
     translit: 'Anta',
     type: 'Pronoun',
@@ -818,6 +845,7 @@ ALL_WORDS.push(
     relatedWords: ["أَنَا", "نَحْنُ"],
   },
   {
+    cid: 593,
     arabic: 'جَآءَ',
     translit: 'Jāʾa',
     type: 'Verb',
@@ -849,6 +877,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 735,
     arabic: 'شَآءَ',
     translit: 'Shāʾa',
     type: 'Verb',
@@ -880,6 +909,7 @@ ALL_WORDS.push(
     relatedWords: ["أَرَادَ"],
   },
   {
+    cid: 1198,
     arabic: 'ٱلۡكَٰفِرِينَ',
     translit: 'al-Kāfirīn',
     type: 'Noun',
@@ -911,6 +941,7 @@ ALL_WORDS.push(
     relatedWords: ["مُؤْمِنِينَ", "كُفْر"],
   },
   {
+    cid: 95,
     arabic: 'أُمَّةٗ',
     translit: 'Ummah',
     type: 'Noun',
@@ -941,6 +972,7 @@ ALL_WORDS.push(
     relatedWords: ["قَوْم", "نَاس"],
   },
   {
+    cid: 40,
     arabic: 'أَرۡسَلۡنَا',
     translit: 'Arsalnā',
     type: 'Verb',
@@ -972,6 +1004,7 @@ ALL_WORDS.push(
     relatedWords: ["رَسُول", "نَبِيّ"],
   },
   {
+    cid: 795,
     arabic: 'عَظِيمٞ',
     translit: 'ʿAẓīm',
     type: 'Adjective',
@@ -1003,6 +1036,7 @@ ALL_WORDS.push(
     relatedWords: ["كَبِير"],
   },
   {
+    cid: 598,
     arabic: 'جَمِيعٗا',
     translit: 'Jamīʿan',
     type: 'Adverb',
@@ -1034,6 +1068,7 @@ ALL_WORDS.push(
     relatedWords: ["كُلّ", "بَعْض"],
   },
   {
+    cid: 553,
     arabic: 'تَجۡرِي',
     translit: 'Tajrī',
     type: 'Verb',
@@ -1065,6 +1100,7 @@ ALL_WORDS.push(
     relatedWords: ["بَحْر", "مَاء"],
   },
   {
+    cid: 1060,
     arabic: 'هِيَ',
     translit: 'Hiya',
     type: 'Pronoun',
@@ -1095,6 +1131,7 @@ ALL_WORDS.push(
     relatedWords: ["هُوَ", "هُمْ"],
   },
   {
+    cid: 910,
     arabic: 'كِتَٰبٖ',
     translit: 'Kitāb',
     type: 'Noun',
@@ -1126,6 +1163,7 @@ ALL_WORDS.push(
     relatedWords: ["الْقُرْآن", "آيَات"],
   },
   {
+    cid: 1002,
     arabic: 'مِثۡلَ',
     translit: 'Mithla',
     type: 'Noun',
@@ -1157,6 +1195,7 @@ ALL_WORDS.push(
     relatedWords: ["مَثَل"],
   },
   {
+    cid: 940,
     arabic: 'لَيۡسَ',
     translit: 'Laysa',
     type: 'Verb',
@@ -1187,6 +1226,7 @@ ALL_WORDS.push(
     relatedWords: ["لَا", "مَا"],
   },
   {
+    cid: 891,
     arabic: 'كَثِيرٗا',
     translit: 'Kathīran',
     type: 'Adjective',
@@ -1218,6 +1258,7 @@ ALL_WORDS.push(
     relatedWords: ["أَكْثَر", "قَلِيل"],
   },
   {
+    cid: 1053,
     arabic: 'هَٰذِهِ',
     translit: 'Hādhihi',
     type: 'Pronoun (demonstrative)',
@@ -1248,6 +1289,7 @@ ALL_WORDS.push(
     relatedWords: ["هَٰذَا", "تِلْكَ"],
   },
   {
+    cid: 596,
     arabic: 'جَعَلَ',
     translit: 'Jaʿala',
     type: 'Verb',
@@ -1278,6 +1320,7 @@ ALL_WORDS.push(
     relatedWords: ["خَلَقَ"],
   },
   {
+    cid: 1137,
     arabic: 'يَهۡدِي',
     translit: 'Yahdī',
     type: 'Verb',
@@ -1309,6 +1352,7 @@ ALL_WORDS.push(
     relatedWords: ["هُدًى", "ضَلَال"],
   },
   {
+    cid: 646,
     arabic: 'خَٰلِدِينَ',
     translit: 'Khālidīn',
     type: 'Adjective',
@@ -1340,6 +1384,7 @@ ALL_WORDS.push(
     relatedWords: ["جَنَّة", "نَار"],
   },
   {
+    cid: 79,
     arabic: 'أَهۡلِ',
     translit: 'Ahli',
     type: 'Noun',
@@ -1370,6 +1415,7 @@ ALL_WORDS.push(
     relatedWords: ["وَلَد", "قَوْم"],
   },
   {
+    cid: 893,
     arabic: 'كَذَّبُواْ',
     translit: 'Kadhdhabū',
     type: 'Verb',
@@ -1401,6 +1447,7 @@ ALL_WORDS.push(
     relatedWords: ["كَفَرَ", "آمَنَ"],
   },
   {
+    cid: 106,
     arabic: 'إِسۡرَـٰٓءِيلَ',
     translit: 'Isrāʾīl',
     type: 'Proper noun',
@@ -1431,6 +1478,7 @@ ALL_WORDS.push(
     relatedWords: ["بَنِيٓ", "مُوسَىٰ"],
   },
   {
+    cid: 772,
     arabic: 'ظَلَمُواْ',
     translit: 'Ẓalamū',
     type: 'Verb',
@@ -1462,6 +1510,7 @@ ALL_WORDS.push(
     relatedWords: ["ظُلْم", "الظَّالِمُونَ"],
   },
   {
+    cid: 70,
     arabic: 'أَمۡرُ',
     translit: 'Amr',
     type: 'Noun',
@@ -1493,6 +1542,7 @@ ALL_WORDS.push(
     relatedWords: ["قَضَى", "حُكْم"],
   },
   {
+    cid: 1046,
     arabic: 'هَـٰٓؤُلَآءِ',
     translit: 'Hāʾulāʾi',
     type: 'Pronoun (demonstrative)',
@@ -1522,6 +1572,7 @@ ALL_WORDS.push(
     relatedWords: ["أُولَٰئِكَ"],
   },
   {
+    cid: 1207,
     arabic: 'ٱلۡيَوۡمَ',
     translit: 'al-Yawm',
     type: 'Noun',
@@ -1552,6 +1603,7 @@ ALL_WORDS.push(
     relatedWords: ["يَوْمَئِذٍ", "لَيْل", "نَهَار"],
   },
   {
+    cid: 1146,
     arabic: 'يُحِبُّ',
     translit: 'Yuḥibbu',
     type: 'Verb',
@@ -1583,6 +1635,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 669,
     arabic: 'ذِكۡرِ',
     translit: 'Dhikr',
     type: 'Noun',
@@ -1614,6 +1667,7 @@ ALL_WORDS.push(
     relatedWords: ["صَلَاة", "تَذَكَّرُونَ"],
   },
   {
+    cid: 1072,
     arabic: 'وَعۡدَ',
     translit: 'Waʿd',
     type: 'Noun',
@@ -1645,6 +1699,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1203,
     arabic: 'ٱلۡمَلَـٰٓئِكَةُ',
     translit: 'al-Malāʾikah',
     type: 'Noun',
@@ -1675,6 +1730,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 555,
     arabic: 'تَحۡتِهَا',
     translit: 'Taḥtahā',
     type: 'Adverb',
@@ -1704,6 +1760,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 728,
     arabic: 'سُوٓءُ',
     translit: 'Sūʾ',
     type: 'Noun',
@@ -1735,6 +1792,7 @@ ALL_WORDS.push(
     relatedWords: ["شَرّ", "خَيْر"],
   },
   {
+    cid: 755,
     arabic: 'صَٰلِحٗا',
     translit: 'Ṣāliḥan',
     type: 'Adjective',
@@ -1766,6 +1824,7 @@ ALL_WORDS.push(
     relatedWords: ["حَسَن", "عَمَل"],
   },
   {
+    cid: 957,
     arabic: 'مَآءٗ',
     translit: 'Māʾ',
     type: 'Noun',
@@ -1796,6 +1855,7 @@ ALL_WORDS.push(
     relatedWords: ["سَمَاء", "مَطَر", "بَحْر"],
   },
   {
+    cid: 836,
     arabic: 'فَبِأَيِّ',
     translit: 'Fabi-ayyi',
     type: 'Particle',
@@ -1825,6 +1885,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1010,
     arabic: 'مُّؤۡمِنِينَ',
     translit: 'Muʾminīn',
     type: 'Noun',
@@ -1856,6 +1917,7 @@ ALL_WORDS.push(
     relatedWords: ["الكَافِرِينَ", "إِيمَان"],
   },
   {
+    cid: 88,
     arabic: 'أَيۡدِيهِمۡ',
     translit: 'Aydīhim',
     type: 'Noun',
@@ -1886,6 +1948,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 759,
     arabic: 'صِرَٰطٖ',
     translit: 'Ṣirāṭ',
     type: 'Noun',
@@ -1916,6 +1979,7 @@ ALL_WORDS.push(
     relatedWords: ["سَبِيل", "هُدًى", "مُسْتَقِيم"],
   },
   {
+    cid: 1190,
     arabic: 'ٱلۡعَلِيمُ',
     translit: 'al-ʿAlīm',
     type: 'Adjective',
@@ -1947,6 +2011,7 @@ ALL_WORDS.push(
     relatedWords: ["عِلْم", "خَبِير"],
   },
   {
+    cid: 96,
     arabic: 'أُوتُواْ',
     translit: 'Ūtū',
     type: 'Verb',
@@ -1978,6 +2043,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 24,
     arabic: 'أَجۡرَ',
     translit: 'Ajr',
     type: 'Noun',
@@ -2008,6 +2074,7 @@ ALL_WORDS.push(
     relatedWords: ["جَزَاء", "عَذَاب"],
   },
   {
+    cid: 754,
     arabic: 'صَٰدِقِينَ',
     translit: 'Ṣādiqīn',
     type: 'Adjective',
@@ -2039,6 +2106,7 @@ ALL_WORDS.push(
     relatedWords: ["صِدْق"],
   },
   {
+    cid: 848,
     arabic: 'فَضۡلُ',
     translit: 'Faḍl',
     type: 'Noun',
@@ -2070,6 +2138,7 @@ ALL_WORDS.push(
     relatedWords: ["رَحْمَة", "نِعْمَة"],
   },
   {
+    cid: 537,
     arabic: 'بَنِيٓ',
     translit: 'Banī',
     type: 'Noun',
@@ -2101,6 +2170,7 @@ ALL_WORDS.push(
     relatedWords: ["اِبْن", "أَهْل"],
   },
   {
+    cid: 991,
     arabic: 'مُلۡكُ',
     translit: 'Mulk',
     type: 'Noun',
@@ -2132,6 +2202,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1184,
     arabic: 'ٱلۡأٓيَٰتِ',
     translit: 'al-Āyāt',
     type: 'Noun',
@@ -2162,6 +2233,7 @@ ALL_WORDS.push(
     relatedWords: ["كِتَاب", "قُرْآن"],
   },
   {
+    cid: 559,
     arabic: 'تَرَ',
     translit: 'Tara',
     type: 'Verb',
@@ -2193,6 +2265,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 61,
     arabic: 'أَكۡثَرَ',
     translit: 'Akthar',
     type: 'Adjective',
@@ -2223,6 +2296,7 @@ ALL_WORDS.push(
     relatedWords: ["كَثِير", "قَلِيل"],
   },
   {
+    cid: 1177,
     arabic: 'ٱلنَّبِيُّ',
     translit: 'al-Nabī',
     type: 'Noun',
@@ -2254,6 +2328,7 @@ ALL_WORDS.push(
     relatedWords: ["رَسُول", "نُوح", "مُوسَىٰ"],
   },
   {
+    cid: 625,
     arabic: 'حَيۡثُ',
     translit: 'Ḥaythu',
     type: 'Adverb',
@@ -2284,6 +2359,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 629,
     arabic: 'حِينٖ',
     translit: 'Ḥīn',
     type: 'Noun',
@@ -2314,6 +2390,7 @@ ALL_WORDS.push(
     relatedWords: ["يَوْم", "سَاعَة"],
   },
   {
+    cid: 1084,
     arabic: 'وَٰحِدَةٗ',
     translit: 'Wāḥidah',
     type: 'Adjective',
@@ -2345,6 +2422,7 @@ ALL_WORDS.push(
     relatedWords: ["وَاحِد", "أَحَد"],
   },
   {
+    cid: 703,
     arabic: 'سَبِيلٗا',
     translit: 'Sabīlan',
     type: 'Noun',
@@ -2376,6 +2454,7 @@ ALL_WORDS.push(
     relatedWords: ["صِرَاط", "هُدًى"],
   },
   {
+    cid: 1036,
     arabic: 'نُوحٖ',
     translit: 'Nūḥ',
     type: 'Proper noun',
@@ -2406,6 +2485,7 @@ ALL_WORDS.push(
     relatedWords: ["قَوْم", "رُسُل"],
   },
   {
+    cid: 1023,
     arabic: 'نَذِيرٞ',
     translit: 'Nadhīr',
     type: 'Noun',
@@ -2437,6 +2517,7 @@ ALL_WORDS.push(
     relatedWords: ["رَسُول", "بَشِير"],
   },
   {
+    cid: 42,
     arabic: 'أَشَدُّ',
     translit: 'Ashaddu',
     type: 'Adjective',
@@ -2468,6 +2549,7 @@ ALL_WORDS.push(
     relatedWords: ["عَذَاب", "قُوَّة"],
   },
   {
+    cid: 1162,
     arabic: 'ٱبۡنُ',
     translit: 'ibn',
     type: 'Noun',
@@ -2499,6 +2581,7 @@ ALL_WORDS.push(
     relatedWords: ["بَنِي", "أَهْل", "وَلَد"],
   },
   {
+    cid: 15,
     arabic: 'أَبَدٗا',
     translit: 'Abadan',
     type: 'Adverb',
@@ -2530,6 +2613,7 @@ ALL_WORDS.push(
     relatedWords: ["خَالِدِينَ", "أَبَد"],
   },
   {
+    cid: 582,
     arabic: 'تِلۡكَ',
     translit: 'Tilka',
     type: 'Pronoun (demonstrative)',
@@ -2560,6 +2644,7 @@ ALL_WORDS.push(
     relatedWords: ["ذَٰلِكَ", "هَٰذِهِ"],
   },
   {
+    cid: 1192,
     arabic: 'ٱلۡعِلۡمِ',
     translit: 'al-ʿIlm',
     type: 'Noun',
@@ -2591,6 +2676,7 @@ ALL_WORDS.push(
     relatedWords: ["العَلِيم", "خَبِير"],
   },
   {
+    cid: 1195,
     arabic: 'ٱلۡقَوۡلُ',
     translit: 'al-Qawl',
     type: 'Noun',
@@ -2622,6 +2708,7 @@ ALL_WORDS.push(
     relatedWords: ["كَلِمَة", "قِيلَ"],
   },
   {
+    cid: 54,
     arabic: 'أَعۡمَٰلَهُمۡ',
     translit: 'Aʿmāluhum',
     type: 'Noun',
@@ -2653,6 +2740,7 @@ ALL_WORDS.push(
     relatedWords: ["عَمَل", "جَزَاء"],
   },
   {
+    cid: 803,
     arabic: 'عَٰقِبَةُ',
     translit: 'ʿĀqibah',
     type: 'Noun',
@@ -2684,6 +2772,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 763,
     arabic: 'ضَلَٰلٖ',
     translit: 'Ḍalāl',
     type: 'Noun',
@@ -2715,6 +2804,7 @@ ALL_WORDS.push(
     relatedWords: ["هُدًى", "يَهْدِي"],
   },
   {
+    cid: 719,
     arabic: 'سَوَآءٌ',
     translit: 'Sawāʾ',
     type: 'Adjective',
@@ -2746,6 +2836,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1170,
     arabic: 'ٱلزَّكَوٰةَ',
     translit: 'al-Zakāh',
     type: 'Noun',
@@ -2777,6 +2868,7 @@ ALL_WORDS.push(
     relatedWords: ["صَلَاة", "صَدَقَة"],
   },
   {
+    cid: 594,
     arabic: 'جَزَآءُ',
     translit: 'Jazāʾ',
     type: 'Noun',
@@ -2808,6 +2900,7 @@ ALL_WORDS.push(
     relatedWords: ["أَجْر", "عَذَاب"],
   },
   {
+    cid: 1079,
     arabic: 'وَلِيّٖ',
     translit: 'Walī',
     type: 'Noun',
@@ -2839,6 +2932,7 @@ ALL_WORDS.push(
     relatedWords: ["عَدُوّ", "دُونِ"],
   },
   {
+    cid: 1013,
     arabic: 'مُّسۡتَقِيمٖ',
     translit: 'Mustaqīm',
     type: 'Adjective',
@@ -2870,6 +2964,7 @@ ALL_WORDS.push(
     relatedWords: ["صِرَاط", "سَبِيل"],
   },
   {
+    cid: 603,
     arabic: 'جُنَاحَ',
     translit: 'Junāḥ',
     type: 'Noun',
@@ -2900,6 +2995,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 845,
     arabic: 'فَسَوۡفَ',
     translit: 'Fasawfa',
     type: 'Particle',
@@ -2930,6 +3026,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 808,
     arabic: 'عِبَادِهِۦ',
     translit: 'ʿIbādihi',
     type: 'Noun',
@@ -2961,6 +3058,7 @@ ALL_WORDS.push(
     relatedWords: ["عِبَادَة"],
   },
   {
+    cid: 667,
     arabic: 'ذُو',
     translit: 'Dhū',
     type: 'Noun',
@@ -2992,6 +3090,7 @@ ALL_WORDS.push(
     relatedWords: ["أُولُو", "ذَات"],
   },
   {
+    cid: 1135,
     arabic: 'يَنظُرُونَ',
     translit: 'Yanẓurūn',
     type: 'Verb',
@@ -3023,6 +3122,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 636,
     arabic: 'خَبِيرٞ',
     translit: 'Khabīr',
     type: 'Adjective',
@@ -3054,6 +3154,7 @@ ALL_WORDS.push(
     relatedWords: ["العَلِيم", "سَمِيع"],
   },
   {
+    cid: 1178,
     arabic: 'ٱلنَّهَارِ',
     translit: 'al-Nahār',
     type: 'Noun',
@@ -3084,6 +3185,7 @@ ALL_WORDS.push(
     relatedWords: ["لَيْل", "شَمْس"],
   },
   {
+    cid: 566,
     arabic: 'تَعۡقِلُونَ',
     translit: 'Taʿqilūn',
     type: 'Verb',
@@ -3115,6 +3217,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1142,
     arabic: 'يَٰمُوسَىٰ',
     translit: 'Yā Mūsā',
     type: 'Proper noun',
@@ -3145,6 +3248,7 @@ ALL_WORDS.push(
     relatedWords: ["مُوسَىٰ", "هَارُون"],
   },
   {
+    cid: 1205,
     arabic: 'ٱلۡمُشۡرِكِينَ',
     translit: 'al-Mushrikīn',
     type: 'Noun',
@@ -3176,6 +3280,7 @@ ALL_WORDS.push(
     relatedWords: ["شِرْك", "الكَافِرِينَ"],
   },
   {
+    cid: 1179,
     arabic: 'ٱلنِّسَآءِ',
     translit: 'al-Nisāʾ',
     type: 'Noun',
@@ -3206,6 +3311,7 @@ ALL_WORDS.push(
     relatedWords: ["رِجَال", "أَهْل"],
   },
   {
+    cid: 1176,
     arabic: 'ٱلظَّـٰلِمُونَ',
     translit: 'al-Ẓālimūn',
     type: 'Noun',
@@ -3237,6 +3343,7 @@ ALL_WORDS.push(
     relatedWords: ["ظُلْم", "عَدْل"],
   },
   {
+    cid: 788,
     arabic: 'عَدُوّٞ',
     translit: 'ʿAdūw',
     type: 'Noun',
@@ -3268,6 +3375,7 @@ ALL_WORDS.push(
     relatedWords: ["وَلِيّ"],
   },
   {
+    cid: 2,
     arabic: 'ءَالَ',
     translit: 'Āl',
     type: 'Noun',
@@ -3298,6 +3406,7 @@ ALL_WORDS.push(
     relatedWords: ["أَهْل", "قَوْم"],
   },
   {
+    cid: 1185,
     arabic: 'ٱلۡبَحۡرِ',
     translit: 'al-Baḥr',
     type: 'Noun',
@@ -3328,6 +3437,7 @@ ALL_WORDS.push(
     relatedWords: ["مَاء", "سَفِينَة"],
   },
   {
+    cid: 0,
     arabic: 'ءَاتَيۡنَا',
     translit: 'Ātaynā',
     type: 'Verb',
@@ -3359,6 +3469,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 616,
     arabic: 'حَسَنٗا',
     translit: 'Ḥasanan',
     type: 'Adjective',
@@ -3390,6 +3501,7 @@ ALL_WORDS.push(
     relatedWords: ["خَيْر", "صَالِح"],
   },
   {
+    cid: 542,
     arabic: 'بِإِذۡنِ',
     translit: 'Bi-idhni',
     type: 'Preposition phrase',
@@ -3421,6 +3533,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 576,
     arabic: 'تَوَلَّوۡاْ',
     translit: 'Tawallaw',
     type: 'Verb',
@@ -3451,6 +3564,7 @@ ALL_WORDS.push(
     relatedWords: ["وَلِيّ"],
   },
   {
+    cid: 1201,
     arabic: 'ٱلۡمَصِيرُ',
     translit: 'al-Maṣīr',
     type: 'Noun',
@@ -3481,6 +3595,7 @@ ALL_WORDS.push(
     relatedWords: ["عَاقِبَة", "جَزَاء"],
   },
   {
+    cid: 25,
     arabic: 'أَجۡمَعِينَ',
     translit: 'Ajmaʿīn',
     type: 'Adjective',
@@ -3511,6 +3626,7 @@ ALL_WORDS.push(
     relatedWords: ["جَمِيعًا"],
   },
   {
+    cid: 905,
     arabic: 'كُتِبَ',
     translit: 'Kutiba',
     type: 'Verb',
@@ -3542,6 +3658,7 @@ ALL_WORDS.push(
     relatedWords: ["كِتَاب", "أَجَل"],
   },
   {
+    cid: 874,
     arabic: 'قَرۡيَةٍ',
     translit: 'Qaryah',
     type: 'Noun',
@@ -3573,6 +3690,7 @@ ALL_WORDS.push(
     relatedWords: ["قَوْم", "مَدِينَة"],
   },
   {
+    cid: 20,
     arabic: 'أَجَلٖ',
     translit: 'Ajal',
     type: 'Noun',
@@ -3604,6 +3722,7 @@ ALL_WORDS.push(
     relatedWords: ["يَوْم", "مَوْت"],
   },
   {
+    cid: 1111,
     arabic: 'يَرۡجِعُونَ',
     translit: 'Yarjiʿūn',
     type: 'Verb',
@@ -3635,6 +3754,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 858,
     arabic: 'فِتۡنَةٞ',
     translit: 'Fitnah',
     type: 'Noun',
@@ -3666,6 +3786,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1089,
     arabic: 'يَأۡتِيَ',
     translit: 'Yaʾtiya',
     type: 'Verb',
@@ -3697,6 +3818,7 @@ ALL_WORDS.push(
     relatedWords: ["جَاءَ"],
   },
   {
+    cid: 1024,
     arabic: 'نَزَّلَ',
     translit: 'Nazzala',
     type: 'Verb',
@@ -3728,6 +3850,7 @@ ALL_WORDS.push(
     relatedWords: ["أَنْزَلَ", "قُرْآن"],
   },
   {
+    cid: 528,
     arabic: 'بَشَرٞ',
     translit: 'Bashar',
     type: 'Noun',
@@ -3759,6 +3882,7 @@ ALL_WORDS.push(
     relatedWords: ["إِنْسَان", "نَاس"],
   },
   {
+    cid: 1124,
     arabic: 'يَشۡعُرُونَ',
     translit: 'Yashʿurūn',
     type: 'Verb',
@@ -3790,6 +3914,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 614,
     arabic: 'حَرَّمَ',
     translit: 'Ḥarrama',
     type: 'Verb',
@@ -3821,6 +3946,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1012,
     arabic: 'مُّسَمّٗى',
     translit: 'Musamman',
     type: 'Adjective',
@@ -3852,6 +3978,7 @@ ALL_WORDS.push(
     relatedWords: ["أَجَل"],
   },
   {
+    cid: 89,
     arabic: 'أَيۡمَٰنِهِمۡ',
     translit: 'Aymānihim',
     type: 'Noun',
@@ -3882,6 +4009,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1074,
     arabic: 'وَكَفَىٰ',
     translit: 'Wakafā',
     type: 'Verb',
@@ -3913,6 +4041,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 794,
     arabic: 'عَسَىٰٓ',
     translit: 'ʿAsā',
     type: 'Verb',
@@ -3943,6 +4072,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1164,
     arabic: 'ٱتَّخَذُواْ',
     translit: 'Ittakhadhū',
     type: 'Verb',
@@ -3974,6 +4104,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1156,
     arabic: 'يُنفِقُونَ',
     translit: 'Yunfiqūn',
     type: 'Verb',
@@ -4005,6 +4136,7 @@ ALL_WORDS.push(
     relatedWords: ["زَكَاة", "صَدَقَة"],
   },
   {
+    cid: 959,
     arabic: 'مَثَلٗا',
     translit: 'Mathalan',
     type: 'Noun',
@@ -4036,6 +4168,7 @@ ALL_WORDS.push(
     relatedWords: ["مِثْل"],
   },
   {
+    cid: 81,
     arabic: 'أَوَّلَ',
     translit: 'Awwal',
     type: 'Adjective',
@@ -4067,6 +4200,7 @@ ALL_WORDS.push(
     relatedWords: ["آخِر"],
   },
   {
+    cid: 1122,
     arabic: 'يَسۡمَعُونَ',
     translit: 'Yasmaʿūn',
     type: 'Verb',
@@ -4098,6 +4232,7 @@ ALL_WORDS.push(
     relatedWords: ["سَمِيع", "أُذُن"],
   },
   {
+    cid: 744,
     arabic: 'شَهِيدٗا',
     translit: 'Shahīdan',
     type: 'Noun',
@@ -4129,6 +4264,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 71,
     arabic: 'أَمۡوَٰلَهُمۡ',
     translit: 'Amwāluhum',
     type: 'Noun',
@@ -4159,6 +4295,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1043,
     arabic: 'نَّارٖ',
     translit: 'Nār',
     type: 'Noun',
@@ -4190,6 +4327,7 @@ ALL_WORDS.push(
     relatedWords: ["جَهَنَّم", "جَنَّة"],
   },
   {
+    cid: 815,
     arabic: 'غَفُورٗا',
     translit: 'Ghafūran',
     type: 'Adjective',
@@ -4221,6 +4359,7 @@ ALL_WORDS.push(
     relatedWords: ["رَحْمَة", "تَوْبَة"],
   },
   {
+    cid: 27,
     arabic: 'أَحَدٗا',
     translit: 'Aḥadan',
     type: 'Noun',
@@ -4252,6 +4391,7 @@ ALL_WORDS.push(
     relatedWords: ["وَاحِد"],
   },
   {
+    cid: 31,
     arabic: 'أَخَافُ',
     translit: 'Akhāfu',
     type: 'Verb',
@@ -4283,6 +4423,7 @@ ALL_WORDS.push(
     relatedWords: ["خَوْف", "رَجَاء"],
   },
   {
+    cid: 896,
     arabic: 'كَرِيمٞ',
     translit: 'Karīm',
     type: 'Adjective',
@@ -4314,6 +4455,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 551,
     arabic: 'تَتَّقُونَ',
     translit: 'Tattaqūn',
     type: 'Verb',
@@ -4345,6 +4487,7 @@ ALL_WORDS.push(
     relatedWords: ["تَقْوَىٰ", "خَوْف"],
   },
   {
+    cid: 564,
     arabic: 'تَشۡكُرُونَ',
     translit: 'Tashkurūn',
     type: 'Verb',
@@ -4376,6 +4519,7 @@ ALL_WORDS.push(
     relatedWords: ["شُكْر", "نِعْمَة"],
   },
   {
+    cid: 1172,
     arabic: 'ٱلسَّمِيعُ',
     translit: 'al-Samīʿ',
     type: 'Adjective',
@@ -4407,6 +4551,7 @@ ALL_WORDS.push(
     relatedWords: ["خَبِير", "عَلِيم"],
   },
   {
+    cid: 902,
     arabic: 'كَلِمَةٞ',
     translit: 'Kalimah',
     type: 'Noun',
@@ -4438,6 +4583,7 @@ ALL_WORDS.push(
     relatedWords: ["قَوْل"],
   },
   {
+    cid: 99,
     arabic: 'أُوْلِي',
     translit: 'Ūlī',
     type: 'Noun',
@@ -4468,6 +4614,7 @@ ALL_WORDS.push(
     relatedWords: ["ذُو"],
   },
   {
+    cid: 557,
     arabic: 'تَدۡعُونَ',
     translit: 'Tadʿūn',
     type: 'Verb',
@@ -4499,6 +4646,7 @@ ALL_WORDS.push(
     relatedWords: ["دُعَاء"],
   },
   {
+    cid: 1204,
     arabic: 'ٱلۡمُجۡرِمِينَ',
     translit: 'al-Mujrimīn',
     type: 'Noun',
@@ -4530,6 +4678,7 @@ ALL_WORDS.push(
     relatedWords: ["الظَّالِمُونَ"],
   },
   {
+    cid: 1021,
     arabic: 'نَجۡزِي',
     translit: 'Najzī',
     type: 'Verb',
@@ -4561,6 +4710,7 @@ ALL_WORDS.push(
     relatedWords: ["جَزَاء", "أَجْر"],
   },
   {
+    cid: 1153,
     arabic: 'يُشۡرِكُونَ',
     translit: 'Yushrikūn',
     type: 'Verb',
@@ -4592,6 +4742,7 @@ ALL_WORDS.push(
     relatedWords: ["شِرْك", "المُشْرِكِينَ"],
   },
   {
+    cid: 887,
     arabic: 'قُوَّةٗ',
     translit: 'Quwwah',
     type: 'Noun',
@@ -4623,6 +4774,7 @@ ALL_WORDS.push(
     relatedWords: ["قُدْرَة", "ضَعْف"],
   },
   {
+    cid: 38,
     arabic: 'أَرَادَ',
     translit: 'Arāda',
     type: 'Verb',
@@ -4654,6 +4806,7 @@ ALL_WORDS.push(
     relatedWords: ["شَاءَ"],
   },
   {
+    cid: 1085,
     arabic: 'وَٰحِدٖ',
     translit: 'Wāḥid',
     type: 'Adjective',
@@ -4685,6 +4838,7 @@ ALL_WORDS.push(
     relatedWords: ["أَحَد", "وَحْدَة"],
   },
   {
+    cid: 1147,
     arabic: 'يُحۡيِۦ',
     translit: 'Yuḥyī',
     type: 'Verb',
@@ -4716,6 +4870,7 @@ ALL_WORDS.push(
     relatedWords: ["حَيَاة", "مَوْت"],
   },
   {
+    cid: 60,
     arabic: 'أَكۡبَرُ',
     translit: 'Akbar',
     type: 'Adjective',
@@ -4747,6 +4902,7 @@ ALL_WORDS.push(
     relatedWords: ["عَظِيم", "كَبِير"],
   },
   {
+    cid: 1130,
     arabic: 'يَفۡتَرُونَ',
     translit: 'Yaftarūn',
     type: 'Verb',
@@ -4778,6 +4934,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1129,
     arabic: 'يَغۡفِرُ',
     translit: 'Yaghfiru',
     type: 'Verb',
@@ -4809,6 +4966,7 @@ ALL_WORDS.push(
     relatedWords: ["غَفُور", "مَغْفِرَة"],
   },
   {
+    cid: 1157,
     arabic: 'يُوحَىٰٓ',
     translit: 'Yūḥā',
     type: 'Verb',
@@ -4840,6 +4998,7 @@ ALL_WORDS.push(
     relatedWords: ["وَحْي", "قُرْآن"],
   },
   {
+    cid: 684,
     arabic: 'رَيۡبَ',
     translit: 'Rayb',
     type: 'Noun',
@@ -4871,6 +5030,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 50,
     arabic: 'أَظۡلَمُ',
     translit: 'Aẓlam',
     type: 'Adjective',
@@ -4902,6 +5062,7 @@ ALL_WORDS.push(
     relatedWords: ["ظُلْم", "الظَّالِمُونَ"],
   },
   {
+    cid: 1154,
     arabic: 'يُضِلُّ',
     translit: 'Yuḍillu',
     type: 'Verb',
@@ -4933,6 +5094,7 @@ ALL_WORDS.push(
     relatedWords: ["يَهْدِي", "ضَلَال", "هُدًى"],
   },
   {
+    cid: 1144,
     arabic: 'يُبَيِّنُ',
     translit: 'Yubayyinu',
     type: 'Verb',
@@ -4964,6 +5126,7 @@ ALL_WORDS.push(
     relatedWords: ["بَيِّنَة", "مُبِين"],
   },
   {
+    cid: 1104,
     arabic: 'يَدَيۡهِ',
     translit: 'Yadayhi',
     type: 'Noun',
@@ -4995,6 +5158,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1098,
     arabic: 'يَحۡكُمُ',
     translit: 'Yaḥkumu',
     type: 'Verb',
@@ -5026,6 +5190,7 @@ ALL_WORDS.push(
     relatedWords: ["حُكْم", "قَضَى"],
   },
   {
+    cid: 619,
     arabic: 'حَقًّا',
     translit: 'Ḥaqqan',
     type: 'Adverb',
@@ -5057,6 +5222,7 @@ ALL_WORDS.push(
     relatedWords: ["حَقّ"],
   },
   {
+    cid: 890,
     arabic: 'كَبِيرٗا',
     translit: 'Kabīran',
     type: 'Adjective',
@@ -5087,6 +5253,7 @@ ALL_WORDS.push(
     relatedWords: ["عَظِيم", "أَكْبَر"],
   },
   {
+    cid: 552,
     arabic: 'تَجِدَ',
     translit: 'Tajida',
     type: 'Verb',
@@ -5118,6 +5285,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1076,
     arabic: 'وَلَدٞ',
     translit: 'Walad',
     type: 'Noun',
@@ -5149,6 +5317,7 @@ ALL_WORDS.push(
     relatedWords: ["اِبْن", "أَهْل", "بَنِي"],
   },
   {
+    cid: 770,
     arabic: 'طَّآئِفَةٞ',
     translit: 'Ṭāʾifah',
     type: 'Noun',
@@ -5179,6 +5348,7 @@ ALL_WORDS.push(
     relatedWords: ["قَوْم", "فَرِيق"],
   },
   {
+    cid: 1086,
     arabic: 'وُجُوهُهُمۡ',
     translit: 'Wujūhuhum',
     type: 'Noun',
@@ -5209,6 +5379,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1163,
     arabic: 'ٱتَّبَعَ',
     translit: 'Ittabaʿa',
     type: 'Verb',
@@ -5240,6 +5411,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 3,
     arabic: 'ءَالِهَةٗ',
     translit: 'Ālihah',
     type: 'Noun',
@@ -5271,6 +5443,7 @@ ALL_WORDS.push(
     relatedWords: ["اللَّهُ", "شِرْك"],
   },
   {
+    cid: 67,
     arabic: 'أَمَّا',
     translit: 'Ammā',
     type: 'Particle',
@@ -5301,6 +5474,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 558,
     arabic: 'تَذَكَّرُونَ',
     translit: 'Tadhakkarūn',
     type: 'Verb',
@@ -5332,6 +5506,7 @@ ALL_WORDS.push(
     relatedWords: ["ذِكْر"],
   },
   {
+    cid: 657,
     arabic: 'ذَاتِ',
     translit: 'Dhāt',
     type: 'Noun',
@@ -5362,6 +5537,7 @@ ALL_WORDS.push(
     relatedWords: ["ذُو"],
   },
   {
+    cid: 643,
     arabic: 'خَوۡفٌ',
     translit: 'Khawf',
     type: 'Noun',
@@ -5393,6 +5569,7 @@ ALL_WORDS.push(
     relatedWords: ["أَمْن", "رَجَاء"],
   },
   {
+    cid: 883,
     arabic: 'قُضِيَ',
     translit: 'Quḍiya',
     type: 'Verb',
@@ -5424,6 +5601,7 @@ ALL_WORDS.push(
     relatedWords: ["حُكْم", "أَجَل"],
   },
   {
+    cid: 897,
     arabic: 'كَسَبَتۡ',
     translit: 'Kasabat',
     type: 'Verb',
@@ -5455,6 +5633,7 @@ ALL_WORDS.push(
     relatedWords: ["عَمَل", "أَعْمَال"],
   },
   {
+    cid: 90,
     arabic: 'أَيۡنَ',
     translit: 'Ayna',
     type: 'Particle (interrogative)',
@@ -5485,6 +5664,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 1191,
     arabic: 'ٱلۡعِقَابِ',
     translit: 'al-ʿIqāb',
     type: 'Noun',
@@ -5516,6 +5696,7 @@ ALL_WORDS.push(
     relatedWords: ["عَذَاب", "غَفُور"],
   },
   {
+    cid: 538,
     arabic: 'بَيِّنَةٖ',
     translit: 'Bayyinah',
     type: 'Noun',
@@ -5547,6 +5728,7 @@ ALL_WORDS.push(
     relatedWords: ["مُبِين", "آيَات"],
   },
   {
+    cid: 958,
     arabic: 'مَتَٰعُ',
     translit: 'Matāʿ',
     type: 'Noun',
@@ -5578,6 +5760,7 @@ ALL_WORDS.push(
     relatedWords: [""],
   },
   {
+    cid: 579,
     arabic: 'تُتۡلَىٰ',
     translit: 'Tutlā',
     type: 'Verb',
@@ -5609,6 +5792,7 @@ ALL_WORDS.push(
     relatedWords: ["قُرْآن", "آيَات"],
   },
   {
+    cid: 1173,
     arabic: 'ٱلصُّدُورِ',
     translit: 'al-Ṣudūr',
     type: 'Noun',
@@ -5639,6 +5823,7 @@ ALL_WORDS.push(
     relatedWords: ["قَلْب", "ذِكْر"],
   },
   {
+    cid: 621,
     arabic: 'حَكِيمٗا',
     translit: 'Ḥakīman',
     type: 'Adjective',
@@ -5670,6 +5855,7 @@ ALL_WORDS.push(
     relatedWords: ["حِكْمَة", "عَلِيم"],
   },
   {
+    cid: 1193,
     arabic: 'ٱلۡفَوۡزُ',
     translit: 'al-Fawz',
     type: 'Noun',
@@ -5701,6 +5887,7 @@ ALL_WORDS.push(
     relatedWords: ["جَنَّة", "خُسْرَان"],
   },
   {
+    cid: 78,
     arabic: 'أَهۡلَكۡنَا',
     translit: 'Ahlaknā',
     type: 'Verb',

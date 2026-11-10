@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 329,
     arabic: 'الْحَشْرِ',
     translit: 'Al-Ḥashr',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'قِيَامَة'],
   },
   {
+    cid: 401,
     arabic: 'الْفَيْءُ',
     translit: 'Al-Fay\'u',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَال', 'صَدَقَة'],
   },
   {
+    cid: 933,
     arabic: 'لَوْ أَنزَلْنَا',
     translit: 'Law Anzalnā',
     type: 'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'خَشْيَة'],
   },
   {
+    cid: 630,
     arabic: 'خَاشِعًا',
     translit: 'Khāshi\'an',
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَشْيَة', 'قُرْآن'],
   },
   {
+    cid: 995,
     arabic: 'مُّتَصَدِّعًا',
     translit: 'Muttaṣaddi\'an',
     type: 'Adjective',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'خَشْيَة'],
   },
   {
+    cid: 419,
     arabic: 'الْقُدُّوسُ',
     translit: 'Al-Quddūs',
     type: 'Proper Noun',

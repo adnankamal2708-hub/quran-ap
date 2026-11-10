@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 252,
     arabic:'النَّمْلِ',
     translit:'An-Naml',
     type:'Noun',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'دَاوُود'],
   },
   {
+    cid: 502,
     arabic:'الْهُدْهُدِ',
     translit:'Al-Hudhud',
     type:'Noun',
@@ -64,6 +66,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'سَبَأ'],
   },
   {
+    cid: 700,
     arabic:'سَبَأٍ',
     translit:"Saba'",
     type:'Proper Noun',
@@ -94,6 +97,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'مَلِكَة'],
   },
   {
+    cid: 544,
     arabic:'بِلْقِيسَ',
     translit:'Bilqīs',
     type:'Proper Noun',
@@ -124,6 +128,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'عَرْش'],
   },
   {
+    cid: 1116,
     arabic:'يَسْجُدُونَ',
     translit:'Yasjudūn',
     type:'Verb',
@@ -155,6 +160,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَمْس', 'عِبَادَة'],
   },
   {
+    cid: 214,
     arabic:'الصِّرَاطِ',
     translit:'Aṣ-Ṣirāṭ',
     type:'Noun',
@@ -185,6 +191,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'مُسْتَقِيم'],
   },
   {
+    cid: 13,
     arabic:'آيَةً',
     translit:'Āyah',
     type:'Noun',
@@ -215,6 +222,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'فِرْعَوْن'],
   },
   {
+    cid: 369,
     arabic:'الْعَرْشِ',
     translit:"Al-'Arsh",
     type:'Noun',

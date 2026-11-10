@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 489,
     arabic: 'الْمُلْكِ',
     translit: 'Al-Mulk',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُدْرَة', 'سُلْطَان'],
   },
   {
+    cid: 548,
     arabic: 'تَبَارَكَ',
     translit: 'Tabāraka',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَرَكَة', 'مُلْك'],
   },
   {
+    cid: 871,
     arabic: 'قَدِيرٌ',
     translit: 'Qadīr',
     type: 'Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُدْرَة', 'إِرَادَة'],
   },
   {
+    cid: 453,
     arabic: 'الْمَوْتَ',
     translit: 'Al-Mawt',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَيَاة', 'بَعْث'],
   },
   {
+    cid: 341,
     arabic: 'الْحَيَاةَ',
     translit: 'Al-Ḥayāh',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَوْت', 'بَعْث'],
   },
   {
+    cid: 948,
     arabic: 'لِيَبْلُوَكُمْ',
     translit: 'LiYabluwakum',
     type: 'Verb',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَلَاء', 'عَمَل'],
   },
   {
+    cid: 29,
     arabic: 'أَحْسَنُ',
     translit: 'Aḥsanu',
     type: 'Adjective',

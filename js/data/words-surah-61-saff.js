@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 207,
     arabic: 'الصَّفِّ',
     translit: 'Aṣ-Ṣaff',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جِهَاد', 'أُخُوَّة'],
   },
   {
+    cid: 964,
     arabic: 'مَرْصُوصٌ',
     translit: 'Marṣūṣ',
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بُنْيَان', 'صَفّ'],
   },
   {
+    cid: 541,
     arabic: 'بُنْيَانٌ',
     translit: 'Bunyān',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَحْدَة', 'إِيمَان'],
   },
   {
+    cid: 659,
     arabic: 'ذَرُونِي',
     translit: 'Dharūnī',
     type: 'Verb (command)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'رَسُول'],
   },
   {
+    cid: 578,
     arabic: 'تُؤْذُونَنِي',
     translit: "Tu'dhūnanī",
     type: 'Verb',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'قَوْم'],
   },
   {
+    cid: 1017,
     arabic: 'نَاصِرِينَ',
     translit: 'Nāṣirīn',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَصْر', 'إِيمَان'],
   },
   {
+    cid: 771,
     arabic: 'ظَاهِرِينَ',
     translit: 'Zāhirīn',
     type: 'Adjective (plural)',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَصْر', 'غَلَب'],
   },
   {
+    cid: 7,
     arabic: 'آمَنُوا',
     translit: 'Āmanū',
     type: 'Verb',

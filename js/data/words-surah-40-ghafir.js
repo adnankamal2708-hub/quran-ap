@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 812,
     arabic:'غَافِرِ',
     translit:'Ghāfir',
     type:'Name / Adjective',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَغْفِرَة', 'ذَنْب'],
   },
   {
+    cid: 866,
     arabic:'قَابِلِ',
     translit:'Qābili',
     type:'Name / Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوْبَة', 'غَفُور'],
   },
   {
+    cid: 737,
     arabic:'شَدِيدِ',
     translit:'Shadīd',
     type:'Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِقَاب', 'عَذَاب'],
   },
   {
+    cid: 221,
     arabic:'الطَّوْلِ',
     translit:'Aṭ-Ṭawl',
     type:'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فَضْل', 'كَرَم'],
   },
   {
+    cid: 264,
     arabic:'الْأَبْصَارُ',
     translit:'Al-Abṣār',
     type:'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَصَر', 'يَوْم'],
   },
   {
+    cid: 363,
     arabic:'الْخِزْيِ',
     translit:'Al-Khizy',
     type:'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذُلّ', 'عِقَاب'],
   },
   {
+    cid: 348,
     arabic:'الْحِسَابِ',
     translit:'Al-Ḥisāb',
     type:'Noun',

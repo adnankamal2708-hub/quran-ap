@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 694,
     arabic: 'زُلْزِلَتْ',
     translit: 'Zulzilat',
     type: 'Verb (passive, perfect, feminine singular)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['الْأَرْض', 'السَّاعَة', 'الْقِيَامَة'],
   },
   {
+    cid: 696,
     arabic: 'زِلْزَالَهَا',
     translit: 'Zilzālahā',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَرْض', 'السَّاعَة'],
   },
   {
+    cid: 17,
     arabic: 'أَثْقَالَهَا',
     translit: 'Athqālahā',
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَرْض', 'الْمَوْتَىٰ'],
   },
   {
+    cid: 33,
     arabic: 'أَخْبَارَهَا',
     translit: 'Akhbārahā',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَرْض', 'الشَّهَادَة'],
   },
   {
+    cid: 871,
     arabic: 'قَدِيرٌ',
     translit: 'Qadīr',
     type: 'Adjective',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُدْرَة', 'الْحِسَاب'],
   },
   {
+    cid: 1001,
     arabic: 'مِثْقَالَ ذَرَّةٍ',
     translit: 'Mithqāla Dharratin',
     type: 'Noun + Noun (phrase)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَدْل', 'الْحِسَاب'],
   },
   {
+    cid: 1108,
     arabic: 'يَرَهُ',
     translit: 'Yarahu',
     type: 'Verb (imperfect, masculine singular)',

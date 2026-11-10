@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 220,
     arabic: 'الطَّلَاقِ',
     translit: 'Aṭ-Ṭalāq',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَرْأَة', 'عِدَّة'],
   },
   {
+    cid: 381,
     arabic: 'الْعِدَّةَ',
     translit: "Al-'Iddah",
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَرْأَة', 'طَلَاق'],
   },
   {
+    cid: 30,
     arabic: 'أَحْصُوا',
     translit: 'Aḥṣū',
     type: 'Verb (command)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِدَّة', 'حِسَاب'],
   },
   {
+    cid: 19,
     arabic: 'أَجَلًا',
     translit: 'Ajalan',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَجَل', 'مَوْت'],
   },
   {
+    cid: 961,
     arabic: 'مَخْرَجًا',
     translit: 'Makhrajan',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَقْوَىٰ', 'فَرَج'],
   },
   {
+    cid: 1109,
     arabic: 'يَرْزُقْهُ',
     translit: 'Yarzuquh',
     type: 'Verb',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِزْق', 'فَضْل'],
   },
   {
+    cid: 1095,
     arabic: 'يَحْتَسِبُ',
     translit: 'Yaḥtasibu',
     type: 'Verb',

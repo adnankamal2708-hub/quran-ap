@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 199,
     arabic: 'الصَّابِرِينَ',
     translit: 'As-Sābirīn',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['صَبْر', 'اللَّهُ', 'شُكْر'],
   },
   {
+    cid: 574,
     arabic: 'تَوَكَّلْ',
     translit: 'Tawakkal',
     type: 'Verb (command)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['وَكِيل', 'اللَّهُ', 'إِيمَان'],
   },
   {
+    cid: 674,
     arabic: 'رَبَّنَا',
     translit: 'Rabbanā',
     type: 'Noun (construct)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['رَبِّ', 'اللَّهُ', 'هُدًى'],
   },
   {
+    cid: 350,
     arabic: 'الْحِكْمَةَ',
     translit: 'Al-Hikmah',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['حَكِيمٌ', 'الْكِتَابِ', 'عَلِيمٌ'],
   },
   {
+    cid: 194,
     arabic: 'الشَّيْطَانِ',
     translit: 'Ash-Shaytān',
     type: 'Proper Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْلِيس', 'نَار'],
   },
   {
+    cid: 303,
     arabic: 'الْبَيِّنَاتِ',
     translit: 'Al-Bayyināt',
     type: 'Noun (plural)',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['آيَة', 'الْكِتَابِ', 'اللَّهُ'],
   },
   {
+    cid: 186,
     arabic: 'السَّمْعَ',
     translit: 'As-Sam\'',
     type: 'Noun',
@@ -221,6 +228,7 @@ ALL_WORDS.push(
     relatedWords: ['سَمِيعٌ', 'بَصِيرٌ', 'قَلْب'],
   },
   {
+    cid: 48,
     arabic: 'أَطِيعُوا',
     translit: 'Atī\'ū',
     type: 'Verb (command)',
@@ -252,6 +260,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'إِيمَان'],
   },
   {
+    cid: 196,
     arabic: 'الشُّهَدَاءِ',
     translit: 'Ash-Shuhadā\'',
     type: 'Noun (plural)',
@@ -283,6 +292,7 @@ ALL_WORDS.push(
     relatedWords: ['شَهِيد', 'اللَّهُ', 'آمَنَ'],
   },
   {
+    cid: 165,
     arabic: 'الرِّبَا',
     translit: 'Ar-Ribā',
     type: 'Noun',

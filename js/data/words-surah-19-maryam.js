@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 965,
     arabic: 'مَرْيَمَ',
     translit: 'Maryam',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِيسَىٰ', 'رُوح'],
   },
   {
+    cid: 1096,
     arabic: 'يَحْيَىٰ',
     translit: 'Yaḥyā',
     type: 'Proper Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'زَكَرِيَّا', 'عِيسَىٰ'],
   },
   {
+    cid: 811,
     arabic: 'عِيسَىٰ',
     translit: '\'Īsā',
     type: 'Proper Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَرْيَم', 'رُوح'],
   },
   {
+    cid: 679,
     arabic: 'رَحْمَةً',
     translit: 'Raḥmah',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَان', 'رَحِيم'],
   },
   {
+    cid: 721,
     arabic: 'سَيِّدًا',
     translit: 'Sayyidan',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'إِمَام'],
   },
   {
+    cid: 305,
     arabic: 'الْبَيِّنَاتِ',
     translit: 'Al-Bayyināt',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آيَة', 'هُدًى'],
   },
   {
+    cid: 691,
     arabic: 'زَكَرِيَّا',
     translit: 'Zakariyyā',
     type: 'Proper Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَحْيَىٰ', 'رَحْمَة'],
   },
   {
+    cid: 1082,
     arabic: 'وَهْنًا',
     translit: 'Wahnan',
     type: 'Noun',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُوَّة', 'دُعَاء'],
   },
   {
+    cid: 193,
     arabic: 'الشَّيْبَ',
     translit: 'Ash-Shayb',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَهْن', 'كِبَر'],
   },
   {
+    cid: 254,
     arabic: 'النُّبُوَّةِ',
     translit: 'An-Nubuwwah',
     type: 'Noun',

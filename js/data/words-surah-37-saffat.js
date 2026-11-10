@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 200,
     arabic:'الصَّافَّاتِ',
     translit:'Aṣ-Ṣāffāt',
     type:'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'صَفّ'],
   },
   {
+    cid: 690,
     arabic:'زَاجِرَاتِ',
     translit:'Zājirāt',
     type:'Noun (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'شَيْطَان'],
   },
   {
+    cid: 989,
     arabic:'مُلْتَقُونَ',
     translit:'Multaqūn',
     type:'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَشْر', 'يَوْم'],
   },
   {
+    cid: 145,
     arabic:'الذَّبْحِ',
     translit:'Adh-Dhabḥ',
     type:'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'إِسْمَاعِيل'],
   },
   {
+    cid: 840,
     arabic:'فَدَيْنَاهُ',
     translit:'Fadaynāhu',
     type:'Verb',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'ذِبْح'],
   },
   {
+    cid: 272,
     arabic:'الْأَصْنَامَ',
     translit:'Al-Aṣnām',
     type:'Noun (plural)',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'شِرْك'],
   },
   {
+    cid: 111,
     arabic:'إِلْيَاسِينَ',
     translit:'Ilyāsīn',
     type:'Proper Noun',

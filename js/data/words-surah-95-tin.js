@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 136,
     arabic: 'التِّينِ',
     translit: 'At-Tīn',
     type: 'Noun',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الزَّيْتُون', 'الْفَوَاكِه'],
   },
   {
+    cid: 173,
     arabic: 'الزَّيْتُونِ',
     translit: 'Az-Zaytūn',
     type: 'Noun',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التِّين', 'النُّور'],
   },
   {
+    cid: 769,
     arabic: 'طُورِ سِينِينَ',
     translit: 'Ṭūri Sīnīn',
     type: 'Proper Noun',
@@ -96,6 +99,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'الوَحْي'],
   },
   {
+    cid: 301,
     arabic: 'الْبَلَدِ الْأَمِينِ',
     translit: 'Al-Baladi al-Amīn',
     type: 'Noun + Adjective (phrase)',
@@ -127,6 +131,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْكَعْبَة', 'الْحَرَم'],
   },
   {
+    cid: 569,
     arabic: 'تَقْوِيمٍ',
     translit: 'Taqwīm',
     type: 'Noun',
@@ -158,6 +163,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'الْخَلْق'],
   },
   {
+    cid: 41,
     arabic: 'أَسْفَلَ سَافِلِينَ',
     translit: 'Asfala Sāfilīn',
     type: 'Noun + Adjective (phrase)',
@@ -189,6 +195,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'جَهَنَّم'],
   },
   {
+    cid: 22,
     arabic: 'أَجْرٌ غَيْرُ مَمْنُونٍ',
     translit: 'Ajrun Ghayru Mamnūn',
     type: 'Noun + Adjective (phrase)',

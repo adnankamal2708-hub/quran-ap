@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 549,
     arabic: 'تَبَّتْ',
     translit: 'Tabbat',
     type: 'Verb (perfect, feminine singular)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَبُو لَهَب', 'الْخَسَارَة'],
   },
   {
+    cid: 16,
     arabic: 'أَبِي لَهَبٍ',
     translit: 'Abī Lahab',
     type: 'Noun (proper noun, construct phrase)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّار', 'الْكُفْر'],
   },
   {
+    cid: 951,
     arabic: 'مَا أَغْنَىٰ عَنْهُ مَالُهُ',
     translit: 'Mā Aghnā ʿAnhu Māluhu',
     type: 'Verb phrase',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَال', 'الْأَوْلَاد'],
   },
   {
+    cid: 622,
     arabic: 'حَمَّالَةَ الْحَطَبِ',
     translit: 'Ḥammālata al-Ḥaṭab',
     type: 'Noun + Noun (construct phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَهَنَّم', 'الْعَذَاب'],
   },
   {
+    cid: 966,
     arabic: 'مَسَدٍ',
     translit: 'Masad',
     type: 'Noun',

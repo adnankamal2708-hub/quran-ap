@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 240,
     arabic: 'النَّاسِ',
     translit: 'An-Nās',
     type: 'Noun (plural, collective)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'الْخَلْق'],
   },
   {
+    cid: 971,
     arabic: 'مَلِكِ النَّاسِ',
     translit: 'Maliki an-Nās',
     type: 'Noun + Noun (construct phrase)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُلْك', 'النَّاس'],
   },
   {
+    cid: 112,
     arabic: 'إِلٰهِ النَّاسِ',
     translit: 'Ilāhi an-Nās',
     type: 'Noun + Noun (construct phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِبَادَة', 'التَّوْحِيد'],
   },
   {
+    cid: 511,
     arabic: 'الْوَسْوَاسِ',
     translit: 'Al-Waswās',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الشَّيْطَان', 'الْوَسْوَسَة'],
   },
   {
+    cid: 358,
     arabic: 'الْخَنَّاسِ',
     translit: 'Al-Khannās',
     type: 'Adjective',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الشَّيْطَان', 'ذِكْر اللَّه'],
   },
   {
+    cid: 320,
     arabic: 'الْجِنَّةِ',
     translit: 'Al-Jinnah',
     type: 'Noun (collective)',

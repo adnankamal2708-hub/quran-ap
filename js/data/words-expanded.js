@@ -6,6 +6,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1038,
     arabic: 'نُور',
     translit: 'Nūr',
     type: 'Noun',
@@ -38,6 +39,7 @@ ALL_WORDS.push(
     relatedWords: ['النَّار', 'اللَّهُ', 'هُدًى', 'الْكِتَابِ'],
   },
   {
+    cid: 775,
     arabic: 'ظُلُمَات',
     translit: 'Zulumāt',
     type: 'Noun (plural)',
@@ -69,6 +71,7 @@ ALL_WORDS.push(
     relatedWords: ['نُور', 'اللَّهُ', 'هُدًى'],
   },
   {
+    cid: 751,
     arabic: 'صَبْر',
     translit: 'Sabr',
     type: 'Noun',
@@ -101,6 +104,7 @@ ALL_WORDS.push(
     relatedWords: ['شُكْر', 'اللَّهُ', 'صَلَاة'],
   },
   {
+    cid: 644,
     arabic: 'خَيْر',
     translit: 'Khayr',
     type: 'Noun',
@@ -132,6 +136,7 @@ ALL_WORDS.push(
     relatedWords: ['شَرّ', 'اللَّهُ', 'صَبْر'],
   },
   {
+    cid: 739,
     arabic: 'شَرّ',
     translit: 'Sharr',
     type: 'Noun',
@@ -163,6 +168,7 @@ ALL_WORDS.push(
     relatedWords: ['خَيْر', 'اللَّهُ', 'سُوء'],
   },
   {
+    cid: 715,
     arabic: 'سَمَاء',
     translit: "Samā'",
     type: 'Noun',
@@ -194,6 +200,7 @@ ALL_WORDS.push(
     relatedWords: ['أَرْض', 'اللَّهُ', 'نُور'],
   },
   {
+    cid: 39,
     arabic: 'أَرْض',
     translit: 'Ard',
     type: 'Noun',
@@ -224,6 +231,7 @@ ALL_WORDS.push(
     relatedWords: ['سَمَاء', 'اللَّهُ', 'خَلَقَ'],
   },
   {
+    cid: 876,
     arabic: 'قَلْب',
     translit: 'Qalb',
     type: 'Noun',
@@ -255,6 +263,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'صَبْر'],
   },
   {
+    cid: 577,
     arabic: 'تَوْبَة',
     translit: 'Tawba',
     type: 'Noun',
@@ -286,6 +295,7 @@ ALL_WORDS.push(
     relatedWords: ['غَفُورٌ', 'اللَّهُ', 'الرَّحِيمِ'],
   },
   {
+    cid: 660,
     arabic: 'ذَنْب',
     translit: 'Dhanb',
     type: 'Noun',
@@ -317,6 +327,7 @@ ALL_WORDS.push(
     relatedWords: ['غَفُورٌ', 'تَوْبَة', 'اللَّهُ'],
   },
   {
+    cid: 615,
     arabic: 'حَسَنَة',
     translit: 'Hasana',
     type: 'Noun',
@@ -348,6 +359,7 @@ ALL_WORDS.push(
     relatedWords: ['خَيْر', 'ذَنْب', 'اللَّهُ'],
   },
   {
+    cid: 1067,
     arabic: 'وَحْدَهُ',
     translit: 'Wahdahu',
     type: 'Adverb',
@@ -379,6 +391,7 @@ ALL_WORDS.push(
     relatedWords: ['أَحَدٌ', 'اللَّهُ', 'لَا'],
   },
   {
+    cid: 12,
     arabic: 'آيَة',
     translit: 'Āyah',
     type: 'Noun',

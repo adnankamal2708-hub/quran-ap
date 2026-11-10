@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 409,
     arabic: 'الْقَارِعَةُ',
     translit: 'Al-Qāriʿah',
     type: 'Noun (feminine, active participle)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقِيَامَة', 'الْحِسَاب'],
   },
   {
+    cid: 500,
     arabic: 'الْمِيزَانُ',
     translit: 'Al-Mīzān',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَعْمَال', 'الْحِسَاب'],
   },
   {
+    cid: 585,
     arabic: 'ثَقُلَتْ',
     translit: 'Thaqulat',
     type: 'Verb (perfect, feminine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمِيزَان', 'الْحَسَنَات'],
   },
   {
+    cid: 634,
     arabic: 'خَافِضَةٌ',
     translit: 'Khāfiḍah',
     type: 'Noun (active participle, feminine)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقِيَامَة', 'الْجَزَاء'],
   },
   {
+    cid: 673,
     arabic: 'رَافِعَةٌ',
     translit: 'Rāfiʿah',
     type: 'Noun (active participle, feminine)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجَنَّة', 'الرَّحْمَة'],
   },
   {
+    cid: 1045,
     arabic: 'هَاوِيَةٌ',
     translit: 'Hāwiyah',
     type: 'Noun (feminine)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّار', 'الْعَذَاب'],
   },
   {
+    cid: 1014,
     arabic: 'نَارٌ حَامِيَةٌ',
     translit: 'Nārun Ḥāmiyah',
     type: 'Noun + Adjective',

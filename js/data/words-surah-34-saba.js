@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 700,
     arabic:'سَبَأٍ',
     translit:"Saba'",
     type:'Proper Noun',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نِعْمَة', 'سَيْل'],
   },
   {
+    cid: 967,
     arabic:'مَسْكَنِهِمْ',
     translit:'Maskanihim',
     type:'Noun',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نِعْمَة', 'أَرْض'],
   },
   {
+    cid: 722,
     arabic:'سَيْلَ',
     translit:'Sayl',
     type:'Noun',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَذَاب', 'مَاء'],
   },
   {
+    cid: 368,
     arabic:'الْعَرِمِ',
     translit:"Al-'Arim",
     type:'Noun',
@@ -126,6 +130,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَيْل', 'نِعْمَة'],
   },
   {
+    cid: 18,
     arabic:'أَثْلٍ',
     translit:'Athl',
     type:'Noun',
@@ -155,6 +160,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'عِقَاب'],
   },
   {
+    cid: 77,
     arabic:'أَنْتُمْ',
     translit:'Antum',
     type:'Pronoun',

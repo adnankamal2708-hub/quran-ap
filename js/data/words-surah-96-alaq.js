@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 126,
     arabic: 'اقْرَأْ',
     translit: 'Iqra\'',
     type: 'Verb (command, masculine singular)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'الْعِلْم'],
   },
   {
+    cid: 642,
     arabic: 'خَلَقَ',
     translit: 'Khalaqa',
     type: 'Verb (perfect, masculine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَلْق', 'الْإِنْسَان'],
   },
   {
+    cid: 797,
     arabic: 'عَلَّمَ',
     translit: 'ʿAllama',
     type: 'Verb (perfect, masculine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِلْم', 'الْقَلَم'],
   },
   {
+    cid: 412,
     arabic: 'الْقَلَمِ',
     translit: 'Al-Qalam',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِلْم', 'الْكِتَاب'],
   },
   {
+    cid: 376,
     arabic: 'الْعَلَقِ',
     translit: 'Al-ʿAlaq',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'الْخَلْق'],
   },
   {
+    cid: 1125,
     arabic: 'يَطْغَىٰ',
     translit: 'Yaghṭā',
     type: 'Verb (imperfect, masculine singular)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الطُّغْيَان', 'الِاسْتِغْنَاء'],
   },
   {
+    cid: 122,
     arabic: 'اسْتَغْنَىٰ',
     translit: 'Istaghnā',
     type: 'Verb (perfect, masculine singular)',

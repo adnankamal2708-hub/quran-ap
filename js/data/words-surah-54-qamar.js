@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 413,
     arabic: 'الْقَمَرُ',
     translit: 'Al-Qamar',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آيَة', 'يَوْمَ'],
   },
   {
+    cid: 518,
     arabic: 'انشَقَّ',
     translit: 'Inshaqqa',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آيَة', 'نَبِيّ'],
   },
   {
+    cid: 996,
     arabic: 'مُّزْدَجِرُونَ',
     translit: 'Muzdajirūn',
     type: 'Adjective (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَذِير', 'عِظَة'],
   },
   {
+    cid: 1033,
     arabic: 'نُذُرِ',
     translit: 'Nudhuri',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَذَاب', 'نَبِيّ'],
   },
   {
+    cid: 10,
     arabic: 'آيَاتِ',
     translit: 'Āyāt',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'آيَة'],
   },
   {
+    cid: 1113,
     arabic: 'يَسَّرْنَا',
     translit: 'Yassarnā',
     type: 'Verb',

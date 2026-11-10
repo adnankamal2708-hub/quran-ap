@@ -94,6 +94,18 @@ const OLD_ID_TO_CANONICAL = {};
 let _canonicalIdCounter = 0;
 
 /**
+ * Frozen ids. Saved progress is keyed by cw_N, and ids used to come from
+ * sorting the words by Arabic, root and meaning, so correcting any word's
+ * data would have renumbered every word after it. Each word in js/data/
+ * now carries its id as `cid`, and keeps it whatever is corrected.
+ *
+ * Rules: never change or reuse a cid. Words that share a cid are one
+ * entry. A new word gets a cid above every existing one; a word with no
+ * cid (test fixtures) is grouped by its uniqueness key, as before.
+ * test/canonical-ids.test.js pins the ids.
+ */
+
+/**
  * Build a uniqueness key for deduplication: arabic + root + typeCategory + core meaning
  * This ensures words are only merged when they genuinely share the same form and sense.
  */
@@ -124,18 +136,33 @@ function deduplicateVocabulary() {
   
   if (ALL_WORDS.length === 0) return;
   
-  // Group by uniqueness key
+  // Group words: by frozen cid where a word has one, else by uniqueness key
   var groups = {};
+  var frozenIdOfKey = {};
+  var nextFreeId = 0;
   
   for (var i = 0; i < ALL_WORDS.length; i++) {
     var w = ALL_WORDS[i];
     var key = _wordUniquenessKey(w);
+    if (typeof w.cid === 'number') {
+      key = '#' + w.cid;
+      frozenIdOfKey[key] = w.cid;
+      if (w.cid >= nextFreeId) nextFreeId = w.cid + 1;
+    }
     if (!groups[key]) groups[key] = [];
     groups[key].push(w);
   }
+  _canonicalIdCounter = nextFreeId;
   
-  // Build canonical entries from groups
-  var keys = Object.keys(groups).sort();
+  // Build canonical entries from groups: frozen ids in number order, then
+  // any new words by key
+  var keys = Object.keys(groups).sort(function (a, b) {
+    var fa = frozenIdOfKey[a], fb = frozenIdOfKey[b];
+    if (fa !== undefined && fb !== undefined) return fa - fb;
+    if (fa !== undefined) return -1;
+    if (fb !== undefined) return 1;
+    return a < b ? -1 : (a > b ? 1 : 0);
+  });
   
   for (var gi = 0; gi < keys.length; gi++) {
     var group = groups[keys[gi]];
@@ -231,7 +258,9 @@ function deduplicateVocabulary() {
     });
     
     // Create canonical ID
-    var canonicalId = 'cw_' + (_canonicalIdCounter++);
+    var canonicalId = frozenIdOfKey[keys[gi]] !== undefined
+      ? 'cw_' + frozenIdOfKey[keys[gi]]
+      : 'cw_' + (_canonicalIdCounter++);
     
     // Create canonical entry
     var canonical = {

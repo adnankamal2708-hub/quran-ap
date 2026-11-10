@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 469,
     arabic: 'الْمُدَّثِّرُ',
     translit: 'Al-Muddaththir',
     type: 'Noun/Adjective',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'رِسَالَة'],
   },
   {
+    cid: 822,
     arabic: 'فَأَنذِرْ',
     translit: 'Fa-andhir',
     type: 'Verb (command)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَذِير', 'رِسَالَة'],
   },
   {
+    cid: 1069,
     arabic: 'وَرَبَّكَ فَكَبِّرْ',
     translit: 'Wa Rabbaka Fakabbir',
     type: 'Verb (command phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَكْبِير', 'رَبّ'],
   },
   {
+    cid: 835,
     arabic: 'فَاهْجُرْ',
     translit: 'Fahjur',
     type: 'Verb (command)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِجْس', 'طَهَارَة'],
   },
   {
+    cid: 710,
     arabic: 'سَقَرَ',
     translit: 'Saqar',
     type: 'Proper Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَار', 'جَهَنَّم'],
   },
   {
+    cid: 932,
     arabic: 'لَوَّاحَةٌ',
     translit: 'Lawwāḥah',
     type: 'Adjective',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَار', 'جَهَنَّم'],
   },
   {
+    cid: 581,
     arabic: 'تِسْعَةَ عَشَرَ',
     translit: "Tis'ata 'Ashara",
     type: 'Number',

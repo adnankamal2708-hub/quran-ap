@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 140,
     arabic: 'الدُّخَانِ',
     translit: 'Ad-Dukhān',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'عَذَاب'],
   },
   {
+    cid: 939,
     arabic: 'لَيْلَةِ',
     translit: 'Laylati',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'لَيْلَة الْقَدْر'],
   },
   {
+    cid: 993,
     arabic: 'مُّبَارَكَةٍ',
     translit: 'Mubārakah',
     type: 'Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَرَكَة', 'قُرْآن'],
   },
   {
+    cid: 679,
     arabic: 'رَحْمَةً',
     translit: 'Raḥmatan',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَٰن', 'مَغْفِرَة'],
   },
   {
+    cid: 830,
     arabic: 'فَاصْبِرْ',
     translit: 'Fāṣbir',
     type: 'Verb (command)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَبْر', 'ثَوَاب'],
   },
   {
+    cid: 827,
     arabic: 'فَارْتَقِبْ',
     translit: 'Fārtaqib',
     type: 'Verb (command)',

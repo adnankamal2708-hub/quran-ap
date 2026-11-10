@@ -7,6 +7,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1,
     arabic: 'ءَادَمُ',
     translit: 'Ādam',
     type: 'Proper noun',
@@ -46,6 +47,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 640,
     arabic: 'خَلَتۡ',
     translit: 'Khalat',
     type: 'Verb',
@@ -86,6 +88,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1202,
     arabic: 'ٱلۡمَلَأُ',
     translit: 'al-Malaʾ',
     type: 'Noun',
@@ -126,6 +129,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1167,
     arabic: 'ٱلتَّوۡرَىٰةَ',
     translit: 'at-Tawrāh',
     type: 'Proper noun',
@@ -165,6 +169,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 855,
     arabic: 'فَوۡقَ',
     translit: 'Fawqa',
     type: 'Preposition',
@@ -205,6 +210,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 870,
     arabic: 'قَدَّمۡتُ',
     translit: 'Qaddamtu',
     type: 'Verb',
@@ -245,6 +251,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 91,
     arabic: 'أُخۡرَىٰ',
     translit: 'Ukhrā',
     type: 'Adjective',
@@ -286,6 +293,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 742,
     arabic: 'شَكّٖ',
     translit: 'Shakk',
     type: 'Noun',
@@ -326,6 +334,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 892,
     arabic: 'كَذِبٗا',
     translit: 'Kidhiban',
     type: 'Noun',
@@ -367,6 +376,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 943,
     arabic: 'لُوطٖ',
     translit: 'Lūṭ',
     type: 'Proper noun',
@@ -406,6 +416,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 706,
     arabic: 'سَبۡعَ',
     translit: 'Sabʿa',
     type: 'Number',
@@ -446,6 +457,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 988,
     arabic: 'مُعۡرِضُونَ',
     translit: 'Muʿriḍūn',
     type: 'Noun (participle)',
@@ -486,6 +498,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 718,
     arabic: 'سَنَةٗ',
     translit: 'Sanah',
     type: 'Noun',
@@ -525,6 +538,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 985,
     arabic: 'مُسۡلِمُونَ',
     translit: 'Muslimūn',
     type: 'Noun (participle)',
@@ -566,6 +580,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 650,
     arabic: 'دَآبَّةٍ',
     translit: 'Dābbah',
     type: 'Noun',
@@ -606,6 +621,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 531,
     arabic: 'بَعِيدٖ',
     translit: 'Baʿīd',
     type: 'Adjective',
@@ -646,6 +662,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 873,
     arabic: 'قَرِيبٞ',
     translit: 'Qarīb',
     type: 'Adjective',
@@ -687,6 +704,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1149,
     arabic: 'يُرَدُّ',
     translit: 'Yuraddu',
     type: 'Verb',
@@ -728,6 +746,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1171,
     arabic: 'ٱلسَّيِّـَٔاتِ',
     translit: 'as-Sayyiʾāt',
     type: 'Noun',
@@ -769,6 +788,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 979,
     arabic: 'مَّكَانٖ',
     translit: 'Makān',
     type: 'Noun',
@@ -809,6 +829,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1166,
     arabic: 'ٱسۡمَ',
     translit: 'Ism',
     type: 'Noun',
@@ -849,6 +870,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1120,
     arabic: 'يَسۡتَهۡزِءُونَ',
     translit: 'Yastahziʾūn',
     type: 'Verb',
@@ -889,6 +911,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 963,
     arabic: 'مَرَّةٗ',
     translit: 'Marrah',
     type: 'Noun',
@@ -929,6 +952,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1199,
     arabic: 'ٱلۡمَدِينَةِ',
     translit: 'al-Madīnah',
     type: 'Noun',
@@ -969,6 +993,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1097,
     arabic: 'يَحۡزَنُونَ',
     translit: 'Yaḥzanūn',
     type: 'Verb',
@@ -1010,6 +1035,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 842,
     arabic: 'فَرِيقٞ',
     translit: 'Farīq',
     type: 'Noun',
@@ -1051,6 +1077,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 895,
     arabic: 'كَرِهَ',
     translit: 'Kariha',
     type: 'Verb',
@@ -1091,6 +1118,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 649,
     arabic: 'دَاوُۥدَ',
     translit: 'Dāwūd',
     type: 'Proper noun',
@@ -1130,6 +1158,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 32,
     arabic: 'أَخَذَ',
     translit: 'Akhadha',
     type: 'Verb',
@@ -1171,6 +1200,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 676,
     arabic: 'رَجُلُۢ',
     translit: 'Rajul',
     type: 'Noun',
@@ -1211,6 +1241,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1131,
     arabic: 'يَفۡقَهُونَ',
     translit: 'Yafqahūn',
     type: 'Verb',
@@ -1251,6 +1282,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1075,
     arabic: 'وَكِيلٗا',
     translit: 'Wakīlan',
     type: 'Noun',
@@ -1291,6 +1323,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 613,
     arabic: 'حَرَجٞ',
     translit: 'Ḥaraj',
     type: 'Noun',
@@ -1331,6 +1364,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 534,
     arabic: 'بَغۡتَةٗ',
     translit: 'Baghtah',
     type: 'Adverb',
@@ -1371,6 +1405,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 726,
     arabic: 'سُلۡطَٰنٞ',
     translit: 'Sulṭān',
     type: 'Noun',
@@ -1411,6 +1446,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 37,
     arabic: 'أَذِنَ',
     translit: 'Adhina',
     type: 'Verb',
@@ -1451,6 +1487,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 36,
     arabic: 'أَدۡرَىٰكَ',
     translit: 'Adrāka',
     type: 'Verb',
@@ -1491,6 +1528,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 978,
     arabic: 'مَّرَضٞ',
     translit: 'Maraḍ',
     type: 'Noun',
@@ -1531,6 +1569,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1197,
     arabic: 'ٱلۡقُرۡبَىٰ',
     translit: 'al-Qurbā',
     type: 'Noun',
@@ -1571,6 +1610,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 980,
     arabic: 'مَّهِينٖ',
     translit: 'Mahīn',
     type: 'Adjective',
@@ -1612,6 +1652,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1187,
     arabic: 'ٱلۡبَيۡتِ',
     translit: 'al-Bayt',
     type: 'Noun',
@@ -1652,6 +1693,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 560,
     arabic: 'تَرَكَ',
     translit: 'Taraka',
     type: 'Verb',
@@ -1692,6 +1734,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 626,
     arabic: 'حُدُودُ',
     translit: 'Ḥudūd',
     type: 'Noun',
@@ -1732,6 +1775,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 903,
     arabic: 'كَمۡ',
     translit: 'Kam',
     type: 'Particle (interrogative)',
@@ -1771,6 +1815,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 651,
     arabic: 'دَرَجَٰتٖ',
     translit: 'Darajāt',
     type: 'Noun',
@@ -1811,6 +1856,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 881,
     arabic: 'قُتِلَ',
     translit: 'Qutila',
     type: 'Verb',
@@ -1852,6 +1898,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1026,
     arabic: 'نَصِيرٗا',
     translit: 'Naṣīran',
     type: 'Noun',
@@ -1893,6 +1940,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1121,
     arabic: 'يَسۡتَوِي',
     translit: 'Yastawī',
     type: 'Verb',
@@ -1933,6 +1981,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 547,
     arabic: 'تَابَ',
     translit: 'Tāba',
     type: 'Verb',
@@ -1974,6 +2023,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 731,
     arabic: 'سِحۡرٞ',
     translit: 'Siḥr',
     type: 'Noun',
@@ -2014,6 +2064,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 34,
     arabic: 'أَخۡرَجَ',
     translit: 'Akhraja',
     type: 'Verb',
@@ -2055,6 +2106,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 588,
     arabic: 'ثَمُودُ',
     translit: 'Thamūd',
     type: 'Proper noun',
@@ -2094,6 +2146,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1159,
     arabic: 'يُوقِنُونَ',
     translit: 'Yūqinūn',
     type: 'Verb',
@@ -2134,6 +2187,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 661,
     arabic: 'ذَهَبَ',
     translit: 'Dhahaba',
     type: 'Verb',
@@ -2174,6 +2228,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1168,
     arabic: 'ٱلثَّمَرَٰتِ',
     translit: 'ath-Thamarāt',
     type: 'Noun',
@@ -2214,6 +2269,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1194,
     arabic: 'ٱلۡفَٰسِقِينَ',
     translit: 'al-Fāsiqīn',
     type: 'Noun (participle)',
@@ -2255,6 +2311,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 986,
     arabic: 'مُصَدِّقٗا',
     translit: 'Muṣaddiqan',
     type: 'Noun (participle)',
@@ -2296,6 +2353,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 766,
     arabic: 'طَعَامِ',
     translit: 'Ṭaʿām',
     type: 'Noun',
@@ -2336,6 +2394,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1068,
     arabic: 'وَرَآءَ',
     translit: 'Warāʾa',
     type: 'Preposition',
@@ -2375,6 +2434,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 586,
     arabic: 'ثَلَٰثَةَ',
     translit: 'Thalāthah',
     type: 'Number',
@@ -2415,6 +2475,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1161,
     arabic: 'ٱبۡتِغَآءَ',
     translit: 'Ibtighāʾ',
     type: 'Noun',
@@ -2455,6 +2516,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 695,
     arabic: 'زُيِّنَ',
     translit: 'Zuyyina',
     type: 'Verb',
@@ -2495,6 +2557,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1110,
     arabic: 'يَرۡجُونَ',
     translit: 'Yarjūn',
     type: 'Verb',
@@ -2535,6 +2598,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1054,
     arabic: 'هَٰرُونَ',
     translit: 'Hārūn',
     type: 'Proper noun',
@@ -2574,6 +2638,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1186,
     arabic: 'ٱلۡبَلَٰغُ',
     translit: 'al-Balāgh',
     type: 'Noun',
@@ -2614,6 +2679,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 546,
     arabic: 'تَأۡكُلُونَ',
     translit: 'Taʾkulūn',
     type: 'Verb',
@@ -2654,6 +2720,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 758,
     arabic: 'صِدۡقٖ',
     translit: 'Ṣidq',
     type: 'Noun',
@@ -2695,6 +2762,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 623,
     arabic: 'حَمِيمٞ',
     translit: 'Ḥamīm',
     type: 'Noun',
@@ -2734,6 +2802,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 790,
     arabic: 'عَدۡنٖ',
     translit: 'ʿAdn',
     type: 'Noun',
@@ -2773,6 +2842,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1039,
     arabic: 'نُّطۡفَةٍ',
     translit: 'Nuṭfah',
     type: 'Noun',
@@ -2813,6 +2883,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 587,
     arabic: 'ثَمَنٗا',
     translit: 'Thamanan',
     type: 'Noun',
@@ -2852,6 +2923,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1044,
     arabic: 'هَادُواْ',
     translit: 'Hādū',
     type: 'Verb',
@@ -2892,6 +2964,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 725,
     arabic: 'سُلَيۡمَٰنَۚ',
     translit: 'Sulaymān',
     type: 'Proper noun',
@@ -2931,6 +3004,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1102,
     arabic: 'يَخۡتَلِفُونَ',
     translit: 'Yakhtalifūn',
     type: 'Verb',
@@ -2971,6 +3045,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 999,
     arabic: 'مُّصِيبَةٞ',
     translit: 'Muṣībah',
     type: 'Noun',
@@ -3011,6 +3086,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1169,
     arabic: 'ٱلرِّيَٰحَ',
     translit: 'ar-Riyāḥ',
     type: 'Noun',
@@ -3051,6 +3127,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1025,
     arabic: 'نَصِيبٞ',
     translit: 'Naṣīb',
     type: 'Noun',
@@ -3091,6 +3168,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1175,
     arabic: 'ٱلطَّيۡرَ',
     translit: 'aṭ-Ṭayr',
     type: 'Noun',
@@ -3132,6 +3210,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 663,
     arabic: 'ذُرِّيَّةَۢ',
     translit: 'Dhurriyyah',
     type: 'Noun',
@@ -3172,6 +3251,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1200,
     arabic: 'ٱلۡمَسِيحُ',
     translit: 'al-Masīḥ',
     type: 'Proper noun',
@@ -3211,6 +3291,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 527,
     arabic: 'بَرِيٓءٞ',
     translit: 'Barīʾ',
     type: 'Adjective',
@@ -3251,6 +3332,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 612,
     arabic: 'حَدِيثُ',
     translit: 'Ḥadīth',
     type: 'Noun',
@@ -3291,6 +3373,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1174,
     arabic: 'ٱلطَّيِّبَٰتِ',
     translit: 'aṭ-Ṭayyibāt',
     type: 'Noun',
@@ -3331,6 +3414,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1206,
     arabic: 'ٱلۡمُفۡسِدِينَ',
     translit: 'al-Mufsidīn',
     type: 'Noun (participle)',
@@ -3372,6 +3456,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 535,
     arabic: 'بَلَغَ',
     translit: 'Balagha',
     type: 'Verb',
@@ -3413,6 +3498,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1165,
     arabic: 'ٱثۡنَيۡنِ',
     translit: 'Ithnayni',
     type: 'Number',
@@ -3454,6 +3540,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1188,
     arabic: 'ٱلۡبَٰطِلَ',
     translit: 'al-Bāṭil',
     type: 'Noun',
@@ -3495,6 +3582,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1182,
     arabic: 'ٱلۡأَعۡرَابِ',
     translit: 'al-Aʿrāb',
     type: 'Noun',
@@ -3535,6 +3623,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 1196,
     arabic: 'ٱلۡقُرُونِ',
     translit: 'al-Qurūn',
     type: 'Noun',
@@ -3575,6 +3664,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 802,
     arabic: 'عَيۡنٗا',
     translit: 'ʿAyn',
     type: 'Noun',
@@ -3616,6 +3706,7 @@ ALL_WORDS.push(
 ],
   },
   {
+    cid: 102,
     arabic: 'إِبۡلِيسَ',
     translit: 'Iblīs',
     type: 'Proper noun',

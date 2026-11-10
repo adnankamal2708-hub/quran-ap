@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 383,
     arabic: 'الْغَاشِيَةِ',
     translit: 'Al-Ghāshiyah',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْم الْقِيَامَة', 'الْحَدِيث'],
   },
   {
+    cid: 631,
     arabic: 'خَاشِعَةٌ',
     translit: 'Khāshiʿah',
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَذَاب', 'الْجَزَاء'],
   },
   {
+    cid: 784,
     arabic: 'عَامِلَةٌ نَّاصِبَةٌ',
     translit: 'ʿĀmilatun Nāṣibah',
     type: 'Adjective + Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَمَل', 'الْجَزَاء'],
   },
   {
+    cid: 610,
     arabic: 'حَامِيَةٌ',
     translit: 'Ḥāmiyah',
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّار', 'جَهَنَّم'],
   },
   {
+    cid: 9,
     arabic: 'آنِيَةٍ',
     translit: 'Āniyah',
     type: 'Adjective',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَهَنَّم', 'الْعَذَاب'],
   },
   {
+    cid: 761,
     arabic: 'ضَرِيعٍ',
     translit: 'Ḍarīʿ',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَهَنَّم', 'الْعَذَاب'],
   },
   {
+    cid: 782,
     arabic: 'عَالِيَةٌ',
     translit: 'ʿĀliyah',
     type: 'Adjective',

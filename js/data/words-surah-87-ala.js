@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 275,
     arabic: 'الْأَعْلَىٰ',
     translit: 'Al-Aʿlā',
     type: 'Adjective (superlative)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّسْبِيح', 'الْعُلُوّ'],
   },
   {
+    cid: 705,
     arabic: 'سَبِّحِ',
     translit: 'Sabbiḥ',
     type: 'Verb (command, masculine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَعْلَىٰ', 'التَّسْبِيح'],
   },
   {
+    cid: 641,
     arabic: 'خَلَقَ فَسَوَّىٰ',
     translit: 'Khalaqa Fasawwā',
     type: 'Verb + Verb (phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَلْق', 'التَّقْدِير'],
   },
   {
+    cid: 869,
     arabic: 'قَدَّرَ فَهَدَىٰ',
     translit: 'Qaddara Fahadā',
     type: 'Verb + Verb (phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقَدَر', 'الْهُدَىٰ'],
   },
   {
+    cid: 443,
     arabic: 'الْمَرْعَىٰ',
     translit: 'Al-Marʿā',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَرْض', 'الرِّزْق'],
   },
   {
+    cid: 817,
     arabic: 'غُثَاءً أَحْوَىٰ',
     translit: 'Ghuthā\'an Aḥwā',
     type: 'Noun + Adjective',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَرْعَىٰ', 'الْحَيَاة الدُّنْيَا'],
   },
   {
+    cid: 261,
     arabic: 'الْآخِرَةُ خَيْرٌ وَأَبْقَىٰ',
     translit: 'Al-Ākhiratu Khayrun Wa Abqā',
     type: 'Noun + Adjective (phrase)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 765,
     arabic: 'طه',
     translit: 'Ṭā Hā',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'نَبِيّ'],
   },
   {
+    cid: 992,
     arabic: 'مُوسَىٰ',
     translit: 'Mūsā',
     type: 'Proper Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هَارُون', 'فِرْعَوْن'],
   },
   {
+    cid: 860,
     arabic: 'فِرْعَوْنَ',
     translit: 'Fir\'awn',
     type: 'Proper Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'طُغْيَان'],
   },
   {
+    cid: 877,
     arabic: 'قَلْبِي',
     translit: 'Qalbī',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'هُدًى'],
   },
   {
+    cid: 178,
     arabic: 'السَّاعَةَ',
     translit: 'As-Sā\'ah',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'جَزَاء'],
   },
   {
+    cid: 148,
     arabic: 'الذِّكْرُ',
     translit: 'Adh-Dhikr',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذِكْر', 'قُرْآن'],
   },
   {
+    cid: 1101,
     arabic: 'يَخْشَىٰ',
     translit: 'Yakhshā',
     type: 'Verb',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَقْوَىٰ', 'إِيمَان'],
   },
   {
+    cid: 222,
     arabic: 'الطُّغْيَانِ',
     translit: 'Aṭ-Ṭughyān',
     type: 'Noun',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فِرْعَوْن', 'ظُلْم'],
   },
   {
+    cid: 430,
     arabic: 'الْكَلِمَاتِ',
     translit: 'Al-Kalimāt',
     type: 'Noun (plural)',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'وَحْي'],
   },
   {
+    cid: 198,
     arabic: 'الشِّرْكَ',
     translit: 'Ash-Shirk',
     type: 'Noun',

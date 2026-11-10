@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 434,
     arabic: 'الْكِتَابِ',
     translit: 'Al-Kitāb',
     type: 'Noun',
@@ -37,6 +38,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'آمَنَ'],
   },
   {
+    cid: 5,
     arabic: 'آمَنَ',
     translit: 'Āmana',
     type: 'Verb',
@@ -69,6 +71,7 @@ ALL_WORDS.push(
     relatedWords: ['رَسُول', 'اللَّهُ', 'الْكِتَابِ'],
   },
   {
+    cid: 680,
     arabic: 'رَسُول',
     translit: 'Rasūl',
     type: 'Noun',
@@ -100,6 +103,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آمَنَ', 'الْكِتَابِ', 'نَبِيّ'],
   },
   {
+    cid: 314,
     arabic: 'الْجَنَّةَ',
     translit: 'Al-Janna',
     type: 'Noun',
@@ -131,6 +135,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آمَنَ', 'النَّار'],
   },
   {
+    cid: 1150,
     arabic: 'يُرِيدُ',
     translit: 'Yurīdu',
     type: 'Verb',
@@ -161,6 +166,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَاءَ', 'قَدِيرٌ'],
   },
   {
+    cid: 238,
     arabic: 'النَّار',
     translit: 'An-Nār',
     type: 'Noun',
@@ -193,6 +199,7 @@ ALL_WORDS.push(
     relatedWords: ['الْجَنَّةَ', 'اللَّهُ', 'نُور'],
   },
   {
+    cid: 1055,
     arabic: 'هُدًى',
     translit: 'Hudan',
     type: 'Noun',
@@ -225,6 +232,7 @@ ALL_WORDS.push(
     relatedWords: ['الصِّرَاطَ', 'اللَّهُ', 'الْكِتَابِ'],
   },
   {
+    cid: 421,
     arabic: 'الْقُرْآنِ',
     translit: 'Al-Qur\'ān',
     type: 'Proper Noun',
@@ -257,6 +265,7 @@ ALL_WORDS.push(
     relatedWords: ['الْكِتَابِ', 'هُدًى', 'اللَّهُ'],
   },
   {
+    cid: 753,
     arabic: 'صَلَاة',
     translit: 'Salāh',
     type: 'Noun',
@@ -288,6 +297,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آمَنَ', 'رَبِّ'],
   },
   {
+    cid: 1018,
     arabic: 'نَبِيٍّ',
     translit: 'Nabiyy',
     type: 'Noun',

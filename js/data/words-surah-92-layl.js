@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 236,
     arabic: 'اللَّيْلِ',
     translit: 'Al-Layl',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّهَار', 'الزَّمَان'],
   },
   {
+    cid: 1128,
     arabic: 'يَغْشَىٰ',
     translit: 'Yaghshā',
     type: 'Verb (imperfect, masculine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'اللَّيْل', 'الظَّلَام'],
   },
   {
+    cid: 820,
     arabic: 'فَأَعْطَىٰ',
     translit: 'Faʿṭā',
     type: 'Verb (perfect, masculine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الزَّكَاة', 'الصَّدَقَة'],
   },
   {
+    cid: 524,
     arabic: 'بَخِلَ',
     translit: 'Bakhila',
     type: 'Verb (perfect, masculine singular)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبُخْل', 'الْبَخِيل'],
   },
   {
+    cid: 1152,
     arabic: 'يُسْرَىٰ',
     translit: 'Yusrā',
     type: 'Adjective (feminine, comparative)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْيُسْر', 'الْهُدَىٰ'],
   },
   {
+    cid: 806,
     arabic: 'عُسْرَىٰ',
     translit: 'ʿUsrā',
     type: 'Adjective (feminine, comparative)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعُسْر', 'الْعَذَاب'],
   },
   {
+    cid: 122,
     arabic: 'اسْتَغْنَىٰ',
     translit: 'Istaghnā',
     type: 'Verb (perfect, masculine singular)',

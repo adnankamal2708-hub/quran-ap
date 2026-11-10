@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 159,
     arabic: 'الرَّعْدُ',
     translit: 'Ar-Ra\'d',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَسْبِيح', 'سَمَاء'],
   },
   {
+    cid: 543,
     arabic: 'بِالْحَقِّ',
     translit: 'Bil-Ḥaqq',
     type: 'Noun (prepositional)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'كِتَاب', 'وَحْي'],
   },
   {
+    cid: 86,
     arabic: 'أَوْلِيَاءِ',
     translit: 'Awliyā\'i',
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَلِيّ', 'إِيمَان'],
   },
   {
+    cid: 226,
     arabic: 'الظُّلُمَاتُ',
     translit: 'Aẓ-Ẓulumāt',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نُور', 'هُدًى'],
   },
   {
+    cid: 332,
     arabic: 'الْحَقُّ',
     translit: 'Al-Ḥaqq',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'كِتَاب', 'عِلْم'],
   },
   {
+    cid: 168,
     arabic: 'الزَّبَدُ',
     translit: 'Az-Zabad',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَاء', 'سَيْل'],
   },
   {
+    cid: 183,
     arabic: 'السَّلَامُ',
     translit: 'As-Salām',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'صَبْر'],
   },
   {
+    cid: 1093,
     arabic: 'يَتَفَكَّرُونَ',
     translit: 'Yatafakkarūn',
     type: 'Verb (plural)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَقْل', 'آيَة'],
   },
   {
+    cid: 499,
     arabic: 'الْمِثْقَالَ',
     translit: 'Al-Mithqāl',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مِيزَان', 'عَدْل'],
   },
   {
+    cid: 277,
     arabic: 'الْأَلْبَابِ',
     translit: 'Al-Albāb',
     type: 'Noun (plural)',

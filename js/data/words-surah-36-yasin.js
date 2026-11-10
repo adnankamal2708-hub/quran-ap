@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1088,
     arabic:'يس',
     translit:'Yā Sīn',
     type:'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'رَسُول'],
   },
   {
+    cid: 335,
     arabic:'الْحَكِيمِ',
     translit:'Al-Ḥakīm',
     type:'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'حِكْمَة'],
   },
   {
+    cid: 1119,
     arabic:'يَسْعَوْنَ',
     translit:"Yas'awn",
     type:'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَعْي', 'عَمَل'],
   },
   {
+    cid: 611,
     arabic:'حَتَّىٰ',
     translit:'Ḥattā',
     type:'Particle',
@@ -127,6 +131,7 @@ ALL_WORDS.push(
     relatedWords: ['إِلَى', 'مِنْ', 'فِي'],
   },
   {
+    cid: 315,
     arabic:'الْجَنَّةُ',
     translit:'Al-Jannah',
     type:'Noun',
@@ -158,6 +163,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَعِيم', 'خَالِدُونَ'],
   },
   {
+    cid: 282,
     arabic:'الْأَنْهَارِ',
     translit:'Al-Anhār',
     type:'Noun (plural)',

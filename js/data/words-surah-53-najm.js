@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 244,
     arabic: 'النَّجْمِ',
     translit: 'An-Najm',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَمَاء', 'لَيْل'],
   },
   {
+    cid: 1050,
     arabic: 'هَوَىٰ',
     translit: 'Hawā',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَمَاء', 'فَلَك'],
   },
   {
+    cid: 732,
     arabic: 'سِدْرَةَ',
     translit: 'Sidrata',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'مِعْرَاج'],
   },
   {
+    cid: 495,
     arabic: 'الْمُنْتَهَىٰ',
     translit: 'Al-Muntahā',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سِدْرَة', 'عَرْش'],
   },
   {
+    cid: 230,
     arabic: 'اللَّاتَ',
     translit: 'Al-Lāt',
     type: 'Proper Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شِرْك', 'عِبَادَة'],
   },
   {
+    cid: 1064,
     arabic: 'وَالْعُزَّىٰ',
     translit: 'Wal-\'Uzzā',
     type: 'Proper Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شِرْك', 'آلِهَة'],
   },
   {
+    cid: 973,
     arabic: 'مَنَاةَ',
     translit: 'Manāt',
     type: 'Proper Noun',

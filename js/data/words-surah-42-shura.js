@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 777,
     arabic: 'عسق',
     translit: 'Ayn Sīn Qāf',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'وَحْي'],
   },
   {
+    cid: 747,
     arabic: 'شُورَىٰ',
     translit: 'Shūrā',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَمْر', 'جَمَاعَة'],
   },
   {
+    cid: 1151,
     arabic: 'يُرْسِلُ',
     translit: 'Yursilu',
     type: 'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِزْق', 'رَحْمَة'],
   },
   {
+    cid: 847,
     arabic: 'فَضْلِهِ',
     translit: 'Faḍlihī',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَة', 'رِزْق'],
   },
   {
+    cid: 1019,
     arabic: 'نَجَّاهُمْ',
     translit: 'Najjāhum',
     type: 'Verb',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَة', 'بَحْر'],
   },
   {
+    cid: 327,
     arabic: 'الْحَسَنَاتُ',
     translit: 'Al-Ḥasanāt',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ثَوَاب', 'جَنَّة'],
   },
   {
+    cid: 664,
     arabic: 'ذُنُوبَنَا',
     translit: 'Dhunūbanā',
     type: 'Noun (plural)',

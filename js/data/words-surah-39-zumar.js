@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 175,
     arabic:'الزُّمَرِ',
     translit:'Az-Zumar',
     type:'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَشْر', 'جَنَّة'],
   },
   {
+    cid: 440,
     arabic:'الْمَثَانِيَ',
     translit:'Al-Mathānī',
     type:'Noun (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'كِتَاب'],
   },
   {
+    cid: 982,
     arabic:'مُتَشَابِهًا',
     translit:'Mutashābihan',
     type:'Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'أَحْسَن'],
   },
   {
+    cid: 568,
     arabic:'تَقْشَعِرُّ',
     translit:"Taqsha'irru",
     type:'Verb',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'جِلْد'],
   },
   {
+    cid: 147,
     arabic:'الذِّكْرَىٰ',
     translit:'Adh-Dhikrā',
     type:'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذِكْر', 'هُدًى'],
   },
   {
+    cid: 617,
     arabic:'حَقَّ',
     translit:'Haqqa',
     type:'Adverb/Intensifier',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَقّ', 'عِبَادَة'],
   },
   {
+    cid: 233,
     arabic:'اللَّقَاءِ',
     translit:"Al-Liqā'",
     type:'Noun',

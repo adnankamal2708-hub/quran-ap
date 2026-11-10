@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 281,
     arabic: 'الْأَنْفَالِ',
     translit: 'Al-Anfāl',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قِتَال', 'جِهَاد'],
   },
   {
+    cid: 525,
     arabic: 'بَدْرٍ',
     translit: 'Badr',
     type: 'Proper Noun',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جِهَاد', 'نَصْر'],
   },
   {
+    cid: 945,
     arabic: 'لِلَّهِ',
     translit: 'Lillāh',
     type: 'Preposition + Noun',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'لِلَّهِ', 'لِلرَّسُولِ'],
   },
   {
+    cid: 584,
     arabic: 'ثَبِّتْ',
     translit: 'Thabbit',
     type: 'Verb (command)',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَبْر', 'جِهَاد'],
   },
   {
+    cid: 206,
     arabic: 'الصَّفَّ',
     translit: 'As-Saff',
     type: 'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قِتَال', 'جَمَاعَة'],
   },
   {
+    cid: 701,
     arabic: 'سَبِيلِ',
     translit: 'Sabīl',
     type: 'Noun',

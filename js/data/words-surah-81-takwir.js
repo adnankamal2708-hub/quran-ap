@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 908,
     arabic: 'كُوِّرَتْ',
     translit: 'Kuvvirat',
     type: 'Verb (passive, perfect, feminine singular)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['الشَّمْس', 'الْقِيَامَة', 'السَّاعَة'],
   },
   {
+    cid: 523,
     arabic: 'انْكَدَرَتْ',
     translit: 'Inkadarat',
     type: 'Verb (perfect, feminine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['النُّجُوم', 'السَّمَاء', 'الْقِيَامَة'],
   },
   {
+    cid: 807,
     arabic: 'عُطِّلَتْ',
     translit: 'Uṭṭilat',
     type: 'Verb (passive, perfect, feminine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['الْإِبِل', 'الْقِيَامَة', 'يَوْم الْقِيَامَة'],
   },
   {
+    cid: 311,
     arabic: 'الْجَحِيمِ',
     translit: 'Al-Jaḥīm',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَذَاب', 'الْجَزَاء'],
   },
   {
+    cid: 724,
     arabic: 'سُعِّرَتْ',
     translit: 'Suʿʿirat',
     type: 'Verb (passive, perfect, feminine singular)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['الْجَحِيم', 'النَّار', 'الْعَذَاب'],
   },
   {
+    cid: 944,
     arabic: 'لِلَّذِينَ يَشَاءُونَ',
     translit: 'Lilladhīna Yashā\'ūna',
     type: 'Preposition + Relative Pronoun + Verb',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'الْهُدَىٰ'],
   },
   {
+    cid: 946,
     arabic: 'لِلْعَالَمِينَ',
     translit: 'LilʿĀlamīn',
     type: 'Noun (plural, genitive)',

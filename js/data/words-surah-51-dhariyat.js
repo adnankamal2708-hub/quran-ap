@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 144,
     arabic: 'الذَّارِيَاتِ',
     translit: 'Adh-Dhāriyāt',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِيَاح', 'سَحَاب'],
   },
   {
+    cid: 323,
     arabic: 'الْحَاقِلَاتِ',
     translit: 'Al-Ḥāqilāt',
     type: 'Noun (plural)',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَاء', 'سَحَاب'],
   },
   {
+    cid: 307,
     arabic: 'الْجَارِيَاتِ',
     translit: 'Al-Jāriyāt',
     type: 'Noun (plural)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَحْر', 'سَفِينَة'],
   },
   {
+    cid: 859,
     arabic: 'فِرَارًا',
     translit: 'Firāran',
     type: 'Noun',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوْبَة', 'مَغْفِرَة'],
   },
   {
+    cid: 658,
     arabic: 'ذَرَأْنَا',
     translit: 'Dhara\'nā',
     type: 'Verb',
@@ -158,6 +163,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَلْق', 'عِبَادَة'],
   },
   {
+    cid: 950,
     arabic: 'لِيَعْبُدُونِ',
     translit: 'Liya\'budūn',
     type: 'Verb (plural)',

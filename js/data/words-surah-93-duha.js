@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 216,
     arabic: 'الضُّحَىٰ',
     translit: 'Aḍ-Ḍuḥā',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّهَار', 'النُّور'],
   },
   {
+    cid: 707,
     arabic: 'سَجَىٰ',
     translit: 'Sajā',
     type: 'Verb (perfect, masculine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'اللَّيْل', 'السُّكُون'],
   },
   {
+    cid: 953,
     arabic: 'مَا وَدَّعَكَ',
     translit: 'Mā Waddaʿaka',
     type: 'Negation + Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّسُول', 'الْوَحْي'],
   },
   {
+    cid: 1080,
     arabic: 'وَمَا قَلَىٰ',
     translit: 'Wa Mā Qalā',
     type: 'Negation + Verb',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّحْمَة', 'الْمَحَبَّة'],
   },
   {
+    cid: 1077,
     arabic: 'وَلَلْآخِرَةُ',
     translit: 'Walalākhiratu',
     type: 'Particle + Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجَنَّة', 'النَّعِيم'],
   },
   {
+    cid: 720,
     arabic: 'سَوْفَ يُعْطِيكَ',
     translit: 'Sawfa Yuʿṭīka',
     type: 'Future Particle + Verb',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَطَاء', 'الرِّضَا'],
   },
   {
+    cid: 838,
     arabic: 'فَتَرْضَىٰ',
     translit: 'Fatarḍā',
     type: 'Verb (imperfect, masculine singular)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 865,
     arabic: 'ق',
     translit: 'Qāf',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'مَجِيد'],
   },
   {
+    cid: 442,
     arabic: 'الْمَجِيدِ',
     translit: 'Al-Majīd',
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'عَظَمَة'],
   },
   {
+    cid: 682,
     arabic: 'رَقِيبٌ',
     translit: 'Raqīb',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'حِسَاب'],
   },
   {
+    cid: 787,
     arabic: 'عَتِيدٌ',
     translit: '\'Atīd',
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'كِتَاب'],
   },
   {
+    cid: 711,
     arabic: 'سَكْرَةُ',
     translit: 'Sakratu',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَوْت', 'يَوْمَ'],
   },
   {
+    cid: 954,
     arabic: 'مَا يَلْفِظُ',
     translit: 'Mā Yalfiẓu',
     type: 'Verb',

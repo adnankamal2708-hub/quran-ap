@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 280,
     arabic: 'الْأَنْعَامِ',
     translit: 'Al-An\'ām',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِزْق', 'خَلَقَ'],
   },
   {
+    cid: 11,
     arabic: 'آيَاتِنَا',
     translit: 'Āyātinā',
     type: 'Noun (plural, construct)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآنِ', 'آيَة'],
   },
   {
+    cid: 197,
     arabic: 'الشِّرْكَ',
     translit: 'Ash-Shirk',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوْحِيد', 'ظُلْم'],
   },
   {
+    cid: 987,
     arabic: 'مُعْرِضِينَ',
     translit: 'Mu\'riḍīn',
     type: 'Adjective (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آيَة', 'هُدًى'],
   },
   {
+    cid: 399,
     arabic: 'الْفَطْرَتِ',
     translit: 'Al-Fiṭrah',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَلَقَ', 'دِين'],
   },
   {
+    cid: 624,
     arabic: 'حَنِيفًا',
     translit: 'Hanīfan',
     type: 'Adjective',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'فِطْرَة'],
   },
   {
+    cid: 389,
     arabic: 'الْغَيْبُ',
     translit: 'Al-Ghayb',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَالَم', 'سِرّ'],
   },
   {
+    cid: 743,
     arabic: 'شَهِيدٌ',
     translit: 'Shahīd',
     type: 'Adjective/Noun',

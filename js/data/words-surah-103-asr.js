@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 372,
     arabic: 'الْعَصْرِ',
     translit: "Al-'Aṣr",
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'الْعُمُر'],
   },
   {
+    cid: 925,
     arabic: 'لَفِي خُسْرٍ',
     translit: 'Lafī Khusr',
     type: 'Preposition + Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِنْسَان', 'الْيَوْم الْآخِر'],
   },
   {
+    cid: 201,
     arabic: 'الصَّالِحَاتِ',
     translit: 'Aṣ-Ṣāliḥāt',
     type: 'Noun (plural, feminine, active participle)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِيمَان', 'الْجَنَّة'],
   },
   {
+    cid: 573,
     arabic: 'تَوَاصَوْا بِالْحَقِّ',
     translit: 'Tawāṣaw bil-Ḥaqqi',
     type: 'Verb + Preposition + Noun (phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَقّ', 'الْإِيمَان'],
   },
   {
+    cid: 572,
     arabic: 'تَوَاصَوْا بِالصَّبْرِ',
     translit: 'Tawāṣaw biṣ-Ṣabr',
     type: 'Verb + Preposition + Noun (phrase)',

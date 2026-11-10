@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 321,
     arabic: 'الْجِنِّ',
     translit: 'Al-Jinn',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِنْس', 'شَيْطَان'],
   },
   {
+    cid: 97,
     arabic: 'أُوحِيَ',
     translit: 'Ūḥiya',
     type: 'Verb (passive)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَحْي', 'نَبِيّ'],
   },
   {
+    cid: 123,
     arabic: 'اسْتَمَعَ',
     translit: "Istama'a",
     type: 'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'سَمْع'],
   },
   {
+    cid: 1029,
     arabic: 'نَفَرٌ',
     translit: 'Nafarun',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جِنّ', 'إِيمَان'],
   },
   {
+    cid: 685,
     arabic: 'رَّشَدًا',
     translit: 'Rashadan',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'قُرْآن'],
   },
   {
+    cid: 930,
     arabic: 'لَن نَّبْرَحَهُ',
     translit: 'Lan Nabraḥahu',
     type: 'Verb',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِبَادَة', 'تَوَكُّل'],
   },
   {
+    cid: 687,
     arabic: 'رَّهَقًا',
     translit: 'Rahaqan',
     type: 'Noun',

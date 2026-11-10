@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 410,
     arabic: 'الْقَدْرِ',
     translit: 'Al-Qadr',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'لَيْلَة الْقَدْر'],
   },
   {
+    cid: 75,
     arabic: 'أَنزَلْنَاهُ',
     translit: 'Anzalnāhu',
     type: 'Verb (perfect, plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'الْوَحْي'],
   },
   {
+    cid: 938,
     arabic: 'لَيْلَةِ الْقَدْرِ',
     translit: 'Laylati al-Qadr',
     type: 'Noun (phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَمَضَان', 'الْقُرْآن'],
   },
   {
+    cid: 645,
     arabic: 'خَيْرٌ مِّنْ أَلْفِ شَهْرٍ',
     translit: 'Khayrun Min Alfi Shahr',
     type: 'Adjective + Preposition + Noun (phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'الْعِبَادَة'],
   },
   {
+    cid: 571,
     arabic: 'تَنَزَّلُ',
     translit: 'Tanazzalu',
     type: 'Verb (imperfect, feminine)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَلَائِكَة', 'الرُّوح'],
   },
   {
+    cid: 713,
     arabic: 'سَلَامٌ',
     translit: 'Salām',
     type: 'Noun',

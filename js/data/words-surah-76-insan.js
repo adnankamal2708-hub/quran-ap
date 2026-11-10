@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 290,
     arabic: 'الْإِنسَانِ',
     translit: 'Al-Insān',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِنْسَان', 'خَلَقَ'],
   },
   {
+    cid: 654,
     arabic: 'دَهْرٍ',
     translit: 'Dahr',
     type: 'Noun',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِنْسَان', 'خَلْق'],
   },
   {
+    cid: 69,
     arabic: 'أَمْشَاجٍ',
     translit: 'Amshājin',
     type: 'Noun (plural)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِنْسَان', 'خَلَقَ'],
   },
   {
+    cid: 714,
     arabic: 'سَلْسَبِيلًا',
     translit: 'Salsabīlan',
     type: 'Noun',
@@ -127,6 +131,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'شَرَاب'],
   },
   {
+    cid: 783,
     arabic: 'عَالِيَهُمْ',
     translit: "'Āliyahum",
     type: 'Noun (adverbial)',
@@ -158,6 +163,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'ثَوَاب'],
   },
   {
+    cid: 727,
     arabic: 'سُندُسٍ',
     translit: 'Sundus',
     type: 'Noun',

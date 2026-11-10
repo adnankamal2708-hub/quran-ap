@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 885,
     arabic: 'قُلْ',
     translit: 'Qul',
     type: 'Verb (command)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['قَوْل', 'هُوَ', 'اللَّهُ'],
   },
   {
+    cid: 1059,
     arabic: 'هُوَ',
     translit: 'Huwa',
     type: 'Pronoun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَحَدٌ', 'الَّذِينَ'],
   },
   {
+    cid: 918,
     arabic: 'لَا',
     translit: 'Lā',
     type: 'Particle (negation)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['إِنَّ', 'إِلَٰهَ', 'اللَّهُ'],
   },
   {
+    cid: 241,
     arabic: 'النَّاسِ',
     translit: 'An-Nās',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['رَبِّ', 'اللَّهُ', 'بَشَر'],
   },
   {
+    cid: 113,
     arabic: 'إِنَّ',
     translit: 'Inna',
     type: 'Particle',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['لَا', 'اللَّهُ', 'غَفُورٌ'],
   },
   {
+    cid: 110,
     arabic: 'إِلَٰهَ',
     translit: 'Ilāha',
     type: 'Noun',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'لَا', 'نَعْبُدُ'],
   },
   {
+    cid: 26,
     arabic: 'أَحَدٌ',
     translit: 'Ahad',
     type: 'Name / Adjective',
@@ -220,6 +227,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُوَ', 'قُلْ', 'الصَّمَدُ'],
   },
   {
+    cid: 210,
     arabic: 'الصَّمَدُ',
     translit: 'As-Samad',
     type: 'Name / Adjective',

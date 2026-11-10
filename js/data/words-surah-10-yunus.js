@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1160,
     arabic: 'يُونُسَ',
     translit: 'Yūnus',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوْبَة', 'رَحْمَة'],
   },
   {
+    cid: 740,
     arabic: 'شَفَاعَةٍ',
     translit: 'Shafā\'ah',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِذْن', 'يَوْمَ'],
   },
   {
+    cid: 10,
     arabic: 'آيَاتِ',
     translit: 'Āyāt',
     type: 'Noun (plural, construct)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آيَة', 'سَمَاء'],
   },
   {
+    cid: 217,
     arabic: 'الضُّرِّ',
     translit: 'Ad-Durr',
     type: 'Noun',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دُعَاء', 'فَرَج'],
   },
   {
+    cid: 251,
     arabic: 'النَّفْعَ',
     translit: 'An-Naf\'\'',
     type: 'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قَدِيرٌ', 'شَيْءٍ'],
   },
   {
+    cid: 404,
     arabic: 'الْفُلْكِ',
     translit: 'Al-Fulk',
     type: 'Noun',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَحْر', 'آيَة'],
   },
   {
+    cid: 774,
     arabic: 'ظَنَّ',
     translit: 'Zanna',
     type: 'Verb',
@@ -221,6 +228,7 @@ ALL_WORDS.push(
     relatedWords: ['عِلْم', 'اللَّهُ', 'يَقِين'],
   },
   {
+    cid: 1133,
     arabic: 'يَقِينًا',
     translit: 'Yaqīnan',
     type: 'Noun (adverbial)',

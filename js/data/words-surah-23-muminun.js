@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 457,
     arabic:'الْمُؤْمِنُونَ',
     translit:"Al-Mu'minūn",
     type:'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'فَلَاح'],
   },
   {
+    cid: 56,
     arabic:'أَفْلَحَ',
     translit:'Aflaḥa',
     type:'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فَلَاح', 'جَنَّة'],
   },
   {
+    cid: 632,
     arabic:'خَاشِعُونَ',
     translit:"Khāshi'ūn",
     type:'Adjective (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'خُشُوع'],
   },
   {
+    cid: 232,
     arabic:'اللَّغْوِ',
     translit:'Al-Laghw',
     type:'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صِدْق', 'قَوْل'],
   },
   {
+    cid: 864,
     arabic:'فِي',
     translit:'Fī',
     type:'Particle (preposition)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['مِنْ', 'إِلَى', 'عَلَى'],
   },
   {
+    cid: 500,
     arabic:'الْمِيزَانُ',
     translit:'Al-Mīzān',
     type:'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَدْل', 'حِسَاب'],
   },
   {
+    cid: 211,
     arabic:'الصُّورِ',
     translit:'Aṣ-Ṣūr',
     type:'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قِيَامَة', 'بَعْث'],
   },
   {
+    cid: 600,
     arabic:'جَنَّةِ',
     translit:'Jannah',
     type:'Noun',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فَلَاح', 'خَالِدُونَ'],
   },
   {
+    cid: 278,
     arabic:'الْأَمَانَةِ',
     translit:'Al-Amānah',
     type:'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَهْد', 'صِدْق'],
   },
   {
+    cid: 172,
     arabic:'الزَّكَاةِ',
     translit:'Az-Zakāh',
     type:'Noun',

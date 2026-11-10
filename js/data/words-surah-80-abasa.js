@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 786,
     arabic: 'عَبَسَ',
     translit: "'Abasa",
     type: 'Verb',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'أَعْمَىٰ'],
   },
   {
+    cid: 575,
     arabic: 'تَوَلَّىٰ',
     translit: 'Tawallā',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'إِعْرَاض'],
   },
   {
+    cid: 276,
     arabic: 'الْأَعْمَىٰ',
     translit: "Al-A'mā",
     type: 'Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'إِيمَان'],
   },
   {
+    cid: 1112,
     arabic: 'يَزَّكَّىٰ',
     translit: 'Yazzakkā',
     type: 'Verb',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'طَهَارَة', 'إِيمَان'],
   },
   {
+    cid: 1107,
     arabic: 'يَذَّكَّرُ',
     translit: 'Yadhdhakkaru',
     type: 'Verb',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذِكْر', 'هُدًى'],
   },
   {
+    cid: 757,
     arabic: 'صُحُفٍ',
     translit: 'Ṣuḥuf',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'كِتَاب'],
   },
   {
+    cid: 1000,
     arabic: 'مُّكَرَّمَةٍ',
     translit: 'Mukarramah',
     type: 'Adjective',

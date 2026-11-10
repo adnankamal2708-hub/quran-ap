@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 492,
     arabic: 'الْمُنَافِقُونَ',
     translit: 'Al-Munāfiqūn',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نِفَاق', 'كَذِب'],
   },
   {
+    cid: 734,
     arabic: 'شَاهِدِينَ',
     translit: 'Shāhidīn',
     type: 'Noun (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَهَادَة', 'حَقّ'],
   },
   {
+    cid: 179,
     arabic: 'السَّاعَةُ',
     translit: "As-Sā'ah",
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'حِسَاب'],
   },
   {
+    cid: 915,
     arabic: 'لَا تُلْهِكُمْ',
     translit: 'Lā Tulhikum',
     type: 'Verb (prohibition)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَال', 'وَلَد'],
   },
   {
+    cid: 351,
     arabic: 'الْخَاسِرُونَ',
     translit: 'Al-Khāsirūn',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خُسْرَان', 'آخِرَة'],
   },
   {
+    cid: 248,
     arabic: 'النَّفَقَةَ',
     translit: 'An-Nafaqah',
     type: 'Noun',

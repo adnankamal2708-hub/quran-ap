@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 435,
     arabic: 'الْمَائِدَةِ',
     translit: 'Al-Mā\'idah',
     type: 'Noun',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['عِيسَى', 'اللَّهُ', 'آيَة'],
   },
   {
+    cid: 84,
     arabic: 'أَوْفُوا',
     translit: 'Awfū',
     type: 'Verb (command)',
@@ -66,6 +68,7 @@ ALL_WORDS.push(
     relatedWords: ['عَقْد', 'اللَّهُ', 'عَهْد'],
   },
   {
+    cid: 340,
     arabic: 'الْحَوَارِيُّونَ',
     translit: 'Al-Hawāriyyūn',
     type: 'Noun (plural)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['عِيسَى', 'اللَّهُ', 'آمَنَ'],
   },
   {
+    cid: 423,
     arabic: 'الْقِصَاصُ',
     translit: 'Al-Qisās',
     type: 'Noun',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَدْلٍ', 'حَقّ'],
   },
   {
+    cid: 336,
     arabic: 'الْحَلَالُ',
     translit: 'Al-Halāl',
     type: 'Noun/Adjective',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَرَام', 'طَيِّب'],
   },
   {
+    cid: 326,
     arabic: 'الْحَرَامُ',
     translit: 'Al-Harām',
     type: 'Noun/Adjective',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَلَال', 'دِين'],
   },
   {
+    cid: 245,
     arabic: 'النَّجْوَىٰ',
     translit: 'An-Najwā',
     type: 'Noun',
@@ -221,6 +228,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَيْطَان', 'سِرّ'],
   },
   {
+    cid: 454,
     arabic: 'الْمَيْتَةُ',
     translit: 'Al-Maytah',
     type: 'Noun',

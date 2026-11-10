@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 325,
     arabic: 'الْحَدِيدِ',
     translit: 'Al-Ḥadīd',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَأْس', 'قُوَّة'],
   },
   {
+    cid: 291,
     arabic: 'الْبَأْسُ',
     translit: 'Al-Ba\'su',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَدِيد', 'جِهَاد'],
   },
   {
+    cid: 704,
     arabic: 'سَبِّحَ',
     translit: 'Sabbiḥa',
     type: 'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَسْبِيح', 'حَمْد'],
   },
   {
+    cid: 912,
     arabic: 'لَا إِكْرَاهَ',
     translit: 'Lā Ikrāha',
     type: 'Particle + Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'هُدًى'],
   },
   {
+    cid: 683,
     arabic: 'رَهْبَانِيَّةً',
     translit: 'Rahbāniyyah',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دِين', 'عِبَادَة'],
   },
   {
+    cid: 997,
     arabic: 'مُّسْتَخْلَفِينَ',
     translit: 'Mustakhlafīn',
     type: 'Noun (plural)',

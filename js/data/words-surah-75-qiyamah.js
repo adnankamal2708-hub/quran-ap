@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 424,
     arabic: 'الْقِيَامَةِ',
     translit: 'Al-Qiyāmah',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'بَعْث'],
   },
   {
+    cid: 94,
     arabic: 'أُقْسِمُ',
     translit: 'Uqsimu',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَمِين', 'قَسَم'],
   },
   {
+    cid: 250,
     arabic: 'النَّفْسَ',
     translit: 'An-Nafs',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رُوح', 'قَلْب'],
   },
   {
+    cid: 235,
     arabic: 'اللَّوَّامَةِ',
     translit: 'Al-Lawwāmah',
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَفْس', 'تَوْبَة'],
   },
   {
+    cid: 529,
     arabic: 'بَصَرُهُ',
     translit: 'Baṣaruh',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'عَيْن'],
   },
   {
+    cid: 526,
     arabic: 'بَرِقَ',
     translit: 'Bariqa',
     type: 'Verb',

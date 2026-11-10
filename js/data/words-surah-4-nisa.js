@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1040,
     arabic: 'نِسَاءَ',
     translit: 'Nisā\'',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَفْس', 'رَجُل'],
   },
   {
+    cid: 515,
     arabic: 'الْيَتَامَى',
     translit: 'Al-Yatāmā',
     type: 'Noun (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَال', 'صَدَقَة'],
   },
   {
+    cid: 789,
     arabic: 'عَدْلٍ',
     translit: '\'Adl',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَقّ', 'الْعَدْلُ'],
   },
   {
+    cid: 224,
     arabic: 'الظَّالِمِينَ',
     translit: 'Az-Zālimīn',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['عَدْلٍ', 'اللَّهُ', 'حَقّ'],
   },
   {
+    cid: 493,
     arabic: 'الْمُنَافِقِينَ',
     translit: 'Al-Munāfiqīn',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['إِيمَان', 'اللَّهُ', 'نِفَاق'],
   },
   {
+    cid: 66,
     arabic: 'أَمَانَاتِ',
     translit: 'Amānāt',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَدْلٍ', 'إِيمَان'],
   },
   {
+    cid: 357,
     arabic: 'الْخَمْرِ',
     translit: 'Al-Khamr',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَيْطَان', 'مَيْسِر'],
   },
   {
+    cid: 209,
     arabic: 'الصَّلَوَاتِ',
     translit: 'As-Salawāt',
     type: 'Noun (plural)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'ذِكْر'],
   },
   {
+    cid: 1008,
     arabic: 'مِيثَاقَ',
     translit: 'Mīthāq',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَهْد', 'إِيمَان'],
   },
   {
+    cid: 268,
     arabic: 'الْأَرْحَامِ',
     translit: 'Al-Arhām',
     type: 'Noun (plural)',

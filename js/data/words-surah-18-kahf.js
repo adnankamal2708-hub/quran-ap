@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 431,
     arabic: 'الْكَهْفِ',
     translit: 'Al-Kahf',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فِتْنَة', 'إِيمَان'],
   },
   {
+    cid: 405,
     arabic: 'الْفِتْنَةِ',
     translit: 'Al-Fitnah',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَبْر', 'إِيمَان'],
   },
   {
+    cid: 398,
     arabic: 'الْفَرَجَ',
     translit: 'Al-Faraj',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَة', 'يُسْر'],
   },
   {
+    cid: 384,
     arabic: 'الْغَافِلِينَ',
     translit: 'Al-Ghāfilīn',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذِكْر', 'غَفْلَة'],
   },
   {
+    cid: 361,
     arabic: 'الْخُسْرِ',
     translit: 'Al-Khusr',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَعْمَال', 'حَسْرَة'],
   },
   {
+    cid: 342,
     arabic: 'الْحَيَاةِ',
     translit: 'Al-Ḥayāh',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَوْت', 'آخِرَة'],
   },
   {
+    cid: 161,
     arabic: 'الرَّقِيمِ',
     translit: 'Ar-Raqīm',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'كَهْف', 'فِتْنَة'],
   },
   {
+    cid: 43,
     arabic: 'أَصْحَابَ',
     translit: 'Aṣḥāba',
     type: 'Noun (plural)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَاحِب', 'إِيمَان'],
   },
   {
+    cid: 475,
     arabic: 'الْمُسْتَقِيمَ',
     translit: 'Al-Mustaqīm',
     type: 'Adjective',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'صِرَاط'],
   },
   {
+    cid: 656,
     arabic: 'ذَا',
     translit: 'Dhā',
     type: 'Pronoun',

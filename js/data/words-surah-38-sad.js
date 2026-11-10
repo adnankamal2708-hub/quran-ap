@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 749,
     arabic:'ص',
     translit:'Ṣād',
     type:'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'ذِكْر'],
   },
   {
+    cid: 670,
     arabic:'ذِي',
     translit:'Dhī',
     type:'Pronoun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'ذِكْر'],
   },
   {
+    cid: 80,
     arabic:'أَوَّابٌ',
     translit:'Awwāb',
     type:'Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوْبَة', 'إِنَابَة'],
   },
   {
+    cid: 639,
     arabic:'خَصْمَ',
     translit:'Khaṣm',
     type:'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حُكْم', 'دَاوُود'],
   },
   {
+    cid: 1041,
     arabic:'نِعْمَ',
     translit:"Ni'ma",
     type:'Verb',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'عَبْد'],
   },
   {
+    cid: 284,
     arabic:'الْأَيْدِ',
     translit:'Al-Ayd',
     type:'Noun',

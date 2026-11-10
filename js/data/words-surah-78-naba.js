@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 243,
     arabic: 'النَّبَإِ',
     translit: "An-Naba'",
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَبَر', 'يَوْمَ'],
   },
   {
+    cid: 374,
     arabic: 'الْعَظِيمِ',
     translit: "Al-'Aẓīm",
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبَأ', 'يَوْمَ'],
   },
   {
+    cid: 1007,
     arabic: 'مِهَادًا',
     translit: 'Mihādan',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَرْض', 'خَلْق'],
   },
   {
+    cid: 83,
     arabic: 'أَوْتَادًا',
     translit: 'Awtādan',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَبَل', 'أَرْض'],
   },
   {
+    cid: 693,
     arabic: 'زَوْجَيْنِ',
     translit: 'Zawjayn',
     type: 'Noun (dual)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَلْق', 'زَوَاج'],
   },
   {
+    cid: 709,
     arabic: 'سَرَابًا',
     translit: 'Sarāban',
     type: 'Noun',

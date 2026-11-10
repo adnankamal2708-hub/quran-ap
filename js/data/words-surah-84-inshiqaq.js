@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 521,
     arabic: 'انْشَقَّتْ',
     translit: 'Inshaqqat',
     type: 'Verb (perfect, feminine singular)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['السَّمَاء', 'رَبُّهَا', 'الْقِيَامَة'],
   },
   {
+    cid: 637,
     arabic: 'خَسَفَتْ',
     translit: 'Khasafat',
     type: 'Verb (perfect, feminine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['الْأَرْض', 'الْقِيَامَة', 'الْخَلْق'],
   },
   {
+    cid: 64,
     arabic: 'أَلْقَتْ',
     translit: 'Alqat',
     type: 'Verb (perfect, feminine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['الْأَرْض', 'الْمَوْتَىٰ', 'الْقِيَامَة'],
   },
   {
+    cid: 556,
     arabic: 'تَخَلَّتْ',
     translit: 'Takhalat',
     type: 'Verb (perfect, feminine singular)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['الْأَرْض', 'الْمَوْتَىٰ', 'الْبَعْث'],
   },
   {
+    cid: 607,
     arabic: 'حَاسِبًا',
     translit: 'Ḥāsiban',
     type: 'Noun (active participle)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحِسَاب', 'الْجَزَاء'],
   },
   {
+    cid: 1114,
     arabic: 'يَسِيرًا',
     translit: 'Yasīran',
     type: 'Adjective',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحِسَاب', 'الرَّحْمَة'],
   },
   {
+    cid: 773,
     arabic: 'ظَنَّ أَن لَّن يَحُورَ',
     translit: 'Ẓanna an lan yaḥūra',
     type: 'Verb + Particle + Verb',

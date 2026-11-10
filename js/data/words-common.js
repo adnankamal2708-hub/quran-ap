@@ -6,6 +6,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 746,
     arabic: 'شُكْر',
     translit: 'Shukr',
     type: 'Noun',
@@ -37,6 +38,7 @@ ALL_WORDS.push(
     relatedWords: ['الْحَمْدُ', 'اللَّهُ', 'صَبْر'],
   },
   {
+    cid: 1005,
     arabic: 'مِنْ',
     translit: 'Min',
     type: 'Particle (preposition)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['إِلَى', 'عَلَى', 'فِي'],
   },
   {
+    cid: 107,
     arabic: 'إِلَى',
     translit: 'Ilā',
     type: 'Particle (preposition)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['مِنْ', 'عَلَى', 'فِي'],
   },
   {
+    cid: 796,
     arabic: 'عَلَى',
     translit: "'Alā",
     type: 'Particle (preposition)',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['مِنْ', 'إِلَى', 'فِي'],
   },
   {
+    cid: 864,
     arabic: 'فِي',
     translit: 'Fī',
     type: 'Particle (preposition)',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['مِنْ', 'إِلَى', 'عَلَى'],
   },
   {
+    cid: 955,
     arabic: 'مَا',
     translit: 'Mā',
     type: 'Particle',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['لَا', 'مِنْ', 'فِي'],
   },
   {
+    cid: 975,
     arabic: 'مَنْ',
     translit: 'Man',
     type: 'Particle (relative/interrogative)',
@@ -219,6 +226,7 @@ ALL_WORDS.push(
     relatedWords: ['الَّذِينَ', 'مَا', 'هُوَ'],
   },
   {
+    cid: 888,
     arabic: 'كَانَ',
     translit: 'Kāna',
     type: 'Verb',
@@ -251,6 +259,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَيْءٍ', 'يَكُون'],
   },
   {
+    cid: 798,
     arabic: 'عَلِمَ',
     translit: "'Alima",
     type: 'Verb',
@@ -283,6 +292,7 @@ ALL_WORDS.push(
     relatedWords: ['عَلِيمٌ', 'الْعَالَمِينَ', 'اللَّهُ'],
   },
   {
+    cid: 867,
     arabic: 'قَالَ',
     translit: 'Qāla',
     type: 'Verb',
@@ -314,6 +324,7 @@ ALL_WORDS.push(
     relatedWords: ['قُلْ', 'قَوْل', 'اللَّهُ'],
   },
   {
+    cid: 850,
     arabic: 'فَعَلَ',
     translit: "Fa'ala",
     type: 'Verb',
@@ -353,6 +364,7 @@ ALL_WORDS.push(
   //
   // Content words (12)
   {
+    cid: 269,
     arabic: 'الْأَرْض',
     translit: 'Al-Arḍ',
     type: 'Noun',
@@ -384,6 +396,7 @@ ALL_WORDS.push(
     relatedWords: ['السَّمَاوَات', 'الْخَلْق', 'اللَّهُ'],
   },
   {
+    cid: 185,
     arabic: 'السَّمَاوَات',
     translit: 'As-Samāwāt',
     type: 'Noun',
@@ -415,6 +428,7 @@ ALL_WORDS.push(
     relatedWords: ['الْأَرْض', 'السَّمَاء', 'اللَّهُ'],
   },
   {
+    cid: 791,
     arabic: 'عَذَاب',
     translit: 'ʿAdhāb',
     type: 'Noun',
@@ -446,6 +460,7 @@ ALL_WORDS.push(
     relatedWords: ['النَّار', 'الْجَهَنَّم', 'اللَّهُ'],
   },
   {
+    cid: 141,
     arabic: 'الدُّنْيَا',
     translit: 'Ad-Dunyā',
     type: 'Noun',
@@ -477,6 +492,7 @@ ALL_WORDS.push(
     relatedWords: ['الْآخِرَة', 'الْمَوْت', 'اللَّهُ'],
   },
   {
+    cid: 184,
     arabic: 'السَّمَاء',
     translit: 'As-Samāʾ',
     type: 'Noun',
@@ -507,6 +523,7 @@ ALL_WORDS.push(
     relatedWords: ['السَّمَاوَات', 'الْأَرْض', 'اللَّهُ'],
   },
   {
+    cid: 899,
     arabic: 'كَفَرُوا',
     translit: 'Kafarū',
     type: 'Verb (perfect, plural)',
@@ -538,6 +555,7 @@ ALL_WORDS.push(
     relatedWords: ['الْكَافِرُونَ', 'الْإِيمَان', 'اللَّهُ'],
   },
   {
+    cid: 1123,
     arabic: 'يَشَاء',
     translit: 'Yashāʾ',
     type: 'Verb (imperfect)',
@@ -569,6 +587,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَشِيئَة', 'الْقَدَر'],
   },
   {
+    cid: 74,
     arabic: 'أَنزَلَ',
     translit: 'Anzala',
     type: 'Verb (perfect)',
@@ -600,6 +619,7 @@ ALL_WORDS.push(
     relatedWords: ['الْقُرْآن', 'الْوَحْي', 'اللَّهُ'],
   },
   {
+    cid: 1052,
     arabic: 'هَٰذَا',
     translit: 'Hādhā',
     type: 'Demonstrative Pronoun',
@@ -630,6 +650,7 @@ ALL_WORDS.push(
     relatedWords: ['ذَٰلِكَ', 'هَٰذِهِ', 'الَّذِي'],
   },
   {
+    cid: 662,
     arabic: 'ذَٰلِكَ',
     translit: 'Dhālika',
     type: 'Demonstrative Pronoun',
@@ -660,6 +681,7 @@ ALL_WORDS.push(
     relatedWords: ['هَٰذَا', 'الَّذِي', 'الْقُرْآن'],
   },
   {
+    cid: 259,
     arabic: 'الَّذِي',
     translit: 'Alladhī',
     type: 'Relative Pronoun',
@@ -690,6 +712,7 @@ ALL_WORDS.push(
     relatedWords: ['الَّذِينَ', 'مَنْ', 'هَٰذَا'],
   },
   {
+    cid: 98,
     arabic: 'أُولَٰئِكَ',
     translit: 'Ulāʾika',
     type: 'Demonstrative Pronoun',
@@ -722,6 +745,7 @@ ALL_WORDS.push(
   // Standalone function / grammatical words (17) — clitic-combined and
   // pronoun-suffixed forms are intentionally NOT added (compositional).
   {
+    cid: 108,
     arabic: 'إِلَّا',
     translit: 'Illā',
     type: 'Particle (restriction)',
@@ -751,6 +775,7 @@ ALL_WORDS.push(
     relatedWords: ['لَا', 'مَا', 'اللَّهُ'],
   },
   {
+    cid: 589,
     arabic: 'ثُمَّ',
     translit: 'Thumma',
     type: 'Conjunction',
@@ -778,6 +803,7 @@ ALL_WORDS.push(
     relatedWords: ['بَعْدَ', 'قَبْلُ', 'إِذَا'],
   },
   {
+    cid: 82,
     arabic: 'أَوْ',
     translit: 'Aw',
     type: 'Conjunction',
@@ -805,6 +831,7 @@ ALL_WORDS.push(
     relatedWords: ['أَمْ', 'لَا', 'بَلْ'],
   },
   {
+    cid: 1057,
     arabic: 'هُمْ',
     translit: 'Hum',
     type: 'Personal Pronoun',
@@ -836,6 +863,7 @@ ALL_WORDS.push(
     relatedWords: ['الَّذِينَ', 'لَهُمْ', 'أُولَٰئِكَ'],
   },
   {
+    cid: 907,
     arabic: 'كُلِّ',
     translit: 'Kull',
     type: 'Quantifier',
@@ -867,6 +895,7 @@ ALL_WORDS.push(
     relatedWords: ['شَيْء', 'جَمِيع', 'اللَّهُ'],
   },
   {
+    cid: 800,
     arabic: 'عَنْ',
     translit: 'ʿAn',
     type: 'Particle (preposition)',
@@ -898,6 +927,7 @@ ALL_WORDS.push(
     relatedWords: ['مِنْ', 'إِلَى', 'عَلَى'],
   },
   {
+    cid: 104,
     arabic: 'إِذَا',
     translit: 'Idhā',
     type: 'Particle (conditional/temporal)',
@@ -925,6 +955,7 @@ ALL_WORDS.push(
     relatedWords: ['إِذْ', 'حِينَ', 'ثُمَّ'],
   },
   {
+    cid: 929,
     arabic: 'لَمْ',
     translit: 'Lam',
     type: 'Particle (negation)',
@@ -952,6 +983,7 @@ ALL_WORDS.push(
     relatedWords: ['لَا', 'مَا', 'قَدْ'],
   },
   {
+    cid: 105,
     arabic: 'إِذْ',
     translit: 'Idh',
     type: 'Particle (temporal)',
@@ -979,6 +1011,7 @@ ALL_WORDS.push(
     relatedWords: ['إِذَا', 'حِينَ', 'يَوْمَ'],
   },
   {
+    cid: 532,
     arabic: 'بَعْدَ',
     translit: 'Baʿda',
     type: 'Particle (preposition/adverb)',
@@ -1010,6 +1043,7 @@ ALL_WORDS.push(
     relatedWords: ['قَبْلُ', 'ثُمَّ', 'بَيْنَ'],
   },
   {
+    cid: 115,
     arabic: 'إِنَّمَا',
     translit: 'Innamā',
     type: 'Particle (restriction)',
@@ -1037,6 +1071,7 @@ ALL_WORDS.push(
     relatedWords: ['إِنَّ', 'إِلَّا', 'مَا'],
   },
   {
+    cid: 68,
     arabic: 'أَمْ',
     translit: 'Am',
     type: 'Particle (disjunctive/interrogative)',
@@ -1064,6 +1099,7 @@ ALL_WORDS.push(
     relatedWords: ['أَوْ', 'بَلْ', 'هَلْ'],
   },
   {
+    cid: 536,
     arabic: 'بَلْ',
     translit: 'Bal',
     type: 'Particle (disjunctive)',
@@ -1091,6 +1127,7 @@ ALL_WORDS.push(
     relatedWords: ['أَمْ', 'لَا', 'اللَّهُ'],
   },
   {
+    cid: 872,
     arabic: 'قَدْ',
     translit: 'Qad',
     type: 'Particle (emphasis)',
@@ -1118,6 +1155,7 @@ ALL_WORDS.push(
     relatedWords: ['لَقَدْ', 'إِنَّ', 'سَوْفَ'],
   },
   {
+    cid: 810,
     arabic: 'عِنْدَ',
     translit: 'ʿInda',
     type: 'Particle (preposition/adverb)',
@@ -1149,6 +1187,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'لَدَى', 'بَيْنَ'],
   },
   {
+    cid: 868,
     arabic: 'قَبْلُ',
     translit: 'Qablu',
     type: 'Particle (adverb)',
@@ -1180,6 +1219,7 @@ ALL_WORDS.push(
     relatedWords: ['بَعْدَ', 'ثُمَّ', 'الْآنَ'],
   },
   {
+    cid: 1091,
     arabic: 'يَاأَيُّهَا',
     translit: 'Yā Ayyuhā',
     type: 'Exclamation (vocative)',

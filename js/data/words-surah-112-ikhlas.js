@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 884,
     arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ',
     translit: 'Qul Huwa Allāhu Aḥad',
     type: 'Verb + Pronoun + Noun + Adjective (phrase)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّوْحِيد', 'الْإِخْلَاص'],
   },
   {
+    cid: 210,
     arabic: 'الصَّمَدُ',
     translit: 'Aṣ-Ṣamad',
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّوْحِيد', 'الْأَسْمَاء الْحُسْنَىٰ'],
   },
   {
+    cid: 928,
     arabic: 'لَمْ يَلِدْ',
     translit: 'Lam Yalid',
     type: 'Negative particle + Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّوْحِيد', 'الْعَقِيدَة'],
   },
   {
+    cid: 906,
     arabic: 'كُفُوًا',
     translit: 'Kufuwan',
     type: 'Noun (accusative)',

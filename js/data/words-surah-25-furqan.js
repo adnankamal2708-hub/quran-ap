@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 403,
     arabic:'الْفُرْقَانَ',
     translit:'Al-Furqān',
     type:'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'نَذِير'],
   },
   {
+    cid: 380,
     arabic:'الْعِبَادِ',
     translit:"Al-'Ibād",
     type:'Noun (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَٰن', 'عِبَادَة'],
   },
   {
+    cid: 1051,
     arabic:'هَوْنًا',
     translit:'Hawnan',
     type:'Adverb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَٰن', 'تَوَاضُع'],
   },
   {
+    cid: 309,
     arabic:'الْجَاهِلِينَ',
     translit:'Al-Jāhilīn',
     type:'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِلْم', 'حِلْم'],
   },
   {
+    cid: 712,
     arabic:'سَلَامًا',
     translit:'Salāman',
     type:'Noun (adverbial)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَلَام', 'إِسْلَام'],
   },
   {
+    cid: 426,
     arabic:'الْكَبَائِرَ',
     translit:"Al-Kabā'ir",
     type:'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوْبَة', 'غَفُور'],
   },
   {
+    cid: 63,
     arabic:'أَلِيمٌ',
     translit:'Alīm',
     type:'Adjective',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَذَاب', 'جَهَنَّم'],
   },
   {
+    cid: 386,
     arabic:'الْغَرَامِ',
     translit:'Al-Gharām',
     type:'Noun',

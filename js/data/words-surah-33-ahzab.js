@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 265,
     arabic:'الْأَحْزَابِ',
     translit:'Al-Aḥzāb',
     type:'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَنْدَق', 'نَصْر'],
   },
   {
+    cid: 1143,
     arabic:'يُؤْذُونَ',
     translit:"Yu'dhūn",
     type:'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَذًى', 'رَسُول'],
   },
   {
+    cid: 183,
     arabic:'السَّلَامُ',
     translit:'As-Salām',
     type:'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'تَحِيَّة'],
   },
   {
+    cid: 359,
     arabic:'الْخَوْفِ',
     translit:'Al-Khawf',
     type:'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَصْر', 'قَلْب'],
   },
   {
+    cid: 162,
     arabic:'الرُّعْبَ',
     translit:"Ar-Ru'b",
     type:'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَوْف', 'نَصْر'],
   },
   {
+    cid: 229,
     arabic:'الظِّهَارِ',
     translit:'Aẓ-Ẓihār',
     type:'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نِكَاح', 'طَلَاق'],
   },
   {
+    cid: 362,
     arabic:'الْخِتَانِ',
     translit:'Al-Khitān',
     type:'Noun',

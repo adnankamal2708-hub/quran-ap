@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 606,
     arabic: 'حم',
     translit: 'Ḥā Mīm',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'وَحْي'],
   },
   {
+    cid: 857,
     arabic: 'فُصِّلَتْ',
     translit: 'Fuṣṣilat',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'آيَات'],
   },
   {
+    cid: 53,
     arabic: 'أَعْرَاضَ',
     translit: 'A\'rāḍ',
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'شَهَادَة'],
   },
   {
+    cid: 1115,
     arabic: 'يَسْجُدَانِ',
     translit: 'Yasjudāni',
     type: 'Verb (dual)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'خَلْق', 'عِبَادَة'],
   },
   {
+    cid: 717,
     arabic: 'سَمْعُهُمْ',
     translit: 'Sam\'uhum',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَصَر', 'جَسَد'],
   },
   {
+    cid: 474,
     arabic: 'الْمُسْتَغْفِرِينَ',
     translit: 'Al-Mustaghfirīn',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَغْفِرَة', 'تَوْبَة'],
   },
   {
+    cid: 169,
     arabic: 'الزَّبُرِ',
     translit: 'Az-Zubur',
     type: 'Noun (plural)',

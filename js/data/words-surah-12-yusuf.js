@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1158,
     arabic: 'يُوسُفُ',
     translit: 'Yūsuf',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَعْقُوب', 'أَبَى'],
   },
   {
+    cid: 138,
     arabic: 'الدَّلْوِ',
     translit: 'Ad-Dalw',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['بِئْر', 'مَاء', 'سَيَّارَة'],
   },
   {
+    cid: 188,
     arabic: 'السِّجْنِ',
     translit: 'As-Sijn',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَبْر', 'فِرْعَوْن'],
   },
   {
+    cid: 671,
     arabic: 'رَأَىٰ',
     translit: 'Ra\'ā',
     type: 'Verb',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['رُؤْيَا', 'اللَّهُ', 'حُلْم'],
   },
   {
+    cid: 392,
     arabic: 'الْغِلَامِ',
     translit: 'Al-Ghilām',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يُوسُف', 'أَخ'],
   },
   {
+    cid: 451,
     arabic: 'الْمَلِكِ',
     translit: 'Al-Malik',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رُؤْيَا', 'مُلْك'],
   },
   {
+    cid: 253,
     arabic: 'النَّهْرِ',
     translit: 'An-Nahr',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَاء', 'جَنَّة'],
   },
   {
+    cid: 1127,
     arabic: 'يَعْقُوبَ',
     translit: 'Ya\'qūb',
     type: 'Proper Noun',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يُوسُف', 'نَبِيّ'],
   },
   {
+    cid: 371,
     arabic: 'الْعَزِيزِ',
     translit: 'Al-\'Azīz',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِزَّة', 'قُوَّة'],
   },
   {
+    cid: 212,
     arabic: 'الصِّدِّيقِينَ',
     translit: 'Aṣ-Ṣiddīqīn',
     type: 'Noun (plural)',

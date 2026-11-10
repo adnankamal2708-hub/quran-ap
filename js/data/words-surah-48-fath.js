@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 839,
     arabic: 'فَتْحًا',
     translit: 'Fatḥan',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَصْر', 'مَكَّة'],
   },
   {
+    cid: 181,
     arabic: 'السَّكِينَةَ',
     translit: 'As-Sakīnah',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'قَلْب'],
   },
   {
+    cid: 994,
     arabic: 'مُّبِينًا',
     translit: 'Mubīnan',
     type: 'Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فَتْح', 'نَصْر'],
   },
   {
+    cid: 949,
     arabic: 'لِيَزْدَادُوا',
     translit: 'Liyazdādū',
     type: 'Verb (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'سَكِينَة'],
   },
   {
+    cid: 539,
     arabic: 'بَيْعَةِ',
     translit: 'Bay\'ah',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'إِيمَان'],
   },
   {
+    cid: 969,
     arabic: 'مَغْفِرَةً',
     translit: 'Maghfirat',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَغْفِرَة', 'رَحْمَة'],
   },
   {
+    cid: 21,
     arabic: 'أَجْرًا',
     translit: 'Ajran',
     type: 'Noun',

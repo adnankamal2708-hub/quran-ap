@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 983,
     arabic: 'مُحَمَّدٌ',
     translit: 'Muḥammad',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'إِيمَان'],
   },
   {
+    cid: 762,
     arabic: 'ضَلَّ',
     translit: 'Ḍalla',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'ضَلَال'],
   },
   {
+    cid: 702,
     arabic: 'سَبِيلِهِ',
     translit: 'Sabīlihi',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'صِرَاط'],
   },
   {
+    cid: 47,
     arabic: 'أَضَلَّ',
     translit: 'Aḍalla',
     type: 'Verb',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'عَمَل'],
   },
   {
+    cid: 1083,
     arabic: 'وَيْلٌ',
     translit: 'Waylun',
     type: 'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَذَاب', 'جَهَنَّم'],
   },
   {
+    cid: 583,
     arabic: 'ثَبِّتُوا',
     translit: 'Thabbitū',
     type: 'Verb (command, plural)',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَبْر', 'ثَبَات'],
   },
   {
+    cid: 46,
     arabic: 'أَصْلَحَ',
     translit: 'Aṣlaḥa',
     type: 'Verb',

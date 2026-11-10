@@ -10,6 +10,7 @@ ALL_WORDS.push(
   // ── Names of Majesty (صفات الجلال) ─────────────────────────
 
   {
+    cid: 450,
     arabic: 'الْمَلِكُ',
     translit: 'Al-Malik',
     type: 'Name / Adjective',
@@ -41,6 +42,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَقُّ', 'الْقُدُّوسُ'],
   },
   {
+    cid: 418,
     arabic: 'الْقُدُّوسُ',
     translit: 'Al-Quddūs',
     type: 'Name / Adjective',
@@ -72,6 +74,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَلِكُ', 'السَّلَامُ'],
   },
   {
+    cid: 182,
     arabic: 'السَّلَامُ',
     translit: 'As-Salām',
     type: 'Name / Adjective',
@@ -103,6 +106,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُدُّوسُ', 'الْمُؤْمِن'],
   },
   {
+    cid: 456,
     arabic: 'الْمُؤْمِنُ',
     translit: 'Al-Mu\'min',
     type: 'Name / Adjective',
@@ -134,6 +138,7 @@ ALL_WORDS.push(
     relatedWords: ['آمَنَ', 'اللَّهُ', 'السَّلَامُ'],
   },
   {
+    cid: 497,
     arabic: 'الْمُهَيْمِنُ',
     translit: 'Al-Muhaymin',
     type: 'Name / Adjective',
@@ -163,6 +168,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَزِيزُ', 'الْجَبَّارُ'],
   },
   {
+    cid: 310,
     arabic: 'الْجَبَّارُ',
     translit: 'Al-Jabbār',
     type: 'Name / Adjective',
@@ -194,6 +200,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَزِيزُ', 'الْمُتَكَبِّرُ'],
   },
   {
+    cid: 461,
     arabic: 'الْمُتَكَبِّرُ',
     translit: 'Al-Mutakabbir',
     type: 'Name / Adjective',
@@ -228,6 +235,7 @@ ALL_WORDS.push(
   // ── Names of Creation & Power ─────────────────────────────
 
   {
+    cid: 354,
     arabic: 'الْخَالِقُ',
     translit: 'Al-Khāliq',
     type: 'Name / Adjective',
@@ -259,6 +267,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَارِئُ', 'الْمُصَوِّرُ'],
   },
   {
+    cid: 292,
     arabic: 'الْبَارِئُ',
     translit: 'Al-Bāri\'',
     type: 'Name / Adjective',
@@ -290,6 +299,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَالِقُ', 'الْمُصَوِّرُ'],
   },
   {
+    cid: 477,
     arabic: 'الْمُصَوِّرُ',
     translit: 'Al-Musawwir',
     type: 'Name / Adjective',
@@ -321,6 +331,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَالِقُ', 'الْبَارِئُ'],
   },
   {
+    cid: 387,
     arabic: 'الْغَفَّارُ',
     translit: 'Al-Ghaffār',
     type: 'Name / Adjective',
@@ -352,6 +363,7 @@ ALL_WORDS.push(
     relatedWords: ['غَفُورٌ', 'اللَّهُ', 'الرَّحِيمِ'],
   },
   {
+    cid: 415,
     arabic: 'الْقَهَّارُ',
     translit: 'Al-Qahhār',
     type: 'Name / Adjective',
@@ -383,6 +395,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجَبَّارُ', 'الْعَزِيزُ'],
   },
   {
+    cid: 514,
     arabic: 'الْوَهَّابُ',
     translit: 'Al-Wahhāb',
     type: 'Name / Adjective',
@@ -414,6 +427,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّزَّاقُ', 'الْكَرِيمُ'],
   },
   {
+    cid: 156,
     arabic: 'الرَّزَّاقُ',
     translit: 'Ar-Razzāq',
     type: 'Name / Adjective',
@@ -445,6 +459,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْوَهَّابُ', 'الْكَرِيمُ'],
   },
   {
+    cid: 395,
     arabic: 'الْفَتَّاحُ',
     translit: 'Al-Fattāh',
     type: 'Name / Adjective',
@@ -479,6 +494,7 @@ ALL_WORDS.push(
   // ── Names of Divine Actions ──────────────────────────────
 
   {
+    cid: 407,
     arabic: 'الْقَابِضُ',
     translit: 'Al-Qābid',
     type: 'Name / Adjective',
@@ -510,6 +526,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَاسِطُ', 'الْوَاسِعُ'],
   },
   {
+    cid: 293,
     arabic: 'الْبَاسِطُ',
     translit: 'Al-Bāsit',
     type: 'Name / Adjective',
@@ -541,6 +558,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقَابِضُ', 'الْوَاسِعُ'],
   },
   {
+    cid: 353,
     arabic: 'الْخَافِضُ',
     translit: 'Al-Khāfid',
     type: 'Name / Adjective',
@@ -572,6 +590,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّافِعُ', 'الْمُعِزُّ'],
   },
   {
+    cid: 151,
     arabic: 'الرَّافِعُ',
     translit: 'Ar-Rāfi\'',
     type: 'Name / Adjective',
@@ -603,6 +622,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَافِضُ', 'الْمُعِزُّ'],
   },
   {
+    cid: 479,
     arabic: 'الْمُعِزُّ',
     translit: 'Al-Mu\'izz',
     type: 'Name / Adjective',
@@ -634,6 +654,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُذِلُّ', 'الْعَزِيزُ'],
   },
   {
+    cid: 470,
     arabic: 'الْمُذِلُّ',
     translit: 'Al-Mudhill',
     type: 'Name / Adjective',
@@ -665,6 +686,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُعِزُّ', 'الْقَهَّارُ'],
   },
   {
+    cid: 334,
     arabic: 'الْحَكَمُ',
     translit: 'Al-Hakam',
     type: 'Name / Adjective',
@@ -696,6 +718,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَدْلُ', 'الْحَكِيمُ'],
   },
   {
+    cid: 366,
     arabic: 'الْعَدْلُ',
     translit: 'Al-\'Adl',
     type: 'Name / Adjective',
@@ -727,6 +750,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَكَمُ', 'الْمُقْسِطُ'],
   },
   {
+    cid: 231,
     arabic: 'اللَّطِيفُ',
     translit: 'Al-Latīf',
     type: 'Name / Adjective',
@@ -758,6 +782,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّءُوفُ', 'الْحَلِيمُ'],
   },
   {
+    cid: 355,
     arabic: 'الْخَبِيرُ',
     translit: 'Al-Khabīr',
     type: 'Name / Adjective',
@@ -789,6 +814,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَلِيمُ', 'الشَّهِيدُ'],
   },
   {
+    cid: 337,
     arabic: 'الْحَلِيمُ',
     translit: 'Al-Halīm',
     type: 'Name / Adjective',
@@ -820,6 +846,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّءُوفُ', 'اللَّطِيفُ'],
   },
   {
+    cid: 373,
     arabic: 'الْعَظِيمُ',
     translit: 'Al-\'Azīm',
     type: 'Name / Adjective',
@@ -851,6 +878,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْكَبِيرُ', 'الْجَلِيلُ'],
   },
   {
+    cid: 189,
     arabic: 'الشَّكُورُ',
     translit: 'Ash-Shakūr',
     type: 'Name / Adjective',
@@ -882,6 +910,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شُكْر', 'الْحَمِيدُ'],
   },
   {
+    cid: 377,
     arabic: 'الْعَلِيُّ',
     translit: 'Al-\'Aliyy',
     type: 'Name / Adjective',
@@ -913,6 +942,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُتَعَالِي', 'الْعَظِيمُ'],
   },
   {
+    cid: 427,
     arabic: 'الْكَبِيرُ',
     translit: 'Al-Kabīr',
     type: 'Name / Adjective',
@@ -944,6 +974,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَظِيمُ', 'الْعَلِيُّ'],
   },
   {
+    cid: 330,
     arabic: 'الْحَفِيظُ',
     translit: 'Al-Hafīz',
     type: 'Name / Adjective',
@@ -975,6 +1006,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّقِيبُ', 'الْمُهَيْمِنُ'],
   },
   {
+    cid: 485,
     arabic: 'الْمُقِيتُ',
     translit: 'Al-Muqīt',
     type: 'Name / Adjective',
@@ -1005,6 +1037,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّزَّاقُ', 'الْوَكِيلُ'],
   },
   {
+    cid: 328,
     arabic: 'الْحَسِيبُ',
     translit: 'Al-Hasīb',
     type: 'Name / Adjective',
@@ -1036,6 +1069,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الشَّهِيدُ', 'الرَّقِيبُ'],
   },
   {
+    cid: 312,
     arabic: 'الْجَلِيلُ',
     translit: 'Al-Jalīl',
     type: 'Name / Adjective',
@@ -1067,6 +1101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَظِيمُ', 'الْكَرِيمُ'],
   },
   {
+    cid: 428,
     arabic: 'الْكَرِيمُ',
     translit: 'Al-Karīm',
     type: 'Name / Adjective',
@@ -1098,6 +1133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْوَهَّابُ', 'الرَّزَّاقُ'],
   },
   {
+    cid: 160,
     arabic: 'الرَّقِيبُ',
     translit: 'Ar-Raqīb',
     type: 'Name / Adjective',
@@ -1129,6 +1165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَفِيظُ', 'الشَّهِيدُ'],
   },
   {
+    cid: 463,
     arabic: 'الْمُجِيبُ',
     translit: 'Al-Mujīb',
     type: 'Name / Adjective',
@@ -1160,6 +1197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'السَّمِيعُ', 'اللَّطِيفُ'],
   },
   {
+    cid: 506,
     arabic: 'الْوَاسِعُ',
     translit: 'Al-Wāsi\'',
     type: 'Name / Adjective',
@@ -1191,6 +1229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَاسِطُ', 'الْعَلِيمُ'],
   },
   {
+    cid: 510,
     arabic: 'الْوَدُودُ',
     translit: 'Al-Wadūd',
     type: 'Name / Adjective',
@@ -1222,6 +1261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّحْمَٰنِ', 'الرَّحِيمِ'],
   },
   {
+    cid: 441,
     arabic: 'الْمَجِيدُ',
     translit: 'Al-Majīd',
     type: 'Name / Adjective',
@@ -1256,6 +1296,7 @@ ALL_WORDS.push(
   // ── Names of Resurrection & Judgment ──────────────────────
 
   {
+    cid: 295,
     arabic: 'الْبَاعِثُ',
     translit: 'Al-Bā\'ith',
     type: 'Name / Adjective',
@@ -1287,6 +1328,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُحْيِي', 'الْمُمِيتُ'],
   },
   {
+    cid: 192,
     arabic: 'الشَّهِيدُ',
     translit: 'Ash-Shahīd',
     type: 'Name / Adjective',
@@ -1318,6 +1360,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَبِيرُ', 'الرَّقِيبُ'],
   },
   {
+    cid: 331,
     arabic: 'الْحَقُّ',
     translit: 'Al-Haqq',
     type: 'Name / Adjective',
@@ -1349,6 +1392,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَلِكُ', 'الْحَقُّ'],
   },
   {
+    cid: 512,
     arabic: 'الْوَكِيلُ',
     translit: 'Al-Wakīl',
     type: 'Name / Adjective',
@@ -1380,6 +1424,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَسِيبُ', 'الْكَافِي'],
   },
   {
+    cid: 416,
     arabic: 'الْقَوِيُّ',
     translit: 'Al-Qawiyy',
     type: 'Name / Adjective',
@@ -1411,6 +1456,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَزِيزُ', 'الْمَتِينُ'],
   },
   {
+    cid: 439,
     arabic: 'الْمَتِينُ',
     translit: 'Al-Matīn',
     type: 'Name / Adjective',
@@ -1442,6 +1488,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقَوِيُّ', 'الْعَزِيزُ'],
   },
   {
+    cid: 513,
     arabic: 'الْوَلِيُّ',
     translit: 'Al-Waliyy',
     type: 'Name / Adjective',
@@ -1473,6 +1520,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّصِيرُ', 'الْحَفِيظُ'],
   },
   {
+    cid: 338,
     arabic: 'الْحَمِيدُ',
     translit: 'Al-Hamīd',
     type: 'Name / Adjective',
@@ -1504,6 +1552,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَمْدُ', 'الْمَجِيدُ'],
   },
   {
+    cid: 466,
     arabic: 'الْمُحْصِي',
     translit: 'Al-Muhsī',
     type: 'Name / Adjective',
@@ -1535,6 +1584,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَلِيمُ', 'الْحَسِيبُ'],
   },
   {
+    cid: 459,
     arabic: 'الْمُبْدِئُ',
     translit: 'Al-Mubdi\'',
     type: 'Name / Adjective',
@@ -1566,6 +1616,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَالِقُ', 'الْمُعِيدُ'],
   },
   {
+    cid: 480,
     arabic: 'الْمُعِيدُ',
     translit: 'Al-Mu\'īd',
     type: 'Name / Adjective',
@@ -1597,6 +1648,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَاعِثُ', 'الْمُحْيِي'],
   },
   {
+    cid: 467,
     arabic: 'الْمُحْيِي',
     translit: 'Al-Muhyī',
     type: 'Name / Adjective',
@@ -1628,6 +1680,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُمِيتُ', 'الْبَاعِثُ'],
   },
   {
+    cid: 490,
     arabic: 'الْمُمِيتُ',
     translit: 'Al-Mumīt',
     type: 'Name / Adjective',
@@ -1659,6 +1712,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُحْيِي', 'الْبَاعِثُ'],
   },
   {
+    cid: 343,
     arabic: 'الْحَيُّ',
     translit: 'Al-Hayy',
     type: 'Name / Adjective',
@@ -1690,6 +1744,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقَيُّومُ', 'الْمُحْيِي'],
   },
   {
+    cid: 417,
     arabic: 'الْقَيُّومُ',
     translit: 'Al-Qayyūm',
     type: 'Name / Adjective',
@@ -1724,6 +1779,7 @@ ALL_WORDS.push(
   // ── Names of Oneness & Eternity ──────────────────────────
 
   {
+    cid: 503,
     arabic: 'الْوَاجِدُ',
     translit: 'Al-Wājid',
     type: 'Name / Adjective',
@@ -1755,6 +1811,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَلِيمُ', 'الْخَالِقُ'],
   },
   {
+    cid: 436,
     arabic: 'الْمَاجِدُ',
     translit: 'Al-Mājid',
     type: 'Name / Adjective',
@@ -1786,6 +1843,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْكَرِيمُ', 'الْحَمِيدُ'],
   },
   {
+    cid: 504,
     arabic: 'الْوَاحِدُ',
     translit: 'Al-Wāhid',
     type: 'Name / Adjective',
@@ -1817,6 +1875,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَحَدٌ', 'الصَّمَدُ'],
   },
   {
+    cid: 408,
     arabic: 'الْقَادِرُ',
     translit: 'Al-Qādir',
     type: 'Name / Adjective',
@@ -1848,6 +1907,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قَدِيرٌ', 'الْقَوِيُّ'],
   },
   {
+    cid: 486,
     arabic: 'الْمُقْتَدِرُ',
     translit: 'Al-Muqtadir',
     type: 'Name / Adjective',
@@ -1879,6 +1939,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قَدِيرٌ', 'الْقَهَّارُ'],
   },
   {
+    cid: 484,
     arabic: 'الْمُقَدِّمُ',
     translit: 'Al-Muqaddim',
     type: 'Name / Adjective',
@@ -1910,6 +1971,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُؤَخِّرُ', 'الْحَكِيمُ'],
   },
   {
+    cid: 455,
     arabic: 'الْمُؤَخِّرُ',
     translit: 'Al-Mu\'akhkhir',
     type: 'Name / Adjective',
@@ -1941,6 +2003,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمُقَدِّمُ', 'الْحَكِيمُ'],
   },
   {
+    cid: 283,
     arabic: 'الْأَوَّلُ',
     translit: 'Al-Awwal',
     type: 'Name / Adjective',
@@ -1971,6 +2034,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْآخِرُ', 'الظَّاهِرُ'],
   },
   {
+    cid: 262,
     arabic: 'الْآخِرُ',
     translit: 'Al-Ākhir',
     type: 'Name / Adjective',
@@ -2002,6 +2066,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَوَّلُ', 'الْبَاقِي'],
   },
   {
+    cid: 225,
     arabic: 'الظَّاهِرُ',
     translit: 'Az-Zāhir',
     type: 'Name / Adjective',
@@ -2033,6 +2098,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَاطِنُ', 'الْأَوَّلُ'],
   },
   {
+    cid: 294,
     arabic: 'الْبَاطِنُ',
     translit: 'Al-Bātin',
     type: 'Name / Adjective',
@@ -2064,6 +2130,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الظَّاهِرُ', 'اللَّطِيفُ'],
   },
   {
+    cid: 509,
     arabic: 'الْوَالِي',
     translit: 'Al-Wālī',
     type: 'Name / Adjective',
@@ -2095,6 +2162,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْوَلِيُّ', 'النَّصِيرُ'],
   },
   {
+    cid: 460,
     arabic: 'الْمُتَعَالِي',
     translit: 'Al-Muta\'ālī',
     type: 'Name / Adjective',
@@ -2126,6 +2194,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَلِيُّ', 'الْكَبِيرُ'],
   },
   {
+    cid: 299,
     arabic: 'الْبَرُّ',
     translit: 'Al-Barr',
     type: 'Name / Adjective',
@@ -2157,6 +2226,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّحْمَٰنِ', 'الرَّحِيمِ'],
   },
   {
+    cid: 134,
     arabic: 'التَّوَّابُ',
     translit: 'At-Tawwāb',
     type: 'Name / Adjective',
@@ -2188,6 +2258,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَوْبَة', 'غَفُورٌ'],
   },
   {
+    cid: 494,
     arabic: 'الْمُنْتَقِمُ',
     translit: 'Al-Muntaqim',
     type: 'Name / Adjective',
@@ -2218,6 +2289,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَدْلُ', 'الْقَهَّارُ'],
   },
   {
+    cid: 375,
     arabic: 'الْعَفُوُّ',
     translit: 'Al-\'Afuww',
     type: 'Name / Adjective',
@@ -2249,6 +2321,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'غَفُورٌ', 'الْغَفَّارُ'],
   },
   {
+    cid: 150,
     arabic: 'الرَّءُوفُ',
     translit: 'Ar-Ra\'ūf',
     type: 'Name / Adjective',
@@ -2280,6 +2353,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّحْمَٰنِ', 'الرَّحِيمِ'],
   },
   {
+    cid: 956,
     arabic: 'مَالِكُ الْمُلْكِ',
     translit: 'Mālik al-Mulk',
     type: 'Name / Adjective',
@@ -2311,6 +2385,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَلِكُ', 'الْوَاحِدُ'],
   },
   {
+    cid: 665,
     arabic: 'ذُو الْجَلَالِ وَالْإِكْرَامِ',
     translit: 'Dhul Jalāli wal Ikrām',
     type: 'Name / Adjective',
@@ -2342,6 +2417,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجَلِيلُ', 'الْكَرِيمُ'],
   },
   {
+    cid: 487,
     arabic: 'الْمُقْسِطُ',
     translit: 'Al-Muqsit',
     type: 'Name / Adjective',
@@ -2373,6 +2449,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَدْلُ', 'الْحَكَمُ'],
   },
   {
+    cid: 308,
     arabic: 'الْجَامِعُ',
     translit: 'Al-Jāmi\'',
     type: 'Name / Adjective',
@@ -2404,6 +2481,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَاعِثُ', 'الْمُحْيِي'],
   },
   {
+    cid: 388,
     arabic: 'الْغَنِيُّ',
     translit: 'Al-Ghaniyy',
     type: 'Name / Adjective',
@@ -2435,6 +2513,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الصَّمَدُ', 'الْمُغْنِي'],
   },
   {
+    cid: 483,
     arabic: 'الْمُغْنِي',
     translit: 'Al-Mughnī',
     type: 'Name / Adjective',
@@ -2466,6 +2545,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّزَّاقُ', 'الْوَهَّابُ'],
   },
   {
+    cid: 438,
     arabic: 'الْمَانِعُ',
     translit: 'Al-Māni\'',
     type: 'Name / Adjective',
@@ -2497,6 +2577,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقَابِضُ', 'الْحَفِيظُ'],
   },
   {
+    cid: 215,
     arabic: 'الضَّارُّ',
     translit: 'Ad-Dārr',
     type: 'Name / Adjective',
@@ -2528,6 +2609,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّافِعُ', 'الْقَابِضُ'],
   },
   {
+    cid: 242,
     arabic: 'النَّافِعُ',
     translit: 'An-Nāfi\'',
     type: 'Name / Adjective',
@@ -2559,6 +2641,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الضَّارُّ', 'الرَّزَّاقُ'],
   },
   {
+    cid: 255,
     arabic: 'النُّورُ',
     translit: 'An-Nūr',
     type: 'Name / Adjective',
@@ -2590,6 +2673,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْهَادِي', 'نُور'],
   },
   {
+    cid: 501,
     arabic: 'الْهَادِي',
     translit: 'Al-Hādī',
     type: 'Name / Adjective',
@@ -2621,6 +2705,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'الرَّشِيدُ'],
   },
   {
+    cid: 298,
     arabic: 'الْبَدِيعُ',
     translit: 'Al-Badī\'',
     type: 'Name / Adjective',
@@ -2652,6 +2737,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَالِقُ', 'الْمُبْدِئُ'],
   },
   {
+    cid: 296,
     arabic: 'الْبَاقِي',
     translit: 'Al-Bāqī',
     type: 'Name / Adjective',
@@ -2683,6 +2769,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْآخِرُ', 'الْأَوَّلُ'],
   },
   {
+    cid: 505,
     arabic: 'الْوَارِثُ',
     translit: 'Al-Wārith',
     type: 'Name / Adjective',
@@ -2714,6 +2801,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْبَاقِي', 'الْآخِرُ'],
   },
   {
+    cid: 158,
     arabic: 'الرَّشِيدُ',
     translit: 'Ar-Rashīd',
     type: 'Name / Adjective',
@@ -2745,6 +2833,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْهَادِي', 'الْحَكِيمُ'],
   },
   {
+    cid: 204,
     arabic: 'الصَّبُورُ',
     translit: 'As-Sabūr',
     type: 'Name / Adjective',

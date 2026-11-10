@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 882,
     arabic: 'قُرَيْشٍ',
     translit: 'Quraysh',
     type: 'Noun (proper noun, plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْكَعْبَة', 'مُحَمَّد'],
   },
   {
+    cid: 117,
     arabic: 'إِيلَافِهِم',
     translit: 'Īlāfihim',
     type: 'Noun (verbal noun)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأَمْن', 'الْحَرَم'],
   },
   {
+    cid: 688,
     arabic: 'رِحْلَةَ الشِّتَاءِ',
     translit: 'Riḥlata ash-Shitā\'',
     type: 'Noun + Noun (construct phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التِّجَارَة', 'الشِّتَاء وَالصَّيْف'],
   },
   {
+    cid: 49,
     arabic: 'أَطْعَمَهُم مِّن جُوعٍ',
     translit: 'Aṭʿamahum min Jūʿ',
     type: 'Verb + Preposition + Noun (phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرِّزْق', 'الشُّكْر'],
   },
   {
+    cid: 6,
     arabic: 'آمَنَهُم مِّنْ خَوْفٍ',
     translit: 'Āmanahum min Khawf',
     type: 'Verb + Preposition + Noun (phrase)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 239,
     arabic: 'النَّازِعَاتِ',
     translit: "An-Nāzi'āt",
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَوْت', 'مَلَائِكَة'],
   },
   {
+    cid: 813,
     arabic: 'غَرْقًا',
     translit: 'Gharqan',
     type: 'Noun (adverbial)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَوْت', 'نَفْس'],
   },
   {
+    cid: 1016,
     arabic: 'نَاشِطَاتِ',
     translit: 'Nāshiṭāt',
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَوْت', 'مَلَائِكَة'],
   },
   {
+    cid: 699,
     arabic: 'سَابِحَاتِ',
     translit: 'Sābiḥāt',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'سَمَاء'],
   },
   {
+    cid: 832,
     arabic: 'فَالسَّابِقَاتِ',
     translit: 'Fas-Sābiqāt',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'سَبَقَ'],
   },
   {
+    cid: 984,
     arabic: 'مُدَبِّرَاتِ',
     translit: 'Mudabbirāt',
     type: 'Noun (plural)',

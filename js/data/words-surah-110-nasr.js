@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1027,
     arabic: 'نَصْرُ اللَّهِ',
     translit: 'Naṣr Allāh',
     type: 'Noun + Noun (construct phrase)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْفَتْح', 'الْمُؤْمِنُونَ'],
   },
   {
+    cid: 396,
     arabic: 'الْفَتْحُ',
     translit: 'Al-Fatḥ',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَكَّة', 'الْإِسْلَام'],
   },
   {
+    cid: 1106,
     arabic: 'يَدْخُلُونَ',
     translit: 'Yadkhulūna',
     type: 'Verb (imperfect, masculine plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِسْلَام', 'الْأَفْوَاج'],
   },
   {
+    cid: 57,
     arabic: 'أَفْوَاجًا',
     translit: 'Afwājan',
     type: 'Noun (plural, adverbial accusative)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِسْلَام', 'مَكَّة'],
   },
   {
+    cid: 843,
     arabic: 'فَسَبِّحْ بِحَمْدِ رَبِّكَ',
     translit: 'Fasabbiḥ bi-Ḥamdi Rabbika',
     type: 'Verb + Preposition + Noun + Noun (phrase)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّسْبِيح', 'الشُّكْر'],
   },
   {
+    cid: 1061,
     arabic: 'وَاسْتَغْفِرْهُ',
     translit: 'Wastaghfirhu',
     type: 'Verb (command, masculine singular, with object pronoun)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 411,
     arabic:'الْقَصَصِ',
     translit:'Al-Qaṣaṣ',
     type:'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'نَبَأ'],
   },
   {
+    cid: 124,
     arabic:'اسْتِحْيَاءٍ',
     translit:"Istiḥyā'",
     type:'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حَيَاء', 'إِيمَان'],
   },
   {
+    cid: 1132,
     arabic:'يَقُصُّ',
     translit:'Yaquṣṣu',
     type:'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قِصَّة', 'خَبَر'],
   },
   {
+    cid: 604,
     arabic:'جِبْتِ',
     translit:'Jibt',
     type:'Noun',
@@ -127,6 +131,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'طَاغُوت', 'شِرْك'],
   },
   {
+    cid: 128,
     arabic:'التَّابُوتِ',
     translit:'At-Tābūt',
     type:'Noun',
@@ -157,6 +162,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'يَمّ'],
   },
   {
+    cid: 517,
     arabic:'الْيَمِّ',
     translit:'Al-Yamm',
     type:'Noun',
@@ -187,6 +193,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'فِرْعَوْن'],
   },
   {
+    cid: 393,
     arabic:'الْفَاجِرِينَ',
     translit:'Al-Fājirīn',
     type:'Noun (plural)',
@@ -218,6 +225,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فُجُور', 'هَوَىٰ'],
   },
   {
+    cid: 1049,
     arabic:'هَوَىٰ',
     translit:'Hawā',
     type:'Noun',

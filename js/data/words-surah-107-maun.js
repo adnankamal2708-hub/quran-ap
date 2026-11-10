@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 143,
     arabic: 'الدِّينِ',
     translit: 'Ad-Dīn',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْيَوْم الْآخِر', 'الْإِيمَان'],
   },
   {
+    cid: 1094,
     arabic: 'يَتُّمَ',
     translit: 'Yatīma',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّحْمَة', 'الْيَتِيم'],
   },
   {
+    cid: 1105,
     arabic: 'يَدُعُّ',
     translit: 'Yaduʿʿu',
     type: 'Verb (imperfect, masculine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْيَتِيم', 'الْقَسْوَة'],
   },
   {
+    cid: 1148,
     arabic: 'يُرَاءُونَ',
     translit: 'Yurā\'ūn',
     type: 'Verb (imperfect, masculine plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرِّيَاء', 'الْإِخْلَاص'],
   },
   {
+    cid: 437,
     arabic: 'الْمَاعُونَ',
     translit: 'Al-Māʿūn',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِحْسَان', 'الْجِوَار'],
   },
   {
+    cid: 1155,
     arabic: 'يُكَذِّبُ',
     translit: 'Yukadhdhibu',
     type: 'Verb (imperfect, masculine singular)',

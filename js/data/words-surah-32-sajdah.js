@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 180,
     arabic:'السَّجْدَةِ',
     translit:'As-Sajdah',
     type:'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'آيَات', 'إِيمَان'],
   },
   {
+    cid: 452,
     arabic:'الْمَهْدِ',
     translit:'Al-Mahd',
     type:'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَرْض', 'خَلْق'],
   },
   {
+    cid: 270,
     arabic:'الْأَرْوَاحُ',
     translit:'Al-Arwāḥ',
     type:'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَوْت', 'حَيَاة'],
   },
   {
+    cid: 316,
     arabic:'الْجُرُزِ',
     translit:'Al-Juruz',
     type:'Adjective',
@@ -127,6 +131,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَاء', 'أَرْض'],
   },
   {
+    cid: 1092,
     arabic:'يَتَخَافَتُونَ',
     translit:'Yatakhāfatūn',
     type:'Verb',

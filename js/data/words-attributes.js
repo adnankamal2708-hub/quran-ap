@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 799,
     arabic: 'عَلِيمٌ',
     translit: "'Alīm",
     type: 'Adjective',
@@ -37,6 +38,7 @@ ALL_WORDS.push(
     relatedWords: ['الْعَالَمِينَ', 'اللَّهُ', 'شَيْءٍ'],
   },
   {
+    cid: 620,
     arabic: 'حَكِيمٌ',
     translit: 'Hakīm',
     type: 'Adjective',
@@ -69,6 +71,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَلِيمٌ', 'حِكْمَة'],
   },
   {
+    cid: 814,
     arabic: 'غَفُورٌ',
     translit: 'Ghafūr',
     type: 'Adjective',
@@ -101,6 +104,7 @@ ALL_WORDS.push(
     relatedWords: ['الرَّحِيمِ', 'اللَّهُ', 'رَحْمَة'],
   },
   {
+    cid: 871,
     arabic: 'قَدِيرٌ',
     translit: 'Qadīr',
     type: 'Adjective',
@@ -132,6 +136,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَيْءٍ', 'عَزِيزٌ'],
   },
   {
+    cid: 716,
     arabic: 'سَمِيعٌ',
     translit: "Samī'",
     type: 'Adjective',
@@ -164,6 +169,7 @@ ALL_WORDS.push(
     relatedWords: ['بَصِيرٌ', 'اللَّهُ', 'سَمْع'],
   },
   {
+    cid: 530,
     arabic: 'بَصِيرٌ',
     translit: "Basīr",
     type: 'Adjective',
@@ -195,6 +201,7 @@ ALL_WORDS.push(
     relatedWords: ['سَمِيعٌ', 'اللَّهُ', 'عَلِيمٌ'],
   },
   {
+    cid: 792,
     arabic: 'عَزِيزٌ',
     translit: "'Azīz",
     type: 'Adjective',
@@ -226,6 +233,7 @@ ALL_WORDS.push(
     relatedWords: ['قَدِيرٌ', 'اللَّهُ', 'حَكِيمٌ'],
   },
   {
+    cid: 678,
     arabic: 'رَحْمَة',
     translit: 'Rahma',
     type: 'Noun',
@@ -257,6 +265,7 @@ ALL_WORDS.push(
     relatedWords: ['الرَّحْمَٰنِ', 'الرَّحِيمِ', 'غَفُورٌ'],
   },
   {
+    cid: 745,
     arabic: 'شَيْءٍ',
     translit: "Shay'in",
     type: 'Noun',
@@ -287,6 +296,7 @@ ALL_WORDS.push(
     relatedWords: ['قَدِيرٌ', 'اللَّهُ', 'شَيْء'],
   },
   {
+    cid: 723,
     arabic: 'سُبْحَانَ',
     translit: 'Subhāna',
     type: 'Exclamation',

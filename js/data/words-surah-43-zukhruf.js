@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 174,
     arabic: 'الزُّخْرُفِ',
     translit: 'Az-Zukhruf',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دُنْيَا', 'آخِرَة'],
   },
   {
+    cid: 811,
     arabic: 'عِيسَىٰ',
     translit: '\'Īsā',
     type: 'Proper Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَرْيَم', 'إِنْجِيل'],
   },
   {
+    cid: 1126,
     arabic: 'يَعْبُدُونَ',
     translit: 'Ya\'budūn',
     type: 'Verb (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِبَادَة', 'تَوْحِيد'],
   },
   {
+    cid: 708,
     arabic: 'سَخِرُوا',
     translit: 'Sakhirū',
     type: 'Verb',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَبِيّ', 'رَسُول'],
   },
   {
+    cid: 154,
     arabic: 'الرَّحْمَٰنُ',
     translit: 'Ar-Raḥmān',
     type: 'Proper Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَحْمَة', 'رَحِيم'],
   },
   {
+    cid: 462,
     arabic: 'الْمُتَّقِينَ',
     translit: 'Al-Muttaqīn',
     type: 'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'تَقْوَىٰ', 'جَنَّة'],
   },
   {
+    cid: 1034,
     arabic: 'نُزُلًا',
     translit: 'Nuzulan',
     type: 'Noun',

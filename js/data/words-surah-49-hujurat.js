@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 344,
     arabic: 'الْحُجُرَاتِ',
     translit: 'Al-Ḥujurāt',
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'أَدَب'],
   },
   {
+    cid: 844,
     arabic: 'فَسَقَ',
     translit: 'Fasaqa',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'فَاسِق', 'خَبَر'],
   },
   {
+    cid: 837,
     arabic: 'فَتبَيَّنُوا',
     translit: 'Fatabayyanū',
     type: 'Verb (command, plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِلْم', 'حَقّ'],
   },
   {
+    cid: 114,
     arabic: 'إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ',
     translit: 'Innamā al-Mu\'minūna Ikhwah',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'سَلَام'],
   },
   {
+    cid: 917,
     arabic: 'لَا يَسْخَرْ',
     translit: 'Lā Yaskhar',
     type: 'Verb (prohibition)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَدَب', 'إِيمَان'],
   },
   {
+    cid: 914,
     arabic: 'لَا تَجَسَّسُوا',
     translit: 'Lā Tajassasū',
     type: 'Verb (prohibition, plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'أَخْلَاق'],
   },
   {
+    cid: 1062,
     arabic: 'وَاغْتِبِ',
     translit: 'Wa-ghtabi',
     type: 'Verb',

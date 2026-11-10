@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 100,
     arabic: 'إِبْرَاهِيمَ',
     translit: 'Ibrāhīm',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِسْمَاعِيل', 'مَكَّة'],
   },
   {
+    cid: 741,
     arabic: 'شَكَرْتُمْ',
     translit: 'Shakartum',
     type: 'Verb (plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شُكْر', 'نِعْمَة'],
   },
   {
+    cid: 1042,
     arabic: 'نِعْمَةَ',
     translit: 'Ni\'mata',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شُكْر', 'رِزْق'],
   },
   {
+    cid: 970,
     arabic: 'مَقَامِي',
     translit: 'Maqāmī',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'بَيْت'],
   },
   {
+    cid: 272,
     arabic: 'الْأَصْنَامَ',
     translit: 'Al-Aṣnām',
     type: 'Noun (plural)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِبْرَاهِيم', 'عِبَادَة'],
   },
   {
+    cid: 1030,
     arabic: 'نَفْسٍ',
     translit: 'Nafsin',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'جَزَاء'],
   },
   {
+    cid: 157,
     arabic: 'الرَّسُولُ',
     translit: 'Ar-Rasūl',
     type: 'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِسَالَة', 'وَحْي'],
   },
   {
+    cid: 748,
     arabic: 'شِرَاءَ',
     translit: 'Shirā\'a',
     type: 'Noun',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'ضَلَال'],
   },
   {
+    cid: 648,
     arabic: 'دَارَ',
     translit: 'Dāra',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'نَار'],
   },
   {
+    cid: 356,
     arabic: 'الْخَطِيئَاتِ',
     translit: 'Al-Khaṭī\'āt',
     type: 'Noun (plural)',

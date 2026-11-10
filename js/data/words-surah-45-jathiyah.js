@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 590,
     arabic: 'جَاثِيَةً',
     translit: 'Jāthiyah',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'حِسَاب'],
   },
   {
+    cid: 348,
     arabic: 'الْحِسَابِ',
     translit: 'Al-Ḥisāb',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'مِيزَان'],
   },
   {
+    cid: 103,
     arabic: 'إِثْمٍ',
     translit: 'Ithmin',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَغْفِرَة', 'تَوْبَة'],
   },
   {
+    cid: 55,
     arabic: 'أَفَّاكٍ',
     translit: 'Affāk',
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'كَذِب', 'إِفْك'],
   },
   {
+    cid: 976,
     arabic: 'مَوَدَّةَ',
     translit: 'Mawaddah',
     type: 'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حُبّ', 'إِيمَان'],
   },
   {
+    cid: 916,
     arabic: 'لَا رَيْبَ',
     translit: 'Lā Rayba',
     type: 'Particle + Noun',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 432,
     arabic: 'الْكَوْثَرَ',
     translit: 'Al-Kawthar',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجَنَّة', 'النَّبِي'],
   },
   {
+    cid: 846,
     arabic: 'فَصَلِّ لِرَبِّكَ',
     translit: 'Faṣalli li-Rabbika',
     type: 'Verb + Preposition + Noun (phrase)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الصَّلَاة', 'النَّحْر'],
   },
   {
+    cid: 1065,
     arabic: 'وَانْحَرْ',
     translit: 'Wanḥar',
     type: 'Verb (command, masculine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْأُضْحِيَة', 'الْقُرْبَان'],
   },
   {
+    cid: 733,
     arabic: 'شَانِئَكَ',
     translit: 'Shāni\'aka',
     type: 'Noun (active participle)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّبِي', 'الْأَبْتَر'],
   },
   {
+    cid: 263,
     arabic: 'الْأَبْتَرُ',
     translit: 'Al-Abtar',
     type: 'Adjective',

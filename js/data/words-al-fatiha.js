@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 234,
     arabic: 'اللَّهُ',
     translit: 'Allāhu',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['إِلَٰهَ', 'رَبِّ', 'الرَّحْمَٰنِ', 'الرَّحِيمِ'],
   },
   {
+    cid: 675,
     arabic: 'رَبِّ',
     translit: 'Rabb',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَالَمِينَ', 'مَالِكِ'],
   },
   {
+    cid: 155,
     arabic: 'الرَّحْمَٰنِ',
     translit: 'Ar-Rahmān',
     type: 'Name / Adjective',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['الرَّحِيمِ', 'رَحْمَة', 'اللَّهُ'],
   },
   {
+    cid: 153,
     arabic: 'الرَّحِيمِ',
     translit: 'Ar-Rahīm',
     type: 'Name / Adjective',
@@ -130,6 +134,7 @@ ALL_WORDS.push(
     relatedWords: ['الرَّحْمَٰنِ', 'رَحْمَة', 'اللَّهُ'],
   },
   {
+    cid: 339,
     arabic: 'الْحَمْدُ',
     translit: 'Al-Hamdu',
     type: 'Noun',
@@ -161,6 +166,7 @@ ALL_WORDS.push(
     relatedWords: ['مُحَمَّد', 'اللَّهُ', 'رَبِّ'],
   },
   {
+    cid: 365,
     arabic: 'الْعَالَمِينَ',
     translit: "Al-'Ālamīn",
     type: 'Noun (plural)',
@@ -192,6 +198,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَبِّ', 'عَلِيمٌ'],
   },
   {
+    cid: 118,
     arabic: 'إِيَّاكَ',
     translit: "Iyyāka",
     type: 'Pronoun',
@@ -223,6 +230,7 @@ ALL_WORDS.push(
     relatedWords: ['نَعْبُدُ', 'هُوَ'],
   },
   {
+    cid: 1028,
     arabic: 'نَعْبُدُ',
     translit: "Na'budu",
     type: 'Verb',
@@ -255,6 +263,7 @@ ALL_WORDS.push(
     relatedWords: ['عَبْد', 'إِيَّاكَ', 'اللَّهُ'],
   },
   {
+    cid: 1140,
     arabic: 'يَوْمَ',
     translit: 'Yawma',
     type: 'Noun',
@@ -286,6 +295,7 @@ ALL_WORDS.push(
     relatedWords: ['الدِّينِ', 'اللَّهُ', 'سَاعَة'],
   },
   {
+    cid: 142,
     arabic: 'الدِّينِ',
     translit: 'Ad-Dīn',
     type: 'Noun',
@@ -317,6 +327,7 @@ ALL_WORDS.push(
     relatedWords: ['يَوْمَ', 'اللَّهُ', 'حِسَاب'],
   },
   {
+    cid: 213,
     arabic: 'الصِّرَاطَ',
     translit: 'As-Sirāt',
     type: 'Noun',
@@ -348,6 +359,7 @@ ALL_WORDS.push(
     relatedWords: ['هُدًى', 'اللَّهُ', 'سَبِيل'],
   },
   {
+    cid: 260,
     arabic: 'الَّذِينَ',
     translit: 'Alladhīna',
     type: 'Pronoun (relative)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 406,
     arabic: 'الْفِيلِ',
     translit: 'Al-Fīl',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْكَعْبَة', 'الْحَبَشَة'],
   },
   {
+    cid: 562,
     arabic: 'تَرْمِيهِم',
     translit: 'Tarmīhim',
     type: 'Verb (imperfect, feminine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَذَاب', 'الطَّيْر'],
   },
   {
+    cid: 729,
     arabic: 'سِجِّيلٍ',
     translit: 'Sijjīl',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّار', 'الْجَزَاء'],
   },
   {
+    cid: 898,
     arabic: 'كَعَصْفٍ مَّأْكُولٍ',
     translit: 'Kaʿaṣfin Maʾkūl',
     type: 'Preposition + Noun + Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّصْر', 'الْيَمَن'],
   },
   {
+    cid: 14,
     arabic: 'أَبَابِيلَ',
     translit: 'Abābīl',
     type: 'Noun (plural)',

@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 833,
     arabic: 'فَامْتَحِنُوهُنَّ',
     translit: 'Famtaḥinūhunna',
     type: 'Verb (command, plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'هِجْرَة'],
   },
   {
+    cid: 976,
     arabic: 'مَوَدَّةَ',
     translit: 'Mawaddah',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَلَاء', 'عَدَاوَة'],
   },
   {
+    cid: 913,
     arabic: 'لَا تَتَّخِذُوا',
     translit: 'Lā Tattakhidhū',
     type: 'Verb (prohibition, plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَلَاء', 'إِيمَان'],
   },
   {
+    cid: 85,
     arabic: 'أَوْلِيَاءَ',
     translit: 'Awliyā\'a',
     type: 'Noun (plural)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَلَاء', 'بَرَاءَة'],
   },
   {
+    cid: 101,
     arabic: 'إِبْرَاهِيمُ',
     translit: 'Ibrāhīm',
     type: 'Proper Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أُسْوَة', 'تَوْحِيد'],
   },
   {
+    cid: 92,
     arabic: 'أُسْوَةٌ',
     translit: 'Uswah',
     type: 'Noun',

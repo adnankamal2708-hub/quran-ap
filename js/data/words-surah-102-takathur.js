@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 133,
     arabic: 'التَّكَاثُرُ',
     translit: 'At-Takāthur',
     type: 'Noun (verbal noun)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَال', 'الْبَنُونَ'],
   },
   {
+    cid: 65,
     arabic: 'أَلْهَاكُمُ',
     translit: 'Alhākumu',
     type: 'Verb (perfect, 2nd person masculine plural)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الدُّنْيَا', 'الْغَفْلَة'],
   },
   {
+    cid: 449,
     arabic: 'الْمَقَابِرَ',
     translit: 'Al-Maqābir',
     type: 'Noun (plural, feminine)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْمَوْت', 'الْبَعْث'],
   },
   {
+    cid: 801,
     arabic: 'عَيْنَ الْيَقِينِ',
     translit: 'Ayna al-Yaqīn',
     type: 'Noun + Noun (construct phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَهَنَّم', 'الْيَقِين'],
   },
   {
+    cid: 921,
     arabic: 'لَتُسْأَلُنَّ',
     translit: 'Latusalunna',
     type: 'Verb (imperfect, 2nd person masculine plural, emphasis)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النَّعِيم', 'الْمُحَاسَبَة'],
   },
   {
+    cid: 247,
     arabic: 'النَّعِيمِ',
     translit: 'An-Naim',
     type: 'Noun',

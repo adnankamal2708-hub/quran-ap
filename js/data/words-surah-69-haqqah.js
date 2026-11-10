@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 322,
     arabic: 'الْحَاقَّةُ',
     translit: "Al-Ḥāqqah",
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'حَقّ'],
   },
   {
+    cid: 952,
     arabic: 'مَا الْحَاقَّةُ',
     translit: 'Mā al-Ḥāqqah',
     type: 'Phrase',
@@ -65,6 +67,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'حَقّ'],
   },
   {
+    cid: 409,
     arabic: 'الْقَارِعَةُ',
     translit: "Al-Qāri'ah",
     type: 'Noun',
@@ -96,6 +99,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَذَاب', 'قَوْم'],
   },
   {
+    cid: 348,
     arabic: 'الْحِسَابِ',
     translit: 'Al-Ḥisāb',
     type: 'Noun',
@@ -127,6 +131,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حِسَاب', 'جَزَاء'],
   },
   {
+    cid: 909,
     arabic: 'كِتَابِيَهْ',
     translit: 'Kitābiyah',
     type: 'Noun (with pronoun)',
@@ -158,6 +163,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'حِسَاب', 'عَمَل'],
   },
   {
+    cid: 1134,
     arabic: 'يَمِينِهِ',
     translit: 'Yamīnih',
     type: 'Noun',

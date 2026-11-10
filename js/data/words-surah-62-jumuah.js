@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 317,
     arabic: 'الْجُمُعَةِ',
     translit: "Al-Jumu'ah",
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'جَمَاعَة'],
   },
   {
+    cid: 829,
     arabic: 'فَاسْعَوْا',
     translit: "Fas'aw",
     type: 'Verb (command)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَلَاة', 'ذِكْر'],
   },
   {
+    cid: 1037,
     arabic: 'نُودِيَ',
     translit: 'Nūdiya',
     type: 'Verb (passive)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'أَذَان', 'صَلَاة'],
   },
   {
+    cid: 920,
     arabic: 'لَاهِيَةً',
     translit: 'Lāhiyah',
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دُنْيَا', 'غَفْلَة'],
   },
   {
+    cid: 519,
     arabic: 'انفَضُّوا',
     translit: 'Infaḍḍū',
     type: 'Verb',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'لَهْو', 'تِجَارَة'],
   },
   {
+    cid: 668,
     arabic: 'ذِكْرِ اللَّهِ',
     translit: 'Dhikrillāh',
     type: 'Noun (phrase)',

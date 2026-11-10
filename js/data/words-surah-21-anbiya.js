@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 127,
     arabic:'الأنبياء',
     translit:"Al-Anbiya'",
     type:'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'وَحْي'],
   },
   {
+    cid: 149,
     arabic:'الذِّكْرِ',
     translit:'Adh-Dhikr',
     type:'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عِلْم', 'كِتَاب'],
   },
   {
+    cid: 919,
     arabic:'لَاعِبِينَ',
     translit:"La'ibin",
     type:'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'غَفْلَة', 'ذِكْر'],
   },
   {
+    cid: 403,
     arabic:'الْفُرْقَانَ',
     translit:'Al-Furqan',
     type:'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُوسَىٰ', 'كِتَاب'],
   },
   {
+    cid: 257,
     arabic:'النُّونِ',
     translit:'An-Nun',
     type:'Noun',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يُونُس', 'بَحْر'],
   },
   {
+    cid: 224,
     arabic:'الظَّالِمِينَ',
     translit:'Adh-Dhalimin',
     type:'Noun (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ظُلْم', 'عَدْل'],
   },
   {
+    cid: 245,
     arabic:'النَّجْوَىٰ',
     translit:'An-Najwa',
     type:'Noun',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سِرّ', 'عِلْم'],
   },
   {
+    cid: 202,
     arabic:'الصَّالِحَاتِ',
     translit:'As-Salih',
     type:'Noun (plural)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِيمَان', 'حَسَنَة'],
   },
   {
+    cid: 352,
     arabic:'الْخَاشِعِينَ',
     translit:"Al-Khashi'in",
     type:'Noun (plural)',

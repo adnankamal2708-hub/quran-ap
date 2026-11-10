@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 154,
     arabic: 'الرَّحْمَٰنُ',
     translit: 'Ar-Raḥmān',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'رَحْمَة'],
   },
   {
+    cid: 642,
     arabic: 'خَلَقَ',
     translit: 'Khalaqa',
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِنْسَان', 'خَالِق'],
   },
   {
+    cid: 4,
     arabic: 'آلَاءِ',
     translit: 'Ālā\'i',
     type: 'Noun (plural)',
@@ -97,6 +100,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نِعْمَة', 'شُكْر'],
   },
   {
+    cid: 962,
     arabic: 'مَرَجَ',
     translit: 'Maraja',
     type: 'Verb',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَحْر', 'خَلْق'],
   },
   {
+    cid: 297,
     arabic: 'الْبَحْرَيْنِ',
     translit: 'Al-Baḥrayn',
     type: 'Noun (dual)',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَاء', 'خَلْق'],
   },
   {
+    cid: 1099,
     arabic: 'يَخْرُجُ',
     translit: 'Yakhruju',
     type: 'Verb',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'بَحْر', 'رِزْق'],
   },
   {
+    cid: 666,
     arabic: 'ذُو الْجَلَالِ',
     translit: 'Dhul-Jalāli',
     type: 'Noun (phrase)',

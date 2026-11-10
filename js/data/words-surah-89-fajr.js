@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 397,
     arabic: 'الْفَجْرِ',
     translit: 'Al-Fajr',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الصَّلَاة', 'النُّور'],
   },
   {
+    cid: 935,
     arabic: 'لَيَالٍ عَشْرٍ',
     translit: 'Layālin ʿAshr',
     type: 'Noun + Adjective (phrase)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْحَجّ', 'الْأَضْحَىٰ'],
   },
   {
+    cid: 1066,
     arabic: 'وَتْرٍ',
     translit: 'Watr',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْخَلْق', 'التَّوْحِيد'],
   },
   {
+    cid: 819,
     arabic: 'فَأَخَذَهُمُ اللَّهُ',
     translit: 'Fa Akhadhahumu Allāh',
     type: 'Verb phrase',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعَذَاب', 'الْأُمَم السَّابِقَة'],
   },
   {
+    cid: 901,
     arabic: 'كَلَّا',
     translit: 'Kallā',
     type: 'Particle',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّدْع', 'الزَّجْر'],
   },
   {
+    cid: 516,
     arabic: 'الْيَتِيمَ',
     translit: 'Al-Yatīm',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِحْسَان', 'الزَّكَاة'],
   },
   {
+    cid: 446,
     arabic: 'الْمَسْكِينِ',
     translit: 'Al-Miskīn',
     type: 'Noun',

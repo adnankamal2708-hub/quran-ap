@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 379,
     arabic:'الْعَنْكَبُوتِ',
     translit:"Al-'Ankabūt",
     type:'Noun',
@@ -35,6 +36,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'وَلِي', 'مَثَل'],
   },
   {
+    cid: 378,
     arabic:'الْعَنَاءِ',
     translit:"Al-'Anā'",
     type:'Noun',
@@ -65,6 +67,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَبْر', 'أَجْر'],
   },
   {
+    cid: 592,
     arabic:'جَاهَدُوا',
     translit:'Jāhadū',
     type:'Verb',
@@ -96,6 +99,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جِهَاد', 'هُدًى'],
   },
   {
+    cid: 1090,
     arabic:'يَئِسُوا',
     translit:"Ya'isū",
     type:'Verb',
@@ -127,6 +131,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَجَاء', 'رَحْمَة'],
   },
   {
+    cid: 464,
     arabic:'الْمُحْسِنِينَ',
     translit:'Al-Muḥsinīn',
     type:'Noun (plural)',
@@ -158,6 +163,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِحْسَان', 'حَسَنَة'],
   },
   {
+    cid: 267,
     arabic:'الْأَرْحَامِ',
     translit:'Al-Arḥām',
     type:'Noun (plural)',

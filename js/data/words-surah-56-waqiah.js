@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 507,
     arabic: 'الْوَاقِعَةُ',
     translit: 'Al-Wāqi\'ah',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'بَعْث'],
   },
   {
+    cid: 633,
     arabic: 'خَافِضَةٌ',
     translit: 'Khāfiḍah',
     type: 'Adjective',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'يَوْمَ', 'حِسَاب'],
   },
   {
+    cid: 177,
     arabic: 'السَّابِقُونَ',
     translit: 'As-Sābiqūn',
     type: 'Noun (plural)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'ثَوَاب'],
   },
   {
+    cid: 45,
     arabic: 'أَصْحَابُ الْيَمِينِ',
     translit: 'Aṣḥābul-Yamīn',
     type: 'Noun (phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'يَمِين'],
   },
   {
+    cid: 44,
     arabic: 'أَصْحَابُ الْمَشْأَمَةِ',
     translit: 'Aṣḥābul-Mash\'amah',
     type: 'Noun (phrase)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَار', 'عَذَاب'],
   },
   {
+    cid: 768,
     arabic: 'طَيْرًا',
     translit: 'Ṭayran',
     type: 'Noun',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'جَنَّة', 'طَعَام'],
   },
   {
+    cid: 627,
     arabic: 'حُورٌ',
     translit: 'Ḥūrun',
     type: 'Noun (plural)',

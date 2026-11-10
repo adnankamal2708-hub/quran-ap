@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 447,
     arabic: 'الْمَعَارِجِ',
     translit: "Al-Ma'ārij",
     type: 'Noun (plural)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'سَمَاء'],
   },
   {
+    cid: 697,
     arabic: 'سَأَلَ',
     translit: "Sa'ala",
     type: 'Verb',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَذَاب', 'سُؤَال'],
   },
   {
+    cid: 698,
     arabic: 'سَائِلٌ',
     translit: "Sā'il",
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سَأَلَ', 'عَذَاب'],
   },
   {
+    cid: 1063,
     arabic: 'وَاقِعٍ',
     translit: "Wāqi'in",
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'عَذَاب', 'يَوْمَ'],
   },
   {
+    cid: 1047,
     arabic: 'هَلُوعًا',
     translit: "Halū'an",
     type: 'Adjective',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'إِنْسَان', 'صَبْر'],
   },
   {
+    cid: 595,
     arabic: 'جَزُوعًا',
     translit: "Jazū'an",
     type: 'Adjective',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَبْر', 'بَلَاء'],
   },
   {
+    cid: 974,
     arabic: 'مَنُوعًا',
     translit: "Manū'an",
     type: 'Adjective',

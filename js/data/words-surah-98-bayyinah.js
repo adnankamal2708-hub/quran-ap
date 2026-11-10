@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 304,
     arabic: 'الْبَيِّنَةِ',
     translit: 'Al-Bayyinah',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'الرَّسُول'],
   },
   {
+    cid: 681,
     arabic: 'رَسُولٌ مِّنَ اللَّهِ',
     translit: 'Rasūlun Mina Allāh',
     type: 'Noun + Preposition + Proper Noun (phrase)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'مُحَمَّد', 'الْقُرْآن'],
   },
   {
+    cid: 756,
     arabic: 'صُحُفًا مُّطَهَّرَةً',
     translit: 'Suḥufan Muṭahharah',
     type: 'Noun + Adjective (phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'الرَّسُول'],
   },
   {
+    cid: 880,
     arabic: 'قَيِّمَةٌ',
     translit: 'Qayyimah',
     type: 'Adjective',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْكِتَاب', 'الْقُرْآن'],
   },
   {
+    cid: 635,
     arabic: 'خَالِدِينَ فِيهَا أَبَدًا',
     translit: 'Khālidīna Fīhā Abadan',
     type: 'Adjective + Preposition + Adverb (phrase)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْجَنَّة', 'الرِّضَا'],
   },
   {
+    cid: 686,
     arabic: 'رَّضِيَ اللَّهُ عَنْهُمْ',
     translit: 'Raḍiya Allāhu ʿAnhum',
     type: 'Verb + Proper Noun + Preposition (phrase)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرِّضْوَان', 'الْجَنَّة'],
   },
   {
+    cid: 638,
     arabic: 'خَشِيَ',
     translit: 'Khashiya',
     type: 'Verb (perfect, masculine singular)',

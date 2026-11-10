@@ -79,6 +79,7 @@ var TESTS = [
   "tajweed-data.test.js",
   "verse-word-counts.test.js",
   "word-meanings.test.js",
+  "canonical-ids.test.js",
   "tajweed-track.test.js",
   "tajweed-exercises.test.js",
   "tajweed-ui.test.js",

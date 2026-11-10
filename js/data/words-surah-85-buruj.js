@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 306,
     arabic: 'الْبُرُوجِ',
     translit: 'Al-Burūj',
     type: 'Noun (plural, genitive)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'السَّمَاء', 'الْخَلْق'],
   },
   {
+    cid: 285,
     arabic: 'الْأُخْدُودِ',
     translit: 'Al-Ukhdūd',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِيمَان', 'الشَّهَادَة'],
   },
   {
+    cid: 743,
     arabic: 'شَهِيدٌ',
     translit: 'Shahīd',
     type: 'Adjective/Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الشَّهَادَة', 'الْعِلْم'],
   },
   {
+    cid: 370,
     arabic: 'الْعَزِيزُ',
     translit: 'Al-ʿAzīz',
     type: 'Adjective (divine attribute)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِزَّة', 'الْقُدْرَة'],
   },
   {
+    cid: 338,
     arabic: 'الْحَمِيدُ',
     translit: 'Al-Ḥamīd',
     type: 'Adjective (divine attribute)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّسْبِيح', 'الشُّكْر'],
   },
   {
+    cid: 863,
     arabic: 'فِي لَوْحٍ مَّحْفُوظٍ',
     translit: 'Fī Lawḥin Maḥfūẓ',
     type: 'Noun + Adjective (phrase)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقُرْآن', 'الْكِتَاب'],
   },
   {
+    cid: 977,
     arabic: 'مَّجِيدٌ',
     translit: 'Majīd',
     type: 'Adjective',

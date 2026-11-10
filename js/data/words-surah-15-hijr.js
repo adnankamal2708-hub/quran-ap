@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 347,
     arabic: 'الْحِجْرِ',
     translit: 'Al-Ḥijr',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'صَالِح', 'عَذَاب'],
   },
   {
+    cid: 146,
     arabic: 'الذِّكْرَ',
     translit: 'Adh-Dhikr',
     type: 'Noun',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'حِفْظ'],
   },
   {
+    cid: 349,
     arabic: 'الْحِفْظِ',
     translit: 'Al-Ḥifẓ',
     type: 'Noun',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'قُرْآن', 'كِتَاب'],
   },
   {
+    cid: 170,
     arabic: 'الزَّبُورِ',
     translit: 'Az-Zabūr',
     type: 'Noun',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دَاوُود', 'كِتَاب'],
   },
   {
+    cid: 1006,
     arabic: 'مِنْهَا',
     translit: 'Minhā',
     type: 'Pronoun (prepositional)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'شَيْء', 'سَمَاء'],
   },
   {
+    cid: 1116,
     arabic: 'يَسْجُدُونَ',
     translit: 'Yasjudūn',
     type: 'Verb (plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'سُجُود', 'مَلَائِكَة'],
   },
   {
+    cid: 911,
     arabic: 'لَأَنْعَامِ',
     translit: 'Li-An\'ām',
     type: 'Noun (plural)',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رِزْق', 'خَلْق'],
   },
   {
+    cid: 472,
     arabic: 'الْمُرْسَلِينَ',
     translit: 'Al-Mursalīn',
     type: 'Noun (plural)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'وَحْي'],
   },
   {
+    cid: 213,
     arabic: 'الصِّرَاطَ',
     translit: 'Aṣ-Ṣirāṭ',
     type: 'Noun',
@@ -284,6 +293,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'هُدًى', 'إِسْلَام'],
   },
   {
+    cid: 1031,
     arabic: 'نَقُولُ',
     translit: 'Naqūlu',
     type: 'Verb',

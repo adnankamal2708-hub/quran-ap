@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 1035,
     arabic: 'نُوحًا',
     translit: 'Nūḥan',
     type: 'Proper Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'رَسُول', 'قَوْم'],
   },
   {
+    cid: 73,
     arabic: 'أَنذِرْ',
     translit: 'Andhir',
     type: 'Verb (command)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'نَذِير', 'عَذَاب'],
   },
   {
+    cid: 653,
     arabic: 'دَعَوْتُ',
     translit: "Da'awtu",
     type: 'Verb',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دُعَاء', 'دَعْوَة'],
   },
   {
+    cid: 936,
     arabic: 'لَيْلًا وَنَهَارًا',
     translit: 'Laylan wa Nahāran',
     type: 'Adverbial phrase',
@@ -128,6 +132,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دُعَاء', 'صَبْر'],
   },
   {
+    cid: 841,
     arabic: 'فَرَارًا',
     translit: 'Farāran',
     type: 'Noun',
@@ -159,6 +164,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'دُعَاء', 'قَوْم'],
   },
   {
+    cid: 1009,
     arabic: 'مِّمَّا خَطِيئَاتِهِمْ',
     translit: "Mimmā Khaṭī'ātihim",
     type: 'Noun (plural)',
@@ -190,6 +196,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'ذَنْب', 'عِقَاب'],
   },
   {
+    cid: 93,
     arabic: 'أُغْرِقُوا',
     translit: 'Ughriqū',
     type: 'Verb (passive)',

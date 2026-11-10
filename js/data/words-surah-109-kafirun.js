@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 425,
     arabic: 'الْكَافِرُونَ',
     translit: 'Al-Kāfirūn',
     type: 'Noun (plural, active participle)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِيمَان', 'الْكُفْر'],
   },
   {
+    cid: 52,
     arabic: 'أَعْبُدُ',
     translit: "A'budu",
     type: 'Verb (imperfect, 1st person singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'التَّوْحِيد', 'الْعِبَادَة'],
   },
   {
+    cid: 926,
     arabic: 'لَكُمْ دِينُكُمْ',
     translit: 'Lakum Dīnukum',
     type: 'Preposition + Noun (phrase)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِسْلَام', 'الْكُفْر'],
   },
   {
+    cid: 1078,
     arabic: 'وَلِيَ دِينِ',
     translit: 'Wa Liya Dīn',
     type: 'Conjunction + Preposition + Noun (phrase)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْإِسْلَام', 'التَّوْحِيد'],
   },
   {
+    cid: 885,
     arabic: 'قُلْ',
     translit: 'Qul',
     type: 'Verb (imperative, 2nd person masculine singular)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْوَحْي', 'الْكَافِرُونَ'],
   },
   {
+    cid: 565,
     arabic: 'تَعْبُدُونَ',
     translit: "Ta'budūn",
     type: 'Verb (imperfect, 2nd person masculine plural)',
@@ -191,6 +197,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِبَادَة', 'الشِّرْك'],
   },
   {
+    cid: 779,
     arabic: 'عَابِدُونَ',
     translit: 'ʿĀbidūn',
     type: 'Noun (plural, active participle)',
@@ -222,6 +229,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِبَادَة', 'الْإِخْلَاص'],
   },
   {
+    cid: 778,
     arabic: 'عَابِدٌ',
     translit: 'ʿĀbid',
     type: 'Noun (active participle)',
@@ -253,6 +261,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْعِبَادَة', 'التَّوْحِيد'],
   },
   {
+    cid: 785,
     arabic: 'عَبَدْتُم',
     translit: 'ʿAbadtum',
     type: 'Verb (perfect, 2nd person masculine plural)',

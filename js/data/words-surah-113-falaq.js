@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 400,
     arabic: 'الْفَلَقِ',
     translit: 'Al-Falaq',
     type: 'Noun',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'النُّور', 'الْخَلْق'],
   },
   {
+    cid: 51,
     arabic: 'أَعُوذُ',
     translit: "A'ūdhu",
     type: 'Verb (imperfect, 1st person singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الرَّبّ', 'الْحِمَايَة'],
   },
   {
+    cid: 382,
     arabic: 'الْغَاسِقِ',
     translit: 'Al-Ghāsiq',
     type: 'Noun (active participle)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'اللَّيْل', 'النُّور'],
   },
   {
+    cid: 249,
     arabic: 'النَّفَّاثَاتِ',
     translit: 'An-Naffāthāt',
     type: 'Noun (plural, feminine, intensive)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'السِّحْر', 'الْعُقَد'],
   },
   {
+    cid: 608,
     arabic: 'حَاسِدٍ',
     translit: 'Ḥāsidin',
     type: 'Noun (active participle)',

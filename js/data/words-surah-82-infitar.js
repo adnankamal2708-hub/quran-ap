@@ -5,6 +5,7 @@
 
 ALL_WORDS.push(
   {
+    cid: 522,
     arabic: 'انْفَطَرَتْ',
     translit: 'Infaṭarat',
     type: 'Verb (perfect, feminine singular)',
@@ -36,6 +37,7 @@ ALL_WORDS.push(
     relatedWords: ['السَّمَاء', 'الْقِيَامَة', 'يَوْم الْقِيَامَة'],
   },
   {
+    cid: 520,
     arabic: 'انْتَثَرَتْ',
     translit: 'Intatharat',
     type: 'Verb (perfect, feminine singular)',
@@ -67,6 +69,7 @@ ALL_WORDS.push(
     relatedWords: ['الْكَوَاكِب', 'السَّمَاء', 'الْقِيَامَة'],
   },
   {
+    cid: 856,
     arabic: 'فُجِّرَتْ',
     translit: 'Fujjirat',
     type: 'Verb (passive, perfect, feminine singular)',
@@ -98,6 +101,7 @@ ALL_WORDS.push(
     relatedWords: ['الْبِحَار', 'الْمَاء', 'الْقِيَامَة'],
   },
   {
+    cid: 271,
     arabic: 'الْأَسْحَارِ',
     translit: 'Al-Asḥār',
     type: 'Noun (plural, genitive)',
@@ -129,6 +133,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'اسْتِغْفَار', 'صَلَاة'],
   },
   {
+    cid: 1138,
     arabic: 'يَوْمَ الدِّينِ',
     translit: 'Yawma al-Dīn',
     type: 'Noun (phrase)',
@@ -160,6 +165,7 @@ ALL_WORDS.push(
     relatedWords: ['اللَّهُ', 'الْقِيَامَة', 'الْجَزَاء'],
   },
   {
+    cid: 894,
     arabic: 'كَرَامًا كَاتِبِينَ',
     translit: 'Kirāman Kātibīn',
     type: 'Noun (plural) + Adjective',
