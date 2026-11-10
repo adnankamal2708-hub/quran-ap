@@ -8930,6 +8930,8 @@ body::before {
 }
 
 /* How to use Bayan (js/ui/help.js) */
+/* Above tip bubbles (--z-tooltip), which can appear after it opens */
+#help-overlay { z-index: calc(var(--z-tooltip) + 1); }
 .help-dialog { max-width: 440px; width: 100%; }
 .help-intro { color: var(--text); line-height: 1.6; margin-bottom: 12px; }
 .help-tabs { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; line-height: 1.5; color: var(--text); }
