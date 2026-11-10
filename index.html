@@ -27,6 +27,22 @@
       window.__applyTheme = apply;
     })();
   </script>
+  <script>
+    /* Text size before first paint: the reader's choice (bayan_text_size =
+       large or larger, js/ui/text-size.js). window.__applyTextSize
+       re-applies it. Block comments only, as above. */
+    (function () {
+      var root = document.documentElement;
+      function apply() {
+        var size = null;
+        try { size = localStorage.getItem('bayan_text_size'); } catch (e) {}
+        if (size === 'large' || size === 'larger') root.setAttribute('data-text-size', size);
+        else root.removeAttribute('data-text-size');
+      }
+      apply();
+      window.__applyTextSize = apply;
+    })();
+  </script>
   <link rel="icon" type="image/png" sizes="16x16" href="assets/logo/favicon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/logo/favicon-32.png" />
   <link rel="apple-touch-icon" href="assets/logo/apple-touch-icon-180.png" />
@@ -439,6 +455,7 @@ getResults: function () { return _safeguardResults; },
           <span class="beta-badge" id="beta-badge" style="display:none" title="">Beta</span>
         </div>
         <div class="top-right-group">
+          <button class="theme-btn text-size-btn" id="text-size-btn" type="button" aria-label="Change text size"><span aria-hidden="true">Aa</span></button>
           <button class="theme-btn" id="theme-btn" type="button" aria-label="Change theme"></button>
           <a id="header-signin-link" class="header-signin-link" href="#" style="display:none">Sign in</a>
           <button class="user-avatar-small" id="user-avatar-display" type="button" aria-label="Profile" onclick="switchView('profile')"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>

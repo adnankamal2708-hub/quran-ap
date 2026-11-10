@@ -66,6 +66,7 @@ const UI_FILES = [
   'js/ui/learn-screen.js',
   'js/ui/tracks-ui.js',
   'js/ui/theme.js',
+  'js/ui/text-size.js',
 ];
 
 // firebase-core.js is NOT in the bundle — it is loaded as a separate ES

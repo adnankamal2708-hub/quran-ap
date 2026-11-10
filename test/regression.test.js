@@ -204,16 +204,16 @@ suite('Typography System', function() {
   });
 
   test('typography scale includes all needed font-size values', function() {
-    assert.ok(cssContains('--text-xs: 11px'), 'text-xs should be 11px (the readable floor)');
-    assert.ok(cssContains('--text-sm: 12px'), 'text-sm should be 12px');
-    assert.ok(cssContains('--text-base: 14px'), 'text-base should be 14px');
-    assert.ok(cssContains('--text-lg: 18px'), 'text-lg should be 18px');
-    assert.ok(cssContains('--text-xl: 24px'), 'text-xl should be 24px');
-    assert.ok(cssContains('--text-2xl: 30px'), 'text-2xl should be 30px');
-    assert.ok(cssContains('--text-3xl: 42px'), 'text-3xl should be 42px');
-    assert.ok(cssContains('--text-4xl: 52px'), 'text-4xl should be 52px');
-    assert.ok(cssContains('--text-2xs: 11px'), 'text-2xs is raised to the 11px floor');
-    assert.ok(cssContains('--text-3xs: 11px'), 'text-3xs is raised to the 11px floor');
+    assert.ok(cssContains('--text-xs: 0.6875rem'), 'text-xs should be 11px (the readable floor)');
+    assert.ok(cssContains('--text-sm: 0.75rem'), 'text-sm should be 12px');
+    assert.ok(cssContains('--text-base: 0.875rem'), 'text-base should be 14px');
+    assert.ok(cssContains('--text-lg: 1.125rem'), 'text-lg should be 18px');
+    assert.ok(cssContains('--text-xl: 1.5rem'), 'text-xl should be 24px');
+    assert.ok(cssContains('--text-2xl: 1.875rem'), 'text-2xl should be 30px');
+    assert.ok(cssContains('--text-3xl: 2.625rem'), 'text-3xl should be 42px');
+    assert.ok(cssContains('--text-4xl: 3.25rem'), 'text-4xl should be 52px');
+    assert.ok(cssContains('--text-2xs: 0.6875rem'), 'text-2xs is raised to the 11px floor');
+    assert.ok(cssContains('--text-3xs: 0.6875rem'), 'text-3xs is raised to the 11px floor');
   });
 
   test('muted gold text passes WCAG AA contrast on every surface', function() {
@@ -249,8 +249,9 @@ suite('Typography System', function() {
     var m;
     while ((m = ruleRe.exec(cssContent))) {
       if (/goal-ring-text|db-ring-text/.test(m[1])) continue;
-      var size = m[2].match(/font-size:\s*(\d+(?:\.\d+)?)px/);
-      if (size && parseFloat(size[1]) < 11) tooSmall.push(m[1].trim().split('\n').pop() + ' ' + size[1] + 'px');
+      // Sizes are in rem: 1rem is 16px at the Normal text size
+      var size = m[2].match(/font-size:\s*(\d+(?:\.\d+)?)rem/);
+      if (size && parseFloat(size[1]) * 16 < 11) tooSmall.push(m[1].trim().split('\n').pop() + ' ' + size[1] + 'rem');
     }
     assert.deepStrictEqual(tooSmall, [], 'rules below 11px: ' + tooSmall.slice(0, 5).join('; '));
   });
@@ -264,11 +265,11 @@ suite('Typography System', function() {
   });
 
   test('heading scale values are consistent', function() {
-    assert.ok(cssContains('--heading-sm: 11px'), 'heading-sm should be 11px');
-    assert.ok(cssContains('--heading-base: 13px'), 'heading-base should be 13px');
-    assert.ok(cssContains('--heading-lg: 16px'), 'heading-lg should be 16px');
-    assert.ok(cssContains('--heading-xl: 20px'), 'heading-xl should be 20px');
-    assert.ok(cssContains('--heading-2xl: 28px'), 'heading-2xl should be 28px');
+    assert.ok(cssContains('--heading-sm: 0.6875rem'), 'heading-sm should be 11px');
+    assert.ok(cssContains('--heading-base: 0.8125rem'), 'heading-base should be 13px');
+    assert.ok(cssContains('--heading-lg: 1rem'), 'heading-lg should be 16px');
+    assert.ok(cssContains('--heading-xl: 1.25rem'), 'heading-xl should be 20px');
+    assert.ok(cssContains('--heading-2xl: 1.75rem'), 'heading-2xl should be 28px');
   });
 
   test('-webkit-font-smoothing is set on body', function() {
@@ -946,6 +947,79 @@ suite('View Switch Scroll Protection', function() {
     assert.ok(!('bayan_theme' in store), 'System removes the saved choice');
     assert.strictEqual(btn.innerHTML, '[monitor]');
     assert.strictEqual(applied, 3, 'theme re-applied on every change');
+  });
+
+  // ── Text size: Normal / Large / Larger ──
+  function runTextSizeScript(stored) {
+    var html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8').replace(/\r?\n/g, '\r\n');
+    var min = html.replace(/\n\s+/g, '\n').replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ');
+    var script = (min.match(/<script>([^<]*__applyTextSize[^<]*)<\/script>/) || [])[1];
+    assert.ok(script, 'text size script present in <head>');
+    var attrs = {};
+    var sandbox = {
+      document: { documentElement: {
+        setAttribute: function (k, v) { attrs[k] = v; },
+        removeAttribute: function (k) { delete attrs[k]; },
+      } },
+      localStorage: { getItem: function () { return stored; } },
+    };
+    sandbox.window = sandbox;
+    require('vm').runInNewContext(script, sandbox);
+    return attrs['data-text-size'];
+  }
+
+  test('text size script sets data-text-size only for Large and Larger', function() {
+    assert.strictEqual(runTextSizeScript(null), undefined, 'Normal by default');
+    assert.strictEqual(runTextSizeScript('large'), 'large');
+    assert.strictEqual(runTextSizeScript('larger'), 'larger');
+    assert.strictEqual(runTextSizeScript('huge'), undefined, 'unknown value is Normal');
+  });
+
+  test('text size button cycles Normal → Large → Larger and forgets the choice on Normal', function() {
+    var store = {};
+    var applied = 0;
+    var attrs = {};
+    var btn = { setAttribute: function (k, v) { attrs[k] = v; }, title: '' };
+    var sandbox = {
+      localStorage: {
+        getItem: function (k) { return k in store ? store[k] : null; },
+        setItem: function (k, v) { store[k] = String(v); },
+        removeItem: function (k) { delete store[k]; },
+      },
+      document: { getElementById: function (id) { return id === 'text-size-btn' ? btn : null; } },
+    };
+    sandbox.window = sandbox;
+    sandbox.window.__applyTextSize = function () { applied++; };
+    var src = ['js/i18n/strings-en.js', 'js/ui/text-size.js'].map(function (p) {
+      return fs.readFileSync(path.join(__dirname, '..', p), 'utf8');
+    }).join('\n');
+    require('vm').runInNewContext(src + '\ninitTextSizeButton();', sandbox);
+    assert.strictEqual(btn.title, 'Text size: Normal', 'starts on Normal');
+    btn.onclick();
+    assert.strictEqual(store.bayan_text_size, 'large');
+    assert.strictEqual(attrs['aria-label'], 'Text size: Large. Change text size');
+    btn.onclick();
+    assert.strictEqual(store.bayan_text_size, 'larger');
+    btn.onclick();
+    assert.ok(!('bayan_text_size' in store), 'Normal removes the saved choice');
+    assert.strictEqual(btn.title, 'Text size: Normal');
+    assert.strictEqual(applied, 3, 'text size re-applied on every change');
+  });
+
+  test('text is sized in rem so the text size setting reaches every label', function() {
+    // SVG ring labels are exempt: their px are viewBox units, sized to the ring.
+    var px = [];
+    var ruleRe = /([^{}]+)\{([^{}]*)\}/g;
+    var m;
+    while ((m = ruleRe.exec(cssContent))) {
+      if (/goal-ring-text|db-ring-text/.test(m[1])) continue;
+      if (/font-size:\s*\d[\d.]*px/.test(m[2])) px.push(m[1].trim().split('\n').pop());
+    }
+    assert.deepStrictEqual(px, [], 'no font-size in px');
+    ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl'].forEach(function (k) {
+      var m = cssContent.match(new RegExp('--text-' + k + ':\\s*([^;]+);'));
+      assert.ok(m && /rem$/.test(m[1].trim()), '--text-' + k + ' is in rem');
+    });
   });
 
   test('Quran reader word colours come from the app palette', function() {

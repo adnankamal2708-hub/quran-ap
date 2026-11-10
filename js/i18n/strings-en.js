@@ -8,6 +8,13 @@
 
 var STRINGS = {
   en: {
+    // ── Text size (top bar "Aa" button) ──
+    'textSize.normal': 'Normal',
+    'textSize.large': 'Large',
+    'textSize.larger': 'Larger',
+    'textSize.current': 'Text size: {size}',
+    'textSize.change': 'Change text size',
+
     // ── Learning tracks ──
     'track.qaida.name': 'Read Arabic from zero',
     'track.tajweed.name': 'Tajweed',

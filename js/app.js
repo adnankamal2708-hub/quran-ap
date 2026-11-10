@@ -854,6 +854,8 @@ function wireEvents() {
 
   // Theme button in the top bar (System / Light / Dark)
   if (typeof initThemeButton === 'function') initThemeButton();
+  // Text size button (Normal / Large / Larger)
+  if (typeof initTextSizeButton === 'function') initTextSizeButton();
 
   // Notes (auto-save on blur)
   var notesInput = document.getElementById('notes-input');
