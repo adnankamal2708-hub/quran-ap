@@ -4,7 +4,8 @@
 // Shows the word as written, its meaning in this verse, "Open lesson"
 // when the word is taught in Bayan, and "Report a mistake", which opens
 // the feedback form (js/services/feedback.js) already filled in with the
-// verse, the word and the meaning shown.
+// verse, the word and the meaning shown. "Listen" plays quran.com's
+// recording of the word (js/services/audio.js).
 // ═══════════════════════════════════════════════════════════════
 
 function _escWordPanel(s) {
@@ -31,7 +32,7 @@ function hideQuranWordPanel() {
 
 /**
  * Open the panel for one word.
- * @param {{verseKey: string, wordNum: number, arabic: string, meaning: string, onOpenLesson: ?function}} info
+ * @param {{verseKey: string, wordNum: number, arabic: string, meaning: string, audioUrls: ?string[], onOpenLesson: ?function}} info
  */
 function showQuranWordPanel(info) {
   var overlay = document.getElementById('word-panel-overlay');
@@ -51,6 +52,7 @@ function showQuranWordPanel(info) {
   h += '<div class="word-panel-meaning">' + _escWordPanel(info.meaning || '–') + '</div>';
   h += '<div class="word-panel-ref">' + _escWordPanel(t('wordPanel.ref', { ref: info.verseKey, n: info.wordNum })) + '</div>';
   h += '<div class="word-panel-actions">';
+  if (info.audioUrls && info.audioUrls.length) h += '<button class="btn" type="button" id="word-panel-listen">' + iconText('play', t('wordPanel.listen')) + '</button>';
   if (info.onOpenLesson) h += '<button class="btn" type="button" id="word-panel-lesson">' + t('wordPanel.openLesson') + '</button>';
   h += '<button class="btn btn-outline" type="button" id="word-panel-report">' + t('wordPanel.report') + '</button>';
   h += '<button class="btn btn-outline" type="button" id="word-panel-close">' + t('help.close') + '</button>';
@@ -69,6 +71,8 @@ function showQuranWordPanel(info) {
       window.__feedback.showModal(quranWordReportText(info));
     }
   };
+  var listenBtn = document.getElementById('word-panel-listen');
+  if (listenBtn) listenBtn.onclick = function () { playAudioQueue(info.audioUrls); };
   var lessonBtn = document.getElementById('word-panel-lesson');
   if (lessonBtn) lessonBtn.onclick = function () { hideQuranWordPanel(); info.onOpenLesson(); };
   if (typeof trapFocus === 'function') trapFocus(overlay);

@@ -36,6 +36,7 @@ var STRINGS = {
     'wordPanel.ref': 'Verse {ref}, word {n}',
     'wordPanel.openLesson': 'Open lesson',
     'wordPanel.report': 'Report a mistake',
+    'wordPanel.listen': 'Listen',
     'wordPanel.reportText': 'Mistake in a word meaning. Verse {ref}, word {n}: {arabic}, shown as "{meaning}". What is wrong:',
     'home.help': 'How to use Bayan',
 
@@ -327,6 +328,10 @@ var STRINGS = {
     // ── Audio ──
     'audio.credit.husary': 'Recitation: Al-Husary',
     'audio.play': 'Play',
+    'reader.listen': 'Listen',
+    'reader.stop': 'Stop',
+    'reader.playVerse': 'Play verse {n}',
+    'reader.stopVerse': 'Stop verse {n}',
 
     // ── Practice tab ──
     'practice.due': 'Due today',

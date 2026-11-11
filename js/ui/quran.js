@@ -168,6 +168,7 @@ function _buildVerseData(surahId, quranSurah, vocabWords) {
       ayahA: verse.text,
       ayahT: verse.translation || '',
       glosses: verse.w || null,   // each word's meaning in this verse (build.js)
+      splits: verse.ws || null,   // words quran.com counts as two (build.js)
     };
     verseKeys.push(verseKey);
   }
@@ -375,6 +376,7 @@ function openSurahForReading(surahId) {
   // Callers that intentionally open uncovered surahs (e.g. "Read anyway"
   // button) set _quranSurahId beforehand so this guard is bypassed.
   if (_quranSurahId !== surahId) {
+    if (typeof stopQuranRecitation === 'function') stopQuranRecitation();
     var _maxCov = typeof getMaxCoveredSurah === 'function' ? getMaxCoveredSurah() : 0;
     if (_maxCov > 0 && surahId > _maxCov) {
       showUncoveredSurahMessage(surahId);
@@ -469,6 +471,8 @@ function _openQuranWord(el) {
   var ayah = el.closest('.quran-ayah');
   var verseKey = ayah ? ayah.id.replace('quran-ayah-', '').replace('-', ':') : '';
   var wordId = el.getAttribute('data-word-id');
+  var ref = verseKey.split(':');
+  var positions = (el.getAttribute('data-pos') || '').split(',').filter(Boolean);
   var word = null;
   for (var wi = 0; wordId && wi < _quranSurahWords.length; wi++) {
     if (_quranSurahWords[wi].id === wordId) { word = _quranSurahWords[wi]; break; }
@@ -478,6 +482,8 @@ function _openQuranWord(el) {
     wordNum: parseInt(el.getAttribute('data-n'), 10),
     arabic: el.textContent,
     meaning: el.getAttribute('data-gloss') || '',
+    // quran.com's recording of the word (two clips where it counts it as two)
+    audioUrls: positions.map(function (p) { return wordAudioUrl(+ref[0], +ref[1], +p); }),
     onOpenLesson: (word && typeof openExplorer === 'function') ? function () { openExplorer(word); } : null,
   };
   if (typeof showQuranWordPanel === 'function') showQuranWordPanel(info);
@@ -513,6 +519,8 @@ function renderAyahs() {
     html += '<div class="quran-ayah" id="quran-ayah-' + verseKey.replace(':', '-') + '">';
     html += '<div class="quran-ayah-header">';
     html += '<div class="quran-ayah-num">Verse ' + verseNum + (totalVerses > 0 ? ' of ' + totalVerses : '') + '</div>';
+    // Al-Husary's recitation of this verse (js/ui/quran-player.js draws the icon)
+    html += '<button type="button" class="quran-ayah-play" data-verse="' + verseNum + '"></button>';
     html += '</div>';
 
     // Arabic verse (immutable Quran text with vocabulary highlighting)
@@ -520,6 +528,8 @@ function renderAyahs() {
     var verseTokens = group.ayahA.split(/\s+/).filter(Boolean);
     var vocabNormForVerse = _quranVocabByNorm(group.words);
     var glosses = group.glosses || [];
+    // quran.com's number for each word, for its recording
+    var wordPos = quranWordPositions(verseTokens.length, group.glosses, group.splits);
 
     for (var vti = 0; vti < verseTokens.length; vti++) {
       var token = verseTokens[vti];
@@ -537,6 +547,7 @@ function renderAyahs() {
       // The gloss is drawn by CSS (::after) when "Meanings" is on, so the
       // token's text stays exactly the verse text.
       var gloss = String(meaning).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      var posAttr = wordPos[vti].length ? ' data-pos="' + wordPos[vti].join(',') + '"' : '';
 
       if (matchedWord) {
         var colorClass = _quranGetMasteryColor(matchedWord.id);
@@ -546,14 +557,14 @@ function renderAyahs() {
         // substitute the dictionary/canonical form. The dictionary form is
         // used only for matching and for accessible labels (aria/title).
         html += '<span class="quran-word-token quran-token-' + colorClass + '" ' +
-          'data-word-id="' + matchedWord.id + '" data-n="' + (vti + 1) + '" ' +
+          'data-word-id="' + matchedWord.id + '" data-n="' + (vti + 1) + '"' + posAttr + ' ' +
           'data-gloss="' + gloss + '" ' +
           'tabindex="0" role="button" ' +
           'aria-label="' + escapedArabic + ' — ' + gloss + '" ' +
           'title="' + escapedArabic + ' — ' + gloss + '">' +
           escapedToken + '</span>';
       } else {
-        html += '<span class="quran-plain-arabic' + (meaning ? ' has-gloss' : '') + '" data-n="' + (vti + 1) + '" tabindex="0" role="button"' +
+        html += '<span class="quran-plain-arabic' + (meaning ? ' has-gloss' : '') + '" data-n="' + (vti + 1) + '"' + posAttr + ' tabindex="0" role="button"' +
           (meaning ? ' data-gloss="' + gloss + '" aria-label="' + gloss + '" title="' + gloss + '"' : '') + '>' +
           escapedToken + '</span>';
       }
@@ -572,10 +583,13 @@ function renderAyahs() {
   }
 
   container.innerHTML = html;
+  if (typeof syncQuranPlayer === 'function') syncQuranPlayer();
 
   // Tap any word → its meaning, Open lesson and Report a mistake
   // (js/ui/quran-word-panel.js). One handler for the whole surah.
   container.onclick = function (e) {
+    var play = e.target && e.target.closest ? e.target.closest('.quran-ayah-play') : null;
+    if (play) { toggleVerseRecitation(parseInt(play.getAttribute('data-verse'), 10)); return; }
     var el = e.target && e.target.closest ? e.target.closest('.quran-ayah-arabic [data-n]') : null;
     if (el) _openQuranWord(el);
   };
@@ -788,6 +802,7 @@ function showUncoveredSurahMessage(surahId) {
 // ── Back to Surah List ─────────────────────────────────────────
 
 function goBackToSurahList() {
+  if (typeof stopQuranRecitation === 'function') stopQuranRecitation();
   // ── Check if we just completed a guided surah ──
   // Capture the completion summary BEFORE clearing _quranSurahId, then render
   // the surah list, and insert the post-surah summary card AFTER the render so
@@ -909,6 +924,8 @@ function wireReaderControls() {
   var down = document.getElementById('reader-size-down');
   var up = document.getElementById('reader-size-up');
   var meanings = document.getElementById('reader-meanings');
+  var listen = document.getElementById('reader-listen');
+  if (listen) listen.onclick = toggleSurahRecitation;
   if (down) down.onclick = function () {
     prefs.size = Math.max(0, prefs.size - 1); _setReaderPrefs(prefs);
   };
