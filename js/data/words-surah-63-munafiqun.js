@@ -163,7 +163,7 @@ ALL_WORDS.push(
     ayahA: '۞وَإِذَا رَأَيۡتَهُمۡ تُعۡجِبُكَ أَجۡسَامُهُمۡۖ وَإِن يَقُولُواْ تَسۡمَعۡ لِقَوۡلِهِمۡۖ كَأَنَّهُمۡ خُشُبٞ مُّسَنَّدَةٞۖ يَحۡسَبُونَ كُلَّ صَيۡحَةٍ عَلَيۡهِمۡۚ هُمُ ٱلۡعَدُوُّ فَٱحۡذَرۡهُمۡۚ قَٰتَلَهُمُ ٱللَّهُۖ أَنَّىٰ <span class="ayah-highlight">يُؤۡفَكُونَ</span>',
     ayahT: 'And when you see them, their forms please you, and if they speak, you listen to their speech. [They are] as if they were pieces of wood propped up - they think that every shout is against them. They are the enemy, so beware of them. May Allah destroy them; how are they deluded',
     ayahR: 'Al-Munafiqun 63:4',
-    tafsir: '',
+    tafsir: 'ولهذا قال : ( هم العدو فاحذرهم قاتلهم الله أنى يؤفكون ) أي : كيف يصرفون عن الهدى إلى الضلال .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['أَفَّاك', 'إِفْك', 'مَأْفُوك'],

@@ -262,7 +262,7 @@ ALL_WORDS.push(
     ayahA: 'فَطَوَّعَتۡ لَهُۥ نَفۡسُهُۥ قَتۡلَ <span class="ayah-highlight">أَخِيهِ</span> فَقَتَلَهُۥ فَأَصۡبَحَ مِنَ ٱلۡخَٰسِرِينَ',
     ayahT: 'And his soul permitted to him the murder of his brother, so he killed him and became among the losers',
     ayahR: 'Al-Ma\'idah 5:30',
-    tafsir: '',
+    tafsir: 'وقوله تعالى : ( فطوعت له نفسه قتل أخيه فقتله فأصبح من الخاسرين ) أي : فحسنت وسولت له نفسه ، وشجعته على قتل أخيه فقتله ، أي : بعد هذه الموعظة وهذا الزجر .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['أَخ', 'إِخْوَة', 'مُؤَاخَاة'],

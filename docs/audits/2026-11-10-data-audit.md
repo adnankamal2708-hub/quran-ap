@@ -22,7 +22,7 @@ higher.
   labelled "from the hadith" and given a count of 0. `test/lesson-examples.test.js`
   checks all of this on every build.
 - **Fixed: 6.** The notes are now Ibn Kathir's own Arabic, quoted word
-  for word from `data-sources/ibn-kathir-ar.json` (611 words). Words with no
+  for word from `data-sources/ibn-kathir-ar.json` (653 words). Words with no
   quote that clearly explains them show links only (to the full Arabic and
   the abridged English on quran.com). The test checks every quote against
   the source.
@@ -43,6 +43,15 @@ higher.
   - A new word's `occ` is capped at 20 (`occExact` keeps the real count),
     so the Foundation Course and the free 300 stay the same words.
   - Coverage for all words is now 41.9%.
+  - 43 of the new and re-cited words have an Ibn Kathir note. The rest show
+    links only: his commentary on their verse has no passage that explains
+    that word.
+  - Six surahs taught a word twice through a second entry, from before this
+    change (النَّاسِ in 114, نُور in 24, الْحَقُّ in 13, الْمَجِيدِ in 50,
+    ٱلَّيۡلِ in 73, تُحَرِّمُ in 66). The second entry (241, 1038, 543, 441,
+    1181, 580) keeps its id and lesson but no longer has a surah.
+    `test/canonical-ids.test.js` checks that a surah lesson teaches each
+    word once.
 - **Fixed: 7.** `js/data-core/word-forms.js` tells look-alikes apart by
   their vowel marks (مِنْ / مَنْ, الْجَنَّة / الْجِنَّة). The occurrence
   index gives such a lesson word its own key, so counts, coverage, verse

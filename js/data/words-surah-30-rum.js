@@ -292,7 +292,7 @@ ALL_WORDS.push(
     ayahA: 'أَوَلَمۡ يَرَوۡاْ أَنَّ ٱللَّهَ <span class="ayah-highlight">يَبۡسُطُ</span> ٱلرِّزۡقَ لِمَن يَشَآءُ وَيَقۡدِرُۚ إِنَّ فِي ذَٰلِكَ لَأٓيَٰتٖ لِّقَوۡمٖ يُؤۡمِنُونَ',
     ayahT: 'Do they not see that Allah extends provision for whom He wills and restricts [it]? Indeed, in that are signs for a people who believe',
     ayahR: 'Ar-Rum 30:37',
-    tafsir: '',
+    tafsir: 'وقوله تعالى : ( أولم يروا أن الله يبسط الرزق لمن يشاء ويقدر ) أي : هو المتصرف الفاعل لذلك بحكمته وعدله ، فيوسع على قوم ويضيق على آخرين ، ( إن في ذلك لآيات لقوم يؤمنون ) .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['بَسْط', 'بَسِيط', 'مَبْسُوط'],

@@ -258,7 +258,7 @@ ALL_WORDS.push(
     ayahA: 'إِنَّ ٱلَّذِينَ ءَامَنُواْ وَهَاجَرُواْ وَجَٰهَدُواْ بِأَمۡوَٰلِهِمۡ وَأَنفُسِهِمۡ فِي سَبِيلِ ٱللَّهِ وَٱلَّذِينَ ءَاوَواْ <span class="ayah-highlight">وَّنَصَرُوٓاْ</span> أُوْلَـٰٓئِكَ بَعۡضُهُمۡ أَوۡلِيَآءُ بَعۡضٖۚ وَٱلَّذِينَ ءَامَنُواْ وَلَمۡ يُهَاجِرُواْ مَا لَكُم مِّن وَلَٰيَتِهِم مِّن شَيۡءٍ حَتَّىٰ يُهَاجِرُواْۚ وَإِنِ ٱسۡتَنصَرُوكُمۡ فِي ٱلدِّينِ فَعَلَيۡكُمُ ٱلنَّصۡرُ إِلَّا عَلَىٰ قَوۡمِۭ بَيۡنَكُمۡ وَبَيۡنَهُم مِّيثَٰقٞۗ وَٱللَّهُ بِمَا تَعۡمَلُونَ بَصِيرٞ',
     ayahT: 'Indeed, those who have believed and emigrated and fought with their wealth and lives in the cause of Allah and those who gave shelter and aided - they are allies of one another. But those who believed and did not emigrate - for you there is no guardianship of them until they emigrate. And if they seek help of you for the religion, then you must help, except against a people between yourselves and whom is a treaty. And Allah is Seeing of what you do',
     ayahR: 'Al-Anfal 8:72',
-    tafsir: '',
+    tafsir: 'وقوله : ( وإن استنصروكم في الدين فعليكم النصر إلا على قوم بينكم وبينهم ميثاق والله بما تعملون بصير ) يقول تعالى : وإن استنصروكم هؤلاء الأعراب الذين لم يهاجروا في قتال ديني ، على عدو لهم فانصروهم ، فإنه واجب عليكم نصرهم ؛ لأنهم إخوانكم في الدين ، إلا أن يستنصروكم على قوم من الكفار ( بينكم وبينهم ميثاق ) أي : مهادنة إلى مدة ، فلا تخفروا ذمتكم ، ولا تنقضوا أيمانكم مع الذين عاهدتم .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['نَصَرَ', 'نَصِير', 'نَصْر'],

@@ -258,7 +258,7 @@ ALL_WORDS.push(
     ayahA: 'يُرِيدُونَ لِيُطۡفِـُٔواْ نُورَ ٱللَّهِ <span class="ayah-highlight">بِأَفۡوَٰهِهِمۡ</span> وَٱللَّهُ مُتِمُّ نُورِهِۦ وَلَوۡ كَرِهَ ٱلۡكَٰفِرُونَ',
     ayahT: 'They want to extinguish the light of Allah with their mouths, but Allah will perfect His light, although the disbelievers dislike it',
     ayahR: 'As-Saf 61:8',
-    tafsir: '',
+    tafsir: 'ثم قال : ( يريدون ليطفئوا نور الله بأفواههم ) أي : يحاولون أن يردوا الحق بالباطل ، ومثلهم في ذلك كمثل من يريد أن يطفئ شعاع الشمس بفيه ، وكما أن هذا مستحيل كذلك ذاك مستحيل ; ولهذا قال : ( والله متم نوره ولو كره الكافرون )',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['فَم', 'أَفْوَاه'],

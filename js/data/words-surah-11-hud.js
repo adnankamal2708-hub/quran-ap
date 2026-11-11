@@ -323,7 +323,7 @@ ALL_WORDS.push(
     ayahA: '<span class="ayah-highlight">وَأَقِمِ</span> ٱلصَّلَوٰةَ طَرَفَيِ ٱلنَّهَارِ وَزُلَفٗا مِّنَ ٱلَّيۡلِۚ إِنَّ ٱلۡحَسَنَٰتِ يُذۡهِبۡنَ ٱلسَّيِّـَٔاتِۚ ذَٰلِكَ ذِكۡرَىٰ لِلذَّـٰكِرِينَ',
     ayahT: 'And establish prayer at the two ends of the day and at the approach of the night. Indeed, good deeds do away with misdeeds. That is a reminder for those who remember',
     ayahR: 'Hud 11:114',
-    tafsir: '',
+    tafsir: 'قال علي بن أبي طلحة ، عن ابن عباس : ( وأقم الصلاة طرفي النهار ) قال : يعني الصبح والمغرب وكذا قال الحسن ، وعبد الرحمن بن زيد بن أسلم .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['قَامَ', 'قِيَام', 'أَقْوَام'],

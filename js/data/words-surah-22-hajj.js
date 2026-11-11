@@ -361,7 +361,7 @@ ALL_WORDS.push(
     ayahA: 'يَدۡعُواْ لَمَن ضَرُّهُۥٓ <span class="ayah-highlight">أَقۡرَبُ</span> مِن نَّفۡعِهِۦۚ لَبِئۡسَ ٱلۡمَوۡلَىٰ وَلَبِئۡسَ ٱلۡعَشِيرُ',
     ayahT: 'He invokes one whose harm is closer than his benefit - how wretched the protector and how wretched the associate',
     ayahR: 'Al-Hajj 22:13',
-    tafsir: '',
+    tafsir: '( يدعو لمن ضره أقرب من نفعه ) أي : ضرره في الدنيا قبل الآخرة أقرب من نفعه فيها ، وأما في الآخرة فضرره محقق متيقن .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['قَرِيب', 'قَرُبَ', 'قُرْبَىٰ'],

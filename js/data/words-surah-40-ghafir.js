@@ -262,7 +262,7 @@ ALL_WORDS.push(
     ayahA: 'ٱدۡخُلُوٓاْ <span class="ayah-highlight">أَبۡوَٰبَ</span> جَهَنَّمَ خَٰلِدِينَ فِيهَاۖ فَبِئۡسَ مَثۡوَى ٱلۡمُتَكَبِّرِينَ',
     ayahT: 'Enter the gates of Hell to abide eternally therein, and wretched is the residence of the arrogant',
     ayahR: 'Ghafir 40:76',
-    tafsir: '',
+    tafsir: '( ادخلوا أبواب جهنم خالدين فيها فبئس مثوى المتكبرين ) أي : فبئس المنزل والمقيل الذي فيه الهوان والعذاب الشديد ، لمن استكبر عن آيات الله ، واتباع دلائله وحججه .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['بَاب', 'أَبْوَاب'],

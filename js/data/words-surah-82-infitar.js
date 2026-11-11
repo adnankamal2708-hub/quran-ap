@@ -164,7 +164,7 @@ ALL_WORDS.push(
     ayahA: 'ٱلَّذِي خَلَقَكَ فَسَوَّىٰكَ <span class="ayah-highlight">فَعَدَلَكَ</span>',
     ayahT: 'Who created you, proportioned you, and balanced you',
     ayahR: 'Al-Infitar 82:7',
-    tafsir: '',
+    tafsir: 'وقوله ( الذي خلقك فسواك فعدلك ) أي ما غرك بالرب الكريم ( الذي خلقك فسواك فعدلك ) أي جعلك سويا معتدل القامة منتصبها في أحسن الهيئات والأشكال',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['عَدْل', 'عَادِل', 'مَعْدِلَة'],

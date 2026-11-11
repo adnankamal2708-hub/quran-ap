@@ -292,7 +292,7 @@ ALL_WORDS.push(
     ayahA: 'يَـٰٓأَيُّهَا ٱلنَّاسُ ٱتَّقُواْ رَبَّكُمۡ وَٱخۡشَوۡاْ يَوۡمٗا لَّا يَجۡزِي وَالِدٌ عَن وَلَدِهِۦ وَلَا مَوۡلُودٌ هُوَ جَازٍ عَن وَالِدِهِۦ شَيۡـًٔاۚ إِنَّ وَعۡدَ ٱللَّهِ حَقّٞۖ فَلَا <span class="ayah-highlight">تَغُرَّنَّكُمُ</span> ٱلۡحَيَوٰةُ ٱلدُّنۡيَا وَلَا يَغُرَّنَّكُم بِٱللَّهِ ٱلۡغَرُورُ',
     ayahT: 'O mankind, fear your Lord and fear a Day when no father will avail his son, nor will a son avail his father at all. Indeed, the promise of Allah is truth, so let not the worldly life delude you and be not deceived about Allah by the Deceiver',
     ayahR: 'Luqman 31:33',
-    tafsir: '',
+    tafsir: 'ثم عاد بالموعظة عليهم بقوله : ( فلا تغرنكم الحياة الدنيا ) [ أي : لا تلهينكم بالطمأنينة فيها عن الدار الآخرة ] .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['غَرَّ', 'غَرُور', 'مَغْرُور'],

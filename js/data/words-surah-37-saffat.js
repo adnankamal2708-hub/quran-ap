@@ -131,7 +131,7 @@ ALL_WORDS.push(
     ayahA: 'فَإِذَا نَزَلَ بِسَاحَتِهِمۡ <span class="ayah-highlight">فَسَآءَ</span> صَبَاحُ ٱلۡمُنذَرِينَ',
     ayahT: 'But when it descends in their territory, then evil is the morning of those who were warned',
     ayahR: 'As-Saffat 37:177',
-    tafsir: '',
+    tafsir: 'قال الله تعالى : ( فإذا نزل بساحتهم فساء صباح المنذرين ) أي : فإذا نزل العذاب بمحلتهم ، فبئس ذلك اليوم يومهم ، بإهلاكهم ودمارهم .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['سُوء', 'سَيِّئَة', 'أَسَاءَ'],

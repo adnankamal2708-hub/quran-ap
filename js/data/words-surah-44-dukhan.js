@@ -196,7 +196,7 @@ ALL_WORDS.push(
     ayahA: 'فَإِنَّمَا يَسَّرۡنَٰهُ <span class="ayah-highlight">بِلِسَانِكَ</span> لَعَلَّهُمۡ يَتَذَكَّرُونَ',
     ayahT: 'And indeed, We have eased the Qur\'an in your tongue that they might be reminded',
     ayahR: 'Ad-Dukhan 44:58',
-    tafsir: '',
+    tafsir: 'وقوله : ( فإنما يسرناه بلسانك لعلهم يتذكرون ) أي : إنما يسرنا هذا القرآن الذي أنزلناه سهلا واضحا بينا جليا بلسانك الذي هو أفصح اللغات وأجلاها وأحلاها وأعلاها ( لعلهم يتذكرون ) أي : يتفهمون ويعملون .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['لِسَان', 'أَلْسِنَة'],

@@ -160,7 +160,7 @@ ALL_WORDS.push(
     ayahA: '<span class="ayah-highlight">فَفِرُّوٓاْ</span> إِلَى ٱللَّهِۖ إِنِّي لَكُم مِّنۡهُ نَذِيرٞ مُّبِينٞ',
     ayahT: 'So flee to Allah. Indeed, I am to you from Him a clear warner',
     ayahR: 'Adh-Dhariyat 51:50',
-    tafsir: '',
+    tafsir: '( ففروا إلى الله ) أي : الجئوا إليه ، واعتمدوا في أموركم عليه ، ( إني لكم منه نذير مبين ) .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['فَرَّ', 'فَرَار', 'فَارّ'],

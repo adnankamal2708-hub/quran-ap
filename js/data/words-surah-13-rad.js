@@ -328,7 +328,7 @@ ALL_WORDS.push(
     ayahA: 'هُوَ ٱلَّذِي يُرِيكُمُ ٱلۡبَرۡقَ خَوۡفٗا وَطَمَعٗا وَيُنشِئُ ٱلسَّحَابَ <span class="ayah-highlight">ٱلثِّقَالَ</span>',
     ayahT: 'It is He who shows you lightening, [causing] fear and aspiration, and generates the heavy clouds',
     ayahR: 'Ar-Ra\'d 13:12',
-    tafsir: '',
+    tafsir: '( وينشئ السحاب الثقال ) أي : ويخلقها منشأة جديدة ، وهي لكثرة مائها ثقيلة قريبة إلى الأرض .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['ثَقِيل', 'ثِقَل', 'أَثْقَال'],

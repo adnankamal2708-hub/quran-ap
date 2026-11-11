@@ -131,7 +131,7 @@ ALL_WORDS.push(
     ayahA: 'وَجَعَلُواْ لِلَّهِ <span class="ayah-highlight">شُرَكَآءَ</span> ٱلۡجِنَّ وَخَلَقَهُمۡۖ وَخَرَقُواْ لَهُۥ بَنِينَ وَبَنَٰتِۭ بِغَيۡرِ عِلۡمٖۚ سُبۡحَٰنَهُۥ وَتَعَٰلَىٰ عَمَّا يَصِفُونَ',
     ayahT: 'But they have attributed to Allah partners - the jinn, while He has created them - and have fabricated for Him sons and daughters. Exalted is He and high above what they describe',
     ayahR: 'Al-An\'am 6:100',
-    tafsir: '',
+    tafsir: '… ( وجعلوا لله شركاء الجن وخلقهم ) أي : وقد خلقهم ، فهو الخالق وحده لا شريك له ، فكيف يعبد معه غيره ، كما قال إبراهيم عليه السلام ( أتعبدون ما تنحتون والله خلقكم وما تعملون ) [ الصافات : 95 ، 96 ] .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['أَشْرَكَ', 'مُشْرِك', 'شِرْك'],

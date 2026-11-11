@@ -164,7 +164,7 @@ ALL_WORDS.push(
     ayahA: 'وَإِذَا رَأَوۡاْ تِجَٰرَةً أَوۡ <span class="ayah-highlight">لَهۡوًا</span> ٱنفَضُّوٓاْ إِلَيۡهَا وَتَرَكُوكَ قَآئِمٗاۚ قُلۡ مَا عِندَ ٱللَّهِ خَيۡرٞ مِّنَ ٱللَّهۡوِ وَمِنَ ٱلتِّجَٰرَةِۚ وَٱللَّهُ خَيۡرُ ٱلرَّـٰزِقِينَ',
     ayahT: 'But when they saw a transaction or a diversion, [O Muhammad], they rushed to it and left you standing. Say, "What is with Allah is better than diversion and than a transaction, and Allah is the best of providers',
     ayahR: 'Al-Jumu\'ah 62:11',
-    tafsir: '',
+    tafsir: 'يعاتب تبارك وتعالى على ما كان وقع من الانصراف عن الخطبة يوم الجمعة إلى التجارة التي قدمت المدينة يومئذ ، فقال تعالى : ( وإذا رأوا تجارة أو لهوا انفضوا إليها وتركوك قائما ) أي : على المنبر تخطب .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['لَهْو', 'لَاهٍ', 'لَهِينَ'],

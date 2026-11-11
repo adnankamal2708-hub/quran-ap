@@ -196,7 +196,7 @@ ALL_WORDS.push(
     ayahA: 'فَمَن يَعۡمَلۡ مِثۡقَالَ <span class="ayah-highlight">ذَرَّةٍ</span> خَيۡرٗا يَرَهُۥ',
     ayahT: 'So whoever does an atom\'s weight of good will see it',
     ayahR: 'Az-Zalzalah 99:7',
-    tafsir: '',
+    tafsir: 'فرغبهم في القليل من الخير أن يعملوه ، فإنه يوشك أن يكثر ، وحذرهم اليسير من الشر ، فإنه يوشك أن يكثر ، فنزلت : ( فمن يعمل مثقال ذرة ) يعني : وزن أصغر النمل ( خيرا يره ) يعني : في كتابه ، ويسره ذلك .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['ذُرِّيَّة', 'ذَرَأَ'],

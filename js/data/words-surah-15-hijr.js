@@ -259,7 +259,7 @@ ALL_WORDS.push(
     ayahA: '<span class="ayah-highlight">۞نَبِّئۡ</span> عِبَادِيٓ أَنِّيٓ أَنَا ٱلۡغَفُورُ ٱلرَّحِيمُ',
     ayahT: '[O Muhammad], inform My servants that it is I who am the Forgiving, the Merciful',
     ayahR: 'Al-Hijr 15:49',
-    tafsir: '',
+    tafsir: 'وقوله : ( نبئ عبادي أني أنا الغفور الرحيم وأن عذابي هو العذاب الأليم ) أي : أخبر يا محمد عبادي أني ذو رحمة وذو عقاب أليم .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['نَبَأ', 'نُبُوَّة', 'أَنْبَاء'],

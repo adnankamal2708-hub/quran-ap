@@ -98,7 +98,7 @@ ALL_WORDS.push(
     ayahA: 'ٱلَّذِينَ ضَلَّ سَعۡيُهُمۡ فِي ٱلۡحَيَوٰةِ ٱلدُّنۡيَا وَهُمۡ <span class="ayah-highlight">يَحۡسَبُونَ</span> أَنَّهُمۡ يُحۡسِنُونَ صُنۡعًا',
     ayahT: '[They are] those whose effort is lost in worldly life, while they think that they are doing well in work',
     ayahR: 'Al-Kahf 18:104',
-    tafsir: '',
+    tafsir: 'ثم فسرهم فقال : ( الذين ضل سعيهم في الحياة الدنيا ) أي : عملوا أعمالا باطلة على غير شريعة مشروعة مرضية مقبولة ، ( وهم يحسبون أنهم يحسنون صنعا ) أي " يعتقدون أنهم على شيء ، وأنهم مقبولون محبوبون .',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['حِسَاب', 'حَاسِب', 'مُحَاسَبَة'],

@@ -188,7 +188,7 @@ ALL_WORDS.push(
     ayahA: 'لَّا <span class="ayah-highlight">يَمۡلِكُونَ</span> ٱلشَّفَٰعَةَ إِلَّا مَنِ ٱتَّخَذَ عِندَ ٱلرَّحۡمَٰنِ عَهۡدٗا',
     ayahT: 'None will have [power of] intercession except he who had taken from the Most Merciful a covenant',
     ayahR: 'Maryam 19:87',
-    tafsir: '',
+    tafsir: '( لا يملكون الشفاعة ) أي : ليس لهم من يشفع لهم ، كما يشفع المؤمنون بعضهم لبعض ، كما قال تعالى مخبرا عنهم : ( فما لنا من شافعين ولا صديق حميم ) [ الشعراء : 100 ، 101 ]',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['مَلَك', 'مَلَائِكَة'],

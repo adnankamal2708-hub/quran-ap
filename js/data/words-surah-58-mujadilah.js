@@ -230,7 +230,7 @@ ALL_WORDS.push(
     ayahA: 'يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓاْ إِذَا قِيلَ لَكُمۡ تَفَسَّحُواْ فِي ٱلۡمَجَٰلِسِ فَٱفۡسَحُواْ يَفۡسَحِ ٱللَّهُ لَكُمۡۖ وَإِذَا قِيلَ ٱنشُزُواْ فَٱنشُزُواْ <span class="ayah-highlight">يَرۡفَعِ</span> ٱللَّهُ ٱلَّذِينَ ءَامَنُواْ مِنكُمۡ وَٱلَّذِينَ أُوتُواْ ٱلۡعِلۡمَ دَرَجَٰتٖۚ وَٱللَّهُ بِمَا تَعۡمَلُونَ خَبِيرٞ',
     ayahT: 'O you who have believed, when you are told, "Space yourselves" in assemblies, then make space; Allah will make space for you. And when you are told, "Arise," then arise; Allah will raise those who have believed among you and those who were given knowledge, by degrees. And Allah is Acquainted with what you do',
     ayahR: 'Al-Mujadila 58:11',
-    tafsir: '',
+    tafsir: 'وقوله : ( يرفع الله الذين آمنوا منكم والذين أوتوا العلم درجات والله بما تعملون خبير ) أي : لا تعتقدوا أنه إذا فسح أحد منكم لأخيه إذا أقبل ، أو إذا أمر بالخروج فخرج ، أن يكون ذلك نقصا في حقه ، بل هو رفعة ومزية عند الله ، والله تعالى لا يضيع ذلك له ، بل يجزيه بها في الدنيا والآخرة ، فإن من تواضع لأمر الله رفع الله قدره …',
     similarWords: [''],
     oppositeWords: [],
     relatedWords: ['رَفْع', 'رَفِيع', 'مَرْفُوع'],
