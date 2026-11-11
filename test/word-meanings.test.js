@@ -45,6 +45,25 @@ ts('W1 — the whole Quran lines up', function () {
   t('no alignment errors', function () {
     assert.deepStrictEqual(result.errors, []);
   });
+  t('word numbers for the audio match quran.com\'s word count in every verse', function () {
+    vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js/services/audio.js'), 'utf8'));
+    var src = wm.loadSource();
+    var bad = [];
+    var split = 0;
+    for (var s = 1; s <= 114; s++) {
+      QT[s].verses.forEach(function (v, i) {
+        var count = v.text.split(/\s+/).filter(Boolean).length;
+        var ws = result.splitsBySurah[s][i];
+        if (ws) split++;
+        var last = quranWordPositions(count, result.bySurah[s][i], ws).reduce(function (n, p) {
+          return p.length ? p[p.length - 1] : n;
+        }, 0);
+        if (last !== src[s + ':' + v.id].length) bad.push(s + ':' + v.id);
+      });
+    }
+    assert.deepStrictEqual(bad, []);
+    assert.ok(split > 0, 'some verses have a word quran.com splits in two');
+  });
   t('77,428 words, the figure the app uses', function () {
     assert.strictEqual(result.words, 77428);
     assert.strictEqual(result.words, global.OCCURRENCE_INDEX_TOTAL_TOKENS);
@@ -113,6 +132,7 @@ ts('W3 — the reader shows every meaning', function () {
   ].join('\n');
   var html = '';
   try {
+    vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js/services/audio.js'), 'utf8')); // word numbering
     html = vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js/ui/quran.js'), 'utf8') + '\n' + harness);
   } catch (e) { console.log('  ⚠ sandbox: ' + e.message); }
 

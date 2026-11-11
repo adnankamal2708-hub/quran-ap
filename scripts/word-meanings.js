@@ -12,6 +12,9 @@
  * Result per verse: an array as long as the verse's words (split on
  * spaces). Each entry is the meaning, or 0 when the word continues the
  * word before it (the source counts the two as one word, e.g. بَعۡدَ مَا).
+ * Also per verse, the app words the source counts as more than one
+ * ({appIndex: sourceWords}, e.g. مَالِيَ = مَا + لِيَ), so a word's
+ * quran.com number (for its recording) can be worked out.
  */
 'use strict';
 
@@ -58,6 +61,7 @@ function _joinMeanings(list) {
 function alignVerse(key, appWords, source, norm, exceptions) {
   exceptions = exceptions || WORD_SPLIT_EXCEPTIONS;
   var meanings = [];
+  var splits = {};
   var i = 0, j = 0;
   while (i < appWords.length && j < source.length) {
     var ex = exceptions[key + ':' + (i + 1)];
@@ -68,12 +72,14 @@ function alignVerse(key, appWords, source, norm, exceptions) {
     if (ex) {
       meanings.push(_joinMeanings(source.slice(j, j + ex.sourceWords).map(function (w) { return w[1].trim(); })));
       for (var c = 1; c < ex.appWords; c++) meanings.push(0);
+      if (ex.appWords === 1 && ex.sourceWords > 1) splits[i] = ex.sourceWords;
       i += ex.appWords; j += ex.sourceWords;
     } else if (a && a === s) {
       meanings.push(m); i++; j++;
     } else if (j + 1 < source.length && a === s + _flat(norm, source[j + 1][0])) {
       // One app word is two source words (e.g. مَالِيَ = مَا + لِيَ)
-      meanings.push(_joinMeanings([m, String(source[j + 1][1] || '').trim()])); i++; j += 2;
+      meanings.push(_joinMeanings([m, String(source[j + 1][1] || '').trim()]));
+      splits[i] = 2; i++; j += 2;
     } else if (i + 1 < appWords.length && a + _flat(norm, appWords[i + 1]) === s) {
       // Two app words are one source word (e.g. بَعۡدَ مَا)
       meanings.push(m, 0); i += 2; j++;
@@ -84,29 +90,31 @@ function alignVerse(key, appWords, source, norm, exceptions) {
   if (i !== appWords.length || j !== source.length) {
     return { error: key + ': ' + appWords.length + ' words in the app, ' + source.length + ' in the source' };
   }
-  return { meanings: meanings };
+  return { meanings: meanings, splits: splits };
 }
 
 /**
  * Line up the whole Quran.
- * @returns {{bySurah: Object<number, Array<Array<string|0>>>, errors: string[], words: number}}
+ * @returns {{bySurah: Object<number, Array<Array<string|0>>>, splitsBySurah: Object<number, Array<Object>>, errors: string[], words: number}}
  */
 function alignWordMeanings(quranText, source, norm) {
-  var bySurah = {}, errors = [], words = 0;
+  var bySurah = {}, splitsBySurah = {}, errors = [], words = 0;
   for (var sid = 1; sid <= 114; sid++) {
     var surah = quranText[sid];
     if (!surah) { errors.push('surah ' + sid + ' missing'); continue; }
+    var splitsList = splitsBySurah[sid] = [];
     bySurah[sid] = surah.verses.map(function (v) {
       var key = sid + ':' + v.id;
       var appWords = v.text.split(/\s+/).filter(Boolean);
       words += appWords.length;
-      if (!source[key]) { errors.push(key + ': not in the source'); return null; }
+      if (!source[key]) { errors.push(key + ': not in the source'); splitsList.push(null); return null; }
       var r = alignVerse(key, appWords, source[key], norm);
+      splitsList.push(r.splits && Object.keys(r.splits).length ? r.splits : null);
       if (r.error) { errors.push(r.error); return null; }
       return r.meanings;
     });
   }
-  return { bySurah: bySurah, errors: errors, words: words };
+  return { bySurah: bySurah, splitsBySurah: splitsBySurah, errors: errors, words: words };
 }
 
 module.exports = {

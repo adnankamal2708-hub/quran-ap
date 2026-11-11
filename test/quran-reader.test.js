@@ -51,6 +51,7 @@ function ts(name, fn) { console.log('\n\uD83D\uDCCB ' + name); fn(); }
 
 var quranDataSrc = fs.readFileSync(path.join(ROOT, 'js/quran/quran-data.js'), 'utf8');
 var occIndexSrc = fs.readFileSync(path.join(ROOT, 'js/data/occurrence-index.js'), 'utf8');
+var audioSrc = fs.readFileSync(path.join(ROOT, 'js/services/audio.js'), 'utf8'); // word numbering
 var quranJsSrc = fs.readFileSync(path.join(ROOT, 'js/ui/quran.js'), 'utf8');
 
 // Harness runs INSIDE the same script scope as quran.js, so it can set
@@ -94,7 +95,7 @@ var readerResult = null;
 (function () {
   global.window = global;
   try {
-    var combined = quranDataSrc + '\n' + occIndexSrc + '\n' + quranJsSrc + '\n' + harnessSrc;
+    var combined = quranDataSrc + '\n' + occIndexSrc + '\n' + audioSrc + '\n' + quranJsSrc + '\n' + harnessSrc;
     readerResult = vm.runInThisContext(combined, { filename: 'quran-reader.test-harness.js' });
     readerSandbox = global;
   } catch (e) {

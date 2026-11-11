@@ -433,7 +433,12 @@ async function build() {
           process.exit(1);
         }
         for (var wmS = 1; wmS <= 114; wmS++) {
-          QURAN_TEXT[wmS].verses.forEach(function (v, i) { v.w = wmResult.bySurah[wmS][i]; });
+          QURAN_TEXT[wmS].verses.forEach(function (v, i) {
+            v.w = wmResult.bySurah[wmS][i];
+            // App words quran.com counts as two, for word audio (audio.js)
+            var ws = wmResult.splitsBySurah[wmS][i];
+            if (ws) v.ws = ws;
+          });
         }
         console.log('     Word meanings: ' + wmResult.words + ' words matched');
 

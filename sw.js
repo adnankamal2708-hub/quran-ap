@@ -20,13 +20,14 @@ const FONTS_CACHE = 'bayan-fonts-v1';
 const DYNAMIC_CACHE = CACHE_NAME + '-dynamic';
 // Firebase SDK URLs embed the SDK version, so entries never go stale.
 const FIREBASE_CACHE = 'bayan-firebase-v1';
-// Recitation (everyayah.com) and Qaida recordings (assets/audio/): files
+// Recitation (everyayah.com), word audio (audio.qurancdn.com) and Qaida
+// recordings (assets/audio/): files
 // never change at a given URL, so they outlive releases.
 const AUDIO_CACHE = 'bayan-audio-v1';
 
 /** True for a sound the audio cache keeps (see js/services/audio.js). */
 function isAudioRequest(url) {
-  if (url.hostname === 'everyayah.com') return true;
+  if (url.hostname === 'everyayah.com' || url.hostname === 'audio.qurancdn.com') return true;
   return url.origin === self.location.origin && url.pathname.indexOf('/assets/audio/') >= 0;
 }
 
