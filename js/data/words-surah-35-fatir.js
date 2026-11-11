@@ -165,7 +165,7 @@ ALL_WORDS.push(
     ayahT: 'If you invoke them, they do not hear your supplication; and if they heard, they would not respond to you. And on the Day of Resurrection they will deny your association. And none can inform you like [one] Acquainted [with all matters]',
     ayahR: 'Fatir 35:14',
     tafsir: 'ثم قال : ( إن تدعوهم لا يسمعوا دعاءكم ) يعني الآلهة التي تدعونها من دون الله لا يسمعون دعاءكم ; لأنها جماد لا أرواح فيها ( ولو سمعوا ما استجابوا لكم ) أي : لا يقدرون على ما تطلبون منها ، ( ويوم القيامة يكفرون بشرككم ) ، أي : يتبرءون منكم …',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['إِجَابَة', 'مُجِيب', 'جَابَ'],
   },

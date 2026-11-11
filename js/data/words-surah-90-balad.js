@@ -241,7 +241,7 @@ ALL_WORDS.push(
     translit: 'raqabatin',
     type: 'Noun',
     typeCategory: 'noun',
-    pattern: '—',
+    pattern: 'فَعَلَة',
     english: 'A neck',
     meaning: 'A neck',
     root: 'ر-ق-ب',
@@ -264,7 +264,7 @@ ALL_WORDS.push(
     ayahT: 'It is the freeing of a slave',
     ayahR: 'Al-Balad 90:13',
     tafsir: '',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['رَقِيب', 'مُرَاقَبَة', 'رَقَبَة'],
   }

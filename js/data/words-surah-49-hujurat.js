@@ -98,7 +98,7 @@ ALL_WORDS.push(
     ayahT: 'And if two factions among the believers should fight, then make settlement between the two. But if one of them oppresses the other, then fight against the one that oppresses until it returns to the ordinance of Allah. And if it returns, then make settlement between them in justice and act justly. Indeed, Allah loves those who act justly',
     ayahR: 'Al-Hujurat 49:9',
     tafsir: '',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['اِبْتَغَىٰ', 'بَغَىٰ'],
   },

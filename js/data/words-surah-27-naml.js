@@ -222,7 +222,7 @@ ALL_WORDS.push(
     ayahT: 'And [he was told], "Throw down your staff." But when he saw it writhing as if it were a snake, he turned in flight and did not return. [Allah said], "O Moses, fear not. Indeed, in My presence the messengers do not fear',
     ayahR: 'An-Naml 27:10',
     tafsir: '',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['وَلِيَ', 'وَلِيّ', 'تَوَلَّىٰ'],
   },

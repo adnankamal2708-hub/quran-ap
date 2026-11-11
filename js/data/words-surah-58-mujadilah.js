@@ -208,7 +208,7 @@ ALL_WORDS.push(
     translit: 'yarfaʿi',
     type: 'Verb',
     typeCategory: 'verb',
-    pattern: '—',
+    pattern: 'يَفْعَلُ',
     english: 'He raises',
     meaning: 'He raises',
     root: 'ر-ف-ع',
@@ -231,7 +231,7 @@ ALL_WORDS.push(
     ayahT: 'O you who have believed, when you are told, "Space yourselves" in assemblies, then make space; Allah will make space for you. And when you are told, "Arise," then arise; Allah will raise those who have believed among you and those who were given knowledge, by degrees. And Allah is Acquainted with what you do',
     ayahR: 'Al-Mujadila 58:11',
     tafsir: 'وقوله : ( يرفع الله الذين آمنوا منكم والذين أوتوا العلم درجات والله بما تعملون خبير ) أي : لا تعتقدوا أنه إذا فسح أحد منكم لأخيه إذا أقبل ، أو إذا أمر بالخروج فخرج ، أن يكون ذلك نقصا في حقه ، بل هو رفعة ومزية عند الله ، والله تعالى لا يضيع ذلك له ، بل يجزيه بها في الدنيا والآخرة ، فإن من تواضع لأمر الله رفع الله قدره …',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['رَفْع', 'رَفِيع', 'مَرْفُوع'],
   }

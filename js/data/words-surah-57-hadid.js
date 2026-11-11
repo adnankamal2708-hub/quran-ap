@@ -163,7 +163,7 @@ ALL_WORDS.push(
     ayahT: 'O you who have believed, fear Allah and believe in His Messenger; He will [then] give you a double portion of His mercy and make for you a light by which you will walk and forgive you; and Allah is Forgiving and Merciful',
     ayahR: 'Al-Hadid 57:28',
     tafsir: 'وقال سعيد بن جبير : لما افتخر أهل الكتاب بأنهم يؤتون أجرهم مرتين أنزل الله هذه الآية في حق هذه الأمة : ( يا أيها الذين آمنوا اتقوا الله وآمنوا برسوله يؤتكم كفلين من رحمته ) أي : ضعفين ، وزادهم : ( ويجعل لكم نورا تمشون به ) يعني : هدى يتبصر به من العمى والجهالة ، ويغفر لكم .',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['مَشَى'],
   },

@@ -227,7 +227,7 @@ ALL_WORDS.push(
     ayahT: 'Should I take other than Him [false] deities [while], if the Most Merciful intends for me some adversity, their intercession will not avail me at all, nor can they save me',
     ayahR: 'Ya-Sin 36:23',
     tafsir: '',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['غِنَى', 'مُسْتَغْنٍ', 'غَنَاء'],
   }

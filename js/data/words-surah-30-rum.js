@@ -270,7 +270,7 @@ ALL_WORDS.push(
     translit: 'yabsuṭu',
     type: 'Verb',
     typeCategory: 'verb',
-    pattern: '—',
+    pattern: 'يَفْعُلُ',
     english: 'He extends',
     meaning: 'He extends',
     root: 'ب-س-ط',
@@ -293,7 +293,7 @@ ALL_WORDS.push(
     ayahT: 'Do they not see that Allah extends provision for whom He wills and restricts [it]? Indeed, in that are signs for a people who believe',
     ayahR: 'Ar-Rum 30:37',
     tafsir: 'وقوله تعالى : ( أولم يروا أن الله يبسط الرزق لمن يشاء ويقدر ) أي : هو المتصرف الفاعل لذلك بحكمته وعدله ، فيوسع على قوم ويضيق على آخرين ، ( إن في ذلك لآيات لقوم يؤمنون ) .',
-    similarWords: [''],
+    similarWords: [],
     oppositeWords: [],
     relatedWords: ['بَسْط', 'بَسِيط', 'مَبْسُوط'],
   }
