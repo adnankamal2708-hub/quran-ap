@@ -117,8 +117,6 @@ ALL_WORDS.push(
     rootPattern: 'د-ي-ن relates to religion, faith, and way of life',
     rootFamily: [
       { a: 'دِين', e: 'religion/faith' },
-      { a: 'إِسْلَام', e: 'submission' },
-      { a: 'حَنِيف', e: 'upright monotheist' },
     ],
     occ: 0, occExact: 0, occEducational: 0,
     lemmaCount: 1,

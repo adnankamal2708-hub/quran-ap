@@ -19,7 +19,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'تَبَّ', e: 'he perished' },
       { a: 'تَبَاب', e: 'ruin/destruction' },
-      { a: 'تَائِب', e: 'perishing/corrupt' },
     ],
     occ: 6, occExact: 1, occEducational: 6,
     lemmaCount: 2,

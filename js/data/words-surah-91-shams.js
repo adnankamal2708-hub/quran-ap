@@ -151,7 +151,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'زَكَا', e: 'he grew/purified' },
       { a: 'زَكَاة', e: 'purification/charity' },
-      { a: 'طَهَرَ', e: 'he cleansed' },
     ],
     occ: 0, occExact: 1, occEducational: 0,
     lemmaCount: 12,

@@ -2914,7 +2914,6 @@ ALL_WORDS.push(
     rootPattern: 'ن-ط-ف relates to a drop',
     rootFamily: [
       { a: 'نُطْفَة', e: 'a drop' },
-      { a: 'مَنِيّ', e: 'semen' },
     ],
     occ: 11, occExact: 11, occEducational: 11,
     lemmaCount: 12,
@@ -3291,7 +3290,6 @@ ALL_WORDS.push(
     rootPattern: 'ذ-ر-ر relates to offspring',
     rootFamily: [
       { a: 'ذُرِّيَّة', e: 'offspring' },
-      { a: 'ذَرَأَ', e: 'He created' },
     ],
     occ: 10, occExact: 11, occEducational: 10,
     lemmaCount: 32,

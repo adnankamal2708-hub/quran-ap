@@ -183,8 +183,6 @@ ALL_WORDS.push(
     rootPattern:'ن-و-ن relates to fish and abundant water',
     rootFamily: [
       { a: 'نُون', e: 'fish' },
-      { a: 'يُونُس', e: 'Jonah' },
-      { a: 'حُوت', e: 'whale' },
     ],
     occ: 1, occExact: 1, occEducational: 1,
     lemmaCount: 1,

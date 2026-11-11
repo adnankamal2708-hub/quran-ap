@@ -17,7 +17,6 @@ ALL_WORDS.push(
     rootMeaning: 'Femininity, women',
     rootPattern: 'ن-س-و relates to women, females, and femininity',
     rootFamily: [
-      { a: 'امْرَأَة', e: 'woman' },
       { a: 'نِسْوَة', e: 'women (archaic)' },
       { a: 'نَسَاء', e: 'women (plural)' },
     ],

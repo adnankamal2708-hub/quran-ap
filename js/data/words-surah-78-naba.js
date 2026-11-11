@@ -117,7 +117,6 @@ ALL_WORDS.push(
     rootPattern: 'وَتِد relates to a peg, stake, or anchor',
     rootFamily: [
       { a: 'وَتِد', e: 'peg/stake' },
-      { a: 'أَتْوَاد', e: 'pegs' },
       { a: 'وَاتِد', e: 'firmly fixed' },
     ],
     occ: 1, occExact: 1, occEducational: 1,

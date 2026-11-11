@@ -184,7 +184,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'شَاءَ', e: 'he willed' },
       { a: 'مَشِيئَة', e: 'will/desire' },
-      { a: 'إِرَادَة', e: 'will/intention' },
     ],
     occ: 0, occExact: 56, occEducational: 0,
     lemmaCount: 236,

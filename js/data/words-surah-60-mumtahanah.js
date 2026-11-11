@@ -179,8 +179,6 @@ ALL_WORDS.push(
     rootPattern: 'أُسْوَة relates to an example, model, or pattern to follow',
     rootFamily: [
       { a: 'أُسْوَة', e: 'example/model' },
-      { a: 'مِثَال', e: 'example' },
-      { a: 'قُدْوَة', e: 'leader/model' },
     ],
     occ: 3, occExact: 3, occEducational: 3,
     lemmaCount: 3,

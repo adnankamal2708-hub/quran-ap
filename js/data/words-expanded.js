@@ -186,7 +186,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'سَمَاوَات', e: 'heavens' },
       { a: 'سُمُوّ', e: 'height/elevation' },
-      { a: 'عَلِيٌّ', e: 'high/exalted' },
     ],
     occ: 10, occExact: 2, occEducational: 10,
     lemmaCount: 310,
@@ -317,7 +316,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'ذُنُوب', e: 'sins' },
       { a: 'مُذْنِب', e: 'sinner' },
-      { a: 'إِثْم', e: 'sin/wrongdoing' },
     ],
     occ: 2, occExact: 2, occEducational: 2,
     lemmaCount: 37,

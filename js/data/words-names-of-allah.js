@@ -2291,7 +2291,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'بِرّ', e: 'righteousness/goodness' },
       { a: 'بَارّ', e: 'righteous/kind' },
-      { a: 'تَنَزَّهَ', e: 'to be purified' },
     ],
     occ: 21, occExact: 13, occEducational: 21,
     lemmaCount: 22,

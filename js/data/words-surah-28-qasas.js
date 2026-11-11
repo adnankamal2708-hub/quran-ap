@@ -240,7 +240,6 @@ ALL_WORDS.push(
     rootPattern:'يَمّ refers to a sea or large river',
     rootFamily: [
       { a: 'يَمّ', e: 'sea/river' },
-      { a: 'بَحْر', e: 'sea' },
     ],
     occ: 60, occExact: 8, occEducational: 60,
     lemmaCount: 8,

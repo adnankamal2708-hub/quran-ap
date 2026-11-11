@@ -49,7 +49,6 @@ ALL_WORDS.push(
     rootMeaning: 'To leave, to abandon, to let be',
     rootPattern: 'و-د-ع relates to leaving, abandoning, and letting go',
     rootFamily: [
-      { a: 'تَرَكَ', e: 'he left' },
       { a: 'وَدَّعَ', e: 'he bid farewell' },
       { a: 'مَوْدِع', e: 'one who leaves' },
     ],

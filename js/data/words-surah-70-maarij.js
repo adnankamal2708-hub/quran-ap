@@ -85,7 +85,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'سَأَلَ', e: 'he asked' },
       { a: 'سُؤَال', e: 'question' },
-      { a: 'مُسْتَفْسِر', e: 'inquirer' },
     ],
     occ: 3, occExact: 1, occEducational: 3,
     lemmaCount: 7,

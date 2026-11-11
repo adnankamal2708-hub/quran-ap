@@ -245,7 +245,7 @@ ALL_WORDS.push(
     rootPattern:'ج-ن-ن relates to covering, gardens, and paradise',
     rootFamily: [
       { a: 'جَنَّة', e: 'garden/paradise' },
-      { a: 'جَنَات', e: 'gardens' },
+      { a: 'جَنَّات', e: 'gardens' },
       { a: 'جَنِين', e: 'fetus (hidden)' },
     ],
     occ: 21, occExact: 68, occEducational: 21,

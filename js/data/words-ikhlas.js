@@ -230,7 +230,6 @@ ALL_WORDS.push(
     rootPattern: 'ص-م-د relates to solidity, permanence, and self-sufficiency',
     rootFamily: [
       { a: 'صَمَدِيَّة', e: 'self-sufficiency' },
-      { a: 'مُصْمَت', e: 'solid/impervious' },
     ],
     occ: 1, occExact: 1, occEducational: 1,
     lemmaCount: 1,

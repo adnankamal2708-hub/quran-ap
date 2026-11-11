@@ -84,7 +84,6 @@ ALL_WORDS.push(
     rootPattern: 'عَاصِف relates to stormy winds and violent force',
     rootFamily: [
       { a: 'عَصْف', e: 'storm/violence' },
-      { a: 'إِعْصَار', e: 'hurricane/cyclone' },
       { a: 'عَصِيف', e: 'stormy' },
     ],
     occ: 1, occExact: 1, occEducational: 1,

@@ -183,7 +183,6 @@ ALL_WORDS.push(
     rootPattern: 'ذ-ر-ر relates to offspring',
     rootFamily: [
       { a: 'ذُرِّيَّة', e: 'offspring' },
-      { a: 'ذَرَأَ', e: 'He created' },
     ],
     occ: 6, occExact: 6, occEducational: 6,
     lemmaCount: 6,

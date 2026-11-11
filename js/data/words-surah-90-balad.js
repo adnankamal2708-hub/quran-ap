@@ -17,7 +17,6 @@ ALL_WORDS.push(
     rootMeaning: 'To settle, to dwell, to inhabit',
     rootPattern: 'ب-ل-د relates to settlement, land, and dwelling',
     rootFamily: [
-      { a: 'بَلَّة', e: 'land/country' },
       { a: 'بِلَاد', e: 'lands/countries' },
       { a: 'بَلْدَة', e: 'town/city' },
     ],

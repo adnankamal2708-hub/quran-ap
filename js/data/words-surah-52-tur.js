@@ -215,7 +215,6 @@ ALL_WORDS.push(
     rootMeaning: 'To be cup-shaped, to be rounded',
     rootPattern: 'ك-و-ب relates to cups, goblets, and rounded vessels',
     rootFamily: [
-      { a: 'كَأْس', e: 'cup' },
       { a: 'كُوب', e: 'cup/goblet' },
       { a: 'أَكْوَاب', e: 'cups/goblets' },
     ],

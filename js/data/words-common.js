@@ -329,7 +329,6 @@ ALL_WORDS.push(
       { a: 'فِعْل', e: 'action/deed' },
       { a: 'فَاعِل', e: 'doer/subject' },
       { a: 'مَفْعُول', e: 'object/done thing' },
-      { a: 'عَامَلَ', e: 'to treat/deal with' },
     ],
     occ: 9, occExact: 7, occEducational: 9,
     lemmaCount: 88,
@@ -369,7 +368,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'أَرْض', e: 'earth (indefinite)' },
       { a: 'أَرْضِيَّة', e: 'earthly/terrestrial' },
-      { a: 'التُّرَاب', e: 'soil/dust' },
     ],
     occ: 286, occExact: 444, occEducational: 286,
     lemmaCount: 461,
@@ -402,7 +400,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'السَّمَاء', e: 'the sky' },
       { a: 'سُمُوّ', e: 'height/loftiness' },
-      { a: 'الْعَلْيَاء', e: 'the heights' },
     ],
     occ: 181, occExact: 185, occEducational: 181,
     lemmaCount: 310,

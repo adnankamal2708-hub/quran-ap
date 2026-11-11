@@ -52,7 +52,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'رَبَّى', e: 'he raised' },
       { a: 'مُرَبِّي', e: 'educator' },
-      { a: 'رِبَا', e: 'growth' },
     ],
     occ: 149, occExact: 152, occEducational: 149,
     lemmaCount: 975,
@@ -347,7 +346,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'صِرَاط مُسْتَقِيم', e: 'straight path' },
       { a: 'صَرَط', e: 'he swallowed' },
-      { a: 'مُسْتَقِيم', e: 'straight/upright' },
     ],
     occ: 6, occExact: 6, occEducational: 6,
     lemmaCount: 45,

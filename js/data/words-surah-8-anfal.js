@@ -277,7 +277,6 @@ ALL_WORDS.push(
     rootPattern: 'س-ب-ل relates to paths, ways, and means',
     rootFamily: [
       { a: 'سَبِيل', e: 'way/path' },
-      { a: 'سِبَاق', e: 'competition' },
       { a: 'سَبِيل اللَّهِ', e: 'the cause of Allah' },
     ],
     occ: 87, occExact: 116, occEducational: 87,

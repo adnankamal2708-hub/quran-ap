@@ -411,7 +411,6 @@ ALL_WORDS.push(
     rootFamily: [
       { a: 'صِرَاط', e: 'path/way' },
       { a: 'صَرَطَ', e: 'he swallowed' },
-      { a: 'مُسْتَقِيم', e: 'straight' },
     ],
     occ: 6, occExact: 37, occEducational: 6,
     lemmaCount: 45,
