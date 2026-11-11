@@ -730,6 +730,24 @@ body::before {
   font-family: var(--serif);
 }
 
+/* Ibn Kathir's Arabic passage, then where it is from (word card and explorer) */
+.tafsir-quote {
+  margin: 0 0 8px;
+  font-family: var(--arabic);
+  font-size: 1.15rem;
+  line-height: 2;
+  color: var(--text);
+  text-align: right;
+}
+.tafsir-source {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.tafsir-source a { color: inherit; text-decoration: underline; }
+
 .tafsir-loading {
   font-size: var(--text-sm);
   color: var(--text-muted);
