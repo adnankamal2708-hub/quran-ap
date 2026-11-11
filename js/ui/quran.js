@@ -120,16 +120,34 @@ function resumeReading() {
   openSurahForReading(pos.surahId);
 }
 
+// Lesson words grouped by normalized form, and the one a verse token is:
+// letters alone can't tell مِنْ from مَنْ, so the vowel marks decide
+// (arabicSameWord, js/data-core/word-forms.js). The last word added wins
+// among same-word forms, as before.
+function _quranVocabByNorm(words) {
+  var byNorm = {};
+  for (var i = 0; i < words.length; i++) {
+    var norm = _normArabicForMatch(words[i].arabic);
+    if (norm) (byNorm[norm] = byNorm[norm] || []).push(words[i]);
+  }
+  return byNorm;
+}
+
+function _quranVocabForToken(byNorm, token) {
+  var candidates = byNorm[_normArabicForMatch(token)];
+  if (!candidates) return null;
+  for (var i = candidates.length - 1; i >= 0; i--) {
+    if (typeof arabicSameWord !== 'function' || arabicSameWord(candidates[i].arabic, token)) return candidates[i];
+  }
+  return null;
+}
+
 // ── Verse Data Builder (Quran-first, vocabulary overlay) ───────
 
 function _buildVerseData(surahId, quranSurah, vocabWords) {
   var ayahGroups = {};
   var verseKeys = [];
-  var vocabByNorm = {};
-  for (var i = 0; i < vocabWords.length; i++) {
-    var norm = _normArabicForMatch(vocabWords[i].arabic);
-    if (norm) vocabByNorm[norm] = vocabWords[i];
-  }
+  var vocabByNorm = _quranVocabByNorm(vocabWords);
   for (var vi = 0; vi < quranSurah.verses.length; vi++) {
     var verse = quranSurah.verses[vi];
     var verseKey = surahId + ':' + verse.id;
@@ -137,9 +155,8 @@ function _buildVerseData(surahId, quranSurah, vocabWords) {
     var tokens = verse.text.split(/\s+/);
     var seenWordIds = {};
     for (var ti = 0; ti < tokens.length; ti++) {
-      var normToken = _normArabicForMatch(tokens[ti]);
-      if (normToken && vocabByNorm[normToken]) {
-        var matched = vocabByNorm[normToken];
+      var matched = _quranVocabForToken(vocabByNorm, tokens[ti]);
+      if (matched) {
         if (!seenWordIds[matched.id]) {
           matchedWords.push(matched);
           seenWordIds[matched.id] = true;
@@ -501,11 +518,7 @@ function renderAyahs() {
     // Arabic verse (immutable Quran text with vocabulary highlighting)
     html += '<div class="quran-ayah-arabic" lang="ar" dir="rtl">';
     var verseTokens = group.ayahA.split(/\s+/).filter(Boolean);
-    var vocabNormForVerse = {};
-    for (var vtwi = 0; vtwi < group.words.length; vtwi++) {
-      var vtn = _normArabicForMatch(group.words[vtwi].arabic);
-      if (vtn) vocabNormForVerse[vtn] = group.words[vtwi];
-    }
+    var vocabNormForVerse = _quranVocabByNorm(group.words);
     var glosses = group.glosses || [];
 
     for (var vti = 0; vti < verseTokens.length; vti++) {
@@ -519,8 +532,7 @@ function renderAyahs() {
       var escapedToken = wordText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       // The meaning of this word in this verse; the lesson meaning only if
       // the verse data has none.
-      var normToken = _normArabicForMatch(token);
-      var matchedWord = (span === 1 && normToken) ? vocabNormForVerse[normToken] : null;
+      var matchedWord = span === 1 ? _quranVocabForToken(vocabNormForVerse, token) : null;
       var meaning = typeof glosses[vti] === 'string' ? glosses[vti] : (matchedWord ? matchedWord.english || '' : '');
       // The gloss is drawn by CSS (::after) when "Meanings" is on, so the
       // token's text stays exactly the verse text.

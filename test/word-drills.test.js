@@ -26,6 +26,7 @@ var WORDS = require('./load-vocabulary').loadVocabularyWords();
 global.getCanonicalWords = function() { return WORDS; };
 
 load('js/i18n/strings-en.js');
+load('js/data-core/word-forms.js');
 load('js/data/occurrence-index.js');
 load('js/exercises/exercise-engine.js');
 load('js/exercises/word-drills.js');
@@ -179,8 +180,19 @@ suite('buildSpotDrill', function() {
   });
 
   test('never uses a word whose form has more than one meaning', function() {
-    // ٱلدِّينِ is Debt/Judgment/Religion in the vocabulary: no single right answer.
-    learn('ٱلدِّينِ');
+    // هَوَىٰ is both "Desire" and "It Fell" in the vocabulary: no single right answer.
+    AYAHS['78:6'] = { text: 'وَٱلنَّجۡمِ إِذَا هَوَىٰ', translation: 'By the star when it descends' };
+    try {
+      learn('هَوَىٰ');
+      assert.strictEqual(buildSpotDrill(), null);
+    } finally {
+      delete AYAHS['78:6'];
+    }
+  });
+
+  test('never asks for a word in an ayah that holds a look-alike with other vowels', function() {
+    // ٱلدَّيۡن (debt) and ٱلدِّين (judgment) share their letters; 78:2 has only ٱلدِّينِ.
+    WORDS.filter(function(w) { return w.english === 'Debt'; }).forEach(function(w) { _srs[w.id] = { stage: 1 }; });
     assert.strictEqual(buildSpotDrill(), null);
   });
 

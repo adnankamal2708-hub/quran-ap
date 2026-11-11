@@ -31,7 +31,8 @@ function _getIndexRefsForWord(w) {
   try {
     if (!w || !w.arabic) return null;
     if (!window.OCCURRENCE_INDEX || typeof window.OCCURRENCE_INDEX_NORM !== 'function') return null;
-    var norm = window.OCCURRENCE_INDEX_NORM(w.arabic);
+    var keyFn = typeof window.OCCURRENCE_INDEX_KEY === 'function' ? window.OCCURRENCE_INDEX_KEY : window.OCCURRENCE_INDEX_NORM;
+    var norm = keyFn(w.arabic);
     if (!norm) return null;
     return window.OCCURRENCE_INDEX[norm] || null;
   } catch (e) {
@@ -67,7 +68,9 @@ function _getVerseForRef(ref) {
  * in it (e.g. مَنْ occurs in the corpus as مِّن / مَّن / مَن — all normalize
  * to "من"), which is why exact-string matching left most indexed occurrences
  * unhighlighted. Token-based matching mirrors exactly how the index decided
- * the verse is an occurrence, so every listed verse highlights consistently.
+ * the verse is an occurrence, so every listed verse highlights consistently,
+ * and like the index it skips a look-alike word with other vowels (the verse
+ * listed for مَنْ may also hold مِنْ: arabicSameWord, js/data-core/word-forms.js).
  *
  * Falls back to the app's normalizeArabic(), then to exact substring
  * matching (legacy behavior, preserving the matched text via $&), when the
@@ -88,7 +91,8 @@ function _highlightOccurrenceText(ayahText, w) {
       var out = '';
       for (var i = 0; i < parts.length; i++) {
         var tok = parts[i];
-        if (tok && tok.trim() && normFn(tok) === wordNorm) {
+        if (tok && tok.trim() && normFn(tok) === wordNorm &&
+            (typeof arabicSameWord !== 'function' || arabicSameWord(w.arabic, tok))) {
           out += '<span class="explorer-ayah-highlight">' + tok + '</span>';
         } else {
           out += tok;

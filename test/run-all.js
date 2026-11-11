@@ -65,6 +65,7 @@ var TESTS = [
   "tracks-ui.test.js",
   "placement-ui.test.js",
   "word-drills.test.js",
+  "word-forms.test.js",
   "root-lesson.test.js",
   "drill-ui.test.js",
   "qaida-data.test.js",

@@ -33,6 +33,16 @@ function drillNormalize(text) {
   return typeof window.OCCURRENCE_INDEX_NORM === 'function' ? window.OCCURRENCE_INDEX_NORM(text) : '';
 }
 
+// A lesson word's own key: its normalized form, unless it's a different
+// word from a look-alike (مَنْ / مِنْ, js/data-core/word-forms.js)
+function drillKey(text) {
+  return typeof window.OCCURRENCE_INDEX_KEY === 'function' ? window.OCCURRENCE_INDEX_KEY(text) : drillNormalize(text);
+}
+
+function drillSameWord(word, token) {
+  return typeof arabicSameWord !== 'function' || arabicSameWord(word, token);
+}
+
 function drillPick(list, random) {
   var index = Math.floor((random || Math.random)() * list.length);
   return list[Math.min(index, list.length - 1)];
@@ -71,7 +81,7 @@ function hasLearnedWords() {
 }
 
 /**
- * Learned words that have one clear meaning, keyed by normalized form.
+ * Learned words that have one clear meaning, keyed by drillKey().
  * A form shared by words with different meanings (e.g. ٱلدِّينِ) is left out:
  * the question "which word means X" would have no single right answer.
  */
@@ -80,7 +90,7 @@ function learnedWordsByForm() {
   var meaningsByForm = {};
   var words = getCanonicalWords();
   words.forEach(function(word) {
-    var form = drillNormalize(word.arabic);
+    var form = drillKey(word.arabic);
     if (!form || !word.english) return;
     meaningsByForm[form] = meaningsByForm[form] || {};
     meaningsByForm[form][word.english] = true;
@@ -88,7 +98,7 @@ function learnedWordsByForm() {
   var learned = {};
   words.forEach(function(word) {
     var entry = srs[word.id];
-    var form = drillNormalize(word.arabic);
+    var form = drillKey(word.arabic);
     if (!entry || entry.stage < DRILL_LEARNED_MIN_STAGE || !form || !word.english) return;
     if (Object.keys(meaningsByForm[form]).length === 1 && !learned[form]) learned[form] = word;
   });
@@ -132,24 +142,33 @@ function drillHasPrefixedToken(tokens, answer, forms) {
 }
 
 function spotCandidates(ayahs, learned) {
+  var keysByNorm = {};
+  Object.keys(learned).forEach(function(key) {
+    var norm = drillNormalize(learned[key].arabic);
+    (keysByNorm[norm] = keysByNorm[norm] || []).push(key);
+  });
   var candidates = [];
   ayahs.forEach(function(ayah) {
     if (ayah.words.length < DRILL_SPOT_MIN_TOKENS || ayah.words.length > DRILL_SPOT_MAX_TOKENS) return;
     var answers = {};
+    var lookAlike = {};
     ayah.words.forEach(function(token, index) {
-      var form = drillNormalize(token);
-      if (!learned[form]) return;
-      answers[form] = answers[form] || [];
-      answers[form].push(index);
+      (keysByNorm[drillNormalize(token)] || []).forEach(function(key) {
+        if (!drillSameWord(learned[key].arabic, token)) { lookAlike[key] = true; return; }
+        answers[key] = answers[key] || [];
+        answers[key].push(index);
+      });
     });
-    Object.keys(answers).forEach(function(form) {
+    Object.keys(answers).forEach(function(key) {
       // An answer covering the whole ayah would give the question away.
-      if (answers[form].length >= ayah.words.length) return;
+      if (answers[key].length >= ayah.words.length) return;
+      // Same letters, other vowels (مِنْ beside مَنْ): too close to ask.
+      if (lookAlike[key]) return;
       // A prefixed copy of the word (وَ, بِ, ٱلۡ…) would be a fair tap marked wrong.
       var forms = {};
-      forms[form] = true;
-      if (drillHasPrefixedToken(ayah.words, answers[form], forms)) return;
-      candidates.push({ tokens: ayah.words, answer: answers[form], word: learned[form] });
+      forms[drillNormalize(learned[key].arabic)] = true;
+      if (drillHasPrefixedToken(ayah.words, answers[key], forms)) return;
+      candidates.push({ tokens: ayah.words, answer: answers[key], word: learned[key] });
     });
   });
   return candidates;

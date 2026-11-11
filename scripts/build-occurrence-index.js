@@ -29,6 +29,7 @@
 var fs = require('fs');
 var path = require('path');
 var vm = require('vm');
+var arabicSameWord = require('../js/data-core/word-forms.js').arabicSameWord;
 
 // ── Configuration ──────────────────────────────────────────────
 var ROOT = path.join(__dirname, '..');
@@ -94,6 +95,87 @@ function loadVocabulary() {
   return ALL_WORDS;
 }
 
+// ── Word Forms ─────────────────────────────────────────────────
+
+/**
+ * Lesson forms that share a normalized spelling but are different words
+ * (إِنَّ / أَن, مِنْ / مَنْ) get their own index keys. Forms of one
+ * normalized spelling are grouped with arabicSameWord(); the group that
+ * matches the most Quran tokens keeps the plain normalized key and each
+ * other group gets "norm|firstForm". Returns:
+ *   tokenKey(token) — the index key a Quran token counts under, or ''
+ *                     when it is none of the lesson words
+ *   formKeys        — { lessonForm: key } for forms whose key isn't the
+ *                     plain normalized one (read at runtime)
+ */
+function buildFormKeys(quranText, words) {
+  var formsByNorm = {};
+  words.forEach(function(w) {
+    var form = String(w.arabic || '').trim();
+    var norm = normalizeArabic(form);
+    if (!norm || /\s/.test(form)) return; // phrases never match one token
+    var forms = formsByNorm[norm] = formsByNorm[norm] || [];
+    if (forms.indexOf(form) < 0) forms.push(form);
+  });
+
+  var groupsByNorm = {};
+  Object.keys(formsByNorm).forEach(function(norm) {
+    var groups = [];
+    formsByNorm[norm].sort().forEach(function(form) {
+      var group = groups.find(function(g) {
+        return g.forms.some(function(m) { return arabicSameWord(m, form) && arabicSameWord(form, m); });
+      });
+      if (group) group.forms.push(form);
+      else groups.push({ forms: [form], tokens: 0, key: norm });
+    });
+    groupsByNorm[norm] = groups;
+  });
+
+  var groupCache = {};
+  function tokenGroup(token) {
+    if (groupCache.hasOwnProperty(token)) return groupCache[token];
+    var groups = groupsByNorm[normalizeArabic(token)] || [];
+    var found = groups.find(function(g) {
+      return g.forms.some(function(form) { return arabicSameWord(form, token); });
+    }) || null;
+    groupCache[token] = found;
+    return found;
+  }
+
+  forEachToken(quranText, function(token) {
+    var group = tokenGroup(token);
+    if (group) group.tokens++;
+  });
+
+  var formKeys = {};
+  Object.keys(groupsByNorm).forEach(function(norm) {
+    var groups = groupsByNorm[norm];
+    if (groups.length < 2) return;
+    var primary = groups.reduce(function(best, g) { return g.tokens > best.tokens ? g : best; });
+    groups.forEach(function(g) {
+      if (g === primary) return;
+      g.key = norm + '|' + g.forms[0];
+      g.forms.forEach(function(form) { formKeys[form] = g.key; });
+    });
+  });
+
+  return {
+    tokenKey: function(token) { var g = tokenGroup(token); return g ? g.key : ''; },
+    formKeys: formKeys,
+  };
+}
+
+function forEachToken(quranText, fn) {
+  for (var sid = 1; sid <= 114; sid++) {
+    var surah = quranText[sid];
+    if (!surah || !surah.verses) continue;
+    surah.verses.forEach(function(verse) {
+      if (!verse || !verse.text) return;
+      verse.text.split(/\s+/).forEach(function(t) { if (t.trim()) fn(t.trim()); });
+    });
+  }
+}
+
 // ── Index Builder ──────────────────────────────────────────────
 
 /**
@@ -104,7 +186,7 @@ function loadVocabulary() {
  * (a word appearing twice in one verse yields one verse ref) and
  * sorted in corpus order.
  */
-function buildOccurrenceIndex(quranText, vocabNormalizedSet) {
+function buildOccurrenceIndex(quranText, tokenKey) {
   var index = {};   // normalized -> { refs: [], seen: {} }
   var tokenCounts = {}; // normalized -> total TOKEN count in corpus (used for real coverage)
   var totalTokens = 0;
@@ -125,9 +207,8 @@ function buildOccurrenceIndex(quranText, vocabNormalizedSet) {
         if (!token) continue;
         totalTokens++;
 
-        var normalized = normalizeArabic(token);
+        var normalized = tokenKey(token);
         if (!normalized) continue;
-        if (!vocabNormalizedSet[normalized]) continue;
 
         matchedTokens++;
         tokenCounts[normalized] = (tokenCounts[normalized] || 0) + 1;
@@ -157,7 +238,7 @@ function buildOccurrenceIndex(quranText, vocabNormalizedSet) {
  *  - random-sample re-count: for N random keys, rescan the corpus and
  *    confirm the number of distinct verses matches the index
  */
-function validateIndex(quranText, index, vocabNormalizedSet) {
+function validateIndex(quranText, index, tokenKey) {
   var errors = [];
 
   // Well-formed + existing refs + no duplicates
@@ -189,7 +270,7 @@ function validateIndex(quranText, index, vocabNormalizedSet) {
   var step = Math.max(1, Math.floor(keys.length / 40));
   for (var ki = 0; ki < keys.length; ki += step) {
     var norm = keys[ki];
-    var expected = countDistinctVerses(quranText, norm);
+    var expected = countDistinctVerses(quranText, norm, tokenKey);
     if (expected !== index[norm].refs.length) {
       errors.push('Count mismatch for "' + norm + '": index=' + index[norm].refs.length + ' corpus=' + expected);
       if (errors.length >= 10) break;
@@ -199,8 +280,8 @@ function validateIndex(quranText, index, vocabNormalizedSet) {
   return errors;
 }
 
-/** Count distinct verses where a normalized token occurs (re-scan). */
-function countDistinctVerses(quranText, normalized) {
+/** Count distinct verses where a token with this key occurs (re-scan). */
+function countDistinctVerses(quranText, normalized, tokenKey) {
   var verses = {};
   for (var sid = 1; sid <= 114; sid++) {
     var surah = quranText[sid];
@@ -210,7 +291,7 @@ function countDistinctVerses(quranText, normalized) {
       if (!verse || !verse.text) continue;
       var tokens = verse.text.split(/\s+/);
       for (var ti = 0; ti < tokens.length; ti++) {
-        if (normalizeArabic(tokens[ti].trim()) === normalized) {
+        if (tokenKey(tokens[ti].trim()) === normalized) {
           verses[sid + ':' + verse.id] = true;
           break;
         }
@@ -222,7 +303,7 @@ function countDistinctVerses(quranText, normalized) {
 
 // ── Output Generation ──────────────────────────────────────────
 
-function generateFile(index, totalRefs, keyCount, tokenCounts, totalTokens) {
+function generateFile(index, totalRefs, keyCount, tokenCounts, totalTokens, formKeys) {
   var keys = Object.keys(index).sort();
   var lines = [];
   lines.push('// ═══════════════════════════════════════════════════════════════');
@@ -247,6 +328,14 @@ function generateFile(index, totalRefs, keyCount, tokenCounts, totalTokens) {
   // Real token-level coverage data: total corpus tokens and per-key token counts
   // (normalized forms matching vocabulary words). Used by calculateCoverage() &
   // related functions instead of the inflated legacy w.occ formula.
+  // Lesson forms that are a different word from others with the same
+  // letters (إِنَّ / أَن) have their own key; OCCURRENCE_INDEX_KEY gives
+  // the key for any lesson word. Tokens are matched with arabicSameWord().
+  lines.push('  T.OCCURRENCE_INDEX_FORM_KEYS = ' + JSON.stringify(formKeys, Object.keys(formKeys).sort(), 0) + ';');
+  lines.push('  T.OCCURRENCE_INDEX_KEY = function (arabic) {');
+  lines.push('    var form = String(arabic || \'\').trim();');
+  lines.push('    return T.OCCURRENCE_INDEX_FORM_KEYS[form] || T.OCCURRENCE_INDEX_NORM(form);');
+  lines.push('  };');
   lines.push('  T.OCCURRENCE_INDEX_TOTAL_TOKENS = ' + totalTokens + ';');
   lines.push('  T.OCCURRENCE_INDEX_TOKEN_COUNTS = {');
   var countKeys = Object.keys(tokenCounts).sort();
@@ -283,22 +372,18 @@ function main() {
 
   console.log('[2/4] Loading vocabulary...');
   var words = loadVocabulary();
-  var vocabNormalizedSet = {};
-  words.forEach(function(w) {
-    var norm = normalizeArabic(w.arabic || '');
-    if (norm) vocabNormalizedSet[norm] = true;
-  });
-  console.log('  Vocabulary: ' + words.length + ' entries -> ' + Object.keys(vocabNormalizedSet).length + ' normalized forms');
+  var forms = buildFormKeys(quranText, words);
+  console.log('  Vocabulary: ' + words.length + ' entries; ' + Object.keys(forms.formKeys).length + ' forms keyed apart from a look-alike');
 
   console.log('[3/4] Scanning corpus & building index...');
-  var result = buildOccurrenceIndex(quranText, vocabNormalizedSet);
+  var result = buildOccurrenceIndex(quranText, forms.tokenKey);
   console.log('  Tokens scanned: ' + result.totalTokens);
   console.log('  Tokens matched vocab: ' + result.matchedTokens);
   console.log('  Unique verse refs: ' + result.totalRefs);
   console.log('  Index keys: ' + Object.keys(result.index).length);
 
   console.log('[4/4] Validating index...');
-  var errors = validateIndex(quranText, result.index, vocabNormalizedSet);
+  var errors = validateIndex(quranText, result.index, forms.tokenKey);
   if (errors.length > 0) {
     console.error('  ✗ VALIDATION FAILED:');
     errors.forEach(function(e) { console.error('    • ' + e); });
@@ -306,7 +391,7 @@ function main() {
   }
   console.log('  ✓ All verse refs exist, no duplicates, random-sample counts match.');
 
-  var output = generateFile(result.index, result.totalRefs, Object.keys(result.index).length, result.tokenCounts, result.totalTokens);
+  var output = generateFile(result.index, result.totalRefs, Object.keys(result.index).length, result.tokenCounts, result.totalTokens, forms.formKeys);
   fs.writeFileSync(OUT_PATH, output, 'utf8');
   var kb = (Buffer.byteLength(output, 'utf8') / 1024).toFixed(1);
   console.log('');
