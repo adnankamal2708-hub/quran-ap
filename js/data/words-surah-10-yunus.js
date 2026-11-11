@@ -167,7 +167,7 @@ ALL_WORDS.push(
   {
     cid: 251,
     arabic: 'النَّفْعَ',
-    translit: 'An-Naf\'\'',
+    translit: 'An-Naf\'',
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فَعْل',

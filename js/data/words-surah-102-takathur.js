@@ -106,7 +106,7 @@ ALL_WORDS.push(
   {
     cid: 801,
     arabic: 'عَيْنَ الْيَقِينِ',
-    translit: 'Ayna al-Yaqīn',
+    translit: 'ʿAyna al-Yaqīn',
     type: 'Noun + Noun (construct phrase)',
     typeCategory: 'noun',
     pattern: '—',
@@ -172,7 +172,7 @@ ALL_WORDS.push(
   {
     cid: 247,
     arabic: 'النَّعِيمِ',
-    translit: 'An-Naim',
+    translit: 'An-Na\'īm',
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فَعِيل',

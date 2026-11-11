@@ -271,7 +271,7 @@ ALL_WORDS.push(
   {
     cid: 202,
     arabic:'الصَّالِحَاتِ',
-    translit:'As-Salih',
+    translit:'Aṣ-Ṣāliḥāt',
     type:'Noun (plural)',
     typeCategory:'noun',
     pattern:'فَاعِل',

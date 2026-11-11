@@ -168,7 +168,7 @@ ALL_WORDS.push(
   {
     cid: 981,
     arabic: 'مُؤْصَدَةٌ',
-    translit: 'Muʿṣadah',
+    translit: 'Muʾṣadah',
     type: 'Noun (passive participle, feminine)',
     typeCategory: 'noun',
     pattern: 'مُفْعَلَة',

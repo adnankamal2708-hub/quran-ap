@@ -172,7 +172,7 @@ ALL_WORDS.push(
   {
     cid: 1125,
     arabic: 'يَطْغَىٰ',
-    translit: 'Yaghṭā',
+    translit: 'Yaṭghā',
     type: 'Verb (imperfect, masculine singular)',
     typeCategory: 'verb',
     pattern: 'يَفْعَلَىٰ',

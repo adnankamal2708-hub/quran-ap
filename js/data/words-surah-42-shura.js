@@ -7,7 +7,7 @@ ALL_WORDS.push(
   {
     cid: 777,
     arabic: 'عسق',
-    translit: 'Ayn Sīn Qāf',
+    translit: 'ʿAyn Sīn Qāf',
     type: 'Proper Noun',
     typeCategory: 'noun',
     pattern: '—',

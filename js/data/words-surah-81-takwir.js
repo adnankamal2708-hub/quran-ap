@@ -73,7 +73,7 @@ ALL_WORDS.push(
   {
     cid: 807,
     arabic: 'عُطِّلَتْ',
-    translit: 'Uṭṭilat',
+    translit: 'ʿUṭṭilat',
     type: 'Verb (passive, perfect, feminine singular)',
     typeCategory: 'verb',
     pattern: 'فُعِّلَت',
