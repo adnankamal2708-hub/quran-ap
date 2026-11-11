@@ -2,8 +2,9 @@
 // qaida-ui.js — a Qaida lesson (#view-qaida-lesson)
 //
 // Three screens: the intro (what the lesson teaches: letters with their
-// forms, marks with a note and real words, or a surah to read along with
-// Al-Husary), the practice (exercises from js/qaida/qaida-exercises.js,
+// forms and a real word starting with each, marks with a note and real
+// words, or a surah to read along with Al-Husary; words play quran.com's
+// recording of them), the practice (exercises from js/qaida/qaida-exercises.js,
 // drawn by the shared exercise UI) and the finish (score, and the share of
 // the Quran the learner can now read). A reading check that scores below
 // QAIDA_CHECK_PASS is not recorded and offers a retry.
@@ -27,9 +28,11 @@ function _qAr(text, className) {
   return '<span class="' + className + '" lang="ar" dir="rtl">' + _qEsc(text) + '</span>';
 }
 
+/** A play button for one sound, or several played in turn (a list of URLs). */
 function _qPlay(url, label) {
-  if (!url) return '';
-  return '<button type="button" class="qaida-play" data-action="play" data-src="' + _qEsc(url) + '"' +
+  var urls = Array.isArray(url) ? url : [url];
+  if (!urls.length || !urls[0]) return '';
+  return '<button type="button" class="qaida-play" data-action="play" data-src="' + _qEsc(urls.join(' ')) + '"' +
     ' aria-label="' + _qEsc(t('audio.play') + ' ' + label) + '">' + uiIcon('play', true) + '</button>';
 }
 
@@ -51,7 +54,15 @@ function _qLetterCard(letter) {
   h += '<span class="qaida-letter-name">' + _qEsc(name) + _qPlay(qaidaAudioUrl(letter.id), name) + '</span>';
   h += '<span class="qaida-forms" lang="ar" dir="rtl">';
   ['initial', 'medial', 'final'].forEach(function (p) { h += '<span>' + _qEsc(qaidaLetterForm(letter, p)) + '</span>'; });
-  h += '</span></li>';
+  h += '</span>';
+  // The letter heard at the start of a real word (quran.com's recording)
+  var word = typeof QAIDA_LETTER_WORDS !== 'undefined' ? QAIDA_LETTER_WORDS[letter.id] : null;
+  var urls = word ? qaidaWordAudioUrls(word) : [];
+  if (urls.length) {
+    h += '<span class="qaida-letter-word">' + _qEsc(t('qaida.intro.inWord')) + ' ' + _qAr(word, 'qaida-letter-word-ar') +
+      _qPlay(urls, word) + '</span>';
+  }
+  h += '</li>';
   return h;
 }
 
@@ -67,10 +78,15 @@ function _qMarkSample(id) {
   return '';
 }
 
+/** A real Quran word in a lesson, with quran.com's recording of it when there is one. */
+function _qWordItem(word) {
+  return '<li>' + _qEsc(word) + _qPlay(qaidaWordAudioUrls(word), word) + '</li>';
+}
+
 function _qWords(words) {
   if (!words || !words.length) return '';
   return '<p class="qaida-words-label">' + _qEsc(t('qaida.intro.words')) + '</p><ul class="qaida-words" lang="ar" dir="rtl">' +
-    words.slice(0, 8).map(function (w) { return '<li>' + _qEsc(w) + '</li>'; }).join('') + '</ul>';
+    words.slice(0, 8).map(_qWordItem).join('') + '</ul>';
 }
 
 function _qVerses(run) {
@@ -106,7 +122,7 @@ function _qIntroBody(run) {
   }
   if (lesson.kind === 'muqattaat') {
     return '<p class="qaida-note">' + _qEsc(t('qaida.intro.muqattaat')) + '</p>' +
-      '<ul class="qaida-words" lang="ar" dir="rtl">' + lesson.examples.map(function (w) { return '<li>' + _qEsc(w) + '</li>'; }).join('') + '</ul>';
+      '<ul class="qaida-words" lang="ar" dir="rtl">' + lesson.examples.map(_qWordItem).join('') + '</ul>';
   }
   if (lesson.kind === 'marks') {
     return '<ul class="qaida-marks">' + lesson.teaches.map(function (id) { return _qMarkCard(id, _qMarkSample(id)); }).join('') + '</ul>' +
@@ -251,6 +267,7 @@ async function startQaidaLesson(lessonId, seed) {
   if (lesson.kind === 'surah') {
     cacheAudio((verses[lesson.surah] || []).map(function (_, i) { return verseAudioUrl(lesson.surah, i + 1); }));
   }
+  cacheAudio(qaidaLessonWordAudio(lesson));
   switchView('qaida-lesson');
 }
 
@@ -266,7 +283,7 @@ function _onQaidaClick(e) {
   var action = el.getAttribute('data-action');
   var run = _qaidaRun;
 
-  if (action === 'play') playAudio(el.getAttribute('data-src'));
+  if (action === 'play') playAudioQueue(el.getAttribute('data-src').split(' '));
   else if (action === 'back') _leaveQaida();
   else if (action === 'practice' && run) { run.step = 'practice'; run.index = 0; run.answered = false; renderQaidaLesson(); }
   else if (action === 'next') _nextQaidaItem();

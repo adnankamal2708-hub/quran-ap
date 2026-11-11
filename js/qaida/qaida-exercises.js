@@ -382,7 +382,7 @@ function _qaidaItemsFor(lesson, seed, verses) {
 /**
  * The exercises for one lesson. Reading checks use every item they draw;
  * other lessons use at most QAIDA_ITEMS_PER_LESSON, keeping their order
- * (new material first, then spotting).
+ * (new material first, then spotting), with listening questions mixed in.
  * @param {Object} lesson - from QAIDA_LESSONS
  * @param {number} seed
  * @param {Object} [verses] - { <surahId>: string[] } for surah lessons
@@ -391,7 +391,13 @@ function _qaidaItemsFor(lesson, seed, verses) {
 function buildQaidaLessonItems(lesson, seed, verses) {
   if (!lesson) return [];
   var items = _qaidaItemsFor(lesson, seed, verses);
-  return lesson.kind === 'check' ? items.slice(0, 16) : items.slice(0, QAIDA_ITEMS_PER_LESSON);
+  if (lesson.kind === 'check') return items.slice(0, 16);
+  // Listening questions (js/qaida/qaida-listen-exercises.js) take the 3rd
+  // and 7th places, so the lesson stays the same length.
+  var listen = typeof buildQaidaListenItems === 'function' ? buildQaidaListenItems(lesson, seed) : [];
+  items = items.slice(0, QAIDA_ITEMS_PER_LESSON - listen.length);
+  listen.forEach(function (item, i) { items.splice(Math.min(items.length, 2 + i * 4), 0, item); });
+  return items;
 }
 
 // ── Placement test bank ─────────────────────────────────────────

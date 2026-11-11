@@ -202,6 +202,17 @@ Audio is a prerequisite for Qaida and Tajweed.
 
   No synthetic or AI voices: they can't be trusted to get the makhārij
   right.
+- **Word audio:** quran.com's word-by-word recordings
+  (`audio.qurancdn.com/wbw/`), the voice used in the ads. They have no
+  isolated letter names, so Read Arabic from zero uses them for real words:
+  each letter is heard at the start of a short, frequent word, every
+  example word has a play button, the muqattaʿāt play as recited, and
+  lessons ask "which letter does this word start with?" and "which word do
+  you hear?". The letter slots stay for real letter recordings.
+- **Quran reader:** "Listen" plays the whole surah in Al-Husary's
+  recitation (basmala first, except Al-Fātiḥah and At-Tawbah), each verse
+  has its own play button, and a word's panel plays quran.com's recording
+  of it.
 - **Caching:**
   - Lesson audio is cached when a lesson is first opened.
   - Verse audio streams and is cached once played.
@@ -236,7 +247,7 @@ Audio is a prerequisite for Qaida and Tajweed.
 
 | Item | Status | Needed by |
 |---|---|---|
-| everyayah.com / quran.com permission for Al-Husary and Al-Minshawi audio | Request sent 2026-10-30, no reply by 2026-11-03. Used from Phase 2 under everyayah's stated terms (credit and link back) | Phase 2 |
+| everyayah.com / quran.com permission for Al-Husary and Al-Minshawi audio | Request sent 2026-10-30, no reply by 2026-11-03. Used from Phase 2 under everyayah's stated terms (credit and link back). quran.com's word audio used from 2026-11-12 on the owner's decision, credited in the reader and Profile → About | Phase 2 |
 | Quran In Depth permission for letter recordings | Request sent 2026-10-30, no reply by 2026-11-03. Not used without permission (all rights reserved); letters ship with empty audio slots | Phase 2 |
 | Letter recordings to fill the Qaida audio slots | The owner's own recordings; guide in docs/recording-letters.md. The Tajweed track stays hidden until all 28 exist | Phase 3 release |
 | Owner's content check of the Tajweed lessons | Before adding the 28th recording, read js/tajweed/tajweed-makharij.js, js/tajweed/tajweed-lessons.js and the tajweed.* strings in js/i18n/strings-en.js (point descriptions, qualities, lesson titles) | Phase 3 release |

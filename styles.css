@@ -10010,7 +10010,10 @@ body::before {
 .qaida-forms { display: flex; gap: 12px; font-family: var(--arabic); font-size: 1.5rem; line-height: 1.6; color: var(--text-muted); }
 .qaida-words-label { margin: 0 0 -8px; font-size: var(--text-sm); color: var(--text-muted); }
 .qaida-words { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.qaida-words li { padding: 4px 12px 8px; font-family: var(--arabic); font-size: 1.625rem; line-height: 1.6; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn); }
+.qaida-words li { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 8px; font-family: var(--arabic); font-size: 1.625rem; line-height: 1.6; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn); }
+.qaida-words .qaida-play { width: 28px; height: 28px; }
+.qaida-letter-word { display: inline-flex; align-items: center; gap: 8px; font-size: var(--text-sm); color: var(--text-muted); }
+.qaida-letter-word-ar { font-family: var(--arabic); font-size: 1.375rem; line-height: 1.6; color: var(--text); }
 .qaida-verses { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .qaida-verse { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-section); }
 .qaida-verse-text { flex: 1; font-family: var(--arabic); font-size: 1.625rem; line-height: 2; color: var(--text); text-align: right; }

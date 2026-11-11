@@ -77,6 +77,7 @@ var TESTS = [
   "audio.test.js",
   "recorder.test.js",
   "qaida-exercises.test.js",
+  "qaida-word-audio.test.js",
   "tajweed-data.test.js",
   "verse-word-counts.test.js",
   "word-meanings.test.js",

@@ -200,6 +200,7 @@ var STRINGS = {
     'qaida.review.done': 'All caught up. Letters and marks you miss come back here.',
     'qaida.reviewNote': 'These lessons are awaiting review by a qualified teacher.',
     'qaida.intro.words': 'In the Quran',
+    'qaida.intro.inWord': 'In a word:',
     'qaida.home.welcome': 'Today we begin with the letters of the Quran.',
     'qaida.home.going': 'Every letter and mark you learn opens more of the Quran.',
     'qaida.home.goal': 'Complete your first lesson',
@@ -228,6 +229,8 @@ var STRINGS = {
     'qaida.ex.whichMark': 'What is this mark called?',
     'qaida.ex.tapWith': 'Tap the words with {mark}',
     'qaida.ex.orderVerse': 'Put the words of verse {n} in order',
+    'qaida.ex.listenLetter': 'Which letter does this word start with?',
+    'qaida.ex.listenWord': 'Which word do you hear?',
 
     // ── Tajweed: areas, points and qualities (to be checked by the owner) ──
     'tajweed.area.throat.name': 'The throat',
