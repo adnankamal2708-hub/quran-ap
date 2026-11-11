@@ -103,13 +103,29 @@ batches. Sections 1–5 overlap: one lesson word can appear in several.
   forward (ا د ذ ر ز و), and the articulation points are the standard ones.
 - **Lesson words:** none has an empty required field or an invalid verse
   number.
+- **Example translations (`ayahT`):** all 1,354 are the app's Saheeh
+  International text for their verse, word for word. A sample of 40 verses
+  read against quran.com's Saheeh International differs only by that
+  edition's later revisions (Allāh with a macron, added "[i.e. …]" notes,
+  one "the" in 56:9).
+- **Transliterations** (checked 2026-11-12): every one's consonants were
+  read against its Arabic. Eight were wrong and are fixed: يَطْغَىٰ
+  (letters swapped), مُؤْصَدَةٌ (ʿayn for hamza), الصَّالِحَاتِ (singular),
+  النَّفْعَ (doubled apostrophe), and four that had lost their ʿayn.
+- **Root families** (checked 2026-11-12): 31 items were from another root
+  (e.g. رِبَا under رَبّ, مُسْتَقِيم under الصِّرَاط) or not real words
+  (أَتْوَاد, بَلَّة); they are removed.
+- **New words' patterns:** 75 of the 103 words added for surah lessons have
+  a hand-checked pattern; weak, hollow and doubled verb forms keep '—'.
 
 ## Not checked
 
 - Whether each "tafsir" note is true to its source (section 6).
-- The English wording of each example translation (`ayahT`).
-- Transliterations, word patterns (`pattern`) and root-family lists.
-- Whether the Saheeh International text matches its published edition.
+- Whether every older word's stored pattern is right. Read against the
+  corpus lemma, about 1 in 4 differs; some differences are the house style
+  (a sound plural stored as its singular), but some look wrong (e.g.
+  ٱلۡأَعۡرَابِ stored as فَعَّال, ٱلۡمَسِيحُ as مَفْعِيل).
+- Vowels in transliterations (only consonants and ʿayn/hamza were checked).
 - Whether each word-by-word meaning is the best translation; only that it
   is the source's meaning for that word.
 - Audio.
