@@ -93,7 +93,6 @@ ALL_WORDS.push(
     difficulty: 2,
     tags: ['prohibition', 'tahrim'],
     lesson: 'tahrim',
-    surahId: 66,
     verseKey: '66:1',
     ayahA: 'يَـٰٓأَيُّهَا ٱلنَّبِيُّ لِمَ <span class="ayah-highlight">تُحَرِّمُ</span> مَآ أَحَلَّ ٱللَّهُ لَكَۖ تَبۡتَغِي مَرۡضَاتَ أَزۡوَٰجِكَۚ وَٱللَّهُ غَفُورٞ رَّحِيمٞ',
     ayahT: 'O Prophet, why do you prohibit [yourself from] what Allah has made lawful for you, seeking the approval of your wives? And Allah is Forgiving and Merciful',

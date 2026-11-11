@@ -1328,7 +1328,6 @@ ALL_WORDS.push(
     difficulty: 3,
     tags: ['asma-al-husna', 'divine-attributes', 'glory'],
     lesson: 'asma-al-husna',
-    surahId: 50,
     verseKey: '50:1',
     ayahA: 'قٓۚ وَٱلۡقُرۡءَانِ <span class="ayah-highlight">ٱلۡمَجِيدِ</span>',
     ayahT: 'Qaf. By the honored Qur\'an',

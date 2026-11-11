@@ -60,7 +60,6 @@ ALL_WORDS.push(
     difficulty: 1,
     tags: ['revelation', 'truth', 'rad'],
     lesson: 'rad',
-    surahId: 13,
     verseKey: '13:1',
     ayahA: 'الٓمٓرۚ تِلۡكَ ءَايَٰتُ ٱلۡكِتَٰبِۗ وَٱلَّذِيٓ أُنزِلَ إِلَيۡكَ مِن رَّبِّكَ <span class="ayah-highlight">ٱلۡحَقُّ</span> وَلَٰكِنَّ أَكۡثَرَ ٱلنَّاسِ لَا يُؤۡمِنُونَ',
     ayahT: 'Alif, Lam, Meem, Ra. These are the verses of the Book; and what has been revealed to you from your Lord is the truth, but most of the people do not believe',

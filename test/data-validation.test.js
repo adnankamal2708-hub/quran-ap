@@ -327,7 +327,9 @@ suite('Example Verse Consistency (regression)', function() {
       for (var i = 0; i < lines.length; i++) {
         var m = lines[i].match(/^\s*arabic: '([^']+)',$/);
         if (!m) continue;
-        var win = lines.slice(i, i + 80).join('\n');
+        // this entry only: a word with no surahId must not pick up the next one's
+        var end = i; while (end < lines.length && !/^\s*\},?$/.test(lines[end])) end++;
+        var win = lines.slice(i, end).join('\n');
         var sid = win.match(/^\s*surahId: (\d+),/m);
         var vk = win.match(/^\s*verseKey: '([^']+)',/m);
         var aR = win.match(/^\s*ayahR: (['"])([^\n]*)\1,?$/m);

@@ -763,7 +763,6 @@ ALL_WORDS.push(
     difficulty: 1,
     tags: ["nature", "time", "common-words"],
     lesson: 'grammar',
-    surahId: 73,
     verseKey: '73:2',
     ayahA: 'قُمِ <span class="ayah-highlight">ٱلَّيۡلَ</span> إِلَّا قَلِيلٗا',
     ayahT: 'Arise [to pray] the night, except for a little',

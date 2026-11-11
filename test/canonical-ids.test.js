@@ -88,5 +88,22 @@ t('a word written the same way has one English meaning in every lesson', functio
   });
 });
 
+console.log('\n📋 Surah lessons');
+// Vowel marks and ٱ/ا aside, the same letters are the same word (النَّاسِ, ٱلنَّاسِ)
+function sameWordKey(arabic) {
+  return arabic.replace(/[ً-ٰٟۖ-ۭ]/g, '').replace(/ٱ/g, 'ا');
+}
+t('a surah lesson teaches each word once', function () {
+  var seen = {}, twice = [];
+  state.canonical.forEach(function (c) {
+    (c.surahIds || []).forEach(function (s) {
+      var k = s + '|' + sameWordKey(c.arabic);
+      if (seen[k]) twice.push('surah ' + s + ': ' + seen[k] + ' and ' + c.id);
+      else seen[k] = c.id;
+    });
+  });
+  assert.deepStrictEqual(twice, []);
+});
+
 console.log('\nResults: ' + passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

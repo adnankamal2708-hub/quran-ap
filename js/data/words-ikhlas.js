@@ -114,7 +114,6 @@ ALL_WORDS.push(
     difficulty: 2,
     tags: ['humanity', 'protection'],
     lesson: 'nas',
-    surahId: 114,
     verseKey: '114:1',
     ayahA: 'قُلۡ أَعُوذُ بِرَبِّ <span class="ayah-highlight">ٱلنَّاسِ</span>',
     ayahT: 'Say, "I seek refuge in the Lord of mankind',
