@@ -513,8 +513,8 @@ function generateReport(results, refIndex) {
   emit('    Old stored:     ' + totalOld);
   emit('    New (exact):    ' + totals.exact);
   emit('    New (prefix):   ' + totals.prefixPlusExact);
-  emit('    Coverage (exact, % of 77,429 tokens):  ' + Math.round(totals.exact / 77429 * 10000) / 100 + '%');
-  emit('    Coverage (prefix, % of 77,429 tokens): ' + Math.round(totals.prefixPlusExact / 77429 * 10000) / 100 + '%');
+  emit('    Coverage (exact, % of 77,428 tokens):  ' + Math.round(totals.exact / 77428 * 10000) / 100 + '%');
+  emit('    Coverage (prefix, % of 77,428 tokens): ' + Math.round(totals.prefixPlusExact / 77428 * 10000) / 100 + '%');
 
   emit('');
   hr();

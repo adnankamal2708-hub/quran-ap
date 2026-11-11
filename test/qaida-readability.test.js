@@ -51,8 +51,8 @@ function test(name, fn) {
 
 console.log('\n📋 Qaida readability');
 
-test('counts the same 77,429 Quran words as the coverage figure', function () {
-  assert.strictEqual(QAIDA_WORD_TOTAL, 77429);
+test('counts the same 77,428 Quran words as the coverage figure', function () {
+  assert.strictEqual(QAIDA_WORD_TOTAL, 77428);
 });
 
 test('has a figure for every lesson, never falling along the lesson order', function () {

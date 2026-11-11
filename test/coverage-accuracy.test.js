@@ -10,7 +10,7 @@
  *
  * These tests lock in the real numbers (verified at fix time from a
  * token-level scan of the actual corpus via OCCURRENCE_INDEX_* data):
- *   - total corpus tokens: 77,429
+ *   - total corpus tokens: 77,428
  *   - full word-set union coverage: 33,866 tokens = 43.7% (after the November 2026 data repair)
  *   - Foundation 100-word union coverage: 30.3%
  *
@@ -86,10 +86,10 @@ function masterFirstN(n) {
 // ═══════════════════════════════════════════════════════════════
 
 suite('Real corpus stats', function() {
-  test('Total corpus tokens is the real token count (77,429)', function() {
+  test('Total corpus tokens is the real token count (77,428)', function() {
     var stats = getRealCorpusStats();
-    assert.strictEqual(stats.totalTokens, 77429,
-      'Total corpus tokens should be 77,429 (re-verify if the corpus changed), got ' + stats.totalTokens);
+    assert.strictEqual(stats.totalTokens, 77428,
+      'Total corpus tokens should be 77,428 (re-verify if the corpus changed), got ' + stats.totalTokens);
   });
 
   test('Per-key token counts are present and sum to the union coverage (33,866)', function() {
@@ -122,7 +122,7 @@ suite('Real coverage calculations', function() {
     var cov = calculateCoverage();
     assert.strictEqual(cov.coveragePercent, 0);
     assert.strictEqual(cov.masteredWords, 0);
-    assert.strictEqual(cov.totalOccurrences, 77429, 'totalOccurrences should be real corpus tokens');
+    assert.strictEqual(cov.totalOccurrences, 77428, 'totalOccurrences should be real corpus tokens');
   });
 
   test('calculateCoverage reports ~43.7% (NOT 84%+) with every word mastered', function() {
@@ -132,7 +132,7 @@ suite('Real coverage calculations', function() {
       'Full-set coverage should be ~43.7% (real token coverage), got ' + cov.coveragePercent);
     assert.strictEqual(cov.wordMasteryPercent, 100);
     assert.strictEqual(cov.masteredWords, CANON.length);
-    assert.strictEqual(cov.totalOccurrences, 77429);
+    assert.strictEqual(cov.totalOccurrences, 77428);
   });
 
   test('Partial mastery produces intermediate real coverage', function() {

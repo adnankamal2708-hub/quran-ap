@@ -36,7 +36,7 @@
     .replace(/\s+/g, ' ')
     .trim();
 };
-  T.OCCURRENCE_INDEX_TOTAL_TOKENS = 77429;
+  T.OCCURRENCE_INDEX_TOTAL_TOKENS = 77428;
   T.OCCURRENCE_INDEX_TOKEN_COUNTS = {
     "ابابيل": 1,
     "ابتغاا": 11,

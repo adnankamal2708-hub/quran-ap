@@ -83,8 +83,9 @@ Coverage = (matched tokens / total Quran tokens) × 100%
 Where:
 - **matched tokens** = tokens in the Quran corpus whose normalized form
   matches at least one vocabulary word's normalized form
-- **total Quran tokens** = 77,429 (all whitespace-delimited tokens across
-  all 114 surahs, 6,236 verses)
+- **total Quran tokens** = 77,428 (all whitespace-delimited tokens across
+  all 114 surahs, 6,236 verses; 77,429 until November 2026, when a stray
+  thin space that split one word of 2:72 in two was removed)
 - **Vocabulary scope** = canonical word forms only (deduplicated by
   normalized Arabic text)
 
@@ -92,7 +93,7 @@ Where:
 
 | Metric | Value |
 |--------|-------|
-| Total Quran tokens | 77,429 |
+| Total Quran tokens | 77,428 |
 | Canonical vocabulary forms | ~850 |
 | Matched tokens (exact after normalization) | ~18,882 |
 | Current coverage | ~24.39% |

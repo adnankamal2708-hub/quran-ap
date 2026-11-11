@@ -3,7 +3,7 @@
  * verse-word-counts.test.js — Unit tests for the per-verse word counts
  * behind the Tajweed progress figure
  *
- * Tests: the counts add up to the Quran's 77,429 words, cover all 114
+ * Tests: the counts add up to the Quran's 77,428 words, cover all 114
  * surahs and 6,236 verses, and verseWordCount reads them (0 if unknown).
  *
  * Run: node test/verse-word-counts.test.js
@@ -33,13 +33,13 @@ function test(name, fn) {
 
 console.log('\n📋 Verse word counts');
 
-test('the counts sum to the Quran total of 77429', function () {
+test('the counts sum to the Quran total of 77428', function () {
   var sum = 0;
   Object.keys(VERSE_WORD_COUNTS).forEach(function (s) {
     VERSE_WORD_COUNTS[s].forEach(function (n) { sum += n; });
   });
-  assert.strictEqual(QURAN_WORD_TOTAL, 77429);
-  assert.strictEqual(sum, 77429);
+  assert.strictEqual(QURAN_WORD_TOTAL, 77428);
+  assert.strictEqual(sum, 77428);
 });
 
 test('there are 114 surahs and 6236 verses', function () {

@@ -8,7 +8,7 @@
  *   QAIDA_READABLE_PERCENT
  *     For "% of the Quran's words you can read", by lesson id: the share
  *     of the Quran's word occurrences (whitespace-separated tokens, the
- *     same 77,429 the coverage figure counts) whose every letter and mark
+ *     same 77,428 the coverage figure counts) whose every letter and mark
  *     is taught by that lesson or an earlier one. Lessons open strictly in
  *     order and placement skips whole levels, so what a learner knows is
  *     always "everything up to some lesson" and one figure per lesson is

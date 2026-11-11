@@ -7,7 +7,7 @@
  * per surah (index ayah-1). The Tajweed progress figure is the words of
  * the verses a learner has practised smoothly out of the Quran's total.
  * Words are counted as build-qaida-readability.js counts them
- * (whitespace-separated tokens), so the total is the same 77,429.
+ * (whitespace-separated tokens), so the total is the same 77,428.
  *
  * Usage: node scripts/build-verse-word-counts.js
  * Rerun after changing js/quran/quran-data.js.

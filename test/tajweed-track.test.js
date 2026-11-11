@@ -131,16 +131,16 @@ console.log('\n📋 Tajweed track: verses and percent');
 test('a smooth verse raises the percent by its share of the words, once', function () {
   assert.strictEqual(getTajweedPercent(), 0);
   markTajweedVerse(1, 1, true, T0);
-  assert.strictEqual(getTajweedPercent(), 4 / 77429 * 100);
+  assert.strictEqual(getTajweedPercent(), 4 / 77428 * 100);
   markTajweedVerse(1, 1, true, T0 + 5);
-  assert.strictEqual(getTajweedPercent(), 4 / 77429 * 100);
+  assert.strictEqual(getTajweedPercent(), 4 / 77428 * 100);
   assert.strictEqual(loadTajweedProgress().smooth['1:1'], T0);
 });
 
 test('refreshTajweedPercent records the percent as the track high-water mark', function () {
   markTajweedVerse(1, 7, true, T0);
   refreshTajweedPercent();
-  assert.strictEqual(getTrackPercent('tajweed'), 9 / 77429 * 100);
+  assert.strictEqual(getTrackPercent('tajweed'), 9 / 77428 * 100);
 });
 
 test('a not-yet verse joins the review queue, and a later smooth mark removes it', function () {

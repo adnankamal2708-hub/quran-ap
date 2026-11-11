@@ -26,9 +26,9 @@ var SOURCE_SHA256 = '1aa128241580f830c948f6bb1a67e228a96417c911c1d273f78298055bf
 // Places where the app's text and the source split a word in a way that
 // spelling alone can't confirm. Key: "surah:verse:appWord" (1-based).
 var WORD_SPLIT_EXCEPTIONS = {
-  // The app writes فَٱدَّٰرَٰٔتُمۡ as two pieces (فَٱدَّـٰرَ ٰٔتُمۡ) and spells the
-  // hamza differently from the source's فَٱدَّٰرَٰءۡتُمۡ; it is one word.
-  '2:72:4': { appWords: 2, sourceWords: 1 },
+  // The app spells the hamza of فَٱدَّٰرَٰٔتُمۡ differently from the source's
+  // فَٱدَّٰرَٰءۡتُمۡ; it is the same word.
+  '2:72:4': { appWords: 1, sourceWords: 1 },
 };
 
 function loadSource() {
