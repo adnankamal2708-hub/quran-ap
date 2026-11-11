@@ -80,6 +80,24 @@ Always reuse existing modules whenever possible.
 
 ---
 
+# Code Organization
+
+Keep the code readable for a beginner.
+
+- Before writing anything new, search for it; reuse or extend what exists.
+- One job per file.
+- Code files stay under 300 lines. Data and generated files are exempt
+  (js/data/, js/quran/quran-data.js, js/qaida/qaida-readability.js, the
+  build outputs).
+- Screens and UI components go in js/ui/.
+- js/data/ holds only vocabulary word data. Never put code there: the
+  build loads every file in it as word data.
+- Clean up one folder at a time, in its own commits, without changing what
+  the app does. Split an oversized file when you work on it, not all at
+  once. Add each new file to build-files.js and keep the tests passing.
+
+---
+
 # Data
 
 All Quran vocabulary data should have a single source of truth.
