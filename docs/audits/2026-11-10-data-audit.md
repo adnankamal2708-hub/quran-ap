@@ -11,6 +11,34 @@ item in sections 1, 2, 5 and 8 was then read by hand. Counts marked
 "at least" come from checks that can miss cases, so the real number may be
 higher.
 
+## Status after the repair (11 November 2026)
+
+- **Fixed: 1, 2, 3, 4, 5, 8.** Every example is now the exact text of
+  the one verse it cites, with that verse's translation, and the highlight
+  is the taught word. A lesson word that isn't in the Quran in the form
+  given was replaced by the real word from the verse (168 words). Meanings
+  come from the quran.com word-by-word data, and progress carries over through
+  `cid`. The 23 Names of Allah that come only from the hadith are kept,
+  labelled "from the hadith" and given a count of 0. `test/lesson-examples.test.js`
+  checks all of this on every build.
+- **Fixed: 6.** The notes are now Ibn Kathir's own Arabic, quoted word
+  for word from `data-sources/ibn-kathir-ar.json` (611 words). Words with no
+  quote that clearly explains them show links only (to the full Arabic and
+  the abridged English on quran.com). The test checks every quote against
+  the source.
+- **Fixed: 9, 10.** Roots, parts of speech and counts come from the
+  Quranic Arabic Corpus.
+- **12, changed.** In 107 surah-lesson words, the word doesn't occur
+  anywhere in the lesson's surah. They now cite a verse where they really
+  occur, instead of a verse from the surah that doesn't contain them. When
+  the surah has the same word in another form (ٱلصَّلَوٰةَ for صَلَاة), the
+  lesson now teaches that form, in that surah. Still open: whether to swap
+  those 107 for words that are in the surah.
+- **Open: 7, 11, 13.** Look-alike matching (7), the same word with
+  different wording in two lessons (11, now 38 forms; some are real
+  homographs such as الجنة / الجِنّة) and the 2:72 thin space (13).
+- The Foundation Course words (the first 100) keep their form and order.
+
 ## Summary
 
 | # | Problem | How many | How serious |

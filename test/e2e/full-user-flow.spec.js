@@ -249,7 +249,8 @@ test.describe('Foundation Lesson Flow', () => {
     await expect(page.locator('#meaning')).toBeVisible();
     await expect(page.locator('#occurrences')).toBeVisible();
     await expect(page.locator('#sr-pill')).toBeVisible();
-    await expect(page.locator('#qa-root-family')).toBeVisible();
+    // The first word, the particle مَنْ, has no root, so its root button is hidden
+    await expect(page.locator('#qa-root-family')).toBeHidden();
   });
 
   test('navigate between words with prev/next', async ({ page }) => {

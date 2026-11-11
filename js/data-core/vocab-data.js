@@ -180,7 +180,8 @@ function deduplicateVocabulary() {
       }
       
       // Build occurrence entry (deduplicate by verseKey)
-      var occKey = gw.surahId + ':' + (gw.verseKey || '');
+      // A verse is one occurrence, whichever lesson cites it
+      var occKey = gw.verseKey || (gw.surahId + ':');
       if (!seenKeys[occKey] && (gw.ayahA || gw.ayahT || gw.verseKey)) {
         seenKeys[occKey] = true;
         occurrences.push({
@@ -288,6 +289,8 @@ function deduplicateVocabulary() {
       similarWords: base.similarWords,
       oppositeWords: base.oppositeWords,
       relatedWords: base.relatedWords,
+      lemmaCount: base.lemmaCount,
+      hadithName: base.hadithName,
     };
     
     CANONICAL_WORDS.push(canonical);

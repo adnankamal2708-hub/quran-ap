@@ -7,6 +7,17 @@
 // ── Word Lookup ────────────────────────────────────────────────
 
 // ── Word lookup indices ────────────────────────────────────────
+/**
+ * How many times a word appears in the Quran, as users see it: the Quranic
+ * Arabic Corpus count for its dictionary form (lemmaCount, set from the
+ * corpus). `occ` is kept only for ordering lessons. Returns null for a Name
+ * of Allah that comes from the hadith and is not a word in the Quran.
+ */
+function getQuranCount(w) {
+  if (!w || w.hadithName) return null;
+  return typeof w.lemmaCount === 'number' ? w.lemmaCount : (w.occ || 0);
+}
+
 // Build an index of ALL_WORDS by ID for O(1) lookups.
 // Maintain a secondary arabic→IDs map for arabic-based searches.
 // Production flag - set to false to suppress debug logging

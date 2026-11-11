@@ -54,7 +54,10 @@ function renderWordCard(w, currentIndex, total, isReview) {
 
   DOM.get('meaning').textContent = w.meaning;
   var occLabel = occCount > 1 ? ' (' + occCount + ' contexts)' : '';
-  DOM.get('occurrences').textContent = 'Appears ' + w.occ.toLocaleString() + ' times' + occLabel;
+  var quranCount = typeof getQuranCount === 'function' ? getQuranCount(w) : (w.occ || 0);
+  DOM.get('occurrences').textContent = quranCount === null
+    ? 'Name of Allah from the hadith, not a word in the Quran'
+    : 'Appears ' + quranCount.toLocaleString() + ' times in the Quran' + occLabel;
 
   DOM.get('progress-fill').style.width = Math.round(((currentIndex + 1) / total) * 100) + '%';
   DOM.get('progress-text').textContent = (currentIndex + 1) + ' / ' + total;
@@ -839,15 +842,8 @@ async function loadTafsir(w) {
   var _tafsirBtnEl = document.getElementById('tafsir-btn');
   if (_tafsirBtnEl) _tafsirBtnEl.style.display = 'none';
   setTimeout(() => {
-    var tafsirText = '';
-    if (occ && occ.tafsir) {
-      tafsirText = occ.tafsir;
-    } else if (w.occurrences && w.occurrences.length > 0) {
-      tafsirText = w.occurrences[0].tafsir;
-    } else if (w.tafsir) {
-      tafsirText = w.tafsir;
-    }
-    document.getElementById('tafsir-text').textContent = tafsirText;
+    var src = occ || (w.occurrences && w.occurrences[0]) || w;
+    document.getElementById('tafsir-text').innerHTML = tafsirHtml(src.tafsir || '', src.verseKey || w.verseKey);
   }, 400);
 }
 

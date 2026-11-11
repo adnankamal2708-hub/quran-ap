@@ -439,21 +439,30 @@ suite('buildRootLesson: the spot exercise', function() {
   });
 
   test('an ayah with a token spelled like a family word of another root is skipped', function() {
-    // مِنْ is stored under the root of the most frequent family, and is also
-    // the form of a particle with another root. Tapping it would be fair but
-    // marked wrong, so no ayah holding it is used.
-    var shared = FIRST.words.filter(function(w) { return norm(w.arabic) === norm('مِنْ'); })[0];
-    assert.ok(shared, 'data holds the shared form in the first family');
-    var own = FIRST.words.filter(function(w) {
-      return w.arabic.split(/\s+/).length === 1 && norm(w.arabic) !== norm('مِنْ') && w.occurrences && w.occurrences.length;
-    })[0];
+    // A family word that a word of another root is also written as (without
+    // vowels). Tapping it would be fair but marked wrong, so no ayah holding
+    // it is used.
+    var all = getCanonicalWords();
+    var pair = null;
+    FAMILIES.some(function(f) {
+      return f.words.some(function(w) {
+        var other = all.filter(function(o) { return o.root !== f.root && norm(o.arabic) === norm(w.arabic); })[0];
+        var own = f.words.filter(function(o) {
+          return o.arabic.split(/\s+/).length === 1 && norm(o.arabic) !== norm(w.arabic) && o.occurrences && o.occurrences.length;
+        })[0];
+        if (other && own && w.arabic.split(/\s+/).length === 1) pair = { family: f, shared: w, own: own };
+        return !!pair;
+      });
+    });
+    assert.ok(pair, 'data holds a form shared by two roots');
+    var own = pair.own;
     var ownKey = own.occurrences[0].verseKey;
     resetQuran();
     LOADED = [Number(ownKey.split(':')[0])];
-    AYAHS[ownKey] = 'مِنْ ' + own.arabic + ' ' + FILLER;
-    assert.strictEqual(buildRootSpotItem(FIRST.root), null, 'skipped');
+    AYAHS[ownKey] = pair.shared.arabic + ' ' + own.arabic + ' ' + FILLER;
+    assert.strictEqual(buildRootSpotItem(pair.family.root), null, 'skipped');
     AYAHS[ownKey] = FILLER + ' ' + own.arabic + ' ' + FILLER;
-    var item = buildRootSpotItem(FIRST.root);
+    var item = buildRootSpotItem(pair.family.root);
     assert.ok(item, 'the same ayah without the shared form is used');
     assert.strictEqual(validateExercise(item), null);
   });
@@ -709,7 +718,12 @@ suite('Screen: the lesson', function() {
     // Same-meaning words share a row: each spelling is on screen, each
     // meaning appears (case aside), and every shown row's pattern heads a group.
     family.words.forEach(function(w) {
-      assert.ok(markup.indexOf(escapeHtml(w.arabic)) >= 0, w.arabic);
+      // A spelling that differs only in vowel marks from a same-meaning word
+      // shares that word's row and is not shown twice.
+      var shown = family.words.some(function(o) {
+        return norm(o.arabic) === norm(w.arabic) && markup.indexOf(escapeHtml(o.arabic)) >= 0;
+      });
+      assert.ok(shown, w.arabic);
       assert.ok(markup.toLowerCase().indexOf(escapeHtml(w.english).toLowerCase()) >= 0, w.english);
     });
     buildRootLesson(family.root).groups.forEach(function(g) {
@@ -798,7 +812,15 @@ suite('Screen: the lesson', function() {
     var anchor = family.words.filter(function(w) {
       return w.arabic.split(/\s+/).length === 1 && w.occurrences && w.occurrences.length > 0;
     })[0];
-    var key = anchor.occurrences[0].verseKey;
+    // An ayah of a family word in one of the surahs the screen loads
+    var loads = rootSpotSurahIds(family.root);
+    var key = null;
+    family.words.some(function(w) {
+      if (w.arabic.split(/\s+/).length !== 1) return false;
+      var occ = (w.occurrences || []).filter(function(o) { return loads.indexOf(Number(o.verseKey.split(':')[0])) >= 0; })[0];
+      if (occ) { anchor = w; key = occ.verseKey; }
+      return !!occ;
+    });
     var surahId = Number(key.split(':')[0]);
     AYAHS[key] = 'وَقَالَ ' + anchor.arabic + ' لَهُمُ';
     AYAHS['load:' + surahId] = true;     // the surah loads when asked for

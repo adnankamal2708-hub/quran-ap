@@ -176,8 +176,11 @@ function renderExplorer() {
   
   // Total occurrences — structured counter
   var occEl = DOM.get('explorer-occ');
-  if (w.occ) {
-    occEl.innerHTML = '<span class="explorer-occ-count">' + w.occ.toLocaleString() + '</span> <span class="explorer-occ-unit">occurrences</span>';
+  var quranCount = typeof getQuranCount === 'function' ? getQuranCount(w) : (w.occ || 0);
+  if (quranCount === null) {
+    occEl.innerHTML = '<span class="explorer-occ-unit">Name of Allah from the hadith, not a word in the Quran</span>';
+  } else if (quranCount) {
+    occEl.innerHTML = '<span class="explorer-occ-count">' + quranCount.toLocaleString() + '</span> <span class="explorer-occ-unit">occurrences</span>';
   } else {
     occEl.innerHTML = '<span class="explorer-empty">—</span>';
   }
@@ -194,7 +197,7 @@ function renderExplorer() {
   DOM.get('explorer-first-occ').textContent = w.firstOccurrence || (w.occurrences && w.occurrences.length > 0 ? w.occurrences[0].verseKey : '—');
   DOM.get('explorer-last-occ').textContent = w.lastOccurrence || (w.occurrences && w.occurrences.length > 0 ? w.occurrences[w.occurrences.length - 1].verseKey : '—');
   DOM.get('explorer-surah-count').textContent = w.surahCount || (w.surahIds ? w.surahIds.length : '—');
-  DOM.get('explorer-total-occ').textContent = w.occ ? w.occ.toLocaleString() : '—';
+  DOM.get('explorer-total-occ').textContent = quranCount ? quranCount.toLocaleString() : '—';
   
   // Occurrence navigation
   var occNavEl = DOM.get('explorer-occ-nav');
@@ -730,12 +733,8 @@ function wireExplorerEvents(w) {
         tafsirBox.style.display = 'none';
         tafsirBtn.innerHTML = iconText('layers', 'Load Ibn Kathir Tafsir');
       } else {
-        var occ = window.__explorerCurrentOcc || (_explorerWord && _explorerWord.occurrences && _explorerWord.occurrences[0]);
-        var text = '';
-        if (occ && occ.tafsir) text = occ.tafsir;
-        else if (_explorerWord && _explorerWord.tafsir) text = _explorerWord.tafsir;
-        else text = 'Ibn Kathir commentary not available for this word.';
-        tafsirText.textContent = text;
+        var occ = window.__explorerCurrentOcc || (_explorerWord && _explorerWord.occurrences && _explorerWord.occurrences[0]) || _explorerWord;
+        tafsirText.innerHTML = tafsirHtml(occ.tafsir || '', occ.verseKey);
         tafsirBox.style.display = 'block';
         tafsirBtn.innerHTML = iconText('layers', 'Hide Tafsir');
       }
