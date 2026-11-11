@@ -28,16 +28,25 @@ higher.
   the source.
 - **Fixed: 9, 10.** Roots, parts of speech and counts come from the
   Quranic Arabic Corpus.
-- **12, changed.** In 107 surah-lesson words, the word doesn't occur
-  anywhere in the lesson's surah. They now cite a verse where they really
-  occur, instead of a verse from the surah that doesn't contain them. When
-  the surah has the same word in another form (ٱلصَّلَوٰةَ for صَلَاة), the
-  lesson now teaches that form, in that surah. Still open: whether to swap
-  those 107 for words that are in the surah.
+- **Fixed: 12 (12 November 2026).** In 106 surah-lesson words, the word
+  doesn't occur anywhere in the lesson's surah.
+  - Three now cite a verse of their own surah, where the surah has the word
+    (ٱلصَّلَوٰةَ for صَلَاة).
+  - The other 103 keep their id, so saved progress stays correct. Their
+    `surahId` is now the surah of the verse they cite, so they move to that
+    surah's lessons. ٱلصِّرَٰطِ and ٱلۡفُجَّارِ now cite 20:135 and 83:7,
+    because the surah of their first verse already teaches them.
+    الشِّرْكَ (198) and خَافِضَةٌ (634) were twins of a word already in
+    their surah, so they have no surah now.
+  - Each lesson gets a new word that is in its surah (ids 1208–1310, 103
+    words), with its form, meaning and verse from the surah.
+  - A new word's `occ` is capped at 20 (`occExact` keeps the real count),
+    so the Foundation Course and the free 300 stay the same words.
+  - Coverage for all words is now 41.9%.
 - **Fixed: 7.** `js/data-core/word-forms.js` tells look-alikes apart by
   their vowel marks (مِنْ / مَنْ, الْجَنَّة / الْجِنَّة). The occurrence
   index gives such a lesson word its own key, so counts, coverage, verse
-  lists, highlights and drills no longer mix them. Coverage is now 41.2% of
+  lists, highlights and drills no longer mix them. Coverage became 41.2% of
   the Quran for all words (was 43.7%) and 28.4% for the Foundation Course
   (was 30.3%).
 - **Fixed: 11.** A word written the same way now has one meaning in every

@@ -35,9 +35,12 @@ var state = vm.runInThisContext(
 state.frozen = state.words.map(function (w) { return w.cid; });
 console.log = realLog;
 
-// The table as first frozen (10 November 2026). A different hash means ids
-// moved: do not update this value unless words were only added at the end.
-var FROZEN_SHA256 = crypto.createHash('sha256').update(state.frozen.slice(0, 1251).join(',')).digest('hex');
+// The table as first frozen (10 November 2026), ids 0–1207 in file order.
+// Words added later take new ids above 1207 and may sit anywhere in the
+// files. A different hash means ids moved: do not update this value.
+var FIRST_MAX_ID = 1207;
+var FROZEN_SHA256 = crypto.createHash('sha256').update(state.frozen
+  .filter(function (cid) { return cid <= FIRST_MAX_ID; }).join(',')).digest('hex');
 var EXPECTED_SHA256 = 'e47368419c8cad93fdb411ef290935750f6d489e39dcc349d44b98f452a036e8';
 
 console.log('\n📋 Frozen word ids');
@@ -45,7 +48,7 @@ t('every word carries a frozen id', function () {
   assert.ok(state.words.length >= 1251);
   state.words.forEach(function (w, i) { assert.strictEqual(typeof w.cid, 'number', 'word ' + i + ' ' + w.arabic); });
 });
-t('the first 1,251 ids are the ones frozen on 10 November 2026', function () {
+t('the 1,251 entries with ids up to 1207 keep the ids frozen on 10 November 2026', function () {
   assert.strictEqual(FROZEN_SHA256, EXPECTED_SHA256);
 });
 t('every word has the id the table gives it', function () {

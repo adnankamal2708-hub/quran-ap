@@ -11,7 +11,7 @@
  * These tests lock in the real numbers (verified at fix time from a
  * token-level scan of the actual corpus via OCCURRENCE_INDEX_* data):
  *   - total corpus tokens: 77,428
- *   - full word-set union coverage: 31,935 tokens = 41.2% (look-alike words with other vowels not counted)
+ *   - full word-set union coverage: 32,465 tokens = 41.9% (look-alike words with other vowels not counted)
  *   - Foundation 100-word union coverage: 28.4%
  *
  * The 2026 high-frequency additions (+29 words, then Batch 1 of the
@@ -92,13 +92,13 @@ suite('Real corpus stats', function() {
       'Total corpus tokens should be 77,428 (re-verify if the corpus changed), got ' + stats.totalTokens);
   });
 
-  test('Per-key token counts are present and sum to the union coverage (31,935)', function() {
+  test('Per-key token counts are present and sum to the union coverage (32,465)', function() {
     var stats = getRealCorpusStats();
     assert.ok(stats.counts, 'counts should be populated');
     var sum = 0;
     for (var k in stats.counts) sum += stats.counts[k];
-    assert.strictEqual(sum, 31935,
-      'Sum of per-key token counts should be 31,935 (union coverage), got ' + sum);
+    assert.strictEqual(sum, 32465,
+      'Sum of per-key token counts should be 32,465 (union coverage), got ' + sum);
   });
 
   test('getRealWordTokenCount returns real counts (> 0 for common words)', function() {
@@ -125,11 +125,11 @@ suite('Real coverage calculations', function() {
     assert.strictEqual(cov.totalOccurrences, 77428, 'totalOccurrences should be real corpus tokens');
   });
 
-  test('calculateCoverage reports ~41.2% (NOT 84%+) with every word mastered', function() {
+  test('calculateCoverage reports ~41.9% (NOT 84%+) with every word mastered', function() {
     masterAll();
     var cov = calculateCoverage();
-    assert.ok(Math.abs(cov.coveragePercent - 41.2) < 0.5,
-      'Full-set coverage should be ~41.2% (real token coverage), got ' + cov.coveragePercent);
+    assert.ok(Math.abs(cov.coveragePercent - 41.9) < 0.5,
+      'Full-set coverage should be ~41.9% (real token coverage), got ' + cov.coveragePercent);
     assert.strictEqual(cov.wordMasteryPercent, 100);
     assert.strictEqual(cov.masteredWords, CANON.length);
     assert.strictEqual(cov.totalOccurrences, 77428);
@@ -138,8 +138,8 @@ suite('Real coverage calculations', function() {
   test('Partial mastery produces intermediate real coverage', function() {
     masterFirstN(50);
     var cov = calculateCoverage();
-    assert.ok(cov.coveragePercent > 0 && cov.coveragePercent < 41.2,
-      'Partial coverage should be between 0 and 41.2, got ' + cov.coveragePercent);
+    assert.ok(cov.coveragePercent > 0 && cov.coveragePercent < 41.9,
+      'Partial coverage should be between 0 and 41.9, got ' + cov.coveragePercent);
   });
 
   test('getFoundationTotalCoveragePercent reports ~28.4% (NOT 84+)', function() {
@@ -220,7 +220,7 @@ suite('Normalization fix & high-frequency additions', function() {
       if (!found) missing.push(ar);
     });
     assert.strictEqual(missing.length, 0, 'Missing new words: ' + missing.join(', '));
-    assert.strictEqual(CANON.length, 1208, 'Canonical count should now be 1208 (901 + 29 + 186 batch-1 + 91 batch-2), got ' + CANON.length);
+    assert.strictEqual(CANON.length, 1311, 'Canonical count should now be 1311 (901 + 29 + 186 batch-1 + 91 batch-2 + 1 + 103 in-surah words), got ' + CANON.length);
   });
 
   test('New words carry real token counts that match the index', function() {
