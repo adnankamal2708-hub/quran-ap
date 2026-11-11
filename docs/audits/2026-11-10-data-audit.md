@@ -34,9 +34,16 @@ higher.
   the surah has the same word in another form (ٱلصَّلَوٰةَ for صَلَاة), the
   lesson now teaches that form, in that surah. Still open: whether to swap
   those 107 for words that are in the surah.
-- **Open: 7, 11, 13.** Look-alike matching (7), the same word with
-  different wording in two lessons (11, now 38 forms; some are real
-  homographs such as الجنة / الجِنّة) and the 2:72 thin space (13).
+- **Fixed: 7.** `js/data-core/word-forms.js` tells look-alikes apart by
+  their vowel marks (مِنْ / مَنْ, الْجَنَّة / الْجِنَّة). The occurrence
+  index gives such a lesson word its own key, so counts, coverage, verse
+  lists, highlights and drills no longer mix them. Coverage is now 41.2% of
+  the Quran for all words (was 43.7%) and 28.4% for the Foundation Course
+  (was 30.3%).
+- **Fixed: 11.** A word written the same way now has one meaning in every
+  lesson. هَوَىٰ keeps two, "desire" and "it fell", because it is two
+  words. `test/canonical-ids.test.js` checks this.
+- **Fixed: 13.** فَٱدَّٰرَٰٔتُمۡ in 2:72 shows as one word.
 - The Foundation Course words (the first 100) keep their form and order.
 
 ## Summary
