@@ -271,7 +271,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(the) punishment',
+    english: 'Punishment',
     meaning: '(the) punishment',
     root:'ع-ذ-ب',
     rootMeaning:'To be sweet; to make bitter by contrast',

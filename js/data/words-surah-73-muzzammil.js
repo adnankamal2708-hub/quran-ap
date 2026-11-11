@@ -143,7 +143,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(in) the night',
+    english: 'The night',
     meaning: '(in) the night',
     root: 'ل-ي-ل',
     rootMeaning: 'Night, to be dark',

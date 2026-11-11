@@ -139,7 +139,7 @@ ALL_WORDS.push(
     type:'Noun',
     typeCategory:'noun',
     pattern:'فَعْلَة',
-    english:'The Paradise',
+    english:'Paradise',
     meaning:'The paradise — the eternal garden of bliss',
     root:'ج-ن-ن',
     rootMeaning:'To cover, to conceal, garden',

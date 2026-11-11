@@ -202,7 +202,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'the wicked',
+    english: 'The Wicked',
     meaning: 'the wicked',
     root:'ف-ج-ر',
     rootMeaning:'To break open, to burst, to be immoral',

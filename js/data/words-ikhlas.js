@@ -224,7 +224,7 @@ ALL_WORDS.push(
     type: 'Name / Adjective',
     typeCategory: 'adjective',
     pattern: 'فَعَل',
-    english: 'Self-Sufficient',
+    english: 'The Self-Sufficient',
     meaning: 'The Self-Sufficient — the eternal refuge, needing none',
     root: 'ص-م-د',
     rootMeaning: 'To be solid, to resist, to be self-sufficient',

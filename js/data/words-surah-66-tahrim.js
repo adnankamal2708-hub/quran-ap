@@ -11,7 +11,7 @@ ALL_WORDS.push(
     type: 'Verb',
     typeCategory: 'verb',
     pattern: '—',
-    english: 'you prohibit',
+    english: 'You Prohibit',
     meaning: 'you prohibit',
     root: 'ح-ر-م',
     rootMeaning: 'To forbid, to prohibit, to make sacred',

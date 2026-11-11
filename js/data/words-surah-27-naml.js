@@ -200,7 +200,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'signs',
+    english: 'Signs',
     meaning: 'signs',
     root:'أ-ي-ي',
     rootMeaning:'Sign, evidence, proof',

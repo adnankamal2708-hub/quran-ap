@@ -77,7 +77,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'the zakah',
+    english: 'The alms, zakah',
     meaning: 'the zakah',
     root: 'ز-ك-و',
     rootMeaning: 'To purify, to grow, to be blessed',

@@ -102,7 +102,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(of the) Mercy',
+    english: 'Mercy',
     meaning: '(of the) Mercy',
     root: 'ر-ح-م',
     rootMeaning: 'Womb, tenderness, mercy',

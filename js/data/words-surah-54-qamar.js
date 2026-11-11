@@ -143,7 +143,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'a Sign',
+    english: 'Sign/Verse',
     meaning: 'a Sign',
     root: 'أ-ي-ي',
     rootMeaning: 'To show, to make a sign, to be manifest',

@@ -11,7 +11,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: 'فَعْل',
-    english: 'The Rank',
+    english: 'The Row/Rank',
     meaning: 'The rank — a line or row, especially of soldiers in battle formation',
     root: 'ص-ف-ف',
     rootMeaning: 'To arrange in rows, to set in order, to stand in line',

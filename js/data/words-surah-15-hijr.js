@@ -271,7 +271,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(is) the way',
+    english: 'Path, way',
     meaning: '(is) the way',
     root: 'ص-ر-ط',
     rootMeaning: 'A wide road, a clear path',

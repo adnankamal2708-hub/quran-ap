@@ -72,5 +72,18 @@ t('correcting a word does not move any id', function () {
   assert.strictEqual(after, before);
 });
 
+console.log('\n📋 One meaning per word');
+// The same word, written the same way, in two lessons. هَوَىٰ is two words:
+// "desire" (noun) and "it fell" (verb)
+var HOMOGRAPHS = { 'هَوَىٰ': true };
+t('a word written the same way has one English meaning in every lesson', function () {
+  var english = {};
+  state.words.forEach(function (w) {
+    if (HOMOGRAPHS[w.arabic]) return;
+    if (!(w.arabic in english)) english[w.arabic] = w.english;
+    assert.strictEqual(w.english, english[w.arabic], w.arabic + ' in ' + w.lesson);
+  });
+});
+
 console.log('\nResults: ' + passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

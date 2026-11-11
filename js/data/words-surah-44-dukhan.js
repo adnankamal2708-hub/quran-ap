@@ -110,7 +110,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'As Mercy',
+    english: 'Mercy',
     meaning: 'As Mercy',
     root: 'ر-ح-م',
     rootMeaning: 'To have mercy, to show compassion',

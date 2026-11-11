@@ -44,7 +44,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'the orphan',
+    english: 'The Orphan',
     meaning: 'the orphan',
     root: 'ي-ت-م',
     rootMeaning: 'To be orphaned, to be alone',

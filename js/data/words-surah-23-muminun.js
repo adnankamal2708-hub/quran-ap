@@ -238,7 +238,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'gardens',
+    english: 'Gardens',
     meaning: 'gardens',
     root:'ج-ن-ن',
     rootMeaning:'To cover, to conceal, a garden full of trees',

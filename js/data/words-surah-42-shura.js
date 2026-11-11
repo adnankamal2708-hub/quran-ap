@@ -172,7 +172,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'any good',
+    english: 'Good Deed',
     meaning: 'any good',
     root: 'ح-س-ن',
     rootMeaning: 'To be good, beautiful, excellent',

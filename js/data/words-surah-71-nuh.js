@@ -138,7 +138,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(in) flight',
+    english: 'Fleeing/Escape',
     meaning: '(in) flight',
     root: 'ف-ر-ر',
     rootMeaning: 'To flee, to run away, to escape',

@@ -11,7 +11,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(is the) Light',
+    english: 'Light',
     meaning: '(is the) Light',
     root:'ن-و-ر',
     rootMeaning:'Light, fire, illumination',

@@ -106,7 +106,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(is) best',
+    english: 'Good',
     meaning: '(is) best',
     root:'خ-ي-ر',
     rootMeaning:'Goodness, benefit, excellence',

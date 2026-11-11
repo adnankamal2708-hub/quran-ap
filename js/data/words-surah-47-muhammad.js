@@ -77,7 +77,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(the) way of Allah',
+    english: 'The way',
     meaning: '(the) way of Allah',
     root: 'س-ب-ل',
     rootMeaning: 'To be long, to dangle, to put in the way',

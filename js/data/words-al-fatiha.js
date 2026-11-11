@@ -77,7 +77,7 @@ ALL_WORDS.push(
     type: 'Name / Adjective',
     typeCategory: 'adjective',
     pattern: 'فَعْلَان',
-    english: 'Most Gracious',
+    english: 'The Most Gracious',
     meaning: 'The Most Gracious — vast, all-encompassing mercy',
     root: 'ر-ح-م',
     rootMeaning: 'Womb, tenderness, mercy',

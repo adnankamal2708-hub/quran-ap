@@ -44,7 +44,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(is) the truth',
+    english: 'The Truth',
     meaning: '(is) the truth',
     root: 'ح-ق-ق',
     rootMeaning: 'To be true, to be established, to be due',

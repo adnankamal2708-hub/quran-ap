@@ -143,7 +143,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'the disbelievers',
+    english: 'The disbelievers',
     meaning: 'the disbelievers',
     root: 'ك-ف-ر',
     rootMeaning: 'To cover, to conceal, to deny',

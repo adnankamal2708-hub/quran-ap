@@ -168,7 +168,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: 'those (to) whom',
+    english: 'Those Who',
     meaning: 'those (to) whom',
     root: '—',
     rootMeaning: '',

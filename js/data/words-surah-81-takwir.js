@@ -176,7 +176,7 @@ ALL_WORDS.push(
     type: 'Verb',
     typeCategory: 'verb',
     pattern: '—',
-    english: 'wills',
+    english: 'He willed',
     meaning: 'wills',
     root: 'ش-ي-أ',
     rootMeaning: 'To will, to desire, to intend',

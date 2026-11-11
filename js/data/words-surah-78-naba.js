@@ -44,7 +44,7 @@ ALL_WORDS.push(
     type: 'Adjective',
     typeCategory: 'adjective',
     pattern: 'فَعِيل',
-    english: 'The Great',
+    english: 'The Magnificent',
     meaning: 'The great — immense, magnificent, of supreme importance',
     root: 'ع-ظ-م',
     rootMeaning: 'To be great, to be magnificent, to be enormous',

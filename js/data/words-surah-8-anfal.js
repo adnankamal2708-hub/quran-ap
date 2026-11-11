@@ -172,7 +172,7 @@ ALL_WORDS.push(
     type: 'Noun',
     typeCategory: 'noun',
     pattern: '—',
-    english: '(the) way',
+    english: 'The way',
     meaning: '(the) way',
     root: 'س-ب-ل',
     rootMeaning: 'To be long, to dangle, to put in the way',
