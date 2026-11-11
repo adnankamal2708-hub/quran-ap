@@ -80,13 +80,18 @@ jobs:
 
       - name: Install Chromium for end-to-end tests
         if: matrix.node-version == '20.x'
-        # Usually takes ~20 s, but the browser download or the apt step
-        # sometimes hangs until the step times out. Give each attempt 4
-        # minutes and try three times before failing the run.
+        # The browser comes from the cache or Playwright's CDN. Its system
+        # libraries need apt, which hangs whenever the Ubuntu mirrors are
+        # unreachable, so apt only runs if Chromium can't start without it.
+        # A timed-out attempt leaves apt-get holding its lock: stop it
+        # before retrying.
         run: |
+          npx playwright install chromium
+          if node -e "require('playwright').chromium.launch().then(b => b.close())"; then exit 0; fi
           for attempt in 1 2 3; do
-            if timeout 240 npx playwright install --with-deps chromium; then exit 0; fi
-            echo "::warning::Chromium install attempt $attempt failed or hung; retrying"
+            if timeout 240 npx playwright install-deps chromium; then exit 0; fi
+            echo "::warning::Chromium system libraries attempt $attempt failed or hung; retrying"
+            sudo pkill -f apt-get || true
             sleep 15
           done
           exit 1
