@@ -1287,6 +1287,39 @@ body::before {
   text-align: center;
 }
 
+/* Tiles question: English meanings above the answer line, tiles below */
+.quiz-tiles-meaning {
+  font-family: var(--body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+}
+
+.quiz-tiles-sep {
+  color: var(--text-muted);
+  margin: 0 8px;
+}
+
+.quiz-tiles-line {
+  justify-content: center;
+}
+
+.quiz-tiles {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quiz-tiles-tray {
+  justify-content: center;
+}
+
+.quiz-opt.quiz-tiles-check {
+  text-align: center;
+}
+
 .quiz-verse-translation {
   margin-top: 8px;
   font-size: var(--text-xs);

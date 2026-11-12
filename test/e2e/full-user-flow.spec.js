@@ -76,6 +76,30 @@ async function openWordMeaningsPath(page) {
   await expect(page.locator('#view-track')).toBeVisible();
 }
 
+/**
+ * Answers the quiz question on screen. A tiles question (every 4th from the
+ * 2nd) is answered by tapping tiles until Check opens, then Check; any other
+ * by its first option. False when there is nothing to answer.
+ */
+async function answerQuizQuestion(page) {
+  return page.evaluate(() => {
+    const check = document.querySelector('.quiz-tiles-check');
+    if (check) {
+      for (const tile of document.querySelectorAll('.quiz-tiles-tray .ex-piece')) {
+        if (!check.disabled) break;
+        tile.click();
+      }
+      if (check.disabled) return false;
+      check.click();
+      return true;
+    }
+    const option = document.querySelector('.quiz-opt:not(:disabled)');
+    if (!option) return false;
+    option.click();
+    return true;
+  });
+}
+
 async function openWordCard(page) {
   await openWordMeaningsPath(page);
   await page.locator('#view-track .track-lesson[data-kind="foundation"][data-ref="0"]').click();
@@ -390,13 +414,8 @@ test.describe('Quiz Flow', () => {
         if (count === 0) break; // Quiz complete
       }
 
-      try {
-        const option = page.locator('.quiz-opt').first();
-        await option.click({ timeout: 2000 });
-        await page.waitForTimeout(200);
-      } catch (e) {
-        break; // No more options
-      }
+      if (!(await answerQuizQuestion(page))) break; // No more options
+      await page.waitForTimeout(200);
 
       try {
         const nextBtn = page.locator('#btn-next-quiz');
@@ -1100,13 +1119,9 @@ test.describe('Quiz Completion - Edge Cases', () => {
     await page.locator('#btn-next-quiz').click();
     await page.waitForTimeout(300);
 
-    // Answer second question
-    const secondOptions = page.locator('.quiz-opt');
-    const count = await secondOptions.count();
-    if (count > 0) {
-      await secondOptions.first().click();
-      await page.waitForTimeout(200);
-    }
+    // Answer second question (a tiles question when its ayah is loaded)
+    await answerQuizQuestion(page);
+    await page.waitForTimeout(200);
 
     // Score should have advanced
     const score = page.locator('#quiz-score-display');
@@ -1136,11 +1151,10 @@ test.describe('Quiz Completion - Edge Cases', () => {
     // Should show next question (different word or same with updated score)
     await expect(page.locator('#quiz-word')).toBeVisible();
 
-    // Answer second question
-    const secondOptions = page.locator('.quiz-opt');
-    const optCount = await secondOptions.count();
-    expect(optCount).toBeGreaterThanOrEqual(2);
-    await secondOptions.first().click();
+    // Answer second question: options, or tiles to put in order
+    const choices = page.locator('.quiz-opt, .quiz-tiles-tray .ex-piece');
+    expect(await choices.count()).toBeGreaterThanOrEqual(2);
+    expect(await answerQuizQuestion(page)).toBe(true);
     await page.waitForTimeout(200);
 
     // Score should advance

@@ -24,6 +24,9 @@ let quizFinished = false;
 /** @type {?Object} The verse of the current verse fill-in question, else null */
 let quizVerse = null;
 
+/** @type {?Object} The current tiles question, else null */
+let quizTiles = null;
+
 /** @type {Object<string, boolean>} Words already rated for review this quiz (a word can be asked twice) */
 let quizRated = {};
 
@@ -70,6 +73,7 @@ function initQuiz() {
     : shuffleArray(lessonWords);
   quizRated = {};
   if (typeof preloadQuizVerses === 'function') preloadQuizVerses(quizWords);
+  if (typeof preloadQuizTiles === 'function') preloadQuizTiles(quizWords);
   quizIndex = 0;
   quizCorrect = 0;
   quizTotal = 0;
@@ -93,7 +97,9 @@ function showQuizQ() {
   if (progressEl) progressEl.textContent = 'Question ' + (quizIndex + 1) + ' of ' + quizWords.length;
   var verseQ = typeof buildQuizVerseQuestion === 'function' ? buildQuizVerseQuestion(currentWord, quizIndex, quizWords) : null;
   quizVerse = verseQ ? verseQ.verse : null;
+  quizTiles = typeof buildQuizTilesQuestion === 'function' ? buildQuizTilesQuestion(currentWord, quizIndex) : null;
   if (verseQ) renderQuizVerseQuestion(currentWord, verseQ);
+  else if (quizTiles) renderQuizTilesQuestion(currentWord, quizTiles);
   else renderQuizQuestion(currentWord, ALL_WORDS);
 }
 
@@ -168,6 +174,7 @@ function answerQuiz(btn, chosen, correct, wordId) {
 
   quizRated[wordId] = true;
   if (quizVerse) showQuizVerseAnswer(quizVerse);
+  if (quizTiles) showQuizTilesAnswer(quizTiles, chosen === correct);
 
   updateQuizScoreDisplay(quizCorrect, quizTotal);
   DOM.get('btn-next-quiz').style.display = 'inline-block';
