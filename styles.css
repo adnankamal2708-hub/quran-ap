@@ -2419,6 +2419,20 @@ body::before {
   padding: 20px 0;
 }
 
+.auth-about {
+  max-width: 380px;
+  margin: 0 auto 24px;
+}
+.auth-about > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
 .auth-title {
   font-size: var(--text-xl);
   font-family: var(--serif);

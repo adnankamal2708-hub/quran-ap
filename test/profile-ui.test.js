@@ -324,6 +324,19 @@ ts('Profile — About Section', function() {
     var about = document.getElementById('profile-about');
     assert.ok(about.innerHTML.indexOf('Bayan') >= 0);
   });
+
+  t('guests get About (with Privacy and Terms) under sign-in, one copy at a time', function() {
+    createEl('profile-about');
+    createEl('auth-about');
+    renderProfileAbout();
+    renderProfileAbout(document.getElementById('auth-about'));
+    var guestAbout = document.getElementById('auth-about').innerHTML;
+    assert.ok(guestAbout.indexOf('privacy-policy.html') >= 0);
+    assert.ok(guestAbout.indexOf('terms-of-service.html') >= 0);
+    assert.strictEqual(document.getElementById('profile-about').innerHTML, '');
+    renderProfileAbout();
+    assert.strictEqual(document.getElementById('auth-about').innerHTML, '');
+  });
 });
 
 ts('Profile — Blank Page Prevention', function() {

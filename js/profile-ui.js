@@ -173,6 +173,7 @@ async function renderProfileView() {
     // { google: true } — Profile-tab entry point exposes "Sign in with Google"
     // (Stage A gate; header/prompt entry points keep it hidden until Stage B).
     showAuthView('login', { google: true });
+    renderProfileAbout(document.getElementById('auth-about'));
     switchView('auth');
     return;
   }
@@ -1105,9 +1106,16 @@ function renderProfileInsights() {
 // PROFILE — About Section
 // ═══════════════════════════════════════════════════════════════
 
-function renderProfileAbout() {
-  var container = document.getElementById('profile-about');
+/**
+ * @param {Element} [container] - defaults to Profile's About tab; guests get
+ *   it under the sign-in form (#auth-about). Only one copy exists at a time,
+ *   so its element ids stay unique.
+ */
+function renderProfileAbout(container) {
+  container = container || document.getElementById('profile-about');
   if (!container) return;
+  var other = document.getElementById(container.id === 'auth-about' ? 'profile-about' : 'auth-about');
+  if (other) other.innerHTML = '';
 
   var h = '';
   h += '<div class="pf-about-card">';
@@ -1634,6 +1642,7 @@ async function renderFullProfile(preferredTab) {
         // Profile-tab entry point — exposes Google sign-in (Stage A gate).
         showAuthView('login', { google: true });
       }
+      renderProfileAbout(document.getElementById('auth-about'));
 
       // Switch to auth view — this ensures the login form is visible
       // and the profile skeleton is hidden naturally by the view switch.
