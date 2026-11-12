@@ -220,6 +220,22 @@ suite('Edge Cases', function() {
     // btn-next-quiz should be hidden
     assert.strictEqual(DOM.get('btn-next-quiz').style.display, 'none');
   });
+
+  test('showQuizQ shows which question of how many', function() {
+    resetDOM();
+    // quiz.js's state is scoped to the eval, so finish the earlier one-word quiz
+    global.isLessonCompleted = function() { return true; };
+    global.completeLesson = function() {};
+    nextQuiz();
+    if (global.__autoNavTimer) clearTimeout(global.__autoNavTimer);
+    global.getActiveLessonWords = function() {
+      return [{ id: 'w1', arabic: 'a' }, { id: 'w2', arabic: 'b' }, { id: 'w3', arabic: 'c' }];
+    };
+    initQuiz();
+    assert.strictEqual(DOM.get('quiz-progress').textContent, 'Question 1 of 3');
+    nextQuiz();
+    assert.strictEqual(DOM.get('quiz-progress').textContent, 'Question 2 of 3');
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════

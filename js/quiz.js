@@ -79,6 +79,8 @@ function showQuizQ() {
 
   var wordIndex = quizIndex % quizWords.length;
   var currentWord = quizWords[wordIndex];
+  var progressEl = DOM.get('quiz-progress');
+  if (progressEl) progressEl.textContent = 'Question ' + (wordIndex + 1) + ' of ' + quizWords.length;
   renderQuizQuestion(currentWord, ALL_WORDS);
 }
 
@@ -218,7 +220,7 @@ function renderQuizCompletion(score, total) {
   // Educational feedback based on score
   var msg = '';
   if (pct >= 90) {
-    msg = 'You have mastered these words well.';
+    msg = 'You know these words well. Reviewing them over the coming days will make them stick.';
   } else if (pct >= 80) {
     msg = 'Most words are solid in your memory.';
   } else if (pct >= 60) {

@@ -36,14 +36,14 @@ function renderQuizQuestion(currentWordObj, allWords) {
   var opts = [correct];
   distractors.forEach(function (d) {
     var label = getShortMeaning(d.meaning);
-    if (label !== correct && opts.indexOf(label) === -1) {
+    if (label !== correct && opts.indexOf(label) === -1 && !sharesQuizSense(currentWordObj, d)) {
       opts.push(label);
     }
   });
   // Fallback if not enough options
   if (opts.length < 4) {
     allWords.forEach(function (w) {
-      if (w !== currentWordObj && opts.length < 4) {
+      if (w !== currentWordObj && opts.length < 4 && !sharesQuizSense(currentWordObj, w)) {
         var label = getShortMeaning(w.meaning);
         if (label !== correct && opts.indexOf(label) === -1) {
           opts.push(label);
@@ -70,6 +70,16 @@ function renderQuizQuestion(currentWordObj, allWords) {
     b.onclick = function () { handleQuizAnswer(b, opt, correct, currentWordObj.id); };
     optionsEl.appendChild(b);
   });
+}
+
+// Senses a particle can share with another word, so that word's meaning
+// would also be a right answer (مَا can mean "not", so "No" is not wrong).
+var QUIZ_SHARED_SENSES = ['negation'];
+
+function sharesQuizSense(a, b) {
+  var am = String(a.meaning || '').toLowerCase();
+  var bm = String(b.meaning || '').toLowerCase();
+  return QUIZ_SHARED_SENSES.some(function (s) { return am.indexOf(s) >= 0 && bm.indexOf(s) >= 0; });
 }
 
 /**

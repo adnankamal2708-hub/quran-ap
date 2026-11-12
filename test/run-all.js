@@ -24,6 +24,7 @@ var TESTS = [
   "srs-edge.test.js",
   "vocabulary.test.js",
   "quiz.test.js",
+  "quiz-ui.test.js",
   "data-validation.test.js",
   "coverage-accuracy.test.js",
   "dashboard.test.js",
