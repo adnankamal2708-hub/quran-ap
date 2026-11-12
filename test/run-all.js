@@ -53,6 +53,7 @@ var TESTS = [
   "corpus-characters.test.js",
   "occurrence-uniqueness.test.js",
   "word-card-occurrence.test.js",
+  "quran-rank.test.js",
   "vocabulary-access.test.js",
   "learn-screen.test.js",
   "tracks.test.js",

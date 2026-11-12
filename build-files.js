@@ -91,6 +91,7 @@ const APP_FILES = [
   'js/services/audio.js',
   'js/services/recorder.js',
   'js/vocabulary.js',
+  'js/quran-rank.js',
   'js/srs.js',
   'js/exercises/exercise-engine.js',
   'js/exercises/placement.js',

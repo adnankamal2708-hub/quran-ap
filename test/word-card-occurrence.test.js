@@ -264,7 +264,9 @@ suite('Word card learning context', function () {
 
   test('renders as plain text with no stray pin icon', function () {
     global._getIndexRefsForWord = function () { return ['1:1']; };
+    global.getQuranRank = function () { return { rank: 3, topPercent: null }; };
     var text = renderContext({ id: 'ctx4', arabic: 'x', occ: 5, frequencyRank: 3 });
+    delete global.getQuranRank;
     delete global._getIndexRefsForWord;
     assert.ok(text.indexOf('📍') < 0, 'no pin emoji: ' + text);
     assert.strictEqual(text, 'Learned in Foundation Lesson 1 · #3 most frequent · In 1 surah');

@@ -121,8 +121,9 @@ function answerQuiz(btn, chosen, correct, wordId) {
     if (quizCount) {
       relParts.push('Appears ' + quizCount.toLocaleString() + ' times');
     }
-    if (currentWord.frequencyRank) {
-      relParts.push('Rank: #' + currentWord.frequencyRank);
+    var quizRank = typeof getQuranRank === 'function' ? getQuranRank(currentWord) : null;
+    if (quizRank) {
+      relParts.push('Rank: #' + quizRank.rank);
     }
     var quizSurahs = typeof getIndexedSurahCount === 'function' ? getIndexedSurahCount(currentWord) : 0;
     if (quizSurahs) {

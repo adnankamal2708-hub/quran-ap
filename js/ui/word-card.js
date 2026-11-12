@@ -337,8 +337,9 @@ function renderWordLearningContext(w) {
   }
   
   // Frequency rank
-  if (w.frequencyRank && w.frequencyRank > 0) {
-    parts.push('#' + w.frequencyRank + ' most frequent');
+  var qRank = typeof getQuranRank === 'function' ? getQuranRank(w) : null;
+  if (qRank) {
+    parts.push('#' + qRank.rank + ' most frequent');
   }
   
   // Surah count

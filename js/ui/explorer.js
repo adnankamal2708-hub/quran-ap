@@ -159,12 +159,11 @@ function renderExplorer() {
   // exists.
   var freqRankEl = DOM.get('explorer-freq-rank');
   var freqParts = [];
-  if (w.frequencyRank) {
-    freqParts.push('<span class="explorer-freq-pill">#' + w.frequencyRank + '</span>');
-    // Hide the percentile when it is exactly 0 — only the single least-frequent
-    // word gets a raw 0, and "top 0%" reads like a data glitch. Show it above 0.
-    if (w.frequencyPercentile !== undefined && w.frequencyPercentile > 0) {
-      freqParts.push('<span class="explorer-freq-pct">top ' + w.frequencyPercentile + '%</span>');
+  var qRank = typeof getQuranRank === 'function' ? getQuranRank(w) : null;
+  if (qRank) {
+    freqParts.push('<span class="explorer-freq-pill">#' + qRank.rank + '</span>');
+    if (qRank.topPercent !== null) {
+      freqParts.push('<span class="explorer-freq-pct">top ' + qRank.topPercent + '%</span>');
     }
   }
   if (typeof getLearningPriorityLabel === 'function' && w.learningPriority) {

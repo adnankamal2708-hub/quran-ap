@@ -33,7 +33,7 @@ global.localStorage = {
 var TEST_WORDS = [
   { id: 'cw_0', arabic: 'الله', translit: 'Allah', english: 'Allah', meaning: 'Allah — God',
     root: 'أ-ل-ه', rootMeaning: 'Deity', pattern: 'فَعْل', type: 'Proper Noun', typeCategory: 'noun',
-    difficulty: 1, occ: 2699, frequencyRank: 1, frequencyPercentile: 99.9, learningPriority: 1,
+    difficulty: 1, occ: 2699, testRank: 1, testTop: 0.1, frequencyRank: 1, frequencyPercentile: 99.9, learningPriority: 1,
     foundationLessonId: 0,
     rootFamily: [{ a: 'إله', e: 'God' }, { a: 'آلهة', e: 'gods' }],
     occurrences: [
@@ -132,6 +132,11 @@ function setMockPremium(active) {
   }
 }
 global.isFoundationLessonCompleted = function() { return false; };
+// Rank by Quran count (real one tested in quran-rank.test.js): tests give
+// a word its rank and top % directly.
+global.getQuranRank = function(w) {
+  return w && w.testRank ? { rank: w.testRank, topPercent: w.testTop === undefined ? null : w.testTop } : null;
+};
 global.currentView = 'learn';
 
 // Load the explorer module
@@ -301,28 +306,25 @@ ts('Explorer — Rendering', function() {
     assert.strictEqual(document.getElementById('explorer-freq-rank').innerHTML.indexOf('—') >= 0, true);
   });
 
-  t('renderExplorer hides percentile when it is exactly 0 (top 0% is a glitch)', function() {
-    // Only the single least-frequent word gets a raw percentile of 0 (rank =
-    // totalWords); "top 0%" reads like a broken value, so it must be hidden
-    // while rank and priority still render.
-    var w = { id: 'cw_z', arabic: 'z', frequencyRank: 1207, frequencyPercentile: 0, learningPriority: 5 };
+  t('renderExplorer hides "top X%" outside the top half', function() {
+    var w = { id: 'cw_z', arabic: 'z', testRank: 1207, testTop: null, learningPriority: 5 };
     _explorerWord = w;
     createAllExplorerEls();
     renderExplorer();
     var html = document.getElementById('explorer-freq-rank').innerHTML;
     assert.ok(html.indexOf('#1207') >= 0, 'rank must still show');
-    assert.ok(html.indexOf('top 0%') < 0, 'top 0% must NOT render');
+    assert.ok(html.indexOf('top') < 0, 'no top % for a rare word');
     assert.ok(html.indexOf('Supplementary') >= 0, 'priority label must still show');
   });
 
-  t('renderExplorer shows percentile when above 0', function() {
-    var w = { id: 'cw_y', arabic: 'y', frequencyRank: 506, frequencyPercentile: 58.1, learningPriority: 3 };
+  t('renderExplorer shows "top X%" in the top half', function() {
+    var w = { id: 'cw_y', arabic: 'y', testRank: 506, testTop: 41.9, learningPriority: 3 };
     _explorerWord = w;
     createAllExplorerEls();
     renderExplorer();
     var html = document.getElementById('explorer-freq-rank').innerHTML;
     assert.ok(html.indexOf('#506') >= 0, 'rank must show');
-    assert.ok(html.indexOf('top 58.1%') >= 0, 'percentile must show when > 0');
+    assert.ok(html.indexOf('top 41.9%') >= 0, 'top % must show');
     assert.ok(html.indexOf('Medium Priority') >= 0, 'priority label must show');
   });
 
