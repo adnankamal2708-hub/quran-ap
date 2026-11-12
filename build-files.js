@@ -65,6 +65,7 @@ const UI_FILES = [
   'js/ui/tajweed-ui.js',
   'js/ui/drill-ui.js',
   'js/ui/explorer.js',
+  'js/ui/explorer-root-family.js',
   'js/ui/analytics-ui.js',
   'js/ui/dashboard.js',
   'js/quran/quran-loader.js',

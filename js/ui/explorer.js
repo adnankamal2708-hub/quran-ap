@@ -342,13 +342,13 @@ function renderExplorerRelationshipsLocked() {
   var rootFamList = DOM.get('explorer-root-family-list');
   if (rootFamList) {
     rootFamList.innerHTML = '';
-    if (_explorerWord && _explorerWord.rootFamily && _explorerWord.rootFamily.length > 0) {
-      for (var rfi = 0; rfi < _explorerWord.rootFamily.length; rfi++) {
-        var rf = _explorerWord.rootFamily[rfi];
-        rootFamList.appendChild(createExplorerChip(rf.a, rf.e, null, _explorerWord));
+    var lockedFamily = getQuranRootFamily(_explorerWord);
+    if (lockedFamily.length > 0) {
+      for (var rfi = 0; rfi < lockedFamily.length; rfi++) {
+        rootFamList.appendChild(createExplorerChip(lockedFamily[rfi].a, lockedFamily[rfi].e, null, _explorerWord));
       }
     } else {
-      rootFamList.innerHTML = '<span class="explorer-empty">No root family data</span>';
+      rootFamList.innerHTML = '<span class="explorer-empty">No other Quran words from this root yet</span>';
     }
   }
 
@@ -409,13 +409,13 @@ function renderExplorerRelationships(w) {
   var rootFamList = DOM.get('explorer-root-family-list');
   if (rootFamList) {
     rootFamList.innerHTML = '';
-    if (w.rootFamily && w.rootFamily.length > 0) {
-      for (var rfi = 0; rfi < w.rootFamily.length; rfi++) {
-        var rf = w.rootFamily[rfi];
-        rootFamList.appendChild(createExplorerChip(rf.a, rf.e, null, w));
+    var family = getQuranRootFamily(w);
+    if (family.length > 0) {
+      for (var rfi = 0; rfi < family.length; rfi++) {
+        rootFamList.appendChild(createExplorerChip(family[rfi].a, family[rfi].e, null, w));
       }
     } else {
-      rootFamList.innerHTML = '<span class="explorer-empty">No root family data</span>';
+      rootFamList.innerHTML = '<span class="explorer-empty">No other Quran words from this root yet</span>';
     }
   }
   
@@ -778,23 +778,10 @@ function wireExplorerEvents(w) {
   // Practice related button
   var practiceBtn = DOM.get('explorer-btn-practice-related');
   if (practiceBtn) {
+    var practiceTarget = getPracticeRelatedTarget(w);
+    practiceBtn.style.display = practiceTarget ? '' : 'none';
     practiceBtn.onclick = function() {
-      // Find root family words and navigate to the first one that's different
-      if (w.rootFamily && w.rootFamily.length > 0) {
-        for (var pfi = 0; pfi < w.rootFamily.length; pfi++) {
-          var target = typeof findWordByArabic === 'function' ? findWordByArabic(w.rootFamily[pfi].a) : null;
-          if (target && target.id !== w.id && typeof openExplorer === 'function') {
-            openExplorer(target);
-            return;
-          }
-        }
-      }
-      // Fallback: navigate to related words
-      var rels = typeof getRelatedWordObjects === 'function' ? getRelatedWordObjects(w) : [];
-      if (rels.length > 0) {
-        var relTarget = typeof findWordByArabic === 'function' ? findWordByArabic(rels[0].arabic) : null;
-        if (relTarget && typeof openExplorer === 'function') openExplorer(relTarget);
-      }
+      if (practiceTarget && typeof openExplorer === 'function') openExplorer(practiceTarget);
     };
   }
   

@@ -95,6 +95,7 @@ buildFoundationCourse();
 load('js/vocabulary.js');
 load('js/srs.js');
 load('js/ui/explorer.js');
+load('js/ui/explorer-root-family.js');
 load('js/ui/stats-ui.js');
 
 // Real free/locked sample ids resolved from canonical data.

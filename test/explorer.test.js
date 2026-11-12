@@ -35,7 +35,7 @@ var TEST_WORDS = [
     root: 'أ-ل-ه', rootMeaning: 'Deity', pattern: 'فَعْل', type: 'Proper Noun', typeCategory: 'noun',
     difficulty: 1, occ: 2699, testRank: 1, testTop: 0.1, frequencyRank: 1, frequencyPercentile: 99.9, learningPriority: 1,
     foundationLessonId: 0,
-    rootFamily: [{ a: 'إله', e: 'God' }, { a: 'آلهة', e: 'gods' }],
+    rootFamily: [{ a: 'إله', e: 'God' }, { a: 'آلهة', e: 'gods' }, { a: 'رب', e: 'Lord (stands in for a same-root Bayan word)' }],
     occurrences: [
       { surahId: 1, verseKey: '1:1', ayahA: 'بِسْمِ اللَّهِ', ayahT: 'In the name of Allah', ayahR: '1:1', tafsir: 'Bismillah...' },
     ],
@@ -143,6 +143,11 @@ global.currentView = 'learn';
 var explorerCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer.js'), 'utf8');
 require('./load-components')(); // uiIcon, iconText, dataIcon
 eval(explorerCode);
+global.findWordById = function(id) {
+  for (var i = 0; i < TEST_WORDS.length; i++) if (TEST_WORDS[i].id === id) return TEST_WORDS[i];
+  return null;
+};
+eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'explorer-root-family.js'), 'utf8'));
 
 // ═══════════════════════════════════════════════════════════════
 // TEST HELPERS
@@ -363,7 +368,7 @@ ts('Explorer — Root Family', function() {
     createEl('explorer-equiv-list');
     renderExplorerRelationships(TEST_WORDS[0]);
     var rootFamList = document.getElementById('explorer-root-family-list');
-    assert.ok(rootFamList.children.length > 0 || rootFamList.innerHTML.indexOf('No root family') >= 0);
+    assert.ok(rootFamList.children.length > 0 || rootFamList.innerHTML.indexOf('No other Quran words') >= 0);
   });
 
   t('word without root family does not crash', function() {
@@ -378,9 +383,26 @@ ts('Explorer — Root Family', function() {
     createEl('explorer-equiv-list');
     renderExplorerRelationships(w);
     var rootFamList = document.getElementById('explorer-root-family-list');
-    assert.ok(rootFamList.innerHTML.indexOf('No root family') >= 0 ||
+    assert.ok(rootFamList.innerHTML.indexOf('No other Quran words') >= 0 ||
              rootFamList.innerHTML.indexOf('n/a') >= 0 ||
              rootFamList.children.length === 0);
+  });
+
+  t('root family drops words that are not in the Quran (not in Bayan)', function() {
+    var w = { id: 'w_kana', arabic: 'كان', root: 'ك-و-ن',
+      rootFamily: [{ a: 'كون', e: 'existence' }, { a: 'رب', e: 'Lord' }, { a: 'كان', e: 'was' }] };
+    var fam = getQuranRootFamily(w);
+    assert.deepStrictEqual(fam.map(function(f) { return f.a; }), ['رب'], 'only entries that are Bayan words, not the word itself');
+  });
+
+  t('Practice related opens a word from the same root first', function() {
+    var savedDerived = global.getDerivedForms;
+    global.getDerivedForms = function() { return [{ arabic: 'رب', wordId: 'cw_1' }]; };
+    assert.strictEqual(getPracticeRelatedTarget(TEST_WORDS[0]).id, 'cw_1');
+    global.getDerivedForms = function() { return []; };
+    assert.strictEqual(getPracticeRelatedTarget({ id: 'x', arabic: 'x', rootFamily: [{ a: 'كون', e: '' }] }), null,
+      'nothing to practise: no target (the button is hidden)');
+    global.getDerivedForms = savedDerived;
   });
 
   t('word with empty root family array shows empty state', function() {
@@ -395,7 +417,7 @@ ts('Explorer — Root Family', function() {
     createEl('explorer-equiv-list');
     renderExplorerRelationships(w);
     var rootFamList = document.getElementById('explorer-root-family-list');
-    assert.ok(rootFamList.innerHTML.indexOf('No root family') >= 0 ||
+    assert.ok(rootFamList.innerHTML.indexOf('No other Quran words') >= 0 ||
              rootFamList.children.length === 0);
   });
 
