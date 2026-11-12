@@ -60,5 +60,5 @@ test('no "top X%" for the bottom half, and no rank without a count', function ()
   assert.strictEqual(getQuranRank({ id: 'x', hadithName: true, occ: 5 }), null);
 });
 
-console.log('\n  quran-rank.test.js: ' + passed + ' passed, ' + failed + ' failed');
+console.log('\nResults: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
 process.exit(failed ? 1 : 0);
