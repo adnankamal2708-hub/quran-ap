@@ -165,6 +165,7 @@ ALL_WORDS.push(
     ayahT: 'And those who race each other in a race',
     ayahR: 'An-Nazi\'at 79:4',
     tafsir: 'وقوله : ( فالسابقات سبقا ) روي عن علي ، ومسروق ، ومجاهد ، وأبي صالح ، والحسن البصري : يعني الملائكة ; قال الحسن : سبقت إلى الإيمان والتصديق به .',
+    tafsirEn: 'His saying, "And those who race each other in a race": it is reported from Ali, Masruq, Mujahid, Abu Salih and Al-Hasan Al-Basri that it means the angels. Al-Hasan said: they raced to faith and to believing in it.',
     similarWords: ['الْمُتَسَابِقَات', 'الْأَوَائِل', 'الْمُتَقَدِّمَات'],
     oppositeWords: ['الْمُتَخَلِّفَات', 'الْمُتَأَخِّرَات'],
     relatedWords: ['اللَّهُ', 'مَلَائِكَة', 'سَبَقَ'],

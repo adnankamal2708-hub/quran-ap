@@ -44,10 +44,17 @@ mark English words added so the meaning reads well.
 - **How passages were chosen:** a passage quotes the cited verse in
   brackets and then explains it (`أي` / `يعني`). Chains of narrators,
   hadith text and dialogue, and quotes of other verses are not used.
+- **English shown in the app:** each word with a passage also has a
+  `tafsirEn` field, Bayan's own translation of that Arabic passage (names
+  transliterated, verse quotes in double quotes, cuts kept as `…`). The card
+  shows this English, then links to the Arabic original and the English on
+  quran.com.
 - **Not stored:** the English on quran.com is an abridged translation that
   is still under copyright, so the app links to it and does not copy it.
 
 ### How it is checked
 
 `test/lesson-examples.test.js` checks that every `tafsir` quote, without
-its `…` marks, appears word for word in this file under the word's verse.
+its `…` marks, appears word for word in this file under the word's verse;
+that every quote has a `tafsirEn` with no Arabic in it and the same `…`
+cuts; and that words sharing a quote share its English.

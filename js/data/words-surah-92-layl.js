@@ -198,6 +198,7 @@ ALL_WORDS.push(
     ayahT: 'We will ease him toward difficulty',
     ayahR: 'Al-Layl 92:10',
     tafsir: '( فسنيسره للعسرى ) أي : لطريق الشر ، كما قال تعالى : ( ونقلب أفئدتهم وأبصارهم كما لم يؤمنوا به أول مرة ونذرهم في طغيانهم يعمهون ) [ الأنعام : 11 ] ، والآيات في هذا المعنى كثيرة دالة على أن الله ، - عز وجل - يجازي من قصد الخير بالتوفيق له ، ومن قصد الشر بالخذلان .',
+    tafsirEn: '"We will ease him toward difficulty" means: toward the path of evil. As the Exalted said, "And We will turn away their hearts and their eyes just as they refused to believe in it the first time, and We will leave them in their transgression, wandering blindly" [Al-An\'am 6:110]. The verses with this meaning are many, showing that Allah, Mighty and Majestic, rewards whoever aims for good by helping him to it, and whoever aims for evil by leaving him without help.',
     similarWords: ['الشَّرّ', 'الضَّلَال', 'الْعَذَاب'],
     oppositeWords: ['الْيُسْرَىٰ', 'الْخَيْر', 'الْهُدَىٰ'],
     relatedWords: ['اللَّهُ', 'الْعُسْر', 'الْعَذَاب'],

@@ -843,7 +843,7 @@ async function loadTafsir(w) {
   if (_tafsirBtnEl) _tafsirBtnEl.style.display = 'none';
   setTimeout(() => {
     var src = occ || (w.occurrences && w.occurrences[0]) || w;
-    document.getElementById('tafsir-text').innerHTML = tafsirHtml(src.tafsir || '', src.verseKey || w.verseKey);
+    document.getElementById('tafsir-text').innerHTML = tafsirHtml(src.tafsirEn || '', src.verseKey || w.verseKey);
   }, 400);
 }
 

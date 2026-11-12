@@ -211,24 +211,27 @@ function iconText(name, text) {
 
 /**
  * Ibn Kathir on a verse, shared by the lesson word card and the word explorer.
- * The quote is his own words in Arabic (Tafsir al-Quran al-Azim), copied
- * exactly; the English is an abridged translation, so it is linked, not shown.
- * A word with no fitting passage shows the links alone.
- * @param {string} quote - Arabic passage, or '' for none
+ * Shows Bayan's own English translation of a passage of his Arabic (Tafsir
+ * al-Quran al-Azim, public domain; the exact Arabic is the word's `tafsir`
+ * field). quran.com's English is a copyrighted abridgement, so it is linked,
+ * not shown. A word with no fitting passage shows the links alone.
+ * @param {string} english - translated passage, or '' for none
  * @param {string} verseKey - e.g. '2:255'
  * @returns {string} HTML
  */
-function tafsirHtml(quote, verseKey) {
+function tafsirHtml(english, verseKey) {
   var esc = function (s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   };
   var base = 'https://quran.com/' + encodeURIComponent(verseKey).replace('%3A', ':') + '/tafsirs/';
-  var links = '<a href="' + base + 'ar-tafsir-ibn-kathir" target="_blank" rel="noopener">Full commentary (Arabic)</a>' +
-    ' · <a href="' + base + 'en-tafisr-ibn-kathir" target="_blank" rel="noopener">Abridged English</a>';
-  return (quote ? '<p class="tafsir-quote" lang="ar" dir="rtl">' + esc(quote) + '</p>' : '') +
-    '<p class="tafsir-source">' + (quote ? 'Ibn Kathir, Tafsir al-Quran al-Azim, on ' + esc(verseKey) + '. ' : 'Ibn Kathir on ' + esc(verseKey) + ': ') +
+  var links = 'Sources: <a href="' + base + 'ar-tafsir-ibn-kathir" target="_blank" rel="noopener">Arabic original</a>' +
+    ' · <a href="' + base + 'en-tafisr-ibn-kathir" target="_blank" rel="noopener">English (abridged)</a>';
+  return (english ? '<p class="tafsir-quote">' + esc(english) + '</p>' : '') +
+    '<p class="tafsir-source">' + (english
+      ? 'Ibn Kathir, Tafsir al-Quran al-Azim, on ' + esc(verseKey) + '. Translated by Bayan from the Arabic.<br>'
+      : 'Ibn Kathir on ' + esc(verseKey) + '. ') +
     links + '</p>';
 }
 

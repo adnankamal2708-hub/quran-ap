@@ -132,6 +132,7 @@ ALL_WORDS.push(
     ayahT: '[Theirs is] like the custom of the people of Pharaoh and those before them. They denied Our signs, so Allah seized them for their sins. And Allah is severe in penalty',
     ayahR: 'Ali \'Imran 3:11',
     tafsir: '( [ كدأب آل فرعون والذين من قبلهم كذبوا بآياتنا فأخذهم الله بذنوبهم ] والله شديد العقاب ) أي : شديد الأخذ أليم العذاب ، لا يمتنع منه أحد ، ولا يفوته شيء بل هو الفعال لما يريد ، الذي [ قد ] غلب كل شيء وذل له كل شيء ، لا إله غيره ولا رب سواه .',
+    tafsirEn: '"[Like the custom of the people of Pharaoh and those before them; they denied Our signs, so Allah seized them for their sins.] And Allah is severe in punishment" means: severe in seizing and painful in punishment. No one can resist Him and nothing escapes Him; rather, He does whatever He wills. He [has] overpowered everything and everything is humbled before Him. There is no god but Him and no lord besides Him.',
     similarWords: ['أَهْلَكَهُمُ اللَّهُ', 'دَمَّرَهُمُ اللَّهُ', 'أَبَادَهُمُ اللَّهُ'],
     oppositeWords: ['رَحِمَهُمُ اللَّهُ', 'أَنْجَاهُمُ اللَّهُ', 'عَفَا عَنْهُمُ اللَّهُ'],
     relatedWords: ['اللَّهُ', 'الْعَذَاب', 'الْأُمَم السَّابِقَة'],

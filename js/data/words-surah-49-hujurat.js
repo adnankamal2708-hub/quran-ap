@@ -164,6 +164,7 @@ ALL_WORDS.push(
     ayahT: 'The believers are but brothers, so make settlement between your brothers. And fear Allah that you may receive mercy',
     ayahR: 'Al-Hujurat 49:10',
     tafsir: 'وقوله : ( فأصلحوا بين أخويكم ) يعني : الفئتين المقتتلتين ، ( واتقوا الله ) أي : في جميع أموركم ( لعلكم ترحمون ) ، وهذا تحقيق منه تعالى للرحمة لمن اتقاه .',
+    tafsirEn: 'His saying, "So make peace between your brothers" means the two groups who are fighting. "And fear Allah" means in all your affairs, "so that you may receive mercy." This is a promise from the Exalted of mercy for whoever fears Him.',
     similarWords: ['إِخْوَة', 'أَصْحَاب', 'أَوْلِيَاء'],
     oppositeWords: ['أَعْدَاء', 'أَجَانِب'],
     relatedWords: ['اللَّهُ', 'إِيمَان', 'سَلَام'],

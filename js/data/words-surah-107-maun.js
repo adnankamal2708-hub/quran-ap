@@ -161,6 +161,7 @@ ALL_WORDS.push(
     ayahT: 'And withhold [simple] assistance',
     ayahR: 'Al-Ma\'un 107:7',
     tafsir: 'وقوله : ( ويمنعون الماعون ) أي : لا أحسنوا عبادة ربهم ، ولا أحسنوا إلى خلقه حتى ولا بإعارة ما ينتفع به ويستعان به ، مع بقاء عينه ورجوعه إليهم .',
+    tafsirEn: 'His saying, "And withhold small kindnesses" means: they neither worshipped their Lord well nor did good to His creation, not even by lending things that are useful and helpful while the thing itself stays intact and comes back to them.',
     similarWords: ['الْخَيْر الْيَسِير', 'الْمَعْرُوف', 'الْعَطِيَّة الصَّغِيرَة'],
     oppositeWords: ['الْعَطَاء الْجَزِيل', 'الْهِبَة الْعَظِيمَة', 'الصَّدَقَة الْكَبِيرَة'],
     relatedWords: ['اللَّهُ', 'الْإِحْسَان', 'الْجِوَار'],

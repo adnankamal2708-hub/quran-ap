@@ -35,6 +35,7 @@ ALL_WORDS.push(
     ayahT: 'Then Adam received from his Lord [some] words, and He accepted his repentance. Indeed, it is He who is the Accepting of repentance, the Merciful',
     ayahR: 'Al-Baqarah 2:37',
     tafsir: 'وقوله تعالى : ( إنه هو التواب الرحيم ) أي : إنه يتوب على من تاب إليه وأناب ، كقوله : ( ألم يعلموا أن الله هو يقبل التوبة عن عباده ) [ التوبة : 104 ] وقوله : ( ومن يعمل سوءا أو يظلم نفسه ثم يستغفر الله يجد الله غفورا رحيما ) [ النساء : 11 ] …',
+    tafsirEn: 'The words of the Exalted, "Indeed, He is the Accepter of repentance, the Merciful" mean: He turns in forgiveness to whoever repents to Him and turns back. As He said, "Do they not know that Allah is the One who accepts repentance from His servants?" [At-Tawbah 9:104], and "Whoever does evil or wrongs himself, then asks Allah\'s forgiveness, will find Allah Forgiving and Merciful" [An-Nisa 4:110] …',
     similarWords: [
     "إِبۡلِيس"
 ],
@@ -77,6 +78,7 @@ ALL_WORDS.push(
     ayahT: 'They will not believe in it, while there has already occurred the precedent of the former peoples',
     ayahR: 'Al-Hijr 15:13',
     tafsir: 'وقوله : ( وقد خلت سنة الأولين ) أي : قد علم ما فعل تعالى بمن كذب رسله من الهلاك والدمار ، وكيف أنجى الله الأنبياء وأتباعهم في الدنيا والآخرة .',
+    tafsirEn: 'His saying, "And the way of the former peoples has already passed" means: it is known what the Exalted did to those who denied His messengers, the ruin and destruction, and how Allah saved the prophets and their followers in this world and the Hereafter.',
     similarWords: [
     ""
 ],
@@ -119,6 +121,7 @@ ALL_WORDS.push(
     ayahT: 'Said the eminent among his people, "Indeed, we see you in clear error',
     ayahR: 'Al-A\'raf 7:60',
     tafsir: '( قال الملأ من قومه ) أي : الجمهور والسادة والقادة والكبراء منهم : ( إنا لنراك في ضلال مبين ) أي : في دعوتك إيانا إلى ترك عبادة هذه الأصنام التي وجدنا عليها آباءنا .',
+    tafsirEn: '"The chiefs of his people said," meaning the majority, the masters, the leaders and the great men among them: "Indeed, we see you in clear error," meaning: in calling us to give up worshipping these idols that we found our fathers worshipping.',
     similarWords: [
     ""
 ],
@@ -160,6 +163,7 @@ ALL_WORDS.push(
     ayahT: 'He has sent down upon you, [O Muhammad], the Book in truth, confirming what was before it. And He revealed the Torah and the Gospel',
     ayahR: 'Ali \'Imran 3:3',
     tafsir: 'وقوله : ( مصدقا لما بين يديه ) أي : من الكتب المنزلة قبله من السماء على عباد الله الأنبياء ، فهي تصدقه بما أخبرت به وبشرت في قديم الزمان ، وهو يصدقها ، لأنه طابق ما أخبرت به وبشرت ، من الوعد من الله بإرسال محمد صلى الله عليه وسلم ، وإنزال القرآن العظيم عليه .',
+    tafsirEn: 'His saying, "confirming what came before it" means: of the Books sent down before it from heaven to Allah\'s servants the prophets. They confirm it in what they foretold and announced long ago, and it confirms them, because it matches what they foretold and announced: Allah\'s promise to send Muhammad (peace be upon him) and to send down the great Quran to him.',
     similarWords: [
     "ٱلۡإِنجِيل"
 ],
@@ -202,6 +206,7 @@ ALL_WORDS.push(
     ayahT: 'And He is the subjugator over His servants. And He is the Wise, the Acquainted [with all]',
     ayahR: 'Al-An\'am 6:18',
     tafsir: 'ولهذا قال تعالى : ( وهو القاهر فوق عباده ) أي : هو الذي خضعت له الرقاب ، وذلت له الجبابرة ، وعنت له الوجوه ، وقهر كل شيء ودانت له الخلائق ، وتواضعت لعظمة جلاله وكبريائه وعظمته وعلوه وقدرته الأشياء ، واستكانت وتضاءلت بين يديه وتحت حكمه وقهره',
+    tafsirEn: 'This is why the Exalted said, "And He is the Subduer over His servants," meaning: He is the one to whom necks bow, tyrants are humbled, and faces are lowered. He has overpowered everything, all creatures submit to Him, and all things are humbled before the greatness of His majesty, His grandeur, His might, His highness and His power, and they lie low and small before Him, under His rule and His command.',
     similarWords: [
     "دُون"
 ],
@@ -372,6 +377,7 @@ ALL_WORDS.push(
     ayahT: 'And we had thought that mankind and the jinn would never speak about Allah a lie',
     ayahR: 'Al-Jinn 72:5',
     tafsir: '( وأنا ظننا أن لن تقول الإنس والجن على الله كذبا ) أي : ما حسبنا أن الإنس والجن يتمالئون على الكذب على الله في نسبة الصاحبة والولد إليه ، فلما سمعنا هذا القرآن وآمنا به ، علمنا أنهم كانوا يكذبون على الله في ذلك .',
+    tafsirEn: '"And we had thought that humans and jinn would never speak a lie about Allah" means: we did not think humans and jinn would join together in lying about Allah by attributing a wife and a child to Him. When we heard this Quran and believed in it, we knew they had been lying about Allah in that.',
     similarWords: [
     "بَاطِل"
 ],
@@ -455,6 +461,7 @@ ALL_WORDS.push(
     ayahT: 'Do you not consider how Allah has created seven heavens in layers',
     ayahR: 'Nuh 71:15',
     tafsir: 'وقوله : ( ألم تروا كيف خلق الله سبع سماوات طباقا ) ؟ أي : واحدة فوق واحدة ، وهل هذا يتلقى من جهة السمع فقط ؟ أو هي من الأمور المدركة بالحس ، مما علم من التسيير والكسوفات ، فإن الكواكب السبعة السيارة يكسف بعضها بعضا ، فأدناها القمر في السماء الدنيا وهو يكسف ما فوقه ، وعطارد في الثانية ، والزهرة في الثالثة ، والشمس في الرابعة ، والمريخ في الخامسة ، والمشتري في السادسة ، وزحل في السابعة .',
+    tafsirEn: 'His saying, "Do you not see how Allah created seven heavens in layers?" means: one above another. Is this known only from revelation, or is it among the things perceived by the senses, known from the orbits and the eclipses? For the seven moving planets eclipse one another: the lowest is the Moon in the nearest heaven, which eclipses what is above it; Mercury in the second, Venus in the third, the Sun in the fourth, Mars in the fifth, Jupiter in the sixth and Saturn in the seventh.',
     similarWords: [
     ""
 ],
@@ -497,6 +504,7 @@ ALL_WORDS.push(
     ayahT: 'And they who turn away from ill speech',
     ayahR: 'Al-Mu\'minun 23:3',
     tafsir: 'وقال : ( والذين هم عن اللغو معرضون ) أي : عن الباطل ، وهو يشمل : الشرك كما قاله بعضهم والمعاصي كما قاله آخرون وما لا فائدة فيه من الأقوال والأفعال ، كما قال تعالى : ( وإذا مروا باللغو مروا كراما ) [ الفرقان : 72 ] .',
+    tafsirEn: 'He said, "And those who turn away from idle talk," meaning from falsehood. This includes shirk, as some said, and sins, as others said, and any words and deeds of no benefit. As the Exalted said, "And when they pass by idle talk, they pass by with dignity" [Al-Furqan 25:72].',
     similarWords: [
     ""
 ],
@@ -538,6 +546,7 @@ ALL_WORDS.push(
     ayahT: '[Allah] said, "Then indeed, it is forbidden to them for forty years [in which] they will wander throughout the land. So do not grieve over the defiantly disobedient people',
     ayahR: 'Al-Ma\'idah 5:26',
     tafsir: '… ( أربعين سنة ) منصوب بقوله : ( يتيهون في الأرض ) فلما انقضت المدة خرج بهم " يوشع بن نون " عليه السلام ، أو بمن بقي منهم وبسائر بني إسرائيل من الجيل الثاني ، فقصد بهم بيت المقدس فحاصرها ، فكان فتحها يوم الجمعة بعد العصر ، فلما تضيفت الشمس للغروب ، وخشي دخول السبت عليهم قال " إنك مأمورة وأنا مأمور ، اللهم احبسها علي " ، فحبسها الله تعالى حتى فتحها …',
+    tafsirEn: '… "Forty years" is governed by His saying, "they will wander through the land." When the period ended, Yusha\' ibn Nun (peace be upon him) led them out, with those who remained of them and the rest of the Children of Israel of the second generation. He headed with them for Jerusalem and besieged it, and its conquest came on Friday after Asr. When the sun leaned towards setting and he feared the Sabbath would begin, he said: "You are under command and I am under command. O Allah, hold it back for me." So Allah the Exalted held it back until he conquered the city …',
     similarWords: [
     ""
 ],
@@ -581,6 +590,7 @@ ALL_WORDS.push(
     ayahT: 'Say, "It is only revealed to me that your god is but one God; so will you be Muslims [in submission to Him]',
     ayahR: 'Al-Anbya 21:108',
     tafsir: 'يقول تعالى آمرا رسوله ، صلوات الله وسلامه عليه ، أن يقول للمشركين : ( إنما يوحى إلي أنما إلهكم إله واحد فهل أنتم مسلمون ) أي : متبعون على ذلك ، مستسلمون منقادون له .',
+    tafsirEn: 'The Exalted orders His Messenger (Allah\'s blessings and peace be upon him) to say to the idolaters: "It is only revealed to me that your god is one God, so will you submit?" meaning: will you follow that, surrender and yield to it?',
     similarWords: [
     ""
 ],
@@ -794,6 +804,7 @@ ALL_WORDS.push(
     ayahT: 'Or do those who do evil deeds think they can outrun Us? Evil is what they judge',
     ayahR: 'Al-\'Ankabut 29:4',
     tafsir: 'وقوله : ( أم حسب الذين يعملون السيئات أن يسبقونا ساء ما يحكمون ) أي : لا يحسبن الذين لم يدخلوا في الإيمان أنهم يتخلصون من هذه الفتنة والامتحان ، فإن من ورائهم من العقوبة والنكال ما هو أغلظ من هذا وأطم ; ولهذا قال : ( أم حسب الذين يعملون السيئات أن يسبقونا ) أي : يفوتونا ، ( ساء ما يحكمون ) أي : بئس ما يظنون .',
+    tafsirEn: 'His saying, "Or do those who do evil deeds think they can outrun Us? Evil is what they judge" means: let those who have not entered faith not think they will escape this trial and test, for behind them is punishment and retribution harsher and graver than this. This is why He said, "Or do those who do evil deeds think they can outrun Us?" meaning escape Us. "Evil is what they judge" means: wretched is what they assume.',
     similarWords: [
     "خَطِيئَة"
 ],
@@ -1047,6 +1058,7 @@ ALL_WORDS.push(
     ayahT: 'Unquestionably, [for] the allies of Allah there will be no fear concerning them, nor will they grieve',
     ayahR: 'Yunus 10:62',
     tafsir: 'يخبر تعالى أن أولياءه هم الذين آمنوا وكانوا يتقون ، كما فسرهم ربهم ، فكل من كان تقيا كان لله وليا : أنه ( لا خوف عليهم ) [ أي ] فيما يستقبلون من أهوال القيامة ، ( ولا هم يحزنون ) على ما وراءهم في الدنيا .',
+    tafsirEn: 'The Exalted tells that His allies are those who believe and are mindful of Him, as their Lord described them, so everyone who is mindful of Allah is an ally of Allah: "No fear will be upon them" [meaning] about the terrors of the Resurrection ahead of them, "nor will they grieve" over what they left behind in this world.',
     similarWords: [
     "حَزِنَ"
 ],
@@ -1090,6 +1102,7 @@ ALL_WORDS.push(
     ayahT: 'Is it not [true] that every time they took a covenant a party of them threw it away? But, [in fact], most of them do not believe',
     ayahR: 'Al-Baqarah 2:100',
     tafsir: 'وقال قتادة : ( نبذه فريق منهم ) أي : نقضه فريق منهم .',
+    tafsirEn: 'Qatadah said: "a party of them threw it away" means a party of them broke it.',
     similarWords: [
     "طَائِفَة"
 ],
@@ -1258,6 +1271,7 @@ ALL_WORDS.push(
     ayahT: 'He is not but a man possessed with madness, so wait concerning him for a time',
     ayahR: 'Al-Mu\'minun 23:25',
     tafsir: 'وقوله : ( إن هو إلا رجل به جنة ) أي : مجنون فيما يزعمه ، من أن الله أرسله إليكم ، واختصه من بينكم بالوحي ( فتربصوا به حتى حين ) أي : انتظروا به ريب المنون ، واصبروا عليه مدة حتى تستريحوا منه .',
+    tafsirEn: 'His saying, "He is only a man possessed by madness" means: he is mad in what he claims, that Allah sent him to you and chose him from among you for revelation. "So wait concerning him for a while" means: wait for some calamity of death to strike him, and bear with him for a time until you are rid of him.',
     similarWords: [
     ""
 ],
@@ -1300,6 +1314,7 @@ ALL_WORDS.push(
     ayahT: 'They were satisfied to be with those who stay behind, and their hearts were sealed over, so they do not understand',
     ayahR: 'At-Tawbah 9:87',
     tafsir: 'وقوله : ( وطبع على قلوبهم ) أي : بسبب نكولهم عن الجهاد والخروج مع الرسول في سبيل الله ، ( فهم لا يفقهون ) أي : لا يفهمون ما فيه صلاح لهم فيفعلوه ، ولا ما فيه مضرة لهم فيجتنبوه .',
+    tafsirEn: 'His saying, "And their hearts were sealed" means: because they held back from jihad and from going out with the Messenger in the way of Allah. "So they do not understand" means: they do not grasp what is good for them so that they do it, nor what harms them so that they avoid it.',
     similarWords: [
     ""
 ],
@@ -1342,6 +1357,7 @@ ALL_WORDS.push(
     ayahT: 'And rely upon Allah; and sufficient is Allah as Disposer of affairs',
     ayahR: 'Al-Ahzab 33:3',
     tafsir: '( وتوكل على الله ) أي : في جميع أمورك وأحوالك ، ( وكفى بالله وكيلا ) أي : وكفى به وكيلا لمن توكل عليه وأناب إليه .',
+    tafsirEn: '"And put your trust in Allah" means: in all your affairs and situations. "And Allah is sufficient as a Guardian" means: He is enough as a guardian for whoever relies on Him and turns to Him.',
     similarWords: [
     ""
 ],
@@ -1384,6 +1400,7 @@ ALL_WORDS.push(
     ayahT: '[This is] a Book revealed to you, [O Muhammad] - so let there not be in your breast distress therefrom - that you may warn thereby and as a reminder to the believers',
     ayahR: 'Al-A\'raf 7:2',
     tafsir: 'قوله ( كتاب أنزل إليك ) أي : هذا كتاب أنزل إليك ، أي : من ربك ، ( فلا يكن في صدرك حرج منه ) قال مجاهد ، وعطاء وقتادة والسدي : شك منه .',
+    tafsirEn: 'His saying, "A Book sent down to you" means: this is a Book sent down to you, that is, from your Lord. "So let there be no tightness in your chest from it." Mujahid, Ata\', Qatadah and As-Suddi said: no doubt about it.',
     similarWords: [
     "ضِيق"
 ],
@@ -1510,6 +1527,7 @@ ALL_WORDS.push(
     ayahT: 'That Day, no intercession will benefit except [that of] one to whom the Most Merciful has given permission and has accepted his word',
     ayahR: 'Taha 20:109',
     tafsir: 'يقول تعالى : ( يومئذ ) أي : يوم القيامة ( لا تنفع الشفاعة ) أي : عنده ( إلا من أذن له الرحمن ورضي له قولا ) كقوله : ( من ذا الذي يشفع عنده إلا بإذنه ) [ البقرة : 255 ] ، وقوله : ( وكم من ملك في السماوات لا تغني شفاعتهم شيئا إلا من بعد أن يأذن الله لمن يشاء ويرضى ) [ النجم : 26 ] ، وقال : ( ولا يشفعون إلا لمن ارتضى ) [ الأنبياء : 28 ] وقال : ( ولا تنفع الشفاعة عنده إلا لمن أذن له ) [ سبأ : 23 ] …',
+    tafsirEn: 'The Exalted says, "On that Day," meaning the Day of Resurrection, "no intercession will benefit," meaning with Him, "except from one whom the Most Merciful permits and whose word He approves." This is like His saying, "Who is it that can intercede with Him except by His permission?" [Al-Baqarah 2:255], and "How many angels are in the heavens whose intercession avails nothing except after Allah permits for whom He wills and approves" [An-Najm 53:26], and "They do not intercede except for whom He approves" [Al-Anbiya 21:28], and "Intercession will not benefit with Him except for one He permits" [Saba 34:23] …',
     similarWords: [
     ""
 ],
@@ -1594,6 +1612,7 @@ ALL_WORDS.push(
     ayahT: 'Or do those in whose hearts is disease think that Allah would never expose their [feelings of] hatred',
     ayahR: 'Muhammad 47:29',
     tafsir: 'يقول تعالى : ( أم حسب الذين في قلوبهم مرض أن لن يخرج الله أضغانهم ) أي : اعتقد المنافقون أن الله لا يكشف أمرهم لعباده المؤمنين ؟ بل سيوضح أمرهم ويجليه حتى يفهمهم ذوو البصائر ، وقد أنزل تعالى في ذلك سورة " براءة " ، فبين فيها فضائحهم وما يعتمدونه من الأفعال الدالة على نفاقهم ; ولهذا إنما كانت تسمى الفاضحة .',
+    tafsirEn: 'The Exalted says, "Or do those in whose hearts is disease think that Allah will never bring out their hatred?" meaning: do the hypocrites believe that Allah will not expose them to His believing servants? Rather, He will make their case plain and clear so that people of insight understand them. The Exalted sent down Surah Bara\'ah about this, and in it He exposed their scandals and the deeds they did that showed their hypocrisy. This is why it was called Al-Fadihah, the Exposer.',
     similarWords: [
     ""
 ],
@@ -1717,6 +1736,7 @@ ALL_WORDS.push(
     ayahT: 'Let them worship the Lord of this House',
     ayahR: 'Quraysh 106:3',
     tafsir: 'ثم أرشدهم إلى شكر هذه النعمة العظيمة فقال : ( فليعبدوا رب هذا البيت ) أي : فليوحدوه بالعبادة ، كما جعل لهم حرما آمنا وبيتا محرما ، كما قال تعالى : ( إنما أمرت أن أعبد رب هذه البلدة الذي حرمها وله كل شيء وأمرت أن أكون من المسلمين ) [ النمل : 91 ]',
+    tafsirEn: 'Then He guided them to give thanks for this great blessing, and said, "So let them worship the Lord of this House," meaning: let them worship Him alone, as He gave them a safe sanctuary and a sacred House. As the Exalted said, "I have only been commanded to worship the Lord of this city, who made it sacred and to whom belongs everything, and I have been commanded to be of the Muslims" [An-Naml 27:91].',
     similarWords: [
     ""
 ],
@@ -1759,6 +1779,7 @@ ALL_WORDS.push(
     ayahT: 'Prescribed for you when death approaches [any] one of you if he leaves wealth [is that he should make] a bequest for the parents and near relatives according to what is acceptable - a duty upon the righteous',
     ayahR: 'Al-Baqarah 2:180',
     tafsir: 'وقوله : ( إن ترك خيرا ) أي : مالا .',
+    tafsirEn: 'His saying, "if he leaves khayr" means: wealth.',
     similarWords: [
     "خَلَّفَ"
 ],
@@ -1801,6 +1822,7 @@ ALL_WORDS.push(
     ayahT: 'The bedouins are stronger in disbelief and hypocrisy and more likely not to know the limits of what [laws] Allah has revealed to His Messenger. And Allah is Knowing and Wise',
     ayahR: 'At-Tawbah 9:97',
     tafsir: 'وقوله : ( والله عليم حكيم ) أي : عليم بمن يستحق أن يعلمه الإيمان والعلم ، ( حكيم ) فيما قسم بين عباده من العلم والجهل والإيمان والكفر والنفاق ، لا يسأل عما يفعل ، لعلمه وحكمته .',
+    tafsirEn: 'His saying, "And Allah is Knowing and Wise" means: He knows who deserves to be taught faith and knowledge. "Wise" in how He distributes among His servants knowledge and ignorance, faith, disbelief and hypocrisy. He is not questioned about what He does, because of His knowledge and wisdom.',
     similarWords: [
     ""
 ],
@@ -1884,6 +1906,7 @@ ALL_WORDS.push(
     ayahT: 'They are [varying] degrees in the sight of Allah, and Allah is Seeing of whatever they do',
     ayahR: 'Ali \'Imran 3:163',
     tafsir: 'ثم قال : ( هم درجات عند الله ) قال الحسن البصري ومحمد بن إسحاق : يعني : أهل الخير وأهل الشر درجات ، وقال أبو عبيدة والكسائي : منازل ، يعني : متفاوتون في منازلهم ودرجاتهم في الجنة ودركاتهم في النار ، كما قال تعالى : ( ولكل درجات مما عملوا ) الآية [ الأنعام : 132 ] ، ولهذا قال : ( والله بصير بما يعملون ) أي : وسيوفيهم إياها ، لا يظلمهم خيرا ولا يزيدهم شرا ، بل يجازي كلا بعمله .',
+    tafsirEn: 'Then He said, "They are of different ranks with Allah." Al-Hasan Al-Basri and Muhammad ibn Ishaq said: it means the people of good and the people of evil are in ranks. Abu Ubaydah and Al-Kisa\'i said: stations, meaning they differ in their stations and ranks in Paradise and their levels in the Fire. As the Exalted said, "And for all there are ranks according to what they did" [Al-An\'am 6:132]. This is why He said, "And Allah sees what they do," meaning: He will repay them in full, without wronging them in any good or adding to their evil; He repays each one for their deeds.',
     similarWords: [
     "مَرَاتِب"
 ],
@@ -1970,6 +1993,7 @@ ALL_WORDS.push(
     ayahT: 'Abiding therein forever, they will not find a protector or a helper',
     ayahR: 'Al-Ahzab 33:65',
     tafsir: '( خالدين فيها أبدا ) أي : ماكثين مستمرين ، فلا خروج لهم منها ولا زوال لهم عنها ، ( لا يجدون وليا ولا نصير ا ) أي : وليس لهم مغيث ولا معين ينقذهم مما هم فيه .',
+    tafsirEn: '"Abiding in it forever" means: staying in it without end, with no way out of it and no leaving it. "They will find no protector and no helper" means: they have no one to rescue or help them out of what they are in.',
     similarWords: [
     "مُعِين"
 ],
@@ -2055,6 +2079,7 @@ ALL_WORDS.push(
     ayahT: 'But indeed, I am the Perpetual Forgiver of whoever repents and believes and does righteousness and then continues in guidance',
     ayahR: 'Taha 20:82',
     tafsir: 'وقوله : ( وإني لغفار لمن تاب وآمن وعمل صالحا ) أي : كل من تاب إلي تبت عليه من أي ذنب كان ، حتى إنه تعالى تاب على من عبد العجل من بني إسرائيل .',
+    tafsirEn: 'His saying, "And indeed, I am the Perpetual Forgiver of whoever repents, believes and does righteousness" means: whoever repents to Me, I accept their repentance from any sin, so much so that the Exalted accepted the repentance of those of the Children of Israel who worshipped the calf.',
     similarWords: [
     ""
 ],
@@ -2265,6 +2290,7 @@ ALL_WORDS.push(
     ayahT: 'And then he went to his people, swaggering [in pride]',
     ayahR: 'Al-Qiyamah 75:33',
     tafsir: '(ثم ذهب إلى أهله يتمطى ) أي : جذلا أشرا بطرا كسلانا ، لا همة له ولا عمل ، كما قال : ( وإذا انقلبوا إلى أهلهم انقلبوا فكهين ) [ المطففين : 34 ] .',
+    tafsirEn: '"Then he went to his family, swaggering" means: exultant, arrogant, insolent and lazy, with no resolve and no deeds. As He said, "And when they returned to their families, they returned jesting" [Al-Mutaffifin 83:31].',
     similarWords: [
     "مَضَىٰ"
 ],
@@ -2350,6 +2376,7 @@ ALL_WORDS.push(
     ayahT: '[Moses] said, "My Lord, indeed I do not possess except myself and my brother, so part us from the defiantly disobedient people',
     ayahR: 'Al-Ma\'idah 5:25',
     tafsir: 'وقوله : ( قال رب إني لا أملك إلا نفسي وأخي فافرق بيننا وبين القوم الفاسقين ) يعني : لما نكل بنو إسرائيل عن القتال غضب عليهم موسى عليه السلام ، وقال داعيا عليهم : ( رب إني لا أملك إلا نفسي وأخي ) أي : ليس أحد يطيعني منهم فيمتثل أمر الله ، ويجيب إلى ما دعوت إليه إلا أنا وأخي هارون ( فافرق بيننا وبين القوم الفاسقين ) قال العوفي عن ابن عباس : يعني اقض بيني وبينهم .',
+    tafsirEn: 'His saying, "He said: My Lord, I have power over none but myself and my brother, so separate us from the defiantly disobedient people" means: when the Children of Israel refused to fight, Moses (peace be upon him) was angry with them and said, praying against them: "My Lord, I have power over none but myself and my brother," meaning: no one among them obeys me so as to carry out Allah\'s command and answer what I called them to, except me and my brother Harun. "So separate us from the defiantly disobedient people." Al-Awfi reported from Ibn Abbas: it means judge between me and them.',
     similarWords: [
     "الظَّالِمِينَ"
 ],
@@ -2393,6 +2420,7 @@ ALL_WORDS.push(
     ayahT: 'He has sent down upon you, [O Muhammad], the Book in truth, confirming what was before it. And He revealed the Torah and the Gospel',
     ayahR: 'Ali \'Imran 3:3',
     tafsir: 'وقوله : ( مصدقا لما بين يديه ) أي : من الكتب المنزلة قبله من السماء على عباد الله الأنبياء ، فهي تصدقه بما أخبرت به وبشرت في قديم الزمان ، وهو يصدقها ، لأنه طابق ما أخبرت به وبشرت ، من الوعد من الله بإرسال محمد صلى الله عليه وسلم ، وإنزال القرآن العظيم عليه .',
+    tafsirEn: 'His saying, "confirming what came before it" means: of the Books sent down before it from heaven to Allah\'s servants the prophets. They confirm it in what they foretold and announced long ago, and it confirms them, because it matches what they foretold and announced: Allah\'s promise to send Muhammad (peace be upon him) and to send down the great Quran to him.',
     similarWords: [
     "مُؤْمِن"
 ],
@@ -2558,6 +2586,7 @@ ALL_WORDS.push(
     ayahT: 'But only seeking the countenance of his Lord, Most High',
     ayahR: 'Al-Layl 92:20',
     tafsir: '"ابتغاء وجه ربه الأعلى" أي طمعا في أن يحصل له رؤيته في الدار الآخرة في روضات الجنات.',
+    tafsirEn: '"Seeking only the face of his Lord, the Most High" means: hoping to be granted the sight of Him in the Hereafter, in the gardens of Paradise.',
     similarWords: [
     "طَلَب"
 ],
@@ -2600,6 +2629,7 @@ ALL_WORDS.push(
     ayahT: 'So is he who is on clear evidence from his Lord like him to whom the evil of his work has been made attractive and they follow their [own] desires',
     ayahR: 'Muhammad 47:14',
     tafsir: 'يقول : ( أفمن كان على بينة من ربه ) أي : على بصيرة ويقين في أمر الله ودينه ، بما أنزل الله في كتابه من الهدى والعلم ، وبما جبله الله عليه من الفطرة المستقيمة ، ( كمن زين له سوء عمله واتبعوا أهواءهم ) أي : ليس هذا كهذا كقوله : ( أفمن يعلم أنما أنزل إليك من ربك الحق كمن هو أعمى ) [ الرعد : 19 ] ، وكقوله : ( لا يستوي أصحاب النار وأصحاب الجنة أصحاب الجنة هم الفائزون ) [ الحشر : 20 ] .',
+    tafsirEn: 'He says, "Is the one who is on clear evidence from his Lord," meaning: with insight and certainty in the matter of Allah and His religion, through the guidance and knowledge Allah sent down in His Book, and the upright nature Allah created in him, "like one whose evil deeds have been made to seem good to him, and they follow their desires?" meaning: the one is not like the other. This is like His saying, "Is one who knows that what has been revealed to you from your Lord is the truth like one who is blind?" [Ar-Ra\'d 13:19], and "Not equal are the companions of the Fire and the companions of Paradise. The companions of Paradise are the winners" [Al-Hashr 59:20].',
     similarWords: [
     ""
 ],
@@ -2683,6 +2713,7 @@ ALL_WORDS.push(
     ayahT: 'And We gave him out of Our mercy his brother Aaron as a prophet',
     ayahR: 'Maryam 19:53',
     tafsir: 'وقوله : ( ووهبنا له من رحمتنا أخاه هارون نبيا ) أي : وأجبنا سؤاله وشفاعته في أخيه ، فجعلناه نبيا ، كما قال في الآية الأخرى : ( وأخي هارون هو أفصح مني لسانا فأرسله معي ردءا يصدقني إني أخاف أن يكذبون ) [ القصص : 34 ] ، وقال : ( قد أوتيت سؤلك يا موسى ) [ طه : 36 ] ، وقال : ( فأرسل إلى هارون ولهم علي ذنب فأخاف أن يقتلون ) [ الشعراء : 13 …',
+    tafsirEn: 'His saying, "And We gave him out of Our mercy his brother Harun as a prophet" means: We answered his request and his intercession for his brother and made him a prophet. As He said in another verse, "And my brother Harun is more eloquent than me in speech, so send him with me as a helper to confirm me; indeed, I fear they will deny me" [Al-Qasas 28:34], and He said, "You have been granted your request, O Moses" [Ta-Ha 20:36], and he said, "So send for Harun. And they have a charge against me, so I fear they will kill me" [Ash-Shu\'ara 26:13 …',
     similarWords: [
     "مُوسَىٰ"
 ],
@@ -2767,6 +2798,7 @@ ALL_WORDS.push(
     ayahT: 'And placed it near them; he said, "Will you not eat',
     ayahR: 'Adh-Dhariyat 51:27',
     tafsir: '( فقربه إليهم ) أي : أدناه منهم ، ( قال ألا تأكلون ) : تلطف في العبارة وعرض حسن .',
+    tafsirEn: '"And he placed it near them" means: he brought it close to them. "He said: will you not eat?" He was gentle in his words and offered it kindly.',
     similarWords: [
     ""
 ],
@@ -2810,6 +2842,7 @@ ALL_WORDS.push(
     ayahT: 'And grant me a reputation of honor among later generations',
     ayahR: 'Ash-Shu\'ara 26:84',
     tafsir: 'قال مجاهد ، وقتادة : ( واجعل لي لسان صدق في الآخرين ) يعني : الثناء الحسن .',
+    tafsirEn: 'Mujahid and Qatadah said: "And grant me a truthful mention among later generations" means good praise.',
     similarWords: [
     "حَقّ"
 ],
@@ -2890,6 +2923,7 @@ ALL_WORDS.push(
     ayahT: 'Gardens of perpetual residence, whose doors will be opened to them',
     ayahR: 'Sad 38:50',
     tafsir: 'ثم فسره بقوله : ( جنات عدن ) أي : جنات إقامة مفتحة لهم الأبواب .',
+    tafsirEn: 'Then He explained it by saying, "Gardens of Eden," meaning gardens of permanent residence, their gates opened for them.',
     similarWords: [
     "فِرْدَوْس"
 ],
@@ -2972,6 +3006,7 @@ ALL_WORDS.push(
     ayahT: 'They have exchanged the signs of Allah for a small price and averted [people] from His way. Indeed, it was evil that they were doing',
     ayahR: 'At-Tawbah 9:9',
     tafsir: 'يقول تعالى ذما للمشركين وحثا للمؤمنين على قتالهم : ( اشتروا بآيات الله ثمنا قليلا ) يعني أنهم اعتاضوا عن اتباع آيات الله بما التهوا به من أمور الدنيا الخسيسة ، ( فصدوا عن سبيله ) أي : منعوا المؤمنين من اتباع الحق ، ( إنهم ساء ما كانوا يعملون)',
+    tafsirEn: 'The Exalted says, condemning the idolaters and urging the believers to fight them: "They have exchanged the verses of Allah for a small price," meaning they took, in place of following Allah\'s verses, the base worldly things that distracted them. "And they turned people away from His way" means: they prevented the believers from following the truth. "Indeed, evil is what they used to do."',
     similarWords: [
     ""
 ],
@@ -3014,6 +3049,7 @@ ALL_WORDS.push(
     ayahT: 'For wrongdoing on the part of the Jews, We made unlawful for them [certain] good foods which had been lawful to them, and for their averting from the way of Allah many [people]',
     ayahR: 'An-Nisa 4:160',
     tafsir: 'ولهذا قال : ( فبظلم من الذين هادوا حرمنا عليهم طيبات أحلت لهم وبصدهم عن سبيل الله كثيرا ) أي : صدوا الناس وصدوا أنفسهم عن اتباع الحق .',
+    tafsirEn: 'This is why He said, "Because of the wrongdoing of those who were Jews, We made unlawful for them good things that had been lawful to them, and because of their turning many away from the way of Allah," meaning: they turned people away, and turned themselves away, from following the truth.',
     similarWords: [
     ""
 ],
@@ -3055,6 +3091,7 @@ ALL_WORDS.push(
     ayahT: 'And to David We gave Solomon. An excellent servant, indeed he was one repeatedly turning back [to Allah]',
     ayahR: 'Sad 38:30',
     tafsir: 'يقول تعالى مخبرا أنه وهب لداود سليمان ، أي : نبيا كما قال : ( وورث سليمان داود ) أي : في النبوة وإلا فقد كان له بنون غيره ، فإنه قد كان عنده مائة امرأة حرائر .',
+    tafsirEn: 'The Exalted tells that He gave Sulayman to Dawud, meaning as a prophet, as He said, "And Sulayman inherited from Dawud," meaning in prophethood; otherwise Dawud had other sons, for he had a hundred free wives.',
     similarWords: [
     "دَاوُۥد"
 ],
@@ -3097,6 +3134,7 @@ ALL_WORDS.push(
     ayahT: '[It is] so He will make clear to them [the truth of] that wherein they differ and so those who have disbelieved may know that they were liars',
     ayahR: 'An-Nahl 16:39',
     tafsir: 'ثم ذكر تعالى حكمته في المعاد وقيام الأجساد يوم التناد ، فقال : ( ليبين لهم ) أي : للناس ( الذي يختلفون فيه ) أي : من كل شيء ، و ( ليجزي الذين أساءوا بما عملوا ويجزي الذين أحسنوا بالحسنى ) [ النجم : 31 ] ( وليعلم الذين كفروا أنهم كانوا كاذبين ) أي : في أيمانهم وأقسامهم : لا يبعث الله من يموت ; ولهذا يدعون يوم القيامة إلى نار جهنم دعا …',
+    tafsirEn: 'Then the Exalted mentioned His wisdom in the Return and the rising of bodies on the Day of Calling, and said: "So that He may make clear to them," meaning to the people, "that over which they differ," meaning in everything, and "so that He may repay those who did evil for what they did and repay those who did good with the best" [An-Najm 53:31], "and so that those who disbelieved may know that they were liars," meaning in their oaths that Allah will not raise those who die. This is why on the Day of Resurrection they will be driven into the fire of Hell with a violent push …',
     similarWords: [
     ""
 ],
@@ -3181,6 +3219,7 @@ ALL_WORDS.push(
     ayahT: 'And We have sent the fertilizing winds and sent down water from the sky and given you drink from it. And you are not its retainers',
     ayahR: 'Al-Hijr 15:22',
     tafsir: 'وقوله : ( وأرسلنا الرياح لواقح ) أي : تلقح السحاب فتدر ماء ، وتلقح الشجر فتتفتح عن أوراقها وأكمامها .',
+    tafsirEn: 'His saying, "And We send the fertilising winds" means: they fertilise the clouds so that they pour water, and fertilise the trees so that they open their leaves and buds.',
     similarWords: [
     ""
 ],
@@ -3348,6 +3387,7 @@ ALL_WORDS.push(
     ayahT: 'Never would the Messiah disdain to be a servant of Allah, nor would the angels near [to Him]. And whoever disdains His worship and is arrogant - He will gather them to Himself all together',
     ayahR: 'An-Nisa 4:172',
     tafsir: 'ثم قال : ( ومن يستنكف عن عبادته ويستكبر فسيحشرهم إليه جميعا ) أي : فيجمعهم إليه يوم القيامة ، ويفصل بينهم بحكمه العدل ، الذي لا يجور فيه ولا يحيف',
+    tafsirEn: 'Then He said, "And whoever disdains His worship and is arrogant, He will gather them to Himself all together," meaning: He will gather them to Him on the Day of Resurrection and judge between them with His just ruling, in which He neither wrongs nor is unfair.',
     similarWords: [
     "عِيسَىٰ"
 ],
@@ -3474,6 +3514,7 @@ ALL_WORDS.push(
     ayahT: '[Allah said], "O messengers, eat from the good foods and work righteousness. Indeed, I, of what you do, am Knowing',
     ayahR: 'Al-Mu\'minun 23:51',
     tafsir: 'وقال سعيد بن جبير ، والضحاك : ( كلوا من الطيبات ) يعني : الحلال .',
+    tafsirEn: 'Sa\'id ibn Jubayr and Ad-Dahhak said: "Eat from the good things" means what is lawful.',
     similarWords: [
     "حَلَال"
 ],
@@ -3560,6 +3601,7 @@ ALL_WORDS.push(
     ayahT: 'And when Joseph reached maturity, We gave him judgment and knowledge. And thus We reward the doers of good',
     ayahR: 'Yusuf 12:22',
     tafsir: '( آتيناه حكما وعلما ) يعني : النبوة ، إنه حباه بها بين أولئك الأقوام ، ( وكذلك نجزي المحسنين ) أي : إنه كان محسنا في عمله ، عاملا بطاعة ربه تعالى .',
+    tafsirEn: '"We gave him judgement and knowledge" means prophethood; He honoured him with it among those peoples. "And thus We reward those who do good" means: he did good in his work and acted in obedience to his Lord, the Exalted.',
     similarWords: [
     "أَدْرَكَ"
 ],
@@ -3603,6 +3645,7 @@ ALL_WORDS.push(
     ayahT: 'When We sent to them two but they denied them, so We strengthened them with a third, and they said, "Indeed, we are messengers to you',
     ayahR: 'Ya-Sin 36:14',
     tafsir: 'وقوله : ( إذ أرسلنا إليهم اثنين فكذبوهما ) أي : بادروهما بالتكذيب ، ( فعززنا بثالث ) أي : قويناهما وشددنا أزرهما برسول ثالث .',
+    tafsirEn: 'His saying, "When We sent to them two, but they denied them" means: they rushed to call them liars. "So We strengthened them with a third" means: We reinforced them and supported them with a third messenger.',
     similarWords: [
     "اِثْنَان"
 ],
@@ -3688,6 +3731,7 @@ ALL_WORDS.push(
     ayahT: 'The bedouins are stronger in disbelief and hypocrisy and more likely not to know the limits of what [laws] Allah has revealed to His Messenger. And Allah is Knowing and Wise',
     ayahR: 'At-Tawbah 9:97',
     tafsir: 'وقوله : ( والله عليم حكيم ) أي : عليم بمن يستحق أن يعلمه الإيمان والعلم ، ( حكيم ) فيما قسم بين عباده من العلم والجهل والإيمان والكفر والنفاق ، لا يسأل عما يفعل ، لعلمه وحكمته .',
+    tafsirEn: 'His saying, "And Allah is Knowing and Wise" means: He knows who deserves to be taught faith and knowledge. "Wise" in how He distributes among His servants knowledge and ignorance, faith, disbelief and hypocrisy. He is not questioned about what He does, because of His knowledge and wisdom.',
     similarWords: [
     ""
 ],

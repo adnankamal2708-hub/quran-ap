@@ -99,6 +99,7 @@ ALL_WORDS.push(
     ayahT: 'Working [hard] and exhausted',
     ayahR: 'Al-Ghashiyah 88:3',
     tafsir: 'وقوله : ( عاملة ناصبة ) أي : قد عملت عملا كثيرا ، ونصبت فيه ، وصليت يوم القيامة نارا حامية .',
+    tafsirEn: 'His saying, "Working [hard] and exhausted" means: it did a great deal of work and wore itself out in it, and on the Day of Resurrection it will burn in a scorching fire.',
     similarWords: ['مُتْعَبَة كَالَّة', 'سَاعِيَة تَعِبَة', 'مُجْهِدَة مَنْصُوبَة'],
     oppositeWords: ['مُسْتَرِيحَة', 'هَانِئَة', 'مُنَعَّمَة'],
     relatedWords: ['اللَّهُ', 'الْعَمَل', 'الْجَزَاء'],

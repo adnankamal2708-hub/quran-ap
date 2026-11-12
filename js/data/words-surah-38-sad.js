@@ -161,6 +161,7 @@ ALL_WORDS.push(
     ayahT: 'And to David We gave Solomon. An excellent servant, indeed he was one repeatedly turning back [to Allah]',
     ayahR: 'Sad 38:30',
     tafsir:'يقول تعالى مخبرا أنه وهب لداود سليمان ، أي : نبيا كما قال : ( وورث سليمان داود ) أي : في النبوة وإلا فقد كان له بنون غيره ، فإنه قد كان عنده مائة امرأة حرائر .',
+    tafsirEn:'The Exalted tells that He gave Sulayman to Dawud, meaning as a prophet, as He said, "And Sulayman inherited from Dawud," meaning in prophethood; otherwise Dawud had other sons, for he had a hundred free wives.',
     similarWords: ['حَسُنَ', 'جَادَ'],
     oppositeWords: ['بِئْسَ'],
     relatedWords: ['اللَّهُ', 'سُلَيْمَان', 'عَبْد'],

@@ -165,6 +165,7 @@ ALL_WORDS.push(
     ayahT: 'The angels and the Spirit descend therein by permission of their Lord for every matter',
     ayahR: 'Al-Qadr 97:4',
     tafsir: 'وقوله : ( تنزل الملائكة والروح فيها بإذن ربهم من كل أمر ) أي : يكثر تنزل الملائكة في هذه الليلة لكثرة بركتها ، والملائكة يتنزلون مع تنزل البركة والرحمة ، كما يتنزلون عند تلاوة القرآن ويحيطون بحلق الذكر ، ويضعون أجنحتهم لطالب العلم بصدق تعظيما له .',
+    tafsirEn: 'His saying, "The angels and the Spirit descend in it by permission of their Lord with every matter" means: the angels descend in great numbers on this night because of its great blessing. The angels come down when blessing and mercy come down, just as they come down when the Quran is recited, surround the circles of remembrance, and lower their wings for the sincere seeker of knowledge out of respect for him.',
     similarWords: ['تَنْزِل', 'تَهْبِط', 'تَتَدَلَّىٰ'],
     oppositeWords: ['تَصْعَد', 'تَرْتَفِع', 'تَذْهَب'],
     relatedWords: ['اللَّهُ', 'الْمَلَائِكَة', 'الرُّوح'],

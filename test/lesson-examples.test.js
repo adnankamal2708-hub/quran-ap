@@ -129,13 +129,38 @@ t('most words have a tafsir quote', function () {
   assert.ok(WORDS.filter(function (w) { return w.tafsir; }).length >= 600);
 });
 
+t('every tafsir quote has an English translation, and only those do', function () {
+  none(problems(function (w) {
+    if (!w.tafsir) return w.tafsirEn ? 'English without an Arabic quote' : null;
+    if (!w.tafsirEn || !w.tafsirEn.trim()) return 'no English';
+    return /[؀-ۿ]/.test(w.tafsirEn) ? 'English has Arabic in it' : null;
+  }));
+});
+
+t('the English keeps the Arabic quote\'s cut marks', function () {
+  none(problems(function (w) {
+    if (!w.tafsir) return null;
+    if (/^… /.test(w.tafsir) !== /^… /.test(w.tafsirEn)) return 'leading … differs';
+    return / …$/.test(w.tafsir) !== / …$/.test(w.tafsirEn) ? 'trailing … differs' : null;
+  }));
+});
+
+t('words sharing an Arabic quote share its English', function () {
+  var seen = {};
+  none(problems(function (w) {
+    if (!w.tafsir) return null;
+    if (seen[w.tafsir] === undefined) { seen[w.tafsir] = w.tafsirEn; return null; }
+    return seen[w.tafsir] === w.tafsirEn ? null : 'different English for the same quote';
+  }));
+});
+
 console.log('\n📋 Tafsir card');
 vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js/ui/components.js'), 'utf8'));
 
-t('a quote shows as Arabic with its source and the quran.com links', function () {
-  var html = global.tafsirHtml('أي : هذا كائن لا محالة', '31:9');
-  assert.ok(/<p class="tafsir-quote" lang="ar" dir="rtl">أي : هذا كائن لا محالة<\/p>/.test(html));
-  assert.ok(/Ibn Kathir, Tafsir al-Quran al-Azim, on 31:9/.test(html));
+t('a passage shows in English with its source and both quran.com links', function () {
+  var html = global.tafsirHtml('That is, this will certainly happen.', '31:9');
+  assert.ok(/<p class="tafsir-quote">That is, this will certainly happen\.<\/p>/.test(html));
+  assert.ok(/Ibn Kathir, Tafsir al-Quran al-Azim, on 31:9\. Translated by Bayan from the Arabic\./.test(html));
   assert.ok(html.indexOf('https://quran.com/31:9/tafsirs/ar-tafsir-ibn-kathir') >= 0);
   assert.ok(html.indexOf('https://quran.com/31:9/tafsirs/en-tafisr-ibn-kathir') >= 0);
 });

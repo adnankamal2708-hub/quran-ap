@@ -734,7 +734,7 @@ function wireExplorerEvents(w) {
         tafsirBtn.innerHTML = iconText('layers', 'Load Ibn Kathir Tafsir');
       } else {
         var occ = window.__explorerCurrentOcc || (_explorerWord && _explorerWord.occurrences && _explorerWord.occurrences[0]) || _explorerWord;
-        tafsirText.innerHTML = tafsirHtml(occ.tafsir || '', occ.verseKey);
+        tafsirText.innerHTML = tafsirHtml(occ.tafsirEn || '', occ.verseKey);
         tafsirBox.style.display = 'block';
         tafsirBtn.innerHTML = iconText('layers', 'Hide Tafsir');
       }

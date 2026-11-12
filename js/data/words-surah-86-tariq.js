@@ -99,6 +99,7 @@ ALL_WORDS.push(
     ayahT: 'There is no soul but that it has over it a protector',
     ayahR: 'At-Tariq 86:4',
     tafsir: 'وقوله : ( إن كل نفس لما عليها حافظ ) أي : كل نفس عليها من الله حافظ يحرسها من الآفات ، كما قال تعالى : ( له معقبات من بين يديه ومن خلفه يحفظونه من أمر الله ) الآية [ الرعد : 11 ] .',
+    tafsirEn: 'His saying, "There is no soul but that it has over it a protector" means: every soul has over it a protector from Allah who guards it from harm. As the Exalted said, "For him are successive [angels] before and behind him who protect him by the decree of Allah" [Ar-Ra\'d 13:11].',
     similarWords: ['رَقِيب', 'حَفَظَة', 'مُلْتَزِم'],
     oppositeWords: ['مُهْمَل', 'غَافِل', 'مَتْرُوك'],
     relatedWords: ['اللَّهُ', 'الْمَلَائِكَة', 'الْحِفْظ'],

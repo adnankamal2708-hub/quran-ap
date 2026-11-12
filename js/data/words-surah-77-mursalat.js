@@ -164,6 +164,7 @@ ALL_WORDS.push(
     ayahT: 'And those [angels] who bring criterion',
     ayahR: 'Al-Mursalat 77:4',
     tafsir: 'وقوله : ( فالفارقات فرقا فالملقيات ذكرا عذرا أو نذرا ) يعني : الملائكة قاله ابن مسعود ، وابن عباس ، ومسروق ، ومجاهد ، وقتادة ، والربيع بن أنس ، والسدي ، والثوري .',
+    tafsirEn: 'His saying, "And those who separate [truth from falsehood], and those who deliver a reminder, as justification or warning" means the angels. Ibn Mas\'ud, Ibn Abbas, Masruq, Mujahid, Qatadah, Ar-Rabi\' ibn Anas, As-Suddi and Ath-Thawri said this.',
     similarWords: ['الْمُمَيِّزَات', 'الْمُفَصِّلَات'],
     oppositeWords: ['الْمُلَبِّسَات', 'الْمُخَلِّطَات'],
     relatedWords: ['اللَّهُ', 'فُرْقَان', 'قُرْآن'],

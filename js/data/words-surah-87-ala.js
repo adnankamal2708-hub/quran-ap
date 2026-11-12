@@ -231,6 +231,7 @@ ALL_WORDS.push(
     ayahT: 'While the Hereafter is better and more enduring',
     ayahR: 'Al-A\'la 87:17',
     tafsir: '( والآخرة خير وأبقى ) أي : ثواب الله في الدار الآخرة خير من الدنيا وأبقى ، فإن الدنيا دنية فانية ، والآخرة شريفة باقية ، فكيف يؤثر عاقل ما يفنى على ما يبقى ، ويهتم بما يزول عنه قريبا ، ويترك الاهتمام بدار البقاء والخلد ؟!',
+    tafsirEn: '"While the Hereafter is better and more lasting" means: Allah\'s reward in the home of the Hereafter is better than this world and more lasting. For this world is lowly and passing, and the Hereafter is noble and lasting. So how can a sensible person prefer what passes away to what lasts, care about what will soon leave him, and neglect the home of permanence and eternity?',
     similarWords: ['الدَّار الْبَاقِيَة', 'الْحَيَاة الْأَبَدِيَّة', 'الْحَيَوَان'],
     oppositeWords: ['الْحَيَاة الدُّنْيَا', 'الْمَتَاع الْفَانِي', 'اللَّذَّة الزَّائِلَة'],
     relatedWords: ['اللَّهُ', 'الْآخِرَة', 'الْجَنَّة'],

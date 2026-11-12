@@ -165,6 +165,7 @@ ALL_WORDS.push(
     ayahT: 'If you invoke them, they do not hear your supplication; and if they heard, they would not respond to you. And on the Day of Resurrection they will deny your association. And none can inform you like [one] Acquainted [with all matters]',
     ayahR: 'Fatir 35:14',
     tafsir: 'ثم قال : ( إن تدعوهم لا يسمعوا دعاءكم ) يعني الآلهة التي تدعونها من دون الله لا يسمعون دعاءكم ; لأنها جماد لا أرواح فيها ( ولو سمعوا ما استجابوا لكم ) أي : لا يقدرون على ما تطلبون منها ، ( ويوم القيامة يكفرون بشرككم ) ، أي : يتبرءون منكم …',
+    tafsirEn: 'Then He said, "If you call upon them, they do not hear your call," meaning the gods you call upon besides Allah do not hear your call, because they are lifeless things with no souls in them. "And if they heard, they would not respond to you" means: they have no power over what you ask of them. "And on the Day of Resurrection they will deny your shirk" means: they will disown you …',
     similarWords: [],
     oppositeWords: [],
     relatedWords: ['إِجَابَة', 'مُجِيب', 'جَابَ'],
