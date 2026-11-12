@@ -117,6 +117,9 @@ function _loadPremium() {
     setTimeout: setTimeout,
     clearTimeout: clearTimeout,
     onAuthChange: null,
+    // App navigation, recorded by tests through global.__nav
+    showAuthView: function (v) { (global.__nav = global.__nav || []).push('auth:' + v); },
+    switchView: function (v) { (global.__nav = global.__nav || []).push('view:' + v); },
     // Defined by js/services/config.js, which precedes premium.js in the bundle
     API_BASE_URL: 'https://quran-ap-pzso.vercel.app',
     // Proxy fetch through global.fetch so tests can set it dynamically
@@ -622,8 +625,11 @@ addAsyncTest('requestUpgrade: missing url in response', async function () {
 
 addAsyncTest('requestUpgrade: sign-in prompt when no user', async function () {
   resetPremium();
-  // No __auth set up — should show sign-in prompt
+  // No __auth set up — should open the sign-in screen
+  global.__nav = [];
   await __premium.requestUpgrade('test');
+  assert.deepStrictEqual(global.__nav, ['auth:login', 'view:auth']);
+  delete global.__nav;
   cleanupTest();
 });
 

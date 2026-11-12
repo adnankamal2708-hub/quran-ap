@@ -575,11 +575,10 @@
       showToast('Please sign in to upgrade to premium', 'info', 4000);
     }
 
-    // Try to open the auth UI if it has a showLogin method
-    if (typeof showAuthModal === 'function') {
-      showAuthModal('login');
-    } else if (window.__auth && typeof window.__auth.showLogin === 'function') {
-      window.__auth.showLogin();
+    // Open the sign-in screen
+    if (typeof showAuthView === 'function' && typeof switchView === 'function') {
+      showAuthView('login');
+      switchView('auth');
     }
   }
 
