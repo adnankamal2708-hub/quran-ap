@@ -163,6 +163,7 @@ function renderWordCard(w, currentIndex, total, isReview) {
   var srsLabel = DOM.get('srs-label');
   if (srsRow) srsRow.style.display = showSRS ? 'grid' : 'none';
   if (srsLabel) srsLabel.style.display = showSRS ? 'block' : 'none';
+  if (showSRS && typeof updateSRSButtonLabels === 'function') updateSRSButtonLabels(w.id);
 
   updateBookmarkButton(w.id);
   var notesBox = DOM.get('notes-box');

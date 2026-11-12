@@ -546,6 +546,40 @@ suite('Edge Cases', function() {
   });
 });
 
+suite('Rating button labels', function() {
+  eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'ui', 'srs-labels.js'), 'utf8'));
+
+  test('the preview is the interval the rating then gives, for a new and a reviewed word', function() {
+    [0, 1, 2, 3].forEach(function(rating) {
+      clearStorage();
+      var fresh = previewSRSInterval('cw_1', rating);
+      rateSRSWord('cw_1', rating);
+      assert.strictEqual(loadSRS().cw_1.interval, fresh, 'new word, rating ' + rating);
+      var next = previewSRSInterval('cw_1', 2);
+      rateSRSWord('cw_1', 2);
+      assert.strictEqual(loadSRS().cw_1.interval, next, 'second review after rating ' + rating);
+    });
+  });
+
+  test('previewing saves nothing', function() {
+    clearStorage();
+    rateSRSWord('cw_1', 2);
+    var before = localStorage.getItem('quran_srs_data');
+    [0, 1, 2, 3].forEach(function(r) { previewSRSInterval('cw_1', r); previewSRSInterval('cw_2', r); });
+    assert.strictEqual(localStorage.getItem('quran_srs_data'), before);
+  });
+
+  test('intervals read as Now, minutes, hours, Tomorrow, days and months', function() {
+    assert.strictEqual(formatSRSInterval(0), 'Now');
+    assert.strictEqual(formatSRSInterval(0.007), '10 min');
+    assert.strictEqual(formatSRSInterval(0.04), '1 hour');
+    assert.strictEqual(formatSRSInterval(0.17), '4 hours');
+    assert.strictEqual(formatSRSInterval(1), 'Tomorrow');
+    assert.strictEqual(formatSRSInterval(2.5), '3 days');
+    assert.strictEqual(formatSRSInterval(90), '3 months');
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════

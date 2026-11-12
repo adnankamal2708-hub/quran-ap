@@ -422,6 +422,30 @@ function rateSRSWord(wordId, rating) {
     return false;
   }
 
+  _scheduleRating(data, wordId, rating);
+  saveSRS(data);
+}
+
+/**
+ * The next interval, in days, that rating a word would give, without
+ * saving anything. The rating buttons show it as their label.
+ */
+function previewSRSInterval(wordId, rating) {
+  var data = loadSRS();
+  var copy = JSON.parse(JSON.stringify({ entry: data[wordId] || null, leech: data._leechRecovery || null }));
+  var scratch = {};
+  if (copy.entry) scratch[wordId] = copy.entry;
+  if (copy.leech) scratch._leechRecovery = copy.leech;
+  return _scheduleRating(scratch, wordId, rating).interval;
+}
+
+/**
+ * Apply a rating to data[wordId] (creating the entry if new) and compute
+ * its next review. Changes `data` only; the caller saves it.
+ */
+function _scheduleRating(data, wordId, rating) {
+  var entry = data[wordId];
+
   // Create entry if new
   if (!entry) {
     entry = {
@@ -562,7 +586,7 @@ function rateSRSWord(wordId, rating) {
   entry.stage = newStage;
 
   data[wordId] = entry;
-  saveSRS(data);
+  return entry;
 }
 
 /**
@@ -794,6 +818,7 @@ window.__srs = {
   saveSRS: saveSRS,
   getSRSStatus: getSRSStatus,
   rateWord: rateSRSWord,
+  previewInterval: previewSRSInterval,
   getDueReviews: getDueReviews,
   getNewWords: getNewWords,
   getStats: getSRSStatsCached,
