@@ -269,6 +269,19 @@ test('the path header shows the track name and percentage', function() {
   assert.ok(markup.indexOf('12.5% of the Quran&#39;s words understood') >= 0);
 });
 
+test('at 0% with words in review, the path says when words start to count', function() {
+  global.loadSRS = function() { return {}; };
+  renderTrackPath('words');
+  assert.ok(html('view-track').indexOf('once you remember them') < 0, 'no note before any lesson');
+  global.loadSRS = function() { return { cw_1: { stage: 1 } }; };
+  renderTrackPath('words');
+  assert.ok(html('view-track').indexOf('once you remember them in a review') >= 0);
+  coveragePercent = 0.4;
+  renderTrackPath('words');
+  assert.ok(html('view-track').indexOf('once you remember them') < 0, 'no note once words count');
+  delete global.loadSRS;
+});
+
 test('a free learner sees a Premium lock on level 1', function() {
   renderTrackPath('words');
   var level1 = levels()[1];

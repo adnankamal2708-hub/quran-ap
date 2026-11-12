@@ -59,6 +59,7 @@ var STRINGS = {
     // ── Quran progress ──
     'percent.words': "{p}% of the Quran's words understood",
     'percent.words.gained': "+{p}% of the Quran's words",
+    'percent.words.pending': 'Your words count here once you remember them in a review on a later day',
     'percent.qaida': "{p}% of the Quran's words you can read",
     'percent.qaida.gained': "+{p}% of the Quran's words you can read",
 

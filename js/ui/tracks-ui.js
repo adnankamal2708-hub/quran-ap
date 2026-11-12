@@ -34,6 +34,8 @@ var TRACK_PATHS = {
     level: function() { return getWordMeaningsLevel(); },
     percent: function() { return refreshWordMeaningsPercent().percent; },
     percentKey: 'percent.words',
+    // Words count once a review remembers them, so a finished lesson can still read 0%
+    note: function(p) { return p === 0 && typeof loadSRS === 'function' && Object.keys(loadSRS()).length ? 'percent.words.pending' : null; },
   },
   qaida: {
     levels: function() { return getQaidaLevels(); },
@@ -207,7 +209,8 @@ function renderTrackPath(trackId) {
   h += '<h2 class="track-path-title">' + _trEsc(t('track.' + id + '.name')) + '</h2>';
   if (percent !== null) h += '<p class="track-path-percent">' + _trEsc(_trackPercentText(id, percent)) + '</p>';
   var path = TRACK_PATHS[id];
-  if (path && path.note) h += '<p class="track-path-note">' + _trEsc(t(path.note)) + '</p>';
+  var note = path && (typeof path.note === 'function' ? path.note(percent) : path.note);
+  if (note) h += '<p class="track-path-note">' + _trEsc(t(note)) + '</p>';
   h += '</div>';
 
   if (path) path.levels().forEach(function(levelData) { h += _levelSection(levelData, path); });
