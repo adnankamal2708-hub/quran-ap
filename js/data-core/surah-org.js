@@ -64,12 +64,34 @@ function pickContinueSurahId(surahIds, activeId, isDone) {
 function getSurahWords(surahId) {
   if (!surahId) return [];
   var words = getCanonicalWords();
-  return words.filter(function (w) {
+  var inSurah = words.filter(function (w) {
     return (
       w.surahId === surahId ||
       (w.surahIds && w.surahIds.indexOf(surahId) >= 0)
     );
   });
+  // Teach a surah in reading order: by verse, then position in the verse.
+  var keyed = inSurah.map(function (w, i) {
+    return { w: w, pos: _surahReadingPos(w, surahId), i: i };
+  });
+  keyed.sort(function (a, b) { return a.pos - b.pos || a.i - b.i; });
+  return keyed.map(function (k) { return k.w; });
+}
+
+var _VERSE_WEIGHT = 100000;
+
+/** Earliest verse * weight + offset of the highlighted word in that verse. */
+function _surahReadingPos(word, surahId) {
+  var best = Infinity;
+  (word.occurrences || []).forEach(function (o) {
+    if (o.surahId !== surahId || !o.verseKey) return;
+    var verse = parseInt(String(o.verseKey).split(':')[1], 10);
+    if (!verse) return;
+    var at = o.ayahA ? String(o.ayahA).indexOf('ayah-highlight') : -1;
+    var pos = verse * _VERSE_WEIGHT + Math.max(at, 0);
+    if (pos < best) best = pos;
+  });
+  return best;
 }
 
 /**

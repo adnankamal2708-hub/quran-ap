@@ -985,6 +985,18 @@ test('Continue picks the active unfinished surah, else the first unfinished', fu
   assert.strictEqual(pickContinueSurahId([1], null, isDone), null);
 });
 
+test('Surah words come in reading order: verse, then place in the verse', function () {
+  var occ = function (key, ayahA) { return { surahId: 1, verseKey: key, ayahA: ayahA }; };
+  var late = { occurrences: [occ('1:5', '<span class="ayah-highlight">a</span> b')] };
+  var second = { occurrences: [occ('1:1', 'x y <span class="ayah-highlight">b</span>')] };
+  var first = { occurrences: [occ('1:1', '<span class="ayah-highlight">a</span> y'), occ('1:7', 'z')] };
+  var elsewhere = { occurrences: [{ surahId: 2, verseKey: '2:1' }] };
+  var pos = function (w) { return _surahReadingPos(w, 1); };
+  assert.ok(pos(first) < pos(second));
+  assert.ok(pos(second) < pos(late));
+  assert.strictEqual(pos(elsewhere), Infinity);
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════
