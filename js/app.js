@@ -381,7 +381,8 @@ function updateLessonProgressDisplay() {
           ctxHtml += '<span>' + uiIcon('edit') + 'Grammar notes</span><span class="foundation-acc-arrow"><svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>';
           ctxHtml += '</button>';
           ctxHtml += '<div class="foundation-acc-body">';
-          ctxHtml += '<div class="ai-acc-body">Focus on the root letters and their core meaning. Notice how different patterns (wazn) modify the meaning. Pay attention to how this word functions in its ayah context.</div>';
+          var fNoteWords = (fLesson && fLesson.wordIds || []).map(function(id) { return getCanonicalWordById(id); });
+          ctxHtml += '<div class="ai-acc-body">' + getFoundationGrammarNote(fNoteWords) + '</div>';
           ctxHtml += '</div></div>';
           
           // Learning tips section (collapsed by default)

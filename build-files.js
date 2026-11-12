@@ -23,6 +23,7 @@ const DATA_CORE_FILES = [
   'js/data-core/surah-org.js',
   'js/data-core/word-forms.js',
   'js/data-core/foundation.js',
+  'js/data-core/foundation-grammar-note.js',
   'js/data-core/lesson-system.js',
   'js/data-core/progress-aggregator.js',
   'js/data-core/adaptive.js',

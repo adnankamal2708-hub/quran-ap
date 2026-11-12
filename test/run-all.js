@@ -36,6 +36,7 @@ var TESTS = [
   "quran-reader.test.js",
   "services.test.js",
   "foundation-course.test.js",
+  "foundation-grammar-note.test.js",
   "quran.test.js",
   "profile-ui.test.js",
   "premium.test.js",
