@@ -24,6 +24,9 @@ let quizFinished = false;
 /** @type {?Object} The verse of the current verse fill-in question, else null */
 let quizVerse = null;
 
+/** @type {Object<string, boolean>} Words already rated for review this quiz (a word can be asked twice) */
+let quizRated = {};
+
 /**
  * Initialize a new quiz session with shuffled words.
  * If the quiz is already in progress and hasn't finished, preserve state.
@@ -62,7 +65,10 @@ function initQuiz() {
     return;
   }
 
-  quizWords = shuffleArray(lessonWords);
+  quizWords = typeof buildQuizRounds === 'function'
+    ? buildQuizRounds(lessonWords, QUIZ_LENGTHS[getQuizLength()], shuffleArray)
+    : shuffleArray(lessonWords);
+  quizRated = {};
   if (typeof preloadQuizVerses === 'function') preloadQuizVerses(quizWords);
   quizIndex = 0;
   quizCorrect = 0;
@@ -84,7 +90,7 @@ function showQuizQ() {
   var wordIndex = quizIndex % quizWords.length;
   var currentWord = quizWords[wordIndex];
   var progressEl = DOM.get('quiz-progress');
-  if (progressEl) progressEl.textContent = 'Question ' + (wordIndex + 1) + ' of ' + quizWords.length;
+  if (progressEl) progressEl.textContent = 'Question ' + (quizIndex + 1) + ' of ' + quizWords.length;
   var verseQ = typeof buildQuizVerseQuestion === 'function' ? buildQuizVerseQuestion(currentWord, quizIndex, quizWords) : null;
   quizVerse = verseQ ? verseQ.verse : null;
   if (verseQ) renderQuizVerseQuestion(currentWord, verseQ);
@@ -96,7 +102,7 @@ function showQuizQ() {
  */
 function answerQuiz(btn, chosen, correct, wordId) {
   // Record quiz result for adaptive analysis
-  if (typeof recordQuizResult === 'function') {
+  if (typeof recordQuizResult === 'function' && !quizRated[wordId]) {
     recordQuizResult(wordId, chosen === correct);
   }
   
@@ -146,12 +152,12 @@ function answerQuiz(btn, chosen, correct, wordId) {
   if (chosen === correct) {
     btn.classList.add('correct');
     quizCorrect++;
-    rateSRSWord(wordId, 2);
+    if (!quizRated[wordId]) rateSRSWord(wordId, 2);
     feedback.innerHTML = '\u2713 Correct' + relContext;
     feedback.style.color = 'var(--green)';
   } else {
     btn.classList.add('wrong');
-    rateSRSWord(wordId, 0);
+    if (!quizRated[wordId]) rateSRSWord(wordId, 0);
     // Highlight correct button using data-correct attribute to avoid textContent collision
     for (var bi = 0; bi < allOpts.length; bi++) {
       if (allOpts[bi].getAttribute('data-correct') === 'true') allOpts[bi].classList.add('correct');
@@ -160,6 +166,7 @@ function answerQuiz(btn, chosen, correct, wordId) {
     feedback.style.color = 'var(--red)';
   }
 
+  quizRated[wordId] = true;
   if (quizVerse) showQuizVerseAnswer(quizVerse);
 
   updateQuizScoreDisplay(quizCorrect, quizTotal);
@@ -377,6 +384,12 @@ function nextQuiz() {
   } else {
     showQuizQ();
   }
+}
+
+/** Starts the quiz over, e.g. after the learner picks another length. */
+function restartQuiz() {
+  quizWords = [];
+  initQuiz();
 }
 
 /**

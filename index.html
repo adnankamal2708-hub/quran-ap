@@ -728,6 +728,11 @@ getResults: function () { return _safeguardResults; },
 
       <!-- ── QUIZ VIEW ── -->
       <section class="mode-view" id="view-quiz" aria-label="Quiz mode">
+        <div class="quiz-length" id="quiz-length" role="group" aria-label="Quiz length">
+          <button type="button" class="chip" data-quiz-length="short" aria-pressed="false">Short <span class="quiz-length-n">10</span></button>
+          <button type="button" class="chip" data-quiz-length="normal" aria-pressed="false">Normal <span class="quiz-length-n">15</span></button>
+          <button type="button" class="chip" data-quiz-length="long" aria-pressed="false">Long <span class="quiz-length-n">25</span></button>
+        </div>
         <div class="quiz-card" id="quiz-card">
           <div class="quiz-progress" id="quiz-progress"></div>
           <div class="quiz-q" id="quiz-q">What does this word mean?</div>

@@ -104,6 +104,8 @@ function setupKeyboardShortcuts() {
         break;
 
       case 'quiz':
+        // Enter and Space on a length chip press that chip
+        if (e.target.closest && e.target.closest('#quiz-length')) break;
         if (e.key >= '1' && e.key <= '4') {
           e.preventDefault();
           var opts = document.querySelectorAll('.quiz-opt:not(:disabled)');

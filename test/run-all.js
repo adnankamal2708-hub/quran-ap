@@ -26,6 +26,7 @@ var TESTS = [
   "quiz.test.js",
   "quiz-ui.test.js",
   "quiz-verse.test.js",
+  "quiz-length.test.js",
   "data-validation.test.js",
   "coverage-accuracy.test.js",
   "dashboard.test.js",

@@ -379,8 +379,8 @@ test.describe('Quiz Flow', () => {
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('quiz'); });
     await page.waitForTimeout(500);
 
-    // Answer all quiz questions (foundation lesson 1 has 10 words)
-    const maxAnswers = 12; // safety limit
+    // Answer all quiz questions (Normal length: 15)
+    const maxAnswers = 30; // safety limit
     for (let i = 0; i < maxAnswers; i++) {
       const isNextVisible = await page.locator('#btn-next-quiz').isVisible();
       if (!isNextVisible) {

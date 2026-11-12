@@ -868,6 +868,7 @@ function wireEvents() {
 
   // Quiz next button
   safeOnClick('btn-next-quiz', nextQuiz);
+  if (typeof setupQuizLengthPicker === 'function') setupQuizLengthPicker();
 
   // Review banner
   safeOnClick('review-start-btn', startReview);

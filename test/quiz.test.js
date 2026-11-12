@@ -238,6 +238,41 @@ suite('Edge Cases', function() {
   });
 });
 
+suite('Quiz Length', function() {
+  // The real length module, so the quiz asks words again to fill its length
+  eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'quiz-length.js'), 'utf8'));
+  global.QUIZ_LENGTHS = { short: 5, normal: 5, long: 5 };
+  global.getQuizLength = getQuizLength;
+  global.buildQuizRounds = buildQuizRounds;
+
+  test('a two-word lesson asks five questions', function() {
+    resetDOM();
+    global.getActiveLessonWords = function() { return [{ id: 'w1', arabic: 'a' }, { id: 'w2', arabic: 'b' }]; };
+    restartQuiz();
+    assert.strictEqual(DOM.get('quiz-progress').textContent, 'Question 1 of 5');
+  });
+
+  test('a word asked twice is rated for review only once', function() {
+    resetDOM();
+    var rated = [];
+    var realRate = global.rateSRSWord;
+    global.rateSRSWord = function(id, r) { rated.push(id + ':' + r); };
+    global.getActiveLessonWords = function() { return [{ id: 'w1', arabic: 'a' }, { id: 'w2', arabic: 'b' }]; };
+    restartQuiz();
+    var btn = { classList: { add: function() {} } };
+    for (var i = 0; i < 4; i++) {
+      answerQuiz(btn, 'x', 'x', i % 2 ? 'w2' : 'w1');
+      nextQuiz();
+    }
+    global.rateSRSWord = realRate;
+    assert.deepStrictEqual(rated, ['w1:2', 'w2:2']);
+  });
+
+  delete global.buildQuizRounds;
+  delete global.getQuizLength;
+  delete global.QUIZ_LENGTHS;
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════

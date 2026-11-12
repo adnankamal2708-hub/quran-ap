@@ -1233,6 +1233,19 @@ body::before {
   text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
+.quiz-length {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.quiz-length-n {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
 /* Verse fill-in: an ayah reads smaller than a single word */
 .quiz-arabic.is-verse {
   font-size: var(--text-xl);
