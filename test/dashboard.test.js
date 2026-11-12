@@ -289,7 +289,7 @@ function setupGlobals() {
       // Rule 3: weak-areas (priority 200)
       if (state.weaknesses && state.weaknesses.length > 0 && (state.fCompleted >= 1 || state.masteredCount >= 3 || (state.totalReviews || 0) >= 5)) {
         var count = state.weaknesses.length;
-        return { icon: 'alert-triangle', title: count + ' weak area' + (count > 1 ? 's' : '') + ' detected', message: 'Focus on ' + state.weaknesses[0].name + (count > 1 ? ' and ' + (count - 1) + ' more' : '') + ' to strengthen your foundation.', action: 'Review', id: 'rec-weak', actionType: 'review' };
+        return { icon: 'alert-triangle', title: count + ' weak area' + (count > 1 ? 's' : '') + ' detected', message: 'Focus on ' + state.weaknesses[0].name + (count > 1 ? ' and ' + (count - 1) + ' more' : '') + ' to strengthen your foundation.', action: 'Practice', id: 'rec-weak', actionType: 'practice' };
       }
       // Rule 4: continue-foundation (priority 250)
       if (!state.noProgress && state.fTotal > 0 && !state.foundationComplete) {
@@ -878,6 +878,21 @@ suite('Recommendation — Weakness Guard', function() {
     // Weakness should appear
     assert.ok(html.indexOf('weak area') >= 0, 'should show weak area for experienced user');
     assert.ok(html.indexOf('Focus on') >= 0, 'should recommend focus area');
+  });
+
+  test('tapping the weak-area card opens Practice (no review is due then)', function() {
+    resetState();
+    setupGlobals();
+    setupWeaknessMock();
+    _mockFoundationCompleted = 5;
+    _mockSRSStats = { total: 50, mature: 20, dueToday: 0, totalReviews: 200, reviewsToday: 10, newCount: 10, learning: 8, young: 4, overdue: 0 };
+    setupDashboardGrid();
+    var card = { id: 'rec-weak' };
+    _elementsById['rec-weak'] = card;
+    renderDashboard();
+    assert.strictEqual(typeof card.onclick, 'function', 'card is wired');
+    card.onclick();
+    assert.strictEqual(_switchViewCalled, 'review-center');
   });
 
   test('no weaknesses despite sufficient activity: next recommendation appears', function() {

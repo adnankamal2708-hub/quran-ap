@@ -1096,6 +1096,8 @@ function renderDashboard() {
     } else if (actionType === 'root-family') {
       if (typeof goToRootFamily === 'function') goToRootFamily();
       else if (typeof switchView === 'function') switchView('learn');
+    } else if (actionType === 'practice') {
+      if (typeof switchView === 'function') switchView('review-center');
     } else if (actionType === 'profile') {
       if (typeof switchView === 'function') switchView('profile');
     } else {

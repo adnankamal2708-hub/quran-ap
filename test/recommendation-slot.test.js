@@ -149,7 +149,7 @@ suite('Rule 2 — Build Foundation (priority 150)', function() {
 
 suite('Rule 3 — Weak Areas (priority 200)', function() {
   var weakState = {
-    weaknesses: [{ name: '3 words forgotten' }, { name: '5 overdue' }],
+    weaknesses: [{ dimension: 'forgotten-words', name: '3 words forgotten' }, { dimension: 'leeched', name: '2 leeched words' }],
     fCompleted: 2,
     masteredCount: 5,
     totalReviews: 20,
@@ -161,14 +161,14 @@ suite('Rule 3 — Weak Areas (priority 200)', function() {
     var rec = slot.getPrimary(weakState);
     assertRecShape(rec, 'weak-areas');
     assert.strictEqual(rec.id, 'rec-weak');
-    assert.strictEqual(rec.actionType, 'review');
+    assert.strictEqual(rec.actionType, 'practice');
     assert.ok(rec.title.indexOf('2 weak areas') >= 0, 'title mentions count: ' + rec.title);
     assert.ok(rec.message.indexOf('3 words forgotten') >= 0, 'message mentions first weakness: ' + rec.message);
   });
 
   test('singular "1 weak area" when single weakness', function() {
     var rec = slot.getPrimary({
-      weaknesses: [{ name: 'forgotten words' }],
+      weaknesses: [{ dimension: 'forgotten-words', name: 'forgotten words' }],
       fCompleted: 1,
       masteredCount: 3,
       totalReviews: 5,
@@ -180,7 +180,7 @@ suite('Rule 3 — Weak Areas (priority 200)', function() {
 
   test('does NOT fire when weaknesses exist but no evidence (0 lessons, 0 mastered, 0 reviews)', function() {
     var rec = slot.getPrimary({
-      weaknesses: [{ name: 'test' }],
+      weaknesses: [{ dimension: 'leeched', name: 'test' }],
       fCompleted: 0,
       masteredCount: 0,
       totalReviews: 0,
@@ -191,6 +191,20 @@ suite('Rule 3 — Weak Areas (priority 200)', function() {
     });
     assert.notStrictEqual(rec, null, 'should match a rule');
     assert.notStrictEqual(rec.id, 'rec-weak', 'should NOT be weak-areas (fCompleted < 1, masteredCount < 3, totalReviews < 5)');
+  });
+
+  test('does NOT fire for word groups that are simply not learned yet', function() {
+    var rec = slot.getPrimary({
+      weaknesses: [{ dimension: 'part-of-speech', name: 'Nouns' }, { dimension: 'part-of-speech', name: 'Verbs' }],
+      fCompleted: 1,
+      masteredCount: 0,
+      totalReviews: 0,
+      dueCount: 0,
+      noProgress: false,
+      fTotal: 10,
+      foundationComplete: false,
+    });
+    assert.notStrictEqual(rec.id, 'rec-weak', 'not learned yet is not weak');
   });
 
   test('does NOT fire when evidence threshold met but no weaknesses', function() {
@@ -209,7 +223,7 @@ suite('Rule 3 — Weak Areas (priority 200)', function() {
 
   test('evidence threshold: fCompleted >= 1 is sufficient', function() {
     var rec = slot.getPrimary({
-      weaknesses: [{ name: 'test' }],
+      weaknesses: [{ dimension: 'leeched', name: 'test' }],
       fCompleted: 1,
       masteredCount: 0,
       totalReviews: 0,
@@ -221,7 +235,7 @@ suite('Rule 3 — Weak Areas (priority 200)', function() {
 
   test('evidence threshold: masteredCount >= 3 is sufficient', function() {
     var rec = slot.getPrimary({
-      weaknesses: [{ name: 'test' }],
+      weaknesses: [{ dimension: 'leeched', name: 'test' }],
       fCompleted: 0,
       masteredCount: 3,
       totalReviews: 0,
@@ -233,7 +247,7 @@ suite('Rule 3 — Weak Areas (priority 200)', function() {
 
   test('evidence threshold: totalReviews >= 5 is sufficient', function() {
     var rec = slot.getPrimary({
-      weaknesses: [{ name: 'test' }],
+      weaknesses: [{ dimension: 'leeched', name: 'test' }],
       fCompleted: 0,
       masteredCount: 0,
       totalReviews: 5,
@@ -530,7 +544,7 @@ suite('Priority Ordering', function() {
   test('reviews-due (100) beats weak-areas (200)', function() {
     var rec = slot.getPrimary({
       dueCount: 1,
-      weaknesses: [{ name: 'test' }],
+      weaknesses: [{ dimension: 'leeched', name: 'test' }],
       fCompleted: 1,
       masteredCount: 3,
       totalReviews: 5,
@@ -543,7 +557,7 @@ suite('Priority Ordering', function() {
     var rec = slot.getPrimary({
       dueCount: 0,
       noProgress: true,
-      weaknesses: [{ name: 'test' }],
+      weaknesses: [{ dimension: 'leeched', name: 'test' }],
       fCompleted: 0,
       masteredCount: 0,
       totalReviews: 0,
@@ -555,7 +569,7 @@ suite('Priority Ordering', function() {
     var rec = slot.getPrimary({
       dueCount: 0,
       noProgress: false,
-      weaknesses: [{ name: 'test' }],
+      weaknesses: [{ dimension: 'leeched', name: 'test' }],
       fCompleted: 5,
       masteredCount: 10,
       totalReviews: 50,

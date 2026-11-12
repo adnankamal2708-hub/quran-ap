@@ -34,6 +34,13 @@
   //   test(state): Function that returns truthy if this recommendation applies
   //   build(state): Function that returns the recommendation object
 
+  // Only forgetting is a weak area. A word group under 60% mastered is
+  // every group right after lesson 1, so it is not counted.
+  var _FORGETTING_DIMENSIONS = { 'forgotten-words': true, 'leeched': true };
+  function _forgetting(weaknesses) {
+    return (weaknesses || []).filter(function (w) { return w && _FORGETTING_DIMENSIONS[w.dimension]; });
+  }
+
   var _PRIORITY_RULES = [
     // 1. Reviews due (highest priority — spaced repetition)
     {
@@ -79,18 +86,20 @@
       priority: 200,
       name: 'weak-areas',
       test: function (s) {
-        return s.weaknesses && s.weaknesses.length > 0
+        return _forgetting(s.weaknesses).length > 0
           && (s.fCompleted >= 1 || s.masteredCount >= 3 || (s.totalReviews || 0) >= 5);
       },
       build: function (s) {
-        var count = s.weaknesses.length;
+        var weak = _forgetting(s.weaknesses);
+        var count = weak.length;
         return {
           icon: 'alert-triangle',
           title: count + ' weak area' + (count > 1 ? 's' : '') + ' detected',
-          message: 'Focus on ' + s.weaknesses[0].name + (count > 1 ? ' and ' + (count - 1) + ' more' : '') + ' to strengthen your foundation.',
-          action: 'Review',
+          message: 'Focus on ' + weak[0].name + (count > 1 ? ' and ' + (count - 1) + ' more' : '') + ' to strengthen your foundation.',
+          action: 'Practice',
           id: 'rec-weak',
-          actionType: 'review',
+          // No review is due when this shows (rule 1 would win), so it opens Practice
+          actionType: 'practice',
         };
       },
     },
