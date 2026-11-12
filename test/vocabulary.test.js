@@ -676,6 +676,24 @@ suite('Normalize / Utility', function() {
   });
 });
 
+suite('Word list status filter', function() {
+  test('a word rated once is Learning, not Mastered; only a mature word is Mastered', function() {
+    global.SRS_MATURE_STAGE = 3;
+    var stages = { a: null, b: 1, c: 2, d: 3 };
+    var saved = global.getSRSStatus;
+    global.getSRSStatus = function(id) {
+      var st = stages[id];
+      return st === null ? { status: 'new', stage: 0 } : { status: 'mastered', stage: st };
+    };
+    var words = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }];
+    var ids = function(list) { return list.map(function(w) { return w.id; }).join(','); };
+    assert.strictEqual(ids(filterByStatus(words, 'new')), 'a');
+    assert.strictEqual(ids(filterByStatus(words, 'learning')), 'b,c');
+    assert.strictEqual(ids(filterByStatus(words, 'mastered')), 'd');
+    global.getSRSStatus = saved;
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════

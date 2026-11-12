@@ -56,6 +56,9 @@ const YOUNG_GRADUATION = 6;
 /** Interval threshold (days) for young → mature graduation */
 const YOUNG_MAX_INTERVAL = 21;
 
+/** The stage a word reaches when it graduates to mature ("Mastered") */
+const SRS_MATURE_STAGE = 3;
+
 /** Shift interval to ensure today's items appear as "due today" even if hours overdue */
 const DAY_MS = 24 * 60 * 60 * 1000;
 

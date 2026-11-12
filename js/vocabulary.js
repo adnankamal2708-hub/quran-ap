@@ -592,8 +592,12 @@ function filterByStatus(words, statusFilter) {
   return words.filter(function (w) {
     var srs = getSRSStatus(w.id);
     if (statusFilter === 'new') return srs.status === 'new';
-    if (statusFilter === 'learning') return srs.status === 'review';
-    if (statusFilter === 'mastered') return srs.status === 'mastered';
+    // Mastered means a mature word (stage 3), the same count Home shows.
+    // getSRSStatus calls every word that isn't due yet 'mastered', which
+    // made a word rated once count as mastered here.
+    var mature = srs.stage >= SRS_MATURE_STAGE;
+    if (statusFilter === 'learning') return srs.status !== 'new' && !mature;
+    if (statusFilter === 'mastered') return srs.status !== 'new' && mature;
     return true;
   });
 }
