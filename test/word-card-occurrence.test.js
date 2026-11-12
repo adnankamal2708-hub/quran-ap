@@ -240,6 +240,13 @@ suite('Word card learning context', function () {
     assert.ok(html.indexOf('In 1 surah') < 0, 'does not use the sample-verse count');
   });
 
+  test('first and last verse and surah count come from the index, in Quran order', function () {
+    global._getIndexRefsForWord = function () { return ['114:6', '2:9', '3:1', '2:5']; };
+    var spread = getIndexedSpread({ arabic: 'x' });
+    delete global._getIndexRefsForWord;
+    assert.deepStrictEqual(spread, { surahCount: 3, first: '2:5', last: '114:6' });
+  });
+
   test('omits the surah count when the word is not in the index', function () {
     global._getIndexRefsForWord = function () { return null; };
     var html = renderContext({ id: 'ctx2', arabic: 'x', occ: 12, frequencyRank: 40, surahIds: [2], surahCount: 1 });

@@ -194,9 +194,11 @@ function renderExplorer() {
   }
   
   // ── Quran Context ──
-  DOM.get('explorer-first-occ').textContent = w.firstOccurrence || (w.occurrences && w.occurrences.length > 0 ? w.occurrences[0].verseKey : '—');
-  DOM.get('explorer-last-occ').textContent = w.lastOccurrence || (w.occurrences && w.occurrences.length > 0 ? w.occurrences[w.occurrences.length - 1].verseKey : '—');
-  DOM.get('explorer-surah-count').textContent = w.surahCount || (w.surahIds ? w.surahIds.length : '—');
+  // Same index as the word card's "In N surahs", so the screens agree
+  var spread = typeof getIndexedSpread === 'function' ? getIndexedSpread(w) : null;
+  DOM.get('explorer-first-occ').textContent = spread ? spread.first : '—';
+  DOM.get('explorer-last-occ').textContent = spread ? spread.last : '—';
+  DOM.get('explorer-surah-count').textContent = spread ? spread.surahCount : '—';
   DOM.get('explorer-total-occ').textContent = quranCount ? quranCount.toLocaleString() : '—';
   
   // Occurrence navigation

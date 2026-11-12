@@ -295,13 +295,25 @@ function renderSRSStatusPill(wordId) {
  * the word isn't in the index, so no count is shown rather than a wrong one.
  */
 function getIndexedSurahCount(w) {
+  var spread = getIndexedSpread(w);
+  return spread ? spread.surahCount : 0;
+}
+
+/**
+ * Where a word's written form occurs, from the occurrence index:
+ * { surahCount, first, last } with first/last as "surah:verse" in Quran
+ * order, or null when the word isn't in the index.
+ */
+function getIndexedSpread(w) {
   var refs = typeof _getIndexRefsForWord === 'function' ? _getIndexRefsForWord(w) : null;
-  if (!refs || !refs.length) return 0;
+  if (!refs || !refs.length) return null;
   var surahs = {};
-  for (var i = 0; i < refs.length; i++) {
-    surahs[String(refs[i]).split(':')[0]] = true;
-  }
-  return Object.keys(surahs).length;
+  var order = refs.map(function (r) {
+    var p = String(r).split(':');
+    surahs[p[0]] = true;
+    return { ref: p[0] + ':' + p[1], key: Number(p[0]) * 1000 + Number(p[1]) };
+  }).sort(function (a, b) { return a.key - b.key; });
+  return { surahCount: Object.keys(surahs).length, first: order[0].ref, last: order[order.length - 1].ref };
 }
 
 /**

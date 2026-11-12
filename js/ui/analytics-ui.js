@@ -324,7 +324,7 @@ function renderExplorerAllOccurrences(listEl, w) {
   if (!_hasFullOccurrences && list.length > 5) {
     html +=
       '<div class="explorer-all-occ-upsell" style="border-top:1px solid var(--gold-dim);margin-top:10px;padding-top:10px;text-align:center">' +
-        '<div style="font-family:var(--serif);font-size:13px;color:var(--gold-light);margin-bottom:6px">See all ' + list.length + ' occurrences — Premium</div>' +
+        '<div style="font-family:var(--serif);font-size:13px;color:var(--gold-light);margin-bottom:6px">See all ' + list.length + ' verses with this spelling — Premium</div>' +
         '<button class="btn btn-sm" type="button" onclick="if(window.__premium)window.__premium.requestUpgrade(\'word-relationships\')">' + uiIcon('star') + 'Upgrade to Premium</button>' +
       '</div>';
   }

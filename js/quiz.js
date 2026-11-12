@@ -117,14 +117,16 @@ function answerQuiz(btn, chosen, correct, wordId) {
     if (currentWord.type) {
       relParts.push('Type: ' + currentWord.type);
     }
-    if (currentWord.occ) {
-      relParts.push('Appears ' + currentWord.occ + ' times');
+    var quizCount = typeof getQuranCount === 'function' ? getQuranCount(currentWord) : null;
+    if (quizCount) {
+      relParts.push('Appears ' + quizCount.toLocaleString() + ' times');
     }
     if (currentWord.frequencyRank) {
       relParts.push('Rank: #' + currentWord.frequencyRank);
     }
-    if (currentWord.surahCount) {
-      relParts.push('In ' + currentWord.surahCount + ' surah' + (currentWord.surahCount !== 1 ? 's' : ''));
+    var quizSurahs = typeof getIndexedSurahCount === 'function' ? getIndexedSurahCount(currentWord) : 0;
+    if (quizSurahs) {
+      relParts.push('In ' + quizSurahs + ' surah' + (quizSurahs !== 1 ? 's' : ''));
     }
     if (relParts.length > 0) {
       relContext = '<div class="quiz-rel-context">' + relParts.join(' \u00B7 ') + '</div>';
