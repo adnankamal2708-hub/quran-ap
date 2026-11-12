@@ -497,9 +497,10 @@ function searchWords(query) {
   var words = (typeof getCanonicalWords === 'function' && getCanonicalWords().length > 0)
     ? getCanonicalWords() : ALL_WORDS;
   
-  return words.filter(function (w) {
+  return rankSearchResults(words.filter(function (w) {
     // Check canonical fields
     var matches = (
+      matchesWordSearchKeys(w, query) ||
       w.arabic.includes(q) ||
       w.translit.toLowerCase().includes(q) ||
       w.english.toLowerCase().includes(q) ||
@@ -570,7 +571,7 @@ function searchWords(query) {
     }
     
     return matches;
-  });
+  }), query);
 }
 
 // ── Filters ────────────────────────────────────────────────────
@@ -653,7 +654,8 @@ function advancedFilterWords(words, filterState) {
     // Root family filter
     if (filterState.rootFamilyFilter && filterState.rootFamilyFilter.trim() !== '') {
       var rootQ = filterState.rootFamilyFilter.trim().toLowerCase();
-      var matchesRoot = w.root && w.root.toLowerCase().indexOf(rootQ) >= 0;
+      // "رحم" and "ر-ح-م" are the same root
+      var matchesRoot = w.root && _rootKey(w.root).indexOf(_rootKey(rootQ)) >= 0;
       var matchesRootFamily = false;
       if (!matchesRoot && w.rootFamily && Array.isArray(w.rootFamily)) {
         for (var rfi = 0; rfi < w.rootFamily.length; rfi++) {
@@ -739,34 +741,7 @@ function advancedSearch(query, filterState) {
     matched = advancedFilterWords(matched, filterState);
   }
   
-  // Sort by relevance: exact Arabic matches first, then by frequency rank
-  if (query && query.trim() !== '') {
-    var q = query.trim().toLowerCase();
-    var normQ = normalizeArabic(q);
-    
-    matched.sort(function(a, b) {
-      // Exact Arabic match tops
-      var aExact = a.arabic && (a.arabic === q || normalizeArabic(a.arabic) === normQ) ? 1 : 0;
-      var bExact = b.arabic && (b.arabic === q || normalizeArabic(b.arabic) === normQ) ? 1 : 0;
-      if (aExact !== bExact) return bExact - aExact;
-      
-      // Exact English match
-      var aEng = a.english && a.english.toLowerCase() === q ? 1 : 0;
-      var bEng = b.english && b.english.toLowerCase() === q ? 1 : 0;
-      if (aEng !== bEng) return bEng - aEng;
-      
-      // Exact root match
-      var aRoot = a.root && a.root.toLowerCase() === q ? 1 : 0;
-      var bRoot = b.root && b.root.toLowerCase() === q ? 1 : 0;
-      if (aRoot !== bRoot) return bRoot - aRoot;
-      
-      // Sort by frequency rank (lower = more frequent = higher priority)
-      var aRank = a.frequencyRank || 9999;
-      var bRank = b.frequencyRank || 9999;
-      return aRank - bRank;
-    });
-  }
-  
+  // searchWords() has already ranked the matches, and filtering keeps that order.
   return matched;
 }
 

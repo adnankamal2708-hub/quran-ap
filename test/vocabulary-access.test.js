@@ -93,6 +93,7 @@ var CANON = getCanonicalWords();
 buildFoundationCourse();
 
 load('js/vocabulary.js');
+load('js/word-search-rank.js');
 load('js/srs.js');
 load('js/ui/explorer.js');
 load('js/ui/explorer-root-family.js');

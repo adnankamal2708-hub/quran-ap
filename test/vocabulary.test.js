@@ -85,6 +85,7 @@ var fs = require('fs');
 var path = require('path');
 var vocabCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'vocabulary.js'), 'utf8');
 eval(vocabCode);
+eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'word-search-rank.js'), 'utf8'));
 
 // ═══════════════════════════════════════════════════════════════
 // TEST HELPERS
@@ -165,6 +166,33 @@ suite('Search', function() {
   test('searchWords returns empty for no matches', function() {
     var results = searchWords('zzzzzzzz');
     assert.strictEqual(results.length, 0);
+  });
+
+  test('searchWords finds transliteration typed without marks', function() {
+    var results = searchWords('salah');
+    assert.ok(results.some(function(w) { return w.id === 'w_4'; }));
+  });
+
+  test('searchWords finds Arabic typed without vowel marks', function() {
+    var results = searchWords('رحمة');
+    assert.ok(results.some(function(w) { return w.id === 'w_2'; }));
+  });
+
+  test('searchWords finds a root written with dashes', function() {
+    var ids = searchWords('ش-ك-ر').map(function(w) { return w.id; });
+    assert.ok(ids.indexOf('w_5') >= 0 && ids.indexOf('w_6') >= 0);
+  });
+
+  test('searchWords puts the exact word before words that only contain it', function() {
+    var results = searchWords('to');
+    assert.strictEqual(results[0].id, 'w_9');
+    results = searchWords('thank');
+    assert.strictEqual(results[0].id, 'w_5');
+  });
+
+  test('root filter matches a root typed without dashes', function() {
+    var results = advancedSearch('', { rootFamilyFilter: 'ش-ك-ر' });
+    assert.ok(results.length >= 2 && results.every(function(w) { return w.root === 'شكر'; }));
   });
 });
 
