@@ -149,7 +149,9 @@ function renderExplorer() {
   DOM.get('explorer-arabic').textContent = w.arabic || '';
   DOM.get('explorer-translit').textContent = w.translit || '';
   DOM.get('explorer-meaning-main').textContent = w.meaning || w.english || '';
-  DOM.get('explorer-full-meaning').textContent = w.meaning && w.meaning !== w.english ? w.meaning : '';
+  // The main line already shows the full meaning; showing it again below
+  // repeated it word for word.
+  DOM.get('explorer-full-meaning').textContent = '';
   DOM.get('explorer-root').textContent = w.root || '—';
   DOM.get('explorer-pos').textContent = w.type || w.typeCategory || '—';
   
