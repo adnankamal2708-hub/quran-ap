@@ -478,7 +478,9 @@ function checkForLessonCompletionCelebration(lessonIndex) {
 function showSurahConnectionToast(surahImprovements) {
   var improvements = surahImprovements || [];
   if (improvements.length === 0) return;
-  var msg = 'Understanding improved in ' + improvements.slice(0, 3).join(', ') +
+  // Callers pass {name, ...} objects from getSurahsImproved*; names also work
+  var names = improvements.map(function (s) { return typeof s === 'string' ? s : s.name; });
+  var msg = 'Understanding improved in ' + names.slice(0, 3).join(', ') +
     (improvements.length > 3 ? ', and ' + (improvements.length - 3) + ' more surahs' : '');
   if (window.__ux && window.__ux.showToast) {
     window.__ux.showToast(msg, 'success');

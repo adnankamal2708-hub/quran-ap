@@ -639,6 +639,13 @@ suite('showSurahConnectionToast', function() {
     assert.ok(msg.length > 0);
     assert.ok(msg.indexOf('Al-Fatiha') >= 0);
   });
+
+  test('names the surahs, not [object Object], for improvement objects', function() {
+    var msg = '';
+    window.__ux.showToast = function(m) { msg = m; };
+    showSurahConnectionToast([{ surahId: 1, name: 'Al-Fatihah', gain: 20 }, { surahId: 112, name: 'Al-Ikhlas', gain: 10 }]);
+    assert.strictEqual(msg, 'Understanding improved in Al-Fatihah, Al-Ikhlas');
+  });
 });
 
 suite('checkForLessonCompletionCelebration', function() {
