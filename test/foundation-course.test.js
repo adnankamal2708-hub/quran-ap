@@ -943,6 +943,39 @@ suite('Surah Comprehension', function() {
   });
 });
 
+suite('Lesson gain is the share of the Quran the lesson covers', function() {
+  test('each gain is the step between projected shares, with no made-up curve', function() {
+    var prev = 0;
+    FOUNDATION_LESSONS.forEach(function(l) {
+      assert.ok(Math.abs(l.comprehensionGain - (l.projectedComprehension - prev)) <= 0.11, 'lesson ' + l.id);
+      prev = l.projectedComprehension;
+    });
+    var last = FOUNDATION_LESSONS[FOUNDATION_LESSONS.length - 1];
+    assert.strictEqual(last.projectedComprehension, Math.round(last.cumulativeCoverageNum * 10) / 10);
+  });
+
+  test('uses the real token counts when they are loaded', function() {
+    var w = FOUNDATION_LESSONS[0].wordIds.map(function(id) { return getCanonicalWordById(id); });
+    var counts = {};
+    global.OCCURRENCE_INDEX_KEY = function(a) { return a; };
+    w.forEach(function(x, i) { counts[x.arabic] = i < 5 ? 10 : 0; });
+    global.OCCURRENCE_INDEX_TOKEN_COUNTS = counts;
+    global.OCCURRENCE_INDEX_TOTAL_TOKENS = 1000;
+    _realCorpusStats = null;
+    buildFoundationCourse();
+    try {
+      assert.strictEqual(FOUNDATION_LESSONS[0].comprehensionGain, 5); // 50 of 1000 tokens
+      assert.strictEqual(getFoundationLessonContextMsg(0).comprehensionGain, '+5% of the Quran\'s words');
+    } finally {
+      delete global.OCCURRENCE_INDEX_TOKEN_COUNTS;
+      delete global.OCCURRENCE_INDEX_TOTAL_TOKENS;
+      delete global.OCCURRENCE_INDEX_KEY;
+      _realCorpusStats = null;
+      buildFoundationCourse();
+    }
+  });
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════

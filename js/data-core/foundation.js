@@ -82,12 +82,13 @@ function buildFoundationCourse() {
     // Compute comprehension projection for educational display
     var lessonCoverageNum = totalOcc > 0 ? (lessonOcc / totalOcc * 100) : 0;
     var cumulativeCoverageNum = totalOcc > 0 ? (cumulativeOcc / totalOcc * 100) : 0;
-    var curComprehensionNum = cumulativeCoverageNum > 0 && cumulativeCoverageNum > lessonCoverageNum
-      ? Math.min(95, Math.round(1.3 * Math.pow(Math.max(0, cumulativeCoverageNum - lessonCoverageNum), 0.7) * 10) / 10)
-      : 0;
-    var projComprehensionNum = cumulativeCoverageNum > 0
-      ? Math.min(95, Math.round(1.3 * Math.pow(cumulativeCoverageNum, 0.7) * 10) / 10)
-      : 0;
+    // The gain is the share of the Quran's words these lessons cover, the
+    // same measure as Home's "% of the Quran's words understood". (It was a
+    // made-up curve that promised +18% for lesson 1.)
+    var realBefore = _corpusCountsLoaded() ? getRealWordsCoveragePercent(topWords.slice(0, start)) : null;
+    var realAfter = _corpusCountsLoaded() ? getRealWordsCoveragePercent(topWords.slice(0, end)) : null;
+    var curComprehensionNum = Math.round((realBefore !== null ? realBefore : cumulativeCoverageNum - lessonCoverageNum) * 10) / 10;
+    var projComprehensionNum = Math.round((realAfter !== null ? realAfter : cumulativeCoverageNum) * 10) / 10;
     var wordsRemaining = FOUNDATION_WORDS_PER_LESSON * (FOUNDATION_LESSON_COUNT - li - 1);
     
     // Thematic titles and context for each lesson
@@ -542,6 +543,15 @@ function _getCoverageCorpus() {
  * counts is null when no real data is available (callers then fall
  * back to the legacy w.occ formula, e.g. in corpus-less test envs).
  */
+/**
+ * Whether the occurrence index's token counts are loaded. Checked before
+ * getRealCorpusStats at build time, which would otherwise cache "no data".
+ */
+function _corpusCountsLoaded() {
+  return (typeof OCCURRENCE_INDEX_TOKEN_COUNTS !== 'undefined' && !!OCCURRENCE_INDEX_TOKEN_COUNTS) ||
+    (typeof window !== 'undefined' && !!window.OCCURRENCE_INDEX_TOKEN_COUNTS);
+}
+
 function getRealCorpusStats() {
   if (_realCorpusStats) return _realCorpusStats;
   _realCorpusStats = { totalTokens: 0, counts: null };
@@ -1186,7 +1196,7 @@ function getFoundationLessonContextMsg(lessonIndex) {
   return {
     title: lesson.thematicTitle || '',
     context: context,
-    comprehensionGain: lesson.comprehensionGain !== undefined ? '+' + lesson.comprehensionGain + '% comprehension' : '',
+    comprehensionGain: lesson.comprehensionGain !== undefined ? '+' + lesson.comprehensionGain + '% of the Quran\'s words' : '',
     cumulativeMsg: lesson.cumulativeCoverageNum
       ? 'Cumulative: ' + (displayStrings ? displayStrings.cumulativeCoverage : lesson.cumulativeCoverage) + ' of Quranic occurrences'
       : '',
