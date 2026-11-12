@@ -414,16 +414,6 @@ function renderReviewCenter() {
   $h += '<div class="rc-mode-arrow">→</div>';
   $h += '</div>';
 
-  // Reading Review — words from reading mode
-  $h += '<div class="rc-mode-card" id="rc-mode-reading" tabindex="0" role="button" aria-label="Start reading review">';
-  $h += '<div class="rc-mode-icon">' + uiIcon('book-open', true) + '</div>';
-  $h += '<div class="rc-mode-info">';
-  $h += '<div class="rc-mode-title">Reading review</div>';
-  $h += '<div class="rc-mode-sub">Words from reading</div>';
-  $h += '</div>';
-  $h += '<div class="rc-mode-arrow">→</div>';
-  $h += '</div>';
-
   // Mixed Review — mixed easy/hard review
   $h += '<div class="rc-mode-card" id="rc-mode-mixed" tabindex="0" role="button" aria-label="Start mixed review">';
   $h += '<div class="rc-mode-icon">' + uiIcon('shuffle', true) + '</div>';
@@ -749,10 +739,12 @@ function wireReviewCenterEvents($data) {
     var $msg = $newUser
       ? 'Complete your first lesson to unlock reviews'
       : 'No reviews due right now — your queue is clear';
-    if (window.__ux && typeof window.__ux.showToast === 'function') {
-      window.__ux.showToast($msg, 'info');
-    }
-    if (typeof switchView === 'function') switchView('learn');
+    _rcToast($msg);
+    // Stay on Practice; a new learner goes to Learn to start a lesson
+    if ($newUser && typeof switchView === 'function') switchView('tracks');
+  }
+  function _rcToast(msg) {
+    if (window.__ux && typeof window.__ux.showToast === 'function') window.__ux.showToast(msg, 'info');
   }
   $wire('rc-mode-srs', function() {
     $withReviews(function() {
@@ -766,11 +758,8 @@ function wireReviewCenterEvents($data) {
     });
   });
   $wire('rc-mode-root', function() {
-    if (typeof goToRootFamily === 'function') goToRootFamily();
-    else if (typeof switchView === 'function') switchView('learn');
-  });
-  $wire('rc-mode-reading', function() {
-    if (typeof switchView === 'function') switchView('quran');
+    // The root list (or its upgrade prompt), not the first root's lesson
+    if (typeof openRootList === 'function') openRootList();
   });
   $wire('rc-mode-mixed', function() {
     $withReviews(function() {
@@ -778,11 +767,14 @@ function wireReviewCenterEvents($data) {
     });
   });
   $wire('rc-mode-weakest', function() {
-    // Start review with leeched/difficult words only
+    // startReview puts leeched words first, so only start it when some are due
+    if ($data.leechCount === 0 && $data.dueCount > 0) {
+      _rcToast('No weak words right now. Words you keep missing show up here');
+      return;
+    }
     $withReviews(function() {
       if (typeof startReview === 'function') startReview();
     });
-    // Note: startReview already prioritizes leeched words first
   });
 
   // ── Drills and tests ──

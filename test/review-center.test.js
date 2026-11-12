@@ -202,6 +202,7 @@ function setupGlobals() {
   global.startMixedReview = function() { _callLog.push('startMixedReview'); };
   global.toggleQuickMode = function() { _callLog.push('toggleQuickMode'); };
   global.goToRootFamily = function() { _callLog.push('goToRootFamily'); };
+  global.openRootList = function() { _callLog.push('openRootList'); };
   global.switchView = function(v) { _callLog.push('switchView:' + v); };
   global.getLearnerProfile = function() { return _mockProfile; };
   global.getCachedReviewForecast = function() { return [].concat(_mockForecast); };
@@ -586,7 +587,7 @@ suite('renderReviewCenter — Stats Bar', function() {
 });
 
 suite('renderReviewCenter — Review Modes', function() {
-  test('renders all 6 review mode cards', function() {
+  test('renders the 5 review mode cards', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -597,7 +598,6 @@ suite('renderReviewCenter — Review Modes', function() {
     assert.ok(html.indexOf('SRS review') >= 0, 'should have SRS mode');
     assert.ok(html.indexOf('Quick review') >= 0, 'should have Quick mode');
     assert.ok(html.indexOf('Root review') >= 0, 'should have Root mode');
-    assert.ok(html.indexOf('Reading review') >= 0, 'should have Reading mode');
     assert.ok(html.indexOf('Mixed review') >= 0, 'should have Mixed mode');
     assert.ok(html.indexOf('Weakest words') >= 0, 'should have Weakest mode');
   });
@@ -863,7 +863,7 @@ suite('Event Wiring — Mode Cards', function() {
     renderReviewCenter();
     srsBtn.click();
     assert.ok(_callLog.indexOf('startReview') < 0, 'startReview should NOT be called at zero data');
-    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
+    assert.ok(_callLog.indexOf('switchView:tracks') >= 0, 'a new learner goes to Learn instead of an unrelated lesson');
   });
 
   test('#rc-mode-quick click calls toggleQuickMode and startReview when reviews due', function() {
@@ -893,10 +893,10 @@ suite('Event Wiring — Mode Cards', function() {
     quickBtn.click();
     assert.ok(_callLog.indexOf('toggleQuickMode') < 0, 'toggleQuickMode should NOT be called at zero data');
     assert.ok(_callLog.indexOf('startReview') < 0, 'startReview should NOT be called at zero data');
-    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
+    assert.ok(_callLog.indexOf('switchView:tracks') >= 0, 'a new learner goes to Learn instead of an unrelated lesson');
   });
 
-  test('#rc-mode-root click calls goToRootFamily', function() {
+  test('#rc-mode-root opens the root list, not the first root lesson', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
@@ -906,20 +906,47 @@ suite('Event Wiring — Mode Cards', function() {
 
     renderReviewCenter();
     rootBtn.click();
-    assert.ok(_callLog.indexOf('goToRootFamily') >= 0, 'goToRootFamily should be called');
+    assert.ok(_callLog.indexOf('openRootList') >= 0, 'openRootList should be called');
+    assert.ok(_callLog.indexOf('goToRootFamily') < 0, 'no root lesson should open');
   });
 
-  test('#rc-mode-reading click calls switchView to quran', function() {
+  test('there is no "Reading review" card (reading words are not tracked)', function() {
     var grid = makeEl('div');
     grid.id = 'review-center-grid';
     _elementsById['review-center-grid'] = grid;
-    var readBtn = makeEl('div');
-    readBtn.id = 'rc-mode-reading';
-    _elementsById['rc-mode-reading'] = readBtn;
+    renderReviewCenter();
+    assert.ok(grid._innerHTML.indexOf('rc-mode-root') >= 0, 'mode cards rendered');
+    assert.ok(grid._innerHTML.indexOf('rc-mode-reading') < 0);
+  });
+
+  test('a learner with an empty queue stays on Practice', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    var mixedBtn = makeEl('div');
+    mixedBtn.id = 'rc-mode-mixed';
+    _elementsById['rc-mode-mixed'] = mixedBtn;
+    _mockSRSStats = { total: 10, mature: 2, dueToday: 0, totalReviews: 30 };
 
     renderReviewCenter();
-    readBtn.click();
-    assert.ok(_callLog.indexOf('switchView:quran') >= 0, 'should switch to quran');
+    mixedBtn.click();
+    assert.ok(_callLog.indexOf('startMixedReview') < 0);
+    assert.ok(!_callLog.some(function(c) { return c.indexOf('switchView') === 0; }), 'no navigation');
+  });
+
+  test('#rc-mode-weakest does not start a review when no due word is weak', function() {
+    var grid = makeEl('div');
+    grid.id = 'review-center-grid';
+    _elementsById['review-center-grid'] = grid;
+    var weakestBtn = makeEl('div');
+    weakestBtn.id = 'rc-mode-weakest';
+    _elementsById['rc-mode-weakest'] = weakestBtn;
+    _mockDueReviews = [{ id: 'w1' }];
+    _mockSRSData = { w1: { stage: 1, isLeech: false, dueDate: Date.now() } };
+
+    renderReviewCenter();
+    weakestBtn.click();
+    assert.ok(_callLog.indexOf('startReview') < 0, 'no review without weak words');
   });
 
   test('#rc-mode-mixed click calls startMixedReview when reviews due', function() {
@@ -947,7 +974,7 @@ suite('Event Wiring — Mode Cards', function() {
     renderReviewCenter();
     mixedBtn.click();
     assert.ok(_callLog.indexOf('startMixedReview') < 0, 'startMixedReview should NOT be called at zero data');
-    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
+    assert.ok(_callLog.indexOf('switchView:tracks') >= 0, 'a new learner goes to Learn instead of an unrelated lesson');
   });
 
   test('#rc-mode-weakest click calls startReview when reviews due', function() {
@@ -958,6 +985,7 @@ suite('Event Wiring — Mode Cards', function() {
     weakestBtn.id = 'rc-mode-weakest';
     _elementsById['rc-mode-weakest'] = weakestBtn;
     _mockDueReviews = [{ id: 'w1' }];
+    _mockSRSData = { w1: { stage: 1, isLeech: true, dueDate: Date.now() } };
 
     renderReviewCenter();
     weakestBtn.click();
@@ -975,7 +1003,7 @@ suite('Event Wiring — Mode Cards', function() {
     renderReviewCenter();
     weakestBtn.click();
     assert.ok(_callLog.indexOf('startReview') < 0, 'startReview should NOT be called at zero data');
-    assert.ok(_callLog.indexOf('switchView:learn') >= 0, 'should route user to learn instead of no-op');
+    assert.ok(_callLog.indexOf('switchView:tracks') >= 0, 'a new learner goes to Learn instead of an unrelated lesson');
   });
 });
 
