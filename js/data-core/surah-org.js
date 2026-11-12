@@ -42,6 +42,18 @@ function getActiveSurahId() {
   return _activeSurahId;
 }
 
+/**
+ * The surah "Continue" should open: the active surah while it is unfinished,
+ * otherwise the first unfinished one. Returns null when all are done.
+ */
+function pickContinueSurahId(surahIds, activeId, isDone) {
+  if (activeId && surahIds.indexOf(activeId) >= 0 && !isDone(activeId)) return activeId;
+  for (var i = 0; i < surahIds.length; i++) {
+    if (!isDone(surahIds[i])) return surahIds[i];
+  }
+  return null;
+}
+
 // ── Surah-based Word Functions ──────────────────────────────────
 
 /**

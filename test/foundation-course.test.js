@@ -976,6 +976,15 @@ suite('Lesson gain is the share of the Quran the lesson covers', function() {
   });
 });
 
+test('Continue picks the active unfinished surah, else the first unfinished', function () {
+  var done = { 1: true };
+  var isDone = function (id) { return !!done[id]; };
+  assert.strictEqual(pickContinueSurahId([1, 112, 114], 114, isDone), 114);
+  assert.strictEqual(pickContinueSurahId([1, 112, 114], 1, isDone), 112);
+  assert.strictEqual(pickContinueSurahId([1, 112, 114], null, isDone), 112);
+  assert.strictEqual(pickContinueSurahId([1], null, isDone), null);
+});
+
 // ═══════════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════════

@@ -626,12 +626,9 @@ function updateLessonProgressDisplay() {
         continueBtn.innerHTML = iconText('celebration', 'All surahs complete');
         continueBtn.disabled = true;
       } else {
-        var nextIncomplete = -1;
-        for (var si = 0; si < surahIds.length; si++) {
-          if (!isSurahCompleted(surahIds[si])) { nextIncomplete = si; break; }
-        }
-        if (nextIncomplete >= 0) {
-          var nextSurahName = typeof getSurahNameSimple === 'function' ? getSurahNameSimple(surahIds[nextIncomplete]) : 'Surah ' + surahIds[nextIncomplete];
+        var nextSurahId = pickContinueSurahId(surahIds, getActiveSurahId(), isSurahCompleted);
+        if (nextSurahId) {
+          var nextSurahName = typeof getSurahNameSimple === 'function' ? getSurahNameSimple(nextSurahId) : 'Surah ' + nextSurahId;
           continueBtn.innerHTML = iconText('book-open', 'Continue ' + nextSurahName);
           continueBtn.disabled = false;
         }
@@ -901,13 +898,7 @@ function wireEvents() {
       goToFoundationLesson(fNext);
     } else if (getOrganizationMode() === 'surah') {
       var surahIds = getSurahsWithVocabulary();
-      for (var si = 0; si < surahIds.length; si++) {
-        if (!isSurahCompleted(surahIds[si])) {
-          goToSurah(surahIds[si]);
-          return;
-        }
-      }
-      goToSurah(surahIds[0] || 1);
+      goToSurah(pickContinueSurahId(surahIds, getActiveSurahId(), isSurahCompleted) || surahIds[0] || 1);
     } else if (getOrganizationMode() === 'root-family') {
       var nextRFKey = typeof getNextIncompleteRootFamily === 'function' ? getNextIncompleteRootFamily() : '';
       if (nextRFKey) goToRootFamily(nextRFKey);
