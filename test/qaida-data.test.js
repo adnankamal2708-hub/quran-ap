@@ -44,6 +44,12 @@ test('there are 28 letters with unique ids and characters', function () {
   });
 });
 
+test('Ḥā and Hā say which h they are, not just a dot under the H', function () {
+  var hha = STRINGS.en['qaida.letter.hha.name'], ha = STRINGS.en['qaida.letter.ha.name'];
+  assert.ok(/throaty/.test(hha), hha);
+  assert.ok(/soft/.test(ha), ha);
+});
+
 test('exactly the six letters ا د ذ ر ز و never join forward', function () {
   var nonJoining = QAIDA_LETTERS.filter(function (l) { return !l.joins; }).map(function (l) { return l.char; }).join('');
   assert.strictEqual(nonJoining, 'ادذرزو');
