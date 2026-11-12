@@ -578,9 +578,9 @@ suite('renderReviewCenter — Stats Bar', function() {
     renderReviewCenter();
     var html = grid._innerHTML;
     assert.ok(html.indexOf('88%') >= 0, 'should show real retention at 5+ reviews');
-    assert.ok(html.indexOf('Remembered') >= 0, 'should show the Remembered label');
+    assert.ok(html.indexOf('Avg. remembered') >= 0, 'should show the Remembered label');
     // Retention lives in the stats bar; Today's Progress does not repeat it
-    assert.ok(html.indexOf('rc-stat-value">88%</div><div class="rc-stat-label">Remembered') >= 0, 'stats bar should show retention');
+    assert.ok(html.indexOf('rc-stat-value">88%</div><div class="rc-stat-label">Avg. remembered') >= 0, 'stats bar should show retention');
     assert.ok(html.indexOf('rc-today-label">Retention') < 0, 'Today Progress does not repeat retention');
   });
 });

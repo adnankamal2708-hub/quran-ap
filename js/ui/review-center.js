@@ -366,7 +366,7 @@ function renderReviewCenter() {
   if ($data.showRetention) {
     $h += '<div class="rc-stat">';
     $h += '<div class="rc-stat-value">' + ($data.retention || 0) + '%</div>';
-    $h += '<div class="rc-stat-label">Remembered</div>';
+    $h += '<div class="rc-stat-label">Avg. remembered</div>';
     $h += '</div>';
   }
 
@@ -494,7 +494,7 @@ function renderReviewCenter() {
       $h += '<div class="rc-word-preview-item rc-clickable" data-word-id="' + $pw.id + '" tabindex="0" role="button" aria-label="' + ($pw.arabic || '') + ' — ' + ($pw.english || '') + '">';
       $h += '<span class="rc-word-preview-arabic">' + ($pw.arabic || '') + '</span>';
       $h += '<span class="rc-word-preview-eng">' + ($pw.english || '') + '</span>';
-      $h += '<span class="rc-word-preview-meta">' + $pStatus + ' · ' + $pRetention + '% retention</span>';
+      $h += '<span class="rc-word-preview-meta">' + $pStatus + ' · ' + $pRetention + '% remembered</span>';
       $h += '</div>';
     }
     $h += '</div>';
