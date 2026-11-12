@@ -115,7 +115,7 @@ function setupMockElements() {
   // Session summary stat elements
   var statIds = [
     'session-words-reviewed', 'session-streak-earned', 'session-mastered-new',
-    'session-comp-gain', 'session-roots-learned', 'session-review-cards',
+    'session-comp-gain', 'session-roots-learned', 'session-roots-label', 'session-review-cards',
     'session-next-recommendation', 'session-time-spent', 'session-encouragement',
     'session-accuracy', 'session-retention', 'session-needs-improvement',
     'session-coverage-gained', 'session-rating-stars', 'session-rating-label'
@@ -483,6 +483,7 @@ suite('Session Summary Modal', function() {
     // Always-show cards stay visible (display not forced to 'none')
     assert.notStrictEqual(mockElements['session-words-reviewed'].style.display, 'none');
     assert.notStrictEqual(mockElements['session-roots-learned'].style.display, 'none');
+    assert.strictEqual(mockElements['session-roots-label'].textContent, 'Root reviewed', 'roots of reviewed words are not new');
     assert.notStrictEqual(mockElements['session-time-spent'].style.display, 'none');
     assert.notStrictEqual(mockElements['session-streak-earned'].style.display, 'none');
 

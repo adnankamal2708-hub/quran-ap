@@ -283,6 +283,9 @@ function showSessionSummary(stats) {
   }
   var $rootsEl = document.getElementById('session-roots-learned');
   if ($rootsEl) $rootsEl.textContent = $rootsLearned;
+  // Roots of the words just reviewed, so not "new"
+  var $rootsLabelEl = document.getElementById('session-roots-label');
+  if ($rootsLabelEl) $rootsLabelEl.textContent = $rootsLearned === 1 ? 'Root reviewed' : 'Roots reviewed';
   var $reviewCardsEl = document.getElementById('session-review-cards');
   if ($reviewCardsEl) $reviewCardsEl.textContent = $reviewCardsCreated;
   var $nextRecEl = document.getElementById('session-next-recommendation');
