@@ -38,14 +38,13 @@ function initAuthUI() {
  * Show a specific auth sub-view (login, signup, forgot, reset).
  *
  * @param {string} viewName — one of 'login' | 'signup' | 'forgot' | 'reset' | 'verify'
- * @param {Object} [opts] — { google: boolean } enables the Google sign-in
- *   option for this view. Used for the staged rollout: only the Profile-tab
- *   entry point passes { google: true } in Stage A; other entry points
- *   (header sign-in link, post-lesson prompt) keep it hidden until Stage B.
+ * @param {Object} [opts] — { google: false } hides the Google sign-in
+ *   option for this view. It shows by default at every entry point
+ *   (Stage B of the rollout; Stage A showed it only from Profile).
  */
 function showAuthView(viewName, opts) {
   _currentAuthView = viewName;
-  var enableGoogle = !!(opts && opts.google);
+  var enableGoogle = !(opts && opts.google === false);
   var views = ['auth-login', 'auth-signup', 'auth-forgot', 'auth-reset', 'auth-verify'];
   views.forEach(function (id) {
     var el = document.getElementById(id);

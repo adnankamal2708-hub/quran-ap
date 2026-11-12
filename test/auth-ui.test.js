@@ -517,7 +517,7 @@ ts('Auth — Sign In with Google', function() {
     createEl('auth-login-error');
   }
 
-  t('google option hidden by default (header/prompt entry points)', function() {
+  t('google option shown by default (header/prompt entry points)', function() {
     createEl('auth-login');
     createEl('auth-signup');
     createEl('auth-forgot');
@@ -527,6 +527,8 @@ ts('Auth — Sign In with Google', function() {
     createEl('auth-google-login');
     createEl('auth-google-signup');
     showAuthView('login');
+    assert.strictEqual(document.getElementById('auth-google-login').style.display, 'block');
+    showAuthView('login', { google: false });
     assert.strictEqual(document.getElementById('auth-google-login').style.display, 'none');
   });
 
