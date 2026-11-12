@@ -10,7 +10,7 @@ ALL_WORDS.push(
     translit: 'Allāhu',
     type: 'Proper Noun',
     typeCategory: 'noun',
-    pattern: 'فَعَّال',
+    pattern: '—',
     english: 'Allah',
     meaning: 'Allah — God',
     root: 'أ-ل-ه',

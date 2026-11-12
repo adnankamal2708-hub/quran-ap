@@ -94,7 +94,7 @@ function buildFoundationCourse() {
     // Thematic titles and context for each lesson
     var thematicTitles = [
       'The Essential Framework',
-      'Core Quranic Verbs',
+      'Pronouns & Linking Words',
       'Divine Descriptions',
       'Key Particles & Ideas',
       'Review & Consolidation I',
@@ -106,7 +106,7 @@ function buildFoundationCourse() {
     ];
     var lessonContexts = [
       'These are the most frequent words in the Quran. Mastering them unlocks the basic structure of every verse.',
-      'These verbs and nouns appear hundreds of times. Understanding them transforms how you read passages about creation and faith.',
+      'Pronouns, linking words and a few common verbs and nouns. Each appears hundreds of times in the Quran.',
       'These words describe divine attributes, actions, and the relationship between Creator and creation.',
       'These particles connect Quranic ideas. They appear in nearly every verse and are essential for sentence structure.',
       'Review and reinforce the first 50 words. Strengthen your recall before the next tier of vocabulary.',
@@ -1642,4 +1642,4 @@ function getCompletedFoundationLessonCount() {
   var progress = loadFoundationProgress();
   return progress.completedLessons.length;
 }
-
+
