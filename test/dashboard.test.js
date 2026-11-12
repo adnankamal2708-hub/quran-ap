@@ -1325,6 +1325,23 @@ suite('Track rows', function() {
     assert.deepStrictEqual(_switchViewOptions, { trackId: 'words' });
   });
 
+  test('tapping the headline opens Practice for a guest and Profile when signed in', function() {
+    resetState();
+    setupGlobals();
+    _mockCoverage = { coveragePercent: 12.5, estimatedComprehension: 20, masteredWords: 5, totalWords: 100, masteredOccurrences: 1, totalOccurrences: 10 };
+    setupDashboardGrid();
+    renderDashboard();
+    var el = document.getElementById('db-comp-headline');
+    assert.ok(el && el._onclick, 'headline is wired');
+    global.getCurrentUser = function() { return null; };
+    el._onclick();
+    assert.strictEqual(_switchViewCalled, 'review-center', 'a guest is not sent to sign-in');
+    global.getCurrentUser = function() { return { uid: 'u1' }; };
+    el._onclick();
+    assert.strictEqual(_switchViewCalled, 'profile');
+    delete global.getCurrentUser;
+  });
+
   test('the progress bar fill is capped at 100%', function() {
     resetState();
     setupGlobals();

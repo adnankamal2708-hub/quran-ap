@@ -84,6 +84,14 @@ if (typeof window !== 'undefined') {
   window.invalidateReviewForecast = invalidateReviewForecast;
 }
 
+// Where a Home stat tap goes: Profile has the full stats, but a guest's
+// Profile is the sign-in screen, so guests go to Practice, which shows them.
+function dashboardStatsView() {
+  var user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (!user && window.__auth && typeof window.__auth.getCurrentUser === 'function') user = window.__auth.getCurrentUser();
+  return user ? 'profile' : 'review-center';
+}
+
 function renderDashboard() {
   try {
   var $d = document.getElementById('dashboard-grid');
@@ -961,7 +969,7 @@ function renderDashboard() {
     (function($el) {
       var $action = $el.getAttribute('data-db-action');
       $el.onclick = function() {
-        if ($action === 'streak' || $action === 'comprehension' || $action === 'mastered') switchView('profile');
+        if ($action === 'streak' || $action === 'comprehension' || $action === 'mastered') switchView(dashboardStatsView());
         else if ($action === 'list') switchView('list');
         else if ($action === 'review') { if (typeof startReview === 'function') startReview(); else switchView('learn'); }
       };
@@ -975,7 +983,7 @@ function renderDashboard() {
   // variant is informational, not a navigation affordance)
   if ($comprehensionPct > 0) {
     $wire('db-comp-headline', function() {
-      if (typeof switchView === 'function') switchView('profile');
+      if (typeof switchView === 'function') switchView(dashboardStatsView());
     });
   }
 
