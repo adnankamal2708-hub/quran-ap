@@ -80,6 +80,7 @@ var STRINGS = {
     'tracks.back': 'All tracks',
     'tracks.premium': 'Premium',
     'tracks.locked': 'Finish {level} to unlock',
+    'tracks.lessonLocked': 'After lesson {n}',
     'tracks.finished': 'Finished',
     'tracks.more': 'More ways to learn',
     'tracks.lessonN': 'Lesson {n}',

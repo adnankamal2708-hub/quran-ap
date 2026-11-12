@@ -101,6 +101,7 @@ load('js/data-core/word-meanings-track.js');
 load('js/phase2-surahs.js');
 load('js/exercises/placement.js');
 load('js/ui/learn-screen.js');
+load('js/ui/track-path-parts.js');
 load('js/ui/tracks-ui.js');
 load('js/ui/placement-ui.js');
 

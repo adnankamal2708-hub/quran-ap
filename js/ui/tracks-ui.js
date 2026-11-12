@@ -140,56 +140,7 @@ function renderTracks() {
   view.onkeydown = _onLearnViewKeydown;
 }
 
-// ── Track path ──────────────────────────────────────────────────
-
-function _lessonButton(lesson, level, levelLock) {
-  // Level 3 entries are open-ended: their `completed` means "started" (R8).
-  var done = lesson.completed && level !== 3;
-  var locked = levelLock === 'progress' ||
-    (lesson.kind === 'foundation' && !isFoundationLessonUnlocked(lesson.ref)) ||
-    (lesson.kind === 'qaida' && !lesson.completed && !isQaidaLessonUnlocked(lesson.ref)) ||
-    (lesson.kind === 'tajweed' && !lesson.completed && !isTajweedLessonUnlocked(lesson.ref));
-  var attrs = levelLock === 'premium'
-    ? ' data-action="upgrade" data-level="' + level + '"'
-    : ' data-action="lesson" data-kind="' + lesson.kind + '"' + (lesson.ref == null ? '' : ' data-ref="' + lesson.ref + '"');
-
-  var h = '<li><button type="button" class="track-lesson' + (done ? ' is-done' : '') + (locked ? ' is-locked' : '') + '"' +
-    attrs + (locked ? ' disabled' : '') + '>';
-  h += '<span class="track-lesson-num">' + lesson.number + '</span>';
-  h += '<span class="track-lesson-title">' + _trEsc(lesson.title) + '</span>';
-  if (done) h += '<span class="track-lesson-state">' + uiIcon('check', true) + '<span class="sr-only">' + _trEsc(t('tracks.finished')) + '</span></span>';
-  else if (locked || levelLock === 'premium') h += '<span class="track-lesson-state">' + uiIcon('lock', true) + '</span>';
-  h += '</button></li>';
-  return h;
-}
-
-function _levelSection(levelData, path) {
-  var level = levelData.level;
-  var lock = path.lock(level);
-  var h = '<section class="track-level' + (lock ? ' is-locked' : '') + '" aria-labelledby="track-level-' + level + '">';
-  h += '<div class="track-level-head">';
-  h += '<h3 class="track-level-name" id="track-level-' + level + '">' + _trEsc(t('level.' + level)) + '</h3>';
-  if (lock === 'premium') {
-    h += '<button type="button" class="track-level-lock is-premium" data-action="upgrade" data-level="' + level + '">' +
-      uiIcon('lock', true) + '<span>' + _trEsc(t('tracks.premium')) + '</span></button>';
-  } else if (lock === 'progress') {
-    h += '<span class="track-level-lock">' + uiIcon('lock', true) +
-      '<span>' + _trEsc(t('tracks.locked', { level: t('level.' + (level - 1)) })) + '</span></span>';
-  } else if (lock === 'coming') {
-    h += '<span class="track-level-lock">' + _trEsc(t('tracks.comingLater')) + '</span>';
-  }
-  h += '</div>';
-  h += '<ol class="track-lessons">';
-  levelData.lessons.forEach(function(lesson) { h += _lessonButton(lesson, level, lock); });
-  h += '</ol>';
-  h += '</section>';
-  return h;
-}
-
-function _pathFooterItem(action, icon, labelKey) {
-  return '<button type="button" class="track-path-link" data-action="' + action + '">' +
-    uiIcon(icon, true) + '<span>' + _trEsc(t(labelKey)) + '</span></button>';
-}
+// ── Track path (its pieces are in track-path-parts.js) ──────────
 
 /**
  * Render a track's path into #view-track. Without an id it shows the last
@@ -217,7 +168,7 @@ function renderTrackPath(trackId) {
   if (id === 'words') {
     h += '<nav class="track-path-footer" aria-label="' + _trEsc(t('tracks.more')) + '">';
     h += _pathFooterItem('all-words', 'list', 'tracks.allWords');
-    h += _pathFooterItem('roots', 'leaf', 'tracks.roots');
+    h += _pathFooterItem('roots', 'leaf', 'tracks.roots', typeof _hasVocabularyExpansion === 'function' && !_hasVocabularyExpansion());
     h += _pathFooterItem('difficulty', 'target', 'tracks.difficulty');
     h += _pathFooterItem('quiz', 'bolt', 'tracks.quiz');
     h += '</nav>';

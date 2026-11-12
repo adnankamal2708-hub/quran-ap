@@ -94,6 +94,7 @@ load('js/data-core/tracks.js');
 load('js/data-core/word-meanings-track.js');
 load('js/phase2-surahs.js');
 load('js/ui/learn-screen.js');
+load('js/ui/track-path-parts.js');
 load('js/ui/tracks-ui.js');
 load('js/ui/root-lesson-ui.js');
 // The real Tajweed track (unreleased here: no letter recordings are loaded)
@@ -280,6 +281,25 @@ test('at 0% with words in review, the path says when words start to count', func
   renderTrackPath('words');
   assert.ok(html('view-track').indexOf('once you remember them') < 0, 'no note once words count');
   delete global.loadSRS;
+});
+
+test('the first locked lesson says which lesson opens it; later ones just show a lock', function() {
+  foundationDone = [0];
+  renderTrackPath('words');
+  var level0 = levels()[0];
+  assert.strictEqual((level0.match(/track-lesson-reason/g) || []).length, 1);
+  assert.ok(level0.indexOf('After lesson 2') >= 0);
+  foundationDone = [];
+});
+
+test('Roots shows a lock for a free learner and none with premium', function() {
+  var rootsLink = function() { return html('view-track').match(/data-action="roots">[\s\S]*?<\/button>/)[0]; };
+  renderTrackPath('words');
+  assert.ok(rootsLink().indexOf('Premium') >= 0);
+  premiumExpansion = true;
+  renderTrackPath('words');
+  assert.ok(rootsLink().indexOf('Premium') < 0);
+  premiumExpansion = false;
 });
 
 test('a free learner sees a Premium lock on level 1', function() {
