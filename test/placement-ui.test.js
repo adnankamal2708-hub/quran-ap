@@ -337,6 +337,18 @@ test('the level is saved when the last answer is given', function() {
   assert.strictEqual(getTrackLevel('words'), 3);
 });
 
+test('a test started from the welcome makes its track main only when finished', function() {
+  joinTrack('qaida');
+  setMainTrack('qaida');
+  startPlacementTest('words', { makeMain: true });
+  _leavePlacement();
+  assert.strictEqual(getMainTrackId(), 'qaida', 'quitting keeps the main track');
+  startPlacementTest('words', { makeMain: true });
+  renderPlacementTest();
+  takeTest(allCorrect);
+  assert.strictEqual(getMainTrackId(), 'words');
+});
+
 test('a lower retake says the level stays and keeps level 3', function() {
   raiseTrackLevel('words', 3);
   startPlacementTest('words');

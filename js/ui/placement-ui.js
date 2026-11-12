@@ -112,9 +112,10 @@ function _placementOriginView() {
 /**
  * Start the placement test for a track and open it (a track without one in
  * PLACEMENT_TRACKS is ignored). The attempt count moves here, so quitting
- * still counts the try.
+ * still counts the try. With { makeMain: true } finishing the test makes the
+ * track the main one; quitting leaves the main track as it was.
  */
-function startPlacementTest(trackId) {
+function startPlacementTest(trackId, options) {
   var track = PLACEMENT_TRACKS[trackId];
   if (!track) return;
   _placementIntroTrack = trackId;
@@ -124,6 +125,7 @@ function startPlacementTest(trackId) {
     state: createPlacementTest(bank),
     returnView: _placementOriginView(),
     result: null,
+    makeMain: !!(options && options.makeMain),
   };
   switchView('test');
 }
@@ -140,6 +142,7 @@ function _finishPlacement() {
   var placed = getPlacementResult(_placement.state);
   var earned = track.level();
   raiseTrackLevel(_placement.trackId, placed.level);
+  if (_placement.makeMain) setMainTrack(_placement.trackId);
   _placement.result = {
     // Only a lower result is a "level stays"; an equal one is simply the level (R9).
     kept: placed.level < earned,

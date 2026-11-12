@@ -106,13 +106,15 @@ function completeOnboarding(options) {
 /**
  * Join the answer's tracks and record start-from-zero. Joining is idempotent
  * and Word meanings is always among them, so the learner is never left with
- * zero tracks. A learner who reads a little or not at all starts with the
- * letters, so Read Arabic from zero becomes their main track.
+ * zero tracks. A learner who can't read yet starts with the letters, so Read
+ * Arabic from zero becomes their main track. After "A little" the main track
+ * changes only when the placement test is finished (see _leaveOnboarding), so
+ * quitting the test leaves the course as it was.
  */
 function _applyTrackChoices() {
   _selectedTracks.forEach(joinTrack);
   setStartFromZero(_startFromZero);
-  setMainTrack(_qaidaChosen() ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID);
+  if (!_wantsPlacementTest) setMainTrack(_qaidaChosen() ? QAIDA_TRACK_ID : DEFAULT_TRACK_ID);
 }
 
 function _qaidaChosen() {
@@ -549,7 +551,7 @@ function _leaveOnboarding() {
     return;
   }
   _applyOnboardingPreferences();
-  startPlacementTest(_testTrackId());
+  startPlacementTest(_testTrackId(), { makeMain: true });
 }
 
 /**

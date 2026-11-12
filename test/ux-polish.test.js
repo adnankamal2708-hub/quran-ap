@@ -822,21 +822,22 @@ suite('Onboarding "Can you read Arabic letters?" Screen', function() {
     assert.strictEqual(getTrackLevel('words'), 0);
   });
 
-  test('"A little" makes Read Arabic from zero main and opens its placement test', function() {
+  test('"A little" opens the Read Arabic from zero placement test, and the main course waits for its result', function() {
     renderReadingScreen();
     wireOnboardingEvents();
     var started = [];
     var opened = [];
-    global.startPlacementTest = function(id) { started.push(id); };
+    global.startPlacementTest = function(id, options) { started.push([id, options && options.makeMain]); };
     global.goToFoundationLesson = function(i) { opened.push(i); };
     tapAnswer('little');
     document.getElementById('onboarding-next').click();
     flushTimeouts();
     delete global.startPlacementTest;
     delete global.goToFoundationLesson;
-    assert.strictEqual(getMainTrackId(), 'qaida');
+    assert.strictEqual(getMainTrackId(), 'words', 'not switched before the test');
+    assert.deepStrictEqual(getJoinedTrackIds().sort(), ['qaida', 'words']);
     assert.strictEqual(isStartFromZero(), false);
-    assert.deepStrictEqual(started, ['qaida']);
+    assert.deepStrictEqual(started, [['qaida', true]]);
     assert.deepStrictEqual(opened, [], 'no first lesson');
     assert.strictEqual(document.getElementById('onboarding-overlay').style.display, 'none', 'overlay closed first');
   });
