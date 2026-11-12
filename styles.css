@@ -420,6 +420,11 @@ body::before {
   padding: 0 4px;
 }
 
+/* In a review the meaning waits behind "Show meaning" (review-reveal.js) */
+.word-card.meaning-hidden .meaning { display: none; }
+.reveal-meaning-btn { margin: 0 auto 14px; display: block; }
+.reveal-meaning-btn[hidden] { display: none; }
+
 /* ── Root Box ──────────────────────────────────────────────── */
 .root-box {
   background: var(--surface2);

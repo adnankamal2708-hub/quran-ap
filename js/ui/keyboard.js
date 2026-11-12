@@ -81,7 +81,9 @@ function setupKeyboardShortcuts() {
 
     switch (currentView) {
       case 'learn':
-        if (e.key === 'ArrowRight' || e.key === ' ') {
+        if (e.key === ' ' && typeof revealReviewMeaning === 'function' && revealReviewMeaning()) {
+          e.preventDefault();
+        } else if (e.key === 'ArrowRight' || e.key === ' ') {
           e.preventDefault();
           var btnNext = document.getElementById('btn-next');
           if (btnNext && !btnNext.disabled) btnNext.click();
@@ -93,7 +95,8 @@ function setupKeyboardShortcuts() {
           e.preventDefault();
           var srsBtns = ['srs-again', 'srs-hard', 'srs-good', 'srs-easy'];
           var btn = document.getElementById(srsBtns[parseInt(e.key) - 1]);
-          if (btn && btn.style.display !== 'none') btn.click();
+          var srsRowEl = document.getElementById('srs-row');
+          if (btn && btn.style.display !== 'none' && (!srsRowEl || srsRowEl.style.display !== 'none')) btn.click();
         } else if (e.key === 'q' || e.key === 'Q') {
           e.preventDefault();
           toggleQuickMode();

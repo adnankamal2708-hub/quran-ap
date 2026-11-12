@@ -866,6 +866,7 @@ function wireEvents() {
   safeOnClick('srs-hard', function () { rateSRS(1); });
   safeOnClick('srs-good', function () { rateSRS(2); });
   safeOnClick('srs-easy', function () { rateSRS(3); });
+  safeOnClick('reveal-meaning-btn', function () { revealReviewMeaning(); });
 
   // Quiz next button
   safeOnClick('btn-next-quiz', nextQuiz);

@@ -54,6 +54,7 @@ const UI_FILES = [
   'js/ui/components.js',
   'js/ui/word-card.js',
   'js/ui/srs-labels.js',
+  'js/ui/review-reveal.js',
   'js/ui/stats-ui.js',
   'js/ui/quiz-ui.js',
   'js/ui/exercise-ui.js',

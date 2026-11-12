@@ -497,6 +497,20 @@ test.describe('Review Banner & SRS Review', () => {
     // Should be in review mode — word card shows "Review" not "Word"
     const wordNum = page.locator('#word-num');
     await expect(wordNum).toContainText(/Review/i);
+
+    // Recall first: the meaning and rating wait behind "Show meaning"
+    await expect(page.locator('#meaning')).toBeHidden();
+    await expect(page.locator('#srs-row')).toBeHidden();
+    await page.locator('#reveal-meaning-btn').click();
+    await expect(page.locator('#meaning')).toBeVisible();
+    await expect(page.locator('#srs-row')).toBeVisible();
+
+    // Each label is the interval that rating would really give
+    const labels = await page.evaluate(() => ['srs-again', 'srs-hard', 'srs-good', 'srs-easy'].map((id, r) => [
+      document.querySelector('#' + id + ' .srs-days').textContent,
+      formatSRSInterval(previewSRSInterval(getCurrentWord().id, r)),
+    ]));
+    labels.forEach(([shown, real]) => expect(shown).toBe(real));
   });
 });
 

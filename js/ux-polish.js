@@ -1054,7 +1054,8 @@ function applyProgressiveDisclosure() {
 
   // SRS rating buttons visibility (show after first word card)
   var srsRow = document.getElementById('srs-row');
-  if (srsRow) {
+  var _meaningHidden = document.querySelector('#word-card.meaning-hidden');
+  if (srsRow && !_meaningHidden) {
     // Get totalReviews directly since it's not in scope from getProgressiveVisibility()
     var _srsStats = (window.__srs && window.__srs.getStats) ? window.__srs.getStats() : {};
     var _totalReviews = _srsStats.totalReviews || 0;
