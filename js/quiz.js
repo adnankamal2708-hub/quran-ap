@@ -21,6 +21,9 @@ let quizAnswered = false;
 /** @type {boolean} Whether the quiz has finished (prevent re-init) */
 let quizFinished = false;
 
+/** @type {?Object} The verse of the current verse fill-in question, else null */
+let quizVerse = null;
+
 /**
  * Initialize a new quiz session with shuffled words.
  * If the quiz is already in progress and hasn't finished, preserve state.
@@ -60,6 +63,7 @@ function initQuiz() {
   }
 
   quizWords = shuffleArray(lessonWords);
+  if (typeof preloadQuizVerses === 'function') preloadQuizVerses(quizWords);
   quizIndex = 0;
   quizCorrect = 0;
   quizTotal = 0;
@@ -81,7 +85,10 @@ function showQuizQ() {
   var currentWord = quizWords[wordIndex];
   var progressEl = DOM.get('quiz-progress');
   if (progressEl) progressEl.textContent = 'Question ' + (wordIndex + 1) + ' of ' + quizWords.length;
-  renderQuizQuestion(currentWord, ALL_WORDS);
+  var verseQ = typeof buildQuizVerseQuestion === 'function' ? buildQuizVerseQuestion(currentWord, quizIndex, quizWords) : null;
+  quizVerse = verseQ ? verseQ.verse : null;
+  if (verseQ) renderQuizVerseQuestion(currentWord, verseQ);
+  else renderQuizQuestion(currentWord, ALL_WORDS);
 }
 
 /**
@@ -152,6 +159,8 @@ function answerQuiz(btn, chosen, correct, wordId) {
     feedback.innerHTML = '\u2717 Answer: ' + correct + relContext;
     feedback.style.color = 'var(--red)';
   }
+
+  if (quizVerse) showQuizVerseAnswer(quizVerse);
 
   updateQuizScoreDisplay(quizCorrect, quizTotal);
   DOM.get('btn-next-quiz').style.display = 'inline-block';

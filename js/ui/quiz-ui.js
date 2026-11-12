@@ -20,13 +20,13 @@ function updateStreak() {
  */
 function renderQuizQuestion(currentWordObj, allWords) {
   const wordEl = document.getElementById('quiz-word');
-  const optionsEl = document.getElementById('quiz-options');
   const feedbackEl = document.getElementById('quiz-feedback');
   const nextBtn = document.getElementById('btn-next-quiz');
 
   nextBtn.style.display = 'none';
   feedbackEl.textContent = '';
 
+  _setQuizPrompt('What does this word mean?', false);
   wordEl.textContent = currentWordObj.arabic;
 
   const correct = getShortMeaning(currentWordObj.meaning);
@@ -59,17 +59,78 @@ function renderQuizQuestion(currentWordObj, allWords) {
     opts[sj] = tmp;
   }
 
+  _renderQuizOptions(opts, correct, currentWordObj.id, false);
+}
+
+/** Answer buttons; `arabic` marks them as Arabic text. */
+function _renderQuizOptions(opts, correct, wordId, arabic) {
+  var optionsEl = document.getElementById('quiz-options');
   optionsEl.innerHTML = '';
   opts.forEach(function (opt) {
     var b = document.createElement('button');
-    b.className = 'quiz-opt';
+    b.className = 'quiz-opt' + (arabic ? ' is-arabic' : '');
     b.textContent = opt;
     b.setAttribute('role', 'button');
+    if (arabic) { b.lang = 'ar'; b.dir = 'rtl'; }
     // Mark the correct answer so feedback highlighting doesn't rely on textContent matching
     if (opt === correct) b.setAttribute('data-correct', 'true');
-    b.onclick = function () { handleQuizAnswer(b, opt, correct, currentWordObj.id); };
+    b.onclick = function () { handleQuizAnswer(b, opt, correct, wordId); };
     optionsEl.appendChild(b);
   });
+}
+
+function _setQuizPrompt(text, verse) {
+  var promptEl = document.getElementById('quiz-q');
+  if (promptEl) promptEl.textContent = text;
+  var wordEl = document.getElementById('quiz-word');
+  if (wordEl) wordEl.classList.toggle('is-verse', verse);
+}
+
+/**
+ * Verse fill-in: the ayah with the word's English meaning in the gap, and
+ * Arabic options. `question` comes from buildQuizVerseQuestion().
+ */
+function renderQuizVerseQuestion(word, question) {
+  var wordEl = document.getElementById('quiz-word');
+  var verse = question.verse;
+  document.getElementById('btn-next-quiz').style.display = 'none';
+  document.getElementById('quiz-feedback').textContent = '';
+  _setQuizPrompt('Which word fills the gap?', true);
+
+  wordEl.textContent = '';
+  wordEl.appendChild(document.createTextNode(verse.before + ' '));
+  var blank = document.createElement('span');
+  blank.className = 'quiz-blank';
+  blank.lang = 'en';
+  blank.dir = 'ltr';
+  blank.textContent = getShortMeaning(word.meaning);
+  wordEl.appendChild(blank);
+  wordEl.appendChild(document.createTextNode(' ' + verse.after));
+  var ref = document.createElement('span');
+  ref.className = 'quiz-verse-ref';
+  ref.lang = 'en';
+  ref.dir = 'ltr';
+  ref.textContent = verse.ref;
+  wordEl.appendChild(ref);
+
+  _renderQuizOptions(question.options, word.arabic, word.id, true);
+}
+
+/** After answering: the real word goes into the gap, the translation under the feedback. */
+function showQuizVerseAnswer(verse) {
+  var blank = document.querySelector('#quiz-word .quiz-blank');
+  if (blank) {
+    blank.textContent = verse.token;
+    blank.lang = 'ar';
+    blank.dir = 'rtl';
+    blank.classList.add('is-filled');
+  }
+  var feedback = document.getElementById('quiz-feedback');
+  if (!feedback || !verse.translation) return;
+  var line = document.createElement('div');
+  line.className = 'quiz-verse-translation';
+  line.textContent = verse.translation + ' (' + verse.ref + ')';
+  feedback.appendChild(line);
 }
 
 // Senses a particle can share with another word, so that word's meaning

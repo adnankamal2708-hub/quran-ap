@@ -103,6 +103,7 @@ const APP_FILES = [
   'js/qaida/qaida-exercises.js',
   'js/tajweed/tajweed-exercises.js',
   'js/exercises/root-lesson.js',
+  'js/exercises/quiz-verse.js',
 ].concat(UI_FILES).concat([
   'js/quiz.js',
   'js/auth-ui.js',

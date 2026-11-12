@@ -1233,6 +1233,53 @@ body::before {
   text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
+/* Verse fill-in: an ayah reads smaller than a single word */
+.quiz-arabic.is-verse {
+  font-size: var(--text-xl);
+  line-height: 2.1;
+  color: var(--text);
+  text-shadow: none;
+}
+
+.quiz-blank {
+  display: inline-block;
+  font-family: var(--body);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: var(--gold-light);
+  border-bottom: 2px dashed var(--gold-dim);
+  padding: 0 6px;
+  margin: 0 4px;
+}
+
+.quiz-blank.is-filled {
+  font-family: var(--arabic);
+  font-size: inherit;
+  line-height: inherit;
+  border-bottom-style: solid;
+}
+
+.quiz-verse-ref {
+  display: block;
+  font-family: var(--body);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.quiz-opt.is-arabic {
+  font-family: var(--arabic);
+  font-size: var(--text-lg);
+  text-align: center;
+}
+
+.quiz-verse-translation {
+  margin-top: 8px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
 .quiz-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
