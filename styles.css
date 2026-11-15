@@ -1296,6 +1296,14 @@ body::before {
   margin-bottom: 12px;
 }
 
+.quiz-tiles-arabic {
+  font-family: var(--arabic);
+  font-size: var(--text-2xl);
+  line-height: 1.8;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+}
+
 .quiz-tiles-sep {
   color: var(--text-muted);
   margin: 0 8px;

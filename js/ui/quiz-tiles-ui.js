@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
-// quiz-tiles-ui.js — draws the "Arabic from English" tiles question
-// (js/exercises/quiz-tiles.js) in the quiz card. The English meanings
-// go where the Arabic word usually is, with the answer line under
-// them; the tiles and a Check button go in the options area. Uses the
-// tile look of the build exercise (exerciseChip, exerciseRow).
+// quiz-tiles-ui.js — draws the tiles question (js/exercises/quiz-tiles.js)
+// in the quiz card. Arabic tiles show the English meanings; English tiles
+// show the Arabic phrase. That goes where the Arabic word usually is, with
+// the answer line under it; the tiles and a Check button go in the options
+// area. Uses the tile look of the build exercise (exerciseChip, exerciseRow).
 // ═══════════════════════════════════════════════════════════════
 
 /** @param {Object} question - from buildQuizTilesQuestion() */
@@ -12,17 +12,14 @@ function renderQuizTilesQuestion(word, question) {
   var optionsEl = document.getElementById('quiz-options');
   document.getElementById('btn-next-quiz').style.display = 'none';
   document.getElementById('quiz-feedback').textContent = '';
-  _setQuizPrompt('Tap the Arabic for these words, in order', true);
+  _setQuizPrompt(question.english
+    ? 'Tap the meaning of each word, starting from the right'
+    : 'Tap the Arabic for these words, in order', true);
 
-  var meaning = exerciseEl('div', 'quiz-tiles-meaning');
-  meaning.lang = 'en';
-  meaning.dir = 'ltr';
-  question.glosses.forEach(function (g, i) {
-    if (i) meaning.appendChild(exerciseEl('span', 'quiz-tiles-sep', '·'));
-    meaning.appendChild(exerciseEl('span', 'quiz-tiles-gloss', g));
-  });
+  var meaning = question.english ? _quizTilesArabic(question.shown) : _quizTilesMeanings(question.shown);
   var line = exerciseRow('ex-line quiz-tiles-line', question.tiles);
   line.setAttribute('aria-label', 'Your answer');
+  if (question.english) line.dir = 'ltr'; // the word box around it is right-to-left
   wordEl.textContent = '';
   wordEl.appendChild(meaning);
   wordEl.appendChild(line);
@@ -65,14 +62,35 @@ function renderQuizTilesQuestion(word, question) {
 
   check.addEventListener('click', function () {
     var picked = chosen.map(function (i) { return question.tiles[i]; });
-    var correct = question.answer.join(' ');
-    handleQuizAnswer(check, isQuizTilesCorrect(picked, question.answer) ? correct : picked.join(' '), correct, word.id);
+    var sep = question.english ? ' · ' : ' ';
+    var correct = question.answer.join(sep);
+    handleQuizAnswer(check, isQuizTilesCorrect(picked, question.answer) ? correct : picked.join(sep), correct, word.id);
   });
 
   optionsEl.innerHTML = '';
   box.appendChild(tray);
   box.appendChild(check);
   optionsEl.appendChild(box);
+}
+
+/** English meanings in order, with a dot between them. */
+function _quizTilesMeanings(glosses) {
+  var el = exerciseEl('div', 'quiz-tiles-meaning');
+  el.lang = 'en';
+  el.dir = 'ltr';
+  glosses.forEach(function (g, i) {
+    if (i) el.appendChild(exerciseEl('span', 'quiz-tiles-sep', '·'));
+    el.appendChild(exerciseEl('span', 'quiz-tiles-gloss', g));
+  });
+  return el;
+}
+
+/** The Arabic phrase, read right to left. */
+function _quizTilesArabic(words) {
+  var el = exerciseEl('div', 'quiz-tiles-arabic', words.join(' '));
+  el.lang = 'ar';
+  el.dir = 'rtl';
+  return el;
 }
 
 /** After answering: tiles lock, the line turns green or red, and the ayah's translation shows. */

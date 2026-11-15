@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-// quiz-tiles.js — the "Arabic from English" tiles question in the
-// lesson quiz. A few words of a real ayah around the lesson word are
-// shown as their checked word-by-word English meanings (verse.w, added
-// at build time from data-sources/quran-wbw-en.json); the learner taps
-// the Arabic words in order. Spare tiles are other words of the same
-// ayah, so every tile is in the same script.
+// quiz-tiles.js — the tiles questions in the lesson quiz. A few words of
+// a real ayah around the lesson word, with their checked word-by-word
+// English meanings (verse.w, added at build time from
+// data-sources/quran-wbw-en.json). Arabic tiles show the meanings and the
+// learner taps the Arabic words in order; English tiles show the Arabic
+// and the learner taps the meanings. Spare tiles are other words of the
+// same ayah, so every tile is in the same script and style.
 // Uses _quizVerseCandidates() from quiz-verse.js.
 // ═══════════════════════════════════════════════════════════════
 
@@ -125,12 +126,13 @@ function _quizTilesFrom(words, at) {
 
   // Spare tiles: the nearest other words of the ayah, never one that could
   // pass for a phrase word (same letters or same meaning).
-  var spares = [];
+  var spares = [], spareGlosses = [];
   var others = words.slice(start + QUIZ_TILES_PHRASE).concat(words.slice(0, start).reverse());
   for (var j = 0; j < others.length && spares.length < QUIZ_TILES_SPARE; j++) {
     if (_quizTilesClash(others[j], taken)) continue;
     taken.push({ g: _quizTilesGlossKey(others[j].gloss), t: _quizTilesTextKey(others[j].text) });
     spares.push(others[j].text);
+    spareGlosses.push(others[j].gloss);
   }
   if (!spares.length) return null;
 
@@ -139,6 +141,7 @@ function _quizTilesFrom(words, at) {
     glosses: phrase.map(function (p) { return p.gloss; }),
     answer: answer,
     tiles: shuffleArray(answer.concat(spares)),
+    spareGlosses: spareGlosses,
   };
 }
 
@@ -147,13 +150,31 @@ function isQuizTilesCorrect(chosen, answer) {
   return chosen.length === answer.length && chosen.join(' ') === answer.join(' ');
 }
 
+/** Tiles slots take turns: Arabic tiles first (question 2), English next (question 6). */
+function isQuizTilesEnglish(index) {
+  return Math.floor(index / QUIZ_TILES_EVERY) % 2 === 1;
+}
+
 /**
  * The tiles question for question `index`, or null when this is not a tiles
  * slot or no fair one can be built (then the quiz asks the meaning instead).
+ * `shown` is what the learner reads; `answer` is the tiles to tap, in order.
+ * English tiles show the Arabic phrase and ask for each word's meaning.
+ * @returns {{english: boolean, shown: string[], answer: string[], tiles: string[], ref: string, translation: string}|null}
  */
 function buildQuizTilesQuestion(word, index) {
   if (!isQuizTilesSlot(index)) return null;
-  return buildQuizTiles(word, window.__quranLoader);
+  var q = buildQuizTiles(word, window.__quranLoader);
+  if (!q) return null;
+  var english = isQuizTilesEnglish(index);
+  return {
+    english: english,
+    shown: english ? q.answer : q.glosses,
+    answer: english ? q.glosses : q.answer,
+    tiles: english ? shuffleArray(q.glosses.concat(q.spareGlosses)) : q.tiles,
+    ref: q.ref,
+    translation: q.translation,
+  };
 }
 
 /** Starts loading the surahs the tiles questions need. Failures only mean fewer tiles questions. */

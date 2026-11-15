@@ -176,6 +176,36 @@ test('only a tiles slot gets a question', function () {
   assert.ok(ctx.buildQuizTilesQuestion(built[0].word, 1));
 });
 
+test('tiles slots take turns: Arabic tiles at 2 and 10, English tiles at 6 and 14', function () {
+  ctx.window.__quranLoader = allLoaded;
+  var w = built[0].word;
+  assert.strictEqual(ctx.buildQuizTilesQuestion(w, 1).english, false);
+  assert.strictEqual(ctx.buildQuizTilesQuestion(w, 5).english, true);
+  assert.strictEqual(ctx.buildQuizTilesQuestion(w, 9).english, false);
+  assert.strictEqual(ctx.buildQuizTilesQuestion(w, 13).english, true);
+});
+
+test('Arabic tiles show the meanings and ask for the Arabic', function () {
+  var b = built[0];
+  var q = ctx.buildQuizTilesQuestion(b.word, 1);
+  assert.strictEqual(JSON.stringify(q.shown), JSON.stringify(b.q.glosses));
+  assert.strictEqual(JSON.stringify(q.answer), JSON.stringify(b.q.answer));
+  assert.strictEqual(JSON.stringify(q.tiles), JSON.stringify(b.q.tiles));
+});
+
+test('English tiles show the Arabic and ask for the meanings, with fair spares', function () {
+  built.forEach(function (b) {
+    var q = ctx.buildQuizTilesQuestion(b.word, 5);
+    assert.strictEqual(JSON.stringify(q.shown), JSON.stringify(b.q.answer), b.q.ref);
+    assert.strictEqual(JSON.stringify(q.answer), JSON.stringify(b.q.glosses), b.q.ref);
+    assert.strictEqual(q.tiles.length, b.q.tiles.length, b.q.ref);
+    q.answer.forEach(function (g) { assert.ok(q.tiles.indexOf(g) >= 0, b.q.ref); });
+    var keys = q.tiles.map(ctx._quizTilesGlossKey);
+    assert.strictEqual(new Set(keys).size, keys.length, b.q.ref + ' two tiles mean the same');
+    assert.strictEqual(q.ref, b.q.ref);
+  });
+});
+
 console.log('\nTiles built for ' + built.length + ' of ' + words.length + ' words');
 console.log('Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
 process.exit(failed ? 1 : 0);
