@@ -75,6 +75,7 @@ function seedAccount() {
   set('quran_tracks', { version: 1, main: 'words', tracks: { words: { joined: true, level: 1, percentHigh: 5.1 } } });
   set('bayan_guided_reading', { completed: [1] });
   set('quran_quran_last', { surahId: 2, ayah: 5 });
+  set('quran_daily_ayah', { date: '2026-11-16', ref: '112:1', done: ['112:1'], readCount: 12 });
   // Device settings — not anyone's progress.
   localStorage.setItem('bayan_theme', 'dark');
   localStorage.setItem('quran_onboarding_done', 'true');
@@ -89,7 +90,7 @@ console.log('\n🔐 Account progress on sign-out and sign-in');
 test('sign-out takes the account\'s progress off the guest view', function() {
   seedAccount();
   stashAccountProgress('u1');
-  ['quran_foundation_progress', 'quran_srs_data', 'quran_streak', 'quran_tracks', 'bayan_guided_reading', 'quran_quran_last']
+  ['quran_foundation_progress', 'quran_srs_data', 'quran_streak', 'quran_tracks', 'bayan_guided_reading', 'quran_quran_last', 'quran_daily_ayah']
     .forEach(function(k) { assert.strictEqual(localStorage.getItem(k), null, k + ' left behind'); });
 });
 

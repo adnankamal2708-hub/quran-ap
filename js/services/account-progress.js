@@ -34,6 +34,7 @@ var ACCOUNT_PROGRESS_LOCAL_KEYS = [
   'bayan_learning_momentum',
   'bayan_dismissed_cards',
   'bayan_grad_seen',
+  'quran_daily_ayah',
 ];
 
 function accountProgressKeys() {
