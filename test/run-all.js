@@ -51,6 +51,7 @@ var TESTS = [
   "explorer.test.js",
   "occurrence-index.test.js",
   "homograph-particles.test.js",
+  "ayah-readability.test.js",
   "auth-ui.test.js",
   "auth-service.test.js",
   "landing-gate.test.js",

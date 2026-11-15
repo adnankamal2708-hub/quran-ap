@@ -399,4 +399,6 @@ function main() {
   console.log('  Done.');
 }
 
-main();
+if (require.main === module) main();
+
+module.exports = { normalizeArabic: normalizeArabic, loadQuranCorpus: loadQuranCorpus, buildFormKeys: buildFormKeys };
