@@ -21,6 +21,7 @@ var path = require('path');
 var arabicSameWord = require('../js/data-core/word-forms.js').arabicSameWord;
 var occ = require('./build-occurrence-index.js');
 var wordMeanings = require('./word-meanings.js');
+var dailyAyahWords = require('../js/data-core/daily-ayah.js').dailyAyahWords;
 
 var ROOT = path.join(__dirname, '..');
 var OUT_PATH = path.join(ROOT, 'js', 'quran', 'ayah-readability.js');
@@ -35,21 +36,6 @@ function loadInputs() {
   var meanings = wordMeanings.alignWordMeanings(quranText, wordMeanings.loadSource(), occ.normalizeArabic);
   if (meanings.errors.length) throw new Error('word meanings: ' + meanings.errors[0]);
   return { quranText: quranText, words: words, meanings: meanings.bySurah };
-}
-
-/** The ayah's words, a continuation token (meaning 0) joined to the word before it. */
-function ayahWords(verse, meanings) {
-  var out = [];
-  verse.text.split(/\s+/).filter(Boolean).forEach(function (tok, i) {
-    if (meanings && meanings[i] === 0 && out.length) out[out.length - 1] += ' ' + tok;
-    else out.push(tok);
-  });
-  return out;
-}
-
-/** Each word's checked meaning, lined up with ayahWords(). */
-function ayahMeanings(meanings) {
-  return (meanings || []).filter(function (m) { return m !== 0; });
 }
 
 function buildAyahReadability(quranText, words, meaningsBySurah) {
@@ -87,10 +73,9 @@ function buildAyahReadability(quranText, words, meaningsBySurah) {
   for (var s = 1; s <= 114; s++) {
     quranText[s].verses.forEach(function (verse, i) {
       var m = meaningsBySurah[s][i];
-      var toks = ayahWords(verse, m);
-      if (toks.length < MIN_WORDS) return;
-      var means = ayahMeanings(m);
-      var entries = toks.map(function (tok, j) { return entry(tok, means[j]); });
+      var words = dailyAyahWords(verse.text, m);
+      if (words.length < MIN_WORDS) return;
+      var entries = words.map(function (w) { return entry(w.text, w.meaning); });
       var known = entries.filter(function (e) { return e !== null; }).length;
       var hints = entries.length - known;
       if (known * 2 >= entries.length && hints <= MAX_HINTS) index[s + ':' + verse.id] = entries;
@@ -122,8 +107,6 @@ if (require.main === module) main();
 
 module.exports = {
   loadInputs: loadInputs,
-  ayahWords: ayahWords,
-  ayahMeanings: ayahMeanings,
   buildAyahReadability: buildAyahReadability,
   generateFile: generateFile,
 };

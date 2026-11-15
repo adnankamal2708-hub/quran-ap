@@ -431,6 +431,25 @@ var STRINGS = {
     'root.all': 'All roots',
     'root.back': 'Back',
 
+    // ── Today's ayah (js/ui/daily-ayah-ui.js) ──
+    'dailyAyah.title': "Today's ayah",
+    'dailyAyah.know': 'You know {n} of {total} words',
+    'dailyAyah.doneTitle': 'Read today ✓',
+    'dailyAyah.readCount.one': '1 ayah read on your own',
+    'dailyAyah.readCount': '{n} ayahs read on your own',
+    'dailyAyah.back': 'Home',
+    'dailyAyah.newWords': 'New words in this ayah',
+    'dailyAyah.newWord': 'Word {n} of {total}',
+    'dailyAyah.root': 'Root:',
+    'dailyAyah.next': 'Next',
+    'dailyAyah.readIt': 'Read it on your own',
+    'dailyAyah.tapHint': 'Tap any word to see its meaning.',
+    'dailyAyah.hintNote': 'Underlined words are the new ones.',
+    'dailyAyah.understood': 'I understood it',
+    'dailyAyah.showTranslation': 'Show translation',
+    'dailyAyah.play': 'Play the recitation',
+    'dailyAyah.done': 'Done',
+
     // ── Exercises ──
     'exercise.check': 'Check',
     'exercise.correct': 'Correct',

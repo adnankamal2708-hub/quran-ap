@@ -20,6 +20,21 @@ var DAILY_AYAH_RULES = [
   { known: 1, of: 2, maxHints: 3 },
 ];
 
+/**
+ * The ayah's words with their checked meanings (verse.w): [{text, meaning}].
+ * A word the meanings count as the end of the word before it (meaning 0,
+ * e.g. بَعۡدَ مَا) joins that word. The index counts words the same way.
+ */
+function dailyAyahWords(text, meanings) {
+  var out = [];
+  String(text).split(/\s+/).filter(Boolean).forEach(function (tok, i) {
+    var m = meanings ? meanings[i] : '';
+    if (m === 0 && out.length) out[out.length - 1].text += ' ' + tok;
+    else out.push({ text: tok, meaning: m || '' });
+  });
+  return out;
+}
+
 /** 'YYYY-MM-DD' for the local calendar day of `date`. */
 function dailyAyahDateKey(date) {
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -105,3 +120,5 @@ function loadDailyAyahState() {
 function saveDailyAyahState(state) {
   try { localStorage.setItem(DAILY_AYAH_KEY, JSON.stringify(state)); } catch (e) { /* storage full or blocked */ }
 }
+
+if (typeof module !== 'undefined' && module.exports) module.exports = { dailyAyahWords: dailyAyahWords };

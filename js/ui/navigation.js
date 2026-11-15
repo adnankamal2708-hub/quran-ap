@@ -73,6 +73,10 @@ function _switchViewCore(viewName, options) {
     if (typeof renderTrackPath === 'function') renderTrackPath(options && options.trackId);
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderTrackPath() not found');
   }
+  if (viewName === 'daily-ayah') {
+    if (typeof renderDailyAyah === 'function') renderDailyAyah();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderDailyAyah() not found');
+  }
   if (viewName === 'root-lesson') {
     if (typeof renderRootLesson === 'function') renderRootLesson();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderRootLesson() not found');
@@ -176,6 +180,7 @@ function _updateActiveTab(viewName, navContext) {
   // Map view names to their corresponding nav tab IDs
   var tabMap = {
     dashboard: 'tab-home',
+    'daily-ayah': 'tab-home',
     tracks: 'tab-learn',
     track: 'tab-learn',
     'root-lesson': 'tab-learn',

@@ -509,6 +509,9 @@ function renderDashboard() {
   }
 
 
+  // Today's ayah: filled by daily-ayah-ui.js once its index loads
+  $h += '<div id="db-daily-ayah" hidden></div>';
+
   // ═══ 3. QURAN COMPREHENSION HEADLINE ═══
   // Only once real comprehension exists: at 0% the card had nothing to show
   // a brand-new learner that the greeting and Up next don't already say.
@@ -948,6 +951,7 @@ function renderDashboard() {
 
   // ── Inject HTML ──
   $d.innerHTML = $h;
+  if (typeof renderDailyAyahCard === 'function') renderDailyAyahCard(document.getElementById('db-daily-ayah'));
 
   // ═══════════════════════════════════════════════════════════
   // EVENT WIRING — All handlers use direct onclick assignments

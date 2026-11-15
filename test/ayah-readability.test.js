@@ -19,6 +19,7 @@ var OUT = path.join(ROOT, 'js/quran/ayah-readability.js');
 var arabicSameWord = require('../js/data-core/word-forms.js').arabicSameWord;
 var builder = require('../scripts/build-ayah-readability.js');
 var occ = require('../scripts/build-occurrence-index.js');
+var dailyAyahWords = require('../js/data-core/daily-ayah.js').dailyAyahWords;
 
 var passed = 0, failed = 0;
 function t(name, fn) {
@@ -77,7 +78,8 @@ t('every ayah has 4+ words, at least half knowable and at most 3 hints', functio
 t('every tagged word really is that lesson word at that place', function () {
   Object.keys(index).forEach(function (ref) {
     var p = ref.split(':');
-    var tokens = builder.ayahWords(inputs.quranText[p[0]].verses[p[1] - 1], inputs.meanings[p[0]][p[1] - 1]);
+    var tokens = dailyAyahWords(inputs.quranText[p[0]].verses[p[1] - 1].text, inputs.meanings[p[0]][p[1] - 1])
+      .map(function (w) { return w.text; });
     assert.strictEqual(tokens.length, index[ref].length, ref);
     index[ref].forEach(function (e, i) {
       if (e === null) return;
@@ -101,7 +103,8 @@ t('وَ/فَ words are tagged only when the meaning starts with and/so/then', fu
   var plus = 0;
   Object.keys(index).forEach(function (ref) {
     var p = ref.split(':');
-    var m = builder.ayahMeanings(inputs.meanings[p[0]][p[1] - 1]);
+    var m = dailyAyahWords(inputs.quranText[p[0]].verses[p[1] - 1].text, inputs.meanings[p[0]][p[1] - 1])
+      .map(function (w) { return w.meaning; });
     index[ref].forEach(function (e, i) {
       if (typeof e !== 'string') return;
       plus++;

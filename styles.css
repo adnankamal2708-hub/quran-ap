@@ -9971,6 +9971,97 @@ body::before {
   }
 }
 
+/* ── Today's ayah (js/ui/daily-ayah-steps.js) ── */
+#db-daily-ayah { margin-bottom: var(--spacing-md); }
+.daily-ayah-word {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg) var(--spacing-md);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+}
+.daily-ayah-word p { margin: 0; }
+.daily-ayah-word-ar {
+  font-family: var(--arabic);
+  font-size: 2.75rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.daily-ayah-word-en {
+  font-size: var(--text-lg);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.daily-ayah-word-root,
+.daily-ayah-tip {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.daily-ayah-word-root span { font-family: var(--arabic); font-size: var(--text-lg); }
+.daily-ayah-text {
+  margin: 0;
+  font-family: var(--arabic);
+  font-size: 2rem;
+  line-height: 2.2;
+  text-align: center;
+  color: var(--text);
+}
+.daily-ayah-text.is-small { font-size: 1.6rem; }
+.daily-ayah-tok {
+  min-height: 44px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.daily-ayah-tok.is-hint {
+  text-decoration: underline;
+  text-decoration-color: var(--gold-muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 10px;
+}
+.daily-ayah-tok:hover { background: var(--surface-hover, rgba(127, 127, 127, 0.08)); }
+.daily-ayah-tok:focus-visible,
+.daily-ayah-play:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.daily-ayah-meaning {
+  min-height: 1.5em;
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-lg);
+  color: var(--text);
+}
+.daily-ayah-translation {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--text);
+}
+.daily-ayah-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+.daily-ayah-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  min-height: 48px;
+}
+@media (min-width: 1024px) {
+  .daily-ayah-actions { flex-direction: row; }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    Wide screens (1024px+): side navigation and wider content
    The phone layout is a single 480px column. Here the bottom nav

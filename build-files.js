@@ -65,6 +65,8 @@ const UI_FILES = [
   'js/ui/exercise-ui.js',
   'js/ui/placement-ui.js',
   'js/ui/root-lesson-ui.js',
+  'js/ui/daily-ayah-steps.js',
+  'js/ui/daily-ayah-ui.js',
   'js/ui/qaida-ui.js',
   'js/ui/tajweed-ui.js',
   'js/ui/drill-ui.js',
