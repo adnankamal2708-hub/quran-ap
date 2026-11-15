@@ -50,6 +50,7 @@ var TESTS = [
   "service-worker.test.js",
   "explorer.test.js",
   "occurrence-index.test.js",
+  "homograph-particles.test.js",
   "auth-ui.test.js",
   "auth-service.test.js",
   "landing-gate.test.js",

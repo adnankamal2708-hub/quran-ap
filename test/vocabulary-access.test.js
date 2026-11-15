@@ -113,38 +113,39 @@ var _lockedId = _lockedSample.id;
 // SECTION A — Real-dataset ranking (Step 2 verification)
 // ═══════════════════════════════════════════════════════════════
 suite('Free-300 — real frequency-rank selection', function () {
-  test('dataset has 1311 canonical words', function () {
-    assert.strictEqual(CANON.length, 1311);
+  test('dataset has 1314 canonical words', function () {
+    assert.strictEqual(CANON.length, 1314);
   });
 
-  test('free limit constant is 300', function () {
-    assert.strictEqual(window.__vocabAccess.getLimit(), 300);
+  // 303: the top 300, plus أَنْ, إِنْ and أَنَّ, added after the limit was set
+  test('free limit constant is 303', function () {
+    assert.strictEqual(window.__vocabAccess.getLimit(), 303);
   });
 
-  test('exactly 300 words are free (ranks 1–300)', function () {
+  test('exactly 303 words are free (ranks 1–303)', function () {
     var freeCount = 0;
     for (var i = 0; i < CANON.length; i++) {
       if (isFreeAccessible(CANON[i])) freeCount++;
     }
-    assert.strictEqual(freeCount, 300);
-    assert.strictEqual(getFreeVocabularyCount(), 300);
+    assert.strictEqual(freeCount, 303);
+    assert.strictEqual(getFreeVocabularyCount(), 303);
   });
 
-  test('rank-300 cutoff lands at occ=21 with a 13-way tie at the boundary', function () {
-    var rank292 = _wordAtRank(292);
-    var rank293 = _wordAtRank(293);
-    var rank300 = _wordAtRank(300);
-    var rank301 = _wordAtRank(301);
-    assert.strictEqual(rank292.occ, 22);
-    assert.strictEqual(rank293.occ, 21);
-    assert.strictEqual(rank300.occ, 21);
-    assert.strictEqual(rank301.occ, 21);
-    // Exactly 13 words tie at occ 21 (ranks 293–305 — the boundary band)
+  test('rank-303 cutoff lands at occ=21 with a 13-way tie at the boundary', function () {
+    var rank295 = _wordAtRank(295);
+    var rank296 = _wordAtRank(296);
+    var rank303 = _wordAtRank(303);
+    var rank304 = _wordAtRank(304);
+    assert.strictEqual(rank295.occ, 22);
+    assert.strictEqual(rank296.occ, 21);
+    assert.strictEqual(rank303.occ, 21);
+    assert.strictEqual(rank304.occ, 21);
+    // Exactly 13 words tie at occ 21 (ranks 296–308 — the boundary band)
     var tieCount = CANON.filter(function (w) { return w.occ === 21; }).length;
     assert.strictEqual(tieCount, 13);
-    // Deterministic set: rank 300 free, rank 301 locked
-    assert.strictEqual(isFreeAccessible(rank300), true);
-    assert.strictEqual(isFreeAccessible(rank301), false);
+    // Deterministic set: rank 303 free, rank 304 locked
+    assert.strictEqual(isFreeAccessible(rank303), true);
+    assert.strictEqual(isFreeAccessible(rank304), false);
   });
 
   test('Foundation Course 100 is a strict subset of the free-300', function () {
@@ -168,8 +169,8 @@ suite('Free-300 — real frequency-rank selection', function () {
   test('dynamic by frequency rank — no hardcoded list, stays correct if data grows', function () {
     // Synthetic word objects with frequencyRank → correct gate.
     assert.strictEqual(isFreeAccessible({ id: 'x', frequencyRank: 1 }), true);
-    assert.strictEqual(isFreeAccessible({ id: 'x', frequencyRank: 300 }), true);
-    assert.strictEqual(isFreeAccessible({ id: 'x', frequencyRank: 301 }), false);
+    assert.strictEqual(isFreeAccessible({ id: 'x', frequencyRank: 303 }), true);
+    assert.strictEqual(isFreeAccessible({ id: 'x', frequencyRank: 304 }), false);
     // Word without frequencyRank falls back to the occ-based rank map.
     assert.strictEqual(isFreeAccessible({ id: _freeId, occ: _freeSample.occ }), true);
     assert.strictEqual(isFreeAccessible({ id: _lockedId, occ: _lockedSample.occ }), false);

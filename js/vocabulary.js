@@ -239,7 +239,7 @@ function findWordsByArabicList(arabicList) {
 // ═══════════════════════════════════════════════════════════════
 
 /** How many top-frequency words are free for non-premium users (1-based rank) */
-var FREE_VOCABULARY_LIMIT = 300;
+var FREE_VOCABULARY_LIMIT = 303; // the top 300, plus أَن, إِن and أَنَّ (added after it was set)
 
 /** Lazy fallback frequency-rank map (id → 1-based rank) for words missing frequencyRank */
 var _freqRankMap = null;

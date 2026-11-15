@@ -89,8 +89,11 @@ t('a word written the same way has one English meaning in every lesson', functio
 });
 
 console.log('\n📋 Surah lessons');
-// Vowel marks and ٱ/ا aside, the same letters are the same word (النَّاسِ, ٱلنَّاسِ)
+// Vowel marks and ٱ/ا aside, the same letters are the same word (النَّاسِ, ٱلنَّاسِ),
+// except these four particles: indeed, that/to, if, that (surely)
+var SAME_LETTERS_DIFFERENT_WORDS = { 'إِنَّ': true, 'أَنْ': true, 'إِنْ': true, 'أَنَّ': true };
 function sameWordKey(arabic) {
+  if (SAME_LETTERS_DIFFERENT_WORDS[arabic]) return arabic;
   return arabic.replace(/[ً-ٰٟۖ-ۭ]/g, '').replace(/ٱ/g, 'ا');
 }
 t('a surah lesson teaches each word once', function () {
