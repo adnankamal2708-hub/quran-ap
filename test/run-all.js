@@ -53,6 +53,7 @@ var TESTS = [
   "homograph-particles.test.js",
   "ayah-readability.test.js",
   "quran-map-data.test.js",
+  "quran-map.test.js",
   "daily-ayah.test.js",
   "daily-ayah-ui.test.js",
   "auth-ui.test.js",

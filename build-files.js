@@ -33,6 +33,7 @@ const DATA_CORE_FILES = [
   'js/data-core/tracks.js',
   'js/data-core/word-meanings-track.js',
   'js/data-core/daily-ayah.js',
+  'js/data-core/quran-map.js',
   // Qaida letter and mark data (own directory, so it never enters the
   // js/data/ word files whose load order fixes word ids)
   'js/qaida/qaida-letters.js',
