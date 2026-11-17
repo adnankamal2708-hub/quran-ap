@@ -554,8 +554,6 @@ function renderDashboard() {
     $h += '</div>';
   }
   $h += '</div>';
-  // The same percentage, page by page (js/ui/quran-map-ui.js)
-  $h += '<button class="db-map-link" type="button" id="db-quran-map-link">' + escapeHtml(t('quranMap.homeLink')) + ' →</button>';
   } // end comprehension headline gate
 
   // ═══ 4. TODAY'S GOAL ═══
@@ -990,9 +988,6 @@ function renderDashboard() {
   if ($comprehensionPct > 0) {
     $wire('db-comp-headline', function() {
       if (typeof switchView === 'function') switchView(dashboardStatsView());
-    });
-    $wire('db-quran-map-link', function() {
-      if (typeof openQuranMap === 'function') openQuranMap();
     });
   }
 

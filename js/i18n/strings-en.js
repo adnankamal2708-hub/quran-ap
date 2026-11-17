@@ -452,8 +452,7 @@ var STRINGS = {
 
     // ── Quran map (js/ui/quran-map-ui.js) ──
     'quranMap.title': 'Your Quran map',
-    'quranMap.homeLink': 'See it page by page on your Quran map',
-    'quranMap.cardSub': 'All 604 pages, golden where you know the words',
+    'quranMap.button': 'Map',
     'quranMap.sub': 'Each square is a page of the Mushaf. The more of its words you know, the more golden it is.',
     'quranMap.legendLow': 'Few words known',
     'quranMap.legendHigh': 'Most words known',

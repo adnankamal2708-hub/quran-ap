@@ -41,7 +41,7 @@ test.describe('Quran map', () => {
 
   test('open the map, then page 604, then a known word', async ({ page }) => {
     await page.locator('#tab-quran').click();
-    const card = page.locator('#quran-map-card');
+    const card = page.locator('#quran-map-btn');
     await expect(card).toBeVisible({ timeout: 15000 });
     await card.click();
 

@@ -277,7 +277,7 @@ function renderSurahBrowser() {
   }
 
   var lastPos = getLastReadPosition();
-  var html = typeof quranMapCardMarkup === 'function' ? quranMapCardMarkup() : '';
+  var html = '';
 
   // Continue Reading card
   if (lastPos) {
@@ -294,8 +294,10 @@ function renderSurahBrowser() {
   }
 
   // Search: 114 surahs is a long scroll to find one by name or number
-  html += '<input class="auth-input quran-surah-search" id="quran-surah-search" type="search" ' +
-    'placeholder="Search by name or number" aria-label="Search surahs" autocomplete="off">';
+  // Search, with the Quran map button beside it (js/ui/quran-map-markup.js)
+  html += '<div class="quran-search-row"><input class="auth-input quran-surah-search" id="quran-surah-search" type="search" ' +
+    'placeholder="Search by name or number" aria-label="Search surahs" autocomplete="off">' +
+    (typeof quranMapButtonMarkup === 'function' ? quranMapButtonMarkup() : '') + '</div>';
   html += '<div class="quran-surah-no-match" id="quran-surah-no-match" hidden>No surah matches that search.</div>';
 
   for (var si = 0; si < surahIds.length; si++) {
@@ -327,14 +329,8 @@ function renderSurahBrowser() {
 
   _wireSurahSearch(container);
 
-  // Wire the Quran map card
-  var mapCard = document.getElementById('quran-map-card');
-  if (mapCard) {
-    mapCard.onclick = openQuranMap;
-    mapCard.onkeydown = function(e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQuranMap(); }
-    };
-  }
+  var mapBtn = document.getElementById('quran-map-btn');
+  if (mapBtn) mapBtn.onclick = function () { openQuranMap(); };
 
   // Wire Continue Reading
   var continueCard = document.getElementById('quran-continue-btn');

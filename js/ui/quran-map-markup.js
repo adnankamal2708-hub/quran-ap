@@ -17,13 +17,10 @@ function _qmHeader(backAction, backLabel, title, sub) {
     '<p class="qmap-sub">' + _qmEsc(sub) + '</p>';
 }
 
-/** The Quran tab's card that opens the map. */
-function quranMapCardMarkup() {
-  return '<div class="quran-continue-card qmap-card" id="quran-map-card" tabindex="0" role="button">' +
-    '<div class="quran-continue-icon">' + uiIcon('layers', true) + '</div>' +
-    '<div class="quran-continue-info"><div class="quran-continue-title">' + _qmEsc(t('quranMap.title')) + '</div>' +
-    '<div class="quran-continue-sub">' + _qmEsc(t('quranMap.cardSub')) + '</div></div>' +
-    '<div class="quran-continue-arrow" aria-hidden="true">→</div></div>';
+/** The small button beside the Quran tab's surah search that opens the map. */
+function quranMapButtonMarkup() {
+  return '<button class="qmap-open" type="button" id="quran-map-btn" aria-label="' + _qmEsc(t('quranMap.title')) + '">' +
+    uiIcon('layers', true) + _qmEsc(t('quranMap.button')) + '</button>';
 }
 
 /** The map: stats from quranMapPageStats(). */

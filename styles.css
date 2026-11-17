@@ -8193,6 +8193,26 @@ body::before {
   margin-bottom: 8px;
 }
 
+/* The search box and the Quran map button share one row */
+.quran-search-row { display: flex; gap: 8px; align-items: stretch; }
+.quran-search-row .quran-surah-search { flex: 1; min-width: 0; }
+.qmap-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-bottom: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--gold);
+  cursor: pointer;
+}
+.qmap-open:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
 .quran-surah-no-match {
   text-align: center;
   padding: 24px 16px;
@@ -10063,19 +10083,6 @@ body::before {
 }
 
 /* ── Quran map (js/ui/quran-map-markup.js) ── */
-.db-map-link {
-  display: block;
-  min-height: 44px;
-  margin: calc(-1 * var(--spacing-sm)) 0 var(--spacing-md);
-  padding: 0 4px;
-  border: none;
-  background: none;
-  font: inherit;
-  font-size: var(--text-sm);
-  color: var(--gold);
-  cursor: pointer;
-}
-.db-map-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #view-quran-map { padding-bottom: var(--spacing-lg); }
 .qmap-title { margin: var(--spacing-sm) 0 4px; font-size: var(--text-xl); }
 .qmap-title:focus { outline: none; }
