@@ -450,6 +450,27 @@ var STRINGS = {
     'dailyAyah.play': 'Play the recitation',
     'dailyAyah.done': 'Done',
 
+    // ── Quran map (js/ui/quran-map-ui.js) ──
+    'quranMap.title': 'Your Quran map',
+    'quranMap.homeLink': 'See it page by page on your Quran map',
+    'quranMap.cardSub': 'All 604 pages, golden where you know the words',
+    'quranMap.sub': 'Each square is a page of the Mushaf. The more of its words you know, the more golden it is.',
+    'quranMap.legendLow': 'Few words known',
+    'quranMap.legendHigh': 'Most words known',
+    'quranMap.juz': 'Juz {n}',
+    'quranMap.pageLabel': 'Page {page}, juz {juz}, {p}% known',
+    'quranMap.loading': 'Loading the map…',
+    'quranMap.loadFailed': "The map couldn't load. Check your connection and try again.",
+    'quranMap.retry': 'Try again',
+    'quranMap.back': 'Quran',
+    'quranMap.backToMap': 'Map',
+    'quranMap.page': 'Page {page}',
+    'quranMap.pageSub': 'Juz {juz} · You know {n} of {total} words',
+    'quranMap.tapHint': 'Golden words are ones you know. Tap any word for its meaning.',
+    'quranMap.prev': 'Previous page',
+    'quranMap.next': 'Next page',
+    'quranMap.reader': 'Read {surah} in the reader',
+
     // ── Exercises ──
     'exercise.check': 'Check',
     'exercise.correct': 'Correct',

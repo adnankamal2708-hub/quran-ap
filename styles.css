@@ -10062,6 +10062,96 @@ body::before {
   .daily-ayah-actions { flex-direction: row; }
 }
 
+/* ── Quran map (js/ui/quran-map-markup.js) ── */
+.db-map-link {
+  display: block;
+  min-height: 44px;
+  margin: calc(-1 * var(--spacing-sm)) 0 var(--spacing-md);
+  padding: 0 4px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--gold);
+  cursor: pointer;
+}
+.db-map-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+#view-quran-map { padding-bottom: var(--spacing-lg); }
+.qmap-title { margin: var(--spacing-sm) 0 4px; font-size: var(--text-xl); }
+.qmap-title:focus { outline: none; }
+.qmap-sub, .qmap-hint { margin: 0 0 var(--spacing-md); font-size: var(--text-sm); color: var(--text-muted); }
+.qmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--spacing-md);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--text-muted);
+}
+.qmap-legend span:first-child { margin-right: 4px; }
+.qmap-legend span:last-child { margin-left: 4px; }
+.qmap-swatch { width: 12px; height: 16px; border-radius: 2px; }
+.qmap-juz { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.qmap-juz-num {
+  flex: 0 0 20px;
+  text-align: right;
+  font-size: var(--text-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+/* Up to 23 pages a juz (juz 30); shorter juz leave the row's end empty */
+.qmap-pages { flex: 1; display: grid; grid-template-columns: repeat(23, 1fr); gap: 2px; }
+.qmap-page {
+  aspect-ratio: 3 / 4;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.qmap-page:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.qmap-page.s0, .qmap-swatch.s0 { background: rgba(127, 127, 127, 0.14); }
+.qmap-page.s1, .qmap-swatch.s1 { background: rgba(201, 168, 76, 0.28); }
+.qmap-page.s2, .qmap-swatch.s2 { background: rgba(201, 168, 76, 0.5); }
+.qmap-page.s3, .qmap-swatch.s3 { background: rgba(201, 168, 76, 0.75); }
+.qmap-page.s4, .qmap-swatch.s4 { background: #c9a84c; }
+.qmap-text {
+  margin-bottom: var(--spacing-lg);
+  font-family: var(--arabic);
+  font-size: 1.6rem;
+  line-height: 2.4;
+  text-align: justify;
+  color: var(--text);
+}
+.qmap-surah {
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+  font-family: var(--font, inherit);
+  font-size: var(--text-sm);
+  text-align: center;
+  color: var(--text-muted);
+}
+.qmap-tok {
+  padding: 0 2px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.qmap-tok.is-known {
+  color: var(--gold);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 10px;
+}
+.qmap-tok:hover { background: var(--surface-hover, rgba(127, 127, 127, 0.08)); }
+.qmap-tok:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.qmap-ayah-num { font-size: 1.1rem; color: var(--text-muted); }
+.qmap-nav { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+.qmap-nav .btn { flex: 1 1 auto; min-height: 44px; }
+
 /* ═══════════════════════════════════════════════════════════════
    Wide screens (1024px+): side navigation and wider content
    The phone layout is a single 480px column. Here the bottom nav

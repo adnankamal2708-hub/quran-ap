@@ -1138,6 +1138,8 @@ function renderProfileAbout(container) {
   var $ccUrl = 'https:' + '/' + '/creativecommons.org/licenses/by-sa/4.0/';
   h += '<div class="pf-about-attrib-line">Arabic text from <a href="' + $tanzilUrl + '" target="_blank" rel="noopener noreferrer">Tanzil Project</a> and The Noble Qur\'an Encyclopedia.</div>';
   h += '<div class="pf-about-attrib-line">English translation by <strong>Saheeh International</strong> (from Tanzil.net).</div>';
+  var $ccByUrl = 'https:' + '/' + '/creativecommons.org/licenses/by/3.0/';
+  h += '<div class="pf-about-attrib-line">Page index: <a href="' + $tanzilUrl + '" target="_blank" rel="noopener noreferrer">Tanzil Quran Metadata</a>, <a href="' + $ccByUrl + '" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>.</div>';
   h += '<div class="pf-about-attrib-line" style="font-size:11px;color:var(--text-muted);margin-top:4px">Licensed under <a href="' + $ccUrl + '" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);text-decoration:underline">CC-BY-SA 4.0</a>.</div>';
   // Recitation and the Arabic font (Read Arabic from zero)
   var $everyayahUrl = 'https:' + '/' + '/everyayah.com';

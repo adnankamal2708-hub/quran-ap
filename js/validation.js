@@ -18,7 +18,7 @@ window.__validation = (function() {
   var VALID_ROUTES = [
     'dashboard', 'tracks', 'track', 'learn', 'quiz', 'list',
     'explorer', 'auth', 'profile', 'settings', 'test', 'root-lesson', 'qaida-lesson',
-    'tajweed-lesson', 'daily-ayah',
+    'tajweed-lesson', 'daily-ayah', 'quran-map',
   ];
 
   /** Map of route → required DOM element ID */
@@ -31,6 +31,7 @@ window.__validation = (function() {
     'qaida-lesson': 'view-qaida-lesson',
     'tajweed-lesson': 'view-tajweed-lesson',
     'daily-ayah': 'view-daily-ayah',
+    'quran-map': 'view-quran-map',
     learn: 'view-learn',
     quiz: 'view-quiz',
     list: 'view-list',

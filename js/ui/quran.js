@@ -277,7 +277,7 @@ function renderSurahBrowser() {
   }
 
   var lastPos = getLastReadPosition();
-  var html = '';
+  var html = typeof quranMapCardMarkup === 'function' ? quranMapCardMarkup() : '';
 
   // Continue Reading card
   if (lastPos) {
@@ -326,6 +326,15 @@ function renderSurahBrowser() {
   container.innerHTML = html;
 
   _wireSurahSearch(container);
+
+  // Wire the Quran map card
+  var mapCard = document.getElementById('quran-map-card');
+  if (mapCard) {
+    mapCard.onclick = openQuranMap;
+    mapCard.onkeydown = function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQuranMap(); }
+    };
+  }
 
   // Wire Continue Reading
   var continueCard = document.getElementById('quran-continue-btn');
