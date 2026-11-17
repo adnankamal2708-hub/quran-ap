@@ -401,4 +401,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { normalizeArabic: normalizeArabic, loadQuranCorpus: loadQuranCorpus, buildFormKeys: buildFormKeys };
+module.exports = { normalizeArabic: normalizeArabic, loadQuranCorpus: loadQuranCorpus, loadVocabulary: loadVocabulary, buildFormKeys: buildFormKeys };

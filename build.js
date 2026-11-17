@@ -462,6 +462,8 @@ async function build() {
 
         // 4b-i2. Today's ayah index, loaded lazily (js/ui/daily-ayah-ui.js)
         writeFile('js/quran/ayah-readability.min.js', basicMinify(stripComments(readFile('js/quran/ayah-readability.js'))));
+        // 4b-i3. Quran map data, loaded lazily (js/ui/quran-map-ui.js)
+        writeFile('js/quran/quran-map-data.min.js', basicMinify(stripComments(readFile('js/quran/quran-map-data.js'))));
 
         // 4b-ii. Write per-surah files (surah-1.min.js through surah-114.min.js)
         var totalRawSize = 0;
@@ -708,6 +710,7 @@ async function build() {
   if (fs.existsSync(path.join(DIST, 'js/quran', 'surah-index.min.js'))) {
     precacheItems.push("'./js/quran/surah-index.min.js'");
     if (fs.existsSync(path.join(DIST, 'js/quran', 'ayah-readability.min.js'))) precacheItems.push("'./js/quran/ayah-readability.min.js'");
+    if (fs.existsSync(path.join(DIST, 'js/quran', 'quran-map-data.min.js'))) precacheItems.push("'./js/quran/quran-map-data.min.js'");
   } else if (fs.existsSync(path.join(DIST, 'js/quran.bundle.min.js'))) {
     precacheItems.push("'./js/quran.bundle.min.js'");
   }

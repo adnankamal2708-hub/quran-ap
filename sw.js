@@ -59,6 +59,7 @@ const PRECACHE_URLS = [
   './assets/logo/pwa-icon-512-solid.png',
   './js/quran/surah-index.min.js',
   './js/quran/ayah-readability.min.js',
+  './js/quran/quran-map-data.min.js',
 ];
 
 // Install: pre-cache all static assets, then skip waiting to activate immediately
