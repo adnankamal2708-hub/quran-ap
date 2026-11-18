@@ -359,8 +359,14 @@ function _markPlanPickerSeen() {
   try { localStorage.setItem(_PLAN_PICKER_SEEN_KEY, 'true'); } catch (e) {}
 }
 
+/** A plan's features as list items, from app-facts.js (brief lines only). */
+function _planPickerFeatures(plan, facts) {
+  return getPlanLines(plan, true, facts).map(function (line) { return '<li>' + line + '</li>'; }).join('');
+}
+
 /** Show the plan picker overlay (Free / Monthly / Yearly) */
 function showPlanPicker() {
+  var facts = getAppFacts();
   var overlay = document.createElement('div');
   overlay.id = 'plan-picker-overlay';
   overlay.className = 'plan-picker-overlay';
@@ -384,9 +390,7 @@ function showPlanPicker() {
             '<div class="plan-card-price">$0</div>' +
           '</div>' +
           '<ul class="plan-card-features">' +
-            '<li>Full Foundation Course</li>' +
-            '<li>Basic reviews &amp; quizzes</li>' +
-            '<li>Top 300 Quranic words</li>' +
+            _planPickerFeatures('free', facts) +
           '</ul>' +
           '<span class="plan-card-cta plan-card-cta-quiet">Continue free</span>' +
         '</button>' +
@@ -395,15 +399,10 @@ function showPlanPicker() {
           '<div class="plan-card-head">' +
             '<div class="plan-card-name">Monthly</div>' +
             '<div class="plan-card-badge">Premium</div>' +
-            '<div class="plan-card-price">$2.99<span class="plan-card-period">/mo</span></div>' +
+            '<div class="plan-card-price">' + facts.monthlyPrice + '<span class="plan-card-period">/mo</span></div>' +
           '</div>' +
           '<ul class="plan-card-features">' +
-            '<li>Everything in Free</li>' +
-            '<li>All 1,208 Quranic words</li>' +
-            '<li>Unlimited reviews &amp; tafsir</li>' +
-            '<li>Full word relationships</li>' +
-            '<li>Guided Reading &amp; insights</li>' +
-            '<li>Cloud sync &amp; data export</li>' +
+            _planPickerFeatures('premium', facts) +
           '</ul>' +
           '<span class="plan-card-cta">Choose Monthly</span>' +
         '</button>' +
@@ -412,12 +411,10 @@ function showPlanPicker() {
           '<div class="plan-card-head">' +
             '<div class="plan-card-name">Yearly</div>' +
             '<div class="plan-card-badge">Best value</div>' +
-            '<div class="plan-card-price">$19.99<span class="plan-card-period">/yr</span></div>' +
+            '<div class="plan-card-price">' + facts.yearlyPrice + '<span class="plan-card-period">/yr</span></div>' +
           '</div>' +
           '<ul class="plan-card-features">' +
-            '<li>Everything in Monthly</li>' +
-            '<li>~5 months free vs. monthly</li>' +
-            '<li>Priority support</li>' +
+            _planPickerFeatures('yearly', facts) +
           '</ul>' +
           '<span class="plan-card-cta">Choose Yearly</span>' +
         '</button>' +

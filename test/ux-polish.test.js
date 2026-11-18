@@ -307,7 +307,7 @@ require('./load-components')(); // uiIcon, iconText, dataIcon
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'tracks.js'), 'utf8'));
 (0, eval)(fs.readFileSync(path.join(__dirname, '..', 'js', 'i18n', 'strings-en.js'), 'utf8'));
 // The Qaida track, which "completely new" starts in
-['js/qaida/qaida-letters.js', 'js/qaida/qaida-marks.js', 'js/qaida/qaida-lessons.js', 'js/data-core/review-schedule.js', 'js/data-core/qaida-track.js'].forEach(function(f) {
+['js/qaida/qaida-letters.js', 'js/qaida/qaida-marks.js', 'js/qaida/qaida-lessons.js', 'js/data-core/review-schedule.js', 'js/data-core/qaida-track.js', 'js/data-core/app-facts.js'].forEach(function(f) {
   (0, eval)(fs.readFileSync(path.join(__dirname, '..', f), 'utf8'));
 });
 eval(uxCode);
@@ -458,6 +458,16 @@ suite('Plan Picker', function() {
     assert.ok(o.innerHTML.indexOf('Free') >= 0, 'should have Free option');
     assert.ok(o.innerHTML.indexOf('Monthly') >= 0, 'should have Monthly option');
     assert.ok(o.innerHTML.indexOf('Yearly') >= 0, 'should have Yearly option');
+  });
+
+  test('plan cards list prices and features from app-facts.js, without priority support', function() {
+    _resetDOM();
+    ux.showPlanPicker();
+    var html = document.getElementById('plan-picker-overlay').innerHTML;
+    assert.ok(html.indexOf('$2.99') >= 0 && html.indexOf('$19.99') >= 0, 'prices from APP_FACTS');
+    getPlanLines('premium', true).forEach(function(line) { assert.ok(html.indexOf(line) >= 0, line); });
+    assert.ok(html.indexOf('Read Arabic from zero') >= 0, 'the live Qaida track is listed');
+    assert.ok(!/priority support/i.test(html));
   });
 
   test('each plan card says what tapping it does; Yearly is marked best value', function() {
