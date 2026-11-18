@@ -57,6 +57,7 @@ load('js/data-core/foundation.js');
 load('js/data-core/lesson-system.js');
 getCanonicalWords();
 buildFoundationCourse();
+load('js/data-core/app-facts.js');
 load('js/vocabulary.js');
 load('js/exercises/exercise-engine.js');
 load('js/exercises/placement.js');

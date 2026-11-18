@@ -239,7 +239,7 @@ function findWordsByArabicList(arabicList) {
 // ═══════════════════════════════════════════════════════════════
 
 /** How many top-frequency words are free for non-premium users (1-based rank) */
-var FREE_VOCABULARY_LIMIT = 303; // the top 300, plus أَن, إِن and أَنَّ (added after it was set)
+var FREE_VOCABULARY_LIMIT = APP_FACTS.limits.freeWords; // the top 300, plus أَن, إِن and أَنَّ (added after it was set)
 
 /** Lazy fallback frequency-rank map (id → 1-based rank) for words missing frequencyRank */
 var _freqRankMap = null;
@@ -1027,13 +1027,13 @@ function toggleFavorite(wordId) {
       }
       return false;
     }
-    // Free bookmark cap: 20 words max (premium users get unlimited)
+    // Free bookmark cap (APP_FACTS.limits.bookmarks; premium users get unlimited)
     var _isUnlimited = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_BOOKMARKS);
     if (!_isUnlimited) {
       var currentCount = Object.keys(favs).length;
-      if (currentCount >= 20) {
+      if (currentCount >= APP_FACTS.limits.bookmarks) {
         if (typeof showToast === 'function') {
-          showToast("You've reached the free bookmark limit (20). Upgrade to Premium for unlimited bookmarks.", 'warning', 4000);
+          showToast("You've reached the free bookmark limit (" + APP_FACTS.limits.bookmarks + "). Upgrade to Premium for unlimited bookmarks.", 'warning', 4000);
         }
         return false;
       }

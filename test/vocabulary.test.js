@@ -83,6 +83,7 @@ global.FOUNDATION_LESSONS = [];
 
 var fs = require('fs');
 var path = require('path');
+eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'app-facts.js'), 'utf8'));
 var vocabCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'vocabulary.js'), 'utf8');
 eval(vocabCode);
 eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'word-search-rank.js'), 'utf8'));

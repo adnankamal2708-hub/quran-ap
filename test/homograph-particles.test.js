@@ -58,8 +58,8 @@ t('the Foundation Course keeps the same 100 words in the same order', function (
 });
 
 t('every word free before stays free, and the three new words are free', function () {
-  var src = fs.readFileSync(path.join(ROOT, 'js/vocabulary.js'), 'utf8');
-  var limit = Number(/var FREE_VOCABULARY_LIMIT = (\d+);/.exec(src)[1]);
+  var src = fs.readFileSync(path.join(ROOT, 'js/data-core/app-facts.js'), 'utf8');
+  var limit = Number(/freeWords: (\d+),/.exec(src)[1]);
   var free = byOcc(words).slice(0, limit);
   var oldFree = byOcc(words.filter(function (w) { return NEW_IDS.indexOf(w.id) < 0; })).slice(0, 300);
   oldFree.concat(NEW_IDS).forEach(function (id) { assert.ok(free.indexOf(id) >= 0, id + ' not free'); });

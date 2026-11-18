@@ -337,7 +337,7 @@ async function checkTafsirLimit() {
       _tafsirUsageCacheUid = uid;
     }
   }
-  if (_tafsirUsageCache.count >= 5) {
+  if (_tafsirUsageCache.count >= APP_FACTS.limits.tafsirPerDay) {
     return false;
   }
   _tafsirUsageCache.count++;

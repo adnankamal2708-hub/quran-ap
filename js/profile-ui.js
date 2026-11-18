@@ -409,7 +409,10 @@ function toggleEditSettings() {
       loadProfile(user.uid).then(function (profile) {
         var settings = profile && profile.settings ? mergeSettings(profile.settings) : getDefaultSettings();
         var limitInput = document.getElementById('settings-edit-limit');
-        if (limitInput) limitInput.value = settings.dailyReviewLimit;
+        if (limitInput) {
+          limitInput.max = APP_FACTS.limits.reviewsPerDayMax;
+          limitInput.value = settings.dailyReviewLimit;
+        }
         var sizeInput = document.getElementById('settings-edit-size');
         if (sizeInput) sizeInput.value = settings.sessionSize;
         var autoInput = document.getElementById('settings-edit-auto');
@@ -450,7 +453,7 @@ async function saveSettingsChanges() {
   };
 
   // Clamp values
-  newSettings.dailyReviewLimit = Math.max(5, Math.min(100, newSettings.dailyReviewLimit));
+  newSettings.dailyReviewLimit = Math.max(5, Math.min(APP_FACTS.limits.reviewsPerDayMax, newSettings.dailyReviewLimit));
   newSettings.sessionSize = Math.max(5, Math.min(ALL_WORDS.length, newSettings.sessionSize));
 
   try {

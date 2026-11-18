@@ -85,6 +85,14 @@ t('the plan picker gets the brief lines only', function () {
   assert.deepStrictEqual(getPlanLines('yearly', true), ['Everything in Monthly', 'About 5 months free compared with monthly']);
 });
 
+t('the code that enforces each limit reads it from APP_FACTS', function () {
+  function src(rel) { return fs.readFileSync(path.join(__dirname, '..', rel), 'utf8'); }
+  assert.ok(/FREE_VOCABULARY_LIMIT = APP_FACTS\.limits\.freeWords/.test(src('js/vocabulary.js')));
+  assert.ok(/currentCount >= APP_FACTS\.limits\.bookmarks/.test(src('js/vocabulary.js')));
+  assert.ok(/count >= APP_FACTS\.limits\.tafsirPerDay/.test(src('js/services/user-service.js')));
+  assert.ok(/Math\.min\(APP_FACTS\.limits\.reviewsPerDayMax/.test(src('js/profile-ui.js')));
+});
+
 t('no plan offers priority support', function () {
   released(['words', 'qaida', 'tajweed']);
   ['free', 'premium', 'yearly'].forEach(function (plan) {

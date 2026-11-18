@@ -844,7 +844,7 @@ function toggleTafsir(w) {
 async function loadTafsir(w) {
   if (!w) return;
   
-  // Premium gate: daily tafsir limit (5/day for free/guest users)
+  // Premium gate: daily tafsir limit (APP_FACTS.limits.tafsirPerDay for free/guest users)
   if (!(await _tafsirCheckDailyLimit())) {
     return;
   }

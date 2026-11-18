@@ -92,6 +92,7 @@ load('js/data-core/lesson-system.js');
 var CANON = getCanonicalWords();
 buildFoundationCourse();
 
+load('js/data-core/app-facts.js');
 load('js/vocabulary.js');
 load('js/word-search-rank.js');
 load('js/srs.js');
