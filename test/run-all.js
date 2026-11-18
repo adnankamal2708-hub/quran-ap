@@ -73,6 +73,7 @@ var TESTS = [
   "learn-screen.test.js",
   "tracks.test.js",
   "app-facts.test.js",
+  "landing-facts.test.js",
   "account-progress.test.js",
   "i18n.test.js",
   "word-meanings-track.test.js",

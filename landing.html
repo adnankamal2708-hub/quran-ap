@@ -776,7 +776,7 @@
     .lp-tier-name { font-family: var(--serif); font-size: 20px; font-weight: 600; }
     .lp-tier-tag { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
     .lp-tier-price { font-family: var(--serif); font-size: 42px; font-weight: 600; margin-top: 22px; line-height: 1; }
-    .lp-tier-price span { font-family: var(--body); font-size: 14px; font-weight: 400; color: var(--text-muted); }
+    .lp-tier-price span:not([data-fact]) { font-family: var(--body); font-size: 14px; font-weight: 400; color: var(--text-muted); }
     .lp-tier-note { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
     .lp-tier ul { list-style: none; margin: 24px 0 28px; display: grid; gap: 10px; }
     .lp-tier li { display: flex; gap: 10px; font-size: 14.5px; line-height: 1.5; }
@@ -1094,28 +1094,28 @@
               <p>The vocabulary of the Quran, most frequent words first: the Foundation Course, guided reading through short surahs, and lessons by root and by surah.</p>
               <div class="lp-levels"><span>Beginner</span><span>Elementary</span><span>Intermediate</span><span>Advanced</span></div>
             </article>
-            <article class="lp-track lp-track-soon lp-glow" data-reveal style="--d:0.08s">
+            <article class="lp-track lp-track-live lp-glow" data-track="qaida" data-reveal style="--d:0.08s">
               <div class="lp-track-top">
                 <span class="lp-track-icon" lang="ar" aria-hidden="true">أ ب</span>
-                <span class="lp-pill">Coming soon</span>
+                <span class="lp-pill lp-pill-live" data-track-pill="qaida">Available now</span>
               </div>
               <h3>Read Arabic from zero</h3>
               <p>For complete beginners: the Arabic letters, vowel marks and joining, in the Noorani Qaida order, with listen-and-repeat practice.</p>
               <div class="lp-levels"><span>Letters</span><span>Vowels</span><span>Sukoon &amp; shaddah</span><span>Fluent reading</span></div>
             </article>
-            <article class="lp-track lp-track-soon lp-glow" data-reveal style="--d:0.16s">
+            <article class="lp-track lp-track-soon lp-glow" data-track="tajweed" data-reveal style="--d:0.16s">
               <div class="lp-track-top">
                 <span class="lp-track-icon" lang="ar" aria-hidden="true">تَجۡوِيد</span>
-                <span class="lp-pill">Coming soon</span>
+                <span class="lp-pill" data-track-pill="tajweed">Coming soon</span>
               </div>
               <h3>Tajweed</h3>
               <p>Recite as it was revealed: where each letter is pronounced (makhārij), letter qualities, and the rules of nūn, mīm and madd, for Ḥafṣ ʿan ʿĀṣim.</p>
               <div class="lp-levels"><span>Makhārij</span><span>Core rules</span><span>Madd &amp; weights</span><span>Waqf</span></div>
             </article>
-            <article class="lp-track lp-track-soon lp-glow" data-reveal style="--d:0.24s">
+            <article class="lp-track lp-track-soon lp-glow" data-track="understanding" data-reveal style="--d:0.24s">
               <div class="lp-track-top">
                 <span class="lp-track-icon" lang="ar" aria-hidden="true">فَهۡم</span>
-                <span class="lp-pill">Coming soon</span>
+                <span class="lp-pill" data-track-pill="understanding">Coming soon</span>
               </div>
               <h3>Understanding</h3>
               <p>Translation and the grammar behind it: pronouns, verb forms, roots and patterns, built on the words you already know.</p>
@@ -1154,7 +1154,7 @@
               <div class="lp-step">
                 <span class="lp-step-n">03</span>
                 <h3>Follow a clear path</h3>
-                <p>Four levels of numbered lessons, starting with the Foundation Course: the 100 most frequent words in the Quran, which alone make up about 30% of what you read in it.</p>
+                <p>Four levels of numbered lessons, starting with the Foundation Course: the <span data-fact="foundationWords">100</span> most frequent words in the Quran, which alone make up about 30% of what you read in it.</p>
                 <img class="lp-step-shot" src="assets/screenshots/app-path.webp" alt="The Word meanings path with numbered Beginner lessons" width="390" height="780" loading="lazy" />
               </div>
               <div class="lp-step">
@@ -1252,9 +1252,9 @@
             <p class="lp-lede">Bayan shows progress as the share of the Quran's words you understand, and how much each review session added. There's one daily goal and one streak across all your tracks.</p>
             <p class="lp-nogame"><strong>No XP, no leaderboards.</strong> Just the Quran, and how much of it you can understand.</p>
             <div class="lp-facts">
-              <div class="lp-fact"><b>1,208</b><span>Quranic words to learn, with meanings and context</span></div>
-              <div class="lp-fact"><b>643</b><span>root families connecting them</span></div>
-              <div class="lp-fact"><b>100</b><span>Foundation words, about 30% of the Quran's text</span></div>
+              <div class="lp-fact"><b data-fact="wordCount">1,314</b><span>Quranic words to learn, with meanings and context</span></div>
+              <div class="lp-fact"><b data-fact="rootCount">620</b><span>root families connecting them</span></div>
+              <div class="lp-fact"><b data-fact="foundationWords">100</b><span>Foundation words, about 30% of the Quran's text</span></div>
             </div>
           </div>
         </div>
@@ -1338,38 +1338,42 @@
               <p class="lp-tier-tag">Everything you need to begin</p>
               <div class="lp-tier-price">$0<span> / forever</span></div>
               <p class="lp-tier-note">No trial, no card.</p>
-              <ul>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The Foundation Course</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The top 300 Quranic words in full detail</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Placement test and Practice drills</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Quran reader with word meanings</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Daily reviews and bookmarks (capped)</li>
+              <ul data-plan="free">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The Foundation Course: the 100 most frequent words</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The 303 most frequent Quranic words in full detail</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Read Arabic from zero: the letters and marks</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Quran reader with word meanings and Al-Husary’s recitation</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Today’s ayah and the Quran map</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Placement tests, quizzes and practice drills</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Up to 100 reviews a day, 20 bookmarks and 5 tafsir notes a day</li>
               </ul>
               <a class="lp-btn-ghost" href="./">Start free</a>
             </div>
             <div class="lp-tier lp-glow" data-reveal style="--d:0.08s">
               <div class="lp-tier-head"><h3 class="lp-tier-name">Premium Monthly</h3></div>
               <p class="lp-tier-tag">For serious, sustained study</p>
-              <div class="lp-tier-price">$2.99<span> / month</span></div>
+              <div class="lp-tier-price"><span data-fact="monthlyPrice">$2.99</span><span> / month</span></div>
               <p class="lp-tier-note">Billed monthly · cancel anytime</p>
-              <ul>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>All 1,208 Quranic words</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Guided reading, root lessons and surah study</li>
+              <ul data-plan="premium">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Everything in Free</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>All 1,314 Quranic words across 620 root families</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Guided reading, surah by surah</li>
                 <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Full word relationships</li>
                 <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Unlimited reviews, bookmarks and tafsir</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Detailed progress insights</li>
                 <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Cloud sync across devices</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Back up and restore your progress</li>
               </ul>
               <a class="lp-cta" href="./?upgrade=monthly">Go Premium</a>
             </div>
             <div class="lp-tier lp-tier-best lp-glow" data-reveal style="--d:0.16s">
               <div class="lp-tier-head"><h3 class="lp-tier-name">Premium Yearly</h3><span class="lp-pill lp-pill-live">Best value</span></div>
               <p class="lp-tier-tag">For committed study</p>
-              <div class="lp-tier-price">$19.99<span> / year</span></div>
-              <p class="lp-tier-note">About 5 months free compared with monthly</p>
-              <ul>
+              <div class="lp-tier-price"><span data-fact="yearlyPrice">$19.99</span><span> / year</span></div>
+              <p class="lp-tier-note">Billed yearly · cancel anytime</p>
+              <ul data-plan="yearly">
                 <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Everything in Monthly</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Advanced analytics</li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Priority support</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>About 5 months free compared with monthly</li>
               </ul>
               <a class="lp-cta" href="./?upgrade=yearly">Go Premium</a>
             </div>

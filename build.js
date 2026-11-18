@@ -633,10 +633,14 @@ async function build() {
     'terms-of-service.html',
     'landing.html',
   ];
+  // The landing page's prices, counts, plan lines and track status come
+  // from js/data-core/app-facts.js (scripts/landing-facts.js).
+  var landingFacts = require('./scripts/landing-facts');
   standalonePages.forEach(function (page) {
     var src = path.join(ROOT, page);
     if (fs.existsSync(src)) {
       var content = readFile(page);
+      if (page === 'landing.html') content = landingFacts.fillLandingFacts(content, landingFacts.loadAppFacts());
       writeFile(page, content);
       console.log('     ' + page + ' copied');
     } else {
