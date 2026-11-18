@@ -38,8 +38,8 @@ function test(name, fn) {
 console.log('\n📋 Audio service');
 
 test('verse URLs point at Al-Husary on everyayah with 3-digit parts', function () {
-  assert.strictEqual(verseAudioUrl(1, 1), 'https://everyayah.com/data/Husary_128kbps/001001.mp3');
-  assert.strictEqual(verseAudioUrl(114, 6), 'https://everyayah.com/data/Husary_128kbps/114006.mp3');
+  assert.strictEqual(verseAudioUrl(1, 1), 'https://everyayah.com/data/Husary_64kbps/001001.mp3');
+  assert.strictEqual(verseAudioUrl(114, 6), 'https://everyayah.com/data/Husary_64kbps/114006.mp3');
 });
 
 test('teaching recitation URLs point at Al-Husary Muallim', function () {

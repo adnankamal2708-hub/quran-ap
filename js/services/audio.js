@@ -15,7 +15,7 @@
 // sw.js keeps both in a long-lived cache once played, so they work offline.
 // ═══════════════════════════════════════════════════════════════
 
-var AUDIO_VERSE_BASE = 'https://everyayah.com/data/Husary_128kbps/';
+var AUDIO_VERSE_BASE = 'https://everyayah.com/data/Husary_64kbps/';
 var AUDIO_TEACHING_BASE = 'https://everyayah.com/data/Husary_Muallim_128kbps/';
 var AUDIO_QAIDA_BASE = 'assets/audio/qaida/';
 var AUDIO_WORD_BASE = 'https://audio.qurancdn.com/wbw/';

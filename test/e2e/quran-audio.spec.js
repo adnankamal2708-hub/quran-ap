@@ -56,7 +56,7 @@ async function openSurah(page, id) {
   await page.evaluate(() => window.__ux && window.__ux.closeTooltips && window.__ux.closeTooltips());
 }
 
-const verse = (s, v) => 'https://everyayah.com/data/Husary_128kbps/' +
+const verse = (s, v) => 'https://everyayah.com/data/Husary_64kbps/' +
   String(s).padStart(3, '0') + String(v).padStart(3, '0') + '.mp3';
 
 test('Listen plays Al-Ikhlas after the basmala, verse by verse', async ({ page }) => {
