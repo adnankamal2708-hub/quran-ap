@@ -9,7 +9,9 @@
  * Per ayah (ayahs[s-1][a-1]), comma-separated, base 36, in 10 ms units:
  * each word's start as a delta from the previous timed word's start (from 0
  * for the first), empty for a word with no trustworthy timing; then ';' and
- * the ayah's end as a delta from the last timed start. An ayah whose words
+ * the ayah's end as a delta from the last timed start. A word followed by a
+ * pause of more than PAUSE_MS carries '.' and its own length, so nothing is
+ * lit while the reciter is silent. An ayah whose words
  * don't line up with the app's text is "" (it plays without a highlight).
  *
  * Run: node scripts/build-recitation-timing.js <path/to/Husary_64kbps.json>
@@ -22,6 +24,7 @@ var occ = require('./build-occurrence-index.js');
 
 var OUT_PATH = path.join(__dirname, '..', 'js', 'quran', 'recitation-timing.js');
 var UNIT_MS = 10;
+var PAUSE_MS = 300;
 
 /** The app's words per ayah, split exactly as the reader numbers them. */
 function appWordCounts(quranText) {
@@ -40,23 +43,33 @@ function appWordCounts(quranText) {
 function encodeAyah(segments, wordCount) {
   var last = segments.reduce(function (n, g) { return Math.max(n, g[1]); }, 0);
   if (last !== wordCount) return '';
-  var starts = [], end = 0;
-  for (var i = 0; i < wordCount; i++) starts.push(null);
+  var starts = [], stops = [], end = 0;
+  for (var i = 0; i < wordCount; i++) { starts.push(null); stops.push(null); }
   segments.forEach(function (g) {
     if (g[2] % UNIT_MS) throw new Error('start not a multiple of ' + UNIT_MS + ' ms: ' + g);
     if (g[3] <= g[2]) return;
     starts[g[0]] = g[2];
-    end = Math.max(end, Math.ceil(g[3] / UNIT_MS) * UNIT_MS);   // a few ends aren't whole units
+    stops[g[0]] = Math.ceil(g[3] / UNIT_MS) * UNIT_MS;   // a few ends aren't whole units
+    end = Math.max(end, stops[g[0]]);
   });
   var prev = 0, fields = [];
   for (var w = 0; w < wordCount; w++) {
     if (starts[w] === null) { fields.push(''); continue; }
     if (starts[w] < prev) return '';   // out of order: no highlight rather than a wrong one
-    fields.push(((starts[w] - prev) / UNIT_MS).toString(36));
+    var field = ((starts[w] - prev) / UNIT_MS).toString(36);
+    var next = nextStart(starts, w);
+    if (next !== null && next - stops[w] > PAUSE_MS) field += '.' + ((stops[w] - starts[w]) / UNIT_MS).toString(36);
+    fields.push(field);
     prev = starts[w];
   }
   if (end <= prev) return '';   // also catches an ayah with no usable word
   return fields.join(',') + ';' + ((end - prev) / UNIT_MS).toString(36);
+}
+
+/** The next timed word's start after word w, or null. */
+function nextStart(starts, w) {
+  for (var i = w + 1; i < starts.length; i++) if (starts[i] !== null) return starts[i];
+  return null;
 }
 
 function buildTiming(source, quranText) {

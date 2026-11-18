@@ -25,7 +25,7 @@ var T = window.__RECITATION_TIMING;
 console.log('\n📋 Recitation timing lookup');
 
 t('112:1 decodes to the source times', function () {
-  assert.deepStrictEqual(recitationWordTimes(T, 112, 1), { starts: [850, 1380, 2100, 3720], end: 4610 });
+  assert.deepStrictEqual(recitationWordTimes(T, 112, 1), { starts: [850, 1380, 2100, 3720], stops: [null, null, null, null], end: 4610 });
 });
 
 t('the word at a moment: none before the first word or from the end', function () {
@@ -42,9 +42,19 @@ t('the word at a moment: none before the first word or from the end', function (
 t('a word with no time keeps the word before it lit', function () {
   var fake = { unit: 10, ayahs: [['a,,b;c']] };
   var w = recitationWordTimes(fake, 1, 1);
-  assert.deepStrictEqual(w, { starts: [100, null, 210], end: 330 });
+  assert.deepStrictEqual(w, { starts: [100, null, 210], stops: [null, null, null], end: 330 });
   assert.strictEqual(recitationWordAt(w, 150), 0);
   assert.strictEqual(recitationWordAt(w, 215), 2);
+});
+
+t('during a pause after a word, nothing is lit', function () {
+  var fake = { unit: 10, ayahs: [['a.a,1e;a']] };   // 100–200, pause, 600–700
+  var w = recitationWordTimes(fake, 1, 1);
+  assert.deepStrictEqual(w, { starts: [100, 600], stops: [200, null], end: 700 });
+  assert.strictEqual(recitationWordAt(w, 150), 0);
+  assert.strictEqual(recitationWordAt(w, 200), -1);
+  assert.strictEqual(recitationWordAt(w, 599), -1);
+  assert.strictEqual(recitationWordAt(w, 600), 1);
 });
 
 t('the same moment always gives the same word (a stalled stream holds still)', function () {

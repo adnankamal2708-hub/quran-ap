@@ -58,13 +58,20 @@ t('a timed ayah has exactly one field per word of the app text', function () {
   });
 });
 
-t('112:1 is stored as the source times it (850, 1380, 2100, 3720; ends 4610)', function () {
+t('112:1 is stored as the source times it (850, 1380, 2100, 3720; ends 4610; no pauses)', function () {
   // deltas 85, 53, 72, 162 and end 89, in 10 ms units, base 36
   assert.strictEqual(timing.ayahs[111][0], '2d,1h,20,4i;2h');
 });
 
 t('a failed alignment (end before start) leaves that word untimed', function () {
   assert.strictEqual(builder.encodeAyah([[0, 1, 100, 200], [1, 2, 300, 250], [2, 3, 400, 500]], 3), 'a,,u;a');
+});
+
+t('a pause of more than 300 ms after a word stores where that word ends', function () {
+  // word 0: 100–200, then silence until 600; word 1: 600–700
+  assert.strictEqual(builder.encodeAyah([[0, 1, 100, 200], [1, 2, 600, 700]], 2), 'a.a,1e;a');
+  // a 300 ms gap or less is the voice moving on: no end stored
+  assert.strictEqual(builder.encodeAyah([[0, 1, 100, 200], [1, 2, 500, 700]], 2), 'a,14;k');
 });
 
 t('words out of order or not matching the text give no timings', function () {

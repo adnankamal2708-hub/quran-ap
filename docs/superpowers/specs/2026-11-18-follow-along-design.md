@@ -95,5 +95,8 @@ user's call and is not done by the app or by Claude.
   playing, reading the audio element's `currentTime` each frame
   (`timeupdate` fires only about four times a second, which can lag a short
   word by up to 250 ms; the user asked for no lag).
+- Pauses: a word followed by more than 300 ms of silence stores where it
+  ends, so nothing is lit while the reciter pauses (the source leaves about
+  4,200 such gaps; without this the last word stayed lit through them).
 - The exact highlight style, within the reader's design language.
 - Old 128 kbps audio left in the offline cache is not deleted; it ages out.
