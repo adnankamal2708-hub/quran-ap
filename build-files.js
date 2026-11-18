@@ -51,6 +51,7 @@ const DATA_CORE_FILES = [
   'js/data-core/review-schedule.js',
   'js/data-core/qaida-track.js',
   'js/data-core/tajweed-track.js',
+  'js/data-core/app-facts.js',
 ];
 
 // UI modules in dependency order
