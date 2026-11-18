@@ -121,6 +121,11 @@ function playAudioQueue(urls, opts) {
   playAt(0);
 }
 
+/** The element sounds play through (null before the first sound). */
+function currentAudioElement() {
+  return _audioEl;
+}
+
 function stopAudio() {
   if (!_audioEl) return;
   _audioEl.onended = null;

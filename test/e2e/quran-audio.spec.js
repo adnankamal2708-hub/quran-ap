@@ -7,6 +7,8 @@
 //   3. A word's panel plays quran.com's recording of that word.
 //   4. Read Arabic from zero: each letter card plays a word starting
 //      with it.
+//   5. Follow along: the word being recited lights up, never during the
+//      basmala, and clears on Stop.
 // The recordings are replaced by a short silent sound, so nothing is
 // fetched from everyayah.com or quran.com.
 // ═══════════════════════════════════════════════════════════════
@@ -17,9 +19,9 @@ const { test, expect } = require('@playwright/test');
 // page.route; its audio caching is covered in test/audio.test.js.
 test.use({ serviceWorkers: 'block' });
 
-/** A 0.2 s silent WAV (8 kHz, 8-bit mono). */
-function silentWav() {
-  const samples = 1600;
+/** A silent WAV (8 kHz, 8-bit mono), 0.2 s unless asked for longer. */
+function silentWav(seconds) {
+  const samples = Math.round(8000 * (seconds || 0.2));
   const buf = Buffer.alloc(44 + samples, 128);
   buf.write('RIFF', 0); buf.writeUInt32LE(36 + samples, 4); buf.write('WAVE', 8);
   buf.write('fmt ', 12); buf.writeUInt32LE(16, 16); buf.writeUInt16LE(1, 20); buf.writeUInt16LE(1, 22);
@@ -28,9 +30,9 @@ function silentWav() {
   return buf;
 }
 
-async function stubAudio(page) {
+async function stubAudio(page, seconds) {
   const played = [];
-  const body = silentWav();
+  const body = silentWav(seconds);
   const fulfil = (route) => {
     played.push(route.request().url());
     route.fulfill({ status: 200, contentType: 'audio/wav', body, headers: { 'Access-Control-Allow-Origin': '*' } });
@@ -112,4 +114,44 @@ test('Qaida letter cards play a word starting with each letter', async ({ page }
   await expect(cards).toHaveCount(7);
   const src = await cards.first().getAttribute('data-src');
   expect(src).toMatch(/^https:\/\/audio\.qurancdn\.com\/wbw\/\d{3}_\d{3}_\d{3}\.mp3$/);
+});
+
+/**
+ * Pin the playing sound's clock at a moment. The stub can't be seeked, so
+ * this checks the wiring; timing against the real recording is checked by
+ * hand (docs/superpowers/plans/2026-11-18-follow-along.md, Task 5).
+ */
+async function holdAt(page, seconds) {
+  await page.waitForFunction(() => { const a = currentAudioElement(); return a && !a.paused; });
+  await page.evaluate((t) => {
+    Object.defineProperty(currentAudioElement(), 'currentTime', { get: () => t, configurable: true });
+  }, seconds);
+}
+
+test('the word being recited lights up, and Stop clears it', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await stubAudio(page, 5);
+  await openSurah(page, 112);
+  await page.evaluate(() => document.querySelector('#quran-ayah-112-1 .quran-ayah-play').click());
+  await holdAt(page, 1.6); // 112:1 word 2 runs 1.38–2.10 s
+  await expect(page.locator('#quran-verses .is-recited')).toHaveCount(1);
+  await expect(page.locator('#quran-ayah-112-1 [data-n="2"]')).toHaveClass(/is-recited/);
+  await holdAt(page, 3.9); // word 4 from 3.72 s
+  await expect(page.locator('#quran-ayah-112-1 [data-n="4"]')).toHaveClass(/is-recited/);
+  await expect(page.locator('#quran-verses .is-recited')).toHaveCount(1);
+  await page.evaluate(() => document.querySelector('#quran-ayah-112-1 .quran-ayah-play').click());
+  await expect(page.locator('#quran-verses .is-recited')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('nothing lights up during the basmala before a surah', async ({ page }) => {
+  const played = await stubAudio(page, 5);
+  await openSurah(page, 112);
+  await page.evaluate(() => document.getElementById('reader-listen').click());
+  await holdAt(page, 1.6);
+  expect(played[played.length - 1]).toBe(verse(1, 1));
+  await page.waitForTimeout(300);
+  await expect(page.locator('#quran-verses .is-recited')).toHaveCount(0);
+  await page.evaluate(() => document.getElementById('reader-listen').click());
 });

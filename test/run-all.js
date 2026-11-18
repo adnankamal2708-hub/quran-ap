@@ -57,6 +57,7 @@ var TESTS = [
   "quran-map-ui.test.js",
   "recitation-timing-data.test.js",
   "recitation-timing.test.js",
+  "quran-follow-along.test.js",
   "daily-ayah.test.js",
   "daily-ayah-ui.test.js",
   "auth-ui.test.js",

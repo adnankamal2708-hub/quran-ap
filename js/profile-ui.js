@@ -1145,6 +1145,9 @@ function renderProfileAbout(container) {
   var $everyayahUrl = 'https:' + '/' + '/everyayah.com';
   var $sheherazadeUrl = 'https:' + '/' + '/software.sil.org/scheherazade/';
   h += '<div class="pf-about-attrib-line">Recitation by <strong>Mahmoud Khalil Al-Husary</strong>, from <a href="' + $everyayahUrl + '" target="_blank" rel="noopener noreferrer">everyayah.com</a>.</div>';
+  var $qalignUrl = 'https:' + '/' + '/github.com/cpfair/quran-align';
+  var $ccBy4Url = 'https:' + '/' + '/creativecommons.org/licenses/by/4.0/';
+  h += '<div class="pf-about-attrib-line">Word timings for the recitation from <a href="' + $qalignUrl + '" target="_blank" rel="noopener noreferrer">quran-align</a> by Collin Fair, <a href="' + $ccBy4Url + '" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</div>';
   h += '<div class="pf-about-attrib-line">Al-Husary, muʿallim (teaching) recitation · <a href="' + $everyayahUrl + '" target="_blank" rel="noopener noreferrer">everyayah.com</a></div>';
   var $quranComUrl = 'https:' + '/' + '/quran.com';
   h += '<div class="pf-about-attrib-line">Word-by-word audio (Quran reader and Read Arabic from zero) from <a href="' + $quranComUrl + '" target="_blank" rel="noopener noreferrer">quran.com</a>.</div>';

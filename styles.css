@@ -10414,3 +10414,11 @@ body::before {
 .quran-ayah-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .quran-ayah.is-reciting { border-color: var(--gold-dim); }
 .quran-ayah.is-reciting .quran-ayah-play { color: var(--gold-light); border-color: var(--gold-dim); }
+/* The word Al-Husary is saying (js/ui/quran-follow-along.js). No transition:
+   it must move exactly with the voice. The word keeps its known-word colour. */
+.quran-ayah-arabic [data-n].is-recited {
+  background-color: rgba(201, 168, 76, 0.22);
+  box-shadow: inset 0 -2px 0 var(--gold);
+  border-radius: 4px;
+  transition: none;
+}

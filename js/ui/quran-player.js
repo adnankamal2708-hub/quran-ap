@@ -5,7 +5,8 @@
 // surah from the first verse (after the basmala, except for Al-Fatihah,
 // where it is verse 1, and At-Tawbah, which has none), and the play
 // button on a verse plays that verse alone. The verse being recited is
-// highlighted and, for the whole surah, kept in view.
+// highlighted and, for the whole surah, kept in view; within it, the word
+// being recited lights up (js/ui/quran-follow-along.js).
 //
 // Sound comes from js/services/audio.js (verseAudioUrl, playAudioQueue);
 // starting any other sound, such as a word's recording, stops the
@@ -69,6 +70,7 @@ function _quranReciting(verse, follow) {
 function _quranRecitationEnded(rec) {
   if (_quranRecitation !== rec) return; // a newer recitation took over
   _quranRecitation = null;
+  stopFollowAlong();
   syncQuranPlayer();
 }
 
@@ -84,13 +86,17 @@ function _quranRecite(verses, mode) {
   var withBasmala = mode === 'surah' && QURAN_NO_BASMALA.indexOf(surah) < 0;
   if (withBasmala) urls.unshift(verseAudioUrl(QURAN_BASMALA_SURAH, 1));
   stopAudio();
+  loadRecitationTiming(); // word timings for the highlight; playback never waits for them
   var rec = { surah: surah, mode: mode, verse: null };
   _quranRecitation = rec;
   syncQuranPlayer();
   playAudioQueue(urls, {
     onEach: function (i) {
       var at = withBasmala ? i - 1 : i;
-      if (_quranRecitation === rec && at >= 0) _quranReciting(verses[at], mode === 'surah');
+      if (_quranRecitation !== rec) return;
+      if (at < 0) { stopFollowAlong(); return; } // the basmala clip has no words on the page
+      _quranReciting(verses[at], mode === 'surah');
+      startFollowAlong(surah, verses[at]);
     },
     onEnd: function () { _quranRecitationEnded(rec); },
     onStop: function () { _quranRecitationEnded(rec); },
@@ -112,6 +118,7 @@ function toggleVerseRecitation(verse) {
 function stopQuranRecitation() {
   if (!_quranRecitation) return;
   _quranRecitation = null;
+  stopFollowAlong();
   stopAudio();
   syncQuranPlayer();
 }
