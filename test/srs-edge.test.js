@@ -76,6 +76,8 @@ global.console = { log: console.log, warn: function() {}, error: function() {} }
 // ── Import SRS module ──
 var fs = require('fs');
 var path = require('path');
+eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'app-facts.js'), 'utf8'));
+eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'review-allowance.js'), 'utf8'));
 var srsCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'srs.js'), 'utf8');
 eval(srsCode);
 var srs = global.window.__srs;

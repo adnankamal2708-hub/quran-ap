@@ -600,7 +600,7 @@ function getMixedReviewQueue(limit) {
   });
   
   // Mix: ~70% due reviews, ~30% new words
-  var dueLimit = Math.min(dueWords.length, Math.round(limit * 0.7));
+  var dueLimit = Math.min(dueWords.length, Math.round(limit * 0.7), reviewsLeftToday());
   var newLimit = Math.min(newWords.length, limit - dueLimit);
   
   // Shuffle new words for variety

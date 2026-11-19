@@ -76,13 +76,15 @@ t('free lines state the enforced limits', function () {
   released(['words']);
   var free = getPlanLines('free').join('\n');
   assert.ok(free.indexOf('The 303 most frequent Quranic words') >= 0, free);
-  assert.ok(free.indexOf('Up to 100 reviews a day, 20 bookmarks and 5 tafsir notes a day') >= 0, free);
+  assert.ok(free.indexOf('Up to 10 reviews a day, 20 bookmarks and 5 tafsir notes a day') >= 0, free);
+  var premium = getPlanLines('premium').join('\n');
+  assert.ok(premium.indexOf('Up to 100 reviews a day, unlimited bookmarks and tafsir') >= 0, premium);
 });
 
 t('the plan picker gets the brief lines only', function () {
   released(['words']);
   assert.ok(getPlanLines('premium', true).length < getPlanLines('premium').length);
-  assert.deepStrictEqual(getPlanLines('yearly', true), ['Everything in Monthly', 'About 5 months free compared with monthly']);
+  assert.deepStrictEqual(getPlanLines('yearly', true), ['Everything in Monthly', 'Unlimited reviews every day', 'About 5 months free compared with monthly']);
 });
 
 t('the code that enforces each limit reads it from APP_FACTS', function () {
@@ -90,7 +92,9 @@ t('the code that enforces each limit reads it from APP_FACTS', function () {
   assert.ok(/FREE_VOCABULARY_LIMIT = APP_FACTS\.limits\.freeWords/.test(src('js/vocabulary.js')));
   assert.ok(/currentCount >= APP_FACTS\.limits\.bookmarks/.test(src('js/vocabulary.js')));
   assert.ok(/count >= APP_FACTS\.limits\.tafsirPerDay/.test(src('js/services/user-service.js')));
-  assert.ok(/Math\.min\(APP_FACTS\.limits\.reviewsPerDayMax/.test(src('js/profile-ui.js')));
+  assert.ok(/Math\.min\(reviewGoalMax\(currentReviewPlan\(\)\)/.test(src('js/profile-ui.js')));
+  assert.ok(/var left = reviewsLeftToday\(\);/.test(src('js/srs.js')));
+  assert.ok(/reviewsLeftToday\(\)\);/.test(src('js/data-core/lesson-system.js')));
 });
 
 t('no plan offers priority support', function () {

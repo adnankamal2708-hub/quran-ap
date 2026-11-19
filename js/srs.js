@@ -425,6 +425,7 @@ function rateSRSWord(wordId, rating) {
     return false;
   }
 
+  if (entry && entry.stage > 0 && entry.dueDate <= Date.now()) recordReviewDone();
   _scheduleRating(data, wordId, rating);
   saveSRS(data);
 }
@@ -663,14 +664,14 @@ function getDueReviews() {
     return b.overdueMs - a.overdueMs;
   });
 
-  // Apply daily limit (premium users get unlimited)
-  var _isUnlimited = window.__premium && window.__premium.hasFeature(window.__premium.FEATURES.UNLIMITED_REVIEWS);
-  var limit = _isUnlimited ? due.length : Math.min(DAILY_REVIEW_LIMIT, due.length);
+  // Apply the plan's daily allowance (review-allowance.js; Yearly has none)
+  var left = reviewsLeftToday();
+  var limit = Math.min(left, due.length);
 
-  // Frequency-guarded toast for free users hitting the cap (at most once per
-  // calendar day). Only a toast: this runs whenever the queue is read, and
-  // requestUpgrade() sends a signed-in user straight to checkout.
-  if (!_isUnlimited && due.length > DAILY_REVIEW_LIMIT) {
+  // Frequency-guarded toast when the allowance hides due words (at most once
+  // per calendar day). Only a toast: this runs whenever the queue is read,
+  // and requestUpgrade() sends a signed-in user straight to checkout.
+  if (due.length > left) {
     try {
       var _toastKey = 'quran_review_limit_toast_date';
       var _today = new Date().toISOString().slice(0, 10);
@@ -678,7 +679,10 @@ function getDueReviews() {
       if (_lastToast !== _today) {
         localStorage.setItem(_toastKey, _today);
         if (typeof showToast === 'function') {
-          showToast('Daily review limit reached. Upgrade to Premium for unlimited reviews.', 'info', 4000);
+          var _more = currentReviewPlan() === 'free'
+            ? ' Monthly allows ' + reviewCap('monthly') + ' a day, and Yearly has no limit.'
+            : ' Yearly has no daily limit.';
+          showToast('Daily review limit reached.' + _more, 'info', 4000);
         }
       }
     } catch (e) { /* frequency guard — non-critical */ }
@@ -828,6 +832,6 @@ window.__srs = {
   getRetention: getRetentionPercent,
   estimateRetention: estimateRetention,
   updateDailyReviewLimit: updateDailyReviewLimit,
-  getDailyReviewLimit: function() { return DAILY_REVIEW_LIMIT; },
+  getDailyReviewLimit: function() { return Math.min(DAILY_REVIEW_LIMIT, reviewCap(currentReviewPlan())); },
   invalidateStatsCache: invalidateStatsCache,
 };

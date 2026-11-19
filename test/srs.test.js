@@ -61,6 +61,8 @@ global.window = {};
 
 var fs = require('fs');
 var path = require('path');
+eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'app-facts.js'), 'utf8'));
+eval(fs.readFileSync(path.join(__dirname, '..', 'js', 'data-core', 'review-allowance.js'), 'utf8'));
 var srsCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'srs.js'), 'utf8');
 eval(srsCode);
 
@@ -348,7 +350,7 @@ suite('Review Queue', function() {
     var toasts = [];
     global.ALL_WORDS = [];
     var srs = {};
-    for (var i = 0; i < DAILY_REVIEW_LIMIT + 5; i++) {
+    for (var i = 0; i < reviewCap('free') + 5; i++) {
       global.ALL_WORDS.push({ id: 'w' + i });
       srs['w' + i] = { stage: 1, dueDate: _mockNow - 1000, interval: 1, easeFactor: 2.5, leechCount: 0, isLeech: false };
     }
@@ -360,13 +362,46 @@ suite('Review Queue', function() {
     };
     global.showToast = function(msg) { toasts.push(msg); };
     try {
-      assert.strictEqual(getDueReviews().length, DAILY_REVIEW_LIMIT);
+      assert.strictEqual(getDueReviews().length, reviewCap('free'));
       assert.strictEqual(toasts.length, 1, 'the limit is explained once');
+      assert.ok(/Monthly allows 100 a day, and Yearly has no limit/.test(toasts[0]), toasts[0]);
       assert.deepStrictEqual(upgrades, [], 'checkout is only opened by the learner');
     } finally {
       delete global.window.__premium;
       delete global.showToast;
     }
+  });
+
+  test('reviews already done today shrink the queue; Yearly has no cap', function() {
+    clearStorage();
+    global.ALL_WORDS = [];
+    var srs = {};
+    for (var i = 0; i < 150; i++) {
+      global.ALL_WORDS.push({ id: 'w' + i });
+      srs['w' + i] = { stage: 1, dueDate: _mockNow - 1000, interval: 1, easeFactor: 2.5, leechCount: 0, isLeech: false };
+    }
+    saveSRS(srs);
+    global.showToast = function() {};
+    try {
+      rateSRSWord('w0', 2);
+      rateSRSWord('w1', 2);
+      assert.strictEqual(reviewsDoneToday(), 2, 'rating a due word counts as a review');
+      assert.strictEqual(getDueReviews().length, 8, 'Free: 10 a day, 2 done');
+      global.window.__premium = { getPlan: function() { return 'monthly'; } };
+      assert.strictEqual(getDueReviews().length, 98, 'Monthly: 100 a day, 2 done');
+      global.window.__premium = { getPlan: function() { return 'yearly'; } };
+      assert.strictEqual(getDueReviews().length, 148, 'Yearly: every due word');
+    } finally {
+      delete global.window.__premium;
+      delete global.showToast;
+    }
+  });
+
+  test('rating a new word is not a review', function() {
+    clearStorage();
+    global.ALL_WORDS = [{ id: 'n1' }];
+    rateSRSWord('n1', 2);
+    assert.strictEqual(reviewsDoneToday(), 0);
   });
 
   test('getDueReviews counts due words outside the open lesson', function() {

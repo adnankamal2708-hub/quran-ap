@@ -9,7 +9,8 @@
 // (scripts/landing-facts.js), so a change here reaches every place.
 //
 // Monthly and Yearly unlock the same features (premium.js hasFeature does
-// not look at the plan), so Yearly only adds the saving.
+// not look at the plan); they differ only in daily reviews
+// (review-allowance.js) and the saving.
 // ═══════════════════════════════════════════════════════════════
 
 var APP_FACTS = {
@@ -19,7 +20,8 @@ var APP_FACTS = {
     freeWords: 303,          // the most frequent canonical words (vocabulary.js)
     bookmarks: 20,           // free bookmarks (vocabulary.js)
     tafsirPerDay: 5,         // free tafsir notes a day (user-service.js)
-    reviewsPerDayMax: 100,   // highest daily review setting (profile-ui.js)
+    // reviews a day by plan; null = no limit (review-allowance.js)
+    reviewsPerDay: { free: 10, monthly: 100, yearly: null },
   },
 };
 
@@ -34,20 +36,21 @@ var PLAN_LINES = {
     { text: 'Quran reader with word meanings and Al-Husary’s recitation' },
     { text: 'Today’s ayah and the Quran map' },
     { text: 'Placement tests, quizzes and practice drills' },
-    { text: 'Up to {reviewsPerDayMax} reviews a day, {bookmarks} bookmarks and {tafsirPerDay} tafsir notes a day' },
+    { text: 'Up to {reviewsFree} reviews a day, {bookmarks} bookmarks and {tafsirPerDay} tafsir notes a day' },
   ],
   premium: [
     { text: 'Everything in Free', brief: true },
     { text: 'All {wordCount} Quranic words across {rootCount} root families', brief: true },
     { text: 'Guided reading, surah by surah', brief: true },
     { text: 'Full word relationships', brief: true },
-    { text: 'Unlimited reviews, bookmarks and tafsir', brief: true },
+    { text: 'Up to {reviewsMonthly} reviews a day, unlimited bookmarks and tafsir', brief: true },
     { text: 'Detailed progress insights' },
     { text: 'Cloud sync across devices', brief: true },
     { text: 'Back up and restore your progress' },
   ],
   yearly: [
     { text: 'Everything in Monthly', brief: true },
+    { text: 'Unlimited reviews every day', brief: true },
     { text: 'About {yearlyMonthsFree} months free compared with monthly', brief: true },
   ],
 };
@@ -96,7 +99,8 @@ function getAppFacts() {
     freeWords: formatCount(L.freeWords),
     bookmarks: L.bookmarks,
     tafsirPerDay: L.tafsirPerDay,
-    reviewsPerDayMax: L.reviewsPerDayMax,
+    reviewsFree: L.reviewsPerDay.free,
+    reviewsMonthly: L.reviewsPerDay.monthly,
     tracks: { qaida: !!released('qaida'), tajweed: !!released('tajweed') },
   };
 }

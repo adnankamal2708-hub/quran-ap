@@ -460,6 +460,25 @@ addAsyncTest('Rule 4: active + no currentPeriodEnd → true', async function () 
   cleanupTest();
 });
 
+addAsyncTest('getPlan: free without a subscription, else the plan paid for', async function () {
+  setupFirestoreTest(null);
+  await __premium.refresh();
+  assert.strictEqual(__premium.getPlan(), 'free');
+  cleanupTest();
+  setupFirestoreTest({ status: 'active', plan: 'yearly' });
+  await __premium.refresh();
+  assert.strictEqual(__premium.getPlan(), 'yearly');
+  cleanupTest();
+  setupFirestoreTest({ status: 'active', plan: 'monthly' });
+  await __premium.refresh();
+  assert.strictEqual(__premium.getPlan(), 'monthly');
+  cleanupTest();
+  setupFirestoreTest({ status: 'active' });
+  await __premium.refresh();
+  assert.strictEqual(__premium.getPlan(), 'monthly', 'no plan recorded: the cheaper one');
+  cleanupTest();
+});
+
 addAsyncTest('Rule 4: active + null currentPeriodEnd → true', async function () {
   setupFirestoreTest({ status: 'active', currentPeriodEnd: null });
   var result = await __premium.refresh();

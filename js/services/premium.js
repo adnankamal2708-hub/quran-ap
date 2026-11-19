@@ -324,6 +324,17 @@
   }
 
   /**
+   * The plan the learner is on: 'free', 'monthly' or 'yearly'.
+   * Only daily reviews depend on it (review-allowance.js).
+   * @returns {'free'|'monthly'|'yearly'}
+   */
+  function getPlan() {
+    _init();
+    if (!_isPremium) return 'free';
+    return _subscription && _subscription.plan === 'yearly' ? 'yearly' : 'monthly';
+  }
+
+  /**
    * Get the current subscription object (if any).
    * @returns {Object|null} { plan, status, expiresAt, ... } or null
    */
@@ -603,6 +614,7 @@
     isPremium: isPremium,
     hasFeature: hasFeature,
     getSubscription: getSubscription,
+    getPlan: getPlan,
     refresh: refresh,
     onChange: onChange,
     requestUpgrade: requestUpgrade,

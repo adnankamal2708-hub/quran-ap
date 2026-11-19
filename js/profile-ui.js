@@ -249,12 +249,12 @@ async function renderProfileView() {
   }
   if (profile && profile.settings) {
     var settings = mergeSettings(profile.settings);
-    document.getElementById('settings-daily-limit').textContent = settings.dailyReviewLimit;
+    document.getElementById('settings-daily-limit').textContent = Math.min(settings.dailyReviewLimit, reviewGoalMax(currentReviewPlan()));
     document.getElementById('settings-session-size').textContent = settings.sessionSize;
     document.getElementById('settings-auto-import').textContent = settings.autoImportOnLogin ? 'On' : 'Off';
   } else {
     var defaults = getDefaultSettings();
-    document.getElementById('settings-daily-limit').textContent = defaults.dailyReviewLimit;
+    document.getElementById('settings-daily-limit').textContent = Math.min(defaults.dailyReviewLimit, reviewGoalMax(currentReviewPlan()));
     document.getElementById('settings-session-size').textContent = defaults.sessionSize;
     document.getElementById('settings-auto-import').textContent = defaults.autoImportOnLogin ? 'On' : 'Off';
   }
@@ -410,7 +410,7 @@ function toggleEditSettings() {
         var settings = profile && profile.settings ? mergeSettings(profile.settings) : getDefaultSettings();
         var limitInput = document.getElementById('settings-edit-limit');
         if (limitInput) {
-          limitInput.max = APP_FACTS.limits.reviewsPerDayMax;
+          limitInput.max = reviewGoalMax(currentReviewPlan());
           limitInput.value = settings.dailyReviewLimit;
         }
         var sizeInput = document.getElementById('settings-edit-size');
@@ -453,7 +453,7 @@ async function saveSettingsChanges() {
   };
 
   // Clamp values
-  newSettings.dailyReviewLimit = Math.max(5, Math.min(APP_FACTS.limits.reviewsPerDayMax, newSettings.dailyReviewLimit));
+  newSettings.dailyReviewLimit = Math.max(5, Math.min(reviewGoalMax(currentReviewPlan()), newSettings.dailyReviewLimit));
   newSettings.sessionSize = Math.max(5, Math.min(ALL_WORDS.length, newSettings.sessionSize));
 
   try {
