@@ -34,7 +34,9 @@ async function stubAudio(page, seconds) {
   const played = [];
   const body = silentWav(seconds);
   const fulfil = (route) => {
-    played.push(route.request().url());
+    // Only what the audio element plays; fetches that cache the next
+    // verse ahead (playAudioQueue) are not plays.
+    if (route.request().resourceType() !== 'fetch') played.push(route.request().url());
     route.fulfill({ status: 200, contentType: 'audio/wav', body, headers: { 'Access-Control-Allow-Origin': '*' } });
   };
   await page.route('https://everyayah.com/**', fulfil);
