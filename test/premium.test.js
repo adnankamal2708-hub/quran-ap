@@ -248,14 +248,11 @@ suite('Premium Service', function () {
     });
     test('returns false for all known features when not premium', function () {
       resetPremium();
-      assert.strictEqual(__premium.hasFeature('unlimitedReviews'), false);
       assert.strictEqual(__premium.hasFeature('guidedReading'), false);
       assert.strictEqual(__premium.hasFeature('vocabularyExpansion'), false);
       assert.strictEqual(__premium.hasFeature('advancedInsights'), false);
       assert.strictEqual(__premium.hasFeature('cloudSync'), false);
-      assert.strictEqual(__premium.hasFeature('offlineDownload'), false);
       assert.strictEqual(__premium.hasFeature('unlimitedBookmarks'), false);
-      assert.strictEqual(__premium.hasFeature('premiumThemes'), false);
       assert.strictEqual(__premium.hasFeature('unlimitedTafsir'), false);
     });
     test('returns false for null/undefined/empty', function () {
@@ -289,14 +286,11 @@ suite('Premium Service', function () {
     test('returns object with all feature keys', function () {
       resetPremium();
       var f = __premium.getFeatureList();
-      assert.ok(f.unlimitedReviews);
       assert.ok(f.guidedReading);
       assert.ok(f.vocabularyExpansion);
       assert.ok(f.advancedInsights);
       assert.ok(f.cloudSync);
-      assert.ok(f.offlineDownload);
       assert.ok(f.unlimitedBookmarks);
-      assert.ok(f.premiumThemes);
       assert.ok(f.unlimitedTafsir);
     });
     test('each feature has key, label, description', function () {
@@ -310,17 +304,24 @@ suite('Premium Service', function () {
     });
   });
 
+  suite('No unbuilt features', function () {
+    test('lists no feature the app does not have', function () {
+      resetPremium();
+      var f = __premium.getFeatureList();
+      ['unlimitedReviews', 'offlineDownload', 'premiumThemes'].forEach(function (k) {
+        assert.strictEqual(f[k], undefined, k + ' is not a premium feature');
+      });
+    });
+  });
+
   suite('FEATURES constants', function () {
     test('exposes all feature keys as constants', function () {
       resetPremium();
-      assert.strictEqual(__premium.FEATURES.UNLIMITED_REVIEWS, 'unlimitedReviews');
       assert.strictEqual(__premium.FEATURES.GUIDED_READING, 'guidedReading');
       assert.strictEqual(__premium.FEATURES.VOCABULARY_EXPANSION, 'vocabularyExpansion');
       assert.strictEqual(__premium.FEATURES.ADVANCED_INSIGHTS, 'advancedInsights');
       assert.strictEqual(__premium.FEATURES.CLOUD_SYNC, 'cloudSync');
-      assert.strictEqual(__premium.FEATURES.OFFLINE_DOWNLOAD, 'offlineDownload');
       assert.strictEqual(__premium.FEATURES.UNLIMITED_BOOKMARKS, 'unlimitedBookmarks');
-      assert.strictEqual(__premium.FEATURES.PREMIUM_THEMES, 'premiumThemes');
       assert.strictEqual(__premium.FEATURES.UNLIMITED_TAFSIR, 'unlimitedTafsir');
     });
   });
@@ -335,7 +336,7 @@ suite('Premium Service', function () {
 
   // ── Gate tests (sync) ──────────────────────────────────────
   var gates = [
-    'unlimitedReviews', 'unlimitedBookmarks', 'cloudSync', 'guidedReading',
+    'unlimitedBookmarks', 'cloudSync', 'guidedReading',
     'vocabularyExpansion', 'unlimitedTafsir', 'dataExport', 'wordRelationships', 'advancedInsights'
   ];
   gates.forEach(function (gate) {
@@ -362,9 +363,9 @@ suite('Premium Service', function () {
       var keys = Object.keys(__premium.FEATURES);
       assert.ok(keys.indexOf('WORD_RELATIONSHIPS') >= 0);
     });
-    test('FEATURES constant count is 11', function () {
+    test('FEATURES constant count is 8', function () {
       resetPremium();
-      assert.strictEqual(Object.keys(__premium.FEATURES).length, 11);
+      assert.strictEqual(Object.keys(__premium.FEATURES).length, 8);
     });
   });
 

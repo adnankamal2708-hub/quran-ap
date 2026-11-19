@@ -356,7 +356,6 @@ suite('Review Queue', function() {
     }
     saveSRS(srs);
     global.window.__premium = {
-      FEATURES: { UNLIMITED_REVIEWS: 'unlimited_reviews' },
       hasFeature: function() { return false; },
       requestUpgrade: function(reason) { upgrades.push(reason); },
     };

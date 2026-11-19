@@ -30,18 +30,13 @@
 
   var PREMIUM_FEATURES = {
     // Learning & Vocabulary
-    unlimitedReviews: { key: 'unlimited-reviews', label: 'Unlimited Reviews', description: 'Unlimited daily reviews per session' },
     guidedReading: { key: 'guided-reading', label: 'Guided Reading', description: 'Structured surah-by-surah reading path with comprehension tracking' },
     vocabularyExpansion: { key: 'vocabulary-expansion', label: 'Vocabulary Expansion', description: 'Unlock every Quranic word in Bayan (free includes the most frequent ones)' },
     advancedInsights: { key: 'advanced-insights', label: 'Advanced Insights', description: 'Detailed analytics, trends, and learning predictions' },
 
     // Data & Sync
     cloudSync: { key: 'cloud-sync', label: 'Cloud Sync', description: 'Sync progress across multiple devices' },
-    offlineDownload: { key: 'offline-download', label: 'Offline Download', description: 'Download full surah data for offline reading' },
     unlimitedBookmarks: { key: 'unlimited-bookmarks', label: 'Unlimited Bookmarks', description: 'Save unlimited verses and words' },
-
-    // Appearance
-    premiumThemes: { key: 'premium-themes', label: 'Premium Themes', description: 'Exclusive colour themes and visual customisation' },
 
     // Data Management
     dataExport: { key: 'data-export', label: 'Data Export & Import', description: 'Back up and restore your full learning progress as a file' },
@@ -623,14 +618,11 @@
     getFeatureList: getFeatureList,
     // Expose feature keys so other modules can reference them without magic strings
     FEATURES: {
-      UNLIMITED_REVIEWS: 'unlimitedReviews',
       GUIDED_READING: 'guidedReading',
       VOCABULARY_EXPANSION: 'vocabularyExpansion',
       ADVANCED_INSIGHTS: 'advancedInsights',
       CLOUD_SYNC: 'cloudSync',
-      OFFLINE_DOWNLOAD: 'offlineDownload',
       UNLIMITED_BOOKMARKS: 'unlimitedBookmarks',
-      PREMIUM_THEMES: 'premiumThemes',
       DATA_EXPORT: 'dataExport',
       WORD_RELATIONSHIPS: 'wordRelationships',
       UNLIMITED_TAFSIR: 'unlimitedTafsir',
