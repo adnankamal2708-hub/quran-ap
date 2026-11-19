@@ -108,6 +108,20 @@ testAsync('a queue plays in order and calls onEach and onEnd', function () {
   assert.strictEqual(ended, 1);
 });
 
+testAsync('while one sound plays, the next one in the queue is fetched ahead', function () {
+  var fetched = [];
+  var realFetch = global.fetch;
+  global.fetch = function (url) { fetched.push(url); return Promise.resolve({}); };
+  playAudioQueue(['1.mp3', '2.mp3', '3.mp3']);
+  assert.deepStrictEqual(fetched, ['2.mp3'], 'only the next one, not the whole queue');
+  finish();
+  assert.deepStrictEqual(fetched, ['2.mp3', '3.mp3']);
+  finish();
+  assert.deepStrictEqual(fetched, ['2.mp3', '3.mp3'], 'nothing after the last');
+  stopAudio();
+  global.fetch = realFetch;
+});
+
 testAsync('stopping a queue calls onStop once and plays nothing more', function () {
   var stops = 0;
   var ended = 0;

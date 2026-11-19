@@ -117,6 +117,8 @@ function playAudioQueue(urls, opts) {
     if (i >= list.length) { if (opts.onEnd) opts.onEnd(); return; }
     if (opts.onEach) opts.onEach(i);
     playAudio(list[i], function () { playAt(i + 1); }, opts.onStop);
+    // Fetch the next sound while this one plays, so it starts without a wait.
+    if (i + 1 < list.length) cacheAudio([list[i + 1]]);
   }
   playAt(0);
 }
