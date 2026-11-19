@@ -229,6 +229,35 @@ ts('Landing Gate — No auth service', function () {
   });
 });
 
+ts('Landing Gate — First visit shows the page at once', function () {
+  // The inline script in landing.html's <head> runs before any download.
+  var html = fs.readFileSync(path.join(__dirname, '..', 'landing.html'), 'utf8');
+  var inline = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  function runHead(local, session) {
+    var root = mock.makeEl('html');
+    function store(data) {
+      var keys = Object.keys(data);
+      return { length: keys.length, key: function (i) { return keys[i]; }, getItem: function (k) { return k in data ? data[k] : null; } };
+    }
+    new Function('document', 'window', 'localStorage', 'sessionStorage', inline)(
+      { documentElement: root }, { matchMedia: null }, store(local), store(session));
+    return root.classList.contains('landing-ready');
+  }
+
+  t('a browser that never opened the app is shown the page without waiting', function () {
+    assert.strictEqual(runHead({ bayan_theme: 'light' }, {}), true);
+  });
+
+  t('a saved Firebase session keeps the gate, local or per-tab', function () {
+    assert.strictEqual(runHead({ 'firebase:authUser:KEY:[DEFAULT]': '{}' }, {}), false);
+    assert.strictEqual(runHead({}, { 'firebase:authUser:KEY:[DEFAULT]': '{}' }), false);
+  });
+
+  t('a browser that has run the app keeps the gate (its session may be elsewhere)', function () {
+    assert.strictEqual(runHead({ bayan_data_version: '1' }, {}), false);
+  });
+});
+
 // ── Summary ───────────────────────────────────────────────────
 
 global.setTimeout = _origSetTimeout;

@@ -28,6 +28,23 @@
       }
       apply();
       if (mq && mq.addEventListener) mq.addEventListener('change', apply);
+      /* First visit: no saved sign-in and the app never ran in this browser
+         (it writes bayan_data_version on start), so nobody can be signed
+         in. Show the page now instead of waiting for Firebase. Otherwise
+         landing-auth-gate.js decides. */
+      function signInPossible() {
+        try {
+          if (localStorage.getItem('bayan_data_version') !== null) return true;
+          var stores = [localStorage, sessionStorage];
+          for (var s = 0; s < stores.length; s++) {
+            for (var i = 0; i < stores[s].length; i++) {
+              if (String(stores[s].key(i)).indexOf('firebase:authUser:') === 0) return true;
+            }
+          }
+          return false;
+        } catch (e) { return true; }
+      }
+      if (!signInPossible()) root.classList.add('landing-ready');
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
