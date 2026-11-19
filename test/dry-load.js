@@ -322,7 +322,7 @@ function createSandbox() {
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Analyze firebase-core.js for unresolved identifier references.
+ * Analyze a Firebase ES module (firebase-core.js, firebase-auth-core.js) for unresolved identifier references.
  * Since it's an ES module with CDN imports that don't resolve in Node,
  * we can't execute it. Instead, we parse it statically.
  *
@@ -332,8 +332,7 @@ function createSandbox() {
  * This catches cross-script constant/config reference errors with zero
  * false positives.
  */
-function checkFirebaseCore() {
-  var file = 'js/services/firebase-core.js';
+function checkFirebaseCore(file) {
   var fullPath = path.join(ROOT, file);
   if (!fs.existsSync(fullPath)) {
     console.log('  \u2139 ' + file + ' not found \u2014 skipping static analysis.');
@@ -498,8 +497,9 @@ try {
 
 // Step 2: Check firebase-core.js via static analysis
 console.log('');
-var coreOk = checkFirebaseCore();
-if (!coreOk) hadError = true;
+['js/services/firebase-core.js', 'js/services/firebase-auth-core.js'].forEach(function (file) {
+  if (!checkFirebaseCore(file)) hadError = true;
+});
 
 // Step 3: Summary
 console.log('');

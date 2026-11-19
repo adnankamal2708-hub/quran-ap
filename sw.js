@@ -45,6 +45,7 @@ const PRECACHE_URLS = [
   './js/data.bundle.min.js',
   './js/app.bundle.min.js',
   './js/services/firebase-core.js',
+  './js/services/firebase-auth-core.js',
   './js/services/auth-service.js',
   './js/landing/landing-auth-gate.js',
   './js/landing/landing-motion.js',

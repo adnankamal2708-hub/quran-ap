@@ -258,6 +258,31 @@ ts('Landing Gate — First visit shows the page at once', function () {
   });
 });
 
+ts('Landing Gate — Loads Firebase sign-in only', function () {
+  function src(rel) { return fs.readFileSync(path.join(__dirname, '..', rel), 'utf8'); }
+  var html = src('landing.html');
+
+  t('the landing page loads the sign-in core, not the app\'s Firestore core', function () {
+    assert.ok(/import \{ authCore \} from '\.\/js\/services\/firebase-auth-core\.js'/.test(html));
+    assert.ok(html.indexOf('firebase-core.js"') < 0, 'landing.html still loads firebase-core.js');
+  });
+
+  t('the sign-in core does not import Firestore', function () {
+    assert.ok(src('js/services/firebase-auth-core.js').indexOf('firebase-firestore') < 0);
+  });
+
+  t('the app core builds on the sign-in core, so the config lives in one module', function () {
+    var core = src('js/services/firebase-core.js');
+    assert.ok(/from '\.\/firebase-auth-core\.js'/.test(core));
+    assert.ok(core.indexOf('apiKey') < 0);
+  });
+
+  t('the sign-in core is cached for offline use', function () {
+    assert.ok(src('sw.js').indexOf("'./js/services/firebase-auth-core.js'") >= 0);
+    assert.ok(src('build.js').indexOf("\"'./js/services/firebase-auth-core.js'\"") >= 0);
+  });
+});
+
 // ── Summary ───────────────────────────────────────────────────
 
 global.setTimeout = _origSetTimeout;

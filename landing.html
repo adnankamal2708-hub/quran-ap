@@ -1432,8 +1432,9 @@
   </div>
 
   <!-- ── SCRIPTS ──
-       firebase-core.js must load as a module (CDN imports) and BEFORE
-       auth-service.js, which reads window.__firebaseCore at load time.
+       firebase-auth-core.js (sign-in only, no Firestore) must load as a
+       module (CDN imports) and BEFORE auth-service.js, which reads
+       window.__firebaseCore at load time.
        The gate script is loaded last and drives the reveal/redirect. -->
   <noscript>
     <style>
@@ -1446,7 +1447,7 @@
       .lp-step { opacity: 1; }
     </style>
   </noscript>
-  <script type="module" src="js/services/firebase-core.js"></script>
+  <script type="module">import { authCore } from './js/services/firebase-auth-core.js'; window.__firebaseCore = authCore;</script>
   <script defer src="js/services/auth-service.js"></script>
   <script defer src="js/landing/landing-motion.js"></script>
   <script defer src="js/landing/landing-auth-gate.js"></script>

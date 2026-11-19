@@ -610,13 +610,16 @@ async function build() {
   writeFile('index.html', devHtml);
   console.log('     Production HTML generated (' + (devHtml.length / 1024).toFixed(1) + ' KB)');
 
-  // 6. Copy Firebase core module (must be at the SAME relative path for module resolution)
-  console.log('  6. Copying Firebase core module...');
-  var coreSrc = readFile('js/services/firebase-core.js');
-  if (coreSrc) {
-    writeFile('js/services/firebase-core.js', coreSrc);
-    console.log('     firebase-core.js copied as standalone module');
-  }
+  // 6. Copy the Firebase modules (must be at the SAME relative path for module
+  //    resolution; firebase-core.js imports firebase-auth-core.js)
+  console.log('  6. Copying Firebase core modules...');
+  ['js/services/firebase-core.js', 'js/services/firebase-auth-core.js'].forEach(function (rel) {
+    var coreSrc = readFile(rel);
+    if (coreSrc) {
+      writeFile(rel, coreSrc);
+      console.log('     ' + path.basename(rel) + ' copied as standalone module');
+    }
+  });
 
   // 6b. (removed) ux-polish.js is bundled in app.bundle.min.js only — it was
   //     previously also copied here and loaded via a separate <script> tag,
@@ -699,6 +702,7 @@ async function build() {
     "'./js/data.bundle.min.js'",
     "'./js/app.bundle.min.js'",
     "'./js/services/firebase-core.js'",
+    "'./js/services/firebase-auth-core.js'",
     "'./js/services/auth-service.js'",
     "'./js/landing/landing-auth-gate.js'",
     "'./js/landing/landing-motion.js'",

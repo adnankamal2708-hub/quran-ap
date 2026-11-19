@@ -36,8 +36,8 @@ var _buildFiles = require('../build-files').getBuildFiles();
 var DATA_FILES = _buildFiles.DATA_FILES;
 var APP_FILES = _buildFiles.APP_FILES;
 
-// firebase-core.js is an ES module loaded separately — include it too
-var ALL_FILES = DATA_FILES.concat(APP_FILES).concat(['js/services/firebase-core.js']);
+// The Firebase ES modules are loaded separately — include them too
+var ALL_FILES = DATA_FILES.concat(APP_FILES).concat(['js/services/firebase-core.js', 'js/services/firebase-auth-core.js']);
 
 // ═══════════════════════════════════════════════════════════════
 // Lint Checks
