@@ -156,5 +156,34 @@ t('words on screen that don\'t match the timings light nothing', function () {
   assert.deepStrictEqual(lit(112, 3), []);
 });
 
+// ── Loading: one surah's timings at a time ──
+var allTiming = window.__RECITATION_TIMING;
+var injected = [];
+document.createElement = function () { return {}; };
+document.head = { appendChild: function (s) { injected.push(s); } };
+
+t('timings load only for the surah being played', function () {
+  window.__RECITATION_TIMING = undefined;
+  loadRecitationTiming(112);
+  loadRecitationTiming(112);
+  assert.deepStrictEqual(injected.map(function (s) { return s.src; }), ['./js/quran/timing/timing-112.min.js']);
+  window.__RECITATION_TIMING = { unit: allTiming.unit, ayahs: [] };
+  window.__RECITATION_TIMING.ayahs[111] = allTiming.ayahs[111];
+  injected[0].onload();
+  loadRecitationTiming(112);
+  loadRecitationTiming(1);
+  assert.deepStrictEqual(injected.map(function (s) { return s.src; }),
+    ['./js/quran/timing/timing-112.min.js', './js/quran/timing/timing-1.min.js']);
+});
+
+t('a verse whose surah has not loaded yet still waits for its timings', function () {
+  window.__RECITATION_TIMING = { unit: allTiming.unit, ayahs: [] };
+  window.__RECITATION_TIMING.ayahs[111] = allTiming.ayahs[111];
+  startFollowAlong(2, 181);
+  assert.ok(queued, 'keeps following until surah 2 arrives');
+  stopFollowAlong();
+  window.__RECITATION_TIMING = allTiming;
+});
+
 console.log('\n  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
 process.exit(failed ? 1 : 0);

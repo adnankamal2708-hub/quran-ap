@@ -464,8 +464,17 @@ async function build() {
         writeFile('js/quran/ayah-readability.min.js', basicMinify(stripComments(readFile('js/quran/ayah-readability.js'))));
         // 4b-i3. Quran map data, loaded lazily (js/ui/quran-map-ui.js)
         writeFile('js/quran/quran-map-data.min.js', basicMinify(stripComments(readFile('js/quran/quran-map-data.js'))));
-        // 4b-i4. Recitation word timings, loaded on first play (js/ui/quran-follow-along.js)
-        writeFile('js/quran/recitation-timing.min.js', basicMinify(stripComments(readFile('js/quran/recitation-timing.js'))));
+        // 4b-i4. Recitation word timings, one file per surah, loaded when that
+        // surah is played (js/ui/quran-follow-along.js)
+        var timingBox = { window: {} };
+        require('vm').runInNewContext(readFile('js/quran/recitation-timing.js'), timingBox);
+        var timing = timingBox.window.__RECITATION_TIMING;
+        for (var ti = 0; ti < timing.ayahs.length; ti++) {
+          writeFile('js/quran/timing/timing-' + (ti + 1) + '.min.js',
+            '(window.__RECITATION_TIMING=window.__RECITATION_TIMING||{unit:' + timing.unit + ',ayahs:[]}).ayahs[' + ti + ']=' +
+            JSON.stringify(timing.ayahs[ti]) + ';\n');
+        }
+        console.log('     ' + timing.ayahs.length + ' recitation timing files written');
 
         // 4b-ii. Write per-surah files (surah-1.min.js through surah-114.min.js)
         var totalRawSize = 0;

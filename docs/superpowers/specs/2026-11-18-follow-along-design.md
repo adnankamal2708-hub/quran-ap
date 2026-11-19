@@ -61,7 +61,9 @@ and the reader's existing colours show which words the learner knows.
   word indexes 0-based with an exclusive end, words split by spaces in Tanzil's
   `quran-uthmani` text.
 - A build script (like `scripts/build-quran-map.js`) converts it to
-  `js/quran/recitation-timing.js` (minified in the build). The raw download
+  `js/quran/recitation-timing.js`; the build splits it into one file per surah
+  (`js/quran/timing/timing-N.min.js`), so playing a surah fetches only its own
+  timings. The raw download
   stays out of the repo.
 - The script checks each ayah's word count against the app's own verse text
   (whitespace tokens, as `quranMapVerseWords` splits them). An ayah whose words

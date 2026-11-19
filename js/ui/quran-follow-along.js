@@ -11,22 +11,29 @@
 // nothing is lit while the sound is paused.
 // ═══════════════════════════════════════════════════════════════
 
-var RECITATION_TIMING_URL = './js/quran/recitation-timing.min.js';
-var _recitationTimingLoad = null;
+// The build splits the timings into one small file per surah.
+var RECITATION_TIMING_DIR = './js/quran/timing/';
+var _recitationTimingLoads = {};
 
-/** The word timings, loaded the first time they are asked for. */
-function loadRecitationTiming() {
-  if (window.__RECITATION_TIMING) return Promise.resolve(window.__RECITATION_TIMING);
-  if (_recitationTimingLoad) return _recitationTimingLoad;
-  _recitationTimingLoad = new Promise(function (resolve) {
+/** True once this surah's timings are here. */
+function _recitationTimingLoaded(surah) {
+  var timing = window.__RECITATION_TIMING;
+  return !!(timing && timing.ayahs && timing.ayahs[surah - 1]);
+}
+
+/** One surah's word timings, loaded the first time they are asked for. */
+function loadRecitationTiming(surah) {
+  if (_recitationTimingLoaded(surah)) return Promise.resolve(window.__RECITATION_TIMING);
+  if (_recitationTimingLoads[surah]) return _recitationTimingLoads[surah];
+  _recitationTimingLoads[surah] = new Promise(function (resolve) {
     var script = document.createElement('script');
-    script.src = RECITATION_TIMING_URL;
+    script.src = RECITATION_TIMING_DIR + 'timing-' + surah + '.min.js';
     script.async = true;
     script.onload = function () { resolve(window.__RECITATION_TIMING || null); };
-    script.onerror = function () { _recitationTimingLoad = null; resolve(null); };
+    script.onerror = function () { delete _recitationTimingLoads[surah]; resolve(null); };
     document.head.appendChild(script);
   });
-  return _recitationTimingLoad;
+  return _recitationTimingLoads[surah];
 }
 
 /** What is being followed: { surah, verse, url, frame, lit } or null. */
@@ -91,7 +98,7 @@ function startFollowAlong(surah, verse) {
   stopFollowAlong();
   if (typeof requestAnimationFrame !== 'function') return;
   _followAlong = { surah: surah, verse: verse, url: verseAudioUrl(surah, verse), frame: null, lit: null, words: null };
-  if (window.__RECITATION_TIMING && !recitationWordTimes(window.__RECITATION_TIMING, surah, verse)) {
+  if (_recitationTimingLoaded(surah) && !recitationWordTimes(window.__RECITATION_TIMING, surah, verse)) {
     _followAlong = null;
     return;
   }

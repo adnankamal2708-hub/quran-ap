@@ -86,7 +86,7 @@ function _quranRecite(verses, mode) {
   var withBasmala = mode === 'surah' && QURAN_NO_BASMALA.indexOf(surah) < 0;
   if (withBasmala) urls.unshift(verseAudioUrl(QURAN_BASMALA_SURAH, 1));
   stopAudio();
-  loadRecitationTiming(); // word timings for the highlight; playback never waits for them
+  loadRecitationTiming(surah); // word timings for the highlight; playback never waits for them
   var rec = { surah: surah, mode: mode, verse: null };
   _quranRecitation = rec;
   syncQuranPlayer();
