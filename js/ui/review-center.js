@@ -285,9 +285,14 @@ function _rcStartTajweedReview(host) {
   next();
 }
 
-/** Grid class for a row of mode cards: one card fills it; three put the first on its own row on phones. */
+/**
+ * Grid class for a row of mode cards: one card fills it; three or five put
+ * the first on its own row, so the rest pair up two by two.
+ */
 function _rcGridClass(count) {
-  return count === 1 ? ' rc-modes-grid-single' : count === 3 ? ' rc-modes-grid-three' : '';
+  if (count === 1) return ' rc-modes-grid-single';
+  if (count === 3) return ' rc-modes-grid-three';
+  return count === 5 ? ' rc-modes-grid-five' : '';
 }
 
 /**
@@ -299,10 +304,12 @@ function _rcDrillCards() {
   var canSpot = typeof hasLearnedWords === 'function' && hasLearnedWords();
   var qaida = typeof isTrackReleased === 'function' && isTrackReleased('qaida');
   var tajweed = _rcTajweedReleased();
-  var h = '<div class="rc-modes-grid' + _rcGridClass(2 + (qaida ? 1 : 0) + (tajweed ? 1 : 0)) + '">';
+  var h = '<div class="rc-modes-grid' + _rcGridClass(3 + (qaida ? 1 : 0) + (tajweed ? 1 : 0)) + '">';
   if (qaida) h += _rcModeCard('rc-drill-letters', 'search', t('drill.letters.title'), t('drill.letters.desc'));
   h += _rcModeCard('rc-drill-spot', 'target', t('drill.spot.title'),
     t(canSpot ? 'drill.spot.desc' : 'drill.needWords'));
+  h += _rcModeCard('rc-drill-listen', 'play', t('drill.listen.title'),
+    t(canSpot ? 'drill.listen.desc' : 'drill.needWords'));
   h += _rcModeCard('rc-drill-build', 'layers', t('drill.build.title'), t('drill.build.desc'));
   if (tajweed) h += _rcModeCard('rc-drill-verses', 'volume-2', t('tajweed.verses.title'), t('tajweed.verses.desc'));
   h += '</div>';
@@ -780,6 +787,9 @@ function wireReviewCenterEvents($data) {
   // ── Drills and tests ──
   $wire('rc-drill-spot', function() {
     if (typeof startWordDrill === 'function') startWordDrill('spot', document.getElementById('rc-drill-host'));
+  });
+  $wire('rc-drill-listen', function() {
+    if (typeof startWordDrill === 'function') startWordDrill('listen', document.getElementById('rc-drill-host'));
   });
   $wire('rc-drill-build', function() {
     if (typeof startWordDrill === 'function') startWordDrill('build', document.getElementById('rc-drill-host'));

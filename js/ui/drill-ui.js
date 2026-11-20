@@ -1,5 +1,5 @@
 /**
- * drill-ui.js — runs one Practice drill ("Spot the word", "Build the verse"
+ * drill-ui.js — runs one Practice drill ("Spot the word", "Hear the word", "Build the verse"
  * or "Confused letters") inside #rc-drill-host on the Practice tab.
  *
  * The question comes from js/exercises/word-drills.js and is drawn by the
@@ -14,6 +14,9 @@
 /** Juz Amma surahs fetched before the first question; the rest only if none of them fits */
 var DRILL_FIRST_LOAD_SURAH_COUNT = 5;
 
+/** Drills about words the learner has learned: they need some, and every drill surah may be searched */
+var DRILL_LEARNED_KINDS = ['spot', 'listen'];
+
 /** Drills about Qaida skills rather than Quran words */
 var DRILL_QAIDA_KINDS = ['letters', 'qaida-review'];
 
@@ -23,6 +26,7 @@ var _drillRun = 0;
 function _drillBuilder(kind) {
   if (kind === 'spot') return buildSpotDrill;
   if (kind === 'build') return buildVerseBuildDrill;
+  if (kind === 'listen') return buildListenDrill;
   if (kind === 'letters') return function() { return buildConfusedLettersDrill(Date.now()); };
   if (kind === 'qaida-review') return _drillNextQaidaReview;
   return null;
@@ -79,7 +83,7 @@ function _drillShowItem(host, kind, item) {
   });
 }
 
-/** Starts a drill of the given kind ('spot', 'build', 'letters' or 'qaida-review') in the host element. */
+/** Starts a drill of the given kind ('spot', 'listen', 'build', 'letters' or 'qaida-review') in the host element. */
 async function startWordDrill(kind, host) {
   var buildItem = _drillBuilder(kind);
   if (!host || !buildItem) return;
@@ -90,7 +94,8 @@ async function startWordDrill(kind, host) {
     else _drillShowMessage(host, 'qaida.review.done');
     return;
   }
-  if (kind === 'spot' && !hasLearnedWords()) {
+  var needsLearned = DRILL_LEARNED_KINDS.indexOf(kind) >= 0;
+  if (needsLearned && !hasLearnedWords()) {
     _drillShowMessage(host, 'drill.needWords');
     return;
   }
@@ -98,12 +103,12 @@ async function startWordDrill(kind, host) {
 
   var gotText = await _drillLoadText(_drillSurahsToLoad(false));
   var item = gotText ? buildItem() : null;
-  if (!item && gotText && kind === 'spot') {
+  if (!item && gotText && needsLearned) {
     gotText = await _drillLoadText(_drillSurahsToLoad(true));
     item = buildItem();
   }
   if (run !== _drillRun) return;
 
   if (item) _drillShowItem(host, kind, item);
-  else _drillShowMessage(host, gotText && kind === 'spot' ? 'drill.noMatch' : 'drill.unavailable');
+  else _drillShowMessage(host, gotText && needsLearned ? 'drill.noMatch' : 'drill.unavailable');
 }

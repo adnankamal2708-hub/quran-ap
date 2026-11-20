@@ -1408,12 +1408,14 @@ suite('renderReviewCenter — Practice groups', function() {
     _mockForgottenWords = [{ arabic: 'نور', english: 'light' }];
     _mockProfile = { weakRoots: [{ root: 'ك ت ب', rootMeaning: 'write', mastered: 1, total: 4, masteryScore: 25 }] };
     _mockFavorites = { w1: true };
-    inOrder(renderGrid(), ['Drills', 'Review modes', 'Forgotten words', 'Weak roots', 'Bookmarked words', 'rc-drill-spot', 'rc-drill-build', 'Tests']);
+    inOrder(renderGrid(), ['Drills', 'Review modes', 'Forgotten words', 'Weak roots', 'Bookmarked words', 'rc-drill-spot', 'rc-drill-listen', 'rc-drill-build', 'Tests']);
   });
 
-  test('has the two new drill cards, titled from the strings', function() {
+  test('has the three new drill cards, titled from the strings', function() {
     var html = renderGrid();
     assert.ok(html.indexOf('id="rc-drill-spot"') >= 0);
+    assert.ok(html.indexOf('id="rc-drill-listen"') >= 0);
+    assert.ok(html.indexOf('Hear the word') >= 0);
     assert.ok(html.indexOf('id="rc-drill-build"') >= 0);
     assert.ok(html.indexOf('Spot the word') >= 0);
     assert.ok(html.indexOf('Build the verse') >= 0);
@@ -1421,6 +1423,16 @@ suite('renderReviewCenter — Practice groups', function() {
 
   test('the Spot card says to learn words first when nothing is learned', function() {
     assert.ok(renderGrid().indexOf('Learn a few words first') >= 0);
+  });
+
+  test('the Hear the word card says to learn words first too, until a word is learned', function() {
+    var html = renderGrid();
+    var listen = html.slice(html.indexOf('id="rc-drill-listen"'), html.indexOf('id="rc-drill-build"'));
+    assert.ok(listen.indexOf('Learn a few words first') >= 0, listen);
+    _mockSRSData = { cw_1: { stage: 1 } };
+    html = renderGrid();
+    listen = html.slice(html.indexOf('id="rc-drill-listen"'), html.indexOf('id="rc-drill-build"'));
+    assert.ok(listen.indexOf('Hear a word you know and pick its meaning') >= 0, listen);
   });
 
   test('the Spot card stops saying so once a word is learned', function() {
@@ -1694,15 +1706,15 @@ suite('renderReviewCenter — Practice groups', function() {
   }
 
   test('the drill grid is sized by its cards', function() {
-    assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid', 'two cards');
+    assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid rc-modes-grid-three', 'three cards');
     global.isTrackReleased = function(id) { return id === 'tajweed'; };
     try {
-      assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid rc-modes-grid-three', 'Tajweed without Qaida: three');
+      assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid', 'Tajweed without Qaida: four, two by two');
     } finally {
       delete global.isTrackReleased;
     }
     withTajweed([], function() {
-      assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid', 'four cards, two by two');
+      assert.strictEqual(drillGridClass(renderGrid()), '<div class="rc-modes-grid rc-modes-grid-five', 'five cards');
     });
   });
 
@@ -1780,7 +1792,7 @@ suite('renderReviewCenter — Practice groups', function() {
     var host = makeEl('div');
     host.id = 'rc-drill-host';
     _elementsById['rc-drill-host'] = host;
-    ['rc-drill-spot', 'rc-drill-build'].forEach(function(id) {
+    ['rc-drill-spot', 'rc-drill-listen', 'rc-drill-build'].forEach(function(id) {
       var card = makeEl('div');
       card.id = id;
       _elementsById[id] = card;
@@ -1790,11 +1802,12 @@ suite('renderReviewCenter — Practice groups', function() {
     try {
       renderGrid();
       _elementsById['rc-drill-spot'].click();
+      _elementsById['rc-drill-listen'].click();
       _elementsById['rc-drill-build'].click();
     } finally {
       delete global.startWordDrill;
     }
-    assert.deepStrictEqual(started.map(function(entry) { return entry[0]; }), ['spot', 'build']);
+    assert.deepStrictEqual(started.map(function(entry) { return entry[0]; }), ['spot', 'listen', 'build']);
     assert.strictEqual(started[0][1], host, 'drills render into the host');
   });
 

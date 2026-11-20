@@ -6583,6 +6583,11 @@ body::before {
   }
 }
 
+/* Five drills: the first spans the row, the other four pair up */
+.rc-modes-grid.rc-modes-grid-five > :first-child {
+  grid-column: 1 / -1;
+}
+
 /* ── Practice drills (js/ui/drill-ui.js) ───────────────────── */
 .rc-drill-host:empty {
   display: none;

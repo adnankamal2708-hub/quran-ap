@@ -64,6 +64,7 @@ global.exerciseEl = function(tag, className, text) {
 global.hasLearnedWords = function() { return _learned; };
 global.buildSpotDrill = function() { return _items.length ? _items.shift() : null; };
 global.buildVerseBuildDrill = global.buildSpotDrill;
+global.buildListenDrill = global.buildSpotDrill;
 global.renderExercise = function(body, item, onAnswer) { _rendered.push({ body: body, item: item, onAnswer: onAnswer }); };
 global.__quranLoader = {
   load: function() { return _gate ? _gate.then(function() { return true; }) : Promise.resolve(true); },
@@ -74,6 +75,7 @@ global.__quranLoader = {
 };
 
 var SPOT = { type: 'spot', prompt: { text: 'Tap' }, tokens: ['a', 'b', 'c'], answer: [1], tag: 'drill' };
+var LISTEN = { type: 'listen-choose', prompt: { audio: 'a.mp3' }, options: ['x', 'y'], answer: 0, tag: 'drill' };
 var BUILD = { type: 'build', prompt: { text: 'Translation' }, pieces: ['b', 'a', 'c'], answer: ['a', 'b', 'c'], tag: 'drill' };
 
 function reset() {
@@ -163,6 +165,29 @@ async function run() {
     await startWordDrill('spot', host);
     assert.strictEqual(messageOf(host), t('drill.noMatch'));
     assert.strictEqual(_rendered.length, 0);
+  });
+
+  await test('Hear the word with nothing learned says so and loads nothing', async function() {
+    var host = makeEl('div');
+    _learned = false;
+    await startWordDrill('listen', host);
+    assert.strictEqual(messageOf(host), t('drill.needWords'));
+    assert.strictEqual(_loads.length, 0);
+  });
+
+  await test('Hear the word retries with every drill surah, then asks', async function() {
+    var host = makeEl('div');
+    _items = [null, LISTEN];
+    await startWordDrill('listen', host);
+    assert.deepStrictEqual(_loads[1], DRILL_SURAH_IDS);
+    assert.strictEqual(_rendered[0].item, LISTEN);
+  });
+
+  await test('Hear the word says none of the words fit when no ayah has one', async function() {
+    var host = makeEl('div');
+    _items = [null, null];
+    await startWordDrill('listen', host);
+    assert.strictEqual(messageOf(host), t('drill.noMatch'));
   });
 
   await test('a failed load says the text is unavailable', async function() {
