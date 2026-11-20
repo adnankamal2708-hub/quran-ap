@@ -9969,6 +9969,21 @@ body::before {
   font-size: var(--text-base);
   color: var(--text-muted);
 }
+/* Share my progress (js/ui/share-card.js): above Continue, quiet outline */
+.root-finish .share-progress-btn {
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: var(--spacing-sm);
+}
+.session-share:empty {
+  display: none;
+}
+.session-share {
+  margin-bottom: var(--spacing-sm);
+}
+.profile-share {
+  margin-top: var(--spacing-md);
+}
 .root-continue,
 .root-next {
   width: 100%;
@@ -9985,6 +10000,7 @@ body::before {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .root-finish .share-progress-btn,
   .root-continue,
   .root-next {
     width: auto;

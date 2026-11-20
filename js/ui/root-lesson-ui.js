@@ -135,6 +135,7 @@ function _finishStepMarkup(run) {
   if (total > 0) h += '<p class="root-score">' + _rlEsc(t('root.score', { n: run.correct, total: total })) + '</p>';
   h += '<p class="root-gain' + (run.gained > 0 ? '' : ' is-none') + '" role="status">' +
     _rlEsc(run.gained > 0 ? t('percent.words.gained', { p: run.gained }) : t('root.noGain')) + '</p>';
+  if (typeof shareProgressButtonMarkup === 'function') h += shareProgressButtonMarkup();
   h += '<button type="button" class="btn root-continue" data-action="list">' + _rlEsc(t('root.all')) + '</button>';
   return h + '</div>';
 }

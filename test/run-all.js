@@ -85,6 +85,8 @@ var TESTS = [
   "placement-ui.test.js",
   "word-drills.test.js",
   "listen-drill.test.js",
+  "share-progress.test.js",
+  "share-card.test.js",
   "word-forms.test.js",
   "root-lesson.test.js",
   "drill-ui.test.js",

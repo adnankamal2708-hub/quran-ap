@@ -826,6 +826,8 @@ function renderProfileProgress() {
   }
   h += '<div class="profile-pstat"><div class="profile-pstat-value">' + $streakDays + '</div><div class="profile-pstat-label">Streak (days)</div></div>';
   h += '</div>';
+  var $share = typeof shareProgressButtonMarkup === 'function' ? shareProgressButtonMarkup() : '';
+  if ($share) h += '<div class="profile-share">' + $share + '</div>';
 
   // Foundation Course
   if (fTotal > 0) {

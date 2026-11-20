@@ -309,6 +309,9 @@ function showSessionSummary(stats) {
       : '—';
   }
 
+  var $shareEl = document.getElementById('session-share');
+  if ($shareEl && typeof shareProgressButtonMarkup === 'function') $shareEl.innerHTML = shareProgressButtonMarkup('w-full');
+
   var $accuracyEl = document.getElementById('session-accuracy');
   if ($accuracyEl) {
     $accuracyEl.textContent = $recallRate + '%';

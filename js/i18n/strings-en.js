@@ -60,6 +60,17 @@ var STRINGS = {
     'percent.words': "{p}% of the Quran's words understood",
     'percent.words.gained': "+{p}% of the Quran's words",
     'percent.words.pending': 'Your words count here once you remember them in a review on a later day',
+    // ── Shareable progress card (share-progress.js, share-card.js) ──
+    'share.button': 'Share my progress',
+    'share.claim': "of the Quran's words I understand",
+    'share.ayahIntro': 'An ayah I understand every word of',
+    'share.source': '{surah} {ref} · Saheeh International',
+    'share.footer': 'Learning with Bayan',
+    'share.message': "I understand {p} of the Quran's words. Learning with Bayan: {url}",
+    'share.title': 'My Quran progress',
+    'share.saved': 'Progress card saved to your downloads',
+    'share.failed': "Couldn't make the card. Try again.",
+
     'percent.qaida': "{p}% of the Quran's words you can read",
     'percent.qaida.gained': "+{p}% of the Quran's words you can read",
 
