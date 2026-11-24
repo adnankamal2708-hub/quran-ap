@@ -48,6 +48,7 @@ const DATA_CORE_FILES = [
   // Salah track data: prayer phrases with sources
   'js/salah/salah-phrases.js',
   'js/salah/salah-lessons.js',
+  'js/salah/salah-figure-poses.js',
   // Tajweed makharij and lesson data (letter ids are the Qaida ones)
   'js/tajweed/tajweed-makharij.js',
   'js/tajweed/tajweed-lessons.js',
@@ -80,6 +81,7 @@ const UI_FILES = [
   'js/ui/quran-map-markup.js',
   'js/ui/quran-map-ui.js',
   'js/ui/qaida-ui.js',
+  'js/ui/salah-figure.js',
   'js/ui/tajweed-ui.js',
   'js/ui/drill-ui.js',
   'js/ui/explorer.js',

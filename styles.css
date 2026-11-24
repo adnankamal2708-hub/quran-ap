@@ -98,6 +98,15 @@ html[data-text-size="larger"] { font-size: 130%; }
   --spacing-md: 12px;
   --spacing-lg: 16px;
   --spacing-xl: 24px;
+  /* The Salah figure (js/ui/salah-figure.js) */
+  --salah-cloth: #ece6d8;
+  --salah-cloth-far: #bfb8a8;
+  --salah-edge: #7d766a;
+  --salah-skin: #c08f66;
+  --salah-skin-far: #9a7050;
+  --salah-kufi: #fbf9f4;
+  --salah-mat: #4a2a22;
+  --salah-ring: #e2c46a;
 }
 
 /* Light theme: warm parchment. data-theme is set before first paint by the
@@ -129,6 +138,14 @@ html[data-text-size="larger"] { font-size: 130%; }
   --shadow-card: 0 4px 24px rgba(80, 60, 20, 0.08);
   --shadow-card-hover: 0 6px 32px rgba(80, 60, 20, 0.12);
   --shadow-elevated: 0 8px 40px rgba(80, 60, 20, 0.16);
+  --salah-cloth: #fbf8f1;
+  --salah-cloth-far: #ddd4c2;
+  --salah-edge: #6f6553;
+  --salah-skin: #b98258;
+  --salah-skin-far: #94673f;
+  --salah-kufi: #ffffff;
+  --salah-mat: #7a4a3a;
+  --salah-ring: #a9822b;
 }
 
 html,

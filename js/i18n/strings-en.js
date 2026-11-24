@@ -227,6 +227,7 @@ var STRINGS = {
     'salah.step.jalsa': 'Sitting between the two prostrations',
     'salah.step.tashahhud': 'Sitting for the tashahhud',
     'salah.step.taslim': 'Ending with salām',
+    'salah.step.raise': 'Raising the hands',
     'qaida.reviewNote': 'These lessons are awaiting review by a qualified teacher.',
     'qaida.intro.words': 'In the Quran',
     'qaida.intro.inWord': 'In a word:',
