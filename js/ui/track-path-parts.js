@@ -9,7 +9,8 @@ function _isLessonLocked(lesson, levelLock) {
   return levelLock === 'progress' ||
     (lesson.kind === 'foundation' && !isFoundationLessonUnlocked(lesson.ref)) ||
     (lesson.kind === 'qaida' && !lesson.completed && !isQaidaLessonUnlocked(lesson.ref)) ||
-    (lesson.kind === 'tajweed' && !lesson.completed && !isTajweedLessonUnlocked(lesson.ref));
+    (lesson.kind === 'tajweed' && !lesson.completed && !isTajweedLessonUnlocked(lesson.ref)) ||
+    (lesson.kind === 'salah' && !lesson.completed && !isSalahLessonUnlocked(lesson.ref));
 }
 
 /**

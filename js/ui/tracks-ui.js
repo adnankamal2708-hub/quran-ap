@@ -52,6 +52,15 @@ var TRACK_PATHS = {
     percent: function() { return _roundTajweedPercent(refreshTajweedPercent().percent); },
     percentKey: 'percent.tajweed',
   },
+  salah: {
+    levels: function() { return getSalahLevels(); },
+    lock: function(level) { return getSalahLevelLock(level); },
+    level: function() { return getSalahLevel(); },
+    percent: function() { return refreshSalahPercent().percent; },
+    percentKey: 'percent.salah',
+    note: function() { return SALAH_TEACHER_REVIEWED ? null : 'salah.teacherReview'; },
+    header: function() { return salahPathHeaderHtml(); },
+  },
 };
 
 /**
@@ -162,6 +171,7 @@ function renderTrackPath(trackId) {
   var path = TRACK_PATHS[id];
   var note = path && (typeof path.note === 'function' ? path.note(percent) : path.note);
   if (note) h += '<p class="track-path-note">' + _trEsc(t(note)) + '</p>';
+  if (path && path.header) h += path.header();
   h += '</div>';
 
   if (path) path.levels().forEach(function(levelData) { h += _levelSection(levelData, path); });
@@ -195,6 +205,16 @@ function _openPathLesson(kind, ref) {
   else if (kind === 'root-families') openRootList();
   else if (kind === 'qaida') startQaidaLesson(ref);
   else if (kind === 'tajweed') startTajweedLesson(ref);
+  else if (kind === 'salah') startSalahLesson(ref);
+}
+
+/** Open a track's path; the Salah track asks for the madhab first. */
+function _openTrackPath(trackId) {
+  if (trackId === 'salah' && !getSalahMadhab()) {
+    openSalahMadhabPicker(function() { switchView('track', { trackId: trackId }); });
+    return;
+  }
+  switchView('track', { trackId: trackId });
 }
 
 function _closeTrackMenus(view) {
@@ -226,10 +246,11 @@ function _runLearnAction(el, view) {
   if (action !== 'menu') _closeTrackMenus(view);
 
   if (action === 'menu') _toggleTrackMenu(el, view);
-  else if (action === 'open') switchView('track', { trackId: trackId });
+  else if (action === 'open') _openTrackPath(trackId);
   else if (action === 'make-main') { setMainTrack(trackId); renderTracks(); }
   else if (action === 'leave') { leaveTrack(trackId); renderTracks(); }
-  else if (action === 'join') { joinTrack(trackId); switchView('track', { trackId: trackId }); }
+  else if (action === 'join') { joinTrack(trackId); _openTrackPath(trackId); }
+  else if (action === 'salah-madhab') openSalahMadhabPicker();
   else if (action === 'back') switchView('tracks');
   else if (action === 'lesson') _openPathLesson(el.getAttribute('data-kind'), el.getAttribute('data-ref'));
   else if (action === 'upgrade') {

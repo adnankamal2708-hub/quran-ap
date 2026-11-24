@@ -10386,6 +10386,37 @@ body::before {
 .qaida-continue, .qaida-next, .qaida-finish-actions .btn { min-height: 48px; white-space: normal; }
 .qaida-continue, .qaida-next { width: 100%; }
 
+/* ── Salah lesson (js/ui/salah-ui.js, salah-madhab-ui.js) ──
+   The screens reuse the qaida-* layout; these are the phrases, the figure
+   and the madhab picker. */
+.salah-fig { display: block; width: 100%; height: auto; }
+.salah-walk-fig { width: 100%; max-width: 360px; margin: 0 auto; }
+.salah-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.salah-chip { min-height: 44px; padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-btn); background: var(--surface); color: var(--text-muted); font-family: var(--body); font-size: var(--text-sm); cursor: pointer; }
+.salah-chip:hover { color: var(--text); }
+.salah-chip[aria-pressed="true"] { color: var(--text); border-color: var(--gold-dim); }
+.salah-chip:focus-visible, .salah-madhab:focus-visible, .salah-path-change:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.salah-phrases { display: flex; flex-direction: column; gap: var(--spacing-md); margin: 0; padding: 0; list-style: none; }
+.salah-phrase { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-section); }
+.salah-phrase-fig { width: 100%; max-width: 240px; margin: 0 auto; }
+.salah-phrase-ar { font-family: var(--arabic); font-size: 1.75rem; line-height: 2.1; color: var(--text); text-align: right; overflow-wrap: anywhere; }
+.salah-phrase-tr, .salah-sources { margin: 0; font-size: var(--text-sm); line-height: 1.6; color: var(--text-muted); overflow-wrap: anywhere; }
+.salah-phrase-tr { font-style: italic; }
+.salah-phrase-en { margin: 0; font-size: var(--text-base); line-height: 1.6; color: var(--text); }
+.salah-words { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
+.salah-words li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "tr ar" "en ar"; column-gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.salah-word-ar { grid-area: ar; font-family: var(--arabic); font-size: 1.5rem; line-height: 1.8; color: var(--text); text-align: right; overflow-wrap: anywhere; }
+.salah-word-tr { grid-area: tr; font-size: var(--text-sm); color: var(--text-muted); overflow-wrap: anywhere; }
+.salah-word-en { grid-area: en; font-size: var(--text-sm); color: var(--text); overflow-wrap: anywhere; }
+.salah-lesson-note, .salah-review-note { padding: 12px 14px; border-left: 2px solid var(--gold-dim); background: var(--surface); border-radius: 0 var(--radius-btn) var(--radius-btn) 0; font-size: var(--text-sm); }
+.salah-madhabs { display: flex; flex-direction: column; gap: var(--spacing-sm); margin: 0; padding: 0; list-style: none; }
+.salah-madhab { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; min-height: 56px; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-section); background: var(--surface); color: var(--text); font-family: var(--body); text-align: left; cursor: pointer; }
+.salah-madhab:hover, .salah-madhab.is-current { border-color: var(--gold-dim); }
+.salah-madhab-name { font-size: var(--text-base); font-weight: 500; }
+.salah-madhab-desc { font-size: var(--text-sm); line-height: 1.5; color: var(--text-muted); }
+.salah-path-madhab { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
+.salah-path-change { min-height: 44px; padding: 0 4px; border: none; background: none; color: var(--gold); font-family: var(--body); font-size: var(--text-sm); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
 /* ── Tajweed (js/ui/tajweed-ui.js) ──
    The lesson and verse-practice screens reuse the qaida-* layout; these
    are the practice cards (a letter or a verse, with Record and the marks). */

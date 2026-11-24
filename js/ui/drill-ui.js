@@ -20,6 +20,12 @@ var DRILL_LEARNED_KINDS = ['spot', 'listen'];
 /** Drills about Qaida skills rather than Quran words */
 var DRILL_QAIDA_KINDS = ['letters', 'qaida-review'];
 
+/** Drills that need no Quran text: their questions are built from the app's own data */
+var DRILL_LOCAL_KINDS = DRILL_QAIDA_KINDS.concat(['salah-review']);
+
+/** What a local drill says when it has no question to ask */
+var DRILL_EMPTY_MESSAGE = { 'qaida-review': 'qaida.review.done', 'salah-review': 'salah.review.done', letters: 'qaida.review.done' };
+
 /** Bumped on every start, so a slow load cannot overwrite a newer drill. */
 var _drillRun = 0;
 
@@ -29,6 +35,7 @@ function _drillBuilder(kind) {
   if (kind === 'listen') return buildListenDrill;
   if (kind === 'letters') return function() { return buildConfusedLettersDrill(Date.now()); };
   if (kind === 'qaida-review') return _drillNextQaidaReview;
+  if (kind === 'salah-review') return _drillNextSalahReview;
   return null;
 }
 
@@ -36,6 +43,12 @@ function _drillBuilder(kind) {
 function _drillNextQaidaReview() {
   var due = getDueQaidaSkills();
   return due.length ? buildQaidaSkillItem(due[0], Date.now()) : null;
+}
+
+/** A question on the most overdue word of the prayer, or null when none is due. */
+function _drillNextSalahReview() {
+  var due = getDueSalahWords();
+  return due.length ? buildSalahReviewItem(due[0], Date.now()) : null;
 }
 
 function _drillShowMessage(host, key) {
@@ -75,7 +88,9 @@ function _drillShowItem(host, kind, item) {
   var qaida = DRILL_QAIDA_KINDS.indexOf(kind) >= 0;
   renderExercise(body, item, function(correct) {
     if (qaida) recordQaidaAnswer(item.skill, correct);
-    var again = exerciseEl('button', 'btn drill-again', t(kind === 'qaida-review' ? 'root.next' : 'drill.again'));
+    if (kind === 'salah-review') recordSalahWord(item.word, correct);
+    var review = kind === 'qaida-review' || kind === 'salah-review';
+    var again = exerciseEl('button', 'btn drill-again', t(review ? 'root.next' : 'drill.again'));
     again.type = 'button';
     again.addEventListener('click', function() { startWordDrill(kind, host); });
     host.appendChild(again);
@@ -83,15 +98,15 @@ function _drillShowItem(host, kind, item) {
   });
 }
 
-/** Starts a drill of the given kind ('spot', 'listen', 'build', 'letters' or 'qaida-review') in the host element. */
+/** Starts a drill of the given kind ('spot', 'listen', 'build', 'letters', 'qaida-review' or 'salah-review') in the host element. */
 async function startWordDrill(kind, host) {
   var buildItem = _drillBuilder(kind);
   if (!host || !buildItem) return;
   var run = ++_drillRun;
-  if (DRILL_QAIDA_KINDS.indexOf(kind) >= 0) {
-    var qaidaItem = buildItem();
-    if (qaidaItem) _drillShowItem(host, kind, qaidaItem);
-    else _drillShowMessage(host, 'qaida.review.done');
+  if (DRILL_LOCAL_KINDS.indexOf(kind) >= 0) {
+    var localItem = buildItem();
+    if (localItem) _drillShowItem(host, kind, localItem);
+    else _drillShowMessage(host, DRILL_EMPTY_MESSAGE[kind]);
     return;
   }
   var needsLearned = DRILL_LEARNED_KINDS.indexOf(kind) >= 0;

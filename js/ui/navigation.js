@@ -89,6 +89,10 @@ function _switchViewCore(viewName, options) {
     if (typeof renderQaidaLesson === 'function') renderQaidaLesson();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderQaidaLesson() not found');
   }
+  if (viewName === 'salah-lesson') {
+    if (typeof renderSalahLesson === 'function') renderSalahLesson();
+    else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderSalahLesson() not found');
+  }
   if (viewName === 'tajweed-lesson') {
     if (typeof renderTajweedLesson === 'function') renderTajweedLesson();
     else if (window.__diag) window.__diag.warn('App', 'switchView', 'renderTajweedLesson() not found');
@@ -189,6 +193,7 @@ function _updateActiveTab(viewName, navContext) {
     track: 'tab-learn',
     'root-lesson': 'tab-learn',
     'qaida-lesson': 'tab-learn',
+    'salah-lesson': 'tab-learn',
     'tajweed-lesson': 'tab-learn',
     learn: 'tab-learn',
     quiz: 'tab-learn',

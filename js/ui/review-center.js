@@ -224,6 +224,15 @@ function _rcQaidaDue() {
     '</div><div id="rc-qaida-host" class="rc-drill-host"></div>';
 }
 
+/** Words of the prayer that are due, as a card with its own question host; empty when none. */
+function _rcSalahDue() {
+  var due = typeof getDueSalahWords === 'function' ? getDueSalahWords() : [];
+  if (!due.length) return '';
+  return '<div class="rc-modes-grid rc-modes-grid-single">' +
+    _rcModeCard('rc-salah-review', 'repeat', t('salah.review.title'), t('salah.review.due', { n: due.length })) +
+    '</div><div id="rc-salah-host" class="rc-drill-host"></div>';
+}
+
 function _rcTajweedReleased() {
   return typeof isTrackReleased === 'function' && isTrackReleased('tajweed');
 }
@@ -697,7 +706,7 @@ function renderReviewCenter() {
 
   // ── Group: Due today, Drills, Tests ──
   $h = $headH +
-    _rcGroupTitle('practice.due') + _rcQaidaDue() + _rcTajweedDue() + $dueH + $h +
+    _rcGroupTitle('practice.due') + _rcQaidaDue() + _rcSalahDue() + _rcTajweedDue() + $dueH + $h +
     _rcGroupTitle('practice.drills') + $modesH + $listsH + _rcDrillCards() +
     _rcGroupTitle('practice.tests') + _rcTestCards();
 
@@ -796,6 +805,9 @@ function wireReviewCenterEvents($data) {
   });
   $wire('rc-qaida-review', function() {
     if (typeof startWordDrill === 'function') startWordDrill('qaida-review', document.getElementById('rc-qaida-host'));
+  });
+  $wire('rc-salah-review', function() {
+    if (typeof startWordDrill === 'function') startWordDrill('salah-review', document.getElementById('rc-salah-host'));
   });
   $wire('rc-drill-letters', function() {
     if (typeof startWordDrill === 'function') startWordDrill('letters', document.getElementById('rc-drill-host'));

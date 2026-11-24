@@ -105,6 +105,7 @@ var TESTS = [
   "salah-track.test.js",
   "salah-exercises.test.js",
   "salah-figure.test.js",
+  "salah-ui.test.js",
   "tajweed-data.test.js",
   "verse-word-counts.test.js",
   "word-meanings.test.js",
