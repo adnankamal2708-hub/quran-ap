@@ -130,6 +130,17 @@ test('a drifted Quran passage fails the check', function() {
   assert.strictEqual(matchesQuranText(marked), false);
 });
 
+test('parts cover every word of their phrase, in order, each with a meaning', function() {
+  SALAH_PHRASES.filter(function(p) { return p.parts; }).forEach(function(p) {
+    assert.ok(p.parts.length > 1, p.id);
+    p.parts.forEach(function(part, i) {
+      assert.strictEqual(part.from, i === 0 ? 0 : p.parts[i - 1].to, p.id + ' part ' + i);
+      assert.ok(part.to > part.from && part.en, p.id + ' part ' + i);
+    });
+    assert.strictEqual(p.parts[p.parts.length - 1].to, p.words.length, p.id + ' last part');
+  });
+});
+
 test('teacher review flag starts unset', function() {
   assert.strictEqual(SALAH_TEACHER_REVIEWED, false);
 });

@@ -12,6 +12,8 @@
 //   sources  [{ book, number }]: where the wording comes from
 //   madhab   only for points where the schools differ: the schools that
 //            say this phrase. No list means every school.
+//   parts    [{ from, to, en }] for a phrase taught over several lessons:
+//            words from..to (end not included) and that part's meaning
 //   quran    { surah, from, to } for Quran passages. Their words are the
 //            app's own Quran text (js/quran/quran-data.js), checked by
 //            test/salah-data.test.js.
@@ -176,6 +178,11 @@ var SALAH_PHRASES = [
       { ar: 'ٱلضَّآلِّينَ', tr: 'aḍ-ḍāllīn', en: 'those who went astray' },
     ],
     sources: [{ book: 'Quran', number: '1:1–7' }, { book: 'Bukhārī', number: '756' }],
+    parts: [
+      { from: 0, to: 13, en: 'In the name of Allah, the Most Gracious, the Most Merciful. All praise is for Allah, Lord of all the worlds, the Most Gracious, the Most Merciful, Master of the Day of Judgement.' },
+      { from: 13, to: 17, en: 'You alone we worship, and You alone we ask for help.' },
+      { from: 17, to: 29, en: 'Guide us to the straight path: the path of those You have blessed, not of those who earned Your anger, nor of those who went astray.' },
+    ],
     quran: { surah: 1, from: 1, to: 7 },
   },
   {
@@ -404,6 +411,10 @@ var SALAH_PHRASES = [
     ],
     sources: [{ book: 'Bukhārī', number: '831' }, { book: 'Muslim', number: '402' }],
     madhab: ['hanafi', 'hanbali', 'unsure'],
+    parts: [
+      { from: 0, to: 17, en: 'All greetings are for Allah, and all prayers and all good things. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah.' },
+      { from: 17, to: 28, en: 'I bear witness that there is no god except Allah, and I bear witness that Muhammad is His servant and His messenger.' },
+    ],
   },
   {
     id: 'tashahhud-ibn-abbas', step: 'tashahhud',
@@ -443,6 +454,10 @@ var SALAH_PHRASES = [
     ],
     sources: [{ book: 'Muslim', number: '403' }],
     madhab: ['shafii'],
+    parts: [
+      { from: 0, to: 18, en: 'All blessed greetings, prayers and good things are for Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah.' },
+      { from: 18, to: 29, en: 'I bear witness that there is no god except Allah, and I bear witness that Muhammad is the messenger of Allah.' },
+    ],
   },
   {
     id: 'tashahhud-umar', step: 'tashahhud',
@@ -484,6 +499,10 @@ var SALAH_PHRASES = [
     ],
     sources: [{ book: 'Mālik, al-Muwaṭṭaʾ', number: 'Book of Prayer, chapter on the tashahhud (3:53)' }],
     madhab: ['maliki'],
+    parts: [
+      { from: 0, to: 20, en: 'All greetings are for Allah, all pure deeds are for Allah, all good words and prayers are for Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah.' },
+      { from: 20, to: 31, en: 'I bear witness that there is no god except Allah, and I bear witness that Muhammad is His servant and His messenger.' },
+    ],
   },
   {
     id: 'salawat-ibrahimiyyah', step: 'tashahhud',
@@ -527,6 +546,10 @@ var SALAH_PHRASES = [
       { ar: 'مَجِيدٌ', tr: 'majīdun', en: 'Glorious', wordId: 'cw_977' },
     ],
     sources: [{ book: 'Bukhārī', number: '3370' }, { book: 'Muslim', number: '406' }],
+    parts: [
+      { from: 0, to: 17, en: 'O Allah, send blessings upon Muhammad and upon the family of Muhammad, as You sent blessings upon Ibrāhīm and upon the family of Ibrāhīm; You are Praiseworthy, Glorious.' },
+      { from: 17, to: 34, en: 'O Allah, bless Muhammad and the family of Muhammad, as You blessed Ibrāhīm and the family of Ibrāhīm; You are Praiseworthy, Glorious.' },
+    ],
   },
   {
     id: 'dua-abu-bakr', step: 'tashahhud',
@@ -626,6 +649,10 @@ var SALAH_PHRASES = [
     ],
     sources: [{ book: 'Abū Dāwūd', number: '1425' }, { book: 'Tirmidhī', number: '464' }],
     madhab: ['shafii', 'hanbali', 'unsure'],
+    parts: [
+      { from: 0, to: 18, en: 'O Allah, guide me among those You have guided, keep me well among those You have kept well, take care of me among those You have taken care of, bless me in what You have given, and protect me from the evil of what You have decreed.' },
+      { from: 18, to: 31, en: 'You decree, and nothing is decreed against You. Whoever You befriend is never humbled. Blessed are You, our Lord, and exalted.' },
+    ],
   },
   {
     id: 'qunut-nastainuka', step: 'qiyam',
@@ -671,6 +698,10 @@ var SALAH_PHRASES = [
     ],
     sources: [{ book: 'al-Bayhaqī, as-Sunan al-Kubrā', number: '2/210 (from ʿUmar)' }, { book: 'Ibn Abī Shaybah, al-Muṣannaf', number: 'Book of Prayer, qunūt in Witr' }],
     madhab: ['hanafi', 'maliki'],
+    parts: [
+      { from: 0, to: 18, en: 'O Allah, we ask You for help and ask Your forgiveness, we believe in You and rely on You, we praise You with all good, we thank You and are not ungrateful to You, and we cast off and leave whoever disobeys You.' },
+      { from: 18, to: 35, en: 'O Allah, You alone we worship, to You we pray and prostrate, and to You we strive and hasten. We hope for Your mercy and fear Your punishment; Your punishment will reach the disbelievers.' },
+    ],
   },
 ];
 

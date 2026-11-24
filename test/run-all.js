@@ -101,6 +101,7 @@ var TESTS = [
   "qaida-exercises.test.js",
   "qaida-word-audio.test.js",
   "salah-data.test.js",
+  "salah-lessons.test.js",
   "tajweed-data.test.js",
   "verse-word-counts.test.js",
   "word-meanings.test.js",

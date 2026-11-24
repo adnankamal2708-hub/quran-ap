@@ -47,6 +47,7 @@ const DATA_CORE_FILES = [
   'js/qaida/qaida-listen-exercises.js',
   // Salah track data: prayer phrases with sources
   'js/salah/salah-phrases.js',
+  'js/salah/salah-lessons.js',
   // Tajweed makharij and lesson data (letter ids are the Qaida ones)
   'js/tajweed/tajweed-makharij.js',
   'js/tajweed/tajweed-lessons.js',
