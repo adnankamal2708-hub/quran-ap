@@ -8,6 +8,9 @@
 // lists every school's version; salahLessonPhrases keeps the learner's.
 // ═══════════════════════════════════════════════════════════════
 
+/** The positions of one rakʿah, in order: the figure's pose ids */
+var SALAH_STEP_IDS = ['takbir', 'qiyam', 'ruku', 'itidal', 'sujud', 'jalsa', 'tashahhud', 'taslim'];
+
 var SALAH_LESSON_PLAN = {
   1: [
     { kind: 'walkthrough', phrases: [] },

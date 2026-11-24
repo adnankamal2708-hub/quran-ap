@@ -121,6 +121,7 @@ const APP_FILES = [
   'js/exercises/word-drills.js',
   'js/exercises/listen-drill.js',
   'js/qaida/qaida-exercises.js',
+  'js/salah/salah-exercises.js',
   'js/tajweed/tajweed-exercises.js',
   'js/exercises/root-lesson.js',
   'js/exercises/quiz-verse.js',
