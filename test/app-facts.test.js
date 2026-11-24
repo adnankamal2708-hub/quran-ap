@@ -70,6 +70,9 @@ t('a track line shows only while that track is released', function () {
   assert.ok(!free.some(function (l) { return /Tajweed/.test(l); }));
   released(['words', 'qaida', 'tajweed']);
   assert.ok(getPlanLines('free').some(function (l) { return /Tajweed/.test(l); }));
+  assert.ok(!getPlanLines('free').some(function (l) { return /Salah/.test(l); }));
+  released(['words', 'salah']);
+  assert.ok(getPlanLines('free').some(function (l) { return /Salah: understand every word of your prayer/.test(l); }));
 });
 
 t('free lines state the enforced limits', function () {

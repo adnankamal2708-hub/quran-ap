@@ -177,7 +177,7 @@ function finishFoundation() {
 
 console.log('\nTrack cards');
 
-test('default state: one joined "Word meanings" card and Qaida to join; unreleased tracks are not shown', function() {
+test('default state: one joined "Word meanings" card, Qaida and Salah to join; unreleased tracks are not shown', function() {
   renderTracks();
   var all = cards();
   var joined = all.filter(function(c) { return c.indexOf('is-joined') >= 0; });
@@ -185,10 +185,11 @@ test('default state: one joined "Word meanings" card and Qaida to join; unreleas
   var open = all.filter(function(c) { return c.indexOf('data-action="join"') >= 0; });
   assert.strictEqual(joined.length, 1);
   assert.ok(joined[0].indexOf('Word meanings') >= 0, 'joined card is Word meanings');
-  assert.strictEqual(open.length, 1);
+  assert.strictEqual(open.length, 2);
   assert.ok(open[0].indexOf('Read Arabic from zero') >= 0, 'Qaida offers Join');
+  assert.ok(open[1].indexOf('Understand your prayer') >= 0, 'Salah offers Join');
   assert.strictEqual(soon.length, 0);
-  assert.strictEqual(all.length, 2);
+  assert.strictEqual(all.length, 3);
   assert.ok(html('view-tracks').indexOf('>Tajweed<') < 0, 'no Tajweed card yet');
 });
 

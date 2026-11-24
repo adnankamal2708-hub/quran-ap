@@ -69,14 +69,14 @@ function trackRecord(overrides) {
 
 suite('Track constants', function() {
   test('ids, level count and storage key', function() {
-    assert.deepStrictEqual(TRACK_IDS, ['qaida', 'tajweed', 'words', 'understanding']);
+    assert.deepStrictEqual(TRACK_IDS, ['qaida', 'tajweed', 'words', 'understanding', 'salah']);
     assert.strictEqual(TRACK_LEVEL_COUNT, 4);
     assert.strictEqual(TRACKS_KEY, 'quran_tracks');
   });
 
-  test('Word meanings and Read Arabic from zero are released; the others are not yet', function() {
+  test('Word meanings, Read Arabic from zero and Understand your prayer are released; the others are not yet', function() {
     TRACK_IDS.forEach(function(id) {
-      assert.strictEqual(isTrackReleased(id), id === 'words' || id === 'qaida', id);
+      assert.strictEqual(isTrackReleased(id), id === 'words' || id === 'qaida' || id === 'salah', id);
     });
     assert.strictEqual(isTrackReleased('nope'), false);
   });

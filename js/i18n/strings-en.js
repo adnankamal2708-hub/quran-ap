@@ -45,10 +45,12 @@ var STRINGS = {
     'track.tajweed.name': 'Tajweed',
     'track.words.name': 'Word meanings',
     'track.understanding.name': 'Understanding',
+    'track.salah.name': 'Understand your prayer',
     'track.qaida.desc': 'Learn to read the Arabic letters and marks',
     'track.tajweed.desc': 'Recite with correct pronunciation and rules',
     'track.words.desc': "Learn the meanings of the Quran's words",
     'track.understanding.desc': 'Translation and the grammar behind it',
+    'track.salah.desc': 'Every word you say in the prayer, step by step',
 
     // ── Levels ──
     'level.0': 'Beginner',
@@ -73,6 +75,8 @@ var STRINGS = {
 
     'percent.qaida': "{p}% of the Quran's words you can read",
     'percent.qaida.gained': "+{p}% of the Quran's words you can read",
+    'percent.salah': '{p}% of the words in your prayer understood',
+    'percent.salah.gained': '+{p}% of the words in your prayer understood',
 
     // ── Learn and track menus ──
     'tracks.comingSoon': 'Coming soon',

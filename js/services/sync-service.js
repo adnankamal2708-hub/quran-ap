@@ -105,6 +105,7 @@ var SYNC_KEY_MAP = {
   analyticsSessions: 'quran_analytics_sessions',
   tracks: 'quran_tracks',
   qaidaProgress: 'quran_qaida_progress',
+  salahProgress: 'quran_salah_progress',
   tajweedProgress: 'quran_tajweed_progress',
   syncMeta: 'quran_sync_meta',
 };
@@ -644,6 +645,14 @@ function mergeData(localData, cloudData) {
     merged.qaidaProgress = typeof mergeQaidaProgress === 'function'
       ? mergeQaidaProgress(localData.qaidaProgress, cloudData.qaidaProgress)
       : (localData.qaidaProgress || cloudData.qaidaProgress);
+  }
+
+  // Salah lessons and words: unions, the later madhab choice
+  // (mergeSalahProgress, data-core/salah-track.js)
+  if (localData.salahProgress || cloudData.salahProgress) {
+    merged.salahProgress = typeof mergeSalahProgress === 'function'
+      ? mergeSalahProgress(localData.salahProgress, cloudData.salahProgress)
+      : (localData.salahProgress || cloudData.salahProgress);
   }
 
   // Tajweed lessons and verses: the union of finished lessons and smooth

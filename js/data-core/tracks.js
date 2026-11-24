@@ -12,7 +12,7 @@
 // existing progress is untouched — this module never writes other keys).
 
 /** Track ids, in display order */
-var TRACK_IDS = ['qaida', 'tajweed', 'words', 'understanding'];
+var TRACK_IDS = ['qaida', 'tajweed', 'words', 'understanding', 'salah'];
 
 /** Levels per track: 0..TRACK_LEVEL_COUNT - 1 */
 var TRACK_LEVEL_COUNT = 4;
@@ -24,12 +24,12 @@ var TRACKS_STATE_VERSION = 1;
 var DEFAULT_TRACK_ID = 'words';
 
 /**
- * Tracks a learner may join: Word meanings, Read Arabic from zero from
- * Phase 2, and Tajweed once its 28 letter recordings are in
+ * Tracks a learner may join: Word meanings, Understand your prayer,
+ * Read Arabic from zero from Phase 2, and Tajweed once its 28 letter recordings are in
  * (areLetterRecordingsComplete, data-core/tajweed-track.js).
  */
 function isTrackReleased(id) {
-  return id === 'words' || id === 'qaida' ||
+  return id === 'words' || id === 'qaida' || id === 'salah' ||
     (id === 'tajweed' && typeof areLetterRecordingsComplete === 'function' && areLetterRecordingsComplete());
 }
 

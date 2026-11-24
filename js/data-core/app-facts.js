@@ -33,6 +33,7 @@ var PLAN_LINES = {
     { text: 'The {freeWords} most frequent Quranic words in full detail', brief: true },
     { text: 'Read Arabic from zero: the letters and marks', track: 'qaida', brief: true },
     { text: 'Tajweed: recite with correct pronunciation', track: 'tajweed' },
+    { text: 'Salah: understand every word of your prayer', track: 'salah' },
     { text: 'Quran reader with word meanings and Al-Husary’s recitation' },
     { text: 'Today’s ayah and the Quran map' },
     { text: 'Placement tests, quizzes and practice drills' },
@@ -101,7 +102,7 @@ function getAppFacts() {
     tafsirPerDay: L.tafsirPerDay,
     reviewsFree: L.reviewsPerDay.free,
     reviewsMonthly: L.reviewsPerDay.monthly,
-    tracks: { qaida: !!released('qaida'), tajweed: !!released('tajweed') },
+    tracks: { qaida: !!released('qaida'), tajweed: !!released('tajweed'), salah: !!released('salah') },
   };
 }
 
