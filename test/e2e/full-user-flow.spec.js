@@ -596,13 +596,14 @@ test.describe('Learn tab', () => {
     await skipOnboarding(page);
   });
 
-  test('shows Word meanings as the main track and Qaida to join, without unreleased tracks', async ({ page }) => {
+  test('shows Word meanings as the main track and Qaida and Salah to join, without unreleased tracks', async ({ page }) => {
     await page.locator('#tab-learn').click();
     await expect(page.locator('#view-tracks')).toBeVisible();
     await expect(page.locator('#view-tracks .track-card.is-joined')).toHaveCount(1);
     await expect(page.locator('#view-tracks .track-card.is-main')).toContainText('Word meanings');
     await expect(page.locator('#view-tracks .track-card-join[data-track="qaida"]')).toHaveCount(1);
-    await expect(page.locator('#view-tracks .track-card')).toHaveCount(2);
+    await expect(page.locator('#view-tracks .track-card-join[data-track="salah"]')).toHaveCount(1);
+    await expect(page.locator('#view-tracks .track-card')).toHaveCount(3);
   });
 
   test('the track menu offers Make main and a disabled Leave', async ({ page }) => {

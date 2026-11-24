@@ -36,6 +36,7 @@ look, feel and calm tone.
 | Tajweed | Correct recitation: makhārij, letter qualities, rules | Phase 3 |
 | Word meanings | Today's vocabulary course | Phase 1 |
 | Understanding | Translation plus the grammar needed for it | Phase 4 |
+| Understand your prayer (Salah) | The words of the prayer, what each means, and the position it is said in | Phase 5 |
 
 There is no separate grammar track; Understanding teaches the grammar it
 needs.
@@ -93,6 +94,29 @@ examples.
 | Elementary | Past and present verbs and commands, iḍāfah, prepositions, nominal and verbal sentences |
 | Intermediate | Roots and patterns, verb forms I–X, medium-length surahs with less help |
 | Advanced | Longer passages, word order and emphasis, comparing translations |
+
+### Salah levels
+
+The last track. It teaches the words said in the prayer, word by word, with
+the position each is said in. Every phrase cites its ḥadīth or Quran source.
+A faceless figure in a thobe and kufi shows the positions (no face is drawn).
+There is no duʿāʾ audio.
+
+The learner picks a madhab (Ḥanafī, Mālikī, Shāfiʿī, Ḥanbalī or Not sure)
+before the first lesson and can change it from the track's path; finished
+lessons stay finished. Each lesson shows the learner's school's wording and
+notes where the schools differ. "Not sure" shows a widely held view.
+
+| Level | Content |
+|---|---|
+| Beginner | The positions of one rakʿah, the takbīr, taʿawwudh and basmalah, the tasbīḥ of rukūʿ and sujūd, rising from rukūʿ, between the two prostrations, the taslīm |
+| Elementary | Al-Fātiḥah in three parts, then al-Ikhlāṣ, al-Kawthar, al-ʿAṣr, al-Falaq and an-Nās |
+| Intermediate | The opening duʿāʾ, the tashahhud in each school's wording, the raised finger and the sittings |
+| Advanced | The ṣalāh ʿalā an-Nabī, the duʿāʾ before the salām and the qunūt |
+
+Each level ends with a word check. Only word answers count towards the
+track's %, which is the share of the prayer's words understood. Levels 3
+and 4 show a note that they await a qualified teacher's review.
 
 ## Lessons and exercises
 
@@ -254,3 +278,4 @@ Audio is a prerequisite for Qaida and Tajweed.
 | Qualified teacher to review Qaida lessons | Not yet found | Phase 2 release |
 | Saheeh International translation licence | To verify; find a clearly licensed translation if needed | Phase 4 |
 | Tajweed-annotated Quran text and its licence | To find and verify (only for the reader's tajweed view; the first Tajweed version does not need it) | Reader view |
+| Qualified teacher to review the Salah track | Not yet found. Covers the qunūt wording, the Muwaṭṭaʾ citation, the Mālikī basmalah view, the finger, sitting and qunūt notes, and the line on where each madhab is followed. Until then levels 3–4 show the teacher-review note (SALAH_TEACHER_REVIEWED) | Salah review |
