@@ -387,8 +387,9 @@ suite('Vocabulary Occurrence Count Integrity', function() {
           '"' + sw.field + '" found ' + fieldCount + ' times, expected >= ' + sw.minCount);
         return;
       }
-      // Search with exact diacritics-included arabic text
-      var idx = bundleCode.indexOf(sw.arabic);
+      // Search for the vocabulary entry itself (other data, such as the
+      // Salah phrases, also contains the same Arabic text)
+      var idx = bundleCode.indexOf('arabic:"' + sw.arabic + '"');
       assert.ok(idx >= 0, 'Word "' + sw.label + '" arabic text not found in data bundle');
 
       // Find occ: N within 500 chars after the word
