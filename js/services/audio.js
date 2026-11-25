@@ -83,14 +83,16 @@ function qaidaAudioUrl(skillId) {
  * @param {string} url
  * @param {Function} [onEnd] - called when the sound finishes
  * @param {Function} [onStop] - called if another sound or stopAudio() cuts it off
+ * @param {number} [rate] - playback speed; 1 when not given
  * @returns {Promise<boolean>}
  */
-function playAudio(url, onEnd, onStop) {
+function playAudio(url, onEnd, onStop, rate) {
   stopAudio();
   if (!url || typeof Audio === 'undefined') return Promise.resolve(false);
   if (!_audioEl) _audioEl = new Audio();
   var el = _audioEl;
   el.src = url;
+  _setRate(el, rate || 1);
   el.onended = function () {
     _audioOnStop = null;
     if (onEnd) onEnd();
@@ -108,7 +110,7 @@ function playAudio(url, onEnd, onStop) {
  * Play several sounds one after another (a word quran.com splits in two,
  * or a run of verses). onEach(i) is called as sound i starts.
  * @param {string[]} urls
- * @param {{onEach?: Function, onEnd?: Function, onStop?: Function}} [opts]
+ * @param {{onEach?: Function, onEnd?: Function, onStop?: Function, rate?: number}} [opts]
  */
 function playAudioQueue(urls, opts) {
   opts = opts || {};
@@ -116,11 +118,22 @@ function playAudioQueue(urls, opts) {
   function playAt(i) {
     if (i >= list.length) { if (opts.onEnd) opts.onEnd(); return; }
     if (opts.onEach) opts.onEach(i);
-    playAudio(list[i], function () { playAt(i + 1); }, opts.onStop);
+    playAudio(list[i], function () { playAt(i + 1); }, opts.onStop, opts.rate);
     // Fetch the next sound while this one plays, so it starts without a wait.
     if (i + 1 < list.length) cacheAudio([list[i + 1]]);
   }
   playAt(0);
+}
+
+// A new src resets playbackRate to defaultPlaybackRate, so both are set.
+function _setRate(el, rate) {
+  el.defaultPlaybackRate = rate;
+  el.playbackRate = rate;
+}
+
+/** Change the speed of the sound playing now (the reader's Speed option). */
+function setCurrentAudioRate(rate) {
+  if (_audioEl) _setRate(_audioEl, rate || 1);
 }
 
 /** The element sounds play through (null before the first sound). */

@@ -10478,6 +10478,11 @@ body::before {
   color: var(--gold-light);
 }
 .reader-audio-credit { margin: 8px 16px 0; }
+/* Speed and Repeat (js/ui/quran-player-options.js); 16px text so iOS does not zoom */
+.reader-player-options { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 8px 16px 0; }
+.reader-option { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-sm); color: var(--text-muted); }
+.reader-option-select { height: 32px; padding: 0 8px; font: inherit; font-size: 16px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.reader-option-select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .quran-ayah-play { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: none; color: var(--text-muted); cursor: pointer; }
 .quran-ayah-play:hover { color: var(--text); border-color: var(--gold-dim); }
 .quran-ayah-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

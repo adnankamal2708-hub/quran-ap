@@ -93,6 +93,7 @@ const UI_FILES = [
   'js/quran/quran-loader.js',
   'js/ui/quran.js',
   'js/ui/quran-word-panel.js',
+  'js/ui/quran-player-options.js',
   'js/ui/quran-player.js',
   'js/ui/quran-follow-along.js',
   'js/ui/learn-screen.js',

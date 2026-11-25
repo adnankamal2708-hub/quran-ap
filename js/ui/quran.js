@@ -931,6 +931,7 @@ function wireReaderControls() {
   var meanings = document.getElementById('reader-meanings');
   var listen = document.getElementById('reader-listen');
   if (listen) listen.onclick = toggleSurahRecitation;
+  if (typeof wireQuranPlayerOptions === 'function') wireQuranPlayerOptions();
   if (down) down.onclick = function () {
     prefs.size = Math.max(0, prefs.size - 1); _setReaderPrefs(prefs);
   };

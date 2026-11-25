@@ -91,6 +91,7 @@ function _quranRecite(verses, mode) {
   _quranRecitation = rec;
   syncQuranPlayer();
   playAudioQueue(urls, {
+    rate: quranPlayerOptions().rate,
     onEach: function (i) {
       var at = withBasmala ? i - 1 : i;
       if (_quranRecitation !== rec) return;

@@ -144,6 +144,22 @@ testAsync('a file that cannot play stops the queue once', function () {
   });
 });
 
+testAsync('a sound plays at the rate asked for; the next one without a rate plays at 1×', function () {
+  playAudio('fast.mp3', null, null, 1.5);
+  assert.strictEqual(_audioEl.playbackRate, 1.5);
+  assert.strictEqual(_audioEl.defaultPlaybackRate, 1.5, 'kept if the browser reloads the source');
+  setCurrentAudioRate(0.75);
+  assert.strictEqual(_audioEl.playbackRate, 0.75, 'a change applies to the sound playing');
+  playAudio('word.mp3');
+  assert.strictEqual(_audioEl.playbackRate, 1);
+  assert.strictEqual(_audioEl.defaultPlaybackRate, 1);
+  playAudioQueue(['q1.mp3', 'q2.mp3'], { rate: 1.25 });
+  finish();
+  assert.strictEqual(_audioEl.src, 'q2.mp3');
+  assert.strictEqual(_audioEl.playbackRate, 1.25, 'every sound in a queue keeps the rate');
+  stopAudio();
+});
+
 testAsync('a failure from an older sound does not stop the newer one', function () {
   failing['bad2.mp3'] = true;
   var stops = 0;
