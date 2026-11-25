@@ -293,6 +293,9 @@ function renderSurahBrowser() {
     html += '</div>';
   }
 
+  // Saved verses, newest first (js/ui/saved-verses-ui.js); nothing when none
+  if (typeof savedVersesListHtml === 'function') html += savedVersesListHtml();
+
   // Search: 114 surahs is a long scroll to find one by name or number
   // Search, with the Quran map button beside it (js/ui/quran-map-markup.js)
   html += '<div class="quran-search-row"><input class="auth-input quran-surah-search" id="quran-surah-search" type="search" ' +
@@ -328,6 +331,7 @@ function renderSurahBrowser() {
   container.innerHTML = html;
 
   _wireSurahSearch(container);
+  if (typeof wireSavedVersesList === 'function') wireSavedVersesList(container);
 
   var mapBtn = document.getElementById('quran-map-btn');
   if (mapBtn) mapBtn.onclick = function () { openQuranMap(); };
@@ -525,8 +529,11 @@ function renderAyahs() {
     html += '<div class="quran-ayah-header">';
     html += '<div class="quran-ayah-num">Verse ' + verseNum + (totalVerses > 0 ? ' of ' + totalVerses : '') + '</div>';
     // Al-Husary's recitation of this verse (js/ui/quran-player.js draws the icon)
+    // and its Save button (js/ui/saved-verses-ui.js draws the icon)
+    html += '<div class="quran-ayah-actions">';
+    html += '<button type="button" class="quran-ayah-save" data-verse="' + verseNum + '"></button>';
     html += '<button type="button" class="quran-ayah-play" data-verse="' + verseNum + '"></button>';
-    html += '</div>';
+    html += '</div></div>';
 
     // Arabic verse (immutable Quran text with vocabulary highlighting)
     html += '<div class="quran-ayah-arabic" lang="ar" dir="rtl">';
@@ -589,6 +596,7 @@ function renderAyahs() {
 
   container.innerHTML = html;
   if (typeof syncQuranPlayer === 'function') syncQuranPlayer();
+  if (typeof syncSavedVerseButtons === 'function') syncSavedVerseButtons();
 
   // Tap any word → its meaning, Open lesson and Report a mistake
   // (js/ui/quran-word-panel.js); tap the rest of a verse → Al-Husary recites
@@ -596,6 +604,8 @@ function renderAyahs() {
   container.onclick = function (e) {
     var play = e.target && e.target.closest ? e.target.closest('.quran-ayah-play') : null;
     if (play) { toggleVerseRecitation(parseInt(play.getAttribute('data-verse'), 10)); return; }
+    var save = e.target && e.target.closest ? e.target.closest('.quran-ayah-save') : null;
+    if (save) { toggleVerseSave(parseInt(save.getAttribute('data-verse'), 10)); return; }
     var el = e.target && e.target.closest ? e.target.closest('.quran-ayah-arabic [data-n]') : null;
     if (el) { _openQuranWord(el); return; }
     // Anywhere else on a verse: recite the surah from it (not while selecting text)

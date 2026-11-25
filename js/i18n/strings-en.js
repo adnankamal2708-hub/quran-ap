@@ -428,6 +428,12 @@ var STRINGS = {
     'reader.rateValue': '{n}×',
     'reader.repeat': 'Repeat',
     'reader.repeatValue': '{n}×',
+    'reader.saveVerse': 'Save verse {n}',
+    'reader.unsaveVerse': 'Remove verse {n} from saved',
+    'reader.saveLimit': 'You can save {n} verses on the free plan. Remove one to save another, or go Premium for no limit.',
+    'saved.title': 'Saved verses',
+    'saved.item': '{surah}, verse {n}',
+    'saved.surah': 'Surah {n}',
 
     // ── Practice tab ──
     'practice.due': 'Due today',

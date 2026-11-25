@@ -85,6 +85,67 @@ test('corrupt or odd storage reads as nothing saved', function () {
   assert.strictEqual(toggleSavedVerse('1:1'), 'saved', 'and saving works again');
 });
 
+console.log('\n📋 Save button and Saved verses list');
+
+load('js/ui/saved-verses-ui.js');
+global.t = function (k, v) { return k + (v ? ' ' + JSON.stringify(v) : ''); };
+global.uiIcon = function (name) { return '<svg data-icon="' + name + '"></svg>'; };
+global.escapeHtml = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); };
+global._getSurahInfo = function (id) { return id === 2 ? { name: 'Al-Baqarah' } : null; };
+function FakeButton(verse) {
+  this.attrs = { 'data-verse': String(verse) };
+  this.getAttribute = function (k) { return this.attrs[k]; };
+  this.setAttribute = function (k, v) { this.attrs[k] = v; };
+}
+var buttons, toasts;
+global.document = { querySelectorAll: function () { return buttons; } };
+global.showToast = function (msg) { toasts.push(msg); };
+
+test('nothing saved: no list at all', function () {
+  assert.strictEqual(savedVersesListHtml(), '');
+});
+
+test('the Save button shows whether its verse is saved, and a tap changes it', function () {
+  global._quranSurahId = 2;
+  buttons = [new FakeButton(255), new FakeButton(256)];
+  toggleVerseSave(255);
+  assert.strictEqual(isVerseSaved('2:255'), true);
+  assert.strictEqual(buttons[0].attrs['aria-pressed'], 'true');
+  assert.strictEqual(buttons[1].attrs['aria-pressed'], 'false');
+  assert.ok(buttons[0].attrs['aria-label'].indexOf('reader.unsaveVerse') === 0);
+  toggleVerseSave(255);
+  assert.strictEqual(buttons[0].attrs['aria-pressed'], 'false');
+});
+
+test('a full free account gets a message and the verse is not saved', function () {
+  toasts = [];
+  global._quranSurahId = 2;
+  buttons = [new FakeButton(11)];
+  for (var i = 1; i <= 10; i++) toggleSavedVerse('3:' + i);
+  toggleVerseSave(11);
+  assert.strictEqual(isVerseSaved('2:11'), false);
+  assert.strictEqual(toasts.length, 1);
+  assert.ok(toasts[0].indexOf('reader.saveLimit') === 0 && toasts[0].indexOf('10') > 0);
+});
+
+test('the list is newest first and names the surah', function () {
+  toggleSavedVerse('2:255');
+  toggleSavedVerse('112:1');
+  var html = savedVersesListHtml();
+  assert.ok(html.indexOf('112:1') < html.indexOf('2:255'), 'newest first');
+  assert.ok(html.indexOf('&quot;surah&quot;:&quot;Al-Baqarah&quot;') > 0, 'surah name');
+  assert.ok(html.indexOf('saved.surah') > 0, 'a surah not loaded yet still gets a name');
+});
+
+test('a tap on a saved verse opens the reader at it', function () {
+  var opened = [];
+  global.openSurahForReading = function (id) { opened.push(id); };
+  global._quranScrollVerse = null;
+  openSavedVerse('2:255');
+  assert.deepStrictEqual(opened, [2]);
+  assert.strictEqual(_quranScrollVerse, '2:255');
+});
+
 Date.now = realNow;
 console.log('\n' + '='.repeat(50));
 console.log('  saved-verses.test.js');

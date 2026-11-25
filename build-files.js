@@ -96,6 +96,7 @@ const UI_FILES = [
   'js/ui/quran-word-panel.js',
   'js/ui/quran-player-options.js',
   'js/ui/quran-player.js',
+  'js/ui/saved-verses-ui.js',
   'js/ui/quran-follow-along.js',
   'js/ui/learn-screen.js',
   'js/ui/track-path-parts.js',
