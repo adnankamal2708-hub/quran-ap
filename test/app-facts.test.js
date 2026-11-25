@@ -79,7 +79,7 @@ t('free lines state the enforced limits', function () {
   released(['words']);
   var free = getPlanLines('free').join('\n');
   assert.ok(free.indexOf('The 303 most frequent Quranic words') >= 0, free);
-  assert.ok(free.indexOf('Up to 10 reviews a day, 20 bookmarks and 5 tafsir notes a day') >= 0, free);
+  assert.ok(free.indexOf('Up to 10 reviews a day, 15 saved words, 10 saved verses and 5 tafsir notes a day') >= 0, free);
   var premium = getPlanLines('premium').join('\n');
   assert.ok(premium.indexOf('Up to 100 reviews a day, unlimited bookmarks and tafsir') >= 0, premium);
 });
@@ -94,6 +94,7 @@ t('the code that enforces each limit reads it from APP_FACTS', function () {
   function src(rel) { return fs.readFileSync(path.join(__dirname, '..', rel), 'utf8'); }
   assert.ok(/FREE_VOCABULARY_LIMIT = APP_FACTS\.limits\.freeWords/.test(src('js/vocabulary.js')));
   assert.ok(/currentCount >= APP_FACTS\.limits\.bookmarks/.test(src('js/vocabulary.js')));
+  assert.ok(/length >= APP_FACTS\.limits\.savedVerses/.test(src('js/data-core/saved-verses.js')));
   assert.ok(/count >= APP_FACTS\.limits\.tafsirPerDay/.test(src('js/services/user-service.js')));
   assert.ok(/Math\.min\(reviewGoalMax\(currentReviewPlan\(\)\)/.test(src('js/profile-ui.js')));
   assert.ok(/var left = reviewsLeftToday\(\);/.test(src('js/srs.js')));

@@ -107,6 +107,7 @@ var SYNC_KEY_MAP = {
   qaidaProgress: 'quran_qaida_progress',
   salahProgress: 'quran_salah_progress',
   tajweedProgress: 'quran_tajweed_progress',
+  savedVerses: 'quran_saved_verses',
   syncMeta: 'quran_sync_meta',
 };
 
@@ -127,20 +128,21 @@ const SYNC_META_KEY = 'quran_sync_meta';
 function _loadSyncMeta() {
   try {
     var meta = JSON.parse(localStorage.getItem(SYNC_META_KEY) || '{}');
-    return { favorites: meta.favorites || {}, notes: meta.notes || {} };
+    return { favorites: meta.favorites || {}, notes: meta.notes || {}, verses: meta.verses || {} };
   } catch (e) {
-    return { favorites: {}, notes: {} };
+    return { favorites: {}, notes: {}, verses: {} };
   }
 }
 
 /**
- * Record that a favorite or note changed. Called by toggleFavorite/setNote.
- * @param {'favorites'|'notes'} kind
- * @param {string} wordId
+ * Record that a favorite, note or saved verse changed. Called by
+ * toggleFavorite, setNote and toggleSavedVerse.
+ * @param {'favorites'|'notes'|'verses'} kind
+ * @param {string} wordId - the word id, or "surah:verse" for a verse
  * @param {boolean} on — whether the item exists after the change
  */
 function markSyncChange(kind, wordId, on) {
-  if (kind !== 'favorites' && kind !== 'notes') return;
+  if (kind !== 'favorites' && kind !== 'notes' && kind !== 'verses') return;
   var meta = _loadSyncMeta();
   meta[kind][wordId] = { on: !!on, at: Date.now() };
   try {
@@ -526,6 +528,7 @@ function mergeData(localData, cloudData) {
     merged.syncMeta = {
       favorites: _mergeChangeLog(localMeta.favorites, cloudMeta.favorites),
       notes: _mergeChangeLog(localMeta.notes, cloudMeta.notes),
+      verses: _mergeChangeLog(localMeta.verses, cloudMeta.verses),
     };
   }
 
@@ -540,6 +543,14 @@ function mergeData(localData, cloudData) {
     merged.notes = _mergeTracked(
       localData.notes, cloudData.notes, localMeta.notes, cloudMeta.notes,
       function (l, c) { return l || c || undefined; });
+  }
+
+  // Saved verses: like favorites, the newest save/unsave per verse wins;
+  // the value is when it was saved (the earlier time when both kept it).
+  if (localData.savedVerses || cloudData.savedVerses || hasMeta) {
+    merged.savedVerses = _mergeTracked(
+      localData.savedVerses, cloudData.savedVerses, localMeta.verses, cloudMeta.verses,
+      function (l, c) { return (l && c) ? Math.min(l, c) : (l || c || undefined); });
   }
 
   // Streak: take the device that studied most recently, whole. Mixing the

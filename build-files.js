@@ -58,6 +58,7 @@ const DATA_CORE_FILES = [
   'js/data-core/salah-track.js',
   'js/data-core/tajweed-track.js',
   'js/data-core/app-facts.js',
+  'js/data-core/saved-verses.js',
   'js/data-core/review-allowance.js',
 ];
 

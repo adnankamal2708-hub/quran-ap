@@ -18,7 +18,8 @@ var APP_FACTS = {
   prices: { monthly: 2.99, yearly: 19.99 },
   limits: {
     freeWords: 303,          // the most frequent canonical words (vocabulary.js)
-    bookmarks: 20,           // free bookmarks (vocabulary.js)
+    bookmarks: 15,           // free saved words (vocabulary.js)
+    savedVerses: 10,         // free saved verses (saved-verses.js)
     tafsirPerDay: 5,         // free tafsir notes a day (user-service.js)
     // reviews a day by plan; null = no limit (review-allowance.js)
     reviewsPerDay: { free: 10, monthly: 100, yearly: null },
@@ -37,7 +38,7 @@ var PLAN_LINES = {
     { text: 'Quran reader with word meanings and Al-Husary’s recitation' },
     { text: 'Today’s ayah and the Quran map' },
     { text: 'Placement tests, quizzes and practice drills' },
-    { text: 'Up to {reviewsFree} reviews a day, {bookmarks} bookmarks and {tafsirPerDay} tafsir notes a day' },
+    { text: 'Up to {reviewsFree} reviews a day, {bookmarks} saved words, {savedVerses} saved verses and {tafsirPerDay} tafsir notes a day' },
   ],
   premium: [
     { text: 'Everything in Free', brief: true },
@@ -99,6 +100,7 @@ function getAppFacts() {
     foundationWords: formatCount(foundation.length),
     freeWords: formatCount(L.freeWords),
     bookmarks: L.bookmarks,
+    savedVerses: L.savedVerses,
     tafsirPerDay: L.tafsirPerDay,
     reviewsFree: L.reviewsPerDay.free,
     reviewsMonthly: L.reviewsPerDay.monthly,

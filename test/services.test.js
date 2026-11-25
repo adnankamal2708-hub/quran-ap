@@ -684,6 +684,25 @@ suite('Sync — deletions and streak', function() {
     assert.deepStrictEqual(mergeData(local, cloud).favorites, { cw_1: true });
   });
 
+  test('saved verses: an unsave beats an older save on the other device', function() {
+    var local = { savedVerses: {}, syncMeta: { verses: { '2:255': ch(false, 1) } } };
+    var cloud = { savedVerses: { '2:255': NOW - 3 * DAY, '1:1': NOW - 5 * DAY }, syncMeta: { verses: { '2:255': ch(true, 3) } } };
+    var merged = mergeData(local, cloud);
+    assert.deepStrictEqual(merged.savedVerses, { '1:1': NOW - 5 * DAY });
+    assert.strictEqual(merged.syncMeta.verses['2:255'].on, false);
+  });
+
+  test('saved verses from two devices are combined, never trimmed', function() {
+    var local = { savedVerses: { '1:1': 10, '2:2': 20 } };
+    var cloud = { savedVerses: { '1:1': 5, '3:3': 30 } };
+    var merged = mergeData(local, cloud);
+    assert.deepStrictEqual(merged.savedVerses, { '1:1': 5, '2:2': 20, '3:3': 30 });
+  });
+
+  test('saved verses are part of the synced data', function() {
+    assert.strictEqual(SYNC_KEY_MAP.savedVerses, 'quran_saved_verses');
+  });
+
   test('a removal wins over a copy from an older app version (no timestamp)', function() {
     var local = { favorites: {}, syncMeta: { favorites: { cw_1: ch(false, 1) } } };
     var cloud = { favorites: { cw_1: true, cw_2: true } }; // old client: no syncMeta
