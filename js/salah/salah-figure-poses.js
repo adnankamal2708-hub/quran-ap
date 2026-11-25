@@ -26,12 +26,23 @@ var SALAH_PALM_LIFT = 2.3;
 /** Where the forehead sits on the head: from the crown towards the face */
 var SALAH_FOREHEAD_ANGLE = 60;
 
-/** The details a pose can ring: hand, forehead, knee, toes, finger */
-var SALAH_FOCUS_KEYS = ['handN', 'forehead', 'kneeN', 'toeN', 'finger'];
+/** The details a pose can ring: hand, forehead, knee, toes, finger, the hip on the ground */
+var SALAH_FOCUS_KEYS = ['handN', 'forehead', 'kneeN', 'toeN', 'finger', 'seat'];
 
 var _SALAH_STAND = { torso: 0, head: 0, legN: [180, 180, 93], legF: [180, 180, 91] };
 var _SALAH_SIT = { torso: -2, head: 6, legN: [100, -74, 200], legF: [102, -90, -90],
   armN: { target: 'knee', t: 0.72, off: [0, 2] }, armF: { target: 'knee', t: 0.7, off: [0, 2] }, palmN: 96, palmF: 96 };
+
+/** Tawarruk: on the left hip, the left foot out under the right leg, the right foot upright */
+var SALAH_TAWARRUK = { legN: [92, -76, 200], legF: [90, -88, -100], focus: ['seat'] };
+
+/** Knees bent forward over flat feet: the first step down from standing */
+var _SALAH_CROUCH = { torso: 24, head: 30, legN: [128, 202, 92], legF: [126, 200, 90],
+  armN: { ua: 172, fa: 164 }, armF: { ua: 174, fa: 166 }, palmN: 164, palmF: 166, focus: [] };
+
+/** Kneeling upright, toes tucked under: the way down to the ground and up */
+var _SALAH_KNEEL = { torso: 8, head: 14, legN: [178, -80, 215], legF: [180, -82, 215],
+  armN: { ua: 168, fa: 150 }, armF: { ua: 170, fa: 152 }, palmN: 150, palmF: 152, focus: [] };
 
 /** Hands in qiyām: at the sides, below the navel, or above it */
 var _SALAH_QIYAM_HANDS = {
@@ -53,6 +64,10 @@ var _SALAH_POSES = {
   jalsa: { base: _SALAH_SIT, focus: ['handN', 'toeN'] },
   tashahhud: { base: _SALAH_SIT, head: 12, finger: 1, focus: ['finger'] },
   taslim: { base: _SALAH_SIT, turn: 1, focus: [] },
+  // Going down knees first, or (Mālikī) hands first
+  kneel: { base: _SALAH_KNEEL, focus: ['kneeN'] },
+  handsDown: { torso: 118, head: 130, legN: [146, 206, 92], legF: [144, 204, 90],
+    armN: { target: 'ground', dx: -18 }, armF: { target: 'ground', dx: -22 }, palmN: 90, palmF: 90, focus: ['handN'] },
 };
 
 function _salahDir(a) { var r = a * Math.PI / 180; return [Math.sin(r), Math.cos(r)]; }
@@ -61,7 +76,7 @@ function _salahAngOf(dx, dy) { return Math.atan2(dx, dy) * 180 / Math.PI; }
 function _salahLerp(a, b, t) { return a + (b - a) * t; }
 
 /** A pose's own fields over its base's, plus the qiyām hands for this madhab. */
-function _salahPoseSpec(id, madhab) {
+function salahPoseSpec(id, madhab) {
   var src = _SALAH_POSES[id === 'raise' ? 'takbir' : id];
   var spec = {};
   [src.base || {}, id === 'qiyam' ? _SALAH_QIYAM_HANDS[_SALAH_QIYAM_BY_MADHAB[madhab] || 'chest'] : {}, src]
@@ -75,8 +90,8 @@ function getSalahPoses(madhab) {
   var raises = SALAH_RAISE_MADHABS.indexOf(madhab) >= 0;
   var out = [];
   SALAH_POSE_IDS.forEach(function (id) {
-    out.push(_salahPoseSpec(id, madhab));
-    if (raises && (id === 'qiyam' || id === 'ruku')) out.push(_salahPoseSpec('raise', madhab));
+    out.push(salahPoseSpec(id, madhab));
+    if (raises && (id === 'qiyam' || id === 'ruku')) out.push(salahPoseSpec('raise', madhab));
   });
   return out;
 }

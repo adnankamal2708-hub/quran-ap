@@ -6,7 +6,9 @@
  * every madhab) and fails if a knee bends backwards, a limb spins round the
  * long way, a hand swings further back than where it starts or ends, or the
  * figure drops between standing and the ground without bending its knees
- * forward and kneeling first.
+ * forward and kneeling first. The walkthrough's moves, step to step through
+ * a whole prayer, are played too: knees go down before hands (Mālikī: hands
+ * before knees) and no move stops on the same frame twice.
  *
  * Run: node test/salah-figure-motion.test.js
  */
@@ -19,6 +21,7 @@ global.window = global;
 function load(rel) { (0, eval)(fs.readFileSync(path.join(__dirname, '..', rel), 'utf8')); }
 load('js/salah/salah-figure-poses.js');
 load('js/salah/salah-figure-motion.js');
+load('js/salah/salah-walk.js');
 
 var passed = 0;
 var failed = 0;
@@ -30,7 +33,7 @@ function test(name, fn) {
 var MADHABS = ['hanafi', 'maliki', 'shafii', 'hanbali', 'unsure'];
 var STEPS_PER_MOVE = 40;
 
-/** Every move: [madhab, from pose, to pose, the frames along it] */
+/** Every move between two positions, for every madhab */
 function everyMove() {
   var out = [];
   MADHABS.forEach(function (m) {
@@ -38,17 +41,35 @@ function everyMove() {
     poses.forEach(function (a) {
       poses.forEach(function (b) {
         if (a === b) return;
-        var route = salahMotionPath(salahPoseFrame(a), salahPoseFrame(b));
-        var frames = [];
-        var n = STEPS_PER_MOVE * (route.length - 1);
-        for (var i = 0; i <= n; i++) frames.push(salahPathAt(route, i / n));
-        out.push({ name: m + ' ' + a.id + ' → ' + b.id, route: route, frames: frames });
+        out.push(play(m + ' ' + a.id + ' → ' + b.id, salahMotionPath(salahPoseFrame(a), salahPoseFrame(b))));
       });
     });
   });
   return out;
 }
-var MOVES = everyMove();
+/** A move through its route, STEPS_PER_MOVE frames per stretch */
+function play(name, route) {
+  var frames = [];
+  var n = STEPS_PER_MOVE * (route.length - 1);
+  for (var i = 0; i <= n; i++) frames.push(salahPathAt(route, i / n));
+  return { name: name, route: route, frames: frames };
+}
+
+/** Every move of the walkthrough: each step to the next, and the last back to the first */
+function walkMoves() {
+  var out = [];
+  MADHABS.forEach(function (m) {
+    var steps = getSalahWalkSteps(m);
+    steps.forEach(function (s, i) {
+      var next = steps[(i + 1) % steps.length];
+      out.push(play('walk ' + m + ' ' + s.id + ' → ' + next.id, salahMotionPath(salahWalkFrame(s, m), salahWalkFrame(next, m))));
+    });
+  });
+  return out;
+}
+var POSE_MOVES = everyMove();
+var WALK_MOVES = walkMoves();
+var MOVES = POSE_MOVES.concat(WALK_MOVES);
 
 function wrap(a) { return ((a % 360) + 540) % 360 - 180; }
 /** Each joint's bend in a frame: [index, the index it bends from (-1 = none)] */
@@ -111,7 +132,7 @@ test('the hands never swing further back than where they start or end', function
 function hipHeight(f) { return salahFigurePoints(f).pts.hip[1]; }
 
 test('between standing and the ground the figure kneels on the way', function () {
-  MOVES.forEach(function (mv) {
+  POSE_MOVES.forEach(function (mv) {
     var a = hipHeight(mv.route[0]);
     var b = hipHeight(mv.route[mv.route.length - 1]);
     var crosses = (a > SALAH_STAND_HIP) !== (b > SALAH_STAND_HIP);
@@ -123,6 +144,33 @@ test('between standing and the ground the figure kneels on the way', function ()
     var crouch = salahFigurePoints(mv.route[a > b ? 1 : 2]).pts;
     assert.ok(crouch.legN.knee[0] > crouch.hip[0] + 20, mv.name + ': the knees come forward before kneeling');
     assert.ok(Math.abs(crouch.legN.toe[1] - crouch.legN.ankle[1]) < 3, mv.name + ': the feet stay flat while crouching');
+  });
+});
+
+function body(f) { return f.slice(0, 18); }
+test('no walkthrough move stops on the same frame twice', function () {
+  WALK_MOVES.forEach(function (mv) {
+    for (var i = 1; i < mv.route.length; i++) {
+      var same = body(mv.route[i]).every(function (v, k) { return Math.abs(wrap(v - mv.route[i - 1][k])) < 0.5; });
+      assert.ok(!same, mv.name + ': frames ' + (i - 1) + ' and ' + i + ' are the same');
+    }
+  });
+});
+
+test('going down: knees touch before hands (Mālikī: hands before knees)', function () {
+  MADHABS.forEach(function (m) {
+    var steps = getSalahWalkSteps(m);
+    var from = steps.map(function (s) { return s.id; }).indexOf('r1-itidal');
+    var frames = [];
+    for (var i = from; i < from + 3; i++) {
+      frames = frames.concat(play('', salahMotionPath(salahWalkFrame(steps[i], m), salahWalkFrame(steps[i + 1], m))).frames);
+    }
+    function first(test) { for (var k = 0; k < frames.length; k++) if (test(salahFigurePoints(frames[k]).pts)) return k; return -1; }
+    var hands = first(function (p) { return p.armN.wr[1] < 8; });
+    var knees = first(function (p) { return p.legN.knee[1] < SALAH_FIG_HW.thigh + 1; });
+    assert.ok(hands >= 0 && knees >= 0, m + ': both reach the ground');
+    if (m === 'maliki') assert.ok(hands < knees, m + ': hands ' + hands + ', knees ' + knees);
+    else assert.ok(knees < hands, m + ': knees ' + knees + ', hands ' + hands);
   });
 });
 

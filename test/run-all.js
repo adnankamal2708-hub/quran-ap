@@ -108,6 +108,7 @@ var TESTS = [
   "salah-exercises.test.js",
   "salah-figure.test.js",
   "salah-figure-motion.test.js",
+  "salah-walk.test.js",
   "salah-ui.test.js",
   "tajweed-data.test.js",
   "verse-word-counts.test.js",

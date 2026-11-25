@@ -14,6 +14,9 @@ var SALAH_FIG_VIEW = { w: 260, h: 200, ground: 182, matX: 22, matW: 216 };
 var SALAH_FIG_MOVE_MS = 1100;
 var SALAH_FIG_HOLD_MS = 2600;
 
+/** The salām arrow: an ellipse round the head at eye level */
+var SALAH_FIG_TURN = { rx: 18, ry: 8 };
+
 /** Below this a blended value (a ring, the finger) is not drawn */
 var SALAH_FIG_MIN_SHOW = 0.02;
 
@@ -91,21 +94,25 @@ function _salahFrameSvg(f, label) {
 
   // Gold rings on the detail that matters
   var ringAt = { handN: aN.mid, finger: p.fingerTip, forehead: p.forehead,
-    kneeN: [p.legN.knee[0], p.legN.knee[1] - HW.thigh * 0.6], toeN: p.legN.toe };
+    kneeN: [p.legN.knee[0], p.legN.knee[1] - HW.thigh * 0.6], toeN: p.legN.toe, seat: [p.hip[0], p.hip[1] - HW.torso * 0.6] };
   SALAH_FOCUS_KEYS.forEach(function (k) {
     if (r.focus[k] < SALAH_FIG_MIN_SHOW) return;
     var c = P(ringAt[k]);
     out.push('<circle cx="' + _sfNum(c[0]) + '" cy="' + _sfNum(c[1]) + '" r="7.5" fill="none" style="stroke:var(--salah-ring)"' +
       ' stroke-width="1.3" opacity="' + (r.focus[k] * 0.95).toFixed(2) + '"/>');
   });
-  // Taslīm: an arc over the head, turning right then left
-  if (r.turn > SALAH_FIG_MIN_SHOW) {
-    var op = (r.turn * 0.95).toFixed(2);
-    var a = [hc[0] - 15, hc[1] - 18];
-    var b = [hc[0] + 15, hc[1] - 18];
-    out.push('<path d="M ' + _sfNum(a[0]) + ' ' + _sfNum(a[1]) + ' q 15 -9 30 0" fill="none" style="stroke:var(--salah-ring)"' +
-      ' stroke-width="1.3" stroke-linecap="round" opacity="' + op + '"/>');
-    out.push(_sfArrowHead(a, -15, 9, op), _sfArrowHead(b, 15, 9, op));
+  // Salām: the face turns from the qibla (left) a quarter round the head:
+  // to the right is towards the viewer, drawn solid in front; to the left is
+  // away, dashed behind.
+  if (Math.abs(r.turn) > SALAH_FIG_MIN_SHOW) {
+    var op = (Math.abs(r.turn) * 0.95).toFixed(2);
+    var right = r.turn > 0;
+    var R = SALAH_FIG_TURN;
+    var end = [hc[0], hc[1] + (right ? R.ry : -R.ry)];
+    out.push('<path d="M ' + _sfNum(hc[0] - R.rx) + ' ' + _sfNum(hc[1]) + ' A ' + R.rx + ' ' + R.ry + ' 0 0 ' + (right ? 0 : 1) + ' ' +
+      _sfNum(end[0]) + ' ' + _sfNum(end[1]) + '" fill="none" style="stroke:var(--salah-ring)" stroke-width="1.4"' +
+      ' stroke-linecap="round"' + (right ? '' : ' stroke-dasharray="2.5 2"') + ' opacity="' + op + '"/>');
+    out.push(_sfArrowHead(end, 1, 0, op));
   }
   return '<svg class="salah-fig" viewBox="0 0 ' + V.w + ' ' + V.h + '" role="img" aria-label="' + String(label).replace(/"/g, '&quot;') + '">' +
     out.join('') + '</svg>';
@@ -123,50 +130,50 @@ function _sfReducedMotion() {
 }
 
 /**
- * Shows the figure in `host`. It plays through the positions of one rakʿah
- * unless opts.autoplay is false or the reader prefers reduced motion, when
- * it stays still. show(poseId) moves to a position and stops the playing.
- * opts.onPose(poseId) is told each time the figure heads for a new position.
+ * Shows the figure in `host`, playing through `steps` ([{ id, frame, label,
+ * hold }], hold in ms, else SALAH_FIG_HOLD_MS) unless opts.autoplay is false
+ * or the reader prefers reduced motion, when it stays still. show(id) moves
+ * to a step and stops the playing. opts.onStep(id) is told each time the
+ * figure heads for a new step.
  */
-function mountSalahFigure(host, madhab, opts) {
+function mountSalahFigure(host, steps, opts) {
   opts = opts || {};
-  var poses = getSalahPoses(madhab);
-  var frames = poses.map(salahPoseFrame);
   var still = _sfReducedMotion();
   var playing = opts.autoplay !== false && !still;
   var cur = 0;
-  var route = [frames[0], frames[0]];
-  var shown = frames[0];
+  var route = [steps[0].frame, steps[0].frame];
+  var shown = steps[0].frame;
   var start = 0;
   var raf = 0;
   var hold = 0;
 
-  function draw(f) { shown = f; host.innerHTML = _salahFrameSvg(f, t('salah.step.' + poses[cur].id)); }
+  function draw(f) { shown = f; host.innerHTML = _salahFrameSvg(f, steps[cur].label); }
+  function wait() { hold = setTimeout(function () { goTo((cur + 1) % steps.length); }, steps[cur].hold || SALAH_FIG_HOLD_MS); }
   function step(now) {
     if (!start) start = now;
     var k = Math.min(1, (now - start) / (SALAH_FIG_MOVE_MS * (route.length - 1)));
     draw(salahPathAt(route, k));
     if (k < 1) { raf = requestAnimationFrame(step); return; }
     raf = 0;
-    if (playing) hold = setTimeout(function () { goTo((cur + 1) % poses.length); }, SALAH_FIG_HOLD_MS);
+    if (playing) wait();
   }
   function goTo(i) {
     cancelAnimationFrame(raf);
     clearTimeout(hold);
-    route = salahMotionPath(shown, frames[i]);
+    route = salahMotionPath(shown, steps[i].frame);
     cur = i;
-    if (opts.onPose) opts.onPose(poses[i].id);
-    if (still) { draw(frames[i]); return; }
+    if (opts.onStep) opts.onStep(steps[i].id);
+    if (still) { draw(steps[i].frame); return; }
     start = 0;
     raf = requestAnimationFrame(step);
   }
 
-  draw(frames[0]);
-  if (opts.onPose) opts.onPose(poses[0].id);
-  if (playing) hold = setTimeout(function () { goTo(1); }, SALAH_FIG_HOLD_MS);
+  draw(steps[0].frame);
+  if (opts.onStep) opts.onStep(steps[0].id);
+  if (playing) wait();
   return {
-    show: function (poseId) {
-      var i = poses.map(function (p) { return p.id; }).indexOf(poseId);
+    show: function (id) {
+      var i = steps.map(function (s) { return s.id; }).indexOf(id);
       if (i < 0) return;
       playing = false;
       goTo(i);

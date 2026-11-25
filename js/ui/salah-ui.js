@@ -4,8 +4,8 @@
 // A learner with no madhab chooses one first (js/ui/salah-madhab-ui.js).
 // Then three screens, laid out like a Qaida lesson: the intro (each phrase
 // with the figure in its position, the Arabic, transliteration, the words
-// one by one, the meaning and where the wording comes from; the walkthrough
-// shows the figure moving through a rakʿah), the practice (exercises from
+// one by one, the meaning and where the wording comes from; the walkthrough,
+// js/ui/salah-walk-ui.js, plays a whole prayer), the practice (exercises from
 // js/salah/salah-exercises.js) and the finish (score and the share of the
 // prayer's words understood). A reading check below SALAH_CHECK_PASS is not
 // recorded and offers a retry; a lesson with nothing to ask ends on Done.
@@ -70,22 +70,9 @@ function _sPhraseCard(phrase, madhab, showFigure) {
   return h + '</li>';
 }
 
-function _sWalkthrough(madhab) {
-  var seen = {};
-  var h = '<div class="salah-walk-fig" id="salah-fig"></div><div class="salah-chips" role="group" aria-label="' +
-    _sEsc(t('salah.walk.steps')) + '">';
-  getSalahPoses(madhab).forEach(function (p) {
-    if (seen[p.id]) return;
-    seen[p.id] = true;
-    h += '<button type="button" class="salah-chip" data-action="pose" data-pose="' + p.id + '" aria-pressed="false">' +
-      _sEsc(t('salah.step.' + p.id)) + '</button>';
-  });
-  return _sNote('salah.walk.intro') + h + '</div>';
-}
-
 function _sIntroBody(run) {
   var lesson = run.lesson;
-  if (lesson.kind === 'walkthrough') return _sWalkthrough(run.madhab);
+  if (lesson.kind === 'walkthrough') return salahWalkMarkup(run.madhab);
   if (lesson.kind === 'check') return _sNote('salah.intro.check');
   var lastStep = null;
   var cards = salahLessonPhrases(lesson, run.madhab).map(function (p) {
@@ -143,17 +130,6 @@ function _sFinishMarkup(run) {
     '<button type="button" class="btn btn-outline" data-action="back">' + _sEsc(t('qaida.toPath')) + '</button></div></div>';
 }
 
-function _sMountWalkthrough(run) {
-  var host = document.getElementById('salah-fig');
-  if (!host || typeof mountSalahFigure !== 'function') return;
-  _salahFig = mountSalahFigure(host, run.madhab, {
-    onPose: function (id) {
-      var chips = document.querySelectorAll ? document.querySelectorAll('.salah-chip') : [];
-      for (var i = 0; i < chips.length; i++) chips[i].setAttribute('aria-pressed', String(chips[i].getAttribute('data-pose') === id));
-    },
-  });
-}
-
 /** Render the Salah lesson view for the screen in progress. */
 function renderSalahLesson() {
   var view = document.getElementById('view-salah-lesson');
@@ -169,7 +145,7 @@ function renderSalahLesson() {
     view.innerHTML = _sPracticeMarkup(run);
     renderExercise(document.getElementById('salah-exercise'), run.items[run.index], _onSalahAnswer);
   }
-  if (run.step === 'intro' && run.lesson.kind === 'walkthrough') _sMountWalkthrough(run);
+  if (run.step === 'intro' && run.lesson.kind === 'walkthrough') _salahFig = mountSalahWalk(run.madhab);
   var title = document.getElementById('salah-title');
   if (title) title.focus();
 }

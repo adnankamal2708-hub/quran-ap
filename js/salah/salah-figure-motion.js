@@ -6,11 +6,20 @@
 // joint can really bend; a limb then never spins round the long way, a knee
 // never bends backwards and a hand never swings behind the body. Going down
 // to the ground or getting up, the figure bends its knees forward, then
-// kneels, as people do.
+// kneels, as people do (or, the Mālikī way, puts the hands down first).
 // ═══════════════════════════════════════════════════════════════
 
 /** Hip height (figure units) above which the figure counts as standing */
 var SALAH_STAND_HIP = 70;
+
+/** Wrist height (figure units) below which a hand is on the ground */
+var SALAH_ON_HANDS = 8;
+
+/** A frame's body angles come first; the focus rings follow */
+var SALAH_BODY_LEN = 18;
+
+/** Degrees within which two frames show the same body */
+var SALAH_SAME_DEG = 0.5;
 
 /**
  * Each angle in a frame: [its index, the index it bends from (-1 = none),
@@ -23,14 +32,6 @@ var _SALAH_JOINTS = [
   [8, 0, -90], [9, 8, -200], [16, 9, -180], // near shoulder, elbow, wrist
   [11, 0, -90], [12, 11, -200], [17, 12, -180], // far shoulder, elbow, wrist
 ];
-
-/** Knees bent forward over flat feet: the first step down from standing */
-var _SALAH_CROUCH = { torso: 24, head: 30, legN: [128, 202, 92], legF: [126, 200, 90],
-  armN: { ua: 172, fa: 164 }, armF: { ua: 174, fa: 166 }, palmN: 164, palmF: 166, focus: [] };
-
-/** Kneeling upright, toes tucked under: the way down to the ground and up */
-var _SALAH_KNEEL = { torso: 8, head: 14, legN: [178, -80, 215], legF: [180, -82, 215],
-  armN: { ua: 168, fa: 150 }, armF: { ua: 170, fa: 152 }, palmN: 150, palmF: 152, focus: [] };
 
 function _salahInRange(a, lo) { return ((a - lo) % 360 + 360) % 360 + lo; }
 
@@ -58,12 +59,29 @@ function salahBlendFrames(a, b, t) {
 
 function _salahIsStanding(f) { return salahFigurePoints(f).pts.hip[1] > SALAH_STAND_HIP; }
 
-/** The frames a move passes through: crouching and kneeling between standing and the ground. */
+/** Hands on the ground with the knees still up: the Mālikī way down, hands first */
+function _salahOnHands(f) {
+  var p = salahFigurePoints(f).pts;
+  return p.armN.wr[1] < SALAH_ON_HANDS && p.legN.knee[1] > SALAH_STAND_HIP / 2;
+}
+
+/** Two frames with the same body (focus rings aside) */
+function _salahSameBody(a, b) {
+  for (var k = 0; k < SALAH_BODY_LEN; k++) if (Math.abs(_salahInRange(a[k] - b[k], -180)) > SALAH_SAME_DEG) return false;
+  return true;
+}
+
+/**
+ * The frames a move passes through: crouching and kneeling between standing
+ * and the ground, unless a step already shows one of them or the hands go
+ * down first.
+ */
 function salahMotionPath(a, b) {
   var down = _salahIsStanding(a);
-  if (down === _salahIsStanding(b)) return [a, b];
+  if (down === _salahIsStanding(b) || _salahOnHands(a) || _salahOnHands(b)) return [a, b];
   var via = [salahPoseFrame(_SALAH_CROUCH), salahPoseFrame(_SALAH_KNEEL)];
-  return [a].concat(down ? via : via.reverse(), [b]);
+  if (!down) via.reverse();
+  return [a].concat(via.filter(function (f) { return !_salahSameBody(f, a) && !_salahSameBody(f, b); }), [b]);
 }
 
 /** Slow in, slow out */

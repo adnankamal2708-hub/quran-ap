@@ -10402,6 +10402,9 @@ body::before {
 .salah-phrase-ar { font-family: var(--arabic); font-size: 1.75rem; line-height: 2.1; color: var(--text); text-align: right; overflow-wrap: anywhere; }
 .salah-phrase-tr, .salah-sources { margin: 0; font-size: var(--text-sm); line-height: 1.6; color: var(--text-muted); overflow-wrap: anywhere; }
 .salah-phrase-tr { font-style: italic; }
+.salah-walk-now { min-height: 6.5em; margin: 0 0 16px; color: var(--text-muted); font-size: var(--text-base); line-height: 1.55; text-align: center; }
+.salah-walk-label { display: block; margin-bottom: 4px; color: var(--text); font-weight: 500; }
+.salah-walk-part { margin: 16px 0 8px; color: var(--text-muted); font-size: var(--text-sm); font-weight: 500; }
 .salah-phrase-en { margin: 0; font-size: var(--text-base); line-height: 1.6; color: var(--text); }
 .salah-words { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
 .salah-words li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "tr ar" "en ar"; column-gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }

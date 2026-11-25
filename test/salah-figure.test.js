@@ -126,6 +126,9 @@ test('colours come from the theme properties, never fixed hex', function () {
 });
 
 function fakeHost() { return { innerHTML: '' }; }
+function stepsOf(m) {
+  return getSalahPoses(m).map(function (p) { return { id: p.id, frame: salahPoseFrame(p), label: t('salah.step.' + p.id) }; });
+}
 function stubTimers(reduce) {
   var calls = { raf: 0, timeouts: [] };
   global.matchMedia = function () { return { matches: reduce }; };
@@ -140,7 +143,7 @@ test('reduced motion: the figure never animates, and show() jumps straight there
   var calls = stubTimers(true);
   var host = fakeHost();
   var seen = [];
-  var fig = mountSalahFigure(host, 'shafii', { onPose: function (id) { seen.push(id); } });
+  var fig = mountSalahFigure(host, stepsOf('shafii'), { onStep: function (id) { seen.push(id); } });
   assert.ok(host.innerHTML.indexOf('<svg') === 0);
   assert.strictEqual(calls.timeouts.length, 0, 'no autoplay');
   fig.show('sujud');
@@ -153,16 +156,36 @@ test('reduced motion: the figure never animates, and show() jumps straight there
 test('with motion: it holds, then moves with requestAnimationFrame; show() stops the playing', function () {
   var calls = stubTimers(false);
   var host = fakeHost();
-  var fig = mountSalahFigure(host, 'hanafi');
+  var fig = mountSalahFigure(host, stepsOf('hanafi'));
   assert.strictEqual(calls.timeouts.length, 1, 'holds the first position');
   calls.timeouts[0]();
   assert.strictEqual(calls.raf, 1, 'moves on');
   fig.show('ruku');
   assert.strictEqual(calls.raf, 2);
   fig.destroy();
-  var none = mountSalahFigure(fakeHost(), 'hanafi', { autoplay: false });
+  var none = mountSalahFigure(fakeHost(), stepsOf('hanafi'), { autoplay: false });
   assert.strictEqual(calls.timeouts.length, 1, 'autoplay false never schedules');
   none.destroy();
+});
+
+test('a step holds for its own time, else the default', function () {
+  var calls = stubTimers(false);
+  var waits = [];
+  global.setTimeout = function (fn, ms) { waits.push(ms); calls.timeouts.push(fn); return calls.timeouts.length; };
+  var steps = stepsOf('hanafi');
+  steps[0].hold = 9000;
+  mountSalahFigure(fakeHost(), steps).destroy();
+  mountSalahFigure(fakeHost(), stepsOf('hanafi')).destroy();
+  assert.deepStrictEqual(waits, [9000, SALAH_FIG_HOLD_MS]);
+});
+
+test('salām: the arrow turns to the near side (right, solid) or the far side (left, dashed)', function () {
+  var pose = getSalahPoses('hanafi').filter(function (p) { return p.id === 'taslim'; })[0];
+  var right = salahPoseFrame(pose);
+  var left = right.slice();
+  left[15] = -1;
+  assert.ok(_salahFrameSvg(right, 'r').indexOf('stroke-dasharray') < 0, 'right is solid');
+  assert.ok(_salahFrameSvg(left, 'l').indexOf('stroke-dasharray') > 0, 'left is dashed');
 });
 
 test('an unknown pose draws nothing', function () {

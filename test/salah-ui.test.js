@@ -40,11 +40,13 @@ load('js/salah/salah-phrases.js');
 load('js/salah/salah-lessons.js');
 load('js/salah/salah-figure-poses.js');
 load('js/salah/salah-figure-motion.js');
+load('js/salah/salah-walk.js');
 load('js/data-core/tracks.js');
 load('js/data-core/review-schedule.js');
 load('js/data-core/salah-track.js');
 load('js/salah/salah-exercises.js');
 load('js/ui/salah-figure.js');
+load('js/ui/salah-walk-ui.js');
 load('js/ui/salah-madhab-ui.js');
 load('js/ui/salah-ui.js');
 global.queueTracksSync = function () {};
@@ -111,6 +113,19 @@ test('every lesson and note has its string', function () {
   });
   ['salah.teacherReview', 'salah.madhab.title', 'salah.madhab.yours', 'salah.madhab.change'].forEach(function (k) {
     assert.notStrictEqual(t(k), k, k);
+  });
+});
+
+test('the walkthrough lists every step of the prayer, by rakʿah, with the first one explained', function () {
+  ['hanafi', 'maliki', 'shafii'].forEach(function (m) {
+    setSalahMadhab(m);
+    startSalahLesson('s1-1', 1);
+    var html = _view.innerHTML;
+    var steps = getSalahWalkSteps(m);
+    assert.strictEqual(html.split('class="salah-chip"').length - 1, steps.length, m + ': one chip per step');
+    ['r1', 'r2', 'end'].forEach(function (p) { assert.ok(html.indexOf(esc(t('salah.walk.part.' + p))) >= 0, m + ' ' + p); });
+    assert.ok(html.indexOf(esc(t('salah.walk.c.stand'))) >= 0, m + ': the first caption');
+    assert.ok(html.indexOf('data-pose="r2-sujud2"') >= 0, m + ': the second rakʿah has its second prostration');
   });
 });
 
