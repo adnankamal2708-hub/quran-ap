@@ -9,6 +9,7 @@
 //      with it.
 //   5. Follow along: the word being recited lights up, never during the
 //      basmala, and clears on Stop.
+//   6. Speed and Repeat, and tapping a verse to play the surah from it.
 // The recordings are replaced by a short silent sound, so nothing is
 // fetched from everyayah.com or quran.com.
 // ═══════════════════════════════════════════════════════════════
@@ -155,5 +156,45 @@ test('nothing lights up during the basmala before a surah', async ({ page }) => 
   expect(played[played.length - 1]).toBe(verse(1, 1));
   await page.waitForTimeout(300);
   await expect(page.locator('#quran-verses .is-recited')).toHaveCount(0);
+  await page.evaluate(() => document.getElementById('reader-listen').click());
+});
+
+// ── Player extras: Speed, Repeat, tap a verse ──
+
+test('Speed sets how fast Al-Husary recites', async ({ page }) => {
+  await stubAudio(page, 5);
+  await openSurah(page, 112);
+  await page.selectOption('#reader-rate', '1.5');
+  await page.evaluate(() => document.querySelector('#quran-ayah-112-1 .quran-ayah-play').click());
+  await page.waitForFunction(() => { const a = currentAudioElement(); return a && !a.paused; });
+  expect(await page.evaluate(() => currentAudioElement().playbackRate)).toBe(1.5);
+  await page.selectOption('#reader-rate', '0.75');
+  expect(await page.evaluate(() => currentAudioElement().playbackRate)).toBe(0.75);
+  await page.evaluate(() => document.querySelector('#quran-ayah-112-1 .quran-ayah-play').click());
+});
+
+test('Repeat 2 with a verse button plays that verse twice', async ({ page }) => {
+  const played = await stubAudio(page);
+  await openSurah(page, 112);
+  await page.selectOption('#reader-repeat', '2');
+  await page.evaluate(() => document.querySelector('#quran-ayah-112-2 .quran-ayah-play').click());
+  await expect(page.locator('#quran-ayah-112-2')).toHaveClass(/is-reciting/);
+  await expect(page.locator('#quran-ayah-112-2')).not.toHaveClass(/is-reciting/, { timeout: 15000 });
+  expect(played.filter((u) => u.includes('everyayah'))).toEqual([verse(112, 2), verse(112, 2)]);
+});
+
+test('tapping a verse plays the surah on from it; tapping a word still opens its panel', async ({ page }) => {
+  const played = await stubAudio(page, 5);
+  await openSurah(page, 112);
+  await page.locator('#quran-ayah-112-3 .quran-ayah-translation').click();
+  await expect.poll(() => played.length).toBe(1);
+  expect(played[0]).toBe(verse(112, 3));
+  await expect(page.locator('#reader-listen')).toHaveAttribute('aria-pressed', 'true');
+  // While it plays, a tap on another verse jumps there
+  await page.locator('#quran-ayah-112-1 .quran-ayah-translation').click();
+  await expect.poll(() => played[played.length - 1]).toBe(verse(1, 1));
+  await page.evaluate(() => document.querySelector('#quran-ayah-112-2 .quran-ayah-arabic > span[data-pos="1"]').click());
+  await page.waitForSelector('#word-panel-listen', { state: 'visible', timeout: 5000 });
+  expect(played.length).toBe(2); // a word tap does not change the recitation
   await page.evaluate(() => document.getElementById('reader-listen').click());
 });
