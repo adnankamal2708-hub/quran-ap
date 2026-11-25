@@ -591,12 +591,19 @@ function renderAyahs() {
   if (typeof syncQuranPlayer === 'function') syncQuranPlayer();
 
   // Tap any word → its meaning, Open lesson and Report a mistake
-  // (js/ui/quran-word-panel.js). One handler for the whole surah.
+  // (js/ui/quran-word-panel.js); tap the rest of a verse → Al-Husary recites
+  // the surah from it (js/ui/quran-player.js). One handler for the whole surah.
   container.onclick = function (e) {
     var play = e.target && e.target.closest ? e.target.closest('.quran-ayah-play') : null;
     if (play) { toggleVerseRecitation(parseInt(play.getAttribute('data-verse'), 10)); return; }
     var el = e.target && e.target.closest ? e.target.closest('.quran-ayah-arabic [data-n]') : null;
-    if (el) _openQuranWord(el);
+    if (el) { _openQuranWord(el); return; }
+    // Anywhere else on a verse: recite the surah from it (not while selecting text)
+    var ayah = e.target && e.target.closest ? e.target.closest('.quran-ayah') : null;
+    var selecting = window.getSelection && String(window.getSelection()).length > 0;
+    if (ayah && !selecting && !e.target.closest('button, a')) {
+      reciteSurahFrom(parseInt(ayah.id.split('-').pop(), 10));
+    }
   };
   container.onkeydown = function (e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;

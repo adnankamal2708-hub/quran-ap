@@ -126,6 +126,34 @@ test('changing Repeat while a verse plays applies when it ends', function () {
   assert.deepStrictEqual(plays, ['1:1@1', '112:1@1', '112:1@1', '112:2@1', '112:2@1']);
 });
 
+console.log('\n📋 Tap a verse');
+
+test('tapping verse 3 plays on from it, with no basmala', function () {
+  plays = [];
+  global._quranSurahId = 112;
+  global._quranVerseKeys = ['112:1', '112:2', '112:3', '112:4'];
+  reciteSurahFrom(3);
+  assert.strictEqual(_quranRecitation.mode, 'surah', 'Listen shows Stop');
+  endAll();
+  assert.deepStrictEqual(plays, ['112:3@1', '112:4@1']);
+});
+
+test('tapping verse 1 plays the basmala first', function () {
+  plays = [];
+  reciteSurahFrom(1);
+  endAll();
+  assert.deepStrictEqual(plays, ['1:1@1', '112:1@1', '112:2@1', '112:3@1', '112:4@1']);
+});
+
+test('tapping another verse while playing jumps there', function () {
+  plays = [];
+  reciteSurahFrom(1);
+  end(); // basmala
+  reciteSurahFrom(4);
+  endAll();
+  assert.deepStrictEqual(plays, ['1:1@1', '112:1@1', '112:4@1']);
+});
+
 console.log('\n' + '='.repeat(50));
 console.log('  quran-player.test.js');
 console.log('  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');

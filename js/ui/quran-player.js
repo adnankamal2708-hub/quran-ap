@@ -4,7 +4,8 @@
 // Two ways to listen: "Listen" in the reader's top bar plays the whole
 // surah from the first verse (after the basmala, except for Al-Fatihah,
 // where it is verse 1, and At-Tawbah, which has none), and the play
-// button on a verse plays that verse alone; Speed and Repeat
+// button on a verse plays that verse alone. Tapping a verse (not a word)
+// plays the surah on from it. Speed and Repeat
 // (js/ui/quran-player-options.js) apply to both. The verse being recited is
 // highlighted and, for the whole surah, kept in view; within it, the word
 // being recited lights up (js/ui/quran-follow-along.js).
@@ -99,7 +100,8 @@ function quranNextPlay(verses, index, played, repeat) {
 function _quranRecite(verses, mode) {
   var surah = typeof _quranSurahId !== 'undefined' ? _quranSurahId : null;
   if (!surah || !verses.length) return;
-  var withBasmala = mode === 'surah' && QURAN_NO_BASMALA.indexOf(surah) < 0;
+  // The basmala is recited only before a surah's first verse.
+  var withBasmala = mode === 'surah' && verses[0] === 1 && QURAN_NO_BASMALA.indexOf(surah) < 0;
   stopAudio();
   loadRecitationTiming(surah); // word timings for the highlight; playback never waits for them
   var rec = { surah: surah, mode: mode, verse: null };
@@ -130,6 +132,11 @@ function _quranRecite(verses, mode) {
 function toggleSurahRecitation() {
   if (_quranRecitation && _quranRecitation.mode === 'surah') { stopQuranRecitation(); return; }
   _quranRecite(_quranVerseNumbers(), 'surah');
+}
+
+/** A tap on a verse: play the surah on from that verse (a jump if it is playing). */
+function reciteSurahFrom(verse) {
+  _quranRecite(_quranVerseNumbers().filter(function (n) { return n >= verse; }), 'surah');
 }
 
 /** A verse's play button: play that verse, or stop it if it is playing. */

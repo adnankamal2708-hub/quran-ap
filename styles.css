@@ -10487,6 +10487,7 @@ body::before {
 .quran-ayah-play:hover { color: var(--text); border-color: var(--gold-dim); }
 .quran-ayah-play:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .quran-ayah.is-reciting { border-color: var(--gold-dim); }
+.quran-verses .quran-ayah { cursor: pointer; } /* a tap plays the surah from this verse */
 .quran-ayah.is-reciting .quran-ayah-play { color: var(--gold-light); border-color: var(--gold-dim); }
 /* The word Al-Husary is saying (js/ui/quran-follow-along.js). No transition:
    it must move exactly with the voice. The word keeps its known-word colour. */
