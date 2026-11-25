@@ -7958,6 +7958,9 @@ body::before {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  /* clip, not hidden: hidden makes this box the scroller, so the sticky top
+     bar (Back, Listen/Stop) scrolled away with the verses */
+  overflow: clip;
 }
 
 /* Top bar */
