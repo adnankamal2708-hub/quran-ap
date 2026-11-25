@@ -39,6 +39,7 @@ load('js/qaida/qaida-exercises.js');
 load('js/salah/salah-phrases.js');
 load('js/salah/salah-lessons.js');
 load('js/salah/salah-figure-poses.js');
+load('js/salah/salah-figure-motion.js');
 load('js/data-core/tracks.js');
 load('js/data-core/review-schedule.js');
 load('js/data-core/salah-track.js');

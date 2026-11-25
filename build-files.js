@@ -49,6 +49,7 @@ const DATA_CORE_FILES = [
   'js/salah/salah-phrases.js',
   'js/salah/salah-lessons.js',
   'js/salah/salah-figure-poses.js',
+  'js/salah/salah-figure-motion.js',
   // Tajweed makharij and lesson data (letter ids are the Qaida ones)
   'js/tajweed/tajweed-makharij.js',
   'js/tajweed/tajweed-lessons.js',

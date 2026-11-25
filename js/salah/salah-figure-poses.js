@@ -5,7 +5,7 @@
 // degrees: 0 = up, 90 = forward (towards the qibla), 180 = down, -90 = back.
 // Points use y up with the hip at the origin; salahFigurePoints moves them
 // so the ground is y = 0. A frame is a pose as a flat list of numbers, so
-// two poses can be blended for the animation (js/ui/salah-figure.js).
+// two poses can be blended for the animation (js/salah/salah-figure-motion.js).
 // ═══════════════════════════════════════════════════════════════
 
 /** Bone lengths */
@@ -149,11 +149,6 @@ function salahPoseFrame(p) {
     p.palmN !== undefined ? p.palmN : aN.fa, p.palmF !== undefined ? p.palmF : aF.fa];
   SALAH_FOCUS_KEYS.forEach(function (k) { f.push(p.focus.indexOf(k) >= 0 ? 1 : 0); });
   return f;
-}
-
-/** Two frames blended: t = 0 gives a, t = 1 gives b. */
-function salahBlendFrames(a, b, t) {
-  return a.map(function (v, k) { return _salahLerp(v, b[k], t); });
 }
 
 /**

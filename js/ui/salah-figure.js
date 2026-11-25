@@ -10,8 +10,8 @@
 /** The drawing's box, the ground line and the mat */
 var SALAH_FIG_VIEW = { w: 260, h: 200, ground: 182, matX: 22, matW: 216 };
 
-/** Milliseconds to move between two positions, then to hold one */
-var SALAH_FIG_MOVE_MS = 1000;
+/** Milliseconds for each stretch of a move (going down or up passes a crouch and a kneel), then to hold */
+var SALAH_FIG_MOVE_MS = 1100;
 var SALAH_FIG_HOLD_MS = 2600;
 
 /** Below this a blended value (a ring, the finger) is not drawn */
@@ -122,9 +122,6 @@ function _sfReducedMotion() {
   return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Slow in, slow out */
-function _sfEase(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
-
 /**
  * Shows the figure in `host`. It plays through the positions of one rakʿah
  * unless opts.autoplay is false or the reader prefers reduced motion, when
@@ -138,7 +135,7 @@ function mountSalahFigure(host, madhab, opts) {
   var still = _sfReducedMotion();
   var playing = opts.autoplay !== false && !still;
   var cur = 0;
-  var from = frames[0];
+  var route = [frames[0], frames[0]];
   var shown = frames[0];
   var start = 0;
   var raf = 0;
@@ -147,8 +144,8 @@ function mountSalahFigure(host, madhab, opts) {
   function draw(f) { shown = f; host.innerHTML = _salahFrameSvg(f, t('salah.step.' + poses[cur].id)); }
   function step(now) {
     if (!start) start = now;
-    var k = Math.min(1, (now - start) / SALAH_FIG_MOVE_MS);
-    draw(salahBlendFrames(from, frames[cur], _sfEase(k)));
+    var k = Math.min(1, (now - start) / (SALAH_FIG_MOVE_MS * (route.length - 1)));
+    draw(salahPathAt(route, k));
     if (k < 1) { raf = requestAnimationFrame(step); return; }
     raf = 0;
     if (playing) hold = setTimeout(function () { goTo((cur + 1) % poses.length); }, SALAH_FIG_HOLD_MS);
@@ -156,7 +153,7 @@ function mountSalahFigure(host, madhab, opts) {
   function goTo(i) {
     cancelAnimationFrame(raf);
     clearTimeout(hold);
-    from = shown;
+    route = salahMotionPath(shown, frames[i]);
     cur = i;
     if (opts.onPose) opts.onPose(poses[i].id);
     if (still) { draw(frames[i]); return; }

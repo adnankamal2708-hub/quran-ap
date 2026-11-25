@@ -18,6 +18,7 @@ global.window = global;
 function load(rel) { (0, eval)(fs.readFileSync(path.join(__dirname, '..', rel), 'utf8')); }
 load('js/i18n/strings-en.js');
 load('js/salah/salah-figure-poses.js');
+load('js/salah/salah-figure-motion.js');
 load('js/ui/salah-figure.js');
 
 var passed = 0;
