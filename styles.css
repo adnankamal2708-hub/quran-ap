@@ -10507,7 +10507,7 @@ body::before {
 .saved-verse-item > span:first-of-type { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .saved-verse-ref { color: var(--text-muted); font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
 .quran-ayah.is-reciting { border-color: var(--gold-dim); }
-.quran-verses .quran-ayah { cursor: pointer; } /* a tap plays the surah from this verse */
+.quran-verses .quran-ayah { cursor: pointer; -webkit-tap-highlight-color: transparent; } /* a tap plays the surah from this verse; no flash over the whole card */
 .quran-ayah.is-reciting .quran-ayah-play { color: var(--gold-light); border-color: var(--gold-dim); }
 /* The word Al-Husary is saying (js/ui/quran-follow-along.js). No transition:
    it must move exactly with the voice. The word keeps its known-word colour. */
