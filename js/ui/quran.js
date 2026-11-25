@@ -626,7 +626,8 @@ function renderAyahs() {
     var targetId = 'quran-ayah-' + _quranScrollVerse.replace(':', '-');
     var target = document.getElementById(targetId);
     if (target) {
-      setTimeout(function() { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+      // After a moment, once the reader is on screen (js/ui/quran-scroll.js)
+      setTimeout(function() { scrollVerseIntoView(target); }, 100);
     }
     _quranScrollVerse = null;
   }

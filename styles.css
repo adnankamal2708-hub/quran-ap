@@ -8030,6 +8030,9 @@ body::before {
      height once it has been shown, so scrolling stays steady */
   content-visibility: auto;
   contain-intrinsic-size: auto 240px;
+  /* A long verse opened from Saved starts below the sticky top bar
+     (js/ui/quran-scroll.js) */
+  scroll-margin-top: 7rem;
 }
 
 .quran-ayah:hover {
