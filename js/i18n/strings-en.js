@@ -474,6 +474,7 @@ var STRINGS = {
     'reader.rateValue': '{n}×',
     'reader.repeat': 'Repeat',
     'reader.repeatValue': '{n}×',
+    'reader.audioFailed': 'The recitation could not play. It needs an internet connection the first time.',
     'reader.saveVerse': 'Save verse {n}',
     'reader.unsaveVerse': 'Remove verse {n} from saved',
     'reader.saveLimit': 'You can save {n} verses on the free plan. Remove one to save another, or go Premium for no limit.',

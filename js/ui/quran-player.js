@@ -93,6 +93,23 @@ function quranNextPlay(verses, index, played, repeat) {
 }
 
 /**
+ * Play one recording of a recitation. If it cannot start (offline and not
+ * saved yet), the recitation ends and the reader is told why; nothing is
+ * said when the reader stopped it or started another sound.
+ */
+function _quranPlay(rec, url, onEnd, ended) {
+  var started = playAudio(url, onEnd, ended, quranPlayerOptions().rate);
+  if (!started || !started.then) return;
+  started.then(function (ok) {
+    if (ok || rec.stoppedByReader) return;
+    if (_quranRecitation && _quranRecitation !== rec) return;
+    var el = typeof currentAudioElement === 'function' ? currentAudioElement() : null;
+    if (el && el.src && el.src !== url) return; // another sound took over
+    if (typeof showToast === 'function') showToast(t('reader.audioFailed'), 'warning', 4000);
+  });
+}
+
+/**
  * Play verses of the open surah in order, each as many times as Repeat says.
  * @param {number[]} verses
  * @param {'surah'|'verse'} mode
@@ -114,17 +131,17 @@ function _quranRecite(verses, mode) {
     var verse = verses[index];
     _quranReciting(verse, mode === 'surah' && played === 1);
     startFollowAlong(surah, verse);
-    playAudio(verseAudioUrl(surah, verse), function () {
+    _quranPlay(rec, verseAudioUrl(surah, verse), function () {
       var next = quranNextPlay(verses, index, played, quranPlayerOptions().repeat);
       if (next) playVerse(next.index, next.played); else ended();
-    }, ended, quranPlayerOptions().rate);
+    }, ended);
     // Fetch the next verse while this one plays, so it starts without a wait.
     if (index + 1 < verses.length) cacheAudio([verseAudioUrl(surah, verses[index + 1])]);
   }
 
   if (!withBasmala) { playVerse(0, 1); return; }
   // The basmala clip has no words on the page: nothing is highlighted.
-  playAudio(verseAudioUrl(QURAN_BASMALA_SURAH, 1), function () { playVerse(0, 1); }, ended, quranPlayerOptions().rate);
+  _quranPlay(rec, verseAudioUrl(QURAN_BASMALA_SURAH, 1), function () { playVerse(0, 1); }, ended);
   cacheAudio([verseAudioUrl(surah, verses[0])]);
 }
 
@@ -147,6 +164,7 @@ function toggleVerseRecitation(verse) {
 
 function stopQuranRecitation() {
   if (!_quranRecitation) return;
+  _quranRecitation.stoppedByReader = true; // not a failure: no message
   _quranRecitation = null;
   stopFollowAlong();
   stopAudio();

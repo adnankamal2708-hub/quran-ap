@@ -154,8 +154,45 @@ test('tapping another verse while playing jumps there', function () {
   assert.deepStrictEqual(plays, ['1:1@1', '112:1@1', '112:4@1']);
 });
 
-console.log('\n' + '='.repeat(50));
-console.log('  quran-player.test.js');
-console.log('  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
-console.log('='.repeat(50));
-process.exit(failed > 0 ? 1 : 0);
+// ── A recording that cannot play (offline, not saved yet) ──
+
+async function failedPlay(setup) {
+  var toasts = [];
+  global.showToast = function (msg) { toasts.push(msg); };
+  global.currentAudioElement = function () { return null; };
+  global.playAudio = function (url, onEnd, onStop) {
+    plays.push(url);
+    return Promise.resolve().then(function () { if (setup.fail) onStop(); return !setup.fail; });
+  };
+  plays = [];
+  reciteSurahFrom(2);
+  if (setup.stop) stopQuranRecitation();
+  await new Promise(function (r) { setTimeout(r, 0); });
+  return toasts;
+}
+
+async function asyncTests() {
+  console.log('\n📋 When a recording cannot play');
+  var cases = [
+    ['the reader is told why, and the player resets', { fail: true }, ['reader.audioFailed']],
+    ['nothing is said when it plays', { fail: false }, []],
+    ['nothing is said when the reader pressed Stop', { fail: true, stop: true }, []],
+  ];
+  for (var i = 0; i < cases.length; i++) {
+    try {
+      var toasts = await failedPlay(cases[i][1]);
+      assert.deepStrictEqual(toasts, cases[i][2]);
+      if (cases[i][1].fail) assert.strictEqual(global._quranRecitation, null);
+      passed++; console.log('  ✅ ' + cases[i][0]);
+    } catch (e) { failed++; console.log('  ❌ ' + cases[i][0] + '\n     ' + (e.message || e)); }
+    global._quranRecitation = null;
+  }
+}
+
+asyncTests().then(function () {
+  console.log('\n' + '='.repeat(50));
+  console.log('  quran-player.test.js');
+  console.log('  Results: ' + passed + ' passed, ' + failed + ' failed, ' + (passed + failed) + ' total');
+  console.log('='.repeat(50));
+  process.exit(failed > 0 ? 1 : 0);
+});
