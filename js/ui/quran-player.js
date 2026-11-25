@@ -4,11 +4,12 @@
 // Two ways to listen: "Listen" in the reader's top bar plays the whole
 // surah from the first verse (after the basmala, except for Al-Fatihah,
 // where it is verse 1, and At-Tawbah, which has none), and the play
-// button on a verse plays that verse alone. The verse being recited is
+// button on a verse plays that verse alone; Speed and Repeat
+// (js/ui/quran-player-options.js) apply to both. The verse being recited is
 // highlighted and, for the whole surah, kept in view; within it, the word
 // being recited lights up (js/ui/quran-follow-along.js).
 //
-// Sound comes from js/services/audio.js (verseAudioUrl, playAudioQueue);
+// Sound comes from js/services/audio.js (verseAudioUrl, playAudio);
 // starting any other sound, such as a word's recording, stops the
 // recitation. The reader (js/ui/quran.js) calls syncQuranPlayer() after
 // it redraws the verses and stopQuranRecitation() when it leaves a surah.
@@ -75,33 +76,54 @@ function _quranRecitationEnded(rec) {
 }
 
 /**
- * Play verses of the open surah in order.
+ * What to play after a verse ends: the same verse again until it has been
+ * recited `repeat` times, then the next one. Repeat is read as each verse
+ * ends, so a change applies at once.
+ * @param {number[]} verses
+ * @param {number} index - the verse that just ended
+ * @param {number} played - how many times it has now been recited
+ * @param {number} repeat
+ * @returns {{index: number, played: number}|null} null when done
+ */
+function quranNextPlay(verses, index, played, repeat) {
+  if (played < repeat) return { index: index, played: played + 1 };
+  if (index + 1 < verses.length) return { index: index + 1, played: 1 };
+  return null;
+}
+
+/**
+ * Play verses of the open surah in order, each as many times as Repeat says.
  * @param {number[]} verses
  * @param {'surah'|'verse'} mode
  */
 function _quranRecite(verses, mode) {
   var surah = typeof _quranSurahId !== 'undefined' ? _quranSurahId : null;
   if (!surah || !verses.length) return;
-  var urls = verses.map(function (v) { return verseAudioUrl(surah, v); });
   var withBasmala = mode === 'surah' && QURAN_NO_BASMALA.indexOf(surah) < 0;
-  if (withBasmala) urls.unshift(verseAudioUrl(QURAN_BASMALA_SURAH, 1));
   stopAudio();
   loadRecitationTiming(surah); // word timings for the highlight; playback never waits for them
   var rec = { surah: surah, mode: mode, verse: null };
   _quranRecitation = rec;
   syncQuranPlayer();
-  playAudioQueue(urls, {
-    rate: quranPlayerOptions().rate,
-    onEach: function (i) {
-      var at = withBasmala ? i - 1 : i;
-      if (_quranRecitation !== rec) return;
-      if (at < 0) { stopFollowAlong(); return; } // the basmala clip has no words on the page
-      _quranReciting(verses[at], mode === 'surah');
-      startFollowAlong(surah, verses[at]);
-    },
-    onEnd: function () { _quranRecitationEnded(rec); },
-    onStop: function () { _quranRecitationEnded(rec); },
-  });
+  var ended = function () { _quranRecitationEnded(rec); };
+
+  function playVerse(index, played) {
+    if (_quranRecitation !== rec) return;
+    var verse = verses[index];
+    _quranReciting(verse, mode === 'surah' && played === 1);
+    startFollowAlong(surah, verse);
+    playAudio(verseAudioUrl(surah, verse), function () {
+      var next = quranNextPlay(verses, index, played, quranPlayerOptions().repeat);
+      if (next) playVerse(next.index, next.played); else ended();
+    }, ended, quranPlayerOptions().rate);
+    // Fetch the next verse while this one plays, so it starts without a wait.
+    if (index + 1 < verses.length) cacheAudio([verseAudioUrl(surah, verses[index + 1])]);
+  }
+
+  if (!withBasmala) { playVerse(0, 1); return; }
+  // The basmala clip has no words on the page: nothing is highlighted.
+  playAudio(verseAudioUrl(QURAN_BASMALA_SURAH, 1), function () { playVerse(0, 1); }, ended, quranPlayerOptions().rate);
+  cacheAudio([verseAudioUrl(surah, verses[0])]);
 }
 
 /** "Listen": play the whole surah, or stop it if it is playing. */

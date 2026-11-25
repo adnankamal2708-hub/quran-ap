@@ -19,6 +19,22 @@ global.localStorage = {
 };
 function load(rel) { (0, eval)(fs.readFileSync(path.join(__dirname, '..', rel), 'utf8')); }
 load('js/ui/quran-player-options.js');
+global.document = { getElementById: function () { return null; }, querySelectorAll: function () { return []; } };
+global.t = function (k) { return k; };
+global.uiIcon = function () { return ''; };
+load('js/ui/quran-player.js');
+
+// Fake sound: records what plays and at what speed; end() finishes it.
+var plays, current;
+global.verseAudioUrl = function (s, v) { return s + ':' + v; };
+global.playAudio = function (url, onEnd, onStop, rate) { plays.push(url + '@' + rate); current = onEnd; };
+global.stopAudio = function () {};
+global.cacheAudio = function () {};
+global.loadRecitationTiming = function () {};
+global.startFollowAlong = function () {};
+global.stopFollowAlong = function () {};
+function end() { var f = current; current = null; if (f) f(); }
+function endAll() { for (var i = 0; i < 50 && current; i++) end(); }
 
 var passed = 0, failed = 0;
 function test(name, fn) {
@@ -59,6 +75,55 @@ test('a speed change reaches the recitation playing now, and only then', functio
   setQuranPlayerOption('rate', 1.5);
   assert.deepStrictEqual(rates, [1.5]);
   global._quranRecitation = null;
+});
+
+console.log('\n📋 What plays next');
+
+test('one recitation each: on to the next verse, then done', function () {
+  assert.deepStrictEqual(quranNextPlay([1, 2], 0, 1, 1), { index: 1, played: 1 });
+  assert.strictEqual(quranNextPlay([1, 2], 1, 1, 1), null);
+});
+
+test('Repeat 3 recites a verse three times before moving on', function () {
+  assert.deepStrictEqual(quranNextPlay([1, 2], 0, 1, 3), { index: 0, played: 2 });
+  assert.deepStrictEqual(quranNextPlay([1, 2], 0, 3, 3), { index: 1, played: 1 });
+  assert.strictEqual(quranNextPlay([1], 0, 3, 3), null);
+});
+
+test('Repeat lowered below the plays so far moves on', function () {
+  assert.deepStrictEqual(quranNextPlay([1, 2], 0, 2, 1), { index: 1, played: 1 });
+});
+
+test('a verse button with Repeat 2 plays that verse twice, at the chosen speed', function () {
+  plays = [];
+  global._quranSurahId = 112;
+  setQuranPlayerOption('repeat', 2);
+  setQuranPlayerOption('rate', 1.25);
+  toggleVerseRecitation(3);
+  endAll();
+  assert.deepStrictEqual(plays, ['112:3@1.25', '112:3@1.25']);
+  assert.strictEqual(_quranRecitation, null, 'finished');
+});
+
+test('Listen with Repeat 2: basmala once, then each verse twice', function () {
+  plays = [];
+  global._quranSurahId = 112;
+  global._quranVerseKeys = ['112:1', '112:2'];
+  setQuranPlayerOption('repeat', 2);
+  toggleSurahRecitation();
+  endAll();
+  assert.deepStrictEqual(plays, ['1:1@1', '112:1@1', '112:1@1', '112:2@1', '112:2@1']);
+});
+
+test('changing Repeat while a verse plays applies when it ends', function () {
+  plays = [];
+  global._quranSurahId = 112;
+  global._quranVerseKeys = ['112:1', '112:2'];
+  toggleSurahRecitation(); // repeat 1
+  end(); // basmala
+  setQuranPlayerOption('repeat', 2);
+  endAll();
+  assert.deepStrictEqual(plays, ['1:1@1', '112:1@1', '112:1@1', '112:2@1', '112:2@1']);
 });
 
 console.log('\n' + '='.repeat(50));

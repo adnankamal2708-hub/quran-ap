@@ -110,7 +110,7 @@ function playAudio(url, onEnd, onStop, rate) {
  * Play several sounds one after another (a word quran.com splits in two,
  * or a run of verses). onEach(i) is called as sound i starts.
  * @param {string[]} urls
- * @param {{onEach?: Function, onEnd?: Function, onStop?: Function, rate?: number}} [opts]
+ * @param {{onEach?: Function, onEnd?: Function, onStop?: Function}} [opts]
  */
 function playAudioQueue(urls, opts) {
   opts = opts || {};
@@ -118,7 +118,7 @@ function playAudioQueue(urls, opts) {
   function playAt(i) {
     if (i >= list.length) { if (opts.onEnd) opts.onEnd(); return; }
     if (opts.onEach) opts.onEach(i);
-    playAudio(list[i], function () { playAt(i + 1); }, opts.onStop, opts.rate);
+    playAudio(list[i], function () { playAt(i + 1); }, opts.onStop);
     // Fetch the next sound while this one plays, so it starts without a wait.
     if (i + 1 < list.length) cacheAudio([list[i + 1]]);
   }

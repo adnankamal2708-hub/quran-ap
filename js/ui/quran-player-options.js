@@ -54,8 +54,12 @@ function wireQuranPlayerOptions() {
   var row = document.getElementById('reader-player-options');
   if (!row) return;
   var opts = quranPlayerOptions();
-  row.innerHTML = _quranOptionSelect('reader-rate', 'rate', QURAN_RATES, opts.rate);
+  row.innerHTML = _quranOptionSelect('reader-rate', 'rate', QURAN_RATES, opts.rate) +
+    _quranOptionSelect('reader-repeat', 'repeat', QURAN_REPEATS, opts.repeat);
   document.getElementById('reader-rate').onchange = function () {
     setQuranPlayerOption('rate', parseFloat(this.value));
+  };
+  document.getElementById('reader-repeat').onchange = function () {
+    setQuranPlayerOption('repeat', parseInt(this.value, 10));
   };
 }

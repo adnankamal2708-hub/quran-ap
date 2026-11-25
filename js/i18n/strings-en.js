@@ -426,6 +426,8 @@ var STRINGS = {
     'reader.stopVerse': 'Stop verse {n}',
     'reader.rate': 'Speed',
     'reader.rateValue': '{n}×',
+    'reader.repeat': 'Repeat',
+    'reader.repeatValue': '{n}×',
 
     // ── Practice tab ──
     'practice.due': 'Due today',
