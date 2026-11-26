@@ -78,6 +78,7 @@ var TESTS = [
   "review-allowance.test.js",
   "landing-facts.test.js",
   "account-progress.test.js",
+  "streak.test.js",
   "i18n.test.js",
   "word-meanings-track.test.js",
   "exercise-engine.test.js",

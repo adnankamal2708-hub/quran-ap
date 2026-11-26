@@ -392,7 +392,10 @@ function loadStreakData() {
   try {
     var raw = localStorage.getItem('quran_streak');
     if (!raw) return { streak: 0, lastDate: null };
-    return JSON.parse(raw);
+    var data = JSON.parse(raw);
+    // Missed a whole day: the streak is broken, whatever was saved
+    if (data.lastDate !== getDateKey() && data.lastDate !== getYesterdayKey()) data.streak = 0;
+    return data;
   } catch (e) {
     return { streak: 0, lastDate: null };
   }
