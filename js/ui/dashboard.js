@@ -637,8 +637,14 @@ function renderDashboard() {
   $h += '<div class="db-card-sub">';
   if ($rcDue > 0) {
     var $rcEst = Math.max(1, Math.round(($rcDue * 30) / 60));
-    $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' due';
-    if ($srsStats.overdue > 0) $h += ' · ' + $srsStats.overdue + ' overdue';
+    // More due than today's limit: say how many wait for later days
+    var $rcWaiting = ($srsStats.dueToday || 0) - $rcDue;
+    if ($rcWaiting > 0) {
+      $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' today · ' + $rcWaiting + ' more waiting';
+    } else {
+      $h += $rcDue + ' review' + ($rcDue !== 1 ? 's' : '') + ' due';
+      if ($srsStats.overdue > 0) $h += ' · ' + $srsStats.overdue + ' overdue';
+    }
     $h += ' · ~' + $rcEst + ' min';
   } else {
     $h += 'All caught up — track your revision progress';

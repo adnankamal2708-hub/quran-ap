@@ -1063,6 +1063,26 @@ suite('Dashboard Clutter — Brand-New User (zero progress)', function() {
     assert.ok(html.indexOf('db-review-center-prompt') >= 0, 'prompt shows when reviews are due');
   });
 
+  test('Review prompt: words past the daily limit read as waiting, not overdue', function() {
+    setupBrandNewUser();
+    _mockSRSStats = { total: 47, mature: 0, dueToday: 47, totalReviews: 60, reviewsToday: 0, newCount: 0, learning: 47, young: 0, overdue: 47 };
+    _mockDueReviews = ['w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'w7', 'w8', 'w9', 'w10'];
+    setupDashboardGrid();
+    renderDashboard();
+    var html = getInnerHTML();
+    assert.ok(html.indexOf('10 reviews today · 37 more waiting') >= 0, 'today\'s share and the rest');
+    assert.ok(html.indexOf('47 overdue') === -1, 'no overdue count larger than what is due');
+  });
+
+  test('Review prompt: within the daily limit it still says how many are overdue', function() {
+    setupBrandNewUser();
+    _mockSRSStats = { total: 10, mature: 0, dueToday: 2, totalReviews: 10, reviewsToday: 0, newCount: 0, learning: 2, young: 0, overdue: 1 };
+    _mockDueReviews = ['w1', 'w2'];
+    setupDashboardGrid();
+    renderDashboard();
+    assert.ok(getInnerHTML().indexOf('2 reviews due · 1 overdue') >= 0);
+  });
+
   test('Fix 4: Surah Comprehension card hidden while all surahs are 0%', function() {
     setupBrandNewUser();
     global.getAllSurahComprehension = function() {
