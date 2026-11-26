@@ -658,12 +658,35 @@ ts('Profile — Progress: zero-data gating (new user)', function() {
     var html = document.getElementById('profile-progress').innerHTML;
     assert.ok(html.indexOf('Quran Comprehension') >= 0, 'comprehension cell shown with 5+ reviews');
     assert.ok(html.indexOf('Avg Retention') >= 0, 'avg retention cell shown with 5+ reviews');
-    assert.ok(html.indexOf('18%') >= 0, 'real comprehension value shown');
+    assert.ok(html.indexOf('14%') >= 0, 'same Quran figure as Home');
+    assert.ok(html.indexOf('18%') < 0, 'not the old estimate curve');
     assert.ok(html.indexOf('SRS Health') >= 0, 'SRS Health shown with 5+ reviews');
     assert.ok(html.indexOf('Review Ease') >= 0, 'Review Ease label shown with 5+ reviews');
     assert.ok(html.indexOf('Avg Ease') < 0, 'raw Avg Ease label removed');
     assert.ok(html.indexOf('higher = more stable') >= 0, 'ease direction hint shown');
     assert.ok(html.indexOf('Review forecast') >= 0, 'forecast shown with 5+ reviews');
+  });
+
+  t('Quran figure matches Home\'s Word meanings figure', function() {
+    global.getSRSStats = function() { return { total: 12, mature: 5, learning: 2, young: 2, newCount: 0, totalReviews: 12, avgRetention: 58, avgEaseFactor: 2.5, overdue: 1, leechCount: 0, reviewsToday: 3 }; };
+    global.refreshWordMeaningsPercent = function() { return { percent: 3.8 }; };
+    createEl('profile-progress');
+    renderProfileProgress();
+    delete global.refreshWordMeaningsPercent;
+    assert.ok(document.getElementById('profile-progress').innerHTML.indexOf('3.8%</div><div class="profile-pstat-label">Quran Comprehension') >= 0);
+  });
+
+  t('Foundation coverage reads as a share of what the course can cover', function() {
+    var _origF = global.getFoundationCoverage;
+    global.getFoundationCoverage = function() { return { foundationCoveragePercent: 3.7, foundationProgressPercent: 10 }; };
+    global.getFoundationTotalCoveragePercent = function() { return 28.4; };
+    createEl('profile-progress');
+    renderProfileProgress();
+    var html = document.getElementById('profile-progress').innerHTML;
+    global.getFoundationCoverage = _origF;
+    delete global.getFoundationTotalCoveragePercent;
+    assert.ok(html.indexOf('3.7 of 28.4%') >= 0, 'coverage out of the course total');
+    assert.ok(html.indexOf('width:13%') >= 0, 'bar filled 3.7 / 28.4 of the way');
   });
 
   global.getSRSStats = _origStats;

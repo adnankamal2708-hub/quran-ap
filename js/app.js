@@ -233,7 +233,10 @@ function updateLessonProgressDisplay() {
   
   // Compute coverage once and reuse across all mode sections to avoid repeated calculations
   var $_coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-  var $_currentComp = $_coverage ? $_coverage.estimatedComprehension : 0;
+  // The same Quran figure Home shows (the Word meanings track percent).
+  var $_currentComp = typeof refreshWordMeaningsPercent === 'function'
+    ? refreshWordMeaningsPercent().percent
+    : ($_coverage ? $_coverage.coveragePercent : 0);
   var $_masteredWords = $_coverage ? $_coverage.masteredWords : 0;
   var $_totalWords = $_coverage ? $_coverage.totalWords : 0;
   
@@ -600,7 +603,7 @@ function updateLessonProgressDisplay() {
     var journeyEl = DOM.get('foundation-journey');
     if (journeyEl) {
       var $coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-      var $currentComp = $coverage ? $coverage.estimatedComprehension : 0;
+      var $currentComp = $_currentComp;
       var $masteredWords = $coverage ? $coverage.masteredWords : 0;
       var $totalWords = $coverage ? $coverage.totalWords : 0;
       

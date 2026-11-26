@@ -804,7 +804,10 @@ function renderProfileProgress() {
   var fPct = fTotal > 0 ? Math.round((fCompleted / fTotal) * 100) : 0;
 
   var coverage = typeof calculateCoverage === 'function' ? calculateCoverage() : null;
-  var compPct = coverage ? coverage.estimatedComprehension : 0;
+  // The same Quran figure Home shows (the Word meanings track percent).
+  var compPct = typeof refreshWordMeaningsPercent === 'function'
+    ? refreshWordMeaningsPercent().percent
+    : (coverage ? coverage.coveragePercent : 0);
 
   var h = '';
 
@@ -836,7 +839,12 @@ function renderProfileProgress() {
     h += '<div class="profile-bar-row"><span class="profile-bar-label">Progress</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-gold" style="width:' + fPct + '%"></div></div><span class="profile-bar-value">' + fCompleted + '/' + fTotal + '</span></div>';
     if (coverage) {
       var foundCov = typeof getFoundationCoverage === 'function' ? getFoundationCoverage() : null;
-      h += '<div class="profile-bar-row"><span class="profile-bar-label">Coverage</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-green" style="width:' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%"></div></div><span class="profile-bar-value">' + (foundCov ? foundCov.foundationCoveragePercent : 0) + '%</span></div>';
+      var fCovPct = foundCov ? foundCov.foundationCoveragePercent : 0;
+      // Out of what the whole course covers, so it never reads as a rival Quran figure
+      var fCovMax = typeof getFoundationTotalCoveragePercent === 'function' ? getFoundationTotalCoveragePercent() : 0;
+      var fCovBar = fCovMax > 0 ? Math.round(Math.min(100, fCovPct / fCovMax * 100)) : fCovPct;
+      var fCovText = fCovMax > 0 ? fCovPct + ' of ' + fCovMax + '%' : fCovPct + '%';
+      h += '<div class="profile-bar-row"><span class="profile-bar-label">Coverage</span><div class="profile-bar-track"><div class="profile-bar-fill profile-fill-green" style="width:' + fCovBar + '%"></div></div><span class="profile-bar-value">' + fCovText + '</span></div>';
     }
     h += '</div>';
   }
