@@ -120,11 +120,13 @@ function restoreAccountProgress(uid) {
   return true;
 }
 
-/** Drop in-memory copies so every screen reads the progress just written. */
+/** Drop in-memory copies so every screen reads the progress just written,
+ *  and redraw the top bar counts, which stay on screen. */
 function refreshAfterProgressChange() {
   if (typeof invalidateSRSMemoryCache === 'function') invalidateSRSMemoryCache();
   if (typeof invalidateStatsCache === 'function') invalidateStatsCache();
   if (typeof invalidateReviewCenterCache === 'function') invalidateReviewCenterCache();
+  if (typeof updateStatsDisplay === 'function') updateStatsDisplay();
 }
 
 // ── Auth changes ───────────────────────────────────────────────

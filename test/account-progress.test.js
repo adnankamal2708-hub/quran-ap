@@ -155,6 +155,14 @@ test('restoring refreshes the in-memory review cache', function() {
   assert.ok(refreshed >= 1);
 });
 
+test('a progress refresh redraws the top bar counts', function() {
+  var redrawn = 0;
+  global.updateStatsDisplay = function() { redrawn++; };
+  refreshAfterProgressChange();
+  delete global.updateStatsDisplay;
+  assert.strictEqual(redrawn, 1);
+});
+
 console.log('\n🔁 Auth changes');
 
 test('a session found at start-up changes nothing', function() {
