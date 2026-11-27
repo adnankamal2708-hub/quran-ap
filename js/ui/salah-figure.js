@@ -31,6 +31,35 @@ var SALAH_FIG_TOE_TO_MID = 37;
 /** The sideways shift that puts this figure's near toes at their place on the mat. */
 function salahFigureOffsetX(p) { return SALAH_FIG_VIEW.w / 2 - (p.legN.toe[0] + SALAH_FIG_TOE_TO_MID); }
 
+/**
+ * Sitting, the figure is drawn this much bigger, round the near toes (so
+ * they still do not move), and the feet and hands read clearly. The hip
+ * heights: at or below the first the figure is sitting, at or above the
+ * second (kneeling, prostrating, standing) it is drawn at its usual size.
+ */
+var SALAH_FIG_SIT_ZOOM = 1.6;
+var SALAH_FIG_SIT_HIP = [18, 50];
+
+/** How much bigger this figure is drawn: SALAH_FIG_SIT_ZOOM sitting, 1 otherwise, in between on the way. */
+function salahFigureZoom(p) {
+  var H = SALAH_FIG_SIT_HIP;
+  var s = Math.max(0, Math.min(1, (H[1] - p.hip[1]) / (H[1] - H[0])));
+  return SALAH_FIG_SIT_ZOOM * s + (1 - s);
+}
+
+/** The toes bend forward along the ground once the foot is this steep (the drop over its length), fully by the second */
+var SALAH_FIG_TOES = { len: 6, from: 0.5, to: 0.9 };
+
+/** How far (0 to 1) this leg's toes bend forward: an upright foot on its toes, not a flat one. */
+function salahFigureToeBend(leg) {
+  var T = SALAH_FIG_TOES;
+  var drop = (leg.ankle[1] - leg.toe[1]) / SALAH_FIG_LEN.foot;
+  return Math.max(0, Math.min(1, (drop - T.from) / (T.to - T.from)));
+}
+
+/** Tawarruk: where along the right shin (knee to ankle) the left foot shows out under it, and its size */
+var SALAH_FIG_SOLE = { t: 0.5, rx: 4.6, ry: 3.2 };
+
 /** The SVG for one frame (salahPoseFrame), labelled for screen readers. */
 function _salahFrameSvg(f, label) {
   var V = SALAH_FIG_VIEW;
@@ -57,8 +86,26 @@ function _salahFrameSvg(f, label) {
     });
   }
   function hand(a, skin, curl) { out.push(_sfHand(P(a.wr), P(a.tip), skin, curl || 0)); }
+  // An upright foot stands on its toes, bent forward along the ground
+  function toes(leg, skin) {
+    var k = salahFigureToeBend(leg);
+    if (k < SALAH_FIG_MIN_SHOW) return;
+    var r = SALAH_FIG_TAPER.toes;
+    var a = P(leg.toe);
+    var b = P([leg.toe[0] + SALAH_FIG_TOES.len * k, leg.toe[1]]);
+    out.push('<g class="salah-fig-toes">' + _sfTaper(a, b, r[0], r[1], _sfStyle(skin, 2.2)) + _sfTaper(a, b, r[0], r[1], _sfStyle(skin)) + '</g>');
+  }
+
+  // Sitting, everything but the mat is drawn bigger round the near toes
+  var z = salahFigureZoom(p);
+  if (z !== 1) {
+    var at = P(p.legN.toe);
+    out.push('<g transform="translate(' + _sfNum(at[0]) + ' ' + V.ground + ') scale(' + String(+z.toFixed(3)) + ') translate(' +
+      _sfNum(-at[0]) + ' ' + -V.ground + ')">');
+  }
 
   // The far side, a shade darker
+  toes(p.legF, '--salah-skin-far');
   limbs([[p.sh, aF.el, 'ua', '--salah-cloth-far'], [aF.el, aF.wr, 'fa', '--salah-cloth-far'],
     [p.hip, p.legF.knee, 'thigh', '--salah-cloth-far'], [p.legF.knee, p.legF.ankle, 'shin', '--salah-cloth-far'],
     [p.legF.ankle, p.legF.toe, 'foot', '--salah-skin-far']]);
@@ -66,8 +113,18 @@ function _salahFrameSvg(f, label) {
 
   // Neck, then the thobe over the torso and near leg
   out.push(_sfLine(P(p.sh), P(p.neck), 7.5, '--salah-skin'));
-  limbs([[p.legN.ankle, p.legN.toe, 'foot', '--salah-skin'], [p.hip, p.sh, 'torso', '--salah-cloth'],
+  limbs([[p.hip, p.sh, 'torso', '--salah-cloth'],
     [p.hip, p.legN.knee, 'thigh', '--salah-cloth'], [p.legN.knee, p.legN.ankle, 'shin', '--salah-cloth']]);
+  // The near foot is nearest of all: sitting, it stands upright beside the seat
+  toes(p.legN, '--salah-skin');
+  limbs([[p.legN.ankle, p.legN.toe, 'foot', '--salah-skin']]);
+  // Tawarruk (the seat on the ground): the left foot comes out under the right shin, its toes towards us
+  if (r.focus.seat > SALAH_FIG_MIN_SHOW) {
+    var S = SALAH_FIG_SOLE;
+    var sole = P([p.legN.knee[0] + (p.legN.ankle[0] - p.legN.knee[0]) * S.t, S.ry]);
+    out.push('<ellipse class="salah-fig-sole" cx="' + _sfNum(sole[0]) + '" cy="' + _sfNum(sole[1]) + '" rx="' + S.rx + '" ry="' + S.ry +
+      '" style="fill:var(--salah-skin);stroke:var(--salah-edge)" stroke-width="1.1" opacity="' + r.focus.seat.toFixed(2) + '"/>');
+  }
 
   // The head: plain, with no face, and a kufi on top
   var hc = P(p.headC);
@@ -107,6 +164,7 @@ function _salahFrameSvg(f, label) {
       ' stroke-linecap="round"' + (right ? '' : ' stroke-dasharray="2.5 2"') + ' opacity="' + op + '"/>');
     out.push(_sfArrowHead(end, 1, 0, op));
   }
+  if (z !== 1) out.push('</g>');
   return '<svg class="salah-fig" viewBox="0 0 ' + V.w + ' ' + V.h + '" role="img" aria-label="' + String(label).replace(/"/g, '&quot;') + '">' +
     out.join('') + '</svg>';
 }

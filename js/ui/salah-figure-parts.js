@@ -6,7 +6,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 /** Limb radii at each end, [start, end]: limbs taper from the body out, so the figure reads as a person, not blocks */
-var SALAH_FIG_TAPER = { torso: [9.6, 10.6], thigh: [9.4, 7.4], shin: [7.4, 5.4], ua: [4.6, 3.9], fa: [3.9, 3], foot: [3.4, 2.2] };
+var SALAH_FIG_TAPER = { torso: [9.6, 10.6], thigh: [9.4, 7.4], shin: [7.4, 5.4], ua: [4.6, 3.9], fa: [3.9, 3], foot: [3.4, 2.2], toes: [2.2, 1.6] };
 
 /** The hand: the palm's share of its length, finger and thumb thickness, and how much longer than the hand bone it is drawn */
 var SALAH_FIG_HAND = { palm: 0.48, finger: 1.6, thumb: 1.8, reach: 1.6 };

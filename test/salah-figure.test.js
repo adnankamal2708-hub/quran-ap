@@ -254,6 +254,46 @@ test('limbs taper: no part is drawn as a plain thick line', function () {
   assert.ok(!/stroke-width="(1[0-9]|2[0-9])/.test(svg), 'no blocky stroke');
 });
 
+var SIT_POSES = ['jalsa', 'tashahhud', 'taslim'];
+
+test('the sittings are drawn bigger, round the toes, and still fit the view', function () {
+  var V = SALAH_FIG_VIEW;
+  ['hanafi', 'maliki', 'shafii', 'hanbali'].forEach(function (m) {
+    getSalahWalkSteps(m).forEach(function (s) {
+      var p = salahFigurePoints(salahWalkFrame(s, m)).pts;
+      var z = salahFigureZoom(p);
+      assert.strictEqual(z, SIT_POSES.indexOf(s.pose) >= 0 ? SALAH_FIG_SIT_ZOOM : 1, m + ' ' + s.id + ' zoom ' + z);
+      var dx = salahFigureOffsetX(p);
+      var ax = V.w - (p.legN.toe[0] + dx);
+      function X(x) { return ax + (V.w - (x + dx) - ax) * z; }
+      var R = SALAH_FIG_LEN.head;
+      var xs = [X(p.headC[0] - R - SALAH_FIG_TURN.rx), X(p.headC[0] + R + SALAH_FIG_TURN.rx), X(p.legN.knee[0] + SALAH_FIG_HW.thigh),
+        X(p.legF.toe[0]), X(p.armN.tip[0]), X(p.legN.toe[0] - 4)];
+      assert.ok(Math.min.apply(null, xs) >= 0 && Math.max.apply(null, xs) <= V.w, m + ' ' + s.id + ' runs off the side');
+      assert.ok(V.ground - (p.headC[1] + R) * z >= 4, m + ' ' + s.id + ' runs off the top');
+    });
+  });
+  assert.ok(salahFigureSvg('jalsa', 'hanafi').indexOf('scale(' + SALAH_FIG_SIT_ZOOM + ')') > 0, 'the sitting is scaled');
+  assert.ok(salahFigureSvg('qiyam', 'hanafi').indexOf('scale(') < 0, 'standing is not');
+});
+
+test('an upright foot bends its toes forward on the ground; a flat foot does not', function () {
+  var sit = points('jalsa', 'hanafi');
+  var stand = points('itidal', 'hanafi');
+  assert.ok(salahFigureToeBend(sit.legN) > 0.9, 'the right foot stands upright in the sitting');
+  assert.strictEqual(salahFigureToeBend(sit.legF), 0, 'the left foot lies flat under the seat');
+  assert.strictEqual(salahFigureToeBend(stand.legN), 0, 'standing feet are flat');
+  assert.ok(salahFigureSvg('jalsa', 'hanafi').indexOf('salah-fig-toes') > 0, 'the toes are drawn');
+  assert.ok(salahFigureSvg('qiyam', 'hanafi').indexOf('salah-fig-toes') < 0, 'not when standing');
+});
+
+test('in tawarruk the left foot shows out under the right leg; in iftirash it does not', function () {
+  assert.ok(salahFigureSvg('tashahhud', 'maliki').indexOf('salah-fig-sole') > 0, 'Mālikī last sitting');
+  assert.ok(salahFigureSvg('tashahhud', 'shafii').indexOf('salah-fig-sole') > 0, 'Shāfiʿī last sitting');
+  assert.ok(salahFigureSvg('tashahhud', 'hanafi').indexOf('salah-fig-sole') < 0, 'Ḥanafī sits on the left foot');
+  assert.ok(salahFigureSvg('jalsa', 'shafii').indexOf('salah-fig-sole') < 0, 'Shāfiʿī between prostrations');
+});
+
 test('an unknown pose draws nothing', function () {
   assert.strictEqual(salahFigureSvg('nothing', 'hanafi'), '');
 });
