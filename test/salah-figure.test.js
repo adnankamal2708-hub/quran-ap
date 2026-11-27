@@ -19,6 +19,7 @@ function load(rel) { (0, eval)(fs.readFileSync(path.join(__dirname, '..', rel), 
 load('js/i18n/strings-en.js');
 load('js/salah/salah-figure-poses.js');
 load('js/salah/salah-figure-motion.js');
+load('js/salah/salah-walk.js');
 load('js/ui/salah-figure.js');
 
 var passed = 0;
@@ -186,6 +187,35 @@ test('salām: the arrow turns to the near side (right, solid) or the far side (l
   left[15] = -1;
   assert.ok(_salahFrameSvg(right, 'r').indexOf('stroke-dasharray') < 0, 'right is solid');
   assert.ok(_salahFrameSvg(left, 'l').indexOf('stroke-dasharray') > 0, 'left is dashed');
+});
+
+test('the toes stay planted: the near toe never moves sideways, in any move', function () {
+  ['hanafi', 'maliki', 'shafii', 'hanbali'].forEach(function (m) {
+    var steps = getSalahWalkSteps(m);
+    var xs = [];
+    steps.forEach(function (s, i) {
+      var route = salahMotionPath(salahWalkFrame(s, m), salahWalkFrame(steps[(i + 1) % steps.length], m));
+      for (var k = 0; k <= 20; k++) {
+        var p = salahFigurePoints(salahPathAt(route, k / 20)).pts;
+        xs.push(p.legN.toe[0] + salahFigureOffsetX(p));
+      }
+    });
+    var spread = Math.max.apply(null, xs) - Math.min.apply(null, xs);
+    assert.ok(spread < 0.01, m + ': the toe slides ' + spread.toFixed(2));
+  });
+});
+
+test('anchored on the toes, every position still fits on the mat', function () {
+  ['hanafi', 'maliki', 'shafii', 'hanbali'].forEach(function (m) {
+    getSalahWalkSteps(m).forEach(function (s) {
+      var p = salahFigurePoints(salahWalkFrame(s, m)).pts;
+      var dx = salahFigureOffsetX(p);
+      var xs = [p.hip[0], p.sh[0], p.headC[0] - SALAH_FIG_LEN.head, p.headC[0] + SALAH_FIG_LEN.head, p.legN.toe[0], p.legF.toe[0],
+        p.legN.knee[0], p.armN.tip[0], p.armF.tip[0]].map(function (x) { return SALAH_FIG_VIEW.w - (x + dx); });
+      assert.ok(Math.min.apply(null, xs) >= SALAH_FIG_VIEW.matX, m + ' ' + s.id + ' off the left of the mat');
+      assert.ok(Math.max.apply(null, xs) <= SALAH_FIG_VIEW.matX + SALAH_FIG_VIEW.matW, m + ' ' + s.id + ' off the right of the mat');
+    });
+  });
 });
 
 test('an unknown pose draws nothing', function () {

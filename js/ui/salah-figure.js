@@ -20,6 +20,17 @@ var SALAH_FIG_TURN = { rx: 18, ry: 8 };
 /** Below this a blended value (a ring, the finger) is not drawn */
 var SALAH_FIG_MIN_SHOW = 0.02;
 
+/**
+ * How far ahead of the near foot's toes (towards the qibla) the middle of
+ * the mat is. The toes stay where they are on the mat through the whole
+ * prayer, so a move never slides the figure; at this distance everything
+ * from standing behind the toes to prostrating ahead of them fits the mat.
+ */
+var SALAH_FIG_TOE_TO_MID = 37;
+
+/** The sideways shift that puts this figure's near toes at their place on the mat. */
+function salahFigureOffsetX(p) { return SALAH_FIG_VIEW.w / 2 - (p.legN.toe[0] + SALAH_FIG_TOE_TO_MID); }
+
 function _sfNum(n) { return n.toFixed(1); }
 
 function _sfLine(a, b, width, colour, extra) {
@@ -49,11 +60,8 @@ function _salahFrameSvg(f, label) {
   var p = r.pts;
   var aN = p.armN;
   var aF = p.armF;
-  // Centre the figure on its own extent, so every position sits mid-mat;
-  // then flip to SVG space (y down, facing left).
-  var xs = [p.hip[0], p.sh[0], p.headC[0] - L.head, p.headC[0] + L.head, p.legN.knee[0], p.legN.toe[0],
-    p.legF.toe[0], p.legN.ankle[0], aN.tip[0], aF.tip[0]];
-  var dx = V.w / 2 - (Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2;
+  // Keep the toes in their place on the mat, then flip to SVG space (y down, facing left).
+  var dx = salahFigureOffsetX(p);
   function P(q) { return [V.w - (q[0] + dx), V.ground - q[1]]; }
 
   var out = [];
