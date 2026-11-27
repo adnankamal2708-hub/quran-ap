@@ -70,6 +70,15 @@ function _sPhraseCard(phrase, madhab, showFigure) {
   return h + '</li>';
 }
 
+/** How the learner's madhab does this lesson's position, from the walkthrough's captions. */
+function _sHow(lesson, madhab) {
+  if (!lesson.how) return '';
+  var head = madhab === 'unsure' ? t('salah.howCommon') : t('salah.how', { name: t('salah.madhab.' + madhab) });
+  return '<p class="qaida-kicker">' + _sEsc(head) + '</p>' + salahHowKeys(lesson.how, madhab).map(function (k) {
+    return '<p class="qaida-note salah-lesson-note">' + _sEsc(t(k)) + '</p>';
+  }).join('');
+}
+
 function _sIntroBody(run) {
   var lesson = run.lesson;
   if (lesson.kind === 'walkthrough') return salahWalkMarkup(run.madhab);
@@ -90,6 +99,7 @@ function _sIntroMarkup(run) {
   h += _sTitle(t(lesson.titleKey));
   if (!SALAH_TEACHER_REVIEWED && SALAH_REVIEW_LEVELS.indexOf(lesson.level) >= 0) h += _sNote('salah.teacherReview', ' salah-review-note');
   if (lesson.noteKey) h += _sNote(lesson.noteKey, ' salah-lesson-note');
+  h += _sHow(lesson, run.madhab);
   h += _sIntroBody(run);
   var action = run.items.length ? 'practice' : 'done';
   return h + '<button type="button" class="btn qaida-continue" data-action="' + action + '">' +

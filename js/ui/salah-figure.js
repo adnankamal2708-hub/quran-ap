@@ -126,11 +126,15 @@ function _salahFrameSvg(f, label) {
     out.join('') + '</svg>';
 }
 
-/** The figure in one position, for a learner of this madhab. */
+/**
+ * The figure in one position as a learner of this madhab does it: the
+ * position's first step in the madhab's prayer (js/salah/salah-walk.js), so
+ * the hands, the way of sitting and the salām follow the madhab.
+ */
 function salahFigureSvg(poseId, madhab) {
-  var pose = getSalahPoses(madhab).filter(function (p) { return p.id === poseId; })[0];
-  if (!pose) return '';
-  return _salahFrameSvg(salahPoseFrame(pose), t('salah.step.' + poseId));
+  var step = getSalahWalkSteps(madhab).filter(function (s) { return s.pose === poseId; })[0];
+  if (!step) return '';
+  return _salahFrameSvg(salahWalkFrame(step, madhab), t('salah.step.' + poseId));
 }
 
 function _sfReducedMotion() {

@@ -157,6 +157,46 @@ test('captions follow the madhab where it differs', function () {
   assert.ok(/at least once/.test(cap('hanbali', 'r1-jalsa')));
 });
 
+test('takbīr: Ḥanafī hands to the ears; Mālikī, Shāfiʿī and Ḥanbalī to the shoulders', function () {
+  MADHABS.forEach(function (m) {
+    var p = pts(m, step(m, 'r1-takbir'));
+    var palm = p.armN.mid[1];
+    var sh = p.sh[1];
+    var ear = p.headC[1];
+    if (m === 'hanafi') assert.ok(Math.abs(palm - ear) < 6, m + ': palm ' + palm.toFixed(1) + ' at the ear ' + ear.toFixed(1));
+    else if (m !== 'unsure') assert.ok(Math.abs(palm - sh) < 7, m + ': palm ' + palm.toFixed(1) + ' at the shoulder ' + sh.toFixed(1));
+  });
+  ['raiseBow', 'raiseUp'].forEach(function (k) {
+    ['shafii', 'hanbali'].forEach(function (m) {
+      var p = pts(m, step(m, 'r1-' + k));
+      assert.ok(Math.abs(p.armN.mid[1] - p.sh[1]) < 7, m + ' ' + k + ': to the shoulders');
+    });
+  });
+});
+
+test('takbīr caption names where the hands go for each madhab', function () {
+  assert.ok(/ears/.test(t(salahWalkCaptionKey(step('hanafi', 'r1-takbir'), 'hanafi'))));
+  ['maliki', 'shafii', 'hanbali'].forEach(function (m) {
+    assert.ok(/shoulders/.test(t(salahWalkCaptionKey(step(m, 'r1-takbir'), m))), m);
+  });
+  ['hanafi', 'maliki'].forEach(function (m) {
+    assert.ok(/[Ww]ithout raising/.test(t(salahWalkCaptionKey(step(m, 'r1-ruku'), m))), m + ': says the hands are not raised');
+  });
+});
+
+test('a lesson\'s how-to lines follow the madhab', function () {
+  assert.deepStrictEqual(salahHowKeys(['raiseBow', 'ruku'], 'hanafi'), ['salah.walk.c.ruku.noRaise']);
+  assert.deepStrictEqual(salahHowKeys(['raiseBow', 'ruku'], 'shafii'), ['salah.walk.c.raiseBow', 'salah.walk.c.ruku']);
+  assert.deepStrictEqual(salahHowKeys(['jalsa', 'rest'], 'maliki'), ['salah.walk.c.jalsa.maliki']);
+  assert.deepStrictEqual(salahHowKeys(['jalsa', 'rest'], 'shafii'), ['salah.walk.c.jalsa.shafii', 'salah.walk.c.rest']);
+  assert.deepStrictEqual(salahHowKeys(['tashahhud', 'salamR', 'salamL', 'salam'], 'maliki'),
+    ['salah.walk.c.tashahhud.tawarruk', 'salah.walk.c.salam']);
+  MADHABS.forEach(function (m) {
+    salahHowKeys(['takbir', 'qiyam', 'raiseBow', 'ruku', 'raiseUp', 'itidal', 'down', 'sujud1', 'jalsa', 'rest', 'tashahhud', 'salamR', 'salamL', 'salam'], m)
+      .forEach(function (k) { assert.notStrictEqual(t(k), k, m + ': missing string ' + k); });
+  });
+});
+
 test('every step draws a whole figure, hands never through the mat', function () {
   MADHABS.forEach(function (m) {
     getSalahWalkSteps(m).forEach(function (s) {

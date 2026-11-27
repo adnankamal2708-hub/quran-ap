@@ -28,6 +28,8 @@ var SALAH_ONE_SALAM_MADHABS = ['maliki'];
 
 /** Steps whose caption depends on the madhab: kind → { madhab: caption variant } */
 var SALAH_WALK_CAPTIONS = {
+  takbir: { hanafi: 'ears', maliki: 'shoulders', shafii: 'shoulders', hanbali: 'shoulders' },
+  ruku: { hanafi: 'noRaise', maliki: 'noRaise' },
   qiyam: { hanafi: 'below', hanbali: 'below', shafii: 'shafii', maliki: 'maliki' },
   qiyam2: { maliki: 'maliki' },
   down: { maliki: 'maliki' },
@@ -96,4 +98,20 @@ function salahWalkLabelKey(step) { return 'salah.walk.step.' + step.kind; }
 function salahWalkCaptionKey(step, madhab) {
   var variant = (SALAH_WALK_CAPTIONS[step.kind] || {})[madhab];
   return 'salah.walk.c.' + step.kind + (variant ? '.' + variant : '');
+}
+
+/**
+ * The caption keys for these step kinds, in this order, as this madhab does
+ * them: a kind the madhab leaves out (raising the hands, the sitting of
+ * rest, the second salām) gives nothing. The lessons use these to say how
+ * each position is done.
+ */
+function salahHowKeys(kinds, madhab) {
+  var steps = getSalahWalkSteps(madhab);
+  var out = [];
+  kinds.forEach(function (kind) {
+    var step = steps.filter(function (s) { return s.kind === kind; })[0];
+    if (step) out.push(salahWalkCaptionKey(step, madhab));
+  });
+  return out;
 }

@@ -2,9 +2,11 @@
 // salah-lessons.js — The Salah track's path: four levels of lessons
 //
 // Each lesson: { id 's<level>-<number>', level, number, kind, titleKey,
-// phrases, part?, noteKey? }. kind is 'walkthrough' (the figure only),
+// phrases, part?, noteKey?, how? }. kind is 'walkthrough' (the figure only),
 // 'lesson' or 'check' (the level's reading check, last in each level).
-// part picks one part of a phrase taught over several lessons. A lesson
+// part picks one part of a phrase taught over several lessons. how lists
+// the walkthrough steps (js/salah/salah-walk.js) whose captions say how the
+// learner's madhab does the position. A lesson
 // lists every school's version; salahLessonPhrases keeps the learner's.
 // ═══════════════════════════════════════════════════════════════
 
@@ -14,13 +16,13 @@ var SALAH_STEP_IDS = ['takbir', 'qiyam', 'ruku', 'itidal', 'sujud', 'jalsa', 'ta
 var SALAH_LESSON_PLAN = {
   1: [
     { kind: 'walkthrough', phrases: [] },
-    { phrases: ['takbir'] },
-    { phrases: ['taawwudh', 'basmalah'], noteKey: 'salah.note.malikiBasmalah' },
-    { phrases: ['ruku-tasbih'] },
-    { phrases: ['tasmi', 'tahmid'] },
-    { phrases: ['sujud-tasbih'] },
-    { phrases: ['between-sajdah'] },
-    { phrases: ['taslim'] },
+    { phrases: ['takbir'], how: ['takbir'] },
+    { phrases: ['taawwudh', 'basmalah'], noteKey: 'salah.note.malikiBasmalah', how: ['qiyam'] },
+    { phrases: ['ruku-tasbih'], how: ['raiseBow', 'ruku'] },
+    { phrases: ['tasmi', 'tahmid'], how: ['raiseUp', 'itidal'] },
+    { phrases: ['sujud-tasbih'], how: ['down', 'sujud1'] },
+    { phrases: ['between-sajdah'], how: ['jalsa', 'rest'] },
+    { phrases: ['taslim'], how: ['tashahhud', 'salamR', 'salamL', 'salam'] },
   ],
   2: [
     { phrases: ['fatiha'], part: 0 },
@@ -60,6 +62,7 @@ var SALAH_LESSONS = (function() {
         titleKey: 'salah.lesson.' + id, phrases: spec.phrases };
       if (spec.part !== undefined) lesson.part = spec.part;
       if (spec.noteKey) lesson.noteKey = spec.noteKey;
+      if (spec.how) lesson.how = spec.how;
       out.push(lesson);
       spec.phrases.forEach(function(p) { if (taught.indexOf(p) < 0) taught.push(p); });
     });

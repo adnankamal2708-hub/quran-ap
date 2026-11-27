@@ -189,6 +189,14 @@ test('salām: the arrow turns to the near side (right, solid) or the far side (l
   assert.ok(_salahFrameSvg(left, 'l').indexOf('stroke-dasharray') > 0, 'left is dashed');
 });
 
+test('a lesson\'s still figure follows the madhab: takbīr height, sitting form, salām', function () {
+  assert.notStrictEqual(salahFigureSvg('takbir', 'hanafi'), salahFigureSvg('takbir', 'shafii'), 'takbīr');
+  assert.notStrictEqual(salahFigureSvg('jalsa', 'maliki'), salahFigureSvg('jalsa', 'hanafi'), 'sitting between');
+  assert.notStrictEqual(salahFigureSvg('tashahhud', 'shafii'), salahFigureSvg('tashahhud', 'hanbali'), 'last sitting');
+  assert.notStrictEqual(salahFigureSvg('taslim', 'maliki'), salahFigureSvg('taslim', 'hanafi'), 'salām sitting');
+  assert.notStrictEqual(salahFigureSvg('qiyam', 'maliki'), salahFigureSvg('qiyam', 'shafii'), 'qiyām hands');
+});
+
 test('the toes stay planted: the near toe never moves sideways, in any move', function () {
   ['hanafi', 'maliki', 'shafii', 'hanbali'].forEach(function (m) {
     var steps = getSalahWalkSteps(m);

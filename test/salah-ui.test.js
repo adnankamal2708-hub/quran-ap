@@ -106,6 +106,32 @@ test('an intro shows the Arabic, each word with its meaning, and the sources', f
   assert.ok(html.indexOf('<svg') >= 0, 'the figure');
 });
 
+test('each position lesson says how your madhab does it, and the madhabs read differently', function () {
+  var seen = {};
+  ['hanafi', 'maliki', 'shafii', 'hanbali'].forEach(function (m) {
+    setSalahMadhab(m);
+    seen[m] = {};
+    ['s1-2', 's1-3', 's1-4', 's1-5', 's1-6', 's1-7', 's1-8'].forEach(function (id) {
+      startSalahLesson(id, 1);
+      var html = _view.innerHTML;
+      assert.ok(html.indexOf(esc(t('salah.how', { name: t('salah.madhab.' + m) }))) >= 0, m + ' ' + id + ': the how-to heading');
+      salahHowKeys(getSalahLesson(id).how, m).forEach(function (k) {
+        assert.ok(html.indexOf(esc(t(k))) >= 0, m + ' ' + id + ': ' + k);
+      });
+      seen[m][id] = html;
+    });
+  });
+  ['s1-2', 's1-4', 's1-7', 's1-8'].forEach(function (id) {
+    assert.notStrictEqual(seen.hanafi[id], seen.maliki[id], id + ': Ḥanafī and Mālikī');
+    assert.notStrictEqual(seen.hanafi[id], seen.shafii[id], id + ': Ḥanafī and Shāfiʿī');
+  });
+  assert.notStrictEqual(seen.hanafi['s1-4'], seen.hanbali['s1-4'], 's1-4: Ḥanafī and Ḥanbalī');
+  assert.notStrictEqual(seen.shafii['s1-8'], seen.hanbali['s1-8'], 's1-8: Shāfiʿī and Ḥanbalī');
+  setSalahMadhab('unsure');
+  startSalahLesson('s1-2', 1);
+  assert.ok(_view.innerHTML.indexOf(esc(t('salah.howCommon'))) >= 0, 'unsure: the common way');
+});
+
 test('every lesson and note has its string', function () {
   SALAH_LESSONS.forEach(function (l) {
     assert.notStrictEqual(t(l.titleKey), l.titleKey, l.titleKey);

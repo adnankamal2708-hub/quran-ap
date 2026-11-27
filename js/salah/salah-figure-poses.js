@@ -52,8 +52,15 @@ var _SALAH_QIYAM_HANDS = {
 };
 var _SALAH_QIYAM_BY_MADHAB = { maliki: 'sides', hanafi: 'low', hanbali: 'low', shafii: 'chest', unsure: 'chest' };
 
+/** Hands in the takbīr: Ḥanafīs raise them to the ears (thumbs by the earlobes), the others to the shoulders */
+var _SALAH_TAKBIR_HANDS = {
+  ears: { armN: { ua: 120, fa: -4 }, armF: { ua: 116, fa: -8 }, palmN: -2, palmF: -6 },
+  shoulders: { armN: { ua: 150, fa: 2 }, armF: { ua: 146, fa: -2 }, palmN: 4, palmF: 0 },
+};
+var _SALAH_TAKBIR_BY_MADHAB = { hanafi: 'ears' };
+
 var _SALAH_POSES = {
-  takbir: { base: _SALAH_STAND, armN: { ua: 150, fa: 2 }, armF: { ua: 146, fa: -2 }, palmN: 4, palmF: 0, focus: ['handN'] },
+  takbir: { base: _SALAH_STAND, focus: ['handN'] },
   qiyam: { base: _SALAH_STAND, head: 10, focus: ['handN'] },
   ruku: { torso: 92, head: 96, legN: [174, 174, 96], legF: [174, 174, 94],
     armN: { target: 'knee', t: 1, off: [4, 6] }, armF: { target: 'knee', t: 1, off: [2, 6] }, palmN: 178, palmF: 178, focus: ['handN'] },
@@ -75,11 +82,19 @@ function salahFigAdd(p, a, len) { var d = _salahDir(a); return [p[0] + d[0] * le
 function _salahAngOf(dx, dy) { return Math.atan2(dx, dy) * 180 / Math.PI; }
 function _salahLerp(a, b, t) { return a + (b - a) * t; }
 
-/** A pose's own fields over its base's, plus the qiyām hands for this madhab. */
+/** The hands this madhab uses in qiyām or the takbīr (raising for the bow is to the shoulders). */
+function _salahMadhabHands(id, madhab) {
+  if (id === 'qiyam') return _SALAH_QIYAM_HANDS[_SALAH_QIYAM_BY_MADHAB[madhab] || 'chest'];
+  if (id === 'takbir') return _SALAH_TAKBIR_HANDS[_SALAH_TAKBIR_BY_MADHAB[madhab] || 'shoulders'];
+  if (id === 'raise') return _SALAH_TAKBIR_HANDS.shoulders;
+  return {};
+}
+
+/** A pose's own fields over its base's, then the hands for this madhab. */
 function salahPoseSpec(id, madhab) {
   var src = _SALAH_POSES[id === 'raise' ? 'takbir' : id];
   var spec = {};
-  [src.base || {}, id === 'qiyam' ? _SALAH_QIYAM_HANDS[_SALAH_QIYAM_BY_MADHAB[madhab] || 'chest'] : {}, src]
+  [src.base || {}, src, _salahMadhabHands(id, madhab)]
     .forEach(function (o) { Object.keys(o).forEach(function (k) { if (k !== 'base') spec[k] = o[k]; }); });
   spec.id = id;
   return spec;
