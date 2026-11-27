@@ -169,6 +169,20 @@ test('with motion: it holds, then moves with requestAnimationFrame; show() stops
   none.destroy();
 });
 
+test('move() steps forward and back and stops; pause() and play() say so', function () {
+  stubTimers(true);
+  var seen = [];
+  var fig = mountSalahFigure(fakeHost(), stepsOf('hanafi'), { onStep: function (id, playing) { seen.push(id + ':' + playing); } });
+  fig.move(1);
+  fig.move(-1);
+  fig.move(-1);
+  fig.play();
+  fig.pause();
+  var last = stepsOf('hanafi').slice(-1)[0].id;
+  assert.deepStrictEqual(seen, ['takbir:false', 'qiyam:false', 'takbir:false', last + ':false', 'takbir:true', 'takbir:false']);
+  fig.destroy();
+});
+
 test('a step holds for its own time, else the default', function () {
   var calls = stubTimers(false);
   var waits = [];
@@ -224,6 +238,19 @@ test('anchored on the toes, every position still fits on the mat', function () {
       assert.ok(Math.max.apply(null, xs) <= SALAH_FIG_VIEW.matX + SALAH_FIG_VIEW.matW, m + ' ' + s.id + ' off the right of the mat');
     });
   });
+});
+
+test('the hands have four fingers and a thumb, and the tashahhud raises the index', function () {
+  var stand = _salahFrameSvg(salahWalkFrame(getSalahWalkSteps('hanafi')[0], 'hanafi'), 's');
+  var sit = salahFigureSvg('tashahhud', 'hanafi');
+  // each hand: palm + 4 fingers + thumb = 6 tapered parts, drawn twice (outline, fill), on two hands
+  assert.ok(stand.split('var(--salah-skin)"').length - 1 >= 6, 'near hand parts');
+  assert.ok(sit.split('<line').length > stand.split('<line').length, 'the raised index is drawn');
+});
+
+test('limbs taper: no part is drawn as a plain thick line', function () {
+  var svg = salahFigureSvg('qiyam', 'shafii');
+  assert.ok(!/stroke-width="(1[0-9]|2[0-9])/.test(svg), 'no blocky stroke');
 });
 
 test('an unknown pose draws nothing', function () {

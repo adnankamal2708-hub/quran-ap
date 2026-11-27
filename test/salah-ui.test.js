@@ -142,13 +142,21 @@ test('every lesson and note has its string', function () {
   });
 });
 
+test('the walkthrough has previous, pause and next buttons and counts the steps', function () {
+  setSalahMadhab('hanafi');
+  startSalahLesson('s1-1', 1);
+  var html = _view.innerHTML;
+  ['walk-prev', 'walk-toggle', 'walk-next'].forEach(function (a) { assert.ok(html.indexOf('data-action="' + a + '"') >= 0, a); });
+  assert.ok(html.indexOf(esc(t('salah.walk.count', { n: 1, total: getSalahWalkSteps('hanafi').length }))) >= 0, 'the step count');
+});
+
 test('the walkthrough lists every step of the prayer, by rakʿah, with the first one explained', function () {
   ['hanafi', 'maliki', 'shafii'].forEach(function (m) {
     setSalahMadhab(m);
     startSalahLesson('s1-1', 1);
     var html = _view.innerHTML;
     var steps = getSalahWalkSteps(m);
-    assert.strictEqual(html.split('class="salah-chip"').length - 1, steps.length, m + ': one chip per step');
+    assert.strictEqual(html.split('data-action="pose"').length - 1, steps.length, m + ': one chip per step');
     ['r1', 'r2', 'end'].forEach(function (p) { assert.ok(html.indexOf(esc(t('salah.walk.part.' + p))) >= 0, m + ' ' + p); });
     assert.ok(html.indexOf(esc(t('salah.walk.c.stand'))) >= 0, m + ': the first caption');
     assert.ok(html.indexOf('data-pose="r2-sujud2"') >= 0, m + ': the second rakʿah has its second prostration');

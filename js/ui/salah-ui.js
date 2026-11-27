@@ -231,6 +231,8 @@ function _onSalahClick(e) {
   if (action === 'back') _leaveSalah();
   else if (action === 'madhab') _chooseSalahMadhab(el.getAttribute('data-madhab'));
   else if (action === 'pose' && _salahFig) _salahFig.show(el.getAttribute('data-pose'));
+  else if ((action === 'walk-prev' || action === 'walk-next') && _salahFig) _salahFig.move(action === 'walk-next' ? 1 : -1);
+  else if (action === 'walk-toggle' && _salahFig) _salahFig[el.textContent === t('salah.walk.pause') ? 'pause' : 'play']();
   else if (action === 'practice' && run) { run.step = 'practice'; run.index = 0; run.answered = false; renderSalahLesson(); }
   else if (action === 'done' && run) _finishSalah(run);
   else if (action === 'next') _nextSalahItem();
