@@ -20,6 +20,7 @@ load('js/i18n/strings-en.js');
 load('js/salah/salah-figure-poses.js');
 load('js/salah/salah-figure-motion.js');
 load('js/salah/salah-walk.js');
+load('js/ui/salah-figure-parts.js');
 load('js/ui/salah-figure.js');
 
 var passed = 0;

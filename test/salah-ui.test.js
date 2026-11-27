@@ -45,6 +45,7 @@ load('js/data-core/tracks.js');
 load('js/data-core/review-schedule.js');
 load('js/data-core/salah-track.js');
 load('js/salah/salah-exercises.js');
+load('js/ui/salah-figure-parts.js');
 load('js/ui/salah-figure.js');
 load('js/ui/salah-walk-ui.js');
 load('js/ui/salah-madhab-ui.js');

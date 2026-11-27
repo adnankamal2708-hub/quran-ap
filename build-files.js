@@ -84,6 +84,7 @@ const UI_FILES = [
   'js/ui/quran-map-markup.js',
   'js/ui/quran-map-ui.js',
   'js/ui/qaida-ui.js',
+  'js/ui/salah-figure-parts.js',
   'js/ui/salah-figure.js',
   'js/ui/salah-walk-ui.js',
   'js/ui/salah-madhab-ui.js',
